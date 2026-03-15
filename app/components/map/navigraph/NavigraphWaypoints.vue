@@ -70,6 +70,7 @@ watch([isEnabled, extent, terminal], async ([enabled, extent, terminal]) => {
             waypoint: waypoint[0],
             type: 'navigraph',
             featureType: 'waypoint',
+            dbType: null,
         }));
     });
 }, {

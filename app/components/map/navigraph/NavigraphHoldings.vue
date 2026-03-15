@@ -279,6 +279,7 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
                 featureType: 'holdings',
                 type: 'navigraph',
                 id,
+                dbType: 'holdings',
                 pointCoordinate: [longitude, latitude],
             }));
         }
@@ -298,6 +299,7 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
                 course,
                 featureType: 'holdings-waypoint',
                 type: 'navigraph',
+                dbType: 'holdings',
                 waypoint,
                 id: textId,
             }));

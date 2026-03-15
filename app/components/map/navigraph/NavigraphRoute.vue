@@ -6,7 +6,6 @@ import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
 import turfBearing from '@turf/bearing';
-import { debounce } from '~/utils/shared';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
@@ -17,6 +16,9 @@ import {
 } from '~/utils/map/entities';
 import type { FeatureNavigraphItemProperties } from '~/utils/map/entities';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
+import type {
+    NavigraphNavDataEnrouteWaypointPartial,
+} from '~/utils/server/navigraph/navdata/types';
 
 defineOptions({
     render: () => null,
@@ -184,7 +186,7 @@ async function update() {
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
 
-            const onFirstWaypoint = (newCoordinate: Coordinate, kind: string) => {
+            const onFirstWaypoint = (newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
                 if (firstWaypoint) return;
 
                 const appliedDistance = applyAircraftDistance(coordinate, newCoordinate);
@@ -203,6 +205,7 @@ async function update() {
                         dataType: 'navdata',
                         self: true,
                         kind,
+                        dbType: kind,
                     }));
                 }
 
@@ -214,7 +217,7 @@ async function update() {
                 const nextWaypoint = waypoints[i + 1];
                 const nextCoordinate = nextWaypoint?.coordinate ?? [nextWaypoint?.airway?.value?.[2][0]?.[3], nextWaypoint?.airway?.value?.[2][0]?.[4]];
 
-                if (waypoint.kind !== 'airway') {
+                if (waypoint.kind !== 'airways') {
                     checkAircraftStepclimb(waypoint.identifier);
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
@@ -245,6 +248,8 @@ async function update() {
                             altitude2: disableLabels ? undefined : waypoint.altitude2,
                             speed: disableLabels ? undefined : waypoint.speed,
                             speedLimit: disableLabels ? undefined : waypoint.speedLimit,
+
+                            dbType: waypoint.kind,
                         }));
                     }
 
@@ -265,6 +270,7 @@ async function update() {
                         featureType: 'enroute-airways',
                         type: 'navigraph',
                         kind: nextWaypoint.kind,
+                        dbType: nextWaypoint.kind,
                     }));
                 }
                 else {
@@ -315,6 +321,8 @@ async function update() {
                                 flightLevel: currWaypoint[5],
                                 waypoint: disableLabels ? '' : currWaypoint[0],
                                 featureType: type,
+                                dbType: ndb ? 'ndb' : vhf ? 'vhf' : null,
+                                kind: ndb ? 'ndb' : vhf ? 'vhf' : undefined,
                                 type: 'navigraph',
                                 usage: currWaypoint[6],
 
@@ -345,6 +353,7 @@ async function update() {
                                     featureType: 'enroute-airways',
                                     type: 'navigraph',
                                     kind: waypoint.kind,
+                                    dbType: waypoint.kind,
                                     altitude: waypoint.altitude,
                                     altitude1: waypoint.altitude1,
                                     altitude2: waypoint.altitude2,
@@ -369,6 +378,7 @@ async function update() {
                             featureType: 'enroute-airways',
                             type: 'navigraph',
                             kind: waypoint.kind,
+                            dbType: waypoint.kind,
                         }));
                     }
                 }

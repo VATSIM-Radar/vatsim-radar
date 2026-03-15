@@ -25,7 +25,7 @@
 
         <div class="wrapper">
             <ui-tooltip v-bind="tooltipSettings">
-                test
+                I am a tooltip
             </ui-tooltip>
             <ui-tooltip v-bind="tooltipSettings">
                 <template #activator>
@@ -36,7 +36,7 @@
                 <template #title>
                     Title
                 </template>
-                test
+                I am a tooltip
             </ui-tooltip>
         </div>
     </ui-page-container>

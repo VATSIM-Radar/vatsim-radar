@@ -5,6 +5,7 @@ import { Point } from 'ol/geom.js';
 import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage';
 import { getTextFont } from '~/composables/render/text';
+import type VectorLayer from 'ol/layer/Vector';
 
 const ndbStyle = new Icon({
     src: '/icons/compressed/ndb.png',
@@ -192,7 +193,7 @@ let styleCache: Record<string, Style> = {};
 let stylesCache: Record<string, Style[]> = {};
 const geometriesCache = new WeakMap<WeakKey, Geometry>();
 
-export function setNavigraphStyle(layer: VectorImageLayer) {
+export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     styleCache = {};
     stylesCache = {};
 

@@ -5,51 +5,138 @@
         :class="{ 'airac--current': !!store.user?.hasFms }"
         @click="!store.user?.hasFms ? store.airacPopup = true : undefined"
     >
-        <img
-            alt="Navigraph"
-            src="../../../assets/icons/header/navigraph.svg"
-            width="20"
+        <div
+            v-if="mapStore.isNavigraphUpdating"
+            class="airac_update-icon"
         >
+            <rotate-clockwise/>
+        </div>
+        <svg
+            v-if="mapStore.isNavigraphUpdating"
+            class="airac_progress"
+            preserveAspectRatio="none"
+            :style="{ '--progress': mapStore.navigraphUpdateProgress }"
+            viewBox="0 0 300 160"
+        >
+            <rect
+                class="bar"
+                height="156"
+                pathLength="100"
+                rx="16"
+                ry="16"
+                width="296"
+                x="2"
+                y="2"
+            />
+        </svg>
+        <div class="airac_content">
+            <img
+                alt="Navigraph"
+                src="../../../assets/icons/header/navigraph.svg"
+                width="20"
+            >
 
-        <template v-if="store.user?.hasFms">
-            AIRAC {{
-                dataStore.versions.value.navigraph.current.split('-')[0]
-            }}
-        </template>
-        <template v-else>
-            Connect Navigraph
-        </template>
+            <template v-if="store.user?.hasFms">
+                AIRAC {{
+                    dataStore.versions.value.navigraph.current.split('-')[0]
+                }}
+            </template>
+            <template v-else-if="mapStore.isNavigraphUpdating">
+                AIRAC {{
+                    dataStore.versions.value.navigraph.outdated.split('-')[0]
+                }}
+            </template>
+            <template v-else>
+                Connect Navigraph
+            </template>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useStore } from '~/store';
+import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 
 const dataStore = useDataStore();
 const store = useStore();
+const mapStore = useMapStore();
 </script>
 
 <style lang="scss" scoped>
 .airac {
+    --count: 60%;
     cursor: pointer;
+    position: relative;
 
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    align-self: stretch;
+    &_progress {
+        content: '';
 
-    padding: 8px 12px;
-    border-radius: 8px;
+        position: absolute;
+        z-index: 2;
+        inset: 0;
 
-    font-size: 12px;
-    font-weight: 600;
+        width: calc(100%);
+        height: calc(100%);
 
-    background: $darkgray950;
+        fill: none;
+        stroke: $navigraphColor;
+        stroke-dasharray: var(--progress) 100;
+        stroke-width: 4;
+    }
 
-    &--current {
+    &_update-icon {
+        position: absolute;
+        z-index: 3;
+        top: -4px;
+        left: -4px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        aspect-ratio: 1/1;
+        padding: 4px;
+        border-radius: 8px;
+
+        background: $navigraphColor;
+
+        svg {
+            @keyframes updateIcon {
+                0% {
+                    transform: rotate(0);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            transform-origin: center;
+            width: 8px;
+            animation: updateIcon 1.5s linear infinite;
+        }
+    }
+
+    &_content {
+        position: relative;
+
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        align-self: stretch;
+
+        padding: 8px 12px;
+        border-radius: 8px;
+
+        font-size: 12px;
+        font-weight: 600;
+
+        background: $darkgray950;
+    }
+
+    &--current .airac_content {
         cursor: default;
         color: $lightgray125;
-        background: linear-gradient(90deg, rgb(184, 42, 20, 0.25) 0%, $darkgray950 75%);
+        background-image: linear-gradient(90deg, rgb(184, 42, 20, 0.25) 0%, $darkgray950 75%);
     }
 }
 </style>

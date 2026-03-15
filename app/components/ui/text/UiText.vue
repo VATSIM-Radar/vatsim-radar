@@ -170,6 +170,7 @@ const getTag = computed(() => {
 
     &--type-caption {
         font-size: 11px;
+        font-weight: 500;
     }
 
     &--type-caption-light {

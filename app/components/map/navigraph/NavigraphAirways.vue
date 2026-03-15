@@ -115,12 +115,14 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                             usage: entry.usage,
                             flightLevel: entry.flightLevel,
                             id,
+                            key: entry.airwayKey,
                             identifier: entry.identifier,
                             waypoint: entry.waypoint,
                             outbound: entry.outbound,
                             inbound: entry.inbound,
                             pointCoordinate: entry.waypointCoordinate,
                             name: entry.airwayKey,
+                            dbType: 'airways',
                         }));
                     }
 
@@ -133,11 +135,13 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                             flightLevel: entry.flightLevel,
                             id: waypointId,
                             identifier: entry.identifier,
+                            key: entry.airwayKey,
                             waypoint: entry.waypoint,
                             outbound: entry.outbound,
                             inbound: entry.inbound,
                             pointCoordinate: entry.waypointCoordinate,
                             name: entry.airwayKey,
+                            dbType: null,
                         }));
                     }
                 }

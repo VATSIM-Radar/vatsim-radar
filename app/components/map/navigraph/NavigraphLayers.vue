@@ -224,13 +224,18 @@ import type { VatsimNattrakClient } from '~/types/data/vatsim';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import { setNavigraphStyle } from '~/composables/render/navigraph/style';
+import VectorLayer from 'ol/layer/Vector.js';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
 
+const navigraphVectorSource = shallowRef<VectorSource | null>(null);
+let navigraphVectorLayer: VectorLayer<any> | undefined;
+
 const store = useStore();
 
 provide('navigraph-source', navigraphSource);
+provide('navigraph-vector-source', navigraphVectorSource);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
@@ -353,7 +358,24 @@ watch(map, val => {
         setNavigraphStyle(navigraphLayer);
 
         map.value?.addLayer(navigraphLayer);
-        map.value?.on('singleclick', handleMapClick);
+    }
+
+    if (!navigraphVectorLayer) {
+        navigraphVectorSource.value = new VectorSource({ wrapX: true });
+
+        navigraphVectorLayer = new VectorLayer<any>({
+            source: navigraphVectorSource.value,
+            zIndex: 6,
+            // minZoom: 5,
+            declutter: 'navigraph',
+            properties: {
+                selectable: true,
+            },
+        });
+
+        setNavigraphStyle(navigraphVectorLayer);
+
+        map.value?.addLayer(navigraphVectorLayer);
     }
 }, {
     immediate: true,
@@ -365,6 +387,13 @@ onBeforeUnmount(() => {
     }
     navigraphLayer?.dispose();
     navigraphSource.value?.clear();
+
+    if (navigraphVectorLayer) {
+        map.value?.removeLayer(navigraphVectorLayer);
+    }
+    navigraphVectorLayer?.dispose();
+    navigraphVectorSource.value?.clear();
+
     map.value?.un('singleclick', handleMapClick);
 });
 </script>

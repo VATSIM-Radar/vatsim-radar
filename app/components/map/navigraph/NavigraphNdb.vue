@@ -11,7 +11,7 @@ defineOptions({
     render: () => null,
 });
 
-const source = inject<ShallowRef<VectorSource>>('navigraph-source');
+const source = inject<ShallowRef<VectorSource>>('navigraph-vector-source');
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -70,6 +70,7 @@ watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.version], async (
                         name,
                         frequency,
                         type: 'navigraph',
+                        dbType: 'ndb',
                         featureType: 'ndb',
                         id: `ndb-${ key }`,
                     }));
@@ -101,6 +102,7 @@ watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.version], async (
                         dme,
                         frequency,
                         type: 'navigraph',
+                        dbType: 'vhf',
                         featureType: 'vhf',
                         id: `vhf-${ key }`,
                     }));

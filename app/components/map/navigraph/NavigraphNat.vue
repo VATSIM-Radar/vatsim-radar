@@ -43,6 +43,7 @@ watch(dataStore.vatsim.tracks, async () => {
                 key: waypoint.identifier,
                 featureType: 'nat-waypoint',
                 type: 'navigraph',
+                dbType: null,
                 direction: track.direction,
             }));
 
@@ -50,12 +51,13 @@ watch(dataStore.vatsim.tracks, async () => {
                 features.push(createMapFeature('navigraph', {
                     ...track,
                     geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 })),
-                    key: '',
+                    key: 'nat',
                     id: `nat-${ waypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,
                     featureType: 'airways',
                     type: 'navigraph',
                     kind: 'nat',
+                    dbType: null,
                     direction: track.direction,
                 }));
             }

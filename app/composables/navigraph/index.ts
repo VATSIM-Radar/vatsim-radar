@@ -696,7 +696,7 @@ export async function getFlightPlanWaypoints({
                     else {
                         waypoints.push({
                             identifier: neededAirway[1][0] || split[1] || entry,
-                            kind: 'airway',
+                            kind: 'airways',
                             airway: {
                                 key: neededAirway[0],
                                 value: neededAirway[1],

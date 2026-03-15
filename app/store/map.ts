@@ -86,6 +86,9 @@ export const useMapStore = defineStore('map', {
         openingOverlay: false,
         closedOwnOverlay: false,
 
+        isNavigraphUpdating: false,
+        navigraphUpdateProgress: 5,
+
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],
         selectedCid: null as number | false | null,

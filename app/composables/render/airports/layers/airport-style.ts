@@ -255,7 +255,7 @@ export function setAirportStyle(layer: VectorLayer) {
                             text: '1',
                             offsetX: 0,
                             offsetY: 0,
-                            padding: [-2, 10, 0, 10],
+                            padding: [-2, 10, -2, 10],
                             fill: getCachedFill('transparent'),
                             backgroundFill: getCachedFill('transparent'),
                             declutterMode: 'obstacle',
@@ -300,7 +300,7 @@ export function setAirportStyle(layer: VectorLayer) {
 
                 styleCache[cacheKey].getImage()!.setDisplacement([offsetX, -offsetY]);
                 styleCache[cacheKey].getText()!.setOffsetX(offsetX + 9);
-                styleCache[cacheKey].getText()!.setOffsetY(offsetY + 5);
+                styleCache[cacheKey].getText()!.setOffsetY(offsetY + 6);
                 styleCache[cacheKey].getText()!.setText(properties.counter.toString());
 
                 return [

@@ -38,6 +38,7 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
             type: 'navigraph',
             featureType: 'procedure',
             id: `enroute-${ procedure }-${ name }`,
+            dbType: null,
         }));
 
         if (constraints) {
@@ -56,6 +57,8 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
                 altitude2: x.altitude2,
                 speed: x.speed,
                 speedLimit: x.speedLimit,
+
+                dbType: null,
             })));
         }
     }

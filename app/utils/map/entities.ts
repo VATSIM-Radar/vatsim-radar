@@ -13,7 +13,7 @@ import type { AircraftIconType } from '../icons';
 import type { HeadingPair } from '~/utils/map/distance';
 import type {
     NavDataFlightLevel,
-    NavigraphNavDataAirportWaypointConstraints,
+    NavigraphNavDataAirportWaypointConstraints, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
 } from '~/utils/server/navigraph/navdata/types';
 
 export const globalMapEntities = {
@@ -188,6 +188,7 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     identifier?: string;
     waypoint?: string;
     key?: string;
+    dbType: keyof NavigraphNavDataShort | NavigraphNavDataEnrouteWaypointPartial['kind'] | null;
     featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'procedure' | `procedure-${ string }` | 'ndb' | 'vhf' | 'holdings' | `holdings-${ string }`;
     usage?: string;
     description?: string;

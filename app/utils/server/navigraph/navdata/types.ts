@@ -51,7 +51,7 @@ export interface NavigraphNavDataEnrouteWaypointPartial extends Partial<Navigrap
     description?: string;
     key?: string;
     canShowHold?: boolean;
-    kind: 'sids' | 'stars' | 'approaches' | 'missedApproach' | 'airway' | 'enroute' | 'vhf' | 'ndb' | 'nat-waypoint';
+    kind: 'sids' | 'stars' | 'approaches' | 'missedApproach' | 'airways' | 'enroute' | 'vhf' | 'ndb' | 'nat-waypoint';
     airway?: {
         key: string;
         value: ShortAirway;

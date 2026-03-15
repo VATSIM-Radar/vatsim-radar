@@ -129,7 +129,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             (pilot?.groundspeed > 50 || !!overlay || hovered) &&
             !store.localSettings.disableNavigraphRoute &&
             track.show !== 'short' &&
-            !!dataStore.navigraph.data;
+            !!dataStore.navigraph.version.value;
 
         let turnsColor = getAircraftStatusColor(status, aircraft.cid);
 
@@ -194,13 +194,23 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                 return;
             }
 
+            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - (1000 * 5) && updateState?.lastTurnsUpdateData) {
+                resolve(updateState?.lastTurnsUpdateData);
+                return;
+            }
+
             // requestIdleCallback was here, just in case
 
-            resolve(
-                await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ updateState.turnsFirstGroupTimestamp ?? '' }`, {
-                    timeout: 1000 * 5,
-                }).catch(console.error) ?? null,
-            );
+            const data = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ updateState.turnsFirstGroupTimestamp ?? '' }`, {
+                timeout: 1000 * 5,
+            }).catch(console.error) ?? null;
+
+            if (data) {
+                updateState!.lastTurnsUpdateData = data;
+                updateState!.lastTurnsUpdate = Date.now();
+            }
+
+            resolve(data);
         });
 
         if (turns) {
