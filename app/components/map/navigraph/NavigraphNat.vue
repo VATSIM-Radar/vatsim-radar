@@ -43,6 +43,7 @@ watch(dataStore.vatsim.tracks, async () => {
                 key: waypoint.identifier,
                 featureType: 'nat-waypoint',
                 type: 'navigraph',
+                direction: track.direction,
             }));
 
             if (nextWaypoint?.coordinate) {
@@ -52,9 +53,10 @@ watch(dataStore.vatsim.tracks, async () => {
                     key: '',
                     id: `nat-${ waypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,
-                    featureType: 'nat-waypoint',
+                    featureType: 'airways',
                     type: 'navigraph',
                     kind: 'nat',
+                    direction: track.direction,
                 }));
             }
         }

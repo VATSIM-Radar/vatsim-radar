@@ -1,7 +1,7 @@
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorImageLayer from 'ol/layer/VectorImage';
 import { isMapFeature } from '~/utils/map/entities';
-import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';

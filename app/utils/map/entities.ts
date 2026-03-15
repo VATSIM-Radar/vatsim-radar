@@ -5,7 +5,7 @@ import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SigmetCombined, SimAwareProperties } from '~/utils/server/storage';
-import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimNattrak, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
@@ -207,6 +207,7 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     icaoCode?: string;
     areaCode?: string;
     pointCoordinate?: Coordinate;
+    direction?: VatsimNattrak['direction'];
 }
 
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;

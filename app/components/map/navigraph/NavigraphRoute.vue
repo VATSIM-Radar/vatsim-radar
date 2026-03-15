@@ -199,7 +199,7 @@ async function update() {
                         key: '',
                         identifier: '',
                         type: 'navigraph',
-                        featureType: 'enroute',
+                        featureType: 'enroute-airways',
                         dataType: 'navdata',
                         self: true,
                         kind,
@@ -296,7 +296,7 @@ async function update() {
                         }
 
                         if (!disableWaypoints) {
-                            let type: FeatureNavigraphItemProperties['featureType'] = 'airways-waypoint';
+                            let type: FeatureNavigraphItemProperties['featureType'] = 'enroute-airways-waypoint';
 
                             const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? '').find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
                             const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? '').find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
@@ -342,7 +342,7 @@ async function update() {
                                     key: '',
                                     id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
                                     identifier: '',
-                                    featureType: 'airways',
+                                    featureType: 'enroute-airways',
                                     type: 'navigraph',
                                     kind: waypoint.kind,
                                     altitude: waypoint.altitude,
@@ -366,7 +366,7 @@ async function update() {
                             outbound: currWaypoint[2],
                             waypoint: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
-                            featureType: 'airways',
+                            featureType: 'enroute-airways',
                             type: 'navigraph',
                             kind: waypoint.kind,
                         }));
@@ -403,7 +403,7 @@ async function update() {
     }
 }
 
-const debouncedUpdate = debounce(update, 500);
+const debouncedUpdate = useThrottleFn(update, 500, true);
 
 watch(dataStore.navigraphWaypoints, () => {
     if (skipUpdate) {
