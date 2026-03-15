@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
-import { LineString } from 'ol/geom.js';
+import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -144,10 +144,12 @@ const level = computed(() => store.mapSettings.navigraphData?.mode);
 
 const starWaypoints = shallowRef<Record<string, Coordinate>>({});
 const aircraftWaypoints = shallowRef<Record<string, Coordinate>>({});
+const setAnyWaypoint = ref(false);
 
 const debouncedUpdate = debounce(() => {
     aircraftWaypoints.value = {};
     starWaypoints.value = {};
+    setAnyWaypoint.value = false;
 
     for (const item of Object.values(dataStore.navigraphWaypoints.value)) {
         if (item.disableHoldings) continue;
@@ -155,14 +157,24 @@ const debouncedUpdate = debounce(() => {
         for (const waypoint of item.waypoints) {
             if (waypoint.kind === 'sids' || !waypoint.canShowHold || !waypoint.coordinate) continue;
             aircraftWaypoints.value[waypoint.identifier] = waypoint.coordinate;
+            setAnyWaypoint.value = true;
         }
     }
 
     for (const item of Object.values(dataStore.navigraphProcedures)) {
         for (const star of Object.values(item!.stars)) {
-            star.procedure.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate);
-            star.procedure.transitions.enroute.forEach(x => x.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate));
-            star.procedure.transitions.runway.forEach(x => x.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate));
+            star.procedure.waypoints.forEach(x => {
+                starWaypoints.value[x.identifier] = x.coordinate;
+                setAnyWaypoint.value = true;
+            });
+            star.procedure.transitions.enroute.forEach(x => x.waypoints.forEach(x => {
+                starWaypoints.value[x.identifier] = x.coordinate;
+                setAnyWaypoint.value = true;
+            }));
+            star.procedure.transitions.runway.forEach(x => x.waypoints.forEach(x => {
+                starWaypoints.value[x.identifier] = x.coordinate;
+                setAnyWaypoint.value = true;
+            }));
         }
     }
 }, 1000);
@@ -172,13 +184,14 @@ watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUp
 });
 
 let holdings: [string, NavigraphNavDataShort['holdings'][string]][] | null = null;
+let didCleanup = false;
 
 function cleanup() {
     const features = source?.value.getFeatures() ?? [];
 
     for (const feature of features) {
         const type = feature.getProperties().featureType;
-        if (type === 'holdings') {
+        if (type.startsWith('holdings')) {
             source?.value.removeFeature(feature);
             feature.dispose();
         }
@@ -186,7 +199,7 @@ function cleanup() {
 }
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
-    if (!enabled && !starWaypoints.value.size && !aircraftWaypoints.value.size) {
+    if (!enabled && !setAnyWaypoint.value) {
         holdings = null;
         cleanup();
         return;
@@ -210,12 +223,23 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
 
     for (const [waypoint, coordinate] of Object.entries(aircraftWaypoints.value)) {
         const items = await getNavigraphParsedData('holdings', waypoint) ?? {};
-        const item = Object.entries(items).find(x => x[1][8] === 'ENRT' && x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
+        const item = Object.entries(items).find(x => x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
         if (item) list.push(item);
     }
 
+    if (!list.length && !didCleanup) {
+        cleanup();
+        didCleanup = true;
+    }
+
+    if (list.length) {
+        didCleanup = false;
+    }
+
     for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of list) {
-        if ((!enabled && type !== 'ENRT') || !starWaypoints.value[waypoint] || !aircraftWaypoints.value[waypoint]) continue;
+        if ((!enabled || type !== 'ENRT') && !starWaypoints.value[waypoint] && !aircraftWaypoints.value[waypoint]) continue;
+
+        const existingWaypoint = !!starWaypoints.value[waypoint] || !!aircraftWaypoints.value[waypoint];
 
         let flightLevel: NavDataFlightLevel = 'B';
 
@@ -223,33 +247,61 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
         const id = `holding-${ key }`;
+        const textId = `${ id }-text`;
 
         const existingFeature = getMapFeature('navigraph', source!.value, id);
+        const existingTextFeature = getMapFeature('navigraph', source!.value, textId);
 
-        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], extent)) {
+        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], extent) || (!enabled && !existingWaypoint)) {
             if (existingFeature) {
                 source?.value?.removeFeature(existingFeature);
                 existingFeature.dispose();
             }
-            return;
-        }
 
-        if (existingFeature) continue;
+            if (existingTextFeature) {
+                source?.value?.removeFeature(existingTextFeature);
+                existingTextFeature.dispose();
+            }
+
+            continue;
+        }
 
         speed ??= 240;
         time ??= 0;
 
-        source?.value.addFeature(createMapFeature('navigraph', {
-            geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
-            key,
-            turns,
-            time,
-            course,
-            featureType: 'holdings',
-            type: 'navigraph',
-            id,
-            pointCoordinate: [longitude, latitude],
-        }));
+        if (!existingFeature) {
+            source?.value.addFeature(createMapFeature('navigraph', {
+                geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
+                key,
+                turns,
+                time,
+                course,
+                featureType: 'holdings',
+                type: 'navigraph',
+                id,
+                pointCoordinate: [longitude, latitude],
+            }));
+        }
+
+        if (existingWaypoint) {
+            if (existingTextFeature) {
+                source?.value?.removeFeature(existingTextFeature);
+                existingTextFeature.dispose();
+            }
+        }
+        else if (!existingTextFeature) {
+            source?.value.addFeature(createMapFeature('navigraph', {
+                geometry: new Point([longitude, latitude]),
+                key,
+                turns,
+                time,
+                course,
+                featureType: 'holdings-waypoint',
+                type: 'navigraph',
+                waypoint,
+                id: textId,
+            }));
+        }
     }
 }, {
     immediate: true,

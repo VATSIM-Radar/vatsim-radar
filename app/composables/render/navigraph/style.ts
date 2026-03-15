@@ -4,6 +4,7 @@ import { getCurrentThemeRgbColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage';
+import { getTextFont } from '~/composables/render/text';
 
 const ndbStyle = new Icon({
     src: '/icons/compressed/ndb.png',
@@ -50,7 +51,7 @@ const waypointsTypes = {
         image: new Icon({
             src: '/icons/compressed/fly-over.png',
             color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 12,
+            width: 8,
             opacity: 0.8,
         }),
         zIndex: 6,
@@ -59,8 +60,8 @@ const waypointsTypes = {
         image: new Icon({
             src: '/icons/compressed/fly-by.png',
             color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 10,
-            opacity: 1,
+            width: 8,
+            opacity: 0.8,
         }),
         zIndex: 6,
     }),
@@ -77,8 +78,8 @@ const waypointsTypes = {
         image: new Icon({
             src: '/icons/compressed/compulsory-fly-by.png',
             color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 12,
-            opacity: 0.8,
+            width: 8,
+            opacity: 0.6,
         }),
         zIndex: 6,
     }),
@@ -86,26 +87,25 @@ const waypointsTypes = {
         image: new Icon({
             src: '/icons/compressed/final-approach-fix.png',
             color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 12,
-            opacity: 0.8,
+            width: 8,
+            opacity: 0.6,
         }),
         zIndex: 6,
     }),
 };
 
 const waypointStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
     width: 2,
 });
 
-
 const holdingStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
     width: 2,
 });
 
 const waypointBlueStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.3)`,
+    color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.1)`,
     width: 2,
 });
 
@@ -219,7 +219,7 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
                     }),
                     new Style({
                         text: new Text({
-                            font: '8px LibreFranklin',
+                            font: getTextFont('caption-light', { fontSize: 8 }),
                             text,
                             offsetX: 15,
                             offsetY: 2,
@@ -325,7 +325,7 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
             if (!styleCache.waypoint) {
                 styleCache.waypoint = new Style({
                     text: new Text({
-                        font: '8px LibreFranklin',
+                        font: getTextFont('caption', { fontSize: 8 }),
                         text,
                         offsetX: 12,
                         textBaseline: 'middle',
@@ -340,6 +340,16 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
                 });
             }
 
+            if (properties.pointCoordinate) {
+                if (!geometriesCache.has(properties.pointCoordinate)) {
+                    geometriesCache.set(properties.pointCoordinate, new Point(properties.pointCoordinate));
+                }
+
+                styleCache.waypoint.setGeometry(geometriesCache.get(properties.pointCoordinate)!);
+            }
+            else {
+                styleCache.waypoint.setGeometry(null);
+            }
 
             const styles = [
                 image,
@@ -399,7 +409,7 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
                 zIndex: 5,
                 text: showAirwaysLabels.value
                     ? new Text({
-                        font: 'bold 10px LibreFranklin',
+                        font: getTextFont('caption-medium', { fontSize: 8 }),
                         text: `${ properties.identifier }`,
                         placement: 'line',
                         keepUpright: true,
@@ -409,7 +419,7 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
                         padding: [6, 6, 6, 6],
                         rotateWithView: false,
                         fill: new Fill({
-                            color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
+                            color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
                         }),
                     })
                     : undefined,
@@ -435,7 +445,7 @@ export function setNavigraphStyle(layer: VectorImageLayer) {
                     stroke: holdingStroke,
                     zIndex: 5,
                     text: new Text({
-                        font: 'bold 10px LibreFranklin',
+                        font: getTextFont('caption-medium', { fontSize: 9 }),
                         text: `${ properties.course }° ${ properties.turns }`,
                         maxAngle: 0,
                         placement: 'line',

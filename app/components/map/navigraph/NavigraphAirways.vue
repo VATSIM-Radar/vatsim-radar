@@ -26,6 +26,7 @@ const geometries: ObjectWithGeometry<any, {
     airwayCoords: [Coordinate, Coordinate] | null;
     airwayKey: string;
     identifier: string;
+    waypoint: string;
     inbound: number;
     outbound: number;
     flightLevel: NavDataFlightLevel;
@@ -81,6 +82,7 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                             airwayCoords: nextWaypoint ? [[waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]]] : null,
                             airwayKey: key,
                             identifier,
+                            waypoint: waypoint[0],
                             inbound: waypoint[1],
                             outbound: waypoint[2],
                             flightLevel: waypoint[5],
@@ -98,29 +100,55 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                 const entry = geometries[k];
                 if (!entry) continue;
 
-                const id = 'waypoint' + entry.airwayKey + entry.identifier;
+                const id = 'waypoint' + entry.airwayKey + entry.identifier + entry.waypoint;
+                const waypointId = id + 'text';
 
                 const existingFeature = getMapFeature('navigraph', source!.value, id);
+                const existingWaypointFeature = getMapFeature('navigraph', source!.value, id);
 
                 if (checkFlightLevel(entry.flightLevel) && (entry.airwayCoords ? entry.airwayCoords.some((x: Coordinate) => isPointInExtent(x, extent)) : isPointInExtent(entry.waypointCoordinate, extent))) {
-                    if (existingFeature) continue;
+                    if (entry.airwayCoords && !existingFeature) {
+                        source?.value.addFeature(createMapFeature('navigraph', {
+                            type: 'navigraph',
+                            featureType: 'airways',
+                            geometry: new LineString(entry.airwayCoords),
+                            usage: entry.usage,
+                            flightLevel: entry.flightLevel,
+                            id,
+                            identifier: entry.identifier,
+                            waypoint: entry.waypoint,
+                            outbound: entry.outbound,
+                            inbound: entry.inbound,
+                            pointCoordinate: entry.waypointCoordinate,
+                            name: entry.airwayKey,
+                        }));
+                    }
 
-                    source?.value.addFeature(createMapFeature('navigraph', {
-                        type: 'navigraph',
-                        featureType: entry.airwayCoords ? 'airways' : 'airways-waypoint',
-                        geometry: entry.airwayCoords ? new LineString(entry.airwayCoords) : new Point(entry.waypointCoordinate),
-                        usage: entry.usage,
-                        flightLevel: entry.flightLevel,
-                        id,
-                        outbound: entry.outbound,
-                        inbound: entry.inbound,
-                        pointCoordinate: entry.waypointCoordinate,
-                        name: entry.airwayKey,
-                    }));
+                    if (entry.waypointCoordinate && !existingWaypointFeature) {
+                        source?.value.addFeature(createMapFeature('navigraph', {
+                            type: 'navigraph',
+                            featureType: 'airways-waypoint',
+                            geometry: new Point(entry.waypointCoordinate),
+                            usage: entry.usage,
+                            flightLevel: entry.flightLevel,
+                            id: waypointId,
+                            identifier: entry.identifier,
+                            waypoint: entry.waypoint,
+                            outbound: entry.outbound,
+                            inbound: entry.inbound,
+                            pointCoordinate: entry.waypointCoordinate,
+                            name: entry.airwayKey,
+                        }));
+                    }
                 }
                 else if (existingFeature) {
                     source?.value.removeFeature(existingFeature);
                     existingFeature.dispose();
+
+                    if (existingWaypointFeature) {
+                        source?.value.removeFeature(existingWaypointFeature);
+                    }
+                    existingWaypointFeature?.dispose();
                 }
             }
 

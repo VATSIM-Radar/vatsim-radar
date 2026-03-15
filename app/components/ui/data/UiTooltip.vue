@@ -20,13 +20,16 @@
                 v-if="model"
                 class="tooltip_container"
             >
+                <div class="tooltip_container_icon">
+                    <tooltip-arrow/>
+                </div>
                 <div class="tooltip_container_content">
-                    <div class="tooltip_container_content_icon">
-                        <triangle-left-icon/>
-                    </div>
-                    <div class="tooltip_container_content_text">
+                    <ui-text
+                        class="tooltip_container_content_text"
+                        type="caption-light"
+                    >
                         <slot/>
-                    </div>
+                    </ui-text>
                 </div>
             </div>
         </transition>
@@ -34,10 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
 import type { ClickOutsideOptions } from '~/composables/map/click-outside';
-
+import QuestionIcon from '~/assets/icons/basic/question.svg?component';
+import TooltipArrow from '~/assets/icons/kit/tooltip-arrow.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     location: {
@@ -144,16 +148,43 @@ useClickOutside({
         max-width: v-bind(maxWidth);
         padding: 4px;
 
-        &_content {
-            padding: 4px;
-            border-radius: 8px;
-            color: $darkgray850;
-            background: currentColor;
+        color: $lightGray900;
 
-            &_icon {
-                position: absolute;
-                height: 8px;
+        &_icon {
+            position: absolute;
+            bottom: calc(100% - 4px - 1px);
+            left: calc(50% - 10px);
+
+            width: 20px;
+            height: 12px;
+
+            svg {
+                fill: transparent;
+                stroke: transparent;
+
+                :deep(path[fill]) {
+                    fill: $strokeDefault;
+                }
+
+                :deep(path[stroke]) {
+                    fill: $darkGray800;
+                    stroke: $strokeDefault;
+                }
             }
+        }
+
+        &_content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            padding: 6px 12px;
+            border: 1px solid $strokeDefault;
+            border-radius: 2px;
+
+            color: $darkgray850;
+
+            background: $darkGray800;
 
             &_text {
                 padding: 8px;

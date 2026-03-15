@@ -1,12 +1,18 @@
 # Changelog
 
-# [2.0.0-alpha.4.4]
+# [2.0.0-alpha.5]
 
 ## Alpha Changes
 
 - VATGlasses sector labels now declutter with airports (with airports having priority)
 - Repositioned aircraft hover to always be placed nicely, but you won't be able to hover it anymore. I mean, you could just click the aircraft! 
 - Changed FIR/ARTCC label background to be more like on production
+- Moved Navigraph Layers to new render/select system
+
+## Redesign
+
+- Redesigned Navigraph on-click overlay
+- Redesigned tooltips
 
 ## Performance improvements
 
@@ -14,6 +20,7 @@
 - Significantly improved performance and memory usage when rendering holdings, especially when rendering enroute holdings (all holdings layer is not enabled). Previous code was terrible. Who wrote that? Jesus.
 - Improved performance of Navigraph Layers, such as NBD, VORDME, Waypoints, as well as route rendering
 - Improved performance and memory usage of route rendering
+- Greatly improved speed of route rendering
 
 # [2.0.0-alpha.4.3]
 
