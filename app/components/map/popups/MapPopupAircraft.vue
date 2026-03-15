@@ -90,9 +90,9 @@
                         :gap="isShortInfo ? '8px 4px' : undefined"
                         :grid-columns="3"
                         :items="[
-                            { title: isShortInfo ? 'GS' : 'Groundspeed', text: `${ pilot.groundspeed } kts` },
-                            { title: 'Alt.', text: `${ getPilotTrueAltitude(pilot.altitude) } ft.` },
-                            { title: 'Heading', text: pilot.heading },
+                            { title: isShortInfo ? undefined : 'Groundspeed', text: `${ pilot.groundspeed } kts` },
+                            { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
+                            { title: isShortInfo ? undefined : 'Heading', text: `${ pilot.heading }°` },
                         ]"
                     />
                 </div>
