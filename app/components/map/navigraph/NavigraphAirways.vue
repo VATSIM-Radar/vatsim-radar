@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
-import { Feature } from 'ol';
-import { Point } from 'ol/geom.js';
+import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
-import greatCircle from '@turf/great-circle';
 import { useMapStore } from '~/store/map';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import { checkFlightLevel } from '~/composables/render/storage';
+import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types';
+import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 
 defineOptions({
     render: () => null,
@@ -21,33 +21,51 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.airways?.enabled !== false);
-let geometries: ObjectWithGeometry[] = [];
-let waypointGeometries: ObjectWithGeometry[] = [];
-let features: Feature[] = [];
+const geometries: ObjectWithGeometry<any, {
+    waypointCoordinate: Coordinate;
+    airwayCoords: [Coordinate, Coordinate] | null;
+    airwayKey: string;
+    identifier: string;
+    waypoint: string;
+    inbound: number;
+    outbound: number;
+    flightLevel: NavDataFlightLevel;
+    usage: string | undefined;
+}>[] = [];
 
 const extent = computed(() => mapStore.extent);
 const level = computed(() => store.mapSettings.navigraphData?.mode);
 
 let inProgress = false;
 
+function cleanup() {
+    geometries.length = 0;
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type === 'airways' || type === 'airways-waypoint') {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+}
+
 watch([isEnabled, extent, level], async ([enabled, extent]) => {
     if (inProgress) return;
 
     if (!enabled) {
-        source?.value.removeFeatures(features);
-        features = [];
-        geometries = [];
-        waypointGeometries = [];
+        cleanup();
         return;
     }
 
     try {
         inProgress = true;
 
-        const entries = Object.entries(await dataStore.navigraph.data('airways') ?? {});
-        const len = entries.length;
-
         if (!geometries.length) {
+            const entries = Object.entries(await dataStore.navigraph.data('airways') ?? {});
+            const len = entries.length;
+
             for (let i = 0; i < len; i += 100) {
                 for (let k = i; k < i + 100; k++) {
                     const entry = entries[k];
@@ -59,29 +77,16 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                     waypoints.forEach((waypoint, index) => {
                         const nextWaypoint = waypoints[index + 1];
 
-                        waypointGeometries.push({
-                            rawCoords: [waypoint[3], waypoint[4]],
-                            key,
-                            identifier,
-                            flightLevel: waypoint[5],
-                            waypoint: waypoint[0],
-                            usage: waypoint[6],
-                            type: 'airway-waypoint',
-                            dataType: 'navdata',
-                        });
-
-                        if (!nextWaypoint) return;
-
                         geometries.push({
-                            rawCoords: [[waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]]],
-                            key,
+                            waypointCoordinate: [waypoint[3], waypoint[4]],
+                            airwayCoords: nextWaypoint ? [[waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]]] : null,
+                            airwayKey: key,
                             identifier,
+                            waypoint: waypoint[0],
                             inbound: waypoint[1],
                             outbound: waypoint[2],
-                            waypoint: waypoint[0],
                             flightLevel: waypoint[5],
-                            type: 'airways',
-                            dataType: 'navdata',
+                            usage: waypoint[6],
                         });
                     });
                 }
@@ -90,43 +95,69 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
             }
         }
 
-        const newFeatures: Feature[] = [];
-
         for (let i = 0; i < geometries.length; i += 10000) {
             for (let k = i; k < i + 10000; k++) {
                 const entry = geometries[k];
                 if (!entry) continue;
 
-                if (checkFlightLevel(entry.flightLevel) && entry.rawCoords.some((x: Coordinate) => isPointInExtent(x, extent))) {
-                    newFeatures.push(new Feature({
-                        ...entry,
-                        geometry: turfGeometryToOl(greatCircle(entry.rawCoords[0], entry.rawCoords[1], { npoints: 2 })),
-                    }));
+                const id = 'waypoint' + entry.airwayKey + entry.identifier + entry.waypoint;
+                const waypointId = id + 'text';
+
+                const existingFeature = getMapFeature('navigraph', source!.value, id);
+                const existingWaypointFeature = getMapFeature('navigraph', source!.value, id);
+
+                if (checkFlightLevel(entry.flightLevel) && (entry.airwayCoords ? entry.airwayCoords.some((x: Coordinate) => isPointInExtent(x, extent)) : isPointInExtent(entry.waypointCoordinate, extent))) {
+                    if (entry.airwayCoords && !existingFeature) {
+                        source?.value.addFeature(createMapFeature('navigraph', {
+                            type: 'navigraph',
+                            featureType: 'airways',
+                            geometry: new LineString(entry.airwayCoords),
+                            usage: entry.usage,
+                            flightLevel: entry.flightLevel,
+                            id,
+                            key: entry.airwayKey,
+                            identifier: entry.identifier,
+                            waypoint: entry.waypoint,
+                            outbound: entry.outbound,
+                            inbound: entry.inbound,
+                            pointCoordinate: entry.waypointCoordinate,
+                            name: entry.airwayKey,
+                            dbType: 'airways',
+                        }));
+                    }
+
+                    if (entry.waypointCoordinate && !existingWaypointFeature) {
+                        source?.value.addFeature(createMapFeature('navigraph', {
+                            type: 'navigraph',
+                            featureType: 'airways-waypoint',
+                            geometry: new Point(entry.waypointCoordinate),
+                            usage: entry.usage,
+                            flightLevel: entry.flightLevel,
+                            id: waypointId,
+                            identifier: entry.identifier,
+                            key: entry.airwayKey,
+                            waypoint: entry.waypoint,
+                            outbound: entry.outbound,
+                            inbound: entry.inbound,
+                            pointCoordinate: entry.waypointCoordinate,
+                            name: entry.airwayKey,
+                            dbType: null,
+                        }));
+                    }
+                }
+                else if (existingFeature) {
+                    source?.value.removeFeature(existingFeature);
+                    existingFeature.dispose();
+
+                    if (existingWaypointFeature) {
+                        source?.value.removeFeature(existingWaypointFeature);
+                    }
+                    existingWaypointFeature?.dispose();
                 }
             }
 
-            await sleep(0);
+            await new Promise(resolve => requestAnimationFrame(resolve));
         }
-
-        for (let i = 0; i < waypointGeometries.length; i += 10000) {
-            for (let k = i; k < i + 10000; k++) {
-                const entry = waypointGeometries[k];
-                if (!entry) continue;
-
-                if (checkFlightLevel(entry.flightLevel) && isPointInExtent(entry.rawCoords, extent)) {
-                    newFeatures.push(new Feature({
-                        ...entry,
-                        geometry: new Point(entry.rawCoords),
-                    }));
-                }
-            }
-
-            await sleep(0);
-        }
-
-        source?.value.removeFeatures(features);
-        features = newFeatures;
-        source?.value.addFeatures(features);
     }
     finally {
         inProgress = false;
@@ -135,10 +166,5 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
     immediate: true,
 });
 
-onBeforeUnmount(() => {
-    source?.value.removeFeatures(features);
-    geometries = [];
-    waypointGeometries = [];
-    features = [];
-});
+onBeforeUnmount(cleanup);
 </script>

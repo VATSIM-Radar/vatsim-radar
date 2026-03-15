@@ -129,32 +129,24 @@ export async function getNavigraphRunways({ user, icao, event }: {
     try {
         const runways: NavigraphRunway[] = [];
 
-        await new Promise<void>((resolve, reject) => {
-            (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
-                `SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = :icao ORDER BY runway_identifier ASC`,
-                { ':icao': icao },
-                (err, row: any) => {
-                    if (err) return reject(err);
+        const req = (user?.hasFms ? navigraphCurrentDb! : navigraphOutdatedDb!).prepare(`SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = ? ORDER BY runway_identifier ASC`);
 
-                    const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
+        const rows = await req.all(icao) as any[];
 
-                    runways.push({
-                        ...row,
-                        runway_latitude: coords[1],
-                        runway_longitude: coords[0],
-                        landing_threshold_elevation: parseFloat(row.landing_threshold_elevation),
-                        runway_length: parseFloat(row.runway_length),
-                        runway_width: parseFloat(row.runway_width),
-                        runway_magnetic_bearing: parseFloat(row.runway_magnetic_bearing),
-                        runway_true_bearing: parseFloat(row.runway_true_bearing),
-                    });
-                },
-                err => {
-                    if (err) return reject(err);
-                    resolve();
-                },
-            );
-        });
+        for (const row of rows) {
+            const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
+
+            runways.push({
+                ...row,
+                runway_latitude: coords[1],
+                runway_longitude: coords[0],
+                landing_threshold_elevation: parseFloat(row.landing_threshold_elevation),
+                runway_length: parseFloat(row.runway_length),
+                runway_width: parseFloat(row.runway_width),
+                runway_magnetic_bearing: parseFloat(row.runway_magnetic_bearing),
+                runway_true_bearing: parseFloat(row.runway_true_bearing),
+            });
+        }
 
         return runways;
     }
@@ -172,39 +164,19 @@ export async function getNavigraphGates({ user, icao, event }: {
 
     if (!navigraphCurrentDb || !navigraphCurrentDb) return gates;
 
-    try {
-        await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Navigraph Failed by timeout')), 15000);
+    const req = (user?.hasFms ? navigraphCurrentDb! : navigraphOutdatedDb!).prepare(`SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_pb_gates WHERE airport_identifier = ? ORDER BY gate_identifier ASC`);
 
-            (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
-                `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_pb_gates WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,
-                { ':icao': icao },
-                (err, row: any) => {
-                    if (err) return reject(err);
+    const rows = await req.all(icao) as any[];
 
-                    const coords = [parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)];
+    for (const row of rows) {
+        const coords = [parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)];
 
-                    gates.push({
-                        ...row,
-                        name: row.name ?? row.gate_identifier,
-                        gate_longitude: coords[0],
-                        gate_latitude: coords[1],
-                    });
-                },
-                err => {
-                    clearTimeout(timeout);
-                    if (err) return reject(err);
-                    resolve();
-                },
-            );
+        gates.push({
+            ...row,
+            name: row.name ?? row.gate_identifier,
+            gate_longitude: coords[0],
+            gate_latitude: coords[1],
         });
-    }
-    catch (e) {
-        if (event) {
-            handleH3Exception(event, e);
-        }
-        else throw e;
-        return;
     }
 
     gates.forEach((gate, index) => {

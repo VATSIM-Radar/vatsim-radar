@@ -13,6 +13,13 @@
                 Weather Request
             </ui-button>
 
+            <ui-notification
+                cookie-name="next-weird-destination"
+                type="info"
+            >
+                Yes I know this looks goofy.<br> Will be redesigned to something much nicer later
+            </ui-notification>
+
             <vatsim-pilot-destination
                 :pilot="{
                     departure: flightPlan.departure,

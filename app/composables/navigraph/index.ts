@@ -274,18 +274,19 @@ const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{
 const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 const dataCache: {
-    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways']: NavigraphNavDataShort[K]
+    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings']: NavigraphNavDataShort[K]
 } = {
     vhf: {},
     ndb: {},
     waypoints: {},
     airways: {},
+    holdings: {},
 };
 
 let latestUpdate = 0;
 
-export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
-export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways', key: string): Promise<any | null> {
+export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
+export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings', key: string): Promise<any | null> {
     latestUpdate = Date.now();
 
     if (key in dataCache[type]) return dataCache[type][key];
@@ -695,7 +696,7 @@ export async function getFlightPlanWaypoints({
                     else {
                         waypoints.push({
                             identifier: neededAirway[1][0] || split[1] || entry,
-                            kind: 'airway',
+                            kind: 'airways',
                             airway: {
                                 key: neededAirway[0],
                                 value: neededAirway[1],

@@ -7,26 +7,39 @@
         @mouseover="handleClick('mouseOver')"
     >
         <div
-            v-if="$slots.activator"
             class="tooltip_activator"
             tabindex="0"
             @click="handleClick('click')"
             @focus="handleClick('focus')"
         >
-            <slot name="activator"/>
+            <slot name="activator">
+                <div class="tooltip_activator_question">
+                    <question-icon/>
+                </div>
+            </slot>
         </div>
         <transition name="tooltip_container--appear">
             <div
                 v-if="model"
                 class="tooltip_container"
             >
+                <div class="tooltip_container_icon">
+                    <tooltip-arrow/>
+                </div>
                 <div class="tooltip_container_content">
-                    <div class="tooltip_container_content_icon">
-                        <triangle-left-icon/>
-                    </div>
-                    <div class="tooltip_container_content_text">
+                    <ui-text
+                        v-if="$slots.title"
+                        class="tooltip_container_content_title"
+                        type="caption"
+                    >
+                        <slot name="title"/>
+                    </ui-text>
+                    <ui-text
+                        class="tooltip_container_content_text"
+                        type="caption-light"
+                    >
                         <slot/>
-                    </div>
+                    </ui-text>
                 </div>
             </div>
         </transition>
@@ -34,10 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
 import type { ClickOutsideOptions } from '~/composables/map/click-outside';
-
+import QuestionIcon from '~/assets/icons/basic/question.svg?component';
+import TooltipArrow from '~/assets/icons/kit/tooltip-arrow.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     location: {
@@ -50,6 +64,7 @@ const props = defineProps({
     },
     width: {
         type: String,
+        default: 'max-content',
     },
     maxWidth: {
         type: String,
@@ -70,8 +85,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    questionMarkSize: {
+        type: String,
+        default: '12px',
+    },
 });
-defineSlots<{ default(): any; activator(): any }>();
+defineSlots<{ default(): any; activator(): any; title(): any }>();
 
 function handleClick(eventType: 'mouseLeave' | 'mouseOver' | 'click' | 'focus' | 'focusOut') {
     switch (eventType) {
@@ -130,6 +149,12 @@ useClickOutside({
     &_activator {
         cursor: pointer;
         position: relative;
+
+        &_question {
+            svg {
+                width: v-bind(questionMarkSize);
+            }
+        }
     }
 
     &--cursor-default .tooltip_activator {
@@ -142,25 +167,44 @@ useClickOutside({
 
         width: v-bind(width);
         max-width: v-bind(maxWidth);
-        padding: 4px;
+        padding: 4px 4px 12px;
+
+        color: $lightGray900;
+
+        &_icon {
+            position: absolute;
+            top: calc(100% - 12px - 1px);
+            left: calc(50% - 10px);
+            transform: rotate(180deg);
+
+            width: 20px;
+            height: 12px;
+
+            svg {
+                fill: transparent;
+                stroke: transparent;
+
+                :deep(path[fill]) {
+                    fill: $strokeDefault;
+                }
+
+                :deep(path[stroke]) {
+                    fill: $darkGray800;
+                    stroke: $strokeDefault;
+                }
+            }
+        }
 
         &_content {
-            padding: 4px;
-            border-radius: 8px;
-            color: $darkgray850;
-            background: currentColor;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
 
-            &_icon {
-                position: absolute;
-                height: 8px;
-            }
+            padding: 6px 12px;
+            border: 1px solid $strokeDefault;
+            border-radius: 2px;
 
-            &_text {
-                padding: 8px;
-                font-size: 11px;
-                font-weight: 400;
-                color: $lightgray0;
-            }
+            background: $darkGray800;
         }
 
         &--appear {
@@ -187,18 +231,40 @@ useClickOutside({
         top: 100%;
         left: 50%;
         transform: translateX(var(--transform));
+        padding: 12px 4px 4px;
+
+        &_icon {
+            top: auto;
+            bottom: calc(100% - 12px - 1px);
+            transform: none;
+        }
     }
 
     &--location-left .tooltip_container {
         top: 50%;
         right: 100%;
         transform: translateY(var(--transform));
+        padding: 4px 12px 4px 4px;
+
+        &_icon {
+            top: calc(50% - 6px);
+            left: calc(100% - 16px - 1px);
+            transform: rotate(90deg);
+        }
     }
 
     &--location-right .tooltip_container {
         top: 50%;
         left: 100%;
         transform: translateY(var(--transform));
+        padding: 4px 4px 4px 12px;
+
+        &_icon {
+            top: calc(50% - 6px);
+            right: calc(100% - 16px - 1px);
+            left: auto;
+            transform: rotate(-90deg);
+        }
     }
 }
 </style>

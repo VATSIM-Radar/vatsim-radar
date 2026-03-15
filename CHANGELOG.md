@@ -1,5 +1,46 @@
 # Changelog
 
+# [2.0.0-alpha.5]
+
+## Alpha Changes
+
+- VATGlasses sector labels now declutter with airports (with airports having priority)
+- Repositioned aircraft hover to always be placed nicely, but you won't be able to hover it anymore. I mean, you could just click the aircraft! 
+- Changed FIR/ARTCC label background to be more like on production
+- Moved Navigraph Layers to new render/select system
+
+### Mobile hovering improvements
+
+- Hover interactions have been disabled on touch devices
+- Click interactions have been reworked on touch devices to do what hover does on PC
+
+## Improvements and changes
+
+- Airway direction is now specified as next waypoint instead of "Forward" or "Backwards"
+- Removed blue highlight when you click the map
+- Navigraph AIRAC data now updates faster and in background
+- Initialization popup will not show if nothing to update
+
+## Bug Fixes
+
+- Fixed Retry button in Init Popup not closing popup if retry was successful
+- In case any of browser database methods will fail during initialization, database will be destroyed, and page will be reloaded for a complete update (assuming DB is corrupted, requiring to fix it manually before)
+
+## Redesign
+
+- Redesigned Navigraph on-click overlay
+- Redesigned pilot on-hover overlay
+- Redesigned tooltips
+
+## Performance improvements
+
+- Significantly reduced memory used by Navigraph Airways layer, added a cache for faster rendering and changed design a bit, so it's now worth giving this layer a go
+- Significantly improved performance and memory usage when rendering holdings, especially when rendering enroute holdings (all holdings layer is not enabled). Previous code was terrible. Who wrote that? Jesus.
+- Improved performance of Navigraph Layers, such as NBD, VORDME, Waypoints, as well as route rendering
+- Improved performance and memory usage of route rendering
+- Greatly improved speed of route rendering
+- Turns update has been slowed down to 5 seconds per aircraft
+
 # [2.0.0-alpha.4.3]
 
 - Fixed graphical artifacts for aircraft tracks

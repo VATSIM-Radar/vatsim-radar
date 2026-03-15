@@ -6,7 +6,7 @@
         :type="textType"
     >
         <div
-            v-if="$slots.prepend"
+            v-if="$slots.prepend && typeof atcFacility !== 'number'"
             class="chip_prepend"
         >
             <slot name="prepend"/>
@@ -27,13 +27,13 @@
             </slot>
         </div>
         <div
-            v-if="$slots.append"
+            v-if="$slots.append && typeof atcFacility !== 'number'"
             class="chip_append"
         >
             <slot name="append"/>
         </div>
         <div
-            v-if="model === true"
+            v-if="model === true && typeof atcFacility !== 'number'"
             class="chip_close"
             @click="model = false"
         >

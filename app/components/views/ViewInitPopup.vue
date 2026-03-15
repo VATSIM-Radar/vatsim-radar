@@ -1,18 +1,12 @@
 <template>
     <popup-fullscreen
         disabled
-        :model-value="store.initStatus.status !== false"
+        :model-value="canShowPopup"
         width="600px"
     >
         <template #title>
             VATSIM Radar initialization
         </template>
-        <ui-notification
-            v-if="store.initStatus.navigraph === 'loading'"
-            type="info"
-        >
-            Navigraph database is updating, this can take up to a minute...
-        </ui-notification>
         <div class="init-items">
             <div
                 v-for="(item, key) in shownKeys"
@@ -55,7 +49,6 @@ import {
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import UiNotification from '~/components/ui/data/UiNotification.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const store = useStore();
@@ -93,6 +86,19 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
         method: checkForNavigraph,
     },
 };
+
+const canShowPopup = computed(() => {
+    if (store.initStatus.status === false || Object.values(store.initStatus).every(x => x === true || x === 'notRequired')) return false;
+
+    let canShow = false;
+
+    for (const [key, value] of Object.entries(store.initStatus)) {
+        if ((key === 'dataGet' || key === 'updatesCheck') && value === 'loading') continue;
+        if (value === 'loading' || value === 'failed') canShow = true;
+    }
+
+    return canShow;
+});
 
 const itemTitle = (key: keyof VRInitStatus) => {
     switch (store.initStatus[key]) {

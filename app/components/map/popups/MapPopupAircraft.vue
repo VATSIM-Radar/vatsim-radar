@@ -12,6 +12,7 @@
         <popup-map-info
             v-if="pilot"
             class="aircraft-hover"
+            :class="{ 'aircraft-hover--short': isShortInfo }"
             @mouseleave="emit('close')"
         >
             <template
@@ -52,97 +53,48 @@
                 </ui-bubble>
             </template>
             <div class="aircraft-hover_body">
-                <ui-text-block v-if="isShortInfo">
-                    <template #top>
-                        {{pilot.callsign}}
-                        <template v-if="pilot.aircraft_faa">
-                            - {{pilot.aircraft_faa}}
-                        </template>
-                        <template v-if="pilot.frequencies.length >= 1 && isShortInfo">
-                            - <ui-bubble
-                                class="aircraft-hover__frequency"
-                                type="primary-flat"
-                            >
-                                {{ pilot.frequencies[0] }}
-                            </ui-bubble>
-                        </template>
-                    </template>
-                </ui-text-block>
-                <ui-text-block
-                    class="aircraft-hover__pilot"
-                    is-button
-                    :top-items="[pilot.name, friend?.comment]"
-                    @click="mapStore.addPilotOverlay(properties.cid)"
-                >
-                    <template #top="{ index,item }">
-                        <ui-spoiler
-                            v-if="index === 0"
-                            type="pilot"
-                        >
-                            <template v-if="friend && !isNaN(Number(friend.name))">
-                                {{friend.name}}
-                            </template>
-                            <template v-else>
-                                {{ parseEncoding(pilot.name) }}
-                            </template>
-                        </ui-spoiler>
-                        <template v-else>
-                            {{item}}
-                        </template>
-                    </template>
+                <ui-data-list
+                    v-if="isShortInfo"
+                    class="aircraft-hover_sections"
+                    :gap="isShortInfo ? '8px 4px' : undefined"
+                    :grid-columns="3"
+                    :items="[
+                        { text: pilot.callsign },
+                        { title: pilot.aircraft_faa },
+                        { title: pilot.frequencies[0] },
+                    ]"
+                />
+                <ui-data-list-item class="aircraft-hover_pilot">
                     <template
-                        v-if="(pilot.pilot_rating !== 0 || pilot.military_rating) && !isShortInfo"
-                        #bottom
+                        v-if="!isShortInfo && (pilot.pilot_rating !== 0 || pilot.military_rating) && !isShortInfo"
+                        #title
                     >
                         {{ usePilotRating(pilot).join(' | ') }}
                     </template>
-                </ui-text-block>
+                    <ui-spoiler type="pilot">
+                        <template v-if="friend && !isNaN(Number(friend.name))">
+                            {{friend.name}}
+                        </template>
+                        <template v-else>
+                            {{ parseEncoding(pilot.name) }}
+                        </template>
+                    </ui-spoiler>
+                </ui-data-list-item>
+
                 <vatsim-pilot-destination
                     :pilot
                     :short="isShortInfo"
                 />
                 <div class="aircraft-hover_sections">
-                    <ui-text-block
-                        v-if="typeof pilot.groundspeed === 'number'"
-                        text-align="center"
-                    >
-                        <template
-                            v-if="!isShortInfo"
-                            #top
-                        >
-                            GS
-                        </template>
-                        <template #bottom>
-                            {{ pilot.groundspeed }} kts
-                        </template>
-                    </ui-text-block>
-                    <ui-text-block
-                        v-if="typeof pilot.altitude === 'number'"
-                        text-align="center"
-                    >
-                        <template
-                            v-if="!isShortInfo"
-                            #top
-                        >
-                            Altitude
-                        </template>
-                        <template #bottom>
-                            {{ getPilotTrueAltitude(pilot) }} ft
-                        </template>
-                    </ui-text-block>
-                    <ui-text-block
-                        v-if="!isShortInfo"
-                        text-align="center"
-                    >
-                        <template
-                            #top
-                        >
-                            Heading
-                        </template>
-                        <template #bottom>
-                            {{ properties.heading }}°
-                        </template>
-                    </ui-text-block>
+                    <ui-data-list
+                        :gap="isShortInfo ? '8px 4px' : undefined"
+                        :grid-columns="3"
+                        :items="[
+                            { title: isShortInfo ? undefined : 'Groundspeed', text: `${ pilot.groundspeed } kts` },
+                            { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
+                            { title: isShortInfo ? undefined : 'Heading', text: `${ pilot.heading }°` },
+                        ]"
+                    />
                 </div>
             </div>
         </popup-map-info>
@@ -161,10 +113,11 @@ import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPi
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import type { Options } from 'ol/Overlay';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 
 const props = defineProps({
     payload: {
@@ -183,7 +136,6 @@ const emit = defineEmits({
 });
 
 const store = useStore();
-const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const properties = computed(() => props.payload.feature.getProperties());
@@ -221,17 +173,17 @@ const getOverlaySettings = computed<Options>(() => {
 
     const [first, second] = positioning.split('-');
 
-    const [safeOffsetX, safeOffsetY, scale] = getResolvedScale({
+    const [safeOffsetX, safeOffsetY] = getResolvedScale({
         scale: properties.value.scale,
         width: radarIcons[properties.value.icon.icon].width,
         height: radarIcons[properties.value.icon.icon].height,
         onGround: properties.value.onGround,
     });
 
-    const backOffset = 7 * (radarIcons[properties.value.icon.icon].width / 30) * scale;
+    const backOffset = 0;
 
-    offset[1] = first === 'top' ? (safeOffsetY / 2) - backOffset : first === 'bottom' ? -(safeOffsetY / 2) + backOffset : 0;
-    offset[0] = second === 'left' ? (safeOffsetX / 2) - backOffset : second === 'right' ? -(safeOffsetX / 2) + backOffset : 0;
+    offset[1] = first === 'top' ? (safeOffsetY) - backOffset : first === 'bottom' ? -(safeOffsetY) + backOffset : 0;
+    offset[0] = second === 'left' ? (safeOffsetX) - backOffset : second === 'right' ? -(safeOffsetX) + backOffset : 0;
 
     return {
         position: [
@@ -248,7 +200,6 @@ const getOverlaySettings = computed<Options>(() => {
 .aircraft-hover {
     display: flex;
     flex-direction: column;
-    gap: 8px;
 
     width: 248px;
     border-radius: 8px;
@@ -257,6 +208,10 @@ const getOverlaySettings = computed<Options>(() => {
     overflow-wrap: anywhere;
 
     background: $darkgray1000;
+
+    &--short {
+        width: 210px;
+    }
 
     &__frequency {
         font-size: 12px;
@@ -293,12 +248,12 @@ const getOverlaySettings = computed<Options>(() => {
     }
 
     &_sections {
-        display: flex;
-        gap: 4px;
+        :deep(.list-item:nth-child(2)) {
+            align-items: center;
+        }
 
-        > * {
-            flex: 1 1 0;
-            width: 0;
+        :deep(.list-item:last-child) {
+            align-items: flex-end;
         }
     }
 }

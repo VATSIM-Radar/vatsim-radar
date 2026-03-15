@@ -561,6 +561,8 @@ html, body {
     color-scheme: dark;
     background: $black;
 
+    -webkit-tap-highlight-color: transparent;
+
     &:not(.iframe) {
         scrollbar-gutter: stable;
     }

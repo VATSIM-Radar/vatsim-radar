@@ -77,14 +77,9 @@ export default defineNuxtConfig({
     },
     compatibilityDate: '2024-12-12',
     experimental: {
-        appManifest: true,
         asyncContext: true,
-        entryImportMap: false,
         clientFallback: false,
         defaults: {
-            useAsyncData: {
-                deep: false,
-            },
             nuxtLink: {
                 prefetchOn: {
                     visibility: false,
@@ -92,7 +87,6 @@ export default defineNuxtConfig({
                 },
             },
         },
-        headNext: true,
         inlineRouteRules: true,
         checkOutdatedBuildInterval: 1000 * 60 * 5,
     },
@@ -240,6 +234,12 @@ export default defineNuxtConfig({
         },
     },
     vite: {
+        optimizeDeps: {
+            include: [
+                'deep-equal',
+                'vue-draggable-plus',
+            ],
+        },
         build: {
             cssMinify: 'esbuild',
             rollupOptions: {
@@ -260,7 +260,6 @@ export default defineNuxtConfig({
             },
         },
         plugins: [
-            // @ts-expect-error types error
             svgLoader({
                 defaultImport: 'url',
                 svgoConfig: {

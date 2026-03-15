@@ -5,7 +5,7 @@ import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SigmetCombined, SimAwareProperties } from '~/utils/server/storage';
-import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimNattrak, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
@@ -13,7 +13,7 @@ import type { AircraftIconType } from '../icons';
 import type { HeadingPair } from '~/utils/map/distance';
 import type {
     NavDataFlightLevel,
-    NavigraphNavDataAirportWaypointConstraints,
+    NavigraphNavDataAirportWaypointConstraints, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
 } from '~/utils/server/navigraph/navdata/types';
 
 export const globalMapEntities = {
@@ -188,16 +188,16 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     identifier?: string;
     waypoint?: string;
     key?: string;
-    routeType: 'airways' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'holdings';
+    dbType: keyof NavigraphNavDataShort | NavigraphNavDataEnrouteWaypointPartial['kind'] | null;
+    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'procedure' | `procedure-${ string }` | 'ndb' | 'vhf' | 'holdings' | `holdings-${ string }`;
     usage?: string;
     description?: string;
-    dataType: 'navdata';
     self?: boolean;
     kind?: string;
     name?: string;
     ident?: string;
-    dme?: string;
-    frequency?: string;
+    dme?: string | null;
+    frequency?: number;
     flightLevel?: NavDataFlightLevel;
     inbound?: number;
     outbound?: number;
@@ -207,6 +207,8 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     turns?: 'L' | 'R';
     icaoCode?: string;
     areaCode?: string;
+    pointCoordinate?: Coordinate;
+    direction?: VatsimNattrak['direction'];
 }
 
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;

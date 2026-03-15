@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3';
+import sqlite3 from 'better-sqlite3';
 import { join } from 'path';
 import { readdirSync } from 'fs';
 import { existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -18,11 +18,11 @@ export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; 
     closeNavigraphDB(type);
 
     if (type === 'current') {
-        navigraphCurrentDb = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
+        navigraphCurrentDb = new sqlite3(file, { readonly: true });
     }
 
     if (type === 'outdated') {
-        navigraphOutdatedDb = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
+        navigraphOutdatedDb = new sqlite3(file, { readonly: true });
     }
 }
 
@@ -126,8 +126,8 @@ export async function initNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ current.cycle }-${ current.revision }-3`;
-    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-3`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-2`;
+    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-2`;
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 
@@ -176,34 +176,17 @@ export async function initNavigraph() {
 interface RequestSettings {
     db: sqlite3.Database;
     sql: string;
-    params?: Record<string, any>;
 }
 
 export function dbRequest<T extends Record<string, any>>({
     db,
     sql,
-    params = {},
 }: RequestSettings) {
-    return new Promise<T[]>((resolve, reject) => {
-        const rows: T[] = [];
-
-        db.each(
-            sql,
-            params,
-            (err, row: any) => {
-                if (err) return reject(err);
-
-                rows.push(row);
-            },
-            err => {
-                if (err) return reject(err);
-                resolve(rows);
-            },
-        );
-    });
+    const req = db.prepare(sql);
+    return req.all() as T[];
 }
 
-export async function dbPartialRequest<T extends Record<string, any>>({ db, sql, params, table, count = 5000 }: RequestSettings & { table: string; count?: number }) {
+export async function dbPartialRequest<T extends Record<string, any>>({ db, sql, table, count = 5000 }: RequestSettings & { table: string; count?: number }) {
     const [{ count: totalCount }] = await dbRequest<{ count: number }>({
         db: db,
         sql: `SELECT COUNT(*) as count FROM ${ table }`,
@@ -215,7 +198,6 @@ export async function dbPartialRequest<T extends Record<string, any>>({ db, sql,
         rows.push(...await dbRequest<T>({
             db,
             sql: `${ sql } LIMIT ${ count } OFFSET ${ i }`,
-            params,
         }));
     }
 

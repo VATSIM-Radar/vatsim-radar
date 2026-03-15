@@ -5,7 +5,7 @@
     >
         <div class="map-footer_left">
             <div
-                v-if="dataStore.versions.value?.navigraph && !isMobile"
+                v-if="dataStore.versions.value?.navigraph && (!isMobile || mapStore.isNavigraphUpdating)"
                 class="map-footer_left_section"
                 title="Navigraph Data AIRAC"
                 @click="!store.user?.hasFms ? store.airacPopup = true : undefined"
@@ -125,7 +125,7 @@
                 </div>
             </div>
             <div
-                v-if="store.version"
+                v-if="store.version && (!isMobile || !mapStore.isNavigraphUpdating)"
                 class="map-footer_left_section map-footer_left_section--version map-footer__text"
             >
                 v{{ store.version }}
@@ -148,7 +148,7 @@
                     Cancel Booking Override
                 </ui-button>
             </div>
-            <div class="map-footer_right_section __wide">
+            <div class="map-footer_right_section __desktop">
                 <ui-button
                     size="S"
                     :type="store.mapBookingOpen ? 'primary' : 'secondary'"
@@ -203,7 +203,7 @@
                 class="map-footer_right_date"
                 :class="{ 'map-footer_right_date--outdated': outdated }"
             >
-                Map last updated: {{ getCounts.lastUpdated }}
+                Map last update: {{ getCounts.lastUpdated }}
             </div>
         </div>
     </footer>
@@ -296,6 +296,7 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 
 const getCounts = useOnlineCounters();
 const curDate = ref(Date.now());
@@ -439,12 +440,18 @@ function cancelBookingOverride() {
             padding: 8px 16px;
             border-radius: 8px;
 
+            font-family: $juraFont;
             font-weight: 300;
             font-variant-numeric: tabular-nums;
 
             background: $darkgray950;
 
             transition: 0.3s;
+
+            @include mobileOnly {
+                padding: 0;
+                background: transparent;
+            }
 
             &--outdated {
                 color: $lightgray100Orig;

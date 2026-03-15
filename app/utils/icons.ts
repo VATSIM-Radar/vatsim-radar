@@ -1487,7 +1487,7 @@ export const aircraftIcons: AircraftIcons = {
     },
 };
 
-export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
+export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | VatsimPilot): {
     icon: AircraftIcon;
     width: number;
 } {

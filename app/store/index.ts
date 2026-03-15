@@ -120,7 +120,6 @@ export const useStore = defineStore('index', {
             vatglasses: false,
             updatesCheck: false,
             dataGet: false,
-            status: false,
         } as VRInitStatus,
     }),
     getters: {

@@ -320,7 +320,7 @@ const debouncedUpdate = useThrottleFn(() => {
             tracks: showTracks.value,
         });
     }
-}, 1000, true);
+}, 500, true);
 
 useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings], () => {
     if (!init) return;
