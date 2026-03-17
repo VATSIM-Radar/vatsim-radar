@@ -27,6 +27,7 @@
                 disabled: !atcSections.length,
             },
         }"
+        @collapsedSection="(event) => event.key === 'achievements' && (collapsedAchievements = event.value)"
         @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
@@ -51,6 +52,7 @@
                     class="pilot_header_line"
                 />
             </div>
+            <common-popup-achievement v-model="selectedAchievement"/>
         </template>
         <template #action-sticky>
             <map-popup-pin-icon :overlay="overlay"/>
@@ -167,6 +169,24 @@
         <template #arrBars>
             <map-airport-bars-info :data="arrBars!"/>
         </template>
+        <template #achievements>
+            <div class="pilot__achievements">
+                <div class="pilot__achievements_list">
+                    <div
+                        v-for="(achievement, index) in overlay.data.achievements ?? []"
+                        :key="achievement.name+index"
+                        class="pilot__achievements_achievement"
+                        :title="achievement.name"
+                        @click="selectedAchievement = achievement"
+                    >
+                        <div
+                            class="pilot__achievements_achievement_image"
+                            :style="{ backgroundImage: `url(${ achievement.badge_image_url })` }"
+                        />
+                    </div>
+                </div>
+            </div>
+        </template>
         <template #flightplan>
             <map-popup-flight-plan
                 class="pilot__content __info-sections"
@@ -237,7 +257,11 @@ import type { PropType, ShallowRef } from 'vue';
 import { useStore } from '~/store';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
-import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
+import type {
+    VatsimAchievementUser,
+    VatsimExtendedPilot,
+    VatsimShortenedController,
+} from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
@@ -279,6 +303,12 @@ const props = defineProps({
 const MapPopupFlightGraph = defineAsyncComponent(() => import('~/components/map/popups/MapPopupFlightGraph.vue'));
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const collapsedAchievements = useCookie<boolean>('collapsedAchievements', {
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7 * 360,
+});
 const copy = useCopyText();
 
 const store = useStore();
@@ -286,6 +316,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
 const vatGlassesActive = isVatGlassesActive;
+const selectedAchievement = shallowRef<VatsimAchievementUser | null>(null);
 
 const ctafFrequency = computed(() => {
     const atcList = getAtcList.value.find(x => x.key === 'atc-ctaf');
@@ -370,6 +401,17 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         },
     ];
+
+    if (props.overlay.data.achievements?.length) {
+        sections.push({
+            key: 'achievements',
+            title: 'Achievements',
+            collapsedDefault: !!collapsedAchievements.value,
+            collapsedDefaultOnce: true,
+            collapsible: true,
+            bubble: props.overlay.data.achievements?.length,
+        });
+    }
 
     if (props.overlay.data.pilot.status !== 'depTaxi' && props.overlay.data.pilot.status !== 'depGate') {
         sections.push({
@@ -730,5 +772,45 @@ onBeforeUnmount(() => {
         padding: 0 !important;
     }
 
+    &__achievements {
+        overflow: auto;
+        max-width: 100%;
+        padding-bottom: 4px;
+
+        &_list {
+            display: flex;
+            gap: 8px;
+            width: max-content;
+        }
+
+        &_achievement {
+            cursor: pointer;
+
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 4px;
+
+            width: 100%;
+            max-width: 70px;
+            padding: 4px;
+            border: 1px solid $darkgray800;
+            border-radius: 8px;
+
+            font-size: 10px;
+            text-align: center;
+
+            background: $darkgray950;
+
+            &_image {
+                aspect-ratio: $achievementAspectRatio;
+                height: 50px;
+
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+            }
+        }
+    }
 }
 </style>

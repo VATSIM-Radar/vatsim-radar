@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { Extent } from 'ol/extent';
-import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
+import type { VatsimAchievementUser, VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
@@ -28,6 +28,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
     type: 'pilot';
     data: {
         pilot: VatsimExtendedPilot;
+        achievements?: VatsimAchievementUser[];
         airport?: VatsimAirportInfo;
         tracked?: boolean;
         fullRoute?: boolean;
@@ -164,6 +165,7 @@ export const useMapStore = defineStore('map', {
                     return;
                 }*/
 
+                const achievementsRequest = $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ cid }/achievements`);
                 const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
                 if (tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
@@ -176,7 +178,7 @@ export const useMapStore = defineStore('map', {
                     return;
                 }
 
-                return this.addOverlay<StoreOverlayPilot>({
+                const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,
                     data: {
                         pilot,
@@ -187,6 +189,9 @@ export const useMapStore = defineStore('map', {
                     sticky: cid === ownFlight.value?.cid.toString(),
                     ...params,
                 });
+
+                achievementsRequest.then(result => overlay.data.achievements = result).catch(console.error);
+                return overlay;
             }
             finally {
                 this.openingOverlay = false;

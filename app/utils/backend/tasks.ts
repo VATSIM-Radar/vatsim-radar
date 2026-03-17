@@ -14,6 +14,7 @@ import { updateVatglassesData } from '~/utils/backend/vatglasses';
 import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/backend/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import {
+    updateAchievements,
     updateAirlines,
     updateSectorsData,
     updateBookings,
@@ -113,6 +114,7 @@ async function vatsimTasks() {
     }).catch(console.error);
 
     await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
+    await defineCronJob('15 0 * * *', updateAchievements).catch(console.error);
     await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
     await defineCronJob('15 * * * *', updateSectorsData).catch(console.error);
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
@@ -389,6 +391,7 @@ export async function updateRedisData() {
     radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
     radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
     radarStorage.vatsimStatic.tracks = (await getRedisData('data-nattrak')) ?? radarStorage.vatsimStatic.tracks;
+    radarStorage.vatsimStatic.achievements = (await getRedisData('data-achievements')) ?? radarStorage.vatsimStatic.achievements;
     radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
     radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
 }
