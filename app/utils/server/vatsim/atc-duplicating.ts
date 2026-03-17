@@ -267,6 +267,24 @@ export const duplicatingSettings = [
         },
     },
     /**
+    * @description ZLC Center and TRACONs
+    * @author 1378019
+    */
+    {
+        regex: /^(SLC|BOI|BZN|BIL|GTF|MSO|MUO|HLN|TWF)(_\w{0,3})?_(CTR|TMU|APP|DEP)$/,
+        mapping: {
+            SLC: 'SLC_APP',
+            BOI: 'BOI_APP',
+            BZN: 'BZN_APP',
+            BIL: 'BIL_APP',
+            GTF: 'GTF_APP',
+            MSO: 'MSO_APP',
+            MUO: 'MUO_APP',
+            HLN: 'HLN_APP',
+            TWF: 'TWF_APP',
+        },
+    },
+    /**
     * @description CZYZ FIR Terminal Sectors
     * @author 1401686 and 1448618
     */
@@ -285,7 +303,7 @@ export const duplicatingSettings = [
      * @author 1634151
      */
     {
-        regex: /^CHI_\d{2}_CTR$/,
+        regex: /^CHI_(\d+_)?CTR$/,
         mapping: {
             C90: 'CHI_Z_APP',
             AZO: 'AZO_G_APP',
@@ -299,6 +317,7 @@ export const duplicatingSettings = [
             SBN: 'SBN_N_APP',
             GUS: 'GUS_E_APP',
             VOK: 'VOK_APP',
+            OSH: 'OSH_V_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
