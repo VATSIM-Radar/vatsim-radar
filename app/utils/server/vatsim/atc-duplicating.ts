@@ -303,7 +303,7 @@ export const duplicatingSettings = [
      * @author 1634151
      */
     {
-        regex: /^CHI_\d{2}_CTR$/,
+        regex: /^CHI_(\d+_)?CTR$/,
         mapping: {
             C90: 'CHI_Z_APP',
             AZO: 'AZO_G_APP',
@@ -317,6 +317,7 @@ export const duplicatingSettings = [
             SBN: 'SBN_N_APP',
             GUS: 'GUS_E_APP',
             VOK: 'VOK_APP',
+            OSH: 'OSH_V_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
