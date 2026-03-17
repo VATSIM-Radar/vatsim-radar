@@ -408,26 +408,24 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
             styleCache[key] = new Style({
                 stroke,
                 zIndex: 5,
-                text: showAirwaysLabels.value
-                    ? new Text({
-                        font: getTextFont('caption-medium', { fontSize: 8 }),
-                        text: `${ properties.identifier }`,
-                        placement: 'line',
-                        keepUpright: true,
-                        textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
-                        offsetY: -4,
-                        justify: 'center',
-                        padding: [6, 6, 6, 6],
-                        rotateWithView: false,
-                        fill: new Fill({
-                            color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
-                        }),
-                    })
-                    : undefined,
+                text: new Text({
+                    font: getTextFont('caption-medium', { fontSize: 8 }),
+                    text: `${ properties.identifier }`,
+                    placement: 'line',
+                    keepUpright: true,
+                    textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
+                    offsetY: -4,
+                    justify: 'center',
+                    padding: [6, 6, 6, 6],
+                    rotateWithView: false,
+                    fill: new Fill({
+                        color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
+                    }),
+                }),
             });
 
             styleCache[key].setStroke(stroke);
-            styleCache[key].getText()!.setText(properties.identifier);
+            styleCache[key].getText()!.setText(showAirwaysLabels.value ? properties.identifier : undefined);
 
             const style = [
                 styleCache[key],
