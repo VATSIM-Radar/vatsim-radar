@@ -2,19 +2,19 @@
     <ui-page-container class="achievements">
         <template #title>Achievements</template>
 
-            <ui-notification
-                class="achievements_notification"
-                cookie-name="achievements-link"
-                type="info"
+        <ui-notification
+            class="achievements_notification"
+            cookie-name="achievements-link"
+            type="info"
+        >
+            <a
+                class="__link"
+                href="https://prams.vatsim.net/achievements"
+                target="_blank"
             >
-                <a
-                    class="__link"
-                    href="https://prams.vatsim.net/achievements"
-                    target="_blank"
-                >
-                    Learn more about achievements
-                </a>
-            </ui-notification>
+                Learn more about achievements
+            </a>
+        </ui-notification>
 
         <div class="achievements_list">
             <div
