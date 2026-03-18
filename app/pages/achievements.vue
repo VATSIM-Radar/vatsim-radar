@@ -100,6 +100,11 @@ const groups = computed(() => {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+
+            @include mobileOnly {
+                display: grid;
+                grid-template-columns: repeat(2, calc(50% - 4px));
+            }
         }
     }
 
@@ -119,6 +124,10 @@ const groups = computed(() => {
 
         background: $darkgray1000;
 
+        @include mobileOnly {
+            width: auto;
+        }
+
         &_image {
             width: 100%;
             padding: 8px;
@@ -137,6 +146,10 @@ const groups = computed(() => {
 
         &_title {
             font-weight: 600;
+
+            @include mobileOnly {
+                font-size: 14px;
+            }
         }
     }
 }
