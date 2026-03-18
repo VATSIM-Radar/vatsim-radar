@@ -9,7 +9,7 @@
             >
                 <a
                     class="__link"
-                    href="https://my.vatsim.net"
+                    href="https://prams.vatsim.net/achievements"
                     target="_blank"
                 >
                     Learn more about achievements

@@ -19,7 +19,7 @@
                 />
             </div>
             <div class="achievement_provider">
-                Provided by <a
+                Granted by <a
                     class="__link"
                     :href="model.provider_url"
                     target="_blank"
