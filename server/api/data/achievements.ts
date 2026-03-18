@@ -1,4 +1,4 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from "~/utils/server/storage";
 import type { VatsimAchievementList } from '~/types/data/vatsim';
 
 export default defineEventHandler((): VatsimAchievementList[] => {

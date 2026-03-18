@@ -40,6 +40,7 @@ async function initCheck(key: keyof VRInitStatus, handler: (args: {
 }
 
 let previousInProgress = false;
+export const initFirstCheck = ref(false);
 
 async function checkStatus() {
     if (previousInProgress) return;
@@ -55,6 +56,7 @@ async function checkStatus() {
     }
     finally {
         previousInProgress = false;
+        initFirstCheck.value = true;
     }
 }
 

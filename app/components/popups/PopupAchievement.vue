@@ -1,5 +1,5 @@
 <template>
-    <common-popup
+    <popup-fullscreen
         :model-value="!!model"
         width="600px"
         @update:modelValue="model = null"
@@ -31,7 +31,7 @@
             >
                 {{model.description}}
             </div>
-            <common-button
+            <ui-button
                 v-if="route.path !== '/achievements'"
                 size="S"
                 target="_blank"
@@ -40,29 +40,29 @@
                 width="100%"
             >
                 View all achievements
-            </common-button>
+            </ui-button>
         </div>
         <template #actions>
-            <common-button-group>
-                <common-button
+            <ui-button-group>
+                <ui-button
                     :href="model?.course_url"
                     target="_blank"
                 >
                     Open course
-                </common-button>
-                <common-button @click="model = null">
+                </ui-button>
+                <ui-button @click="model = null">
                     Close
-                </common-button>
-            </common-button-group>
+                </ui-button>
+            </ui-button-group>
         </template>
-    </common-popup>
+    </popup-fullscreen>
 </template>
 
 <script setup lang="ts">
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import type { VatsimAchievementList, VatsimAchievementUser } from '~/types/data/vatsim';
-import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const model = defineModel({
     type: Object as PropType<VatsimAchievementList | VatsimAchievementUser | null>,

@@ -52,7 +52,7 @@
                     class="pilot_header_line"
                 />
             </div>
-            <common-popup-achievement v-model="selectedAchievement"/>
+            <popup-achievement v-model="selectedAchievement"/>
         </template>
         <template #action-sticky>
             <map-overlay-pin-icon :overlay="overlay"/>
@@ -292,6 +292,7 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
+import PopupAchievement from '~/components/popups/PopupAchievement.vue';
 
 const props = defineProps({
     overlay: {
