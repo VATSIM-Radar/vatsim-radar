@@ -8,7 +8,15 @@ outline: [2, 3]
 [[toc]]
 :::
 
-# 1.2.4.6.1
+## 1.2.4.6.2
+
+- Added new coordinate format support: `570021N0380421E`
+- Speed up map loading by exactly one second (blushes)
+- Update ZAU Duplicate Regex
+- Add ZLC Mapping for ATC Duplication
+- Add VATSIM Achievements
+
+## 1.2.4.6.1
 
 - Fixed Map Layer stopping loading when weather is failing to load
 - Roadmap has been updated
@@ -25,7 +33,7 @@ outline: [2, 3]
 - Migrated to new FAA NMS API
 - To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is available and pilot is not tuned up to CTAF frequency
 
-# 1.2.4.6
+## 1.2.4.6
 
 - Add AGS approach to ATC duplication
 - Add VLY_X_APP to ATC duplicating
@@ -35,21 +43,21 @@ outline: [2, 3]
 - Original callsign is now shown for all duplicated facilities
 - Added a duplicated warning with orig callsign in ATC popup if facility is duplicated
 
-# 1.2.4.5.2
+## 1.2.4.5.2
 
 - Added automatic VATSIM Status Monitoring
 
-# 1.2.4.5.1
+## 1.2.4.5.1
 
 - Fixed tracks data resetting on each disconnect or "next" version update
 
-# 1.2.4.5
+## 1.2.4.5
 
 - Added NZ sector duplicating
 - Restored RainViewer weather layer
 - Add ZKC Center and TRACONs to ATC duplicating
 
-# 1.2.4.4
+## 1.2.4.4
 
 - Fixed an aircraft constantly going back and forward when tracked
 - Fix zdc atc duplication
@@ -61,7 +69,7 @@ outline: [2, 3]
 - Sectors are now shown in booking override mode by Felix 1025793
 - Fixed VATGlasses data not working in certain conditions
 
-# 1.2.4.3
+## 1.2.4.3
 
 - Fixed map crash after airports procedures have been opened, but nothing was selected
 - Fixed "show pilot stats" toggle not being saved

@@ -12,7 +12,7 @@ import type {
     VatsimBooking,
     VatsimDivision,
     VatsimSubDivision,
-    VatsimShortenedController, VatsimController, VatsimNattrak,
+    VatsimShortenedController, VatsimController, VatsimNattrak, VatsimAchievementList,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -451,6 +451,15 @@ export async function updateNattrak() {
         last_routeing: parseCoordinates(x.last_routeing),
     }));
     await setRedisData('data-nattrak', radarStorage.vatsimStatic.tracks, 1000 * 60 * 60 * 24 * 7);
+}
+
+export async function updateAchievements() {
+    const data = await $fetch<{ data: VatsimAchievementList[] }>('https://prams.vatsim.net/api/achievements', {
+        retry: 3,
+    });
+
+    radarStorage.vatsimStatic.achievements = data.data;
+    await setRedisData('data-achievements', radarStorage.vatsimStatic.achievements, 1000 * 60 * 60 * 24 * 7);
 }
 
 export async function updateBookings() {

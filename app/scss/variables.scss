@@ -1,6 +1,9 @@
+@use "sass:math";
+
 $defaultFont: Montserrat, Arial, sans-serif;
 $openSansFont: OpenSans, Arial, sans-serif;
 $defaultPageHeight: calc(32px + 56px);
+$achievementAspectRatio: math.div(1280, 1024);
 
 @mixin mobile(){
     @media all and (max-width: 1365px) {
