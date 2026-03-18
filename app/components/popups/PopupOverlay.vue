@@ -74,7 +74,9 @@
                         :bubble="section.bubble"
                         class="info-popup__section_separator"
                         :collapsed="!section.collapsible ? null : collapsedSections.includes(section.key)"
-                        @update:collapsed="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
+                        @update:collapsed="section.collapsible && (collapsedSections.includes(section.key) ?
+                            (collapsedSections = collapsedSections.filter(x => x !== section.key)) && emit('collapsedSection', { key: section.key, value: false })
+                            : (collapsedSections.push(section.key)) && emit('collapsedSection', { key: section.key, value: true }))"
                     >
                         <slot
                             :name="`${ section.key }Title`"
@@ -171,6 +173,11 @@ const props = defineProps({
     },
 });
 
+const emit = defineEmits({
+    collapsedSection(settings: { key: string; value: boolean }) {
+        return true;
+    },
+});
 const model = defineModel({
     type: Boolean,
     required: true,
@@ -181,6 +188,7 @@ const collapsed = defineModel('collapsed', {
 });
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
+
 const isMobile = useIsMobile();
 
 const activeTab = defineModel('tab', { type: String });

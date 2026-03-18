@@ -8,6 +8,14 @@ outline: [2, 3]
 [[toc]]
 :::
 
+## 1.2.4.6.2
+
+- Added new coordinate format support: `570021N0380421E`
+- Speed up map loading by exactly one second (blushes)
+- Update ZAU Duplicate Regex
+- Add ZLC Mapping for ATC Duplication
+- Add VATSIM Achievements
+
 ## 1.2.4.6.1
 
 - Fixed Map Layer stopping loading when weather is failing to load

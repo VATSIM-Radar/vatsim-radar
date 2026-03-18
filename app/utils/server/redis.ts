@@ -1,5 +1,5 @@
 import IORedis from 'ioredis';
-import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimNattrak, VatsimSubDivision } from '~/types/data/vatsim';
+import type { VatsimAchievementList, VatsimBooking, VatsimDivision, VatsimEvent, VatsimNattrak, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/server/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/server/storage';
@@ -45,6 +45,7 @@ export interface RedisData {
     'data-divisions': VatsimDivision[];
     'data-subdivisions': VatsimSubDivision[];
     'data-nattrak': VatsimNattrak[];
+    'data-achievements': VatsimAchievementList[];
     'data-events': VatsimEvent[];
     'data-navigraph': typeof cycles;
     'data-patreon': PatreonInfo;

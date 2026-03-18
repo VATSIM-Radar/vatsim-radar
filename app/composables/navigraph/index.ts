@@ -145,7 +145,6 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 
 const replacementRegex = /[^a-zA-Z0-9\/]+/;
 const latRegex = /^(\d{2,4})([NS])/;
-const lonRegex = /^(\d{3,5})([EW])/;
 const sidstarRegex = /((?<start>[A-Z]{3,5})(?<end>[0-9]([A-Z])?))/;
 
 function getSidStarResult(route: string) {
@@ -182,74 +181,84 @@ export const enrouteAircraftPath = useStorageLocal<Record<string, {
     arrival: EnroutePath;
 }> | null>('enroute-aircraft-path', {}, undefined, { serializer: StorageSerializers.object });
 
+function dmToDecimal(raw: string, degDigits: number): number {
+    const deg = parseInt(raw.slice(0, degDigits), 10);
+    const min = parseInt(raw.slice(degDigits), 10);
+    return deg + (min / 60);
+}
+
+function dmsToDecimal(raw: string, degDigits: number): number {
+    const deg = parseInt(raw.slice(0, degDigits), 10);
+    const min = parseInt(raw.slice(degDigits, degDigits + 2), 10);
+    const sec = parseInt(raw.slice(degDigits + 2), 10);
+    return deg + (min / 60) + (sec / 3600);
+}
+
+function withSign(value: number, dir: string): number {
+    return dir === 'S' || dir === 'W' ? -value : value;
+}
+
+// N4930W01520
+const format1Regex = /^([NS])(\d{2}|\d{4})([EW])(\d{3}|\d{5})$/;
+
+// 49/1520
+const format2Regex = /^(\d{1,2}|\d{4})\/(\d+|\d{4})$/;
+
+// 570021N0380421E
+const format3Regex = /^(\d{6})([NS])(\d{7})([EW])$/;
+
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
-    const latMatch = input.match(latRegex);
-    if (latMatch) {
-        const latDigits = latMatch[1];
-        const latDir = latMatch[2];
-        const remainder = input.slice(latMatch[0].length);
-        const lonMatch = remainder.match(lonRegex);
+    const value = input.trim();
 
-        if (!lonMatch) return null;
+    // 1. Формат N4930W01520
+    const format1 = value.match(format1Regex);
+    if (format1) {
+        const [, latDir, latRaw, lonDir, lonRaw] = format1;
 
-        const lonDigits = lonMatch[1];
-        const lonDir = lonMatch[2];
+        const lat = latRaw.length === 2
+            ? parseInt(latRaw, 10)
+            : dmToDecimal(latRaw, 2);
 
-        function toDecimal(degMin: string) {
-            if (degMin.length <= 3) {
-                return parseInt(degMin, 10);
-            }
+        const lon = lonRaw.length === 3
+            ? parseInt(lonRaw, 10)
+            : dmToDecimal(lonRaw, 3);
 
-            const len = degMin.length;
-            const deg = parseInt(degMin.slice(0, len - 2), 10);
-            const min = parseInt(degMin.slice(len - 2), 10);
-            return deg + (min / 60);
-        }
-
-        const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
-        const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
-
-        return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
+        return [
+            [withSign(lon, lonDir), withSign(lat, latDir)],
+            `${ latDir }${ latRaw }${ lonDir }${ lonRaw }`,
+        ];
     }
 
-    const parts = input.split('/');
-    if (parts.length === 2) {
-        const latPart = parts[0];
-        const lonPart = parts[1];
+    // 49/1520
+    const format2 = value.match(format2Regex);
+    if (format2) {
+        const [, latRaw, lonRaw] = format2;
 
-        if (!lonPart) return null;
+        const lat = latRaw.length === 4
+            ? dmToDecimal(latRaw, 2)
+            : parseFloat(latRaw);
 
-        let lonDeg: number;
-        if (lonPart.length === 4) {
-            // ddmm → 15°20′ = 15 + 20 / 60
-            const deg = parseInt(lonPart.slice(0, 2), 10);
-            const min = parseInt(lonPart.slice(2, 4), 10);
-            lonDeg = deg + (min / 60);
-        }
-        else {
-            lonDeg = parseFloat(lonPart);
-        }
+        const lon = lonRaw.length === 4
+            ? dmToDecimal(lonRaw, 2)
+            : parseFloat(lonRaw);
 
-        if (isNaN(lonDeg)) return null;
+        if (isNaN(lat) || isNaN(lon)) return null;
 
-        let lat: number;
+        return [[-lon, lat], `N${ latRaw }W${ lonRaw }`];
+    }
 
-        if (latPart.length === 4) {
-            // ddmm → 49°30′ = 49 + 30 / 60
-            const deg = parseInt(latPart.slice(0, 2), 10);
-            const min = parseInt(latPart.slice(2, 4), 10);
-            lat = deg + (min / 60);
-        }
-        else if (latPart.length <= 2) {
-            lat = parseFloat(latPart);
-        }
-        else {
-            return null;
-        }
+    // 570021N0380421E
+    const format3 = value.match(format3Regex);
+    if (format3) {
+        const [, latRaw, latDir, lonRaw, lonDir] = format3;
 
-        if (isNaN(lat)) return null;
+        const lat = dmsToDecimal(latRaw, 2);
+        const lon = dmsToDecimal(lonRaw, 3);
 
-        return [[-lonDeg, lat], `N${ latPart }W${ lonPart }`];
+        return [
+            [withSign(lon, lonDir), withSign(lat, latDir)],
+            `${ latDir }${ latRaw }${ lonDir }${ lonRaw }`,
+        ];
     }
 
     return null;
