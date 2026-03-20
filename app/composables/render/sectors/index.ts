@@ -58,7 +58,6 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
         const existingFeature = getMapFeature('sector', source, id);
         if (existingFeature) {
             existingFeature.setProperties({
-                ...existingFeature.getProperties(),
                 booked: store.bookingOverride || !!fir.booking,
                 duplicated: !!controllers.length && controllers.every(x => x.controller.duplicated),
                 atc: controllers.map(x => x.controller),
@@ -144,7 +143,6 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
                 }
                 else {
                     existingFeatures.forEach(x => x.setProperties({
-                        ...x.getProperties(),
                         atc: position.atc,
                     }));
                 }

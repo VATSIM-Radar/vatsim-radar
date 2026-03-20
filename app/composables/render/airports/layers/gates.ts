@@ -135,7 +135,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             if (existingFeature) {
                 if (existingFeature.getProperties().gateColor !== color) {
                     existingFeature.setProperties({
-                        ...existingFeature.getProperties(),
                         gateColor: color,
                         trulyOccupied: gate.trulyOccupied,
                         maybeOccupied: gate.maybeOccupied,
@@ -168,7 +167,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             if (existingFeature) {
                 if (existingFeature.getProperties().gateColor !== color) {
                     existingFeature.setProperties({
-                        ...existingFeature.getProperties(),
                         gateColor: color,
                     });
                 }

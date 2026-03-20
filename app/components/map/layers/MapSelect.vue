@@ -187,7 +187,7 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 
     if (!feature) return;
 
-    feature.setProperties({ ...feature.getProperties(), selected });
+    feature.setProperties({ selected });
     previouslySelected = feature;
     feature.changed();
 }

@@ -56,12 +56,13 @@ async function update() {
             const properties = existingFeature.getProperties();
 
             if (properties.self) {
-                existingFeature.setGeometry(feature().geometry);
+                const properties = feature();
+                existingFeature.setProperties(properties);
+                existingFeature.setGeometry(properties.geometry);
             }
 
             if (currentFlight && !properties.currentFlight) {
                 existingFeature.setProperties({
-                    ...properties,
                     currentFlight,
                 });
             }

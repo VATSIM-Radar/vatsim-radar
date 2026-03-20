@@ -97,7 +97,6 @@ const jsonFeatures = computed(() => {
     });
 
     features.forEach(x => x.setProperties({
-        ...x.getProperties(),
         type: 'sigmet',
     }));
 

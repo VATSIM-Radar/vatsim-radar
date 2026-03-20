@@ -46,7 +46,6 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
 
                 for (const feature of features) {
                     feature.setProperties({
-                        ...feature.getProperties(),
                         id: `airport-${ icao }-layer`,
                         type: key,
                         airport: icao,

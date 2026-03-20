@@ -280,7 +280,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     if (existing) {
                         existing.setGeometry(geometry);
                         existing.setProperties({
-                            ...existing.getProperties(),
                             timestamp: collection.features[collection.features.length - 1].properties!.timestamp,
                             color: collection.features[0].properties!.color ?? turnsColor,
                         });
@@ -348,7 +347,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     if (existing) {
                         existing.setGeometry(geometry);
                         existing.setProperties({
-                            ...existing.getProperties(),
                             timestamp: collection.features[0].properties!.timestamp,
                             color: collection.features[0].properties!.color ?? turnsColor,
                         });

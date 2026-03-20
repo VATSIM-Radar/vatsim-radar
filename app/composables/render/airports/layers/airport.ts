@@ -63,7 +63,6 @@ export function setMapAirports({ source, airports, layer }: {
             const properties = existingFeature.getProperties();
 
             existingFeature.setProperties({
-                ...properties,
                 color,
                 aircraftList: airport.aircraftList,
                 atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
@@ -143,7 +142,6 @@ export function setMapAirports({ source, airports, layer }: {
 
             if (existingFacility) {
                 existingFacility.setProperties({
-                    ...existingFacility.getProperties(),
                     facility,
                     index,
                     totalCount: facilities.length,
@@ -185,7 +183,6 @@ export function setMapAirports({ source, airports, layer }: {
                 const existingCounter = getMapFeature('airport-counter', source, `airport-${ airport.airport.icao }-${ key }`);
                 if (existingCounter) {
                     existingCounter.setProperties({
-                        ...existingCounter.getProperties(),
                         counter: value.length,
                         aircraft: value,
                         totalCount,
@@ -225,9 +222,8 @@ export function setMapAirports({ source, airports, layer }: {
                 const existingCircleLabel = getMapFeature('airport-circle-label', source, `airport-${ airport.airport.icao }-circleLabel`);
 
                 if (existingCircle && existingCircleLabel) {
-                    existingCircle.setProperties({ ...existingCircle.getProperties(), atc, isTWR, isDuplicated, isBooked });
+                    existingCircle.setProperties({ atc, isTWR, isDuplicated, isBooked });
                     existingCircleLabel.setProperties({
-                        ...existingCircleLabel.getProperties(),
                         atc,
                         isTWR,
                         isDuplicated,
@@ -291,9 +287,8 @@ export function setMapAirports({ source, airports, layer }: {
                     isBooked = controllers.every(x => x.isBooking);
 
                     if (existingTracon && existingTraconLabel) {
-                        existingTracon.setProperties({ ...existingTracon.getProperties(), atc: controllers, isTWR, isDuplicated, isBooked });
+                        existingTracon.setProperties({ atc: controllers, isTWR, isDuplicated, isBooked });
                         existingTraconLabel.setProperties({
-                            ...existingTraconLabel.getProperties(),
                             atc: controllers,
                             isTWR,
                             isDuplicated,
