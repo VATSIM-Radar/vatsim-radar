@@ -33,9 +33,7 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
             return;
         }
 
-        if (!updateState.previousFlightPlan) updateState.previousFlightPlan = updateState.flightPlan;
-
-        if (updateState.previousFlightPlan !== updateState.flightPlan) {
+        if (!updateState.previousFlightPlan || updateState.previousFlightPlan !== updateState.flightPlan) {
             delete dataStore.navigraphWaypoints.value[stringCid];
             updateState.previousFlightPlan = updateState.flightPlan;
         }
