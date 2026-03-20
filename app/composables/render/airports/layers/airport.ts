@@ -60,7 +60,6 @@ export function setMapAirports({ source, airports, layer }: {
         const existingFeature = getMapFeature('airport', source, `airport-${ airport.airport.icao }`);
         if (existingFeature) {
             const color = colorForAirport(airport);
-            const properties = existingFeature.getProperties();
 
             existingFeature.setProperties({
                 color,
