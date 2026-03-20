@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-alpha.5.1]
+
+- Fixed self flight waypoints flickering
+- Fixed self flight line not updating
+- Fixed some tracks or routes not clearing up
+
 # [2.0.0-alpha.5]
 
 ## Alpha Changes

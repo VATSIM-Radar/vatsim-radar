@@ -65,12 +65,6 @@ async function update() {
                     currentFlight,
                 });
             }
-            else if (properties.currentFlight) {
-                existingFeature.setProperties({
-                    ...properties,
-                    currentFlight: false,
-                });
-            }
             return;
         }
 

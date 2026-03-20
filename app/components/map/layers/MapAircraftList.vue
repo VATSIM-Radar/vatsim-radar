@@ -322,7 +322,7 @@ const debouncedUpdate = useThrottleFn(() => {
     }
 }, 500, true);
 
-useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings], () => {
+useUpdateCallback(['mandatory', 'short', 'extent', showTracks, updateRelatedSettings], () => {
     if (!init) return;
     visibleSet();
 });
