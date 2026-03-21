@@ -11,6 +11,7 @@
             class="navigraph"
             content-full-height
             width="300px"
+            open-from="top-center"
             @mouseleave="emit('close')"
         >
             <template #title>

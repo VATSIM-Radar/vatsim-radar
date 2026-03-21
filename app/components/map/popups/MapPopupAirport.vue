@@ -19,6 +19,7 @@
         <popup-map-info
             v-if="vatGlassesCombinedActive && payload.additionalPayload?.length"
             class="airport_atc-vgList"
+            :open-from="type === 'airport' ? 'bottom-center' : 'top-center'"
         >
             <template #title>
                 Positions
@@ -65,6 +66,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
+            :open-from="type === 'airport' ? 'bottom-center' : 'top-center'"
         >
             <template #title>
                 {{getPopupName}}

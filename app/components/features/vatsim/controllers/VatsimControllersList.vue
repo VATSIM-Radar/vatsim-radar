@@ -9,6 +9,7 @@
         <popup-map-info
             class="atc-popup"
             content-padding="0"
+            :open-from
         >
             <template
                 v-if="$slots.title"
@@ -41,6 +42,7 @@ import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import VatsimControllerInfo from '~/components/features/vatsim/controllers/VatsimControllerInfo.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import type { Positioning } from 'ol/Overlay';
 
 defineProps({
     controllers: {
@@ -66,6 +68,10 @@ defineProps({
     maxHeight: {
         type: String,
         default: '400px',
+    },
+    openFrom: {
+        type: String as PropType<Positioning | null>,
+        default: null,
     },
 });
 

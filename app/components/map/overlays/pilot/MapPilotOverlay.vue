@@ -738,10 +738,10 @@ onBeforeUnmount(() => {
                 left: 0;
 
                 width: var(--percent);
-                height: 56px;
+                height: 36px;
                 border-radius: 8px 0 0 8px;
 
-                background: $darkgray900;
+                background: $whiteAlpha2;
             }
         }
     }

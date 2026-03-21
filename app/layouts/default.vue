@@ -399,6 +399,7 @@ onNuxtReady(async () => {
     windowInterval = setInterval(setWindowStore, 500);
     store.device = await getDeviceType() ?? 'desktop';
     store.engine = await getEngine();
+    store.touch = matchMedia('(hover: none)').matches;
 });
 
 onBeforeUnmount(() => {

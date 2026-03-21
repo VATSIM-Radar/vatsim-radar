@@ -110,6 +110,7 @@ export const useStore = defineStore('index', {
         isPCWide: false,
         scrollbarWidth: 0,
         device: 'desktop' as 'desktop' | 'mobile' | 'tablet',
+        touch: false,
         engine: '' as IEngine['name'],
 
         initStatus: {

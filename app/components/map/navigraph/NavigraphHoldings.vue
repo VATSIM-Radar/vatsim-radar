@@ -237,7 +237,26 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
     }
 
     for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of list) {
-        if ((!enabled || type !== 'ENRT') && !starWaypoints.value[waypoint] && !aircraftWaypoints.value[waypoint]) continue;
+        const id = `holding-${ key }`;
+        const textId = `${ id }-text`;
+        const existingFeature = getMapFeature('navigraph', source!.value, id);
+        const existingTextFeature = getMapFeature('navigraph', source!.value, textId);
+
+        if ((!enabled || type !== 'ENRT') && !starWaypoints.value[waypoint] && !aircraftWaypoints.value[waypoint]) {
+            if (existingFeature || existingTextFeature) {
+                if (existingFeature) {
+                    source?.value?.removeFeature(existingFeature);
+                    existingFeature.dispose();
+                }
+
+                if (existingTextFeature) {
+                    source?.value?.removeFeature(existingTextFeature);
+                    existingTextFeature.dispose();
+                }
+            }
+
+            continue;
+        }
 
         const existingWaypoint = !!starWaypoints.value[waypoint] || !!aircraftWaypoints.value[waypoint];
 
@@ -245,12 +264,6 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
 
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
-
-        const id = `holding-${ key }`;
-        const textId = `${ id }-text`;
-
-        const existingFeature = getMapFeature('navigraph', source!.value, id);
-        const existingTextFeature = getMapFeature('navigraph', source!.value, textId);
 
         if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], extent) || (!enabled && !existingWaypoint)) {
             if (existingFeature) {

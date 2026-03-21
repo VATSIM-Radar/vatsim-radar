@@ -85,7 +85,7 @@ const collapsed = defineModel<boolean | null>('collapsed', {
         width: 100%;
         height: 1px;
 
-        background: $darkgray850;
+        background: $darkGray800;
     }
 
     &:not(:only-child, &--remove-margin) {
@@ -95,7 +95,7 @@ const collapsed = defineModel<boolean | null>('collapsed', {
     &_text > *, &_collapse, &_append {
         position: relative;
         z-index: 1;
-        background: var(--block-title-background, $darkgray1000);
+        background: var(--block-title-background, $darkGray800);
     }
 
     &_text {

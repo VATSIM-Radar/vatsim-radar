@@ -10,6 +10,7 @@
         <popup-map-info
             class="sigmets"
             content-full-height
+            open-from="top-center"
             @mouseleave="emit('close')"
         >
             <template #title>

@@ -17,6 +17,7 @@
         <popup-map-info
             v-if="properties.aircraft?.length"
             class="airport-counts"
+            open-from="center-left"
         >
             <template #title>
                 <div

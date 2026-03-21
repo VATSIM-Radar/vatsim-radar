@@ -13,6 +13,7 @@
             v-if="pilot"
             class="aircraft-hover"
             :class="{ 'aircraft-hover--short': isShortInfo }"
+            :open-from="getOverlaySettings.positioning ?? null"
             @mouseleave="emit('close')"
         >
             <template

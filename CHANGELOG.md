@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-alpha.5.3]
+
+## Alpha Changes
+
+- Started overlays redesign, very early changes for now
+- Restored /sigmets page functionality
+- Added small animation for hover effect
+- Fixed hover not working on tablet view/small screens (hovering is now disabled for touch devices only)
+- Fixed some holdings not disappearing
+
 # [2.0.0-alpha.5.2]
 
 ## Alpha Changes

@@ -6,9 +6,12 @@
         :style="{ '--max-height': maxHeight }"
     >
         <div class="info-popup_header">
-            <div class="info-popup_header_title">
+            <ui-text
+                class="info-popup_header_title"
+                type="h5"
+            >
                 <slot name="title"/>
-            </div>
+            </ui-text>
             <div class="info-popup_header_actions">
                 <div
                     v-for="action in headerActions"
@@ -118,6 +121,7 @@ import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { PropType } from 'vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 /* eslint vue/require-explicit-slots: 0 */
 
@@ -217,6 +221,7 @@ watch(getSections, sections => {
 
 <style scoped lang="scss">
 .info-popup {
+    scrollbar-width: none;
     scrollbar-gutter: stable;
 
     container-name: info-popup;
@@ -224,23 +229,24 @@ watch(getSections, sections => {
     display: flex;
     flex-direction: column;
 
-    width: 350px;
+    width: 360px;
     max-width: calc(100dvw - 48px);
     max-height: var(--max-height);
-    padding: 0 16px 16px;
+    padding: 0 16px 8px;
+    border: 1px solid $strokeDefault;
     border-radius: 8px;
 
-    color: $lightgray150;
+    color: $lightGray200;
     text-align: left;
 
-    background: $darkgray1000;
+    background: $black;
 
     @include mobileOnly {
         width: 100%;
     }
 
     &--shadow {
-        box-shadow: 0 0 4px 4px varToRgba('lightgray125', 0.05);
+        box-shadow: 0 0 4px 4px $whiteAlpha2;
     }
 
     &--absolute {
@@ -256,9 +262,9 @@ watch(getSections, sections => {
         align-items: center;
         justify-content: space-between;
 
-        padding: 16px 0;
+        padding: 8px 0;
 
-        background: $darkgray1000;
+        background: $black;
 
         &:only-child {
             padding-bottom: 0;
@@ -268,7 +274,7 @@ watch(getSections, sections => {
             position: relative;
             z-index: 1;
             display: flex;
-            gap: 16px;
+            gap: 8px;
 
             @include mobileOnly {
                 flex-wrap: wrap;
@@ -281,8 +287,8 @@ watch(getSections, sections => {
                 align-items: center;
                 justify-content: center;
 
-                min-width: 24px;
-                min-height: 24px;
+                min-width: 16px;
+                min-height: 16px;
 
                 color: $lightgray150;
 
@@ -292,8 +298,19 @@ watch(getSections, sections => {
                 }
 
                 &:not(:last-child, &--collapse) {
-                    padding-right: 16px;
-                    border-right: 1px solid varToRgba('lightgray150', 0.2);
+                    padding-right: 8px;
+                    border-right: 1px solid $whiteAlpha12;
+                }
+
+                &--close {
+                    min-width: 20px;
+                    min-height: 20px;
+                    padding-left: 8px;
+                    border-left: 1px solid $whiteAlpha12;
+
+                    svg {
+                        width: 14px;
+                    }
                 }
 
                 @include hover {
@@ -343,12 +360,16 @@ watch(getSections, sections => {
         &_tabs {
             position: sticky;
             z-index: 6;
-            top: 56px;
+            top: 36px;
 
             margin-top: -16px;
             padding-bottom: 16px;
 
-            background: $darkgray1000;
+            background: $black;
+
+            :deep(.tabs_list) {
+                background: $black;
+            }
         }
     }
 
@@ -362,7 +383,7 @@ watch(getSections, sections => {
             margin-bottom: -16px;
             padding: 8px 0;
 
-            background: $darkgray1000;
+            background: $black;
         }
 
         &_separator {
@@ -382,7 +403,7 @@ watch(getSections, sections => {
                 width: 100%;
                 height: 1px;
 
-                background: $darkgray850;
+                background: $darkGray700;
             }
 
             &:not(:only-child) {
@@ -391,7 +412,7 @@ watch(getSections, sections => {
 
             &_title, &_collapse {
                 position: relative;
-                background: $darkgray1000;
+                background: $black;
             }
 
             &_title {
@@ -404,7 +425,7 @@ watch(getSections, sections => {
     }
 
     @media all and (min-width: 1600px) {
-        width: 400px;
+        width: 22dvw;
     }
 }
 </style>

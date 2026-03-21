@@ -76,7 +76,6 @@
                     />
                     <map-distance v-if="store.localSettings.distance?.enabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
-                    <map-select/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
                     <a
@@ -259,6 +258,7 @@
         <map-layer v-else/>
         <client-only>
             <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+            <map-select v-if="ready"/>
         </client-only>
         <slot/>
     </div>
@@ -684,7 +684,7 @@ useUpdateInterval(() => {
 });
 
 const overlays = computed(() => mapStore.overlays);
-const overlaysGap = 16;
+const overlaysGap = 8;
 const overlaysHeight = computed(() => {
     if (mapStore.overlays.length <= 1) return 'auto';
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
@@ -711,7 +711,7 @@ watch([overlays, popupsHeight, isMobile], async () => {
     if (import.meta.server) return;
 
     if (popups.value) {
-        const baseHeight = 56;
+        const baseHeight = 38;
         const collapsed = mapStore.overlays.filter(x => x.collapsed);
         const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
@@ -1352,7 +1352,7 @@ onBeforeUnmount(() => {
 
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 8px;
 
             max-height: var(--overlays-height);
 
@@ -1378,14 +1378,13 @@ onBeforeUnmount(() => {
                 &-leave-active {
                     overflow: hidden;
                     max-height: var(--max-height);
-                    transition: 0.5s ease-in-out;
+                    transition: 0.3s ease-in-out;
                 }
 
                 &-enter-from,
                 &-leave-to {
-                    transform: translate(30px, -30px);
                     max-height: 0;
-                    margin-top: -16px;
+                    margin-top: -8px;
                     opacity: 0;
                 }
             }
