@@ -63,10 +63,10 @@
             class="airport_atc-popup"
             :controllers="getATC"
             max-height="400px"
+            :open-from="type === 'airport' ? 'bottom-center' : 'top-center'"
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
-            :open-from="type === 'airport' ? 'bottom-center' : 'top-center'"
         >
             <template #title>
                 {{getPopupName}}

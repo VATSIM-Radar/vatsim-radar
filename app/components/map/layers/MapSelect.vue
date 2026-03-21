@@ -54,7 +54,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
-import {useIsTouch} from "~/composables";
+import { useIsTouch } from '~/composables';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;

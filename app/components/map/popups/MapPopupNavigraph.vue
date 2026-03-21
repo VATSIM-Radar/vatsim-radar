@@ -10,8 +10,8 @@
         <popup-map-info
             class="navigraph"
             content-full-height
-            width="300px"
             open-from="top-center"
+            width="300px"
             @mouseleave="emit('close')"
         >
             <template #title>
