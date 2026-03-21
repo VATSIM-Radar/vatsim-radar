@@ -177,7 +177,7 @@ export function setAirportStyle(layer: VectorLayer) {
             return styleCache[strokeKey];
         }
 
-        if (mapStore.renderedAirports.includes(properties.icao)) {
+        if (mapStore.renderedAirports?.includes(properties.icao)) {
             if (isMapFeature('airport-atc', properties)) {
                 let letter: string | undefined;
 
@@ -255,7 +255,7 @@ export function setAirportStyle(layer: VectorLayer) {
                             text: '1',
                             offsetX: 0,
                             offsetY: 0,
-                            padding: [-2, 10, -2, 10],
+                            padding: [-2, 10, -2, 7],
                             fill: getCachedFill('transparent'),
                             backgroundFill: getCachedFill('transparent'),
                             declutterMode: 'obstacle',

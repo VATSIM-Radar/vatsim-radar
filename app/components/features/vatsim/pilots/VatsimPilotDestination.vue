@@ -14,7 +14,7 @@
                 <ui-text
                     v-if="!short && depAirport"
                     class="destination_airport_text"
-                    type="caption-light"
+                    type="caption"
                 >
                     {{depAirport.name}}
                 </ui-text>
@@ -41,7 +41,7 @@
                 <ui-text
                     v-if="!short && arrAirport"
                     class="destination_airport_text"
-                    type="caption-light"
+                    type="caption"
                 >
                     {{arrAirport.name}}
                 </ui-text>

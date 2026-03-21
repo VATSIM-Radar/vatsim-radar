@@ -132,6 +132,7 @@
             </template>
         </ui-copy-info>
         <ui-copy-info
+            :rows="3"
             v-if="flightPlan?.remarks"
             :text="flightPlan.remarks"
         >

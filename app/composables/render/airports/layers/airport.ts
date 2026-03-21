@@ -162,7 +162,7 @@ export function setMapAirports({ source, airports, layer }: {
         });
 
         // Counters
-        if (airport.aircraftList && mapStore.renderedAirports.includes(airport.airport.icao)) {
+        if (airport.aircraftList && mapStore.renderedAirports?.includes(airport.airport.icao)) {
             const counters = getAirportCounters(airport.aircraft);
             const list = Object.entries(counters);
             const totalCount = list.filter(x => x[1].length).length;

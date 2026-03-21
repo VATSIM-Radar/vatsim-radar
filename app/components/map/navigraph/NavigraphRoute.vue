@@ -47,10 +47,15 @@ async function update() {
     let currentFlight = false;
 
     const keys = new Set<string>();
+    const currentFlightKeys = new Set<string>();
 
     function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
         const existingFeature = getMapFeature('navigraph', source!.value, id);
         keys.add(id);
+
+        if (currentFlight) {
+            currentFlightKeys.add(id);
+        }
 
         if (existingFeature) {
             const properties = existingFeature.getProperties();
@@ -62,6 +67,11 @@ async function update() {
             }
 
             if (currentFlight && !properties.currentFlight) {
+                existingFeature.setProperties({
+                    currentFlight,
+                });
+            }
+            else if (!currentFlightKeys.has(id) && properties.currentFlight) {
                 existingFeature.setProperties({
                     currentFlight,
                 });

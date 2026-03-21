@@ -7,188 +7,6 @@ import type VectorImageLayer from 'ol/layer/VectorImage';
 import { getTextFont } from '~/composables/render/text';
 import type VectorLayer from 'ol/layer/Vector';
 
-const ndbStyle = new Icon({
-    src: '/icons/compressed/ndb.png',
-    width: 16,
-    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-    opacity: 0.6,
-});
-
-const vordmeStyle = new Icon({
-    src: '/icons/compressed/vordme.png',
-    width: 16,
-    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-    opacity: 0.6,
-});
-
-const ndbStyleSmall = new Icon({
-    src: '/icons/compressed/ndb.png',
-    width: 12,
-    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-    opacity: 0.6,
-});
-
-const vordmeStyleSmall = new Icon({
-    src: '/icons/compressed/vordme.png',
-    width: 12,
-    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-    opacity: 0.6,
-});
-
-const showAirwaysLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
-const showWaypointsLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
-
-const waypointsTypes = {
-    default: new Style({
-        image: new Icon({
-            src: '/icons/compressed/compulsory-rep.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.6,
-        }),
-        zIndex: 6,
-    }),
-    flyOver: new Style({
-        image: new Icon({
-            src: '/icons/compressed/fly-over.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.8,
-        }),
-        zIndex: 6,
-    }),
-    flyBy: new Style({
-        image: new Icon({
-            src: '/icons/compressed/fly-by.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.8,
-        }),
-        zIndex: 6,
-    }),
-    onRequest: new Style({
-        image: new Icon({
-            src: '/icons/compressed/on-request.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.6,
-        }),
-        zIndex: 6,
-    }),
-    compulsoryFlyBy: new Style({
-        image: new Icon({
-            src: '/icons/compressed/compulsory-fly-by.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.6,
-        }),
-        zIndex: 6,
-    }),
-    approachFix: new Style({
-        image: new Icon({
-            src: '/icons/compressed/final-approach-fix.png',
-            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
-            width: 8,
-            opacity: 0.6,
-        }),
-        zIndex: 6,
-    }),
-};
-
-const waypointStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
-    width: 2,
-});
-
-const holdingStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
-    width: 2,
-});
-
-const waypointBlueStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.1)`,
-    width: 2,
-});
-
-const enrouteStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.5)`,
-    width: 4,
-});
-
-const enrouteSidStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
-    width: 4,
-});
-
-const sidStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
-    width: 5,
-});
-
-const enrouteStarStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
-    width: 4,
-});
-
-const starStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
-    width: 5,
-});
-
-const enrouteApproachStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
-    width: 4,
-});
-
-const approachStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
-    width: 5,
-});
-
-const missApproachStroke = new Stroke({
-    color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
-    width: 3,
-    lineJoin: 'round',
-    lineDash: [6, 12],
-});
-
-const strokesCache = {
-    self: {} as Record<string, Stroke>,
-    currentFlight: {} as Record<string, Stroke>,
-};
-
-const westTrack = new Style({
-    zIndex: 5,
-    text: new Text({
-        font: '15px LibreFranklin',
-        text: `←`,
-        placement: 'line',
-        keepUpright: true,
-        justify: 'center',
-        declutterMode: 'none',
-        rotateWithView: false,
-        fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.7)`,
-        }),
-    }),
-});
-
-const eastTrack = new Style({
-    zIndex: 5,
-    text: new Text({
-        font: '15px LibreFranklin',
-        text: `→`,
-        placement: 'line',
-        keepUpright: true,
-        justify: 'center',
-        declutterMode: 'none',
-        rotateWithView: false,
-        fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.7)`,
-        }),
-    }),
-});
-
 let styleCache: Record<string, Style> = {};
 let stylesCache: Record<string, Style[]> = {};
 const geometriesCache = new WeakMap<WeakKey, Geometry>();
@@ -196,6 +14,188 @@ const geometriesCache = new WeakMap<WeakKey, Geometry>();
 export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     styleCache = {};
     stylesCache = {};
+
+    const ndbStyle = new Icon({
+        src: '/icons/compressed/ndb.png',
+        width: 16,
+        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        opacity: 0.6,
+    });
+
+    const vordmeStyle = new Icon({
+        src: '/icons/compressed/vordme.png',
+        width: 16,
+        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        opacity: 0.6,
+    });
+
+    const ndbStyleSmall = new Icon({
+        src: '/icons/compressed/ndb.png',
+        width: 12,
+        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        opacity: 0.6,
+    });
+
+    const vordmeStyleSmall = new Icon({
+        src: '/icons/compressed/vordme.png',
+        width: 12,
+        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        opacity: 0.6,
+    });
+
+    const showAirwaysLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
+    const showWaypointsLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
+
+    const waypointsTypes = {
+        default: new Style({
+            image: new Icon({
+                src: '/icons/compressed/compulsory-rep.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.6,
+            }),
+            zIndex: 6,
+        }),
+        flyOver: new Style({
+            image: new Icon({
+                src: '/icons/compressed/fly-over.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.8,
+            }),
+            zIndex: 6,
+        }),
+        flyBy: new Style({
+            image: new Icon({
+                src: '/icons/compressed/fly-by.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.8,
+            }),
+            zIndex: 6,
+        }),
+        onRequest: new Style({
+            image: new Icon({
+                src: '/icons/compressed/on-request.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.6,
+            }),
+            zIndex: 6,
+        }),
+        compulsoryFlyBy: new Style({
+            image: new Icon({
+                src: '/icons/compressed/compulsory-fly-by.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.6,
+            }),
+            zIndex: 6,
+        }),
+        approachFix: new Style({
+            image: new Icon({
+                src: '/icons/compressed/final-approach-fix.png',
+                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                width: 8,
+                opacity: 0.6,
+            }),
+            zIndex: 6,
+        }),
+    };
+
+    const waypointStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+        width: 2,
+    });
+
+    const holdingStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+        width: 2,
+    });
+
+    const waypointBlueStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.1)`,
+        width: 2,
+    });
+
+    const enrouteStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.5)`,
+        width: 4,
+    });
+
+    const enrouteSidStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+        width: 4,
+    });
+
+    const sidStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+        width: 5,
+    });
+
+    const enrouteStarStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+        width: 4,
+    });
+
+    const starStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+        width: 5,
+    });
+
+    const enrouteApproachStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        width: 4,
+    });
+
+    const approachStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        width: 5,
+    });
+
+    const missApproachStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        width: 3,
+        lineJoin: 'round',
+        lineDash: [6, 12],
+    });
+
+    const strokesCache = {
+        self: {} as Record<string, Stroke>,
+        currentFlight: {} as Record<string, Stroke>,
+    };
+
+    const westTrack = new Style({
+        zIndex: 5,
+        text: new Text({
+            font: '15px LibreFranklin',
+            text: `←`,
+            placement: 'line',
+            keepUpright: true,
+            justify: 'center',
+            declutterMode: 'none',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.7)`,
+            }),
+        }),
+    });
+
+    const eastTrack = new Style({
+        zIndex: 5,
+        text: new Text({
+            font: '15px LibreFranklin',
+            text: `→`,
+            placement: 'line',
+            keepUpright: true,
+            justify: 'center',
+            declutterMode: 'none',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.7)`,
+            }),
+        }),
+    });
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
@@ -452,7 +452,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                         keepUpright: true,
                         padding: [2, 2, 2, 2],
                         fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.8)`,
                         }),
                     }),
                 });

@@ -48,6 +48,7 @@
                 ref="textarea"
                 class="copy-info_textarea"
                 readonly
+                :rows
                 :value="text"
             />
             <slot name="append"/>
@@ -68,6 +69,10 @@ const props = defineProps({
     autoExpand: {
         type: Boolean,
         default: false,
+    },
+    rows: {
+        type: Number,
+        default: 2,
     },
 });
 

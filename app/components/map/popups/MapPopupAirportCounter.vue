@@ -125,9 +125,9 @@ const coordinate = computed(() => {
 });
 
 const getOffsetX = computed(() => {
-    let baseOffset = properties.value.localsLength > 3 ? 57 : 52;
+    let baseOffset = properties.value.localsLength > 3 ? 55 : 50;
     if (properties.value.counter > 9) baseOffset += 7;
-    if (properties.value.counter > 99) baseOffset += 12;
+    else if (properties.value.counter > 99) baseOffset += 12;
     return baseOffset;
 });
 </script>

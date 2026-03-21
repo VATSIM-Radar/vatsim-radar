@@ -330,6 +330,7 @@ async function initLayer() {
             source: new XYZ({
                 attributions: buildAttributions(layer.value.attribution?.title || false, layer.value.attribution?.url ?? ''),
             }),
+            zIndex: 0,
         });
         map.value?.addLayer(attributionLayer);
         map.value?.addLayer(tileLayer.value);

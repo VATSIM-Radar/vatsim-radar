@@ -1,6 +1,20 @@
 # Changelog
 
+# [2.0.0-alpha.5.2]
+
+## Alpha Changes
+
+- Flight plan remarks height now default to  3 lines
+- Fixed aircraft flashing with callsign on first load
+- Minor bug fixes
+
+## Improvements and changes
+
+- Fixed atc time text color in light theme
+
 # [2.0.0-alpha.5.1]
+
+## Alpha Changes
 
 - Fixed self flight waypoints flickering
 - Fixed self flight line not updating

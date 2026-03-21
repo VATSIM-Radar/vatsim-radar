@@ -157,7 +157,7 @@ onMounted(() => {
     });
 
     const mapSettings = computed(() => store.mapSettings);
-    const mapRender = computed(() => mapStore.renderedAirports.length === 0);
+    const mapRender = computed(() => !mapStore.renderedAirports?.length);
 
     watch([airportsList, mapSettings, mapRender], async () => {
         airports.value = await getRenderAirportsList({ airports: airportsList.value, visibleAirports: visibleAirports.value });

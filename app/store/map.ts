@@ -78,8 +78,8 @@ export const useMapStore = defineStore('map', {
         openApproachOverlay: false,
 
         hoveredPilot: null as number | null,
-        renderedAirports: [] as string[],
-        renderedPilots: [] as number[],
+        renderedAirports: null as null | string[],
+        renderedPilots: null as null | number[],
 
         dataReady: false,
         mapCursorPointerTrigger: false as false | number,
@@ -117,7 +117,7 @@ export const useMapStore = defineStore('map', {
             return !this.moving && !this.distance.pixel;
         },
         showAirportDetails(): boolean {
-            return this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
+            return !!this.renderedAirports && this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
         },
         // TODO
         compactAirportView(): boolean {

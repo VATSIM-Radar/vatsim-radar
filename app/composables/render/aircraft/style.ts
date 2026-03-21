@@ -68,12 +68,13 @@ function svgToDataURI(svg: string) {
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
     const store = useStore();
+    const mapStore = useMapStore();
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft', properties)) {
             let { rotation, icon, scale, status, cid, callsign, onGround, selected } = properties;
-            const hovered = useMapStore().hoveredPilot === cid;
+            const hovered = mapStore.hoveredPilot === cid;
 
             if (hovered) status = 'hover';
             else if (selected) status = 'active';
@@ -118,7 +119,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 scale,
             });
 
-            const hideText = scaledWidth < 10 || useMapStore().renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
+            const hideText = scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
             const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;

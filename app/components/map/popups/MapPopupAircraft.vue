@@ -56,7 +56,7 @@
                 <ui-data-list
                     v-if="isShortInfo"
                     class="aircraft-hover_sections"
-                    :gap="isShortInfo ? '8px 4px' : undefined"
+                    gap="8px 4px"
                     :grid-columns="3"
                     :items="[
                         { text: pilot.callsign },
