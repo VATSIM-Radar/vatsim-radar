@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-alpha.5.4]
+
+## Preprod changes
+
+Those changes are production candidates! Please test them
+
+- Fixed airways merging
+- Fixed raw coordinates detection, supporting those coordinates: N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
+- Fixed meridian line sometimes not connecting properly
+
 # [2.0.0-alpha.5.3]
 
 ## Alpha Changes
