@@ -198,70 +198,59 @@ function withSign(value: number, dir: string): number {
     return dir === 'S' || dir === 'W' ? -value : value;
 }
 
-// N4930W01520
-const format1Regex = /^([NS])(\d{2}|\d{4})([EW])(\d{3}|\d{5})$/;
+// N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
+// Wrote this myself because chatgpt can't write regex properly
+const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,2})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW])))$/;
 
-// 49/1520
-const format2Regex = /^(\d{1,2}|\d{4})\/(\d+|\d{4})$/;
+function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
+    if (degreeDigits === 2) {
+        if (raw.length <= 2) return parseInt(raw, 10); // 7, 07, 49
+        if (raw.length === 4) return dmToDecimal(raw, 2); // 4930
+        if (raw.length === 6) return dmsToDecimal(raw, 2); // 570021
+    }
 
-// 570021N0380421E
-const format3Regex = /^(\d{6})([NS])(\d{7})([EW])$/;
+    if (degreeDigits === 3) {
+        if (raw.length <= 3) return parseInt(raw, 10); // 178, 020
+        if (raw.length === 4) return dmToDecimal(raw, 2); // 1520 (slash format)
+        if (raw.length === 5) return dmToDecimal(raw, 3); // 18000
+        if (raw.length === 7) return dmsToDecimal(raw, 3); // 0380421
+    }
+
+    return null;
+}
 
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const value = input.trim();
 
-    // 1. Формат N4930W01520
-    const format1 = value.match(format1Regex);
-    if (format1) {
-        const [, latDir, latRaw, lonDir, lonRaw] = format1;
+    const match = value.match(preciseRegex);
+    if (!match) return null;
 
-        const lat = latRaw.length === 2
-            ? parseInt(latRaw, 10)
-            : dmToDecimal(latRaw, 2);
+    let { latDir, latDir2, latRaw, latRaw2, latRaw3, lonDir, lonDir2, lonRaw, lonRaw2 } = match.groups ?? {};
 
-        const lon = lonRaw.length === 3
-            ? parseInt(lonRaw, 10)
-            : dmToDecimal(lonRaw, 3);
+    latDir ??= latDir2;
+    latRaw ??= latRaw2;
+    latRaw ??= latRaw3;
+    lonDir ??= lonDir2;
+    lonRaw ??= lonRaw2;
 
-        return [
-            [withSign(lon, lonDir), withSign(lat, latDir)],
-            `${ latDir }${ latRaw }${ lonDir }${ lonRaw }`,
-        ];
+    if (!latRaw || !lonRaw) return null;
+
+    const hasDirections = !!latDir && !!lonDir;
+
+    const lat = parseCoordPart(latRaw, 2);
+    const lon = parseCoordPart(lonRaw, hasDirections ? 3 : 2);
+
+    if (lat == null || lon == null || Number.isNaN(lat) || Number.isNaN(lon)) {
+        return null;
     }
 
-    // 49/1520
-    const format2 = value.match(format2Regex);
-    if (format2) {
-        const [, latRaw, lonRaw] = format2;
+    const finalLatDir = latDir ?? 'N';
+    const finalLonDir = lonDir ?? 'W';
 
-        const lat = latRaw.length === 4
-            ? dmToDecimal(latRaw, 2)
-            : parseFloat(latRaw);
-
-        const lon = lonRaw.length === 4
-            ? dmToDecimal(lonRaw, 2)
-            : parseFloat(lonRaw);
-
-        if (isNaN(lat) || isNaN(lon)) return null;
-
-        return [[-lon, lat], `N${ latRaw }W${ lonRaw }`];
-    }
-
-    // 570021N0380421E
-    const format3 = value.match(format3Regex);
-    if (format3) {
-        const [, latRaw, latDir, lonRaw, lonDir] = format3;
-
-        const lat = dmsToDecimal(latRaw, 2);
-        const lon = dmsToDecimal(lonRaw, 3);
-
-        return [
-            [withSign(lon, lonDir), withSign(lat, latDir)],
-            `${ latDir }${ latRaw }${ lonDir }${ lonRaw }`,
-        ];
-    }
-
-    return null;
+    return [
+        [withSign(lon, finalLonDir), withSign(lat, finalLatDir)],
+        `${ finalLatDir }${ latRaw }${ finalLonDir }${ lonRaw }`,
+    ];
 }
 
 export interface FlightPlanInputWaypoint {
@@ -293,8 +282,90 @@ const dataCache: {
 
 let latestUpdate = 0;
 
-export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
-export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways', key: string): Promise<any | null> {
+function getAirwaySegment<T>(arr: T[], from: number, to: number): T[] {
+    if (from === -1 || to === -1) return [];
+
+    if (from <= to) {
+        return arr.slice(from, to + 1);
+    }
+
+    return arr.slice(to, from + 1).reverse();
+}
+
+function mergeTwoAirways(
+    startingAirway: [string, ShortAirway],
+    endAirway: [string, ShortAirway],
+    prevWaypoint: string,
+    nextWaypoint?: string,
+) {
+    const startPoints = startingAirway[1][2];
+    const endPoints = endAirway[1][2];
+
+    const startIdx = startPoints.findIndex(wp => wp[0] === prevWaypoint);
+    if (startIdx === -1) return undefined;
+
+    const endIdx = nextWaypoint
+        ? endPoints.findIndex(wp => wp[0] === nextWaypoint)
+        : -1;
+
+    const endPointNames = new Set(endPoints.map(wp => wp[0]));
+
+    const overlapCandidates = startPoints
+        .map((wp, idx) => ({ name: wp[0], startOverlapIdx: idx }))
+        .filter(x => endPointNames.has(x.name))
+        .map(x => ({
+            name: x.name,
+            startOverlapIdx: x.startOverlapIdx,
+            endOverlapIdx: endPoints.findIndex(wp => wp[0] === x.name),
+        }))
+        .filter(x => x.endOverlapIdx !== -1);
+
+    if (nextWaypoint && endIdx !== -1) {
+        for (const candidate of overlapCandidates) {
+            const left = getAirwaySegment(startPoints, startIdx, candidate.startOverlapIdx);
+            const right = getAirwaySegment(endPoints, candidate.endOverlapIdx, endIdx);
+
+            if (!left.length || !right.length) continue;
+
+            const merged = [
+                ...left,
+                ...right.slice(1),
+            ];
+
+            const neededAirway = JSON.parse(JSON.stringify(startingAirway)) as typeof startingAirway;
+            neededAirway[1][2] = merged;
+            return neededAirway;
+        }
+    }
+
+    for (const candidate of overlapCandidates) {
+        const left = getAirwaySegment(startPoints, startIdx, candidate.startOverlapIdx);
+
+        if (!left.length) continue;
+
+        const rightForward = endPoints.slice(candidate.endOverlapIdx + 1);
+        const rightBackward = endPoints.slice(0, candidate.endOverlapIdx).reverse();
+
+        const right =
+            rightForward.length >= rightBackward.length
+                ? rightForward
+                : rightBackward;
+
+        const merged = [
+            ...left,
+            ...right,
+        ];
+
+        const neededAirway = JSON.parse(JSON.stringify(startingAirway)) as typeof startingAirway;
+        neededAirway[1][2] = merged;
+        return neededAirway;
+    }
+
+    return undefined;
+}
+
+export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
+export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings', key: string): Promise<any | null> {
     latestUpdate = Date.now();
 
     if (key in dataCache[type]) return dataCache[type][key];
@@ -638,40 +709,31 @@ export async function getFlightPlanWaypoints({
 
                 if (!neededAirway) {
                     list = JSON.parse(JSON.stringify(list));
-                    const neededAirways = list.filter(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) || x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+                    const prevWaypoint = entries[i - 1]?.split('/')[0];
+                    const nextWaypoint = entries[i + 1]?.split('/')[0];
 
-                    if (neededAirways.length === 2) {
-                        neededAirway = JSON.parse(JSON.stringify(neededAirways[0])) as typeof neededAirways[0];
+                    const neededAirways = list.filter(airway => airway[1][2].some(wp => wp[0] === prevWaypoint) ||
+                        (nextWaypoint ? airway[1][2].some(wp => wp[0] === nextWaypoint) : false));
 
-                        const startingAirway = neededAirways.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]));
-                        const endAirway = neededAirways.find(x => x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+                    if (neededAirways.length === 2 && prevWaypoint) {
+                        const startingAirway = neededAirways.find(airway => airway[1][2].some(wp => wp[0] === prevWaypoint));
 
-                        let startAirwayEndingWaypoint = -1;
-                        let endAirwayStartingWaypoint = -1;
-                        const endIndex = endAirway?.[1][2].findIndex(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]);
-                        const startingIndex = startingAirway?.[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
+                        const endAirway = nextWaypoint
+                            ? neededAirways.find(airway => airway !== startingAirway &&
+                                airway[1][2].some(wp => wp[0] === nextWaypoint))
+                            : neededAirways.find(airway => airway !== startingAirway);
 
-                        // Looking for airway start
-                        for (let i = startingIndex ?? 0; i < (startingAirway?.[1][2].length ?? 0); i++) {
-                            endAirwayStartingWaypoint = endAirway?.[1][2].findIndex(x => x[0] === startingAirway?.[1][2][i]?.[0]) ?? -1;
-
-                            if (endAirwayStartingWaypoint !== -1) {
-                                startAirwayEndingWaypoint = i;
-                                break;
-                            }
+                        if (!startingAirway || !endAirway) {
+                            neededAirway = undefined;
                         }
-
-                        if (endIndex !== -1 && endAirwayStartingWaypoint !== -1) {
-                            const startingIndex = startingAirway?.[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
-                            neededAirway[1][2] = startingAirway![1][2].slice(startingIndex, startAirwayEndingWaypoint);
-                            console.log(search, endAirwayStartingWaypoint, endIndex);
-                            neededAirway[1][2].push(...endAirway![1][2].slice(endAirwayStartingWaypoint, endIndex! + 1));
+                        else {
+                            neededAirway = mergeTwoAirways(
+                                startingAirway,
+                                endAirway,
+                                prevWaypoint,
+                                nextWaypoint,
+                            );
                         }
-
-                        if (endAirwayStartingWaypoint === -1 && startingAirway && endAirway) {
-                            neededAirway[1][2].push(...startingAirway![1][2]);
-                        }
-                        else if (endIndex === -1 || endAirwayStartingWaypoint === -1 || !startingAirway || !endAirway) neededAirway = undefined;
                     }
                 }
 

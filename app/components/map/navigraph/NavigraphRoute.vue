@@ -5,8 +5,8 @@
 <script setup lang="ts">
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import { Point } from 'ol/geom';
+import type VectorSource from 'ol/source/Vector.js';
+import { LineString, Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate';
@@ -165,8 +165,8 @@ async function update() {
                 }
 
                 if (pilot.groundspeed >= 50) {
-                    addFeature(callsign, () => ({
-                        geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
+                    addFeature(`enroute-${ callsign }`, () => ({
+                        geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 16 })),
                         key: '',
                         identifier: '',
                         type: 'airways',
