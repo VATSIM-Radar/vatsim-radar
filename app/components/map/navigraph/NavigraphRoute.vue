@@ -6,7 +6,7 @@
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
-import { LineString, Point } from 'ol/geom.js';
+import { Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate';
