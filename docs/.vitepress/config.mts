@@ -63,6 +63,10 @@ export default defineConfig({
                                 text: 'State of Radar 2025',
                                 link: '/blog/state-of-radar-2025',
                             },
+                            {
+                                text: 'Year 2 of VATSIM Radar',
+                                link: '/blog/year-2-of-radar',
+                            },
                         ],
                     },
                     {
