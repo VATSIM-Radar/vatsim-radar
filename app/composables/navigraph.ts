@@ -364,8 +364,8 @@ function mergeTwoAirways(
     return undefined;
 }
 
-export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
-export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings', key: string): Promise<any | null> {
+export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
+export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways', key: string): Promise<any | null> {
     latestUpdate = Date.now();
 
     if (key in dataCache[type]) return dataCache[type][key];
