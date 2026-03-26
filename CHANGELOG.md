@@ -1,5 +1,18 @@
 # Changelog
 
+# [2.0.0-alpha.6]
+
+## Redesign
+
+- Redesigned copy info block
+- Redesigned attributions
+- Redesigned footer
+
+## Improvements and changes
+
+- Added context menu when clicking on aircraft, atc or airport
+- Hovered pilot and atc info now always show friend name and comment
+
 # [2.0.0-alpha.5.4]
 
 ## Preprod changes

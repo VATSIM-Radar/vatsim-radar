@@ -1309,17 +1309,27 @@ onBeforeUnmount(() => {
     }
 
     :deep(.ol-attribution) {
-        background: $darkgray1000;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: $black;
 
         @include mobile {
             background: transparent;
         }
 
         ul {
+            padding: 0;
             text-shadow: none;
 
             &, a {
-                color: varToRgba('lightgray150', 0.4);
+                font-size: 11px;
+                color: varToRgba('lightGray900', 0.3);
+            }
+
+            a:not(:last-child) {
+                margin-right: 2px;
+                padding-right: 4px;
+                border-right: 1px dashed varToRgba('lightGray900', 0.15);
             }
 
             @include hover {

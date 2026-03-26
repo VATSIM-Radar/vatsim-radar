@@ -1,7 +1,37 @@
 <template>
     <div>
         <map-html-overlay
-            v-if="multiSelectCoordinate"
+            v-if="contextMenu"
+            is-interaction
+            model-value
+            persistent
+            :settings="{
+                position: contextMenu.coordinate,
+                positioning: 'top-center',
+                stopEvent: true,
+            }"
+            :z-index="5"
+            @mouseleave="contextMenu = null"
+            @pointermove.stop
+            @update:modelValue="contextMenu = null"
+        >
+            <popup-map-info
+                content-padding="0"
+            >
+                <ui-menu
+                    item-padding="8px 16px"
+                    :items="contextMenu.items"
+                >
+                  <template #default="{item}">
+                    <ui-text type="3b">
+                      {{item.title}}
+                    </ui-text>
+                  </template>
+                </ui-menu>
+            </popup-map-info>
+        </map-html-overlay>
+        <map-html-overlay
+            v-else-if="multiSelectCoordinate"
             :key="String(multiSelectCoordinate)"
             is-interaction
             model-value
@@ -40,10 +70,23 @@ import type { Feature, Map } from 'ol';
 import type { SelectEvent, FilterFunction } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
 import { pointerMove, always, singleClick } from 'ol/events/condition.js';
+import type { Condition } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
-import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { MapFeaturesType } from '~/utils/map/entities';
+import type {
+    FeatureAirport,
+    MapFeaturesType,
+    FeatureAirportAtc,
+    FeatureAirportCounter,
+    FeatureSector, FeatureAircraft,
+} from '~/utils/map/entities';
+import {
+
+
+    getMapFeature,
+    globalMapEntities,
+    isMapFeature,
+} from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
@@ -55,10 +98,12 @@ import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
 import { useIsTouch } from '~/composables';
+import UiText from "~/components/ui/text/UiText.vue";
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
 let clickSelect: Select | undefined;
+let rightClickSelect: Select | undefined;
 
 function multiSelectCleanup() {
     if (multiSelectFeatures.value.length <= 1) return;
@@ -74,6 +119,10 @@ function multiSelectCleanup() {
     multiSelectFeatures.value = [];
 }
 
+const contextMenu = shallowRef<{
+    coordinate: Coordinate;
+    items: UIMenuItem[];
+} | null>(null);
 const multiSelectCoordinate = shallowRef<Coordinate | null>(null);
 const multiSelectFeatures = shallowRef<{ definition: Definition; feature: Feature }[]>([]);
 const multiSelectMenu = computed<UIMenuItem[]>(() => {
@@ -116,9 +165,6 @@ const multiSelectMenu = computed<UIMenuItem[]>(() => {
     });
 });
 
-const rightClickCoordinate = shallowRef<Coordinate | null>(null);
-const rightClickFeature = shallowRef<Feature | null>(null);
-
 type EventType = 'click' | 'hover' | 'rightClick';
 
 const mapStore = useMapStore();
@@ -154,11 +200,9 @@ watch(() => mapStore.openOverlayId, id => {
 });
 
 function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, interactionKey: SelectableFeatures) {
+    if (contextMenu.value) return;
     const element = interactableElements[key];
     if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
-
-    rightClickCoordinate.value = null;
-    rightClickFeature.value = null;
 
     openedOverlay.value = {
         key,
@@ -170,10 +214,12 @@ function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, inte
     multiSelectCleanup();
 }
 
+type RadarEventAction = (payload: RadarEventPayload<any>) => void | boolean;
+
 type Definition = {
     featureTypes: MapFeaturesType[];
     disableMobileHoverFallback?: boolean;
-} & PartialRecord<EventType, (payload: RadarEventPayload<any>) => void | boolean>;
+} & PartialRecord<EventType, RadarEventAction>;
 
 let previouslySelected: Feature | undefined;
 
@@ -195,6 +241,38 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 
 const isMobileOrTablet = useIsTouch();
 
+const airportContextAction: RadarEventAction = (payload: RadarEventPayload<FeatureAirport | FeatureAirportAtc>) => {
+    const properties = payload.feature.getProperties();
+
+    contextMenu.value = {
+        coordinate: payload.coordinate,
+        items: [
+            {
+                title: `Open ${ properties.icao }`,
+                onClick: () => mapStore.addAirportOverlay(properties.icao),
+            },
+            {
+                title: `${ properties.icao } METAR/TAF`,
+                onClick: () => alert('taf'),
+            },
+            {
+                title: `Toggle traffic lines`,
+                onClick: () => alert('lines'),
+            },
+            {
+                title: `Add ${ properties.icao } to bookmarks`,
+                onClick: () => alert('bookmark'),
+            },
+            ...('atc' in properties)
+                ? properties.atc.map(x => ({
+                    title: `${ x.callsign } details`,
+                    onClick: () => mapStore.addAtcOverlay(x.callsign),
+                }))
+                : [],
+        ],
+    };
+};
+
 const definitions = {
     airportControllers: {
         featureTypes: ['airport'],
@@ -208,6 +286,7 @@ const definitions = {
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
+        rightClick: airportContextAction,
         disableMobileHoverFallback: true,
     },
     airportLocal: {
@@ -216,6 +295,7 @@ const definitions = {
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
+        rightClick: airportContextAction,
     },
     airportApproach: {
         featureTypes: ['airport-tracon-label', 'airport-circle-label'],
@@ -302,6 +382,56 @@ const definitions = {
         click: payload => {
             mapStore.addPilotOverlay(payload.feature.getProperties().cid);
         },
+        rightClick: (payload: RadarEventPayload<FeatureAircraft>) => {
+            const properties = payload.feature.getProperties();
+            const pilot = useDataStore().vatsim.data.keyedPilots.value[properties.cid];
+
+            contextMenu.value = {
+                coordinate: payload.coordinate,
+                items: [
+                    {
+                        title: `${ properties.callsign } details`,
+                        onClick: () => alert('details'),
+                    },
+                    {
+                        title: `Toggle dep/arr line`,
+                        onClick: () => alert('details'),
+                    },
+                    {
+                        title: `Copy route`,
+                        onClick: () => alert('copy'),
+                    },
+                    {
+                        title: `VATSIM Member Stats`,
+                        onClick: () => alert('stats'),
+                    },
+                    {
+                        title: `Add to friends list`,
+                        onClick: () => alert('befriend'),
+                    },
+                    ...(pilot && pilot.departure && pilot.arrival
+                        ? [
+                            {
+                                title: `${ pilot.departure } Details`,
+                                onClick: () => mapStore.addAirportOverlay(pilot.departure!),
+                            },
+                            {
+                                title: `${ pilot.departure } METAR/TAF`,
+                                onClick: () => alert('metar'),
+                            },
+                            {
+                                title: `${ pilot.arrival } Details`,
+                                onClick: () => mapStore.addAirportOverlay(pilot.arrival!),
+                            },
+                            {
+                                title: `${ pilot.arrival } METAR/TAF`,
+                                onClick: () => alert('metar'),
+                            },
+                        ]
+                        : []),
+                ],
+            };
+        },
         disableMobileHoverFallback: true,
     },
     distance: {
@@ -383,7 +513,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
         selectedFeatures: shallowRef([]),
     },
     rightClick: {
-        priorities: ['multi'],
+        priorities: ['airportLocal', 'airportControllers', 'aircraft'],
         multiSelect: {},
         selectedFeatures: shallowRef([]),
     },
@@ -571,13 +701,34 @@ watch(map, val => {
 
     clickSelect.on('select', createSelectHandler('click', clickSelect));
 
+    map.value?.addInteraction(clickSelect);
+
+    const rightClickCondition: Condition = event => {
+        return event.type === 'contextmenu';
+    };
+
+    rightClickSelect = new Select({
+        condition: rightClickCondition,
+        hitTolerance: 10,
+        multi: true,
+        style: null,
+        toggleCondition: always,
+        filter,
+    });
+
+    rightClickSelect.on('select', createSelectHandler('rightClick', clickSelect));
+
     watch(openedOverlay, val => {
         if (!val) {
             clickSelect?.clearSelection();
         }
     });
 
-    map.value?.addInteraction(clickSelect);
+    map.value?.addInteraction(rightClickSelect);
+
+    map.value?.getViewport().addEventListener('contextmenu', e => {
+        e.preventDefault();
+    });
 }, {
     immediate: true,
 });

@@ -43,10 +43,10 @@
                 <div
                     v-if="controller.name"
                     class="atc_name"
-                    :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
+                    :style="{ '--color': controllerColor() ?? 'currentColor' }"
                 >
                     <ui-spoiler type="controller">
-                        {{controller.name}}
+                        {{userFriend?.name ?? controller.name}}
                     </ui-spoiler>
                 </div>
                 <div
@@ -90,6 +90,12 @@
                             v-html="`${ atis }<br>`"
                         />
                     </ul>
+                </ui-text>
+                <ui-text
+                    v-if="userFriend?.comment"
+                    type="caption-light"
+                >
+                    {{userFriend?.comment}}
                 </ui-text>
                 <vatsim-controller-time-online
                     v-if="controller.logon_time"
@@ -186,8 +192,16 @@ const handleClick = () => {
     emit('overlay');
 };
 
-const controllerColor = (controller: VatsimShortenedController) => {
-    const list = getUserList(controller.cid);
+const userList = computed(() => {
+    return getUserList(props.controller.cid);
+});
+
+const userFriend = computed(() => {
+    return userList.value?.users.find(x => x.cid === props.controller.cid);
+});
+
+const controllerColor = () => {
+    const list = userList.value;
 
     return (list && getStringColorFromSettings(list.color)) ?? undefined;
 };
