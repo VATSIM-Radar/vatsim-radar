@@ -192,9 +192,18 @@
                 </div>
             </div>
             <div
-                v-if="airportData.notams?.length"
+                v-if="airportData.notams?.length || airportData.airport?.lastAtis || atc.some(x => x.isATIS || x.callsign.endsWith('_ATIS'))"
                 class="airport_column"
             >
+                <div
+                    v-if="airportData.airport?.lastAtis || atc.some(x => x.isATIS || x.callsign.endsWith('_ATIS'))"
+                    class="airport_column_data"
+                >
+                    <div class="airport_column__title">
+                        ATIS
+                    </div>
+                    <airport-atis/>
+                </div>
                 <div
                     v-if="airportData?.notams?.length"
                     class="airport_column_data"
@@ -326,6 +335,7 @@ import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
+import AirportAtis from '~/components/features/vatsim/airport/AirportAtis.vue';
 import { parseMetar } from 'metar-taf-parser';
 import type { IAltimeter } from 'metar-taf-parser';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
