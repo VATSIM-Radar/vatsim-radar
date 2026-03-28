@@ -2,6 +2,12 @@
 
 # [2.0.0-alpha.6]
 
+## Alpha changes
+
+- Fixed overlays being too wide on some displays
+- Reworked the way overlays are restored internally
+- Reworked the way cursor is changed internally when hovering features for much better and consistent experience
+
 ## Redesign
 
 - Redesigned copy info block
@@ -12,6 +18,9 @@
 
 - Added context menu when clicking on aircraft, atc or airport
 - Hovered pilot and atc info now always show friend name and comment
+- Added a way to minify any overlay
+- Navigraph procedures will now be automatically cleared if airport overlay is closed
+- Procedures will now show in Airport Dashboard even if airport is not found in VATSIM AIP
 
 # [2.0.0-alpha.5.4]
 

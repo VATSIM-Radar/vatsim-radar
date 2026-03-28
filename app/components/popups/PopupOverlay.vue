@@ -21,7 +21,14 @@
                     <slot :name="`action-${ action }`"/>
                 </div>
                 <div
-                    v-if="collapsible"
+                    v-if="typeof minified === 'boolean'"
+                    class="info-popup_header_actions_action info-popup_header_actions_action--minify"
+                    @click="minified = !minified"
+                >
+                    <minus-icon width="14"/>
+                </div>
+                <div
+                    v-if="collapsible && !isMobile"
                     class="info-popup_header_actions_action info-popup_header_actions_action--collapse"
                     @click="collapsed = !collapsed"
                 >
@@ -118,6 +125,7 @@
 <script setup lang="ts">
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import MinusIcon from '@/assets/icons/kit/minus.svg?component';
 import type { PropType } from 'vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
@@ -189,6 +197,10 @@ const model = defineModel({
 const collapsed = defineModel('collapsed', {
     type: Boolean,
     default: false,
+});
+const minified = defineModel('minified', {
+    type: Boolean as PropType<boolean | null>,
+    default: null,
 });
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
@@ -281,6 +293,7 @@ watch(getSections, sections => {
             }
 
             &_action {
+                cursor: pointer;
                 user-select: none;
 
                 display: flex;
@@ -292,10 +305,7 @@ watch(getSections, sections => {
 
                 color: $lightgray150;
 
-                >* {
-                    cursor: pointer;
-                    transition: 0.3s;
-                }
+                transition: 0.3s;
 
                 &:not(:last-child, &--collapse) {
                     padding-right: 8px;
@@ -313,12 +323,21 @@ watch(getSections, sections => {
                     }
                 }
 
+                &--minify {
+                    min-width: 20px;
+                    min-height: 20px;
+
+                    svg {
+                        width: 14px;
+                    }
+                }
+
                 @include hover {
                     &.info-popup_header_actions_action--close:hover {
                         color: $error500;
                     }
 
-                    &:not(.info-popup_header_actions_action--close) >*:hover {
+                    &:not(.info-popup_header_actions_action--close):hover {
                         color: $primary500;
                     }
                 }
@@ -425,7 +444,7 @@ watch(getSections, sections => {
     }
 
     @media all and (min-width: 1600px) {
-        width: 22dvw;
+        width: 420px;
     }
 }
 </style>

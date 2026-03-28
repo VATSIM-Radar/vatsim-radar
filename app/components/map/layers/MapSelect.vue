@@ -22,11 +22,11 @@
                     item-padding="8px 16px"
                     :items="contextMenu.items"
                 >
-                  <template #default="{item}">
-                    <ui-text type="3b">
-                      {{item.title}}
-                    </ui-text>
-                  </template>
+                    <template #default="{ item }">
+                        <ui-text type="3b">
+                            {{item.title}}
+                        </ui-text>
+                    </template>
                 </ui-menu>
             </popup-map-info>
         </map-html-overlay>
@@ -98,7 +98,7 @@ import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
 import { useIsTouch } from '~/composables';
-import UiText from "~/components/ui/text/UiText.vue";
+import UiText from '~/components/ui/text/UiText.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
@@ -167,6 +167,7 @@ const multiSelectMenu = computed<UIMenuItem[]>(() => {
 
 type EventType = 'click' | 'hover' | 'rightClick';
 
+const store = useStore();
 const mapStore = useMapStore();
 
 interface Overlay {
@@ -253,7 +254,7 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
             },
             {
                 title: `${ properties.icao } METAR/TAF`,
-                onClick: () => alert('taf'),
+                onClick: () => store.metarRequest = [properties.icao],
             },
             {
                 title: `Toggle traffic lines`,
@@ -539,7 +540,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 if (type === 'hover') {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
-                            mapStore.mapCursorPointerTrigger = 0;
+                          map.value!.getTargetElement().style.cursor = 'grab';
                             openedOverlay.value = null;
                             selectFeature(false);
                         }
@@ -584,12 +585,12 @@ function createSelectHandler(type: EventType, select: Select) {
                 tookAction = true;
 
                 if (result === false) {
-                    mapStore.mapCursorPointerTrigger = 0;
+                  map.value!.getTargetElement().style.cursor = 'grab';
                     return false;
                 }
 
                 if (type === 'hover') {
-                    mapStore.mapCursorPointerTrigger = 100;
+                  map.value!.getTargetElement().style.cursor = 'pointer';
                 }
                 else {
                     hoverSelect?.selectFeature(feature);
@@ -648,7 +649,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!tookAction) {
                 if (type === 'hover') {
-                    mapStore.mapCursorPointerTrigger = 0;
+                  map.value!.getTargetElement().style.cursor = 'grab';
                     select.clearSelection();
                 }
                 else if (type === 'click') {

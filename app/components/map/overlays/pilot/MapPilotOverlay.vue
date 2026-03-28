@@ -2,6 +2,7 @@
     <popup-overlay
         v-if="overlay?.data?.pilot"
         v-model:collapsed="overlay.collapsed"
+        v-model:minified="overlay.minified"
         class="pilot"
         collapsible
         :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"

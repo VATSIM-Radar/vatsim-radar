@@ -313,15 +313,6 @@ export const useStore = defineStore('index', {
                     }
 
                     await onFetch?.();
-
-                    if (!mapStore.localTurns.size) return;
-
-                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
-                        method: 'POST',
-                        body: [...mapStore.localTurns],
-                    });
-
-                    mapStore.localTurns.clear();
                 }
             }
             catch (e) {

@@ -115,7 +115,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
-const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
+const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures.value).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
 
 onMounted(() => {
     const uncollapsed = mapStore.overlays.find(x => !x.collapsed);

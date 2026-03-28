@@ -8,7 +8,7 @@
             @click="item.onClick()"
         >
             <slot :item>
-              {{item.title}}
+                {{item.title}}
             </slot>
         </ui-text>
     </div>
@@ -16,13 +16,6 @@
 
 <script setup lang="ts">
 import UiText from '~/components/ui/text/UiText.vue';
-
-defineSlots<{ default: (settings: {item: UIMenuItem}) => any }>();
-
-export interface UIMenuItem {
-    title: string;
-    onClick: () => any;
-}
 
 defineProps({
     items: {
@@ -34,6 +27,14 @@ defineProps({
         default: '20px',
     },
 });
+
+defineSlots<{ default: (settings: { item: UIMenuItem }) => any }>();
+
+export interface UIMenuItem {
+    title: string;
+    key?: string;
+    onClick: () => any;
+}
 </script>
 
 <style scoped lang="scss">

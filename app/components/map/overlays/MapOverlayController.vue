@@ -2,6 +2,7 @@
     <popup-overlay
         v-if="atc"
         v-model:collapsed="overlay.collapsed"
+        v-model:minified="overlay.minified"
         v-model:tab="tab"
         class="atc"
         collapsible

@@ -13,7 +13,7 @@
             v-if="multiple"
             size="S"
             type="secondary-875"
-            @click="delete dataStore.navigraphProcedures[props.airport]"
+            @click="delete dataStore.navigraphProcedures.value[props.airport]"
         >
             Reset all
         </ui-button>
@@ -206,7 +206,7 @@ const selectedAirport = computed({
             else return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.arrival;
         }
 
-        return dataStore.navigraphProcedures[props.airport];
+        return dataStore.navigraphProcedures.value[props.airport];
     },
     set: val => {
         if (!val) return;
@@ -252,7 +252,8 @@ const selectedAirport = computed({
             return;
         }
 
-        dataStore.navigraphProcedures[props.airport] = val;
+        dataStore.navigraphProcedures.value[props.airport] = val;
+        triggerRef(dataStore.navigraphProcedures);
     },
 });
 

@@ -106,8 +106,6 @@ const gridOptions = computed(() => {
 
     const templateColumns = `repeat(${ props.gridColumns }, calc(${ 100 / props.gridColumns }% - ${ props.gap.split(' ')[1] } * ${ props.gridColumns - 1 } / ${ props.gridColumns }))`;
 
-    console.log(templateColumns);
-
     return {
         display: 'grid',
         gridTemplateColumns: templateColumns,

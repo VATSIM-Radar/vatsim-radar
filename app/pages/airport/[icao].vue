@@ -155,21 +155,15 @@
             v-if="!controllerMode"
             class="airport_sections"
         >
-            <div
-                v-if="airportData?.airport?.vatInfo || airportData?.airport?.metar"
-                class="airport_column"
-            >
-                <div
-                    v-if="airportData?.airport?.vatInfo"
-                    class="airport_column_data"
-                >
+            <div class="airport_column">
+                <div class="airport_column_data">
                     <div class="airport_column__title">
                         <ui-tabs
                             v-model="airportTab"
-                            :tabs="{ info: { title: 'Airport Info' }, proc: { title: 'Procedures' } }"
+                            :tabs="{ info: { title: 'Airport Info', disabled: !airportData?.airport?.vatInfo }, proc: { title: 'Procedures' } }"
                         />
                     </div>
-                    <airport-info v-if="airportTab === 'info'"/>
+                    <airport-info v-if="airportTab === 'info' && airportData?.airport?.vatInfo"/>
                     <airport-procedures
                         v-else-if="ready && airportTab === 'proc'"
                         :airport="airportData.icao"
@@ -466,7 +460,7 @@ const displayedColumns = ref<MapAircraftKeys[]>(['prefiles', 'groundDep', 'depar
 //     default: () => ['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr'],
 // });
 
-watch(() => dataStore.navigraphProcedures[airportData.value?.icao ?? ''], async () => {
+watch(() => dataStore.navigraphProcedures.value[airportData.value?.icao ?? ''], async () => {
     if (airportMapFrame.value) {
         await sleep(1000);
         const iframeWindow = airportMapFrame.value.contentWindow;

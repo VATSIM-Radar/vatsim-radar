@@ -50,7 +50,7 @@
                 >
                     <transition-group name="map_popups_popup--appear">
                         <map-overlays
-                            v-for="overlay in mapStore.overlays"
+                            v-for="overlay in mapStore.overlays.filter(x => !x.minified || isMobile)"
                             :key="overlay.id+overlay.key"
                             class="map_popups_popup"
                             :overlay="overlay"
@@ -68,7 +68,7 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
-                    <map-selected-procedures/>
+                    <map-selected-procedures v-if="restoredOverlays"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -338,6 +338,7 @@ const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const layer = shallowRef<LayerGroup | null>(null);
 const ready = ref(false);
+const restoredOverlays = ref(false);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -481,89 +482,25 @@ const restoreOverlays = async () => {
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
 
-    const fetchedList = (await Promise.all(localOverlays.map(async overlay => {
+    await Promise.allSettled(localOverlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
         if (overlay.type === 'pilot') {
-            const data = await Promise.allSettled([
-                $fetch(`/api/data/vatsim/pilot/${ overlay.key }`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            const resultOverlay = {
-                ...overlay,
-                data: {
-                    pilot: data[0].value,
-                },
-            } as StoreOverlayPilot;
-            $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ overlay.key }/achievements`).then(result => {
-                resultOverlay.data.achievements = result;
-            }).catch(console.error);
-
-            return resultOverlay;
+            return mapStore.addPilotOverlay(overlay.key, undefined, overlay);
         }
         else if (overlay.type === 'prefile') {
-            const data = await Promise.allSettled([
-                $fetch(`/api/data/vatsim/pilot/${ overlay.key }/prefile`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            return {
-                ...overlay,
-                data: {
-                    prefile: data[0].value,
-                },
-            };
+            return mapStore.addPrefileOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'atc') {
-            const controller = findAtcByCallsign(overlay.key);
-            if (!controller) return overlay;
-
-            return {
-                ...overlay,
-                data: {
-                    callsign: overlay.key,
-                },
-            };
+            return mapStore.addAtcOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'airport') {
-            const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[overlay.key];
-            if (!vatSpyAirport) return;
-
-            const data = await Promise.allSettled([
-                $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ overlay.key }`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`).catch(console.error) ?? [];
-                const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
-                if (foundOverlay) {
-                    (foundOverlay as StoreOverlayAirport).data.notams = notams;
-                }
-            }());
-
-            return {
-                ...overlay,
-                data: {
-                    icao: overlay.key,
-                    airport: data[0].value,
-                    showTracks: mapStore.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
-                },
-            };
+            return mapStore.addAirportOverlay(overlay.key, undefined, overlay);
         }
 
         return overlay;
-    }))).filter(x => x && 'data' in x && x.data) as StoreOverlay[];
-
-    mapStore.overlays = [
-        ...mapStore.overlays,
-        ...fetchedList,
-    ];
+    }));
 
     if (typeof route.query.pilot === 'string' && route.query.pilot) {
         const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);
@@ -643,17 +580,6 @@ const restoreOverlays = async () => {
         }
     }
 };
-
-function updateMapCursor() {
-    if (!mapStore.mapCursorPointerTrigger) {
-        map.value!.getTargetElement().style.cursor = 'grab';
-    }
-    else {
-        map.value!.getTargetElement().style.cursor = 'pointer';
-    }
-}
-
-watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
 watch(() => store.localSettings.distance?.enabled, val => {
     if (!val) return;
@@ -1016,7 +942,6 @@ await setupDataFetch({
         map.value.on('pointerdrag', function() {
             map.value!.getTargetElement().style.cursor = 'grabbing';
         });
-        map.value.on('pointermove', updateMapCursor);
         map.value.on('postrender', event => {
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
@@ -1086,6 +1011,7 @@ await setupDataFetch({
         }
 
         await restoreOverlays();
+        restoredOverlays.value = true;
 
         map.value.on('movestart', () => {
             moving = true;
