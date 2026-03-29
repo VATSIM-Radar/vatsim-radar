@@ -671,7 +671,7 @@ export async function getFlightPlanWaypoints({
                 }
             }
 
-            const precise = getPreciseCoord(entry);
+            const precise = getPreciseCoord(search);
 
             if (precise) {
                 waypoints.push({
