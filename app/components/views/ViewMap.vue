@@ -37,7 +37,7 @@
                 v-show="!store.config.hideOverlays"
                 ref="popups"
                 class="map_popups"
-                :class="{ 'map_popups--single': mapStore.overlays.length === 1 }"
+                :class="{ 'map_popups--single': visibleOverlays.length === 1 }"
                 :style="{
                     '--popups-height': `${ popupsHeight }px`,
                     '--overlays-height': `${ overlaysHeight }px`,
@@ -46,11 +46,11 @@
                 <div
                     v-if="popupsHeight || store.config.hideOverlays"
                     class="map_popups_list"
-                    :class="{ 'map_popups_list--empty': !mapStore.overlays.length }"
+                    :class="{ 'map_popups_list--empty': !visibleOverlays.length }"
                 >
                     <transition-group name="map_popups_popup--appear">
                         <map-overlays
-                            v-for="overlay in mapStore.overlays.filter(x => !x.minified || isMobile)"
+                            v-for="overlay in visibleOverlays"
                             :key="overlay.id+overlay.key"
                             class="map_popups_popup"
                             :overlay="overlay"
@@ -69,6 +69,7 @@
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
+                    <map-minified-overlays/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -318,6 +319,7 @@ import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import type { VatsimAchievementUser } from '~/types/data/vatsim';
+import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 
 defineProps({
     mode: {
@@ -404,6 +406,10 @@ const notam = computed(() => {
     if (activeNotam.activeTo && new Date(activeNotam.activeTo).getTime() < dataStore.time.value) return null;
 
     return activeNotam;
+});
+
+const visibleOverlays = computed(() => {
+    return mapStore.overlays.filter(x => !x.minified || isMobile.value);
 });
 
 if (route.query.start !== undefined && route.query.end !== undefined) {
@@ -609,11 +615,10 @@ useUpdateInterval(() => {
     }
 });
 
-const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 8;
 const overlaysHeight = computed(() => {
-    if (mapStore.overlays.length <= 1) return 'auto';
-    return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+    if (visibleOverlays.value.length <= 1) return 'auto';
+    return visibleOverlays.value.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (visibleOverlays.value.length - 1));
 });
 
 useLazyAsyncData('bookmarks', async () => {
@@ -627,22 +632,22 @@ useLazyAsyncData('bookmarks', async () => {
 });
 
 watch([isMobile, popups], () => {
-    mapStore.overlays.forEach(x => x._maxHeight = undefined);
+    visibleOverlays.value.forEach(x => x._maxHeight = undefined);
     popupsHeight.value = popups.value?.clientHeight ?? 0;
 });
 
-watch([overlays, popupsHeight, isMobile], async () => {
+watch([visibleOverlays, popupsHeight, isMobile], async () => {
     await nextTick();
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
 
     if (popups.value) {
         const baseHeight = 38;
-        const collapsed = mapStore.overlays.filter(x => x.collapsed);
-        const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
+        const collapsed = visibleOverlays.value.filter(x => x.collapsed);
+        const uncollapsed = visibleOverlays.value.filter(x => !x.collapsed);
 
         const collapsedHeight = collapsed.length * baseHeight;
-        const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
+        const totalHeight = popups.value.clientHeight - (overlaysGap * (visibleOverlays.value.length - 1));
 
         // Max 4 uncollapsed on screen
         const minHeight = Math.floor(totalHeight / 4);
@@ -666,7 +671,7 @@ watch([overlays, popupsHeight, isMobile], async () => {
 
     if (!store.config.airport) {
         localStorage.setItem('overlays', JSON.stringify(
-            overlays.value.map(x => ({
+            mapStore.overlays.map(x => ({
                 ...x,
                 data: undefined,
             })),
@@ -748,6 +753,8 @@ function handleDownEvent(event: MapBrowserEvent) {
 
         return false;
     }
+
+    if ((event.originalEvent as PointerEvent).buttons !== 1) return false;
 
     if (now - lastClickTime < 300) {
         initDistance(event).then(async () => {

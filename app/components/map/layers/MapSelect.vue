@@ -11,7 +11,7 @@
                 stopEvent: true,
             }"
             :z-index="5"
-            @mouseleave="contextMenu = null"
+            @mouseleave="!$event.relatedTarget?.closest('#teleports') && (contextMenu = null)"
             @pointermove.stop
             @update:modelValue="contextMenu = null"
         >
@@ -21,11 +21,54 @@
                 <ui-menu
                     item-padding="8px 16px"
                     :items="contextMenu.items"
+                    @click="contextMenu = null"
                 >
                     <template #default="{ item }">
-                        <ui-text type="3b">
-                            {{item.title}}
-                        </ui-text>
+                        <div class="select__container">
+                            <ui-text type="3b">
+                                {{item.title}}
+                            </ui-text>
+                            <div
+                                v-if="item.key"
+                                class="select__actions"
+                                @click.stop
+                            >
+                                <template v-if="item.key === 'pilot-details'">
+                                    <ui-button
+                                        :href="`https://stats.vatsim.net/stats/${ item.cid }`"
+                                        target="_blank"
+                                        type="link"
+                                        @click="contextMenu = null"
+                                    >
+                                        <template #icon>
+                                            <stats-icon/>
+                                        </template>
+                                    </ui-button>
+                                    <ui-button
+                                        v-if="item.name"
+                                        type="link"
+                                    >
+                                        <template #icon>
+                                            <settings-favorite-list
+                                                :cid="item.cid"
+                                                is-popup
+                                                :name="item.name"
+                                            />
+                                        </template>
+                                    </ui-button>
+                                </template>
+                                <template v-if="item.key.startsWith('pilot') && item.airport">
+                                    <ui-button
+                                        type="link"
+                                        @click="store.metarRequest = [item.airport]"
+                                    >
+                                        <template #icon>
+                                            <weather-icon/>
+                                        </template>
+                                    </ui-button>
+                                </template>
+                            </div>
+                        </div>
                     </template>
                 </ui-menu>
             </popup-map-info>
@@ -77,12 +120,9 @@ import type {
     FeatureAirport,
     MapFeaturesType,
     FeatureAirportAtc,
-    FeatureAirportCounter,
-    FeatureSector, FeatureAircraft,
+    FeatureAircraft,
 } from '~/utils/map/entities';
 import {
-
-
     getMapFeature,
     globalMapEntities,
     isMapFeature,
@@ -97,8 +137,15 @@ import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
-import { useIsTouch } from '~/composables';
+import { useCopyText, useIsTouch } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import StarIcon from '~/assets/icons/kit/star.svg?component';
+import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
+import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
+import StatsIcon from '~/assets/icons/kit/stats.svg?component';
+import Stats from '~/pages/stats.vue';
+import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
@@ -258,18 +305,17 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
             },
             {
                 title: `Toggle traffic lines`,
-                onClick: () => alert('lines'),
+                onClick: () => {
+                    if (mapStore.overlays.some(x => x.key === properties.icao)) {
+                        mapStore.overlays = mapStore.overlays.filter(x => x.key !== properties.icao);
+                    }
+                    else mapStore.addAirportOverlay(properties.icao, undefined, { minified: true, sticky: true, data: { showTracks: true } });
+                },
             },
             {
                 title: `Add ${ properties.icao } to bookmarks`,
                 onClick: () => alert('bookmark'),
             },
-            ...('atc' in properties)
-                ? properties.atc.map(x => ({
-                    title: `${ x.callsign } details`,
-                    onClick: () => mapStore.addAtcOverlay(x.callsign),
-                }))
-                : [],
         ],
     };
 };
@@ -392,41 +438,33 @@ const definitions = {
                 items: [
                     {
                         title: `${ properties.callsign } details`,
-                        onClick: () => alert('details'),
+                        onClick: () => mapStore.addPilotOverlay(properties.cid),
+                        cid: properties.cid,
+                        name: pilot?.name,
+                        key: 'pilot-details',
                     },
                     {
                         title: `Toggle dep/arr line`,
-                        onClick: () => alert('details'),
-                    },
-                    {
-                        title: `Copy route`,
-                        onClick: () => alert('copy'),
-                    },
-                    {
-                        title: `VATSIM Member Stats`,
-                        onClick: () => alert('stats'),
-                    },
-                    {
-                        title: `Add to friends list`,
-                        onClick: () => alert('befriend'),
+                        onClick: () => {
+                            if (mapStore.overlays.some(x => x.key === properties.cid.toString())) {
+                                mapStore.overlays = mapStore.overlays.filter(x => x.key !== properties.cid.toString());
+                            }
+                            else mapStore.addPilotOverlay(properties.cid, undefined, { minified: true, sticky: true });
+                        },
                     },
                     ...(pilot && pilot.departure && pilot.arrival
                         ? [
                             {
                                 title: `${ pilot.departure } Details`,
                                 onClick: () => mapStore.addAirportOverlay(pilot.departure!),
-                            },
-                            {
-                                title: `${ pilot.departure } METAR/TAF`,
-                                onClick: () => alert('metar'),
+                                key: 'pilot-departure',
+                                airport: pilot.departure,
                             },
                             {
                                 title: `${ pilot.arrival } Details`,
                                 onClick: () => mapStore.addAirportOverlay(pilot.arrival!),
-                            },
-                            {
-                                title: `${ pilot.arrival } METAR/TAF`,
-                                onClick: () => alert('metar'),
+                                key: 'pilot-arrival',
+                                airport: pilot.departure,
                             },
                         ]
                         : []),
@@ -540,7 +578,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 if (type === 'hover') {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
-                          map.value!.getTargetElement().style.cursor = 'grab';
+                            map.value!.getTargetElement().style.cursor = 'grab';
                             openedOverlay.value = null;
                             selectFeature(false);
                         }
@@ -585,12 +623,12 @@ function createSelectHandler(type: EventType, select: Select) {
                 tookAction = true;
 
                 if (result === false) {
-                  map.value!.getTargetElement().style.cursor = 'grab';
+                    map.value!.getTargetElement().style.cursor = 'grab';
                     return false;
                 }
 
                 if (type === 'hover') {
-                  map.value!.getTargetElement().style.cursor = 'pointer';
+                    map.value!.getTargetElement().style.cursor = 'pointer';
                 }
                 else {
                     hoverSelect?.selectFeature(feature);
@@ -649,7 +687,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!tookAction) {
                 if (type === 'hover') {
-                  map.value!.getTargetElement().style.cursor = 'grab';
+                    map.value!.getTargetElement().style.cursor = 'grab';
                     select.clearSelection();
                 }
                 else if (type === 'click') {
@@ -667,7 +705,7 @@ function createSelectHandler(type: EventType, select: Select) {
 }
 
 watch(map, val => {
-    if (!val) return;
+    if (!val || hoverSelect) return;
 
     const filter: FilterFunction = (feature, layer) => {
         if (!layer) return false;
@@ -744,6 +782,11 @@ onBeforeUnmount(() => {
         clickSelect?.dispose();
         map.value?.removeInteraction(clickSelect);
     }
+
+    if (rightClickSelect) {
+        rightClickSelect?.dispose();
+        map.value?.removeInteraction(rightClickSelect);
+    }
 });
 </script>
 
@@ -752,9 +795,13 @@ onBeforeUnmount(() => {
     display: block;
 }
 
-.test {
-    width: 300px;
-    height: 300px;
-    background: black;
+.select__container {
+    display: flex;
+    gap: 8px;
+}
+
+.select__actions {
+    display: flex;
+    gap: 4px;
 }
 </style>

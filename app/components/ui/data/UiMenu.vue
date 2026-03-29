@@ -34,6 +34,7 @@ export interface UIMenuItem {
     title: string;
     key?: string;
     onClick: () => any;
+    [key: string]: any;
 }
 </script>
 

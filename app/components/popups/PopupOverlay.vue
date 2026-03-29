@@ -28,7 +28,7 @@
                     <minus-icon width="14"/>
                 </div>
                 <div
-                    v-if="collapsible && !isMobile"
+                    v-if="collapsible && (!isMobile || typeof minified !== 'boolean')"
                     class="info-popup_header_actions_action info-popup_header_actions_action--collapse"
                     @click="collapsed = !collapsed"
                 >
@@ -278,6 +278,10 @@ watch(getSections, sections => {
 
         background: $black;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+        }
+
         &:only-child {
             padding-bottom: 0;
         }
@@ -307,7 +311,7 @@ watch(getSections, sections => {
 
                 transition: 0.3s;
 
-                &:not(:last-child, &--collapse) {
+                &:not(:last-child, &--collapse, &--minify:nth-last-child(-n+2)) {
                     padding-right: 8px;
                     border-right: 1px solid $whiteAlpha12;
                 }
@@ -403,6 +407,12 @@ watch(getSections, sections => {
             padding: 8px 0;
 
             background: $black;
+
+            @include mobileOnly {
+                position: relative;
+                bottom: 0;
+                margin-bottom: 0;
+            }
         }
 
         &_separator {

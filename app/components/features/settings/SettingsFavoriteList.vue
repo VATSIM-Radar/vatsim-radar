@@ -3,10 +3,11 @@
         v-if="cid.toString() !== store.user?.cid"
         class="list"
         :class="{ 'list--added': addedList }"
+        @mouseleave.stop
     >
         <ui-tooltip
             v-model="tooltipOpen"
-            close-method="clickOutside"
+            :close-method="isPopup ? 'click' : 'clickOutside'"
             :location
             :open-method="addedList ? 'disabled' : 'click'"
             :width="isMobile ? '60vw' : '300px'"
@@ -23,8 +24,36 @@
                 </div>
             </template>
 
-            <div class="__info-sections list__container">
-                <div class="list__title">
+            <div
+                v-if="!isPopup"
+                id="favorite-list-content"
+                ref="favoriteContent"
+            />
+        </ui-tooltip>
+
+        <popup-fullscreen
+            v-if="isPopup"
+            v-model="tooltipOpen"
+            @click.stop
+        >
+            <template #title>
+                Add to favorites
+            </template>
+            <div
+                id="favorite-list-content"
+                ref="favoriteContent"
+            />
+        </popup-fullscreen>
+
+        <teleport
+            v-if="favoriteContent"
+            to="#favorite-list-content"
+        >
+            <div
+                class="__info-sections list__container"
+                :class="{ 'list__container--popup': isPopup }"
+            >
+                <div class="list__title" v-if="!isPopup">
                     Add to Favorites
                 </div>
 
@@ -49,7 +78,7 @@
                     Add to {{ selectedList?.name ?? 'list' }}
                 </ui-button>
             </div>
-        </ui-tooltip>
+        </teleport>
     </div>
 </template>
 
@@ -65,6 +94,7 @@ import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { UserListLive } from '~/utils/server/handlers/lists';
 import { MAX_LISTS_USERS } from '~/utils/shared';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const props = defineProps({
     cid: {
@@ -79,11 +109,16 @@ const props = defineProps({
         type: String as PropType<TooltipLocation>,
         default: 'left',
     },
+    isPopup: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const store = useStore();
 const isMobile = useIsMobile();
 const tooltipOpen = defineModel({ type: Boolean, default: false });
+const favoriteContent = useTemplateRef('favoriteContent');
 
 const addedList = computed(() => store.user?.lists.find(x => x.users.some(x => x.cid === props.cid)));
 

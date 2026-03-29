@@ -142,7 +142,7 @@ export const useMapStore = defineStore('map', {
 
             if (isMobile.value) {
                 this.overlays.forEach(x => {
-                    x.collapsed = true;
+                    x.minified = true;
                 });
             }
             this.overlays.push(newOverlay);
@@ -181,7 +181,9 @@ export const useMapStore = defineStore('map', {
                 const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`, {
                     timeout: 5000,
                 });
-                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
+                if (!params.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
+                }
                 if (params?.data?.tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
 
@@ -227,7 +229,9 @@ export const useMapStore = defineStore('map', {
                 const prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ cid }/prefile`, {
                     timeout: 5000,
                 });
-                this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                }
                 await nextTick();
 
                 return this.addOverlay<StoreOverlayPrefile>({
@@ -260,7 +264,9 @@ export const useMapStore = defineStore('map', {
                 const controller = findAtcByCallsign(callsign);
                 if (!controller) return;
 
-                this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                }
                 await nextTick();
 
                 return this.addOverlay<StoreOverlayAtc>({
@@ -290,7 +296,7 @@ export const useMapStore = defineStore('map', {
             try {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
                 if (existingOverlay) {
-                    if (store.isMobile) this.overlays.forEach(x => x.collapsed = true);
+                    if (store.isMobile) this.overlays.forEach(x => x.minified = true);
                     existingOverlay.collapsed = false;
                     existingOverlay.minified = false;
                     this.activeMobileOverlay = existingOverlay.id;
@@ -300,7 +306,9 @@ export const useMapStore = defineStore('map', {
                 const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[airport];
                 if (!vatSpyAirport) return;
 
-                this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                }
                 await nextTick();
                 const overlay = this.addOverlay<StoreOverlayAirport>({
                     key: airport,

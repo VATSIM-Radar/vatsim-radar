@@ -19,6 +19,7 @@
 - Added context menu when clicking on aircraft, atc or airport
 - Hovered pilot and atc info now always show friend name and comment
 - Added a way to minify any overlay
+- Overlay actions are no longer pinned to bottom of the screen on mobile devices
 - Navigraph procedures will now be automatically cleared if airport overlay is closed
 - Procedures will now show in Airport Dashboard even if airport is not found in VATSIM AIP
 
