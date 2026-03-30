@@ -598,7 +598,7 @@ const getStatus = computed(() => {
 
 const loading = ref(false);
 
-watch(dataStore.vatsim.updateTimestamp, async () => {
+useUpdateCallback(['short'], async () => {
     if (loading.value) return;
     try {
         loading.value = true;

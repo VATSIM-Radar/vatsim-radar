@@ -22,6 +22,7 @@
 - Overlay actions are no longer pinned to bottom of the screen on mobile devices
 - Navigraph procedures will now be automatically cleared if airport overlay is closed
 - Procedures will now show in Airport Dashboard even if airport is not found in VATSIM AIP
+- Pilot overlay data updates are now happening less often
 
 # [2.0.0-alpha.5.4]
 

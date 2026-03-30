@@ -48,8 +48,6 @@ export function setAirportStyle(layer: VectorLayer) {
     styleCache = {};
     styleFillCache = {};
 
-    // TODO: rework cache https://stackoverflow.com/questions/59032715/how-to-cache-styles-but-still-set-individual-text
-
     layer.setStyle(feature => {
         const showAirportDetails = mapStore.showAirportDetails;
 

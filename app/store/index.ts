@@ -128,10 +128,6 @@ export const useStore = defineStore('index', {
             const dataStore = useDataStore();
             return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
         },
-        // TODO possibly deprecated
-        fullAirportsUpdate(): boolean {
-            return (this.featuredAirportsOpen && !this.featuredVisibleOnly) || this.updateATCTracons;
-        },
         datalistNotSupported(): boolean {
             return this.engine === 'Gecko';
         },
