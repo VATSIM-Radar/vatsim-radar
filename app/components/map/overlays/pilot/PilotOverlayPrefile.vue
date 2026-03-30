@@ -1,6 +1,7 @@
 <template>
     <popup-overlay
         v-model:collapsed="overlay.collapsed"
+        v-model:minified="overlay.minified"
         class="fpln"
         collapsible
         max-height="100%"

@@ -62,21 +62,18 @@ async function checkStatus() {
 
 export function checkForUpdates() {
     return initCheck('updatesCheck', async ({ mapStore, dataStore }) => {
-        // Data is not yet ready
-        if (!mapStore.dataReady) {
-            const ready = await checkStatus();
+        const ready = await checkStatus();
 
-            if (!ready) {
-                await new Promise<void>(resolve => {
-                    const interval = setInterval(async () => {
-                        const status = await checkStatus();
-                        if (status) {
-                            resolve();
-                            clearInterval(interval);
-                        }
-                    }, 1000);
-                });
-            }
+        if (!ready) {
+            await new Promise<void>(resolve => {
+                const interval = setInterval(async () => {
+                    const status = await checkStatus();
+                    if (status) {
+                        resolve();
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            });
         }
 
         if (!dataStore.versions.value) {

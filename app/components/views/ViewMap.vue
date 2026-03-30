@@ -37,7 +37,7 @@
                 v-show="!store.config.hideOverlays"
                 ref="popups"
                 class="map_popups"
-                :class="{ 'map_popups--single': mapStore.overlays.length === 1 }"
+                :class="{ 'map_popups--single': visibleOverlays.length === 1 }"
                 :style="{
                     '--popups-height': `${ popupsHeight }px`,
                     '--overlays-height': `${ overlaysHeight }px`,
@@ -46,11 +46,11 @@
                 <div
                     v-if="popupsHeight || store.config.hideOverlays"
                     class="map_popups_list"
-                    :class="{ 'map_popups_list--empty': !mapStore.overlays.length }"
+                    :class="{ 'map_popups_list--empty': !visibleOverlays.length }"
                 >
                     <transition-group name="map_popups_popup--appear">
                         <map-overlays
-                            v-for="overlay in mapStore.overlays"
+                            v-for="overlay in visibleOverlays"
                             :key="overlay.id+overlay.key"
                             class="map_popups_popup"
                             :overlay="overlay"
@@ -68,7 +68,8 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
-                    <map-selected-procedures/>
+                    <map-selected-procedures v-if="restoredOverlays"/>
+                    <map-minified-overlays/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -273,10 +274,9 @@ import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/render/storage';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 import { useMapStore } from '~/store/map';
-import type { StoreOverlayPilot, StoreOverlayAirport, StoreOverlay } from '~/store/map';
+import type { StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/vatsim/pilots';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
-import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
 import { boundingExtent, buffer, getCenter } from 'ol/extent.js';
 import { toDegrees } from 'ol/math.js';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
@@ -299,7 +299,6 @@ import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
-import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import MapTerminator from '~/components/map/layers/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
@@ -317,7 +316,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
-import type { VatsimAchievementUser } from '~/types/data/vatsim';
+import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 
 defineProps({
     mode: {
@@ -338,6 +337,7 @@ const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const layer = shallowRef<LayerGroup | null>(null);
 const ready = ref(false);
+const restoredOverlays = ref(false);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -403,6 +403,10 @@ const notam = computed(() => {
     if (activeNotam.activeTo && new Date(activeNotam.activeTo).getTime() < dataStore.time.value) return null;
 
     return activeNotam;
+});
+
+const visibleOverlays = computed(() => {
+    return mapStore.overlays.filter(x => !x.minified || isMobile.value);
 });
 
 if (route.query.start !== undefined && route.query.end !== undefined) {
@@ -481,89 +485,25 @@ const restoreOverlays = async () => {
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
 
-    const fetchedList = (await Promise.all(localOverlays.map(async overlay => {
+    await Promise.allSettled(localOverlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
         if (overlay.type === 'pilot') {
-            const data = await Promise.allSettled([
-                $fetch(`/api/data/vatsim/pilot/${ overlay.key }`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            const resultOverlay = {
-                ...overlay,
-                data: {
-                    pilot: data[0].value,
-                },
-            } as StoreOverlayPilot;
-            $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ overlay.key }/achievements`).then(result => {
-                resultOverlay.data.achievements = result;
-            }).catch(console.error);
-
-            return resultOverlay;
+            return mapStore.addPilotOverlay(overlay.key, undefined, overlay);
         }
         else if (overlay.type === 'prefile') {
-            const data = await Promise.allSettled([
-                $fetch(`/api/data/vatsim/pilot/${ overlay.key }/prefile`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            return {
-                ...overlay,
-                data: {
-                    prefile: data[0].value,
-                },
-            };
+            return mapStore.addPrefileOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'atc') {
-            const controller = findAtcByCallsign(overlay.key);
-            if (!controller) return overlay;
-
-            return {
-                ...overlay,
-                data: {
-                    callsign: overlay.key,
-                },
-            };
+            return mapStore.addAtcOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'airport') {
-            const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[overlay.key];
-            if (!vatSpyAirport) return;
-
-            const data = await Promise.allSettled([
-                $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ overlay.key }`),
-            ]);
-
-            if (!('value' in data[0])) return overlay;
-
-            (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`).catch(console.error) ?? [];
-                const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
-                if (foundOverlay) {
-                    (foundOverlay as StoreOverlayAirport).data.notams = notams;
-                }
-            }());
-
-            return {
-                ...overlay,
-                data: {
-                    icao: overlay.key,
-                    airport: data[0].value,
-                    showTracks: mapStore.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
-                },
-            };
+            return mapStore.addAirportOverlay(overlay.key, undefined, overlay);
         }
 
         return overlay;
-    }))).filter(x => x && 'data' in x && x.data) as StoreOverlay[];
-
-    mapStore.overlays = [
-        ...mapStore.overlays,
-        ...fetchedList,
-    ];
+    }));
 
     if (typeof route.query.pilot === 'string' && route.query.pilot) {
         const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);
@@ -644,17 +584,6 @@ const restoreOverlays = async () => {
     }
 };
 
-function updateMapCursor() {
-    if (!mapStore.mapCursorPointerTrigger) {
-        map.value!.getTargetElement().style.cursor = 'grab';
-    }
-    else {
-        map.value!.getTargetElement().style.cursor = 'pointer';
-    }
-}
-
-watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
-
 watch(() => store.localSettings.distance?.enabled, val => {
     if (!val) return;
 
@@ -683,11 +612,10 @@ useUpdateInterval(() => {
     }
 });
 
-const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 8;
 const overlaysHeight = computed(() => {
-    if (mapStore.overlays.length <= 1) return 'auto';
-    return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+    if (visibleOverlays.value.length <= 1) return 'auto';
+    return visibleOverlays.value.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (visibleOverlays.value.length - 1));
 });
 
 useLazyAsyncData('bookmarks', async () => {
@@ -701,22 +629,22 @@ useLazyAsyncData('bookmarks', async () => {
 });
 
 watch([isMobile, popups], () => {
-    mapStore.overlays.forEach(x => x._maxHeight = undefined);
+    visibleOverlays.value.forEach(x => x._maxHeight = undefined);
     popupsHeight.value = popups.value?.clientHeight ?? 0;
 });
 
-watch([overlays, popupsHeight, isMobile], async () => {
+watch([visibleOverlays, popupsHeight, isMobile], async () => {
     await nextTick();
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
 
     if (popups.value) {
         const baseHeight = 38;
-        const collapsed = mapStore.overlays.filter(x => x.collapsed);
-        const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
+        const collapsed = visibleOverlays.value.filter(x => x.collapsed);
+        const uncollapsed = visibleOverlays.value.filter(x => !x.collapsed);
 
         const collapsedHeight = collapsed.length * baseHeight;
-        const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
+        const totalHeight = popups.value.clientHeight - (overlaysGap * (visibleOverlays.value.length - 1));
 
         // Max 4 uncollapsed on screen
         const minHeight = Math.floor(totalHeight / 4);
@@ -740,7 +668,7 @@ watch([overlays, popupsHeight, isMobile], async () => {
 
     if (!store.config.airport) {
         localStorage.setItem('overlays', JSON.stringify(
-            overlays.value.map(x => ({
+            mapStore.overlays.map(x => ({
                 ...x,
                 data: undefined,
             })),
@@ -822,6 +750,8 @@ function handleDownEvent(event: MapBrowserEvent) {
 
         return false;
     }
+
+    if ((event.originalEvent as PointerEvent).buttons !== 1) return false;
 
     if (now - lastClickTime < 300) {
         initDistance(event).then(async () => {
@@ -1016,7 +946,6 @@ await setupDataFetch({
         map.value.on('pointerdrag', function() {
             map.value!.getTargetElement().style.cursor = 'grabbing';
         });
-        map.value.on('pointermove', updateMapCursor);
         map.value.on('postrender', event => {
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
@@ -1086,6 +1015,7 @@ await setupDataFetch({
         }
 
         await restoreOverlays();
+        restoredOverlays.value = true;
 
         map.value.on('movestart', () => {
             moving = true;
@@ -1309,17 +1239,27 @@ onBeforeUnmount(() => {
     }
 
     :deep(.ol-attribution) {
-        background: $darkgray1000;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: $black;
 
         @include mobile {
             background: transparent;
         }
 
         ul {
+            padding: 0;
             text-shadow: none;
 
             &, a {
-                color: varToRgba('lightgray150', 0.4);
+                font-size: 11px;
+                color: varToRgba('lightGray900', 0.3);
+            }
+
+            a:not(:last-child) {
+                margin-right: 2px;
+                padding-right: 4px;
+                border-right: 1px dashed varToRgba('lightGray900', 0.15);
             }
 
             @include hover {

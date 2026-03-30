@@ -2,6 +2,7 @@
     <popup-overlay
         v-if="overlay?.data?.pilot"
         v-model:collapsed="overlay.collapsed"
+        v-model:minified="overlay.minified"
         class="pilot"
         collapsible
         :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
@@ -597,7 +598,7 @@ const getStatus = computed(() => {
 
 const loading = ref(false);
 
-watch(dataStore.vatsim.updateTimestamp, async () => {
+useUpdateCallback(['short'], async () => {
     if (loading.value) return;
     try {
         loading.value = true;

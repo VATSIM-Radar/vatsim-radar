@@ -3,46 +3,28 @@
         v-if="text"
         class="copy-info"
     >
-        <div class="copy-info_left">
+        <ui-text
+            v-if="$slots.default || $slots.actions"
+            class="copy-info_header"
+            type="2b-medium"
+        >
             <div
                 v-if="$slots.default"
-                class="copy-info_left_title"
+                class="copy-info_header_title"
             >
                 <slot/>
             </div>
-            <ui-button
-                class="copy-info_left_copy"
-                type="link"
-                @click="copy.copy(text)"
-            >
-                <template v-if="copy.copyState.value">
-                    Copied!
-                </template>
-                <template v-else>
-                    Copy
-                </template>
-            </ui-button>
-            <ui-button
-                v-if="!autoExpand"
-                class="copy-info_left_expand"
-                type="link"
-                @click="expanded = !expanded"
-            >
-                <template v-if="expanded">
-                    Collapse
-                </template>
-                <template v-else>
-                    Expand
-                </template>
-            </ui-button>
             <div
                 v-if="$slots.actions"
-                class="copy-info_left_title"
+                class="copy-info_header_actions"
             >
                 <slot name="actions"/>
             </div>
-        </div>
-        <div class="copy-info_right __info-sections">
+        </ui-text>
+        <div
+            class="copy-info_content __info-sections"
+            :class="{ 'copy-info_content--with-expand': !autoExpand }"
+        >
             <slot name="prepend"/>
             <textarea
                 ref="textarea"
@@ -51,6 +33,36 @@
                 :rows
                 :value="text"
             />
+            <div class="copy-info_content_actions">
+                <ui-button
+                    v-if="!autoExpand"
+                    class="copy-info_expand"
+                    :class="{ 'copy-info_expand--expanded': expanded }"
+                    icon-width="12px"
+                    type="link"
+                    @click="expanded = !expanded"
+                >
+                    <arrow-top-icon width="12"/>
+                </ui-button>
+                <ui-button
+                    class="copy-info_copy"
+                    :class="{ 'copy-info_copy--copied': copy.copyState.value }"
+                    icon-width="12px"
+                    type="link"
+                    @click="copy.copy(text)"
+                >
+                    <template #icon>
+                        <check-icon
+                            v-if="copy.copyState.value"
+                            width="12"
+                        />
+                        <copy-icon
+                            v-else
+                            width="12"
+                        />
+                    </template>
+                </ui-button>
+            </div>
             <slot name="append"/>
         </div>
     </div>
@@ -59,7 +71,11 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { useCopyText } from '~/composables';
+import CopyIcon from '~/assets/icons/kit/copy.svg?component';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     text: {
@@ -102,19 +118,26 @@ watch([expanded, textarea], ([val]) => {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    color: $typographyPrimary;
 
-    &_left {
+    &_header {
         display: flex;
         gap: 8px;
+    }
 
-        &_title {
-            font-size: 12px;
-            font-weight: 600;
+    &_copy {
+        height: 16px;
+
+        &--copied {
+            color: $green500;
         }
+    }
 
-        &_expand {
-            position: sticky;
-            top: 0;
+    &_expand {
+        height: 16px;
+
+        &--expanded {
+            transform: rotate(180deg);
         }
     }
 
@@ -122,7 +145,8 @@ watch([expanded, textarea], ([val]) => {
         resize: vertical;
         scrollbar-gutter: stable;
 
-        padding: 8px;
+        min-height: 32px;
+        padding: 8px 16px 8px 8px;
         border: none;
         border-radius: 4px;
 
@@ -133,6 +157,24 @@ watch([expanded, textarea], ([val]) => {
         background: $darkgray875;
         outline: none;
         box-shadow: none;
+    }
+
+    &_content {
+        position: relative;
+
+        &_actions {
+            position: absolute;
+            top: 12px;
+            right: 8px;
+
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        &--with-expand .copy-info_textarea {
+            padding-right: 36px;
+        }
     }
 }
 </style>

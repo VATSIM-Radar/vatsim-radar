@@ -6,10 +6,8 @@ import type { ThemesList } from '~/utils/colors';
 import type { VatDataVersions } from '~/types/data';
 import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
-import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { UserMapPreset, UserMapSettings } from '~/utils/server/handlers/map-settings';
-import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type {
     UserListLive,
     UserListLiveUser,
@@ -127,10 +125,6 @@ export const useStore = defineStore('index', {
         bookings(): VatsimBooking[] {
             const dataStore = useDataStore();
             return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
-        },
-        // TODO possibly deprecated
-        fullAirportsUpdate(): boolean {
-            return (this.featuredAirportsOpen && !this.featuredVisibleOnly) || this.updateATCTracons;
         },
         datalistNotSupported(): boolean {
             return this.engine === 'Gecko';
@@ -266,7 +260,6 @@ export const useStore = defineStore('index', {
 
             const dataStore = useDataStore();
             const config = useRuntimeConfig();
-            const mapStore = useMapStore();
 
             try {
                 this.dataInProgress = true;
@@ -313,15 +306,6 @@ export const useStore = defineStore('index', {
                     }
 
                     await onFetch?.();
-
-                    if (!mapStore.localTurns.size) return;
-
-                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
-                        method: 'POST',
-                        body: [...mapStore.localTurns],
-                    });
-
-                    mapStore.localTurns.clear();
                 }
             }
             catch (e) {

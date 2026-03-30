@@ -73,8 +73,15 @@
                         {{ usePilotRating(pilot).join(' | ') }}
                     </template>
                     <ui-spoiler type="pilot">
-                        <template v-if="friend && !isNaN(Number(friend.name))">
+                        <template v-if="friend && isNaN(Number(friend.name))">
                             {{friend.name}}
+                            <ui-text
+                                v-if="friend.comment"
+                                tag="span"
+                                type="caption-light"
+                            >
+                                {{friend.comment}}
+                            </ui-text>
                         </template>
                         <template v-else>
                             {{ parseEncoding(pilot.name) }}
@@ -119,6 +126,7 @@ import type { Options } from 'ol/Overlay';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     payload: {

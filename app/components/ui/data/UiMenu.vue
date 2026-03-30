@@ -7,18 +7,15 @@
             type="2b"
             @click="item.onClick()"
         >
-            {{item.title}}
+            <slot :item>
+                {{item.title}}
+            </slot>
         </ui-text>
     </div>
 </template>
 
 <script setup lang="ts">
 import UiText from '~/components/ui/text/UiText.vue';
-
-export interface UIMenuItem {
-    title: string;
-    onClick: () => any;
-}
 
 defineProps({
     items: {
@@ -30,6 +27,15 @@ defineProps({
         default: '20px',
     },
 });
+
+defineSlots<{ default: (settings: { item: UIMenuItem }) => any }>();
+
+export interface UIMenuItem {
+    title: string;
+    key?: string;
+    onClick: () => any;
+    [key: string]: any;
+}
 </script>
 
 <style scoped lang="scss">

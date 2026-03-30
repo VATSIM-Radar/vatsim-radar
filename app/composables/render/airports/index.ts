@@ -462,12 +462,12 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
     source: VectorSource;
     map: Map;
 }): Promise<VisibleAirportsResult | null> {
-    if (settingAirports) return null;
+    const dataStore = useDataStore();
+    if (settingAirports || !dataStore.vatspy.value) return null;
     settingAirports = true;
 
     const store = useStore();
     const mapStore = useMapStore();
-    const dataStore = useDataStore();
     const overlays = airportOverlays().value;
 
     try {

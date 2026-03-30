@@ -622,7 +622,7 @@ img {
 
     &_title {
         padding-top: 8px;
-        border-top: 1px solid varToRgba('lightgray150', 0.15);
+        border-top: 1px solid $whiteAlpha12;
         font-size: 13px;
         font-weight: 600;
     }

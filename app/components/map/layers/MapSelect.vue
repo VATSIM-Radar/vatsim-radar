@@ -1,7 +1,80 @@
 <template>
     <div>
         <map-html-overlay
-            v-if="multiSelectCoordinate"
+            v-if="contextMenu"
+            is-interaction
+            model-value
+            persistent
+            :settings="{
+                position: contextMenu.coordinate,
+                positioning: 'top-center',
+                stopEvent: true,
+            }"
+            :z-index="5"
+            @mouseleave="!$event.relatedTarget?.closest('#teleports') && (contextMenu = null)"
+            @pointermove.stop
+            @update:modelValue="contextMenu = null"
+        >
+            <popup-map-info
+                content-padding="0"
+            >
+                <ui-menu
+                    item-padding="8px 16px"
+                    :items="contextMenu.items"
+                    @click="contextMenu = null"
+                >
+                    <template #default="{ item }">
+                        <div class="select__container">
+                            <ui-text type="3b">
+                                {{item.title}}
+                            </ui-text>
+                            <div
+                                v-if="item.key"
+                                class="select__actions"
+                                @click.stop
+                            >
+                                <template v-if="item.key === 'pilot-details'">
+                                    <ui-button
+                                        :href="`https://stats.vatsim.net/stats/${ item.cid }`"
+                                        target="_blank"
+                                        type="link"
+                                        @click="contextMenu = null"
+                                    >
+                                        <template #icon>
+                                            <stats-icon/>
+                                        </template>
+                                    </ui-button>
+                                    <ui-button
+                                        v-if="item.name"
+                                        type="link"
+                                    >
+                                        <template #icon>
+                                            <settings-favorite-list
+                                                :cid="item.cid"
+                                                is-popup
+                                                :name="item.name"
+                                            />
+                                        </template>
+                                    </ui-button>
+                                </template>
+                                <template v-if="item.key.startsWith('pilot') && item.airport">
+                                    <ui-button
+                                        type="link"
+                                        @click="store.metarRequest = [item.airport]"
+                                    >
+                                        <template #icon>
+                                            <weather-icon/>
+                                        </template>
+                                    </ui-button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </ui-menu>
+            </popup-map-info>
+        </map-html-overlay>
+        <map-html-overlay
+            v-else-if="multiSelectCoordinate"
             :key="String(multiSelectCoordinate)"
             is-interaction
             model-value
@@ -31,6 +104,30 @@
             @close="openedOverlay = null"
             @id="openedOverlay && (openedOverlay.id = $event)"
         />
+        <popup-fullscreen
+            v-if="bookmarkOpen"
+            model-value
+        >
+            <template #title>
+                New bookmark for {{bookmarkOpen}}
+            </template>
+            <div class="__info-sections">
+                <ui-input-text v-model="bookmarkName">
+                    Name
+                </ui-input-text>
+                <settings-bookmark-options
+                    :airport="bookmarkOpen"
+                    :bookmark
+                />
+                <ui-button
+                    :disabled="!bookmarkName || store.bookmarks.some(x => x.name.toLowerCase() === bookmarkName.toLowerCase())"
+                    size="S"
+                    @click="createBookmark"
+                >
+                    Save
+                </ui-button>
+            </div>
+        </popup-fullscreen>
     </div>
 </template>
 
@@ -40,10 +137,20 @@ import type { Feature, Map } from 'ol';
 import type { SelectEvent, FilterFunction } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
 import { pointerMove, always, singleClick } from 'ol/events/condition.js';
+import type { Condition } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
-import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { MapFeaturesType } from '~/utils/map/entities';
+import type {
+    FeatureAirport,
+    MapFeaturesType,
+    FeatureAirportAtc,
+    FeatureAircraft,
+} from '~/utils/map/entities';
+import {
+    getMapFeature,
+    globalMapEntities,
+    isMapFeature,
+} from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
@@ -55,10 +162,21 @@ import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
 import { useIsTouch } from '~/composables';
+import UiText from '~/components/ui/text/UiText.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
+import StatsIcon from '~/assets/icons/kit/stats.svg?component';
+import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';
+import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
+import { sendUserPreset } from '~/composables/fetchers';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
 let clickSelect: Select | undefined;
+let rightClickSelect: Select | undefined;
 
 function multiSelectCleanup() {
     if (multiSelectFeatures.value.length <= 1) return;
@@ -74,6 +192,10 @@ function multiSelectCleanup() {
     multiSelectFeatures.value = [];
 }
 
+const contextMenu = shallowRef<{
+    coordinate: Coordinate;
+    items: UIMenuItem[];
+} | null>(null);
 const multiSelectCoordinate = shallowRef<Coordinate | null>(null);
 const multiSelectFeatures = shallowRef<{ definition: Definition; feature: Feature }[]>([]);
 const multiSelectMenu = computed<UIMenuItem[]>(() => {
@@ -116,12 +238,20 @@ const multiSelectMenu = computed<UIMenuItem[]>(() => {
     });
 });
 
-const rightClickCoordinate = shallowRef<Coordinate | null>(null);
-const rightClickFeature = shallowRef<Feature | null>(null);
-
 type EventType = 'click' | 'hover' | 'rightClick';
 
+const store = useStore();
 const mapStore = useMapStore();
+const bookmarkOpen = ref(null as string | null);
+
+// TODO: refactor
+const bookmarkName = ref('');
+const bookmark = ref<UserBookmark>({ zoom: 14 });
+const createBookmark = async () => {
+    await sendUserPreset(bookmarkName.value, bookmark.value, 'bookmarks', createBookmark);
+    await store.fetchBookmarks();
+    bookmarkOpen.value = null;
+};
 
 interface Overlay {
     overlayComponent?: Component;
@@ -154,11 +284,9 @@ watch(() => mapStore.openOverlayId, id => {
 });
 
 function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, interactionKey: SelectableFeatures) {
+    if (contextMenu.value) return;
     const element = interactableElements[key];
     if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
-
-    rightClickCoordinate.value = null;
-    rightClickFeature.value = null;
 
     openedOverlay.value = {
         key,
@@ -170,10 +298,12 @@ function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, inte
     multiSelectCleanup();
 }
 
+type RadarEventAction = (payload: RadarEventPayload<any>) => void | boolean;
+
 type Definition = {
     featureTypes: MapFeaturesType[];
     disableMobileHoverFallback?: boolean;
-} & PartialRecord<EventType, (payload: RadarEventPayload<any>) => void | boolean>;
+} & PartialRecord<EventType, RadarEventAction>;
 
 let previouslySelected: Feature | undefined;
 
@@ -195,6 +325,37 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 
 const isMobileOrTablet = useIsTouch();
 
+const airportContextAction: RadarEventAction = (payload: RadarEventPayload<FeatureAirport | FeatureAirportAtc>) => {
+    const properties = payload.feature.getProperties();
+
+    contextMenu.value = {
+        coordinate: payload.coordinate,
+        items: [
+            {
+                title: `Open ${ properties.icao }`,
+                onClick: () => mapStore.addAirportOverlay(properties.icao),
+            },
+            {
+                title: `${ properties.icao } METAR/TAF`,
+                onClick: () => store.metarRequest = [properties.icao],
+            },
+            {
+                title: `Toggle traffic lines`,
+                onClick: () => {
+                    if (mapStore.overlays.some(x => x.key === properties.icao)) {
+                        mapStore.overlays = mapStore.overlays.filter(x => x.key !== properties.icao);
+                    }
+                    else mapStore.addAirportOverlay(properties.icao, undefined, { minified: true, sticky: true, data: { showTracks: true } });
+                },
+            },
+            {
+                title: `Add ${ properties.icao } to bookmarks`,
+                onClick: () => bookmarkOpen.value = properties.icao,
+            },
+        ],
+    };
+};
+
 const definitions = {
     airportControllers: {
         featureTypes: ['airport'],
@@ -208,6 +369,7 @@ const definitions = {
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
+        rightClick: airportContextAction,
         disableMobileHoverFallback: true,
     },
     airportLocal: {
@@ -216,6 +378,7 @@ const definitions = {
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
+        rightClick: airportContextAction,
     },
     airportApproach: {
         featureTypes: ['airport-tracon-label', 'airport-circle-label'],
@@ -302,6 +465,48 @@ const definitions = {
         click: payload => {
             mapStore.addPilotOverlay(payload.feature.getProperties().cid);
         },
+        rightClick: (payload: RadarEventPayload<FeatureAircraft>) => {
+            const properties = payload.feature.getProperties();
+            const pilot = useDataStore().vatsim.data.keyedPilots.value[properties.cid];
+
+            contextMenu.value = {
+                coordinate: payload.coordinate,
+                items: [
+                    {
+                        title: `${ properties.callsign } details`,
+                        onClick: () => mapStore.addPilotOverlay(properties.cid),
+                        cid: properties.cid,
+                        name: pilot?.name,
+                        key: 'pilot-details',
+                    },
+                    {
+                        title: `Toggle dep/arr line`,
+                        onClick: () => {
+                            if (mapStore.overlays.some(x => x.key === properties.cid.toString())) {
+                                mapStore.overlays = mapStore.overlays.filter(x => x.key !== properties.cid.toString());
+                            }
+                            else mapStore.addPilotOverlay(properties.cid, undefined, { minified: true, sticky: true });
+                        },
+                    },
+                    ...(pilot && pilot.departure && pilot.arrival
+                        ? [
+                            {
+                                title: `${ pilot.departure } Details`,
+                                onClick: () => mapStore.addAirportOverlay(pilot.departure!),
+                                key: 'pilot-departure',
+                                airport: pilot.departure,
+                            },
+                            {
+                                title: `${ pilot.arrival } Details`,
+                                onClick: () => mapStore.addAirportOverlay(pilot.arrival!),
+                                key: 'pilot-arrival',
+                                airport: pilot.departure,
+                            },
+                        ]
+                        : []),
+                ],
+            };
+        },
         disableMobileHoverFallback: true,
     },
     distance: {
@@ -383,7 +588,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
         selectedFeatures: shallowRef([]),
     },
     rightClick: {
-        priorities: ['multi'],
+        priorities: ['airportLocal', 'airportControllers', 'aircraft'],
         multiSelect: {},
         selectedFeatures: shallowRef([]),
     },
@@ -409,7 +614,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 if (type === 'hover') {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
-                            mapStore.mapCursorPointerTrigger = 0;
+                            map.value!.getTargetElement().style.cursor = 'grab';
                             openedOverlay.value = null;
                             selectFeature(false);
                         }
@@ -454,12 +659,12 @@ function createSelectHandler(type: EventType, select: Select) {
                 tookAction = true;
 
                 if (result === false) {
-                    mapStore.mapCursorPointerTrigger = 0;
+                    map.value!.getTargetElement().style.cursor = 'grab';
                     return false;
                 }
 
                 if (type === 'hover') {
-                    mapStore.mapCursorPointerTrigger = 100;
+                    map.value!.getTargetElement().style.cursor = 'pointer';
                 }
                 else {
                     hoverSelect?.selectFeature(feature);
@@ -518,7 +723,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!tookAction) {
                 if (type === 'hover') {
-                    mapStore.mapCursorPointerTrigger = 0;
+                    map.value!.getTargetElement().style.cursor = 'grab';
                     select.clearSelection();
                 }
                 else if (type === 'click') {
@@ -536,7 +741,7 @@ function createSelectHandler(type: EventType, select: Select) {
 }
 
 watch(map, val => {
-    if (!val) return;
+    if (!val || hoverSelect) return;
 
     const filter: FilterFunction = (feature, layer) => {
         if (!layer) return false;
@@ -571,13 +776,34 @@ watch(map, val => {
 
     clickSelect.on('select', createSelectHandler('click', clickSelect));
 
+    map.value?.addInteraction(clickSelect);
+
+    const rightClickCondition: Condition = event => {
+        return event.type === 'contextmenu';
+    };
+
+    rightClickSelect = new Select({
+        condition: rightClickCondition,
+        hitTolerance: 10,
+        multi: true,
+        style: null,
+        toggleCondition: always,
+        filter,
+    });
+
+    rightClickSelect.on('select', createSelectHandler('rightClick', clickSelect));
+
     watch(openedOverlay, val => {
         if (!val) {
             clickSelect?.clearSelection();
         }
     });
 
-    map.value?.addInteraction(clickSelect);
+    map.value?.addInteraction(rightClickSelect);
+
+    map.value?.getViewport().addEventListener('contextmenu', e => {
+        e.preventDefault();
+    });
 }, {
     immediate: true,
 });
@@ -592,6 +818,11 @@ onBeforeUnmount(() => {
         clickSelect?.dispose();
         map.value?.removeInteraction(clickSelect);
     }
+
+    if (rightClickSelect) {
+        rightClickSelect?.dispose();
+        map.value?.removeInteraction(rightClickSelect);
+    }
 });
 </script>
 
@@ -600,9 +831,13 @@ onBeforeUnmount(() => {
     display: block;
 }
 
-.test {
-    width: 300px;
-    height: 300px;
-    background: black;
+.select__container {
+    display: flex;
+    gap: 8px;
+}
+
+.select__actions {
+    display: flex;
+    gap: 4px;
 }
 </style>

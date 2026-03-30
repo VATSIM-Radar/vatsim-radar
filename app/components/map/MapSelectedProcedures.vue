@@ -26,7 +26,7 @@
                 </div>
                 <div
                     class="procedures_airport_delete"
-                    @click.stop="[delete dataStore.navigraphProcedures[airport.icao], enroutePath && delete enroutePath[airport.icao]]"
+                    @click.stop="[delete dataStore.navigraphProcedures.value[airport.icao], triggerRef(dataStore.navigraphProcedures), enroutePath && delete enroutePath[airport.icao]]"
                 >
                     <close-icon/>
                 </div>
@@ -55,7 +55,7 @@ interface Airport {
 const mapStore = useMapStore();
 
 const airports = computed<Airport[]>(() => {
-    const airports = Object.entries(dataStore.navigraphProcedures);
+    const airports = Object.entries(dataStore.navigraphProcedures.value);
     const result: Airport[] = [];
 
     for (const [airport, data] of airports) {
@@ -91,7 +91,10 @@ function receiveMessage(event: MessageEvent) {
 
 onMounted(() => {
     window.addEventListener('message', receiveMessage);
-    updateCachedProcedures();
+});
+
+watch(() => mapStore.overlays, updateCachedProcedures, {
+    immediate: true,
 });
 
 const config = useRuntimeConfig();

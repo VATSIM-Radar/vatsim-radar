@@ -671,7 +671,7 @@ export async function getFlightPlanWaypoints({
                 }
             }
 
-            const precise = getPreciseCoord(entry);
+            const precise = getPreciseCoord(search);
 
             if (precise) {
                 waypoints.push({
@@ -916,17 +916,21 @@ export async function updateCachedProcedures() {
     const values = enroutePath.value;
     const aircraftValues = enrouteAircraftPath.value;
     const dataStore = useDataStore();
+    const mapStore = useMapStore();
 
     if (values) {
+        dataStore.navigraphProcedures.value = {};
+
         for (const [airport, value] of Object.entries(values)) {
-            dataStore.navigraphProcedures[airport] ??= {
+            if (!mapStore.overlays.find(x => x.key === airport)) continue;
+            dataStore.navigraphProcedures.value[airport] ??= {
                 sids: {},
                 stars: {},
                 approaches: {},
                 runways: [],
                 setBy: value.setBy,
             };
-            const selectedAirport = dataStore.navigraphProcedures[airport]!;
+            const selectedAirport = dataStore.navigraphProcedures.value[airport]!;
 
             const { data: procedures } = await useAsyncData(computed(() => `${ airport }-procedures-selected`), () => getNavigraphAirportProcedures(airport));
 
@@ -939,9 +943,11 @@ export async function updateCachedProcedures() {
 
             if (!Object.keys(selectedAirport.sids).length && !Object.keys(selectedAirport.stars).length && !Object.keys(selectedAirport.approaches).length) {
                 delete enroutePath.value![airport];
-                delete dataStore.navigraphProcedures[airport];
+                delete dataStore.navigraphProcedures.value[airport];
             }
         }
+
+        triggerRef(dataStore.navigraphProcedures);
     }
 
     if (aircraftValues) {

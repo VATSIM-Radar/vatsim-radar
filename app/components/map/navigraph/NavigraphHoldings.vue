@@ -161,7 +161,7 @@ const debouncedUpdate = debounce(() => {
         }
     }
 
-    for (const item of Object.values(dataStore.navigraphProcedures)) {
+    for (const item of Object.values(dataStore.navigraphProcedures.value)) {
         for (const star of Object.values(item!.stars)) {
             star.procedure.waypoints.forEach(x => {
                 starWaypoints.value[x.identifier] = x.coordinate;

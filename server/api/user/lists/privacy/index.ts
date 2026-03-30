@@ -4,7 +4,6 @@ import { isNext } from '~/utils/server/debug';
 import { MAX_LISTS_USERS } from '~/utils/shared';
 import { handleH3Error } from '~/utils/server/h3';
 
-// TODO: use on next after prod release
 export default defineEventHandler(async (event: H3Event): Promise<Record<string, boolean> | void | H3Error<any>> => {
     const ids = readBody<Array<string | number>>(event);
 
