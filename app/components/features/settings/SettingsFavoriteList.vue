@@ -53,7 +53,10 @@
                 class="__info-sections list__container"
                 :class="{ 'list__container--popup': isPopup }"
             >
-                <div class="list__title" v-if="!isPopup">
+                <div
+                    v-if="!isPopup"
+                    class="list__title"
+                >
                     Add to Favorites
                 </div>
 
