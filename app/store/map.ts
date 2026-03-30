@@ -5,7 +5,6 @@ import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportInfo } from '~/utils/server/vatsim';
-import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';

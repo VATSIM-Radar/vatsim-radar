@@ -85,7 +85,7 @@ const collapsed = defineModel<boolean | null>('collapsed', {
         width: 100%;
         height: 1px;
 
-        background: $black;
+        background: $darkGray800;
     }
 
     &:not(:only-child, &--remove-margin) {

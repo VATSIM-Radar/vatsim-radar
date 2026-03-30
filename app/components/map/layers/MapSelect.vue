@@ -104,6 +104,30 @@
             @close="openedOverlay = null"
             @id="openedOverlay && (openedOverlay.id = $event)"
         />
+        <popup-fullscreen
+            v-if="bookmarkOpen"
+            model-value
+        >
+            <template #title>
+                New bookmark for {{bookmarkOpen}}
+            </template>
+            <div class="__info-sections">
+                <ui-input-text v-model="bookmarkName">
+                    Name
+                </ui-input-text>
+                <settings-bookmark-options
+                    :airport="bookmarkOpen"
+                    :bookmark
+                />
+                <ui-button
+                    :disabled="!bookmarkName || store.bookmarks.some(x => x.name.toLowerCase() === bookmarkName.toLowerCase())"
+                    size="S"
+                    @click="createBookmark"
+                >
+                    Save
+                </ui-button>
+            </div>
+        </popup-fullscreen>
     </div>
 </template>
 
@@ -137,15 +161,17 @@ import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
-import { useCopyText, useIsTouch } from '~/composables';
+import { useIsTouch } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import StarIcon from '~/assets/icons/kit/star.svg?component';
-import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
 import StatsIcon from '~/assets/icons/kit/stats.svg?component';
-import Stats from '~/pages/stats.vue';
 import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';
+import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
+import { sendUserPreset } from '~/composables/fetchers';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
@@ -216,6 +242,16 @@ type EventType = 'click' | 'hover' | 'rightClick';
 
 const store = useStore();
 const mapStore = useMapStore();
+const bookmarkOpen = ref(null as string | null);
+
+// TODO: refactor
+const bookmarkName = ref('');
+const bookmark = ref<UserBookmark>({ zoom: 14 });
+const createBookmark = async () => {
+    await sendUserPreset(bookmarkName.value, bookmark.value, 'bookmarks', createBookmark);
+    await store.fetchBookmarks();
+    bookmarkOpen.value = null;
+};
 
 interface Overlay {
     overlayComponent?: Component;
@@ -314,7 +350,7 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
             },
             {
                 title: `Add ${ properties.icao } to bookmarks`,
-                onClick: () => alert('bookmark'),
+                onClick: () => bookmarkOpen.value = properties.icao,
             },
         ],
     };
