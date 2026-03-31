@@ -14,6 +14,7 @@ import { Fill, Style } from 'ol/style.js';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
+import { fetch } from 'pmtiles-protocol';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { buildAttributions } from '~/composables/map';
@@ -132,7 +133,7 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
                 title: 'Protomaps',
                 url: 'https://github.com/protomaps/basemaps',
             },
-            url: '/tiles.json',
+            url: 'pmtiles://https://r2.vatsim-radar.com/tiles/tiles-251204.pmtiles',
             pm: true,
             theme,
         };
@@ -324,7 +325,9 @@ async function initLayer() {
 
         glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
 
-        await applyStyle(tileLayer.value, glStyle);
+        await applyStyle(tileLayer.value, glStyle, {
+            transformRequest: url => fetch!(url),
+        });
 
         attributionLayer = new TileLayer({
             source: new XYZ({
