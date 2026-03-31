@@ -5841,7 +5841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/geojson@npm:*, @types/geojson@npm:^7946.0.10, @types/geojson@npm:^7946.0.16":
+"@types/geojson@npm:^7946.0.10, @types/geojson@npm:^7946.0.16":
   version: 7946.0.16
   resolution: "@types/geojson@npm:7946.0.16"
   checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
@@ -5896,15 +5896,6 @@ __metadata:
     "@types/ms": "npm:*"
     "@types/node": "npm:*"
   checksum: 10c0/0688ac8fb75f809201cb7e18a12b9d80ce539cb9dd27e1b01e11807cb1a337059e899b8ee3abc3f2c9417f02e363a3069d9eab9ef9724b1da1f0e10713514f94
-  languageName: node
-  linkType: hard
-
-"@types/leaflet@npm:^1.9.8":
-  version: 1.9.21
-  resolution: "@types/leaflet@npm:1.9.21"
-  dependencies:
-    "@types/geojson": "npm:*"
-  checksum: 10c0/96a86bdeff7bf56104242e97536f39005a53dd857853aa0c5de127ce2c72f3f36638f2a5b8d23e2e825a2bfe32113be731ab26634a3143413b891299c29621ce
   languageName: node
   linkType: hard
 
@@ -13530,25 +13521,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pmtiles-protocol@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "pmtiles-protocol@npm:1.1.2"
-  dependencies:
-    pmtiles: "npm:^3.2.0"
-  checksum: 10c0/93de9445ab41d028c9f44a6870c15a08e8944ffc23884619838fca4f4c0fb9556b94bea55531ad8016a8316778aa449a8242bbd543f71f466632c775e9918a07
-  languageName: node
-  linkType: hard
-
-"pmtiles@npm:^3.2.0":
-  version: 3.2.1
-  resolution: "pmtiles@npm:3.2.1"
-  dependencies:
-    "@types/leaflet": "npm:^1.9.8"
-    fflate: "npm:^0.8.0"
-  checksum: 10c0/645612bb23837808345581dde9cee89c2987b0556c26ac0b661dffeef42c53ceb888bb5be8817ef3fd40623b96dc6036808773529ee5f6694ddbb38af4bc5bcb
-  languageName: node
-  linkType: hard
-
 "polyclip-ts@npm:^0.16.8":
   version: 0.16.8
   resolution: "polyclip-ts@npm:0.16.8"
@@ -17269,7 +17241,6 @@ __metadata:
     ol-ext: "npm:^4.0.38"
     ol-mapbox-style: "npm:^13.4.0"
     pinia: "npm:^3.0.4"
-    pmtiles-protocol: "npm:^1.1.2"
     postcss: "npm:^8.5.8"
     postcss-html: "npm:^1.8.1"
     prisma: "npm:^7.6.0"

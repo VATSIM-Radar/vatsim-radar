@@ -73,7 +73,6 @@
     "ol-ext": "^4.0.38",
     "ol-mapbox-style": "^13.4.0",
     "pinia": "^3.0.4",
-    "pmtiles-protocol": "^1.1.2",
     "prisma": "^7.6.0",
     "rou3": "^0.8.1",
     "sharp": "^0.34.5",
