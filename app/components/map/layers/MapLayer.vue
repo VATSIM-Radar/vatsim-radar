@@ -227,7 +227,7 @@ async function initLayer() {
 
     if (layer.value.vector) {
         tileLayer.value = new VectorTileLayer({
-            declutter: true,
+            declutter: 'vectorLayer',
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
@@ -270,12 +270,14 @@ async function initLayer() {
         };
 
         tileLayer.value = new VectorTileLayer({
-            declutter: true,
+            declutter: 'pm',
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
             zIndex: 0,
             cacheSize: 32,
+            // @ts-expect-error wrong types
+            renderOrder: null,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
