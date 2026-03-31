@@ -200,7 +200,7 @@ function withSign(value: number, dir: string): number {
 
 // N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
 // Wrote this myself because chatgpt can't write regex properly
-const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,2})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW])))$/;
+const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|(?<lonRaw3>\d{1,4}))$/;
 
 function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     if (degreeDigits === 2) {
@@ -225,13 +225,14 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const match = value.match(preciseRegex);
     if (!match) return null;
 
-    let { latDir, latDir2, latRaw, latRaw2, latRaw3, lonDir, lonDir2, lonRaw, lonRaw2 } = match.groups ?? {};
+    let { latDir, latDir2, latRaw, latRaw2, latRaw3, lonDir, lonDir2, lonRaw, lonRaw2, lonRaw3 } = match.groups ?? {};
 
     latDir ??= latDir2;
     latRaw ??= latRaw2;
     latRaw ??= latRaw3;
     lonDir ??= lonDir2;
     lonRaw ??= lonRaw2;
+    lonRaw ??= lonRaw3;
 
     if (!latRaw || !lonRaw) return null;
 
