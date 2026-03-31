@@ -200,7 +200,7 @@ function withSign(value: number, dir: string): number {
 
 // N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
 // Wrote this myself because chatgpt can't write regex properly
-const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|(?<lonRaw3>\d{1,4}))$/;
+const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|((\/)(?<lonRaw3>\d{1,4})))$/;
 
 function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     if (degreeDigits === 2) {
