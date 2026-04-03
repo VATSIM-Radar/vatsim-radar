@@ -319,5 +319,13 @@ export const duplicatingSettings = [
             VOK: 'VOK_APP',
             OSH: 'OSH_V_APP',
         },
+        {
+        regex: /^HNL_(\d+_)?CTR$/,
+        mapping: {
+            HNL: 'HNL_H_APP',
+            NGF: 'NGF_APP',
+            OGG: 'OGG_S_APP',
+            ITO: 'ITO_APP',
+        },
     },
 ] satisfies DuplicatingSetting[];
