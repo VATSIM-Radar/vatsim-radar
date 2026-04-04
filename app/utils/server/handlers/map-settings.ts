@@ -120,7 +120,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return typeof val === 'boolean' || val === 'always';
     },
     airportsHide: val => {
-        return typeof val === 'boolean';
+        return val === 'unstaffed' || val === 'all' || val === 'none';
     },
     heatmapLayer: val => {
         return typeof val === 'boolean';
