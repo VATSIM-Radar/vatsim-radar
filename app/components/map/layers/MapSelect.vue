@@ -16,10 +16,11 @@
             @update:modelValue="contextMenu = null"
         >
             <popup-map-info
+                class="select__menu"
                 content-padding="0"
             >
                 <ui-menu
-                    item-padding="8px 16px"
+                    item-padding="8px 12px"
                     :items="contextMenu.items"
                     @click="contextMenu = null"
                 >
@@ -31,7 +32,6 @@
                             <div
                                 v-if="item.key"
                                 class="select__actions"
-                                @click.stop
                             >
                                 <template v-if="item.key === 'pilot-details'">
                                     <ui-button
@@ -54,6 +54,16 @@
                                                 is-popup
                                                 :name="item.name"
                                             />
+                                        </template>
+                                    </ui-button>
+                                </template>
+                                <template v-if="item.key === 'pilot-route'">
+                                    <ui-button
+                                        type="link"
+                                        @click="item.onClick"
+                                    >
+                                        <template #icon>
+                                            <path-icon/>
                                         </template>
                                     </ui-button>
                                 </template>
@@ -166,6 +176,7 @@ import UiText from '~/components/ui/text/UiText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
 import StatsIcon from '~/assets/icons/kit/stats.svg?component';
+import PathIcon from 'assets/icons/kit/path.svg?component';
 import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';
 import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
@@ -332,7 +343,7 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
         coordinate: payload.coordinate,
         items: [
             {
-                title: `Open ${ properties.icao }`,
+                title: `${ properties.icao } Details`,
                 onClick: () => mapStore.addAirportOverlay(properties.icao),
             },
             {
@@ -473,34 +484,35 @@ const definitions = {
                 coordinate: payload.coordinate,
                 items: [
                     {
-                        title: `${ properties.callsign } details`,
+                        title: `${ properties.callsign }`,
                         onClick: () => mapStore.addPilotOverlay(properties.cid),
                         cid: properties.cid,
                         name: pilot?.name,
                         key: 'pilot-details',
                     },
                     {
-                        title: `Toggle dep/arr line`,
+                        title: `Toggle DEP/ARR line`,
                         onClick: () => {
                             if (mapStore.overlays.some(x => x.key === properties.cid.toString())) {
                                 mapStore.overlays = mapStore.overlays.filter(x => x.key !== properties.cid.toString());
                             }
                             else mapStore.addPilotOverlay(properties.cid, undefined, { minified: true, sticky: true });
                         },
+                        key: 'pilot-route',
                     },
                     ...(pilot && pilot.departure && pilot.arrival
                         ? [
                             {
-                                title: `${ pilot.departure } Details`,
+                                title: `${ pilot.departure } details`,
                                 onClick: () => mapStore.addAirportOverlay(pilot.departure!),
                                 key: 'pilot-departure',
                                 airport: pilot.departure,
                             },
                             {
-                                title: `${ pilot.arrival } Details`,
+                                title: `${ pilot.arrival } details`,
                                 onClick: () => mapStore.addAirportOverlay(pilot.arrival!),
                                 key: 'pilot-arrival',
-                                airport: pilot.departure,
+                                airport: pilot.arrival,
                             },
                         ]
                         : []),
@@ -595,6 +607,10 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
 };
 
 let hoverAwaiting = false;
+
+watch(contextMenu, val => {
+    if (!val) rightClickSelect?.clearSelection();
+});
 
 function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
@@ -834,10 +850,15 @@ onBeforeUnmount(() => {
 .select__container {
     display: flex;
     gap: 8px;
+    justify-content: space-between;
 }
 
 .select__actions {
     display: flex;
     gap: 4px;
+}
+
+.select__menu {
+    overflow: hidden;
 }
 </style>

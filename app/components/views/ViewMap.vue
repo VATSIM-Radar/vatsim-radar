@@ -485,25 +485,23 @@ const restoreOverlays = async () => {
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
 
-    await Promise.allSettled(localOverlays.map(async overlay => {
+    for (const overlay of localOverlays) {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
         if (overlay.type === 'pilot') {
-            return mapStore.addPilotOverlay(overlay.key, undefined, overlay);
+            await mapStore.addPilotOverlay(overlay.key, undefined, overlay);
         }
         else if (overlay.type === 'prefile') {
-            return mapStore.addPrefileOverlay(overlay.key, overlay);
+            await mapStore.addPrefileOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'atc') {
-            return mapStore.addAtcOverlay(overlay.key, overlay);
+            await mapStore.addAtcOverlay(overlay.key, overlay);
         }
         else if (overlay.type === 'airport') {
-            return mapStore.addAirportOverlay(overlay.key, undefined, overlay);
+            await mapStore.addAirportOverlay(overlay.key, undefined, overlay);
         }
-
-        return overlay;
-    }));
+    }
 
     if (typeof route.query.pilot === 'string' && route.query.pilot) {
         const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);

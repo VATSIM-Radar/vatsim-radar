@@ -10,9 +10,10 @@
         <popup-map-info
             class="navigraph"
             content-full-height
+            model-value
             open-from="top-center"
             width="300px"
-            @mouseleave="emit('close')"
+            @update:modelValue="$emit('close')"
         >
             <template #title>
                 {{ getInfo?.title }}

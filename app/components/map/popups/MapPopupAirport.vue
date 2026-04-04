@@ -19,7 +19,9 @@
         <popup-map-info
             v-if="vatGlassesCombinedActive && payload.additionalPayload?.length"
             class="airport_atc-vgList"
+            model-value
             :open-from="type === 'airport' ? 'bottom-center' : 'top-center'"
+            @update:modelValue="$emit('close')"
         >
             <template #title>
                 Positions

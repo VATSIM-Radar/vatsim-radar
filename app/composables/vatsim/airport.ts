@@ -67,7 +67,7 @@ export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortened
 
 export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPilotStatus>>;
 
-export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
+export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
@@ -94,11 +94,13 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
     const pilotDistances = shallowRef<Record<string, ReturnType<typeof getAircraftDistance>>>({});
 
+    const data = toValue(_data);
+
     const aircraft = computed<AirportPopupPilotList | null>(() => {
-        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao);
+        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.icao);
         if (!vatAirport) return null;
 
-        const airport = getAirportByIcao(data.value.icao);
+        const airport = getAirportByIcao(data.icao);
 
         const list = {
             groundDep: [] as AirportPopupPilotStatus[],
@@ -109,7 +111,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         } satisfies AirportPopupPilotList;
 
         for (const pilot of dataStore.vatsim.data.pilots.value) {
-            if (data.value.icao !== pilot.departure && data.value.icao !== pilot.arrival) {
+            if (data.icao !== pilot.departure && data.icao !== pilot.arrival) {
                 // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
                 // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
                 if (!pilot.departure && !pilot.arrival) {
@@ -162,7 +164,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         }
 
         for (const pilot of dataStore.vatsim.data.prefiles.value) {
-            if (pilot.departure !== data.value.icao) continue;
+            if (pilot.departure !== data.icao) continue;
             if (vatAirport.aircraft.prefiles?.includes(pilot.cid)) {
                 list.prefiles.push({
                     ...pilot,

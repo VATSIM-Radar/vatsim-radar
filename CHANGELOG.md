@@ -1,5 +1,26 @@
 # Changelog
 
+# [2.0.0-alpha.6.1]
+
+This release is focused on V2 feedback.
+
+## Alpha changes
+
+- Fixed some overlays not being restored after page reload
+- Fixed minified overlays zone blocking map interaction
+- Slightly changed pilot context menu UI
+- Fixed overlay content disappearing on mobile if overlay was collapsed
+- Collapsed overlays will no longer auto open on mobile
+- Fixed SIGMET and Navigraph popup closing when moving mouse in any direction except into overlay
+- Added close buttons to SIGMET and Navigraph overlays
+- Fixed context menu opening unstable
+- Fixed Firefox favicon looking goofy
+- New "General" map settings: short airport view and aircraft declutter
+- Slight new footer redesign
+- Fixed duplicated positions stroke color
+- Fixed colors not saving sometimes
+- Added arrival rate when hovering over collapsed airport overlay
+
 # [2.0.0-alpha.6]
 
 ## Alpha changes

@@ -88,7 +88,7 @@
                     type="3b"
                 >
                     <div class="map-footer__connections_title">
-                        <span>{{ getCounts.total }}</span> connections with <span>{{ getCounts.inRadar }}</span> in VATSIM Radar:
+                        <span>{{ getCounts.total }}</span> connections with <span>{{ getCounts.inRadar }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
@@ -397,7 +397,7 @@ function cancelBookingOverride() {
 
         &_info {
             display: flex;
-            gap: 4px;
+            gap: 1px;
             align-items: center;
 
             &_item {
@@ -406,9 +406,18 @@ function cancelBookingOverride() {
                 align-items: center;
 
                 padding: 8px;
-                border-radius: 2px;
 
                 background: $backgroundLevel1;
+
+                &:first-child {
+                    border-top-left-radius: 4px;
+                    border-bottom-left-radius: 4px;
+                }
+
+                &:last-child {
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                }
             }
         }
     }

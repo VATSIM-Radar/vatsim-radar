@@ -291,7 +291,7 @@ export const customDefu = createDefu((obj, key, value) => {
         return true;
     }
 
-    if (customDefuMergeAsIs && typeof value === 'object') {
+    if (customDefuMergeAsIs && typeof value === 'object' && obj[key]) {
         Object.assign(obj[key], value);
         setTimeout(() => {
             customDefuMergeAsIs = false;

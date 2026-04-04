@@ -1004,7 +1004,6 @@ export async function updateCachedProcedures() {
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.approaches).length
             ) {
                 delete dataStore.navigraphAircraftProcedures.value[cid];
-                delete dataStore.navigraphAircraftProcedures.value[cid];
             }
         }
     }

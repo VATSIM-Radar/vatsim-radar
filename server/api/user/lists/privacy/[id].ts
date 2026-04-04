@@ -14,23 +14,21 @@ export default defineEventHandler(async (event: H3Event) => {
         }
     }
 
-    const dbUser = (await prisma.user.findFirst({
+    const dbUser = (await prisma.vatsimUser.findFirst({
         where: {
-            vatsim: {
-                id,
-            },
+            id,
         },
         select: {
-            privateMode: true,
-            vatsim: {
+            user: {
                 select: {
                     id: true,
+                    privateMode: true,
                 },
             },
         },
     }));
 
     return {
-        isPrivate: !!dbUser?.privateMode,
+        isPrivate: !!dbUser?.user.privateMode,
     };
 });
