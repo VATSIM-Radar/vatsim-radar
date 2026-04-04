@@ -16,10 +16,11 @@
             @update:modelValue="contextMenu = null"
         >
             <popup-map-info
+                class="select__menu"
                 content-padding="0"
             >
                 <ui-menu
-                    item-padding="8px 16px"
+                    item-padding="8px 12px"
                     :items="contextMenu.items"
                     @click="contextMenu = null"
                 >
@@ -855,5 +856,9 @@ onBeforeUnmount(() => {
 .select__actions {
     display: flex;
     gap: 4px;
+}
+
+.select__menu {
+    overflow: hidden;
 }
 </style>

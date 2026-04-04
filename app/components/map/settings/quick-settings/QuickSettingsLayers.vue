@@ -134,6 +134,16 @@
                 </ui-select>
             </template>
         </ui-columns-display>
+        <ui-select
+            v-if="!isMobile"
+            :items="[{ value: 'bottom-left', text: 'Bottom Left' }, { value: 'top-left', text: 'Top Left' }]"
+            :model-value="store.mapSettings.overlaysPositions ?? 'bottom-left'"
+            @update:modelValue="setUserMapSettings({ overlaysPositions: $event as any })"
+        >
+            <template #label>
+                Minified Overlays position
+            </template>
+        </ui-select>
         <ui-notification
             cookie-name="settings-emergency"
             type="info"
@@ -315,6 +325,7 @@ const dataStore = useDataStore();
 
 const resetActive = ref(false);
 const vatglassesActive = isVatGlassesActive;
+const isMobile = useIsMobile();
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

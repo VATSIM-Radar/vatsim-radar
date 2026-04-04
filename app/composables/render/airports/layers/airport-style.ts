@@ -91,7 +91,7 @@ export function setAirportStyle(layer: VectorLayer) {
                     ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
                     : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
 
-                let mainTransparency = 0.7;
+                const mainTransparency = 0.7;
 
                 if (isDuplicated) {
                     const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
@@ -99,11 +99,6 @@ export function setAirportStyle(layer: VectorLayer) {
                     mainColor = isUir
                         ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600').join(',')
                         : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',');
-
-                    const transparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs');
-                    if (transparency) {
-                        mainTransparency = transparency;
-                    }
                 }
 
                 if (properties.selected) {

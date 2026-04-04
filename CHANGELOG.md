@@ -16,6 +16,10 @@ This release is focused on V2 feedback.
 - Fixed context menu opening unstable
 - Fixed Firefox favicon looking goofy
 - New "General" map settings: short airport view and aircraft declutter
+- Slight new footer redesign
+- Fixed duplicated positions stroke color
+- Fixed colors not saving sometimes
+- Added arrival rate when hovering over collapsed airport overlay
 
 # [2.0.0-alpha.6]
 

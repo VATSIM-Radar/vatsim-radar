@@ -2,7 +2,10 @@
     <div
         v-if="mapStore.overlays.length"
         class="minified-overlays"
-        :class="{ 'minified-overlays--procedures': hasProcedures }"
+        :class="{
+            'minified-overlays--procedures': hasProcedures,
+            'minified-overlays--top-left': !isMobile && store.mapSettings.overlaysPositions === 'top-left',
+        }"
     >
         <transition-group name="minified-overlays--appear">
             <ui-button
@@ -11,6 +14,8 @@
                 size="S"
                 :type="item.minified ? 'secondary' : 'primary'"
                 @click="itemClick(item)"
+                @mouseleave="hoveredAirport = ''"
+                @mouseover="item.type === 'airport' && (hoveredAirport = item.data.icao)"
             >
                 <div
                     class="minified-overlays__minified-btn"
@@ -34,6 +39,21 @@
                             {{ item.data.icao }}
                         </template>
                     </ui-text>
+
+                    <transition name="minified-overlays__rate--appear">
+                        <ui-text
+                            v-if="item.type === 'airport' && hoveredAirport === item.data.icao"
+                            class="minified-overlays__rate"
+                            type="caption-medium"
+                        >
+                            <vatsim-traffic-rate
+                                :aircraft="airportAircraft"
+                                :icon-color="radarColors.lightgray200"
+                                :text-color="radarColors.error500"
+                                use-opacity
+                            />
+                        </ui-text>
+                    </transition>
 
                     <div
                         v-if="item.type === 'airport' && airports[item.data.icao] && item.minified"
@@ -66,7 +86,11 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import type { StoreOverlay } from '~/store/map';
 import UiText from '~/components/ui/text/UiText.vue';
+import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
+import { getAircraftForAirport } from '~/composables/vatsim/airport';
 
+const isMobile = useIsMobile();
+const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
@@ -98,7 +122,13 @@ const airports = computed(() => {
     }, {} as Record<string, Record<string, any> | null>);
 });
 
-const isMobile = useIsMobile();
+const hoveredAirport = ref('');
+
+const airportAircraft = computed(() => hoveredAirport.value
+    ? getAircraftForAirport({
+        icao: hoveredAirport.value,
+    }).value
+    : null);
 
 function itemClick(item: StoreOverlay) {
     if (isMobile.value) {
@@ -160,9 +190,10 @@ onMounted(() => {
 
     >* {
         pointer-events: initial;
+        position: relative;
     }
 
-    @include mobile {
+    @include mobileOnly {
         display: grid;
         grid-template-columns: repeat(2, calc(50% - 8px));
         justify-content: space-between;
@@ -173,9 +204,38 @@ onMounted(() => {
         bottom: 40px + 16px;
     }
 
+    &__rate {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 4px);
+
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+
+        width: 100%;
+        padding: 2px 4px;
+        border-radius: 4px;
+
+        background: $darkGray800;
+
+        &--appear {
+            &-enter-active,
+            &-leave-active {
+                transition: 0.3s;
+            }
+
+            &-enter-from,
+            &-leave-to {
+                bottom: 100%;
+                opacity: 0;
+            }
+        }
+    }
+
     &__minified-btn {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         align-items: center;
         justify-content: space-between;
 
@@ -202,7 +262,7 @@ onMounted(() => {
     &__counters {
         position: relative;
         display: flex;
-        gap: 2px;
+        gap: 4px;
         font-size: 10px;
 
         &_counter {
@@ -239,6 +299,17 @@ onMounted(() => {
                 max-height: 0;
                 margin-top: -8px;
             }
+        }
+    }
+
+    &--top-left {
+        top: 16px;
+        bottom: auto;
+        left: 16px + 40px + 8px;
+
+        .minified-overlays__rate {
+            top: calc(100% + 4px);
+            bottom: auto;
         }
     }
 }

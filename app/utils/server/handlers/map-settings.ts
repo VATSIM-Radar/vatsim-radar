@@ -202,6 +202,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    overlaysPositions: val => {
+        return val === 'top-left' || val === 'bottom-left';
+    },
     hideATISOnly: val => {
         return typeof val === 'boolean';
     },
@@ -301,6 +304,7 @@ export interface IUserMapSettings {
     disableQueryUpdate?: boolean;
     shortAircraftView?: boolean;
     shortAirportView?: boolean;
+    overlaysPositions?: 'bottom-left' | 'top-left';
     aircraftDeclutter?: boolean | 'always';
     aircraftHoverDelay?: number | boolean;
     defaultAirportZoomLevel: number;
