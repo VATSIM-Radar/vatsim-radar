@@ -124,15 +124,16 @@ onMounted(() => {
 
     watch(isMobile, val => {
         if (!val) return;
-        const unminified = mapStore.overlays.find(x => !x.minified);
+        const unminified = mapStore.overlays.find(x => !x.minified && !x.collapsed);
 
         if (unminified) {
             mapStore.activeMobileOverlay = unminified.id;
-            mapStore.overlays = mapStore.overlays.map(x => ({
-                ...x,
-                minified: x.id !== unminified.id,
-            }));
         }
+
+        mapStore.overlays = mapStore.overlays.map(x => ({
+            ...x,
+            minified: unminified ? x.id !== unminified.id : true,
+        }));
     }, {
         immediate: true,
     });
@@ -141,6 +142,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .minified-overlays {
+    pointer-events: none;
+
     position: absolute;
     z-index: 7;
     bottom: 16px;
@@ -155,6 +158,10 @@ onMounted(() => {
 
     transition: 0.3s;
 
+    >* {
+        pointer-events: initial;
+    }
+
     @include mobile {
         display: grid;
         grid-template-columns: repeat(2, calc(50% - 8px));
@@ -168,7 +175,7 @@ onMounted(() => {
 
     &__minified-btn {
         display: flex;
-        gap: 4px;
+        gap: 8px;
         align-items: center;
         justify-content: space-between;
 

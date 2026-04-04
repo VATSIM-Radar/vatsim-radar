@@ -109,6 +109,31 @@
                 </ui-toggle>
             </template>
         </ui-columns-display>
+        <ui-columns-display>
+            <template #col1>
+                <ui-toggle
+                    :model-value="!!store.mapSettings.shortAirportView"
+                    @update:modelValue="setUserMapSettings({ shortAirportView: $event })"
+                >
+                    Short airports view
+
+                    <template #description>
+                        Always show airport info as lines
+                    </template>
+                </ui-toggle>
+            </template>
+            <template #col2>
+                <ui-select
+                    :items="[{ text: 'Disabled', value: false }, { text: 'Enabled (when many)', value: true }, { text: 'Enabled (always)', value: 'always' }]"
+                    :model-value="store.mapSettings.aircraftDeclutter ?? false"
+                    @update:modelValue="setUserMapSettings({ aircraftDeclutter: $event as any })"
+                >
+                    <template #label>
+                        Aircraft Declutter
+                    </template>
+                </ui-select>
+            </template>
+        </ui-columns-display>
         <ui-notification
             cookie-name="settings-emergency"
             type="info"

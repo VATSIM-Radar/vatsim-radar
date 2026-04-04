@@ -206,7 +206,7 @@ async function update() {
                         key: '',
                         identifier: '',
                         type: 'navigraph',
-                        featureType: 'enroute-airways',
+                        featureType: 'enroute-self',
                         dataType: 'navdata',
                         self: true,
                         kind,

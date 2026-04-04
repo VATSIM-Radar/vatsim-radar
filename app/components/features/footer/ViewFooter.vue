@@ -88,7 +88,7 @@
                     type="3b"
                 >
                     <div class="map-footer__connections_title">
-                        <span>{{ getCounts.total }}</span> connections with <span>{{ getCounts.inRadar }}</span> in VATSIM Radar:
+                        <span>{{ getCounts.total }}</span> connections with <span>{{ getCounts.inRadar }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">

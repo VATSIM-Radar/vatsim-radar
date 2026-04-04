@@ -162,7 +162,7 @@ export async function getNavigraphGates({ user, icao, event }: {
 }) {
     let gates: NavigraphGate[] = [];
 
-    if (!navigraphCurrentDb || !navigraphCurrentDb) return gates;
+    if (!navigraphCurrentDb || !navigraphOutdatedDb) return gates;
 
     const req = (user?.hasFms ? navigraphCurrentDb! : navigraphOutdatedDb!).prepare(`SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_pb_gates WHERE airport_identifier = ? ORDER BY gate_identifier ASC`);
 

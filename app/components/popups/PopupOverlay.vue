@@ -52,7 +52,7 @@
         </div>
         <transition name="info-popup_content--collapse">
             <div
-                v-if="!collapsed"
+                v-if="(!collapsed || (typeof minified === 'boolean' && isMobile))"
                 class="info-popup_content"
             >
                 <slot name="prepend"/>
@@ -454,7 +454,7 @@ watch(getSections, sections => {
     }
 
     @media all and (min-width: 1600px) {
-        width: 420px;
+        width: 400px;
     }
 }
 </style>

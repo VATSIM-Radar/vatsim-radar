@@ -96,15 +96,7 @@ export default defineEventHandler(async event => {
                 },
             });
 
-            if (!user) {
-                await getDBUserToken(event, navigraphUser.user);
-            }
             return sendRedirect(event, config.public.DOMAIN);
-        }
-
-        if (!user) {
-            user = await createDBUser();
-            await getDBUserToken(event, user);
         }
 
         await prisma.navigraphUser.create({

@@ -113,6 +113,12 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     shortAircraftView: val => {
         return typeof val === 'boolean';
     },
+    shortAirportView: val => {
+        return typeof val === 'boolean';
+    },
+    aircraftDeclutter: val => {
+        return typeof val === 'boolean' || val === 'always';
+    },
     airportsHide: val => {
         return typeof val === 'boolean';
     },
@@ -294,6 +300,8 @@ export interface IUserMapSettings {
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
     shortAircraftView?: boolean;
+    shortAirportView?: boolean;
+    aircraftDeclutter?: boolean | 'always';
     aircraftHoverDelay?: number | boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;

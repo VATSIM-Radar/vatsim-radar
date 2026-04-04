@@ -197,10 +197,10 @@ export function setAirportStyle(layer: VectorLayer) {
                 const width = 14;
                 const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * (width - 2);
 
-                const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(showAirportDetails);
+                const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(mapStore.compactAirportView);
 
                 if (!styleCache[styleCacheKey]) {
-                    if (!showAirportDetails) {
+                    if (mapStore.compactAirportView) {
                         styleCache[styleCacheKey] = new Style({
                             text: new Text({
                                 font: 'normal 1px/100% Jura, Arial, sans-serif',

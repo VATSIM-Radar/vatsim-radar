@@ -116,9 +116,8 @@ export const useMapStore = defineStore('map', {
         showAirportDetails(): boolean {
             return !!this.renderedAirports && this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
         },
-        // TODO add a setting for this
         compactAirportView(): boolean {
-            return !this.showAirportDetails;
+            return !!useStore().mapSettings.shortAirportView || !this.showAirportDetails
         },
     },
     actions: {

@@ -144,13 +144,16 @@ export function setAircraftStyle(layer: VectorLayer) {
             let svg: string | null = null;
 
             if (!pngImage) svg = scheduleIconForFetch(icon.icon);
+            const shouldDeclutter = store.mapSettings.aircraftDeclutter === 'always'
+                ? true
+                : store.mapSettings?.aircraftDeclutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100)) : false;
 
-            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!svg);
+            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!svg) + String(shouldDeclutter);
 
             if (!styleImageCache[imageStyleKey]) {
                 styleImageCache[imageStyleKey] = new Icon({
                     src: svg ? svgToDataURI(reColorSvg(svg, status, cid)) : pngSrc,
-                    declutterMode: 'obstacle',
+                    declutterMode: shouldDeclutter ? 'declutter' : 'obstacle',
                     width: scaledWidth,
                     rotateWithView: true,
                 });
