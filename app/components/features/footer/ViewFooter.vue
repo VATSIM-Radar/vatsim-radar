@@ -397,7 +397,7 @@ function cancelBookingOverride() {
 
         &_info {
             display: flex;
-            gap: 4px;
+            gap: 1px;
             align-items: center;
 
             &_item {
@@ -406,9 +406,18 @@ function cancelBookingOverride() {
                 align-items: center;
 
                 padding: 8px;
-                border-radius: 2px;
 
                 background: $backgroundLevel1;
+
+                &:first-child {
+                    border-top-left-radius: 4px;
+                    border-bottom-left-radius: 4px;
+                }
+
+                &:last-child {
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                }
             }
         }
     }
