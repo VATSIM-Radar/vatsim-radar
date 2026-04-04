@@ -117,7 +117,7 @@ export const useMapStore = defineStore('map', {
             return !!this.renderedAirports && this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
         },
         compactAirportView(): boolean {
-            return !!useStore().mapSettings.shortAirportView || !this.showAirportDetails
+            return !!useStore().mapSettings.shortAirportView || !this.showAirportDetails;
         },
     },
     actions: {

@@ -8,12 +8,12 @@
         @update:overlay="!$event && emit('close')"
     >
         <popup-map-info
-            model-value
-            @update:model-value="$emit('close')"
             class="navigraph"
             content-full-height
+            model-value
             open-from="top-center"
             width="300px"
+            @update:modelValue="$emit('close')"
         >
             <template #title>
                 {{ getInfo?.title }}
