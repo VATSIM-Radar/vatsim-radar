@@ -6,6 +6,9 @@
   "enabledManagers": [
     "yarn"
   ],
+  "toolSettings": {
+    "nodeMaxMemory": 1024
+  },
   "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "commitMessageAction": "chore(deps): Update",
