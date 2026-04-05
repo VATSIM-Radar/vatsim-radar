@@ -16,12 +16,6 @@
   "packageRules": [
     {
       "matchPackageNames": [
-        "tsx"
-      ],
-      "allowedVersions": "4.6.12"
-    },
-    {
-      "matchPackageNames": [
         "@nuxtjs/stylelint-module"
       ],
       "allowedVersions": ">5.2.1"
