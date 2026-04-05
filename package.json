@@ -118,5 +118,5 @@
     "vite-plugin-eslint2": "^5.1.0",
     "vue-tsc": "3.2.6"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.13.0"
 }
