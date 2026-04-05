@@ -119,7 +119,7 @@ export async function setMapAircraft(settings: {
     const airportsMap = Object.fromEntries(useDataStore().vatsim.data.airports.value.map(x => [x.icao, x]));
 
     for (const cid of Object.keys(dataStore.navigraphWaypoints.value)) {
-        if (!keyedShownPilots.has(+cid)) {
+        if (!keyedShownPilots.has(+cid) && +cid !== 1) {
             delete dataStore.navigraphWaypoints.value[cid];
             triggerRef(dataStore.navigraphWaypoints);
         }
