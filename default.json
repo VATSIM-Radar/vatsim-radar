@@ -7,7 +7,7 @@
     "yarn"
   ],
   "toolSettings": {
-    "nodeMaxMemory": 1024
+    "nodeMaxMemory": 8096
   },
   "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
