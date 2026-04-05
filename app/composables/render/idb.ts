@@ -1,4 +1,4 @@
-import type { VatSpyAPIData } from '~/types/data/vatspy';
+import type { VatSpyAPIData, VatSpyDataProperties } from '~/types/data/vatspy';
 import type { Table } from 'dexie';
 import Dexie from 'dexie';
 import type {
@@ -6,7 +6,7 @@ import type {
     RadarDataAirlinesAllList,
     SimAwareAPIData,
     SimAwareDataFeature,
-    VatglassesAPIData,
+    VatglassesAPIData, VatglassesData, VatglassesPosition,
 } from '~/utils/server/storage';
 
 import type {
@@ -17,6 +17,7 @@ import type {
     NavigraphNavDataStar,
     NavigraphNavDataStarShort,
 } from '~/utils/server/navigraph/navdata/types';
+import type { Feature, MultiPolygon } from 'geojson';
 
 export interface IDBAirlinesData {
     expireDate: number;
@@ -33,6 +34,10 @@ export type IDBNavigraphProcedures = {
 
 class VatsimRadarDB extends Dexie {
     data!: Table<VatSpyAPIData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
+
+    vatspy!: Table<Feature<MultiPolygon, VatSpyDataProperties>[] | string, string>;
+
+    vatglasses!: Table<VatglassesPosition[] | VatglassesData[string] | string, string>;
 
     simaware!: Table<SimAwareDataFeature[] | string, string>;
 
@@ -52,9 +57,10 @@ export async function initClientDB() {
     indexedDB.deleteDatabase('vatsim-radar');
     const db = new VatsimRadarDB('vatsim-radar-db');
 
-    db.version(3)
+    db.version(4)
         .stores({
             data: '',
+            vatspy: '',
             simaware: '',
             airlines: '',
             navigraphAirports: '',

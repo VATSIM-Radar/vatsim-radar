@@ -9,6 +9,9 @@ import type { Coordinate } from 'ol/coordinate.js';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import type { Units } from 'ol/control/ScaleLine.js';
 
+/**
+ * @deprecated
+ */
 export interface MapAirport {
     icao: string;
     iata?: string;

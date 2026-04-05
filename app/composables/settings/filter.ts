@@ -219,21 +219,21 @@ function filterController(atc: VatsimShortenedController): boolean {
     return true;
 }
 
-export function filterVatsimControllers(locals: VatsimLiveDataShort['locals'], firs: VatsimLiveDataShort['firs']): {
-    locals: VatsimLiveDataShort['locals'];
-    firs: VatsimLiveDataShort['firs'];
+export function filterVatsimControllers(controllers: VatsimLiveDataShort['controllers'], atis: VatsimLiveDataShort['atis']): {
+    controllers: VatsimLiveDataShort['controllers'];
+    atis: VatsimLiveDataShort['atis'];
 } {
     const store = useStore();
 
-    if (!hasActiveATCFilter()) return { locals, firs };
+    if (!hasActiveATCFilter()) return { controllers, atis };
 
-    let filteredLocals = locals.filter(local => filterController(local.atc));
-    let filteredFirs = firs.filter(local => filterController(local.controller));
+    let filteredControllers = controllers.filter(local => filterController(local));
+    let filteredAtis = atis.filter(local => filterController(local));
 
     if (store.activeFilter.invert) {
-        filteredLocals = locals.filter(x => !filteredLocals.some(y => y.atc.cid === x.atc.cid));
-        filteredFirs = firs.filter(x => !filteredFirs.some(y => y.controller.cid === x.controller.cid));
+        filteredControllers = controllers.filter(x => !filteredControllers.some(y => y.cid === x.cid));
+        filteredAtis = atis.filter(x => !filteredAtis.some(y => y.cid === x.cid));
     }
 
-    return { locals: filteredLocals, firs: filteredFirs };
+    return { controllers: filteredControllers, atis: filteredAtis };
 }

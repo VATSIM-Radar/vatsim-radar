@@ -8,12 +8,12 @@ import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/typ
 import type {
     RadarDataAirlinesAllList,
     SimAwareAPIData, SimAwareDataFeature,
-    VatglassesAPIData,
-    VatglassesDynamicAPIData,
+    VatglassesAPIData, VatglassesData,
+    VatglassesDynamicAPIData, VatglassesPosition,
 } from '~/utils/server/storage';
 import type { UseDataStore } from '~/composables/render/storage';
 
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { getVGData, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
@@ -100,6 +100,17 @@ export function checkForVATSpy() {
                 clientDB.delete();
                 location.reload();
             });
+
+            try {
+                await clientDB.vatspy.clear();
+                await clientDB.vatspy.bulkPut(Object.values(vatspy.data.features), Object.keys(vatspy.data.features));
+                await clientDB.vatspy.put(vatspy.version, 'version');
+            }
+            catch {
+                clientDB.delete();
+                location.reload();
+            }
+
             notRequired = false;
         }
 
@@ -119,7 +130,21 @@ export function checkForVATSpy() {
             }
         }
 
-        dataStore.vatspy.value = vatspy;
+        // @ts-expect-error intended
+        delete vatspy.data.airports;
+
+        // @ts-expect-error intended
+        delete vatspy.data.features;
+
+        dataStore.vatspy.value = {
+            version: vatspy.version,
+            data: vatspy.data,
+            feature: async key => {
+                const result = await clientDB.vatspy.get(key);
+
+                return typeof result === 'object' ? result : null;
+            },
+        };
         if (notRequired) return 'notRequired';
     });
 }
@@ -206,6 +231,31 @@ export function checkForVG() {
                 clientDB.delete();
                 location.reload();
             });
+
+            const data = await getVGData();
+
+            if (!data) throw new Error('VATGlasses data is unavailable');
+
+            await clientDB.vatglasses.clear();
+
+            const vgPositions: Record<string, VatglassesPosition[] | VatglassesData[string]> = {};
+
+            for (const country in data) {
+                vgPositions[`country-${ country }`] = data[country];
+
+                for (const position in data[country].positions) {
+                    const key = `position-${ position.split('_')[0] }`;
+
+                    vgPositions[key] ??= [];
+                    (vgPositions[key] as VatglassesPosition[]).push({
+                        ...data[country].positions[position],
+                        id: position,
+                        countryId: country,
+                    });
+                }
+            }
+
+            await clientDB.vatglasses.bulkPut(Object.values(vgPositions), Object.keys(vgPositions));
         }
 
         dataStore.vatglasses.value = vatglasses.version;

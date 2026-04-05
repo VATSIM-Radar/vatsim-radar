@@ -1,5 +1,6 @@
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { Feature, MultiPolygon } from 'geojson';
+import type { Coordinate } from 'ol/coordinate.js';
 
 export interface VatSpyResponse {
     current_commit_hash: string;
@@ -11,6 +12,12 @@ export interface VatSpyResponse {
 export interface VatSpyAPIData {
     version: string;
     data: VatSpyData;
+}
+
+export interface VatSpyDataProperties {
+    id: string;
+    oceanic: boolean;
+    label: Coordinate;
 }
 
 export interface VatSpyData {
@@ -43,13 +50,9 @@ export interface VatSpyData {
         name: string;
         callsign?: string;
         boundary?: string;
-        isOceanic: boolean;
-        lon: number;
-        lat: number;
-        region: string;
-        division: string;
-        feature: Feature<MultiPolygon>;
+        feature: string;
     }[];
+    features: Record<string, Feature<MultiPolygon, VatSpyDataProperties>[]>;
     uirs: {
         icao: string;
         name: string;

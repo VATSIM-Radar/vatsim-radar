@@ -421,6 +421,10 @@ function stringToArray<T>(item: T | T[] | undefined): T[] {
     return item;
 }
 
+/**
+ * @deprecated
+ * @todo
+ */
 export const getVGData = initIDBData<VatglassesData | undefined>(async () => (await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined)?.data);
 
 // Converts from vatglasses sector format to geojson format
@@ -785,13 +789,13 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
             await initVatglassesCombined();
         }
 
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, dataStore.vatglassesDynamicData, vatglassesCombined], async ([firs, locals, dynamic, combined], oldValue) => {
-            const [oldFirs, oldLocals, oldDynamic, oldCombined] = oldValue ?? [];
+        watch([dataStore.vatsim.data.controllers, dataStore.vatglassesDynamicData, vatglassesCombined], async ([controllers, dynamic, combined], oldValue) => {
+            const [oldControllers, oldDynamic, oldCombined] = oldValue ?? [];
 
             let firsChanged = false;
 
-            if (firs && oldFirs) {
-                const oldCallsigns = new Set(oldFirs.map(x => x.controller.callsign));
+            if (firs && oldControllers) {
+                const oldCallsigns = new Set(oldControllers.map(x => x.controller.callsign));
                 const callsigns = new Set(firs.map(x => x.controller.callsign));
 
                 firsChanged = ![...callsigns].every(x => oldCallsigns.has(x)) || ![...oldCallsigns].every(x => callsigns.has(x));
