@@ -210,6 +210,7 @@ function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     }
 
     if (degreeDigits === 3) {
+        if (raw.length === 2) return parseInt(raw, 10) + 100; // 55 -> 155
         if (raw.length <= 3) return parseInt(raw, 10); // 178, 020
         if (raw.length === 4) return dmToDecimal(raw, 2); // 1520 (slash format)
         if (raw.length === 5) return dmToDecimal(raw, 3); // 18000
@@ -225,7 +226,18 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const match = value.match(preciseRegex);
     if (!match) return null;
 
-    let { latDir, latDir2, latRaw, latRaw2, latRaw3, lonDir, lonDir2, lonRaw, lonRaw2, lonRaw3 } = match.groups ?? {};
+    let {
+        latDir,
+        latDir2,
+        latRaw,
+        latRaw2,
+        latRaw3,
+        lonDir,
+        lonDir2,
+        lonRaw,
+        lonRaw2,
+        lonRaw3,
+    } = match.groups ?? {};
 
     latDir ??= latDir2;
     latRaw ??= latRaw2;
@@ -236,10 +248,8 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
 
     if (!latRaw || !lonRaw) return null;
 
-    const hasDirections = !!latDir && !!lonDir;
-
     const lat = parseCoordPart(latRaw, 2);
-    const lon = parseCoordPart(lonRaw, hasDirections ? 3 : 2);
+    const lon = parseCoordPart(lonRaw, lonDir ? 3 : 2);
 
     if (lat == null || lon == null || Number.isNaN(lat) || Number.isNaN(lon)) {
         return null;
@@ -822,7 +832,7 @@ export async function getFlightPlanWaypoints({
                     return waypointDiff(previousWaypoint, a[0]) - waypointDiff(previousWaypoint, b[0]);
                 })[0];
 
-                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 700) {
+                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 2000) {
                     coordinate = smallest[0];
 
                     if (smallest[1] === 'waypoint') {
