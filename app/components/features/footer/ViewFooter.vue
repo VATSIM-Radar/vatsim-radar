@@ -83,12 +83,12 @@
                 </popup-aside>
             </div>
             <div class="map-footer_left_section __desktop">
-                <div class="map-footer__connections">
+                <ui-text
+                    class="map-footer__connections"
+                    type="3b"
+                >
                     <div class="map-footer__connections_title">
-                        <span>{{ getCounts.total }}</span> connections
-                    </div>
-                    <div class="map-footer__connections_title">
-                        <span>{{ getCounts.inRadar }}</span> in VATSIM Radar
+                        <span>{{ getCounts.total }}</span> connections with <span>{{ getCounts.inRadar }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
@@ -122,13 +122,7 @@
                             </template>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div
-                v-if="store.version && (!isMobile || !mapStore.isNavigraphUpdating)"
-                class="map-footer_left_section map-footer_left_section--version map-footer__text"
-            >
-                v{{ store.version }}
+                </ui-text>
             </div>
         </div>
         <div class="map-footer_right">
@@ -198,13 +192,28 @@
                 </popup-aside>
             </div>
 
-            <div
+            <ui-text
+                v-if="store.version && (!isMobile || !mapStore.isNavigraphUpdating)"
+                class="map-footer__text"
+                color="lightGray900"
+                type="3b"
+            >
+                v{{ store.version }}
+            </ui-text>
+
+            <ui-separator distance="0"/>
+
+            <ui-text
                 v-if="getCounts.lastUpdated"
                 class="map-footer_right_date"
                 :class="{ 'map-footer_right_date--outdated': outdated }"
+                type="3b"
             >
-                Map last update: {{ getCounts.lastUpdated }}
-            </div>
+                Map last update: <ui-text
+                    tag="span"
+                    type="caption-medium-alt"
+                >{{ getCounts.lastUpdated }}</ui-text>
+            </ui-text>
         </div>
     </footer>
     <popup-fullscreen
@@ -293,6 +302,8 @@ import NavigationFavorite from '~/components/features/navigation/NavigationFavor
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -374,31 +385,39 @@ function cancelBookingOverride() {
 
     &__connections {
         display: flex;
-        padding: 8px 12px;
-        border-radius: 8px;
-        background: $darkGray900;
+        gap: 8px;
+        align-items: center;
 
         span {
+            font-family: $robotoFont;
             font-weight: 600;
             font-variant-numeric: tabular-nums;
-            color: $primary500;
-        }
-
-        &_title {
-            margin-right: 8px;
-            padding-right: 8px;
-            border-right: 1px solid varToRgba('lightgray150', 0.2);
+            color: $brandPrimary;
         }
 
         &_info {
             display: flex;
-            gap: 8px;
+            gap: 1px;
             align-items: center;
-            font-weight: 300;
 
-            &_item:not(:last-child) {
-                padding-right: 8px;
-                border-right: 1px solid varToRgba('lightgray150', 0.2);
+            &_item {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+
+                padding: 8px;
+
+                background: $backgroundLevel1;
+
+                &:first-child {
+                    border-top-left-radius: 4px;
+                    border-bottom-left-radius: 4px;
+                }
+
+                &:last-child {
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                }
             }
         }
     }
@@ -437,33 +456,29 @@ function cancelBookingOverride() {
         }
 
         &_date {
-            padding: 8px 16px;
-            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            color: $typographyPrimary;
 
-            font-family: $juraFont;
-            font-weight: 300;
-            font-variant-numeric: tabular-nums;
-
-            background: $darkgray950;
-
-            transition: 0.3s;
-
-            @include mobileOnly {
-                padding: 0;
-                background: transparent;
-            }
-
-            &--outdated {
+            &--outdated span {
                 color: $lightgray100Orig;
                 background: $error600;
             }
-        }
-    }
 
-    &__text {
-        color: $lightgray150;
-        text-decoration-skip-ink: none;
-        opacity: 0.5;
+            span {
+                display: flex;
+                align-items: center;
+
+                height: 20px;
+                padding: 0 6px;
+
+                font-family: $robotoFont;
+                font-variant-numeric: tabular-nums;
+
+                background: $backgroundLevel4;
+            }
+        }
     }
 
     &__favorite {

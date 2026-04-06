@@ -21,7 +21,14 @@
                     <slot :name="`action-${ action }`"/>
                 </div>
                 <div
-                    v-if="collapsible"
+                    v-if="typeof minified === 'boolean'"
+                    class="info-popup_header_actions_action info-popup_header_actions_action--minify"
+                    @click="minified = !minified"
+                >
+                    <minus-icon width="14"/>
+                </div>
+                <div
+                    v-if="collapsible && (!isMobile || typeof minified !== 'boolean')"
                     class="info-popup_header_actions_action info-popup_header_actions_action--collapse"
                     @click="collapsed = !collapsed"
                 >
@@ -45,7 +52,7 @@
         </div>
         <transition name="info-popup_content--collapse">
             <div
-                v-if="!collapsed"
+                v-if="(!collapsed || (typeof minified === 'boolean' && isMobile))"
                 class="info-popup_content"
             >
                 <slot name="prepend"/>
@@ -118,6 +125,7 @@
 <script setup lang="ts">
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import MinusIcon from '@/assets/icons/kit/minus.svg?component';
 import type { PropType } from 'vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
@@ -189,6 +197,10 @@ const model = defineModel({
 const collapsed = defineModel('collapsed', {
     type: Boolean,
     default: false,
+});
+const minified = defineModel('minified', {
+    type: Boolean as PropType<boolean | null>,
+    default: null,
 });
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
@@ -266,6 +278,10 @@ watch(getSections, sections => {
 
         background: $black;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+        }
+
         &:only-child {
             padding-bottom: 0;
         }
@@ -281,6 +297,7 @@ watch(getSections, sections => {
             }
 
             &_action {
+                cursor: pointer;
                 user-select: none;
 
                 display: flex;
@@ -292,12 +309,9 @@ watch(getSections, sections => {
 
                 color: $lightgray150;
 
-                >* {
-                    cursor: pointer;
-                    transition: 0.3s;
-                }
+                transition: 0.3s;
 
-                &:not(:last-child, &--collapse) {
+                &:not(:last-child, &--collapse, &--minify:nth-last-child(-n+2)) {
                     padding-right: 8px;
                     border-right: 1px solid $whiteAlpha12;
                 }
@@ -313,12 +327,21 @@ watch(getSections, sections => {
                     }
                 }
 
+                &--minify {
+                    min-width: 20px;
+                    min-height: 20px;
+
+                    svg {
+                        width: 14px;
+                    }
+                }
+
                 @include hover {
                     &.info-popup_header_actions_action--close:hover {
                         color: $error500;
                     }
 
-                    &:not(.info-popup_header_actions_action--close) >*:hover {
+                    &:not(.info-popup_header_actions_action--close):hover {
                         color: $primary500;
                     }
                 }
@@ -384,6 +407,12 @@ watch(getSections, sections => {
             padding: 8px 0;
 
             background: $black;
+
+            @include mobileOnly {
+                position: relative;
+                bottom: 0;
+                margin-bottom: 0;
+            }
         }
 
         &_separator {
@@ -425,7 +454,7 @@ watch(getSections, sections => {
     }
 
     @media all and (min-width: 1600px) {
-        width: 22dvw;
+        width: 400px;
     }
 }
 </style>

@@ -5,7 +5,6 @@ import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportInfo } from '~/utils/server/vatsim';
-import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
@@ -21,6 +20,7 @@ export interface StoreOverlayDefault {
     _maxHeight?: number;
     height: number;
     collapsed: boolean;
+    minified: boolean;
     sticky: boolean;
 }
 
@@ -63,7 +63,10 @@ export interface StoreOverlayAtc extends StoreOverlayDefault {
 
 export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport;
 
-type PartialOverlayParams = Partial<Omit<StoreOverlay, 'key' | 'data' | 'type'>>;
+type PartialOverlayParams<T = StoreOverlay> = Partial<Omit<T, 'key' | 'type' | 'data'>> & {
+    // @ts-expect-error T always has data
+    data?: Partial<T['data']>;
+};
 
 export const useMapStore = defineStore('map', {
     state: () => ({
@@ -74,15 +77,11 @@ export const useMapStore = defineStore('map', {
         rotation: 0,
         moving: false,
         openOverlayId: null as string | null,
-        openPilotOverlay: false,
-        openApproachOverlay: false,
 
         hoveredPilot: null as number | null,
         renderedAirports: null as null | string[],
         renderedPilots: null as null | number[],
 
-        dataReady: false,
-        mapCursorPointerTrigger: false as false | number,
         overlays: [] as StoreOverlay[],
         openingOverlay: false,
         closedOwnOverlay: false,
@@ -90,8 +89,6 @@ export const useMapStore = defineStore('map', {
         isNavigraphUpdating: false,
         navigraphUpdateProgress: 5,
 
-        localTurns: new Set<number>(),
-        turnsResponse: [] as TurnsBulkReturn[],
         selectedCid: null as number | false | null,
 
         activeMobileOverlay: null as null | string,
@@ -119,14 +116,13 @@ export const useMapStore = defineStore('map', {
         showAirportDetails(): boolean {
             return !!this.renderedAirports && this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
         },
-        // TODO
         compactAirportView(): boolean {
-            return !this.showAirportDetails;
+            return !!useStore().mapSettings.shortAirportView || !this.showAirportDetails;
         },
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
-            const id = typeof crypto.randomUUID === 'undefined' ? Math.random().toString() : crypto.randomUUID();
+            const id = overlay.id ?? (typeof crypto.randomUUID === 'undefined' ? Math.random().toString() : crypto.randomUUID());
             const isMobile = useIsMobile();
 
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
@@ -138,12 +134,13 @@ export const useMapStore = defineStore('map', {
                 position: 0,
                 height: 0,
                 collapsed: false,
+                minified: false,
                 ...overlay,
             } as O;
 
             if (isMobile.value) {
                 this.overlays.forEach(x => {
-                    x.collapsed = true;
+                    x.minified = true;
                 });
             }
             this.overlays.push(newOverlay);
@@ -151,39 +148,41 @@ export const useMapStore = defineStore('map', {
 
             return this.overlays.find(x => x.id === id)! as O;
         },
-        togglePilotOverlay(cid: string, tracked = false) {
-            const existingOverlay = this.overlays.find(x => x.type === 'pilot' && x.key === cid);
-            if (existingOverlay) {
-                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.key !== cid);
-                this.sendSelectedPilotToDashboard(null);
-            }
-            else return this.addPilotOverlay(cid, tracked);
-        },
         sendSelectedPilotToDashboard(cid: number | null = null) {
             const message = { selectedPilot: cid };
             const targetOrigin = useRuntimeConfig().public.DOMAIN;
             window.parent.postMessage(message, targetOrigin);
         },
-        async addPilotOverlay(cid: string | number, tracked = false, params?: PartialOverlayParams) {
+        async addPilotOverlay(cid: string | number, tracked?: boolean, params: PartialOverlayParams<StoreOverlayPilot> = {}) {
             if (this.openingOverlay) return;
+
+            if (tracked !== undefined) {
+                if (!params.data) params.data = {};
+                if (!('tracked' in params.data)) params.data.tracked = tracked;
+            }
+
             if (typeof cid === 'number') cid = cid.toString();
             this.openingOverlay = true;
             const store = useStore();
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
-                if (existingOverlay) return;
-
-                /* const debugOverlay = this.overlays.find(x => x.type === 'pilot');
-                if (debugOverlay) {
-                    debugOverlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
+                if (existingOverlay) {
+                    existingOverlay.minified = false;
+                    existingOverlay.collapsed = false;
                     return;
-                }*/
+                }
 
-                const achievementsRequest = $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ cid }/achievements`);
-                const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
-                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
-                if (tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+                const achievementsRequest = $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ cid }/achievements`, {
+                    timeout: 5000,
+                });
+                const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`, {
+                    timeout: 5000,
+                });
+                if (!params.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
+                }
+                if (params?.data?.tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
 
                 this.sendSelectedPilotToDashboard(+cid);
@@ -195,14 +194,15 @@ export const useMapStore = defineStore('map', {
 
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,
-                    data: {
-                        pilot,
-                        tracked,
-                    },
                     type: 'pilot',
                     collapsed: store.user?.settings.toggleAircraftOverlays && this.overlays.some(x => x.type === 'pilot'),
                     sticky: cid === ownFlight.value?.cid.toString(),
                     ...params,
+                    data: {
+                        ...params?.data ?? {},
+                        pilot,
+                        tracked: params?.data?.tracked,
+                    },
                 });
 
                 achievementsRequest.then(result => overlay.data.achievements = result).catch(console.error);
@@ -212,54 +212,70 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
             }
         },
-        async addPrefileOverlay(cid: string, params?: PartialOverlayParams) {
+        async addPrefileOverlay(cid: string, params?: PartialOverlayParams<StoreOverlayPrefile>) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
-                if (existingOverlay) return;
+                if (existingOverlay) {
+                    existingOverlay.minified = false;
+                    existingOverlay.collapsed = false;
+                    return;
+                }
 
-                const prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ cid }/prefile`);
-                this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                const prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ cid }/prefile`, {
+                    timeout: 5000,
+                });
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                }
                 await nextTick();
 
                 return this.addOverlay<StoreOverlayPrefile>({
                     key: cid,
-                    data: {
-                        prefile,
-                    },
                     type: 'prefile',
                     sticky: cid === ownFlight.value?.cid.toString(),
                     ...params,
+                    data: {
+                        ...params?.data ?? {},
+                        prefile,
+                    },
                 });
             }
             finally {
                 this.openingOverlay = false;
             }
         },
-        async addAtcOverlay(callsign: string, params?: PartialOverlayParams) {
+        async addAtcOverlay(callsign: string, params?: PartialOverlayParams<StoreOverlayAtc>) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === callsign);
-                if (existingOverlay) return;
+                if (existingOverlay) {
+                    existingOverlay.minified = false;
+                    existingOverlay.collapsed = false;
+                    return;
+                }
 
                 const controller = findAtcByCallsign(callsign);
                 if (!controller) return;
 
-                this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                }
                 await nextTick();
 
                 return this.addOverlay<StoreOverlayAtc>({
                     key: callsign,
-                    data: {
-                        callsign,
-                    },
                     type: 'atc',
                     sticky: false,
                     ...params,
+                    data: {
+                        ...params?.data ?? {},
+                        callsign,
+                    },
                 });
             }
             finally {
@@ -269,7 +285,7 @@ export const useMapStore = defineStore('map', {
         async addAirportOverlay(airport: string, { aircraftTab, tab }: {
             aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
             tab?: StoreOverlayAirport['data']['tab'];
-        } = {}, params?: PartialOverlayParams) {
+        } = {}, params?: PartialOverlayParams<StoreOverlayAirport>) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
@@ -278,8 +294,9 @@ export const useMapStore = defineStore('map', {
             try {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
                 if (existingOverlay) {
-                    if (store.isMobile) this.overlays.forEach(x => x.collapsed = true);
+                    if (store.isMobile) this.overlays.forEach(x => x.minified = true);
                     existingOverlay.collapsed = false;
+                    existingOverlay.minified = false;
                     this.activeMobileOverlay = existingOverlay.id;
                     return;
                 }
@@ -287,24 +304,29 @@ export const useMapStore = defineStore('map', {
                 const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[airport];
                 if (!vatSpyAirport) return;
 
-                this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                if (!params?.sticky) {
+                    this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                }
                 await nextTick();
                 const overlay = this.addOverlay<StoreOverlayAirport>({
                     key: airport,
+                    type: 'airport',
+                    sticky: false,
+                    ...params,
                     data: {
                         icao: airport,
                         showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                         aircraftTab,
                         tab,
+                        ...params?.data ?? {},
                     },
-                    type: 'airport',
-                    sticky: false,
-                    ...params,
                 });
 
                 this.openingOverlay = false;
 
-                overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`);
+                overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`, {
+                    timeout: 5000,
+                });
                 $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`).then(x => overlay.data.notams = x).catch(e => {
                     console.error(e);
                     overlay.data.notams = [];

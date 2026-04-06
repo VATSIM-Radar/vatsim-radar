@@ -95,7 +95,7 @@ const collapsed = defineModel<boolean | null>('collapsed', {
     &_text > *, &_collapse, &_append {
         position: relative;
         z-index: 1;
-        background: var(--block-title-background, $darkGray800);
+        background: var(--block-title-background, $black);
     }
 
     &_text {

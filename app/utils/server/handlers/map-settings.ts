@@ -113,8 +113,14 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     shortAircraftView: val => {
         return typeof val === 'boolean';
     },
-    airportsHide: val => {
+    shortAirportView: val => {
         return typeof val === 'boolean';
+    },
+    aircraftDeclutter: val => {
+        return typeof val === 'boolean' || val === 'always';
+    },
+    airportsHide: val => {
+        return val === 'unstaffed' || val === 'all' || val === 'none';
     },
     heatmapLayer: val => {
         return typeof val === 'boolean';
@@ -195,6 +201,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('light' in val && !validateTheme(val.light)) return false;
 
         return true;
+    },
+    overlaysPositions: val => {
+        return val === 'top-left' || val === 'bottom-left';
     },
     hideATISOnly: val => {
         return typeof val === 'boolean';
@@ -294,6 +303,9 @@ export interface IUserMapSettings {
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
     shortAircraftView?: boolean;
+    shortAirportView?: boolean;
+    overlaysPositions?: 'bottom-left' | 'top-left';
+    aircraftDeclutter?: boolean | 'always';
     aircraftHoverDelay?: number | boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;

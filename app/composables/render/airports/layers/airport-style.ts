@@ -48,8 +48,6 @@ export function setAirportStyle(layer: VectorLayer) {
     styleCache = {};
     styleFillCache = {};
 
-    // TODO: rework cache https://stackoverflow.com/questions/59032715/how-to-cache-styles-but-still-set-individual-text
-
     layer.setStyle(feature => {
         const showAirportDetails = mapStore.showAirportDetails;
 
@@ -93,7 +91,7 @@ export function setAirportStyle(layer: VectorLayer) {
                     ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
                     : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
 
-                let mainTransparency = 0.7;
+                const mainTransparency = 0.7;
 
                 if (isDuplicated) {
                     const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
@@ -101,11 +99,6 @@ export function setAirportStyle(layer: VectorLayer) {
                     mainColor = isUir
                         ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600').join(',')
                         : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',');
-
-                    const transparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs');
-                    if (transparency) {
-                        mainTransparency = transparency;
-                    }
                 }
 
                 if (properties.selected) {
@@ -199,10 +192,10 @@ export function setAirportStyle(layer: VectorLayer) {
                 const width = 14;
                 const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * (width - 2);
 
-                const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(showAirportDetails);
+                const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(mapStore.compactAirportView);
 
                 if (!styleCache[styleCacheKey]) {
-                    if (!showAirportDetails) {
+                    if (mapStore.compactAirportView) {
                         styleCache[styleCacheKey] = new Style({
                             text: new Text({
                                 font: 'normal 1px/100% Jura, Arial, sans-serif',

@@ -292,7 +292,7 @@ export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 5, exitOnA
     const mapStore = useMapStore();
     const dataStore = useDataStore();
 
-    if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
+    if (exitOnAnyOverlay && mapStore.openOverlayId) return [];
 
     if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
 

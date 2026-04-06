@@ -68,7 +68,7 @@ export type DataWaypoint = [identifier: string, longitude: number, latitude: num
 
 const waypoints = shallowRef<Record<string, any>>({});
 
-const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
+const navigraphProcedures: DataStoreNavigraphProcedures = shallowRef({});
 const navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures = shallowRef({});
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
@@ -144,7 +144,7 @@ export interface DataStoreNavigraphProceduresAirport {
     approaches: Record<string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>>;
 }
 
-export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
+export type DataStoreNavigraphProcedures = Ref<PartialRecord<string, DataStoreNavigraphProceduresAirport>>;
 export type DataStoreNavigraphAircraftProcedures = Ref<PartialRecord<string, { departure: DataStoreNavigraphProceduresAirport & { icao: string }; arrival: DataStoreNavigraphProceduresAirport & { icao: string } }>>;
 
 async function getNavigraphIDBData(key: 'version'): Promise<string | null>;

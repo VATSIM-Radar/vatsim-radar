@@ -2,7 +2,6 @@ import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/server/prisma';
 import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
 import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
-import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/server/user';
 
 export default defineEventHandler(async event => {
@@ -63,7 +62,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        let user = await findUserByCookie(event);
+        const user = await findUserByCookie(event);
         if (!user) {
             return handleH3Error({
                 event,
@@ -96,15 +95,7 @@ export default defineEventHandler(async event => {
                 },
             });
 
-            if (!user) {
-                await getDBUserToken(event, navigraphUser.user);
-            }
             return sendRedirect(event, config.public.DOMAIN);
-        }
-
-        if (!user) {
-            user = await createDBUser();
-            await getDBUserToken(event, user);
         }
 
         await prisma.navigraphUser.create({

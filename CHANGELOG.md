@@ -1,5 +1,50 @@
 # Changelog
 
+# [2.0.0-alpha.6.1]
+
+This release is focused on V2 feedback.
+
+## Alpha changes
+
+- Fixed some overlays not being restored after page reload
+- Fixed minified overlays zone blocking map interaction
+- Slightly changed pilot context menu UI
+- Fixed overlay content disappearing on mobile if overlay was collapsed
+- Collapsed overlays will no longer auto open on mobile
+- Fixed SIGMET and Navigraph popup closing when moving mouse in any direction except into overlay
+- Added close buttons to SIGMET and Navigraph overlays
+- Fixed context menu opening unstable
+- Fixed Firefox favicon looking goofy
+- New "General" map settings: short airport view and aircraft declutter
+- Slight new footer redesign
+- Fixed duplicated positions stroke color
+- Fixed colors not saving sometimes
+- Added arrival rate when hovering over collapsed airport overlay
+
+# [2.0.0-alpha.6]
+
+## Alpha changes
+
+- Fixed overlays being too wide on some displays
+- Reworked the way overlays are restored internally
+- Reworked the way cursor is changed internally when hovering features for much better and consistent experience
+
+## Redesign
+
+- Redesigned copy info block
+- Redesigned attributions
+- Redesigned footer
+
+## Improvements and changes
+
+- Added context menu when clicking on aircraft, atc or airport
+- Hovered pilot and atc info now always show friend name and comment
+- Added a way to minify any overlay
+- Overlay actions are no longer pinned to bottom of the screen on mobile devices
+- Navigraph procedures will now be automatically cleared if airport overlay is closed
+- Procedures will now show in Airport Dashboard even if airport is not found in VATSIM AIP
+- Pilot overlay data updates are now happening less often
+
 # [2.0.0-alpha.5.4]
 
 ## Preprod changes
@@ -161,6 +206,12 @@ Known Issues:
 - Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
 - Reduced gates memory consumption on render
+
+# [1.2.4-6.3]
+
+- Fixed airways merging
+- Fixed raw coordinates detection, supporting those coordinates: N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
+- Fixed meridian line sometimes not connecting properly
 
 # [1.2.4-6.2]
 

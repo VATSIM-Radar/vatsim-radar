@@ -200,7 +200,7 @@ function withSign(value: number, dir: string): number {
 
 // N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
 // Wrote this myself because chatgpt can't write regex properly
-const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,2})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW])))$/;
+const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|((\/)(?<lonRaw3>\d{1,4})))$/;
 
 function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     if (degreeDigits === 2) {
@@ -210,6 +210,7 @@ function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     }
 
     if (degreeDigits === 3) {
+        if (raw.length === 2) return parseInt(raw, 10) + 100; // 55 -> 155
         if (raw.length <= 3) return parseInt(raw, 10); // 178, 020
         if (raw.length === 4) return dmToDecimal(raw, 2); // 1520 (slash format)
         if (raw.length === 5) return dmToDecimal(raw, 3); // 18000
@@ -225,20 +226,30 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const match = value.match(preciseRegex);
     if (!match) return null;
 
-    let { latDir, latDir2, latRaw, latRaw2, latRaw3, lonDir, lonDir2, lonRaw, lonRaw2 } = match.groups ?? {};
+    let {
+        latDir,
+        latDir2,
+        latRaw,
+        latRaw2,
+        latRaw3,
+        lonDir,
+        lonDir2,
+        lonRaw,
+        lonRaw2,
+        lonRaw3,
+    } = match.groups ?? {};
 
     latDir ??= latDir2;
     latRaw ??= latRaw2;
     latRaw ??= latRaw3;
     lonDir ??= lonDir2;
     lonRaw ??= lonRaw2;
+    lonRaw ??= lonRaw3;
 
     if (!latRaw || !lonRaw) return null;
 
-    const hasDirections = !!latDir && !!lonDir;
-
     const lat = parseCoordPart(latRaw, 2);
-    const lon = parseCoordPart(lonRaw, hasDirections ? 3 : 2);
+    const lon = parseCoordPart(lonRaw, lonDir ? 3 : 2);
 
     if (lat == null || lon == null || Number.isNaN(lat) || Number.isNaN(lon)) {
         return null;
@@ -671,7 +682,7 @@ export async function getFlightPlanWaypoints({
                 }
             }
 
-            const precise = getPreciseCoord(entry);
+            const precise = getPreciseCoord(search);
 
             if (precise) {
                 waypoints.push({
@@ -821,7 +832,7 @@ export async function getFlightPlanWaypoints({
                     return waypointDiff(previousWaypoint, a[0]) - waypointDiff(previousWaypoint, b[0]);
                 })[0];
 
-                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 700) {
+                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 2000) {
                     coordinate = smallest[0];
 
                     if (smallest[1] === 'waypoint') {
@@ -916,17 +927,21 @@ export async function updateCachedProcedures() {
     const values = enroutePath.value;
     const aircraftValues = enrouteAircraftPath.value;
     const dataStore = useDataStore();
+    const mapStore = useMapStore();
 
     if (values) {
+        dataStore.navigraphProcedures.value = {};
+
         for (const [airport, value] of Object.entries(values)) {
-            dataStore.navigraphProcedures[airport] ??= {
+            if (!mapStore.overlays.find(x => x.key === airport)) continue;
+            dataStore.navigraphProcedures.value[airport] ??= {
                 sids: {},
                 stars: {},
                 approaches: {},
                 runways: [],
                 setBy: value.setBy,
             };
-            const selectedAirport = dataStore.navigraphProcedures[airport]!;
+            const selectedAirport = dataStore.navigraphProcedures.value[airport]!;
 
             const { data: procedures } = await useAsyncData(computed(() => `${ airport }-procedures-selected`), () => getNavigraphAirportProcedures(airport));
 
@@ -939,9 +954,11 @@ export async function updateCachedProcedures() {
 
             if (!Object.keys(selectedAirport.sids).length && !Object.keys(selectedAirport.stars).length && !Object.keys(selectedAirport.approaches).length) {
                 delete enroutePath.value![airport];
-                delete dataStore.navigraphProcedures[airport];
+                delete dataStore.navigraphProcedures.value[airport];
             }
         }
+
+        triggerRef(dataStore.navigraphProcedures);
     }
 
     if (aircraftValues) {
@@ -996,7 +1013,6 @@ export async function updateCachedProcedures() {
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.stars).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.approaches).length
             ) {
-                delete dataStore.navigraphAircraftProcedures.value[cid];
                 delete dataStore.navigraphAircraftProcedures.value[cid];
             }
         }

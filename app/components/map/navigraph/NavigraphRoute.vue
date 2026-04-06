@@ -106,7 +106,7 @@ async function update() {
 
             if (!waypoints.length || arrived) continue;
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures.value[arrival]?.approaches ?? {}).length) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 

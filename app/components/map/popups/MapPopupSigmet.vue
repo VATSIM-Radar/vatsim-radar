@@ -10,8 +10,9 @@
         <popup-map-info
             class="sigmets"
             content-full-height
+            model-value
             open-from="top-center"
-            @mouseleave="emit('close')"
+            @update:modelValue="$emit('close')"
         >
             <template #title>
                 SIGMETs

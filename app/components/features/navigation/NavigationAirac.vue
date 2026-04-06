@@ -29,7 +29,10 @@
                 y="2"
             />
         </svg>
-        <div class="airac_content">
+        <ui-text
+            class="airac_content"
+            type="3b-medium"
+        >
             <img
                 alt="Navigraph"
                 src="../../../assets/icons/header/navigraph.svg"
@@ -49,13 +52,14 @@
             <template v-else>
                 Connect Navigraph
             </template>
-        </div>
+        </ui-text>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useStore } from '~/store';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const dataStore = useDataStore();
 const store = useStore();
@@ -64,7 +68,6 @@ const mapStore = useMapStore();
 
 <style lang="scss" scoped>
 .airac {
-    --count: 60%;
     cursor: pointer;
     position: relative;
 
@@ -124,19 +127,17 @@ const mapStore = useMapStore();
         align-items: center;
         align-self: stretch;
 
-        padding: 8px 12px;
+        height: 32px;
+        padding: 0 8px 0 12px;
         border-radius: 8px;
 
-        font-size: 12px;
-        font-weight: 600;
+        color: $typographyPrimary;
 
-        background: $darkgray950;
+        background: linear-gradient(90deg, rgb(166, 48, 43, 0.2) 0%, rgb(166, 48, 43, 0) 100%), $darkGray900;
     }
 
     &--current .airac_content {
         cursor: default;
-        color: $lightgray125;
-        background-image: linear-gradient(90deg, rgb(184, 42, 20, 0.25) 0%, $darkgray950 75%);
     }
 }
 </style>

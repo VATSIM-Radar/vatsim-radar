@@ -2,6 +2,7 @@
     <popup-overlay
         v-if="airport"
         v-model:collapsed="overlay.collapsed"
+        v-model:minified="overlay.minified"
         v-model:tab="tab"
         class="airport"
         collapsible

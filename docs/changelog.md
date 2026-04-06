@@ -8,6 +8,12 @@ outline: [2, 3]
 [[toc]]
 :::
 
+# 1.2.4.6.3
+
+- Fixed airways merging
+- Fixed raw coordinates detection, supporting those coordinates: N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
+- Fixed meridian line sometimes not connecting properly
+
 ## 1.2.4.6.2
 
 - Added new coordinate format support: `570021N0380421E`

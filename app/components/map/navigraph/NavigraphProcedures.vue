@@ -82,7 +82,7 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
 watch(() => dataStore.navigraphProcedures, () => {
     const newFeatures: Feature[] = [];
 
-    for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures as Record<string, DataStoreNavigraphProceduresAirport>)) {
+    for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures.value as Record<string, DataStoreNavigraphProceduresAirport>)) {
         for (const item of Object.values(sids)) {
             processSidOrStar(newFeatures, item, 'sid', runways);
         }

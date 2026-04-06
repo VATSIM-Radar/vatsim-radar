@@ -6,6 +6,9 @@
   "enabledManagers": [
     "yarn"
   ],
+  "toolSettings": {
+    "nodeMaxMemory": 8096
+  },
   "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "commitMessageAction": "chore(deps): Update",
@@ -14,12 +17,6 @@
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "osvVulnerabilityAlerts": true,
   "packageRules": [
-    {
-      "matchPackageNames": [
-        "tsx"
-      ],
-      "allowedVersions": "4.6.12"
-    },
     {
       "matchPackageNames": [
         "@nuxtjs/stylelint-module"

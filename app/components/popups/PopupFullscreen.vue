@@ -26,7 +26,7 @@
                     >
                         <close-icon/>
                     </div>
-                    <popup-map-info>
+                    <popup-map-info content-padding="12px">
                         <template
                             v-if="$slots.title"
                             #title
@@ -199,10 +199,6 @@ onBeforeUnmount(() => {
         width: var(--width);
         max-width: 700px;
         max-height: 80vh;
-        padding: 8px;
-        border-radius: 8px;
-
-        background: $darkgray1000;
 
         @include mobileOnly {
             max-width: 95%;
