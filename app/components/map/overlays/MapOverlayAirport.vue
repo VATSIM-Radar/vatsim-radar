@@ -158,6 +158,12 @@
             </div>
         </template>
         <template
+            v-if="data?.lastAtis?.length || atc.some(x => x.callsign.endsWith('_ATIS'))"
+            #atis
+        >
+            <airport-atis/>
+        </template>
+        <template
             v-if="data?.metar"
             #metar
         >
@@ -304,6 +310,7 @@ import { getPilotStatus } from '../../../composables/vatsim/pilots';
 import { useStore } from '~/store';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/vatsim/airport';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
+import AirportAtis from '~/components/features/vatsim/airport/AirportAtis.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
@@ -460,6 +467,14 @@ const tabs = computed<InfoPopupContent>(() => {
             collapsedDefault: true,
             collapsedDefaultOnce: true,
             key: 'bars',
+        });
+    }
+
+    if (data.value?.lastAtis?.length || atc.value.some(x => x.callsign.endsWith('_ATIS'))) {
+        list.info.sections.push({
+            title: 'ATIS',
+            collapsible: true,
+            key: 'atis',
         });
     }
 
