@@ -303,7 +303,7 @@ export const duplicatingSettings = [
     },
 /**
      * @description MMEX ACC and TMA sectors
-     * @author YOUR_CID
+     * @author 1523823
      */
     {
         regex: /^MMEX(\_\w{0,3})?\_CTR$/,
