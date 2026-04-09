@@ -301,4 +301,26 @@ export const duplicatingSettings = [
             VOK: 'VOK_APP',
         },
     },
+/**
+     * @description MMEX ACC and TMA sectors
+     * @author 1523823
+     */
+    {
+        regex: /^MMEX(\_\w{0,3})?\_CTR$/,
+        mapping: {
+            'MMMX': 'MMMX_APP',
+            'MMGL': 'MMGL_APP',
+            'MMPR': 'MMPR_APP',
+            'MMLO': 'MMLO_APP',
+            'MMMM': 'MMMM_APP',
+            'MMOX': 'MMOX_APP',
+            'MMVR': 'MMVR_APP',
+            'MMTM': 'MMTM_APP',
+            'MMSP': 'MMSP_APP',
+            'MMQT': 'MMQT_APP',
+            'MMZH': 'MMZH_APP',
+            'MMZO': 'MMZO_APP',
+            'MMAA': 'MMAA_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
