@@ -68,6 +68,7 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
         waypoint_type: string;
         waypoint_usage?: string;
         is_terminal?: boolean;
+        region_code?: string;
     }>({
         db,
         sql: 'SELECT * FROM tbl_ea_enroute_waypoints',
@@ -86,6 +87,7 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
         waypoint_longitude: number;
         waypoint_name: string;
         waypoint_type: string;
+        region_code?: string;
         is_terminal?: boolean;
     }>({
         db,
@@ -110,7 +112,7 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
             terminal: !!item.is_terminal,
         });
 
-        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type, !!item.is_terminal];
+        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }-${ String(item.region_code) ?? 'default' }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type, !!item.is_terminal];
     }
 };
 

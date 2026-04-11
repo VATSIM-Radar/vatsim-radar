@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.0-alpha.6.3]
+
+## Preprod changes
+
+Those changes are production candidates!
+
+- Fixed coordinate format `6800E` not parsing correctly
+- Fixed some terminal waypoints replacing enroute waypoints if they have same identifier and region
+
 # [2.0.0-alpha.6.2]
 
 ## Alpha changes
