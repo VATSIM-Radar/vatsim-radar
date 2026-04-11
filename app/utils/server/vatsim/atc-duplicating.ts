@@ -320,4 +320,22 @@ export const duplicatingSettings = [
             OSH: 'OSH_V_APP',
         },
     },
+     /**
+    * @description ZME Center and TRACONs
+    * @author 1098471
+    */
+    {
+        regex: /(?i)\b(?:MEM|BNA|LIT|FSM|JAN|HSV|HOP|NMM|CBM)\b/,
+        mapping: {
+            MEM: 'MEM_E_APP',
+            BNA: 'BNA_X_DEP',
+            LIT: 'LIT_W_APP',
+            FSM: 'FSM_S_APP',
+            JAN: 'JAN_W_APP',
+            HSV: 'HSV_E_APP',
+            HOP: 'HOP_S_APP',
+            CBM: 'CBM_E_APP',
+            NMM: 'NMM_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
