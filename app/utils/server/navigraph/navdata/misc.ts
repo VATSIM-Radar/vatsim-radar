@@ -112,7 +112,7 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
             terminal: !!item.is_terminal,
         });
 
-        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }-${ String(item.region_code) ?? 'default' }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type, !!item.is_terminal];
+        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }-${ item.region_code ?? 'default' }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type, !!item.is_terminal];
     }
 };
 
