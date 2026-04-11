@@ -67,12 +67,22 @@ export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortened
 
 export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPilotStatus>>;
 
-export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
+export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'] | null>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
     if (injected) {
         return computed(() => {
+            if (!toValue(injected)) {
+                return {
+                    groundDep: [],
+                    groundArr: [],
+                    prefiles: [],
+                    departures: [],
+                    arrivals: [],
+                };
+            }
+
             if (filter) {
                 const _filter = toValue(filter);
 
@@ -94,11 +104,10 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
 
     const pilotDistances = shallowRef<Record<string, ReturnType<typeof getAircraftDistance>>>({});
 
-    const data = toValue(_data);
-
     const aircraft = computed<AirportPopupPilotList | null>(() => {
-        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.icao);
-        if (!vatAirport) return null;
+        const data = toValue(_data);
+        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data?.icao);
+        if (!vatAirport || !data) return null;
 
         const airport = getAirportByIcao(data.icao);
 
@@ -199,7 +208,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
 
     watch(dataStore.navigraphWaypoints, debouncedUpdate);
 
-    if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
+    if (getCurrentScope() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
 };

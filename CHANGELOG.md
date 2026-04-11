@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.0-alpha.6.2]
+
+## Alpha changes
+
+- Fixed map crash when restoring overlay of a pilot or atc that gone offline
+- Added longtap support for collapsed airports on touch devices to view arrival rate instead of it showing on click
+- Fixed overlays not saving on mobile
+- Fixed airport dashboard crashing on opening
+
 # [2.0.0-alpha.6.1]
 
 This release is focused on V2 feedback.
