@@ -16,6 +16,15 @@
 - VATGlasses combined mode is now always rendered on-device, leading to a very slow initial render. This mode is not widely used, yet it had separate server instance
 - Reworked controllers/sectors logic to be on frontend, leading to improved server worker update time, reduced delay, and a better code in general
 
+# [2.0.0-alpha.6.2]
+
+## Alpha changes
+
+- Fixed map crash when restoring overlay of a pilot or atc that gone offline
+- Added longtap support for collapsed airports on touch devices to view arrival rate instead of it showing on click
+- Fixed overlays not saving on mobile
+- Fixed airport dashboard crashing on opening
+
 # [2.0.0-alpha.6.1]
 
 This release is focused on V2 feedback.
