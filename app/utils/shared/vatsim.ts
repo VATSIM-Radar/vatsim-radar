@@ -170,3 +170,70 @@ export interface RadarNotam {
     activeTo: string | null;
     dismissable: boolean;
 }
+
+const depMarkers = [
+    'DEPARTURE RUNWAY',
+];
+
+const depRegex = new RegExp(`(${ depMarkers.join('|') })$`);
+
+const runwayRegex = /^(?<runway>\d{2}) ?(?<postfix>R|L|C|RIGHT|LEFT|CENTER+)?(,)?$ /;
+
+export function getActiveRunways(atis: string[] | string) {
+    const words = Array.isArray(atis) ? atis.join(' ').split(' ') : atis.split(' ');
+    const depRunways = new Set<string>();
+    const arrRunways = new Set<string>();
+    const tentativeRunways = new Set<string>();
+    let tentativeChance = 0;
+
+    let depMarker = false;
+    const arrMarker = false;
+    let lastWord = '';
+
+    for (const word of words) {
+        const runway = runwayRegex.exec(word);
+
+        if (runway?.groups) {
+            const { runway: number, postfix } = runway.groups;
+
+            const num = Number(number);
+            if (!isNaN(num) && num >= 0 && num <= 36) {
+                let runwayName = number;
+                if (postfix) {
+                    runwayName += ` ${ postfix[0] }`;
+                }
+
+                if (depMarker) {
+                    depRunways.add(runwayName);
+                }
+                else {
+                    tentativeRunways.add(runwayName);
+                }
+            }
+        }
+        else {
+            lastWord += ` ${ word }`;
+
+            if (depRegex.test(lastWord)) {
+                tentativeRunways.forEach(x => {
+                    depRunways.add(x);
+                });
+                tentativeRunways.clear();
+                depMarker = true;
+                tentativeChance = 0;
+            }
+            else {
+                tentativeChance++;
+                if (tentativeChance >= 1) {
+                    tentativeRunways.clear();
+                    tentativeChance = 0;
+                }
+            }
+        }
+    }
+
+    return {
+        departure: depRunways,
+        arrival: arrRunways,
+    };
+}

@@ -34,7 +34,7 @@ export async function updateVATGlasses({ airports }: { airports: Record<string, 
     worker ??= new combinedWorker();
     const runwaysState = useStorageLocal<Record<string, string>>('vg-runways', {});
 
-    // UPDATE POSITIONS AIRSPACES
+    // Update positions and airspaces
 
     if (!facilities) {
         const facilitiesData = dataStore?.vatsim?.data?.facilities?.value;
