@@ -14,6 +14,7 @@ import { setMapGatesRunways } from '~/composables/render/airports/layers/gates';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
+import { isHideMapObject } from '~/composables/settings';
 
 defineOptions({
     render: () => null,
@@ -160,6 +161,14 @@ onMounted(() => {
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 
     watch([airportsList, mapSettings, mapRender], async () => {
+        if (isHideMapObject('airports')) {
+            airportsSource?.clear();
+            globalMapEntities.airports = null;
+            navigraphSource?.clear();
+            gatesSource?.clear();
+            return;
+        }
+
         airports.value = await getRenderAirportsList({ airports: airportsList.value, visibleAirports: visibleAirports.value });
 
         setMapAirports({
