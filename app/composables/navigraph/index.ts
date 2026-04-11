@@ -202,7 +202,7 @@ function withSign(value: number, dir: string): number {
 // Wrote this myself because chatgpt can't write regex properly
 const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|((\/)(?<lonRaw3>\d{1,4})))$/;
 
-function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
+function parseCoordPart(raw: string, degreeDigits: 2 | 3, isLonDir2 = false): number | null {
     if (degreeDigits === 2) {
         if (raw.length <= 2) return parseInt(raw, 10); // 7, 07, 49
         if (raw.length === 4) return dmToDecimal(raw, 2); // 4930
@@ -210,7 +210,7 @@ function parseCoordPart(raw: string, degreeDigits: 2 | 3): number | null {
     }
 
     if (degreeDigits === 3) {
-        if (raw.length === 2) return parseInt(raw, 10) + 100; // 55 -> 155
+        if (raw.length === 2 && !isLonDir2) return parseInt(raw, 10) + 100; // 55 -> 155
         if (raw.length <= 3) return parseInt(raw, 10); // 178, 020
         if (raw.length === 4) return dmToDecimal(raw, 2); // 1520 (slash format)
         if (raw.length === 5) return dmToDecimal(raw, 3); // 18000
@@ -242,6 +242,7 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     latDir ??= latDir2;
     latRaw ??= latRaw2;
     latRaw ??= latRaw3;
+    const isLonDir2 = !lonDir && !!lonDir2;
     lonDir ??= lonDir2;
     lonRaw ??= lonRaw2;
     lonRaw ??= lonRaw3;
@@ -249,7 +250,7 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     if (!latRaw || !lonRaw) return null;
 
     const lat = parseCoordPart(latRaw, 2);
-    const lon = parseCoordPart(lonRaw, lonDir ? 3 : 2);
+    const lon = parseCoordPart(lonRaw, lonDir ? 3 : 2, isLonDir2);
 
     if (lat == null || lon == null || Number.isNaN(lat) || Number.isNaN(lon)) {
         return null;

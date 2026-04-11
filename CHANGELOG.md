@@ -16,6 +16,19 @@
 - VATGlasses combined mode is now always rendered on-device, leading to a very slow initial render. This mode is not widely used, yet it had separate server instance
 - Reworked controllers/sectors logic to be on frontend, leading to improved server worker update time, reduced delay, and a better code in general
 
+# [2.0.0-alpha.6.3]
+
+## Preprod changes
+
+Those changes are production candidates!
+
+- Fixed coordinate format `6800E` not parsing correctly
+- Fixed some terminal waypoints replacing enroute waypoints if they have same identifier and region
+
+## Alpha changes
+
+- Fixed a setting to hide map airports not working
+
 # [2.0.0-alpha.6.2]
 
 ## Alpha changes

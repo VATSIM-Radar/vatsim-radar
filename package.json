@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "2.0.0-alpha.6.2",
+  "version": "2.0.0-alpha.6.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,8 +16,8 @@
     "recreateDb": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && rm -rf .config/db && docker compose down",
     "lint:ts": "eslint .",
     "lint:ts:fix": "eslint . --fix",
-    "stylelint": "stylelint --max-warnings=0 app/**/*{.css,scss,.vue}",
-    "stylelint:fix": "stylelint --fix app/**/*{.css,scss,.vue}",
+    "stylelint": "stylelint --max-warnings=0 app/**/*{.css,.scss,.vue}",
+    "stylelint:fix": "stylelint --fix app/**/*{.css,.scss,.vue}",
     "lint:fix": "yarn stylelint:fix && yarn lint:ts:fix",
     "lint": "yarn stylelint && yarn lint:ts",
     "typecheck": "nuxt typecheck",
