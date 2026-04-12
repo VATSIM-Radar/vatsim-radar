@@ -271,7 +271,7 @@ export const duplicatingSettings = [
     * @author 1378019
     */
     {
-        regex: /^(SLC|BOI|BZN|BIL|GTF|MSO|MUO|HLN|TWF)(_\w{0,3})?_(CTR|TMU|APP|DEP)$/,
+        regex: /^(SLC|S56|BOI|BZN|BIL|GTF|MSO|MUO|HLN|TWF)(_\w{0,3})?_(CTR|TMU|APP|DEP)$/,
         mapping: {
             SLC: 'SLC_APP',
             BOI: 'BOI_APP',
