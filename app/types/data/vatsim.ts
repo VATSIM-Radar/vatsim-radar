@@ -226,7 +226,8 @@ export type VatsimShortenedController = VatsimShortenedData['atis'][0];
 export type VatsimMandatoryPilot = VatsimMandatoryConvertedData['pilots'][0];
 
 export type VatsimLiveData = VatsimShortenedData & {
-    keyedPilots?: Record<string, VatsimShortenedData['pilots'][0]>;
+    keyedPilots?: Record<string, VatsimShortenedAircraft>;
+    keyedPrefiles?: Record<string, VatsimShortenedPrefile>;
     notam: RadarNotam | null;
 };
 

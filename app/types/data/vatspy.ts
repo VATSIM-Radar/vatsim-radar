@@ -49,7 +49,7 @@ export interface VatSpyData {
         icao: string;
         name: string;
         callsign?: string;
-        boundary?: string;
+        boundary: string;
         feature: string;
     }[];
     features: Record<string, Feature<MultiPolygon, VatSpyDataProperties>[]>;

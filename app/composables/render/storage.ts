@@ -48,6 +48,7 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Feature, MultiPolygon } from 'geojson';
+import type {AirportTraconFeature} from "~/composables/render/airports";
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -86,6 +87,7 @@ export type VatsimData = {
     [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
 } & {
     keyedPilots: Ref<NonNullable<VatsimLiveData['keyedPilots']>>;
+    keyedPrefiles: Ref<NonNullable<VatsimLiveData['keyedPrefiles']>>;
     notam: Ref<RadarNotam | null>;
 };
 
@@ -94,6 +96,7 @@ const data: VatsimData = {
     general: ref(null),
     pilots: shallowRef([]),
     keyedPilots: shallowRef({}),
+    keyedPrefiles: shallowRef({}),
     prefiles: shallowRef([]),
     observers: shallowRef([]),
     controllers: shallowRef([]),
@@ -177,10 +180,10 @@ export interface DataAirport {
         };
     };
     atc: VatsimShortenedController[];
+    features?: AirportTraconFeature[];
 }
 
-export interface DataSectorController {
-    booking?: VatsimBooking;
+export interface DataSector {
     fir: VatSpyData['firs'][number];
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
     atc: VatsimShortenedController[];
@@ -188,7 +191,7 @@ export interface DataSectorController {
 
 export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
     data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs'>;
-    feature: (icao: string) => Promise<Feature<MultiPolygon, VatSpyDataProperties>[] | null>;
+    feature: (boundary: string) => Promise<Feature<MultiPolygon, VatSpyDataProperties>[] | null>;
 };
 
 export interface UseDataStore {
@@ -197,7 +200,9 @@ export interface UseDataStore {
 
     vatsim: {
         data: VatsimData;
+
         parsedAirports: ShallowRef<AirportsList[]>;
+
         tracks: ShallowRef<VatsimNattrakClient[]>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
@@ -222,6 +227,8 @@ export interface UseDataStore {
         country: (id: string) => Promise<VatglassesData[string] | null>;
     };
 
+    airportsList: ShallowRef<Record<string, DataAirport>>;
+    sectorsList: ShallowRef<DataSector[]>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
      * @deprecated
@@ -270,6 +277,8 @@ const dataStore: UseDataStore = {
         return icaoResult;
     },
     vatglasses,
+    airportsList: shallowRef({}),
+    sectorsList: shallowRef([]),
     vatglassesActivePositions,
     vatglassesActiveRunways,
     vatglassesCombiningInProgress,
@@ -337,6 +346,8 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
         latitude: data.keyedPilots.value[pilot.cid.toString()]?.latitude ?? pilot.latitude,
         heading: data.keyedPilots.value[pilot.cid.toString()]?.heading ?? pilot.heading,
     }]));
+
+    data.keyedPrefiles.value = Object.fromEntries(vatsimData.prefiles.map(pilot => [pilot.cid.toString(), pilot]));
 }
 
 export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {

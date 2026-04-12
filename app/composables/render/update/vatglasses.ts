@@ -194,6 +194,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
     const finalPositions: VatglassesActivePositions = {};
     const vatglassesActivePositions = dataStore.vatglassesActivePositions.value;
     const dynamic = dataStore.vatglassesDynamicData.value?.data;
+    const atcAdded = new Set<string>();
 
     const atisMap: Record<string, VatsimShortenedController> = {};
 
@@ -397,6 +398,10 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                 };
             }
 
+            for (const foundController of foundControllers[countryGroupId][positionId]) {
+                atcAdded.add(foundController.callsign);
+            }
+
             // Check if the airspaces of a position have changed and reset the sectors if they have changed so they will be recalculated
             const airspacesIndexesJoined = finalPositions[countryGroupId][positionId].airspaceKeys;
             const airspaceKeys = Object.keys(foundAirspaces[countryGroupId][positionId]).join(',');
@@ -439,4 +444,6 @@ export async function updateVATGlasses(context: DataUpdateContext) {
             dataStore.vatglassesCombiningInProgress.value = false;
         });
     }
+
+    context.atcAdded = atcAdded;
 }

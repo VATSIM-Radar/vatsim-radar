@@ -298,7 +298,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
                 if (
                     (!suffix || controller.callsign.endsWith(suffix)) &&
                     (
-                        (tracon && prefixes.includes(tracon)) ||
+                        (tracon && sector.id === tracon) ||
                         // Match AIRPORT_TYPE_NAME
                         prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
                         // Match AIRPORT_NAME
