@@ -48,8 +48,9 @@ export interface VatglassesActivePosition {
     atc: VatsimShortenedController[];
     sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
     sectorsCombined: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
+    activeRunway: string | null;
     airspaceKeys: string | null;
-    lastUpdated: Ref<string | null> | null;
+    lastUpdated: string | null;
 }
 export interface VatglassesActivePositions {
     [countryGroupId: string]: {

@@ -167,6 +167,15 @@ export interface DataAirport {
     departureCallPosition?: string;
     vgRunways?: string[];
     activeRunway?: string;
+    atis: {
+        departure?: string;
+        arrival?: string;
+        combined?: string;
+        runways?: {
+            departure: string[];
+            arrival: string[];
+        };
+    };
     atc: VatsimShortenedController[];
 }
 
@@ -213,11 +222,10 @@ export interface UseDataStore {
         country: (id: string) => Promise<VatglassesData[string] | null>;
     };
 
+    vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
      * @deprecated
-     * @todo
      */
-    vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     vatglassesCombiningInProgress: Ref<boolean>;
     vatglassesDynamicData: ShallowRef<VatglassesDynamicAPIData | undefined>;

@@ -46,13 +46,14 @@ const arrMarkers = [
     'APCHS RY',
     'APCHS IN USE',
     'LNDG RWY',
+    'FOR ARRIVALS',
 ];
 
-const breakTentative = ['TLS', 'TRANSITION LEVEL']
+const breakTentative = ['TLS', 'TRANSITION LEVEL'];
 
 const runwayRegex = /^(RWY)?(?<runway>\d{2}) ?(?<postfix>R|L|C|RIGHT|LEFT|CENTER)?(,|\.)?$/;
 
-function hasMarker(str, depMarkers) {
+function hasMarker(str: string, depMarkers: string[]) {
     const last = str.at(-1);
     const base = last === ',' || last === '.'
         ? str.slice(0, -1)
@@ -69,11 +70,11 @@ function hasMarker(str, depMarkers) {
     return false;
 }
 
-function getActiveRunways(atis) {
+export function getActiveRunways(atis: string | string[]): { departure: string[]; arrival: string[] } {
     const words = Array.isArray(atis) ? atis.join(' ').split(' ') : atis.split(' ');
-    const depRunways = new Set();
-    const arrRunways = new Set();
-    const tentativeRunways = new Set();
+    const depRunways = new Set<string>();
+    const arrRunways = new Set<string>();
+    const tentativeRunways = new Set<string>();
     let hadTenativeRunways = false;
     let tentativeChance = 0;
 
@@ -128,12 +129,12 @@ function getActiveRunways(atis) {
                 });
                 hadTenativeRunways = !!tentativeRunways.size;
                 tentativeRunways.clear();
-                depMarker = isDep || isArr === 'common';
-                arrMarker = isArr || isDep === 'common';
+                depMarker = !!isDep || isArr === 'common';
+                arrMarker = !!isArr || isDep === 'common';
                 tentativeChance = 0;
             }
             else {
-                if(hasMarker(lastWord, breakTentative)) {
+                if (hasMarker(lastWord, breakTentative)) {
                     depMarker = false;
                     arrMarker = false;
                     tentativeRunways.clear();
