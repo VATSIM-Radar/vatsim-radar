@@ -8,5 +8,5 @@ export async function updateControllersRender() {
     const airports: Record<string, DataAirport> = {};
 
     // TODO: ADD AIRCRAFT COUNT BEFORE THAT TO CHECK FOR EMPTY AIRPORT INSIDE
-    updateVATGlasses({ airports });
+    await updateVATGlasses({ airports });
 }

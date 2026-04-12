@@ -1,13 +1,9 @@
-import { computed } from 'vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import type { VatglassesActiveData, VatglassesSectorProperties, VatglassesActiveAirspaces, VatglassesActivePositions } from '~/utils/data/vatglasses';
-import type { DataAirport } from '~/composables/render/storage';
+import type { VatglassesSectorProperties, VatglassesActiveAirspaces, VatglassesActivePositions } from '~/utils/data/vatglasses';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type {
     VatglassesAirport,
     VatglassesAirspace,
     VatglassesData,
-    VatglassesPosition,
     VatglassesSector,
 } from '~/utils/server/storage';
 import { updateAirportAtisConfig } from '~/composables/render/update/utils';
@@ -15,12 +11,10 @@ import type { DataUpdateContext } from '~/composables/render/update/index';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'geojson';
 import { polygon } from '@turf/helpers';
 import { stringToArray } from '~/utils/shared';
-import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 
 let worker: Worker | null = null;
 
 const store = useStore();
-const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && isVatGlassesActive.value);
 
 let facilities: {
     ATIS: number;
@@ -81,8 +75,7 @@ async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActiv
                 finalPositions[countryGroupId][positionId].lastUpdated = new Date().toISOString();
                 const sectors = finalPositions[countryGroupId][positionId]['sectors'];
                 if (sectors) {
-                    let splittedSectors;
-                    splittedSectors = await splitSectorsWithWorker(sectors);
+                    const splittedSectors = await splitSectorsWithWorker(sectors);
 
                     if (splittedSectors) {
                         finalPositions[countryGroupId][positionId].sectorsCombined = await combineSectorsWithWorker(splittedSectors);
@@ -274,12 +267,25 @@ export async function updateVATGlasses(context: DataUpdateContext) {
 
             if (!positionId) continue;
 
+            let positionCountryCode: string;
+            let positionPositionCode: string;
+
             if (positionId.includes('/')) { // Covers this cases: Positions from other data files can be referenced in the format country/position, where position is defined in country.json
                 const [otherCountryCode, otherGroupVatglassesPosition] = positionId.split('/');
+
+                if (!countries[otherCountryCode]) {
+                    const data = await dataStore.vgData.country(otherCountryCode);
+                    if (!data) continue;
+                    countries[otherCountryCode] = data;
+                }
+
                 if (!foundAirspaces[otherCountryCode]) foundAirspaces[otherCountryCode] = {};
                 if (!foundAirspaces[otherCountryCode][otherGroupVatglassesPosition]) foundAirspaces[otherCountryCode][otherGroupVatglassesPosition] = {};
 
                 foundAirspaces[otherCountryCode][otherGroupVatglassesPosition][country + '/' + index] = airspace;
+
+                positionCountryCode = otherCountryCode;
+                positionPositionCode = otherGroupVatglassesPosition;
             }
             else {
                 if (!foundAirspaces[country]) foundAirspaces[country] = {};
@@ -287,12 +293,15 @@ export async function updateVATGlasses(context: DataUpdateContext) {
 
                 // Add airspace to the object, we use the airspaceKey as identifier because we know for sure it is unique, i don't think the airspace.id is unique for sure
                 foundAirspaces[country][positionId][index] = airspace;
+
+                positionCountryCode = country;
+                positionPositionCode = positionId;
             }
 
-            const controllersForPosition = foundControllers[country][positionId];
+            const controllersForPosition = foundControllers[positionCountryCode][positionPositionCode];
 
             if (controllersForPosition?.length) {
-                for (const airport of vgPositionAirports[country + positionId] ?? []) {
+                for (const airport of vgPositionAirports[positionCountryCode + positionPositionCode] ?? []) {
                     if (!airport.icao) continue;
 
                     // Airport creation
@@ -315,7 +324,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                 }
             }
 
-            const activePosition = vatglassesActivePositions[country]?.[positionId];
+            const activePosition = vatglassesActivePositions[positionCountryCode]?.[positionPositionCode];
 
             for (const sector of airspace.sectors) {
                 for (const runway of sector.runways ?? []) {
@@ -324,7 +333,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                     const airport = airports[runway.icao];
                     if (!airport) continue;
 
-                    const vgRunways = countryData.airports[runway.icao]?.runways;
+                    const vgRunways = countries[positionCountryCode]?.airports[runway.icao]?.runways;
                     if (!vgRunways) continue;
 
                     airport.vgRunways ??= vgRunways;
@@ -379,7 +388,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
             }
             else {
                 finalPositions[countryGroupId][positionId] = {
-                    atc: [],
+                    atc: foundControllers[countryGroupId]?.[positionId] ?? [],
                     sectors: null,
                     sectorsCombined: null,
                     activeRunway: null,
