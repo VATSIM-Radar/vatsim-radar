@@ -184,7 +184,6 @@ watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUp
 });
 
 let holdings: [string, NavigraphNavDataShort['holdings'][string]][] | null = null;
-let didCleanup = false;
 
 function cleanup() {
     const features = source?.value.getFeatures() ?? [];
@@ -198,7 +197,7 @@ function cleanup() {
     }
 }
 
-watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
+watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoint], async ([enabled, extent]) => {
     if (!enabled && !setAnyWaypoint.value) {
         holdings = null;
         cleanup();
@@ -227,13 +226,8 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
         if (item) list.push(item);
     }
 
-    if (!list.length && !didCleanup) {
+    if (!list.length) {
         cleanup();
-        didCleanup = true;
-    }
-
-    if (list.length) {
-        didCleanup = false;
     }
 
     for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of list) {
