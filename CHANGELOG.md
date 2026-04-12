@@ -9,6 +9,7 @@
 - Improved memory usage for VATGlasses mode, not consuming it for countries that are not rendered, leading to 100x+ improvement in memory usage
 - Significantly reduced traffic used on regular updates
 - VATGlasses controllers are now properly shown in "ATC" tab of pilot or airport
+- Added active runway parsing from ATIS on airport/ATIS, as well as runway auto-select for VATGlasses
 
 ## Technical changes
 
