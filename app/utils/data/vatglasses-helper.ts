@@ -163,11 +163,14 @@ function addPointsToLine(line: TurfFeature<LineString>, points: TurfFeature<Poin
         }
     }
 
+    const existingPointSet = new Set(coordinates.map(coord => `${ coord[0] },${ coord[1] }`));
+
     points.forEach(point => {
         const [x, y] = point.geometry.coordinates;
+        const pointKey = `${ x },${ y }`;
 
         // Check if the point is already part of the line
-        if (coordinates.some(coord => coord[0] === x && coord[1] === y)) {
+        if (existingPointSet.has(pointKey)) {
             return;
         }
 
@@ -178,6 +181,7 @@ function addPointsToLine(line: TurfFeature<LineString>, points: TurfFeature<Poin
             // Check if the intersection point lies on the segment between coordinates[i] and coordinates[i + 1]
             if (isPointOnSegment([x1, y1], [x2, y2], [x, y])) {
                 coordinates.splice(i + 1, 0, [x, y]);
+                existingPointSet.add(pointKey);
                 break;
             }
         }
@@ -218,46 +222,56 @@ const isPointOnSegment = (p1: number[], p2: number[], p: number[], tolerance: nu
  */
 function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): TurfFeature<TurfPolygon>[] {
     const modifiedPolygons: TurfFeature<TurfPolygon>[] = [];
-    const intersectionPointsMap: { [key: string]: TurfFeature<Point>[] } = {};
-
+    const intersectionPointsMap = new Map<string, TurfFeature<Point>[]>();
+    const preparedPolygons = polygons.map(polygon => removeDuplicateCoords(polygon));
+    const lineStrings = preparedPolygons.map(polygon => polygonToLineString(polygon));
 
     for (let i = 0; i < polygons.length; i++) {
         try {
             if (insertfailed) break;
-            const polygon1 = removeDuplicateCoords(polygons[i]);
-            const line1 = polygonToLineString(structuredClone(polygon1));
+            const polygon1 = preparedPolygons[i];
+            const line1 = lineStrings[i];
             let intersectionPoints: TurfFeature<Point>[] = [];
 
             for (let j = 0; j < polygons.length; j++) {
                 if (i === j) continue;
 
-                const polygon2 = polygons[j];
-                const line2 = polygonToLineString(polygon2);
+                const line2 = lineStrings[j];
 
                 // Check if intersection points are already in the map
                 let points: TurfFeature<Point>[];
 
-
                 const mapKey1 = `${ i }-${ j }`;
                 const mapKey2 = `${ j }-${ i }`;
-                if (intersectionPointsMap[mapKey1]) {
-                    points = intersectionPointsMap[mapKey1];
+                const points1 = intersectionPointsMap.get(mapKey1);
+                const points2 = intersectionPointsMap.get(mapKey2);
+                if (points1) {
+                    points = points1;
                 }
-                else if (intersectionPointsMap[mapKey2]) {
-                    points = intersectionPointsMap[mapKey2];
+                else if (points2) {
+                    points = points2;
                 }
                 else {
                 // Find intersection points between the current polygon and all other polygons
                     points = findIntersectionPoints(line1, line2);
-                    intersectionPointsMap[mapKey1] = points;
-                    intersectionPointsMap[mapKey2] = points;
+                    intersectionPointsMap.set(mapKey1, points);
+                    intersectionPointsMap.set(mapKey2, points);
                 }
 
-                intersectionPoints = intersectionPoints.concat(points);
+                intersectionPoints.push(...points);
             }
 
             // Ensure intersection points are unique
-            intersectionPoints = intersectionPoints.filter((point, index, self) => index === self.findIndex(p => p.geometry.coordinates[0] === point.geometry.coordinates[0] && p.geometry.coordinates[1] === point.geometry.coordinates[1]));
+            const uniqueIntersectionPointKeys = new Set<string>();
+            intersectionPoints = intersectionPoints.filter(point => {
+                const key = `${ point.geometry.coordinates[0] },${ point.geometry.coordinates[1] }`;
+                if (uniqueIntersectionPointKeys.has(key)) {
+                    return false;
+                }
+
+                uniqueIntersectionPointKeys.add(key);
+                return true;
+            });
 
             // Add all collected intersection points to the current polygon
             const modifiedLine1 = addPointsToLine(line1, intersectionPoints);
@@ -299,7 +313,7 @@ function lineStringToPolygon(line: TurfFeature<LineString>): TurfFeature<TurfPol
 
 const insertfailed = false;
 export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
-    sectors.map(polygon => roundPolygonCoordinates(convertPolygonCoordinates(polygon))); // We convert the coords to EPSG:3857 because we get more reliable results from turf when we use this projection.
+    sectors.forEach(polygon => roundPolygonCoordinates(convertPolygonCoordinates(polygon))); // We convert the coords to EPSG:3857 because we get more reliable results from turf when we use this projection.
     for (let i = sectors.length - 1; i >= 0; i--) {
         try {
             const currentPolygon = sectors[i];
@@ -410,7 +424,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
     }
 
 
-    resultPolygons.map(polygon => roundPolygonCoordinates(revertPolygonCoordinatesToLonLat(polygon), 6));
+    resultPolygons.forEach(polygon => roundPolygonCoordinates(revertPolygonCoordinatesToLonLat(polygon), 6));
     return resultPolygons;
 }
 

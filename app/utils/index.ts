@@ -93,15 +93,6 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
     return new Polygon([coords]);
 }
 
-export function makeFakeAtcFeatureFromBooking(atc: VatsimShortenedController, booking: VatsimBookingAtc): VatSpyDataFeature[] {
-    atc.booking = booking;
-    makeBookingLocalTime(booking);
-    return [{
-        controller: atc,
-        firs: [],
-    }];
-}
-
 export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
     return {
         cid: booking.atc.cid,

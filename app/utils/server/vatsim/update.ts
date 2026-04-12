@@ -12,18 +12,15 @@ import type {
     VatsimBooking,
     VatsimDivision,
     VatsimSubDivision,
-    VatsimShortenedController, VatsimController, VatsimNattrak, VatsimAchievementList,
+    VatsimShortenedController, VatsimController, VatsimNattrak, VatsimAchievementList, VatsimPrefile,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
-import { getNavigraphGates } from '~/utils/server/navigraph';
-import { getPilotGateMatch, getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import {
     calculateArrivalTime,
     calculateDistanceInNauticalMiles,
     calculateProgressPercentage,
 } from '~/utils/shared/flight';
-import type { NavigraphGate } from '~/types/data/navigraph';
-import { getFirsPolygons } from '~/utils/server/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/server';
@@ -33,9 +30,12 @@ import { isDebug } from '~/utils/server/debug';
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
 
+    const cids = new Set<number>();
+
     data.pilots = data.pilots.map(x => {
         const coords = [x.longitude, x.latitude];
         const transceiver = getTransceiverData(x.callsign);
+        cids.add(x.cid);
 
         return {
             ...x,
@@ -45,13 +45,21 @@ export function updateVatsimDataStorage() {
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
-    data.general.sups = data.controllers.filter(x => x.rating === 11);
-    data.general.adm = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998');
-    data.general.supsCount = data.general.sups.length;
-    data.general.admCount = data.general.adm.length;
+    for (const controller of data.controllers) {
+        if (controller.rating === 11) data.general.sups.push(controller);
+        if (controller.rating === 12 && controller.frequency === '199.998') data.general.adm.push(controller);
+    }
+
     data.general.onlineWSUsers = wss.clients.size;
 
-    data.prefiles = data.prefiles.filter((x, index) => x && !data.pilots.some(y => y && x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y && y.cid === x.cid && yIndex > index));
+    const prefiles: VatsimPrefile[] = [];
+
+    for (const prefile of data.prefiles) {
+        if (cids.has(prefile.cid)) continue;
+
+        cids.add(prefile.cid);
+        prefiles.push(prefile);
+    }
 
     const positions = useFacilitiesIds();
 
@@ -62,7 +70,7 @@ export function updateVatsimDataStorage() {
             observers.push(controller);
             return false;
         }
-        let postfix = controller.callsign.split('_').slice(-1)[0];
+        let postfix = controller.callsign.split('_').at(-1);
         if (postfix === 'DEP') postfix = 'APP';
         if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
@@ -80,8 +88,6 @@ export function updateVatsimMandatoryDataStorage() {
         timestampNum: new Date(data.general.update_timestamp).getTime(),
         serverTime: Date.now(),
         pilots: [],
-        controllers: [],
-        atis: [],
     };
 
     for (const pilot of data.pilots) {
@@ -89,42 +95,14 @@ export function updateVatsimMandatoryDataStorage() {
         newData.pilots.push([pilot.cid, coords[0], coords[1], getAircraftIcon(pilot).icon, pilot.heading]);
     }
 
-    // Maybe no need to implement
     // newData.controllers = data.controllers.map(x => [x.cid, x.callsign, x.frequency, x.facility]);
     // newData.atis = data.atis.map(x => [x.cid, x.callsign, x.frequency, x.facility]);
 
     radarStorage.vatsim.mandatoryData = newData;
 }
 
-const gates: Record<string, NavigraphGate[] | undefined> = {};
-
-async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
-    const existing = gates[icao];
-    if (existing) return existing;
-
-    gates[icao] = await getNavigraphGates({
-        user: null,
-        icao: icao,
-    }).catch(console.error) || undefined;
-
-    return gates[icao] ?? [];
-}
-
 export async function updateVatsimExtendedPilots() {
     const vatspy = (radarStorage.vatspy)!;
-
-    const firsPolygons = await getFirsPolygons();
-
-    const firsList = firsPolygons.map(({
-        icao,
-        featureId,
-        polygon,
-    }) => ({
-        controllers: radarStorage.vatsim.firs.filter(
-            x => x.controller && x.firs.some(x => x.icao === icao && x.boundaryId === featureId),
-        ),
-        polygon,
-    })).filter(x => x.controllers.length);
 
     radarStorage.vatsim.extendedPilots = [];
     const updatePilots: { [key: string]: VatsimExtendedPilot } = {};
@@ -139,58 +117,11 @@ export async function updateVatsimExtendedPilots() {
         origPilot: pilot,
     }));
 
-    for (const fir of firsList.map(x => ({
-        controllers: x.controllers.flatMap(x => x.controller?.callsign),
-        polygon: x.polygon,
-    }))) {
-        for (const pilot of pilotsToProcess) {
-            if (fir.polygon.intersectsCoordinate([pilot.pilot.longitude, pilot.pilot.latitude])) {
-                pilot.controllers ??= new Set();
-
-                fir.controllers.map(x => pilot.controllers!.add(x));
-            }
-        }
-    }
-
     for (const {
         pilot: extendedPilot,
         origPilot,
         controllers,
     } of pilotsToProcess) {
-        const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(extendedPilot.cid));
-        const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(extendedPilot.cid));
-
-        if (groundDep) {
-            extendedPilot.airport = groundDep.icao;
-            const gates = await getCachedGates(groundDep.icao);
-
-            const check = gates && getPilotGateMatch(extendedPilot, gates);
-            if (check?.truly.size > 0 || check?.maybe.size > 0) {
-                extendedPilot.status = 'depGate';
-            }
-            else {
-                extendedPilot.status = 'depTaxi';
-            }
-
-            extendedPilot.isOnGround = true;
-        }
-        else if (groundArr) {
-            extendedPilot.airport = groundArr.icao;
-            const gates = await getCachedGates(groundArr.icao);
-
-            if (!gates) return;
-
-            const check = getPilotGateMatch(extendedPilot, gates);
-            if (check?.truly.size > 0 || check?.maybe.size > 0) {
-                extendedPilot.status = 'arrGate';
-            }
-            else {
-                extendedPilot.status = 'arrTaxi';
-            }
-
-            extendedPilot.isOnGround = true;
-        }
-
         let totalDist: number | null = null;
 
         const dep = extendedPilot.flight_plan?.departure && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.departure];
@@ -211,12 +142,14 @@ export async function updateVatsimExtendedPilots() {
 
                 if (extendedPilot.toGoDist < 100) {
                     extendedPilot.airport = arr.icao;
+                    origPilot.airport = arr.icao;
                     if (!extendedPilot.status && extendedPilot.toGoDist < 40) {
                         extendedPilot.status = 'arriving';
                     }
                 }
                 else if (extendedPilot.depDist < 40) {
                     extendedPilot.airport = dep.icao;
+                    origPilot.airport = dep.icao;
                     if (!extendedPilot.status) {
                         extendedPilot.status = 'departed';
                     }
@@ -472,7 +405,7 @@ export async function updateBookings() {
         const bookings = bookingData.map(booking => {
             const division = divisionCache[booking.division];
             const subdivision = subDivisionCache[booking.subdivision];
-            const atc = makeFakeAtc(booking);
+            const atc = createAtcForBooking(booking);
             const start = new Date(booking.start + 'Z').getTime();
             const end = new Date(booking.end + 'Z').getTime();
 
@@ -504,7 +437,7 @@ export async function updateBookings() {
             subdivision: '',
         };
 
-        const atc = makeFakeAtc(fakeBooking);
+        const atc = createAtcForBooking(fakeBooking);
 
         bookings.push({
             ...fakeBooking,
@@ -555,7 +488,7 @@ async function createCaches(): Promise<{
     return { divisionCache, subDivisionCache };
 }
 
-function makeFakeAtc(booking: VatsimBookingData): VatsimShortenedController {
+function createAtcForBooking(booking: VatsimBookingData): VatsimShortenedController {
     return {
         cid: booking.cid,
         name: '',

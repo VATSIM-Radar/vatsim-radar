@@ -1,16 +1,15 @@
 import type { PartialRecord } from '~/types';
 import { ofetch } from 'ofetch';
-import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
+import type { VatSpyData, VatSpyDataProperties, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/server/storage';
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
-import { MultiPolygon as OlMultiPolygon } from 'ol/geom.js';
+import type { Feature, FeatureCollection, MultiPolygon } from 'geojson';
 import { getVATSIMIdentHeaders } from '~/utils/server';
 import type { RedisData } from '~/utils/server/redis';
 import { setRedisData } from '~/utils/server/redis';
 import { getLocalText, isDebug } from '~/utils/server/debug';
 
 const revisions: Record<string, number> = {
-    'v2602.1': 1,
+    'v2602.1': 2,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -154,53 +153,35 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
         result.airports.push(airport);
     }
 
+    result.features = {};
+
+    for (const boundary of geojson.features) {
+        result.features[boundary.properties!.id] ??= [];
+
+        result.features[boundary.properties!.id].push({
+            ...boundary,
+            properties: {
+                id: boundary.properties!.id,
+                oceanic: boundary.properties!.oceanic === '1',
+                label: [boundary.properties!.label_lon, boundary.properties!.label_lat],
+            },
+        });
+    }
+
     result.firs = [];
     parsedDat.firs
         .filter(value => value.icao && value.name)
         .forEach(value => {
-            let boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
-            if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
-            if (!boundaries.length) {
+            const boundary = result.features[value.boundary ?? ''] ?? result.features[value.icao ?? ''];
+
+            if (!boundary) {
                 console.warn(`FIR didn't find it's feature in geojson (${ value.icao }, ${ value.boundary })`);
                 return;
             }
 
-            boundaries.forEach((boundary, index) => {
-                const rootBoundary = boundaries.find((x, xIndex) => x.id === boundary.id && xIndex < index && x.properties!.oceanic === boundary.properties!.oceanic);
-                if (rootBoundary) {
-                    rootBoundary.geometry.coordinates = [
-                        ...rootBoundary.geometry.coordinates,
-                        ...boundary.geometry.coordinates,
-                    ];
-
-                    boundaries.splice(index, 1);
-                }
-            });
-
-            boundaries.forEach((boundary, index) => {
-                /* boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map(x => {
-                    if (x === 0) return 0.01;
-                    if (x === -180) return -179.9;
-                    if (x === 180) return 179.9;
-                    return x;
-                })))) as any;*/
-
-                const coordinate = [+boundary.properties!.label_lon, +boundary.properties!.label_lat];
-
-                result.firs.push({
-                    ...value as Required<typeof value>,
-                    isOceanic: boundary.properties!.oceanic === '1' || !!value.name?.includes('Oceanic'),
-                    lon: coordinate[0],
-                    lat: coordinate[1],
-                    region: boundary.properties!.region,
-                    division: boundary.properties!.division,
-                    feature: {
-                        type: boundary.type,
-                        id: boundary.properties!.id + index,
-                        geometry: boundary.geometry,
-                        properties: includeProperties ? boundary.properties : {},
-                    },
-                });
+            result.firs.push({
+                ...value as Required<typeof value>,
+                feature: boundary[0].properties.id,
             });
         });
 
@@ -248,39 +229,12 @@ export async function updateVatSpy() {
     console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
 }
 
-let firsPolygons: {
-    icao: string;
-    featureId: string;
-    polygon: OlMultiPolygon;
-}[] = [];
-let firsVersion = '';
-
-export async function getFirsPolygons() {
-    const vatspy = radarStorage.vatspy;
-    if (firsVersion !== vatspy!.version) {
-        firsPolygons = vatspy!.data!.firs.map(fir => {
-            return {
-                icao: fir.icao,
-                featureId: fir.feature.id as string,
-                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates),
-            };
-        });
-        firsVersion = vatspy!.version;
-    }
-
-    return firsPolygons;
-}
-
-export function vatspyDataToGeojson(data: VatSpyData): FeatureCollection<MultiPolygon | Polygon> {
-    const geojson: FeatureCollection<MultiPolygon | Polygon> = {
+export function vatspyDataToGeojson(data: VatSpyData): FeatureCollection<MultiPolygon, VatSpyDataProperties> {
+    return {
         type: 'FeatureCollection',
         // @ts-expect-error Dynamic name
         name: 'VATSIM Map',
         crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
-        features: [],
+        features: Object.values(data.features).flat(),
     };
-
-    geojson.features.push(...data.firs.map(x => x.feature));
-
-    return geojson;
 }

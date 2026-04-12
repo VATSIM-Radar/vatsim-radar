@@ -1,5 +1,24 @@
 # Changelog
 
+# [2.0.0-alpha.7]
+
+## Improvements and changes
+
+- Bookings are now rendered in VATGlasses mode; bookings not showing up or duplicated facilities issues have all been fixed
+- Significantly improved performance for VATGlasses mode
+- Significantly improved memory usage for VATGlasses mode, not consuming it for countries that are not rendered
+- Significantly improved memory usage for VATSpy data
+- Significantly reduced traffic used on regular updates
+- VATGlasses controllers are now properly shown in "ATC" tab of pilot or airport
+- Added active runway parsing from ATIS on airport/ATIS, as well as runway auto-select for VATGlasses
+- Airport counters update will be much faster now
+
+## Technical changes
+
+- Pilot "At Gate" status has been removed to improve performance. Only departing and arrived now remain
+- VATGlasses combined mode is now always rendered on device, leading to a very slow initial render. This mode is not widely used, yet it had separate server instance
+- Reworked controllers/sectors logic to be on frontend, leading to improved server worker update time, reduced delay, and a better code in general, for a small performance cost
+
 # [2.0.0-alpha.6.3]
 
 ## Preprod changes

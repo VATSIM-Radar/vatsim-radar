@@ -205,8 +205,8 @@ export const useOnlineCounters = () => computed(() => {
         atc,
         atis,
         pilots: dataStore.vatsim.data.pilots.value.length,
-        sups: dataStore.vatsim.data.general.value?.supsCount,
-        adm: dataStore.vatsim.data.general.value?.admCount,
+        sups: dataStore.vatsim.data.general.value?.sups?.length,
+        adm: dataStore.vatsim.data.general.value?.adm?.length,
         lastUpdated: date && `${ datetime.format(date).toUpperCase() } Z`,
     };
 });

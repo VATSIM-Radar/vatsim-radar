@@ -77,28 +77,6 @@ services:
         extra_hosts:
             - "host.docker.internal:host-gateway"
 
-    vatglasses-worker:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.1
-        env_file:
-            - ./.env
-        container_name: vatsim-radar-vg-worker
-        command: /radar/.config/vatglasses-worker.sh
-        volumes:
-            - ".:/radar:rw"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        depends_on:
-            db:
-                condition: service_healthy
-            redis:
-                condition: service_started
-            frontend:
-                condition: service_healthy
-
     db:
         image: mysql
         cap_add:

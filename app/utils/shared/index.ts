@@ -83,6 +83,12 @@ export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
     return false;
 }
 
+export function stringToArray<T>(item: T | T[] | undefined): T[] {
+    if (!item) return [];
+    if (!Array.isArray(item)) return [item];
+    return item;
+}
+
 export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
     const exec = /(CS[\/\-=,]|CALLSIGN([\/\-=,]| ))(?<callsign>[A-Z -]+)(([\/\-=,](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/\-=,][A-Z-])|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/\-=,][A-Z-]))|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$))/.exec(remarks);
     if (exec?.groups && exec?.groups?.callsign) {
