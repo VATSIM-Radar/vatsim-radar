@@ -76,7 +76,8 @@ const getShownPilots = computed(() => {
 
     const allOnGround: number[] = [];
 
-    for (const airport of dataStore.vatsim.data.airports.value) {
+    for (const icao in dataStore.airportsList.value) {
+        const airport = dataStore.airportsList.value[icao];
         if (airport.icao === arrivalAirport) continue;
 
         if (me && !store.mapSettings.groundTraffic?.excludeMyLocation) {
@@ -235,10 +236,18 @@ function setVisiblePilots() {
     }
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
-        const airports = dataStore.vatsim.data.airports.value.filter(x => store.config.airports!.includes(x.icao));
-        if (airports?.length) {
-            const aircraft = airports.flatMap(x => x.aircraft).map(x => Object.values(x)).flat().flat();
-            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.includes(x.cid));
+        const aircraft = new Set<number>();
+
+        for (const key in dataStore.airportsList.value) {
+            if (!store.config.airports!.includes(key)) continue;
+
+            for (const cid of Object.values(dataStore.airportsList.value[key].aircraft).flat()) {
+                aircraft.add(cid);
+            }
+        }
+
+        if (aircraft.size) {
+            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.has(x.cid));
         }
         else {
             dataStore.visiblePilots.value = [];
@@ -246,7 +255,7 @@ function setVisiblePilots() {
     }
 
     if (store.config.airport && store.config.onlyAirportAircraft) {
-        const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        const airport = dataStore.airportsList.value[store.config.airport];
         if (airport) {
             const coords = [dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lat];
             const aircraft = Object.values(airport.aircraft).flatMap(x => x);

@@ -229,7 +229,7 @@
         </template>
         <template #aircraft>
             <div
-                v-if="vatAirport?.aircraft.arrivals?.length"
+                v-if="dataAirport?.aircraft.arrivals?.length"
                 class="airport__aircraft-toggles"
             >
                 <ui-toggle
@@ -320,7 +320,6 @@ import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import type { TooltipCloseMethod } from '~/components/ui/data/UiTooltip.vue';
 import type { Map } from 'ol';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
-import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
@@ -352,7 +351,7 @@ const copy = useCopyText();
 const config = useRuntimeConfig();
 
 const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.overlay.data.icao]);
-const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
+const dataAirport = computed(() => dataStore.airportsList.value[props.overlay.data.icao]);
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
 const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
@@ -378,7 +377,7 @@ const showOnMap = () => {
     showAirportOnMap(airport.value, map.value);
 };
 
-const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
+const aircraftCount = computed(() => Object.values(dataAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
 
 const bookmarkName = ref('');
 const bookmark = ref<UserBookmark>({ zoom: 14 });
@@ -549,7 +548,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
     }
 });
 
-const runways = computed(() => getAirportRunways(props.overlay.data.icao));
+const runways = computed(() => dataStore.airportsList.value[props.overlay.data.icao]?.vgRunways);
 
 onMounted(() => {
     const interval = setInterval(async () => {

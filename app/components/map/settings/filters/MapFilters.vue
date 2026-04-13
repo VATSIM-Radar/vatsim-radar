@@ -609,7 +609,7 @@ watch(dataStore.vatsim.data.pilots, () => {
 });
 
 const airportsSuggestions = computed<SelectItem[]>(() => {
-    return dataStore.vatspy.value!.data.airports.filter(x => !x.isPseudo).map(x => ({
+    return Object.values(dataStore.vatspy.value!.data.keyAirports.realIcao).map(x => ({
         value: x.icao,
         text: x.name,
     }));

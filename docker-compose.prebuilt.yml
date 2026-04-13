@@ -59,22 +59,6 @@ services:
         extra_hosts:
             - "host.docker.internal:host-gateway"
 
-    vatglasses-worker:
-        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
-        container_name: vatsim-radar-prebuilt-vg
-        command: /radar/.config/vatglasses-worker-prod.sh
-        volumes:
-            - "./app/data:/radar/app/data:rw"
-        depends_on:
-            db:
-                condition: service_healthy
-            redis:
-                condition: service_started
-            frontend:
-                condition: service_healthy
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-
     db:
         image: mysql
         container_name: vatsim-radar-prebuilt-db

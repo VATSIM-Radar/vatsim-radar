@@ -8,10 +8,11 @@ import type {
     PatreonPledgesUser,
 } from '~/types/data/patreon';
 import { isDataReady, radarStorage } from '~/utils/server/storage';
+import type { VatglassesDynamicData } from '~/utils/server/storage';
 import { initNavigraph } from '~/utils/server/navigraph/db';
 import { updateSimAware } from '~/utils/server/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/server/vatglasses';
-import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/server/redis';
+import { defaultRedis, getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/server/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import {
     updateAchievements,
@@ -41,12 +42,9 @@ async function basicTasks() {
     await defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     await defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
-    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.subscribe('vatglassesDynamic');
     redisSubscriber.on('message', (channel, message) => {
-        if (channel === 'vatglassesActive') {
-            radarStorage.vatglasses.activeData = message;
-        }
-        else if (channel === 'vatglassesDynamic') {
+        if (channel === 'vatglassesDynamic') {
             radarStorage.vatglasses.dynamicData = JSON.parse(message);
         }
     });
@@ -83,6 +81,24 @@ const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
     minute: '2-digit',
 });
 
+let latestVatglassesData = '';
+export async function updateVatglassesDynamic() {
+    try {
+        const response = await $fetch<VatglassesDynamicData>('https://api3.vatglasses.uk/live/activeownership', {
+            timeout: 1000 * 30,
+        });
+
+        latestVatglassesData = JSON.stringify({
+            data: response,
+            version: Date.now().toString(),
+        });
+        defaultRedis.publish('vatglassesDynamic', latestVatglassesData);
+    }
+    catch (error) {
+        console.error('Error in cron job:', error);
+    }
+}
+
 async function vatsimTasks() {
     async function fetchDivisions() {
         const [divisions, subdivisions] = await Promise.all([
@@ -116,6 +132,7 @@ async function vatsimTasks() {
     await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
     await defineCronJob('15 0 * * *', updateAchievements).catch(console.error);
     await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
+    await defineCronJob('*/30 * * * * *', updateVatglassesDynamic).catch(console.error);
     await defineCronJob('15 * * * *', updateSectorsData).catch(console.error);
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);

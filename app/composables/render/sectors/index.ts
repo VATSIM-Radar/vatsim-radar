@@ -1,10 +1,7 @@
 import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
-import type { MapFir } from '~/components/map/layers/MapSectorList.vue';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setSectorStyle } from '~/composables/render/sectors/style';
-import type { VatSpyDataFeature } from '~/types/data/vatspy';
-import { vgFallbackKeys } from '~/composables/render/storage';
 import {
     isVatGlassesActive,
 } from '~/utils/data/vatglasses';
@@ -18,7 +15,7 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
     labelsSource: VectorSource;
     labelsLayer: VectorLayer;
 
-    firs: MapFir[];
+    firs: DataSector[];
 }) {
     const store = useStore();
     const dataStore = useDataStore();
@@ -31,56 +28,47 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
         setSectorStyle(labelsLayer, true);
     }
 
-    const fallbackPositions = isVatGlassesActive.value && useDataStore().vatglassesActivePositions.value['fallback'] && vgFallbackKeys.value;
     const activeIds = new Set<string>();
 
     for (const fir of firs) {
-        const firs: VatSpyDataFeature[] = [];
-        const uirs: VatSpyDataFeature[] = [];
-
-        fir.atc.forEach((x, index) => {
-            if (!x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign) || x.controller.booking) && !firs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
-                firs.push(x);
-            }
-            else if (x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign) || x.controller.booking) && !uirs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
-                uirs.push(x);
-            }
-        });
-
-        const controllers = firs.length ? firs : uirs;
+        const controllers = fir.atc;
         const sectorType: FeatureAirportSectorDefaultProperties['sectorType'] = controllers.length
-            ? firs.length ? 'fir' : 'uir'
+            ? fir.uir ? 'uir' : 'fir'
             : 'empty';
 
         const id: any = 'sector-' + String(fir.fir.icao) + String(fir.fir.callsign) + String(fir.fir.boundary) + String(sectorType);
         activeIds.add(id);
 
         const existingFeature = getMapFeature('sector', source, id);
+        const isBooking = store.bookingOverride || controllers.every(x => x.booking);
+        const isDuplicated = !!controllers.length && controllers.every(x => x.duplicated);
+
         if (existingFeature) {
             existingFeature.setProperties({
-                booked: store.bookingOverride || !!fir.booking,
-                duplicated: !!controllers.length && controllers.every(x => x.controller.duplicated),
-                atc: controllers.map(x => x.controller),
-                icao: !firs.length ? uirs[0]?.icao ?? '' : fir.fir.icao,
-                uir: uirs.length ? (firs.length ? uirs[0]?.icao : fir.fir.icao) : undefined,
+                booked: isBooking,
+                duplicated: isDuplicated,
+                atc: controllers,
+                icao: fir.fir.icao,
+                uir: fir.uir?.icao,
+                name: fir.uir?.name ?? fir.fir.name,
             });
         }
         else {
-            const geometry = geoJson.readGeometry(fir.fir.feature.geometry) as any;
+            const geometry = geoJson.readGeometry(fir.feature.geometry) as any;
 
             const feature = createMapFeature('sector', {
                 geometry,
                 type: 'sector',
                 id,
                 sectorType,
-                booked: store.bookingOverride || !!fir.booking,
-                label: [fir.fir.lon, fir.fir.lat],
-                duplicated: !!controllers.length && controllers.every(x => x.controller.duplicated),
-                atc: controllers.map(x => x.controller),
-                icao: !firs.length ? uirs[0]?.icao ?? '' : fir.fir.icao,
-                uir: uirs.length ? (firs.length ? uirs[0]?.icao : fir.fir.icao) : undefined,
-                name: (!firs.length && uirs.length) ? (uirs[0].name ?? fir.fir.name) : fir.fir.name,
-                isOceanic: fir.fir.isOceanic,
+                booked: isBooking,
+                label: fir.feature.properties.label,
+                duplicated: isDuplicated,
+                atc: controllers,
+                icao: fir.fir.icao,
+                uir: fir.uir?.icao,
+                name: fir.uir?.name ?? fir.fir.name,
+                isOceanic: fir.feature.properties.oceanic,
             });
             source.addFeature(feature);
             labelsSource.addFeature(feature);

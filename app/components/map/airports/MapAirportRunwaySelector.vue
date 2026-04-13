@@ -7,7 +7,7 @@
             In this block you can select active runway config<br> for VatGlasses sectors
         </ui-notification>
         <div
-            v-if="runways?.potential.length"
+            v-if="airport?.vgRunways?.length"
             class="runways"
         >
             <div
@@ -15,7 +15,7 @@
                 :key="runway.key"
                 class="runways_runway"
                 :class="{ 'runways_runway--active': runway.active }"
-                @click="setAirportActiveRunway(airport, runway.key)"
+                @click="setActiveRunway(runway.key)"
             >
                 <div
                     v-for="number in runway.runways"
@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { getAirportRunways, setAirportActiveRunway } from '~/utils/data/vatglasses-front';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
+import { runwaysState } from '~/composables/render/update/vatglasses';
 
 const props = defineProps({
     airport: {
@@ -46,15 +46,22 @@ interface Runway {
     runways: string[];
 }
 
-const runways = computed(() => getAirportRunways(props.airport));
+const dataStore = useDataStore();
+
+const airport = computed(() => dataStore.airportsList.value[props.airport]);
+
+function setActiveRunway(runway: string) {
+    runwaysState.value[props.airport] = runway;
+    triggerRef(runwaysState);
+}
 
 const getRunways = computed<Runway[]>(() => {
-    if (!runways.value) return [];
+    if (!airport.value?.vgRunways) return [];
 
-    return runways.value.potential.map(runway => {
+    return airport.value.vgRunways.map(runway => {
         return {
             key: runway,
-            active: runways.value!.active === runway,
+            active: airport.value.activeRunway === runway,
             runways: runway.split(',').map(x => x.trim()),
         };
     });

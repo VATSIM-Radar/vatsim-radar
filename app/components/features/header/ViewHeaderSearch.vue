@@ -307,7 +307,9 @@ watch([search, opened], async ([val]) => {
         let airports: VatSpyAirports = [dataStore.vatspy.value?.data.keyAirports.realIcao[val], dataStore.vatspy.value?.data.keyAirports.realIata[val]].filter(x => !!x) as VatSpyAirports;
 
         if (!airports.length) {
-            airports = dataStore.vatspy.value?.data.airports.filter(x => !x.isPseudo && (x.icao.includes(val) || x.iata?.includes(val) || x.name.toUpperCase().includes(val))) ?? [];
+            airports = Object.values(dataStore.airportsList.value)
+                .filter(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao]?.name.toUpperCase().includes(val))
+                .map(x => dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao]) ?? [];
         }
         else exactAirportsMatch.value = true;
 
@@ -323,23 +325,18 @@ watch([search, opened], async ([val]) => {
     }
 
     if (canSearchBy('atc')) {
-        let atc: SearchResults['atc'] = dataStore.vatsim.data.firs.value.filter(x => x.name?.toUpperCase().includes(val) ||
-            x.icao?.includes(val) ||
-            x.firs.some(x => x.icao.includes(val) || x.callsign?.includes(val)) ||
-            x.controller.callsign.includes(val) ||
-            x.controller.name.toUpperCase().includes(val) ||
-            x.controller.frequency.includes(val) ||
-            x.controller.cid.toString().includes(val) ||
-            x.controller.text_atis?.includes(val)).map(x => x.controller);
+        let atc: SearchResults['atc'] = dataStore.vatsim.data.controllers.value.filter(x => x.callsign.includes(val) ||
+            x.name.toUpperCase().includes(val) ||
+            x.frequency.includes(val) ||
+            x.cid.toString().includes(val) ||
+            x.text_atis?.includes(val));
 
         atc = atc.concat(
-            dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao.includes(val) ||
-                x.airport?.iata?.includes(val) ||
-                x.atc.callsign.includes(val) ||
-                x.atc.name.toUpperCase().includes(val) ||
-                x.atc.frequency.includes(val) ||
-                x.atc.cid.toString().includes(val) ||
-                x.atc.text_atis?.includes(val)).map(x => x.atc),
+            dataStore.vatsim.data.atis.value.filter(x => x.callsign.includes(val) ||
+                x.name.toUpperCase().includes(val) ||
+                x.frequency.includes(val) ||
+                x.cid.toString().includes(val) ||
+                x.text_atis?.includes(val)),
         );
 
         if (atc.length) results.atc = atc;

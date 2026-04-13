@@ -1,6 +1,7 @@
 import { updateVATGlasses } from '~/composables/render/update/vatglasses';
 import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { updateAircraft } from '~/composables/render/update/aircraft';
+import { updateControllers } from '~/composables/render/update/atc';
 
 export interface DataUpdateContext { airports: Record<string, DataAirport>; sectors: Record<string, DataSector>; atcAdded: Set<string> | null; airportsAdded: Set<string> }
 
@@ -25,4 +26,5 @@ export async function updateControllersRender() {
     updateAircraft(context);
 
     await updateVATGlasses(context);
+    await updateControllers(context);
 }

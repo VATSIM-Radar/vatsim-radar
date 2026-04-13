@@ -101,8 +101,7 @@ const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures
 
 const airports = computed(() => {
     return mapStore.overlays.filter(x => x.type === 'airport').map(airport => {
-        // TODO: rework to keyval
-        const vatAirport = dataStore.vatsim.data.airports.value.find(x => 'icao' in airport.data && x.icao === airport.data.icao);
+        const vatAirport = 'icao' in airport.data && dataStore.airportsList.value[airport.data.icao];
         if (vatAirport) {
             return {
                 icao: 'icao' in airport.data && airport.data.icao,

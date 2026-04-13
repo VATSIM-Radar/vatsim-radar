@@ -24,7 +24,7 @@ import { useStore } from '~/store';
 import {
     isVatGlassesActive,
 } from '~/utils/data/vatglasses';
-import type { VatglassesAirportRunways, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
+import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/settings/filter';
 import { useGeographic } from 'ol/proj.js';
 import { useRadarError } from '~/composables/errors';
@@ -48,7 +48,7 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Feature, MultiPolygon } from 'geojson';
-import type {AirportTraconFeature} from "~/composables/render/airports";
+import type { AirportListItem } from '~/composables/render/airports';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -112,7 +112,8 @@ const data: VatsimData = {
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
-    parsedAirports: shallowRef<AirportsList[]>([]),
+    parsedAirports: shallowRef<Record<string, AirportListItem>>({}),
+    parsedAirportsList: computed(() => Object.values(vatsim.parsedAirports.value)),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
         if (!data.pilots.value.length) return null;
@@ -180,11 +181,11 @@ export interface DataAirport {
         };
     };
     atc: VatsimShortenedController[];
-    features?: AirportTraconFeature[];
 }
 
 export interface DataSector {
     fir: VatSpyData['firs'][number];
+    uir?: VatSpyData['uirs'][number];
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
     atc: VatsimShortenedController[];
 }
@@ -201,7 +202,8 @@ export interface UseDataStore {
     vatsim: {
         data: VatsimData;
 
-        parsedAirports: ShallowRef<AirportsList[]>;
+        parsedAirports: ShallowRef<Record<string, AirportListItem>>;
+        parsedAirportsList: Ref<AirportListItem[]>;
 
         tracks: ShallowRef<VatsimNattrakClient[]>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;

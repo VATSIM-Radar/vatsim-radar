@@ -1,4 +1,4 @@
-import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
+import type { VatSpyData } from '~/types/data/vatspy';
 import type {
     VatsimData,
     VatsimDivision,
@@ -6,10 +6,9 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision,
-    VatsimBooking, VatsimNattrak, VatsimTransceiverFrequency, VatsimAchievementList, VatsimShortenedController,
+    VatsimBooking, VatsimNattrak, VatsimTransceiverFrequency, VatsimAchievementList,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
-import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/server/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';

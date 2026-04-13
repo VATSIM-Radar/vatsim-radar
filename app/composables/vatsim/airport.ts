@@ -30,10 +30,8 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
         if (injected) return toValue(injected);
         const dataStore = useDataStore();
 
-        const list = sortControllersByPosition([
-            ...dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao === data.value.icao).map(x => x.atc),
-            ...dataStore.vatsim.data.firs.value.filter(x => data.value.airport?.center.includes(x.controller.callsign)).map(x => x.controller),
-        ]);
+        // TODO: CTR controllers search
+        const list = sortControllersByPosition(dataStore.airportsList.value[data.value.icao].atc);
 
         if (!list.length && data.value.airport?.vatInfo?.ctafFreq) {
             return [
@@ -106,7 +104,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
 
     const aircraft = computed<AirportPopupPilotList | null>(() => {
         const data = toValue(_data);
-        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data?.icao);
+        const vatAirport = dataStore.airportsList.value[data?.icao ?? ''];
         if (!vatAirport || !data) return null;
 
         const airport = getAirportByIcao(data.icao);

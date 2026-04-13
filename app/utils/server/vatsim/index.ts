@@ -1,14 +1,11 @@
 import { ofetch } from 'ofetch';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
-import type { SimAwareData } from '~/utils/server/storage';
 import { radarStorage } from '~/utils/server/storage';
-import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/server/h3';
-import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/server';
-import type { PartialRecord } from '~/types';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -71,67 +68,6 @@ export async function vatsimGetUser(token: string) {
     }
 
     return result;
-}
-
-export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: simawareData, isApp }: {
-    callsign: string; isApp: boolean; vatspy: VatSpyData; simaware: SimAwareData;
-}): VatSpyAirport | SimAwareData['features'][0] {
-    const splittedName = callsign.replaceAll('__', '_').split('_').slice(0, 2);
-    const regularName = splittedName.join('_');
-    const callsignAirport = splittedName[0];
-    const secondName = splittedName[1];
-
-    const foundAirports: PartialRecord<'surely' | 'partial' | 'maybe', SimAwareData['features'][0]> = {};
-
-    for (const feature of simawareData?.features ?? []) {
-        const suffix = getTraconSuffix(feature);
-        if (!isApp && !suffix) continue;
-        if (suffix && !callsign.endsWith(suffix)) continue;
-        const prefixes = getTraconPrefixes(feature);
-
-        if (!foundAirports.surely && prefixes.some(x => x === regularName)) {
-            foundAirports.surely = feature;
-            break;
-        }
-
-        if (!foundAirports.partial && secondName) {
-            for (let i = 0; i < secondName.length; i++) {
-                const prefix = prefixes.some(x => x === regularName.substring(0, regularName.length - 1 - i));
-                if (prefix) {
-                    foundAirports.partial = feature;
-                    break;
-                }
-            }
-        }
-
-        if (!foundAirports.maybe && prefixes.some(x => x === callsignAirport)) foundAirports.maybe = feature;
-    }
-
-    const simaware = foundAirports.surely ?? foundAirports.partial ?? foundAirports.maybe;
-
-    let vatspy = vatspyData?.keyAirports.realIata[callsignAirport] || vatspyData?.keyAirports.iata[callsignAirport];
-    const icao = vatspyData?.keyAirports.realIcao[callsignAirport] || vatspyData?.keyAirports.icao[callsignAirport];
-    let isIata = true;
-    if (!vatspy) {
-        isIata = false;
-        vatspy = icao;
-    }
-
-    if (vatspy && simaware) {
-        vatspy = {
-            ...vatspy,
-            isSimAware: true,
-            isTWR: !isApp,
-        };
-    }
-    else if (vatspy && isIata && icao && icao.iata !== vatspy.iata) {
-        vatspy = {
-            ...vatspy,
-            iata: icao.iata,
-        };
-    }
-
-    return vatspy ?? simaware;
 }
 
 export interface VatsimAirportInfo {

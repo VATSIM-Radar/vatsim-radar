@@ -15,7 +15,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     const validateAirport = await validateAirportIcao(event, true);
     if (!validateAirport) return;
 
-    const { icao, airport } = validateAirport;
+    const { icao } = validateAirport;
 
     const weatherOnly = getQuery(event).requestedDataType === '1';
     const controllersOnly = getQuery(event).requestedDataType === '2';

@@ -45,7 +45,7 @@ Please do not use vim to develop this project.
 
 ## Worth knowing
 
-Hot Reload is not working for data-worker and vatglasses-worker. 
+Hot Reload is not working for data-worker and navigraph.
 
 Making this simple: if you make changes for those files, you would have to restart containers that belong to them for changes to apply.
 

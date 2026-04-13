@@ -13,7 +13,7 @@ import type {
 } from '~/utils/server/storage';
 import type { UseDataStore } from '~/composables/render/storage';
 
-import { getVGData, isVatGlassesActive } from '~/utils/data/vatglasses';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
@@ -232,8 +232,7 @@ export function checkForVG() {
                 location.reload();
             });
 
-            const data = await getVGData();
-
+            const data = vatglasses.data;
             if (!data) throw new Error('VATGlasses data is unavailable');
 
             await clientDB.vatglasses.clear();

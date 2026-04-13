@@ -116,10 +116,6 @@ jobs:
         run: kubectl rollout restart deployment app-next
       - name: Validate App
         run: kubectl rollout status deployment app-next
-      - name: Apply VG
-        run: kubectl rollout restart deployment vatglasses-next
-      - name: Validate VG
-        run: kubectl rollout status deployment vatglasses-next
 
   deploy-db-redis:
     runs-on: ubuntu-latest

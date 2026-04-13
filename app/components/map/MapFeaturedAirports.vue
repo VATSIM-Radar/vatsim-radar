@@ -20,7 +20,7 @@
         <div class="__info-sections featured-airports_list">
             <navigation-featured-airport
                 v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
-                :key="airport.airport.icao + index"
+                :key="airport.icao + index"
                 :airport="airport"
                 :position="index + 1"
             />
@@ -59,12 +59,14 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const popularAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value.filter(x => !x.airport.isPseudo && x.aircraftCids.length).slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
+    return dataStore.vatsim.parsedAirportsList.value.filter(x => x.airport && !x.airport.isPseudo && x.aircraftCount).slice().sort((a, b) => b.aircraftCount - a.aircraftCount).slice(0, store.featuredVisibleOnly ? 10 : 25);
 });
 
 const quietAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value
-        .filter(x => !x.airport.isPseudo && (x.aircraftCids.length || x.localAtc.some(x => x.isATIS)) && (x.arrAtc.length || x.localAtc.some(x => !x.isATIS)))
+    const facilities = useFacilitiesIds();
+
+    return dataStore.vatsim.parsedAirportsList.value
+        .filter(x => x.airport && !x.airport.isPseudo && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
         .slice()
         .sort((a, b) => {
             const aArrivals = (a.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
@@ -75,7 +77,7 @@ const quietAirports = computed(() => {
 
             const diff = aSum - bSum;
 
-            if (diff === 0) {
+            if (diff === 0 && a.airport && b.airport) {
                 const aCoord = [a.airport.lon, a.airport.lat];
                 const bCoord = [b.airport.lon, b.airport.lat];
 

@@ -285,7 +285,6 @@ import VatsimControllersList from '~/components/features/vatsim/controllers/Vats
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
-import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
@@ -333,12 +332,12 @@ const airportInfo = computed(() => {
 });
 const isOffline = ref(false);
 
-const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.departure ?? ''];
+const depAirport = computed<AirportListItem | null>(() => {
+    return dataStore.vatsim.parsedAirports.value[pilot.value.flight_plan?.departure ?? ''];
 });
 
-const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.arrival ?? ''];
+const arrAirport = computed<AirportListItem | null>(() => {
+    return dataStore.vatsim.parsedAirports.value[pilot.value.flight_plan?.arrival ?? ''];
 });
 
 const showOnMap = () => {
@@ -346,10 +345,10 @@ const showOnMap = () => {
 };
 
 const viewRoute = () => {
-    if (!depAirport.value || !arrAirport.value) return;
+    if (!depAirport.value?.airport || !arrAirport.value?.airport) return;
     const extent = boundingExtent([
-        [depAirport.value.lon, depAirport.value.lat],
-        [arrAirport.value.lon, arrAirport.value.lat],
+        [depAirport.value.airport.lon, depAirport.value.airport.lat],
+        [arrAirport.value.airport.lon, arrAirport.value.airport.lat],
     ]);
 
     props.overlay.data.tracked = false;
@@ -384,8 +383,8 @@ const atcSections = computed<InfoPopupSection[]>(() => {
     return list;
 });
 
-const depRunways = computed(() => depAirport.value ? getAirportRunways(depAirport.value.icao) : null);
-const arrRunways = computed(() => arrAirport.value ? getAirportRunways(arrAirport.value.icao) : null);
+const depRunways = computed(() => depAirport.value?.dataAirport?.vgRunways ?? null);
+const arrRunways = computed(() => arrAirport.value?.dataAirport?.vgRunways ?? null);
 
 const depBars = computed(() => {
     return depAirport.value && dataStore.vatsim.data.bars.value[depAirport.value.icao];
@@ -480,8 +479,9 @@ const facilities = useFacilitiesIds();
 const getAtcList = computed<AtcPopupSection[]>(() => {
     const sections: AtcPopupSection[] = [];
 
-    const center = pilot.value.firs
-        ? dataStore.vatsim.data.firs.value.filter(x => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
+    // TODO: rework to real time detection
+    const center = pilot.value
+        ? []
         : null;
 
     if (center?.length) {
@@ -496,14 +496,14 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
         });
     }
 
-    const controls = pilot.value.airport ? dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao === pilot.value.airport) : null;
+    const controls = pilot.value.airport ? dataStore.airportsList.value[pilot.value.airport].atc : null;
 
     if (controls?.length) {
-        const atis = controls.filter(x => x.isATIS).map(x => x.atc);
-        let ground = controls.filter(x => !x.isATIS && x.atc.facility !== facilities.APP).map(x => x.atc);
+        const atis = controls.filter(x => x.isATIS);
+        let ground = controls.filter(x => !x.isATIS && x.facility !== facilities.APP);
         ground = sortControllersByPosition(ground);
 
-        const app = controls.filter(x => !x.isATIS && x.atc.facility === facilities.APP).map(x => x.atc);
+        const app = controls.filter(x => !x.isATIS && x.facility === facilities.APP);
 
         if (atis.length) {
             sections.push({

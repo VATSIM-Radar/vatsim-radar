@@ -220,7 +220,6 @@ import {
     fetchAircraftIcon,
     getAircraftDistance,
     getPilotStatus,
-    isPilotOnGround,
     reColorSvg,
 } from '~/composables/vatsim/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -306,7 +305,7 @@ const getDistAndTime = computed(() => {
         let date = datetime.value.format(goTime).toUpperCase();
         if (store.user?.settings.timeFormat === '12h') date += ' ';
 
-        if (isPilotOnGround(props.pilot)) return `${ dist } NM`;
+        if (props.pilot?.isOnGround) return `${ dist } NM`;
         return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
     }
     catch (e) {

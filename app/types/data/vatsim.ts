@@ -44,7 +44,6 @@ export interface VatsimExtendedPilot extends VatsimPilot {
     toGoDist?: number;
     toGoPercent?: number;
     toGoTime?: number;
-    firs?: string[];
     airport?: string;
     stepclimbs?: {
         waypoint: string;
@@ -94,7 +93,6 @@ export interface VatsimController {
     duplicated?: boolean;
     duplicatedBy?: string;
     frequencies?: string[];
-    isTWR?: boolean;
 }
 
 export interface VatsimATIS extends VatsimController {

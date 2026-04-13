@@ -9,12 +9,9 @@ const redisSubscriber = getRedis();
 export default defineNitroPlugin(async app => {
     setupRedisDataFetch();
 
-    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.subscribe('vatglassesDynamic');
     redisSubscriber.on('message', async (channel, message) => {
-        if (channel === 'vatglassesActive') {
-            radarStorage.vatglasses.activeData = message;
-        }
-        else if (channel === 'vatglassesDynamic') {
+        if (channel === 'vatglassesDynamic') {
             radarStorage.vatglasses.dynamicData = JSON.parse(message);
         }
     });

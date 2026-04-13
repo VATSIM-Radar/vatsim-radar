@@ -63,7 +63,6 @@ export interface FeatureAirportApproachTextProperties extends FeatureAirportAppr
 
 export interface FeatureAirportFacility {
     facility: number;
-    booked: boolean;
     atc: VatsimShortenedController[];
 }
 

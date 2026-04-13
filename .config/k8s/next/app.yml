@@ -103,42 +103,6 @@ spec:
   selector:
     app: worker-next
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: vatglasses-next
-spec:
-  progressDeadlineSeconds: 600
-  replicas: 1
-  strategy:
-    type: Recreate
-  selector:
-    matchLabels:
-      app: vatglasses-next
-  template:
-    metadata:
-      labels:
-        app: vatglasses-next
-    spec:
-      imagePullSecrets:
-        - name: ghcr-login-secret
-      nodeSelector:
-        doks.digitalocean.com/node-pool: main
-      containers:
-        - name: worker
-          image: ghcr.io/vatsim-radar/vatsim-radar/next
-          imagePullPolicy: Always
-          command: ["/radar/.config/vatglasses-worker-prod.sh"]
-          ports:
-            - containerPort: 8880
-          resources:
-            requests:
-              cpu: 600m
-              memory: 300Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
----
 apiVersion: v1
 kind: Service
 metadata:

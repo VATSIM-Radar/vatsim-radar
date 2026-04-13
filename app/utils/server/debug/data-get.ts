@@ -62,7 +62,7 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
     geojson.features.push(...toPush);
 
     for (const feature of dataToCompare.features) {
-        const previousFeature = geojson.features.find(x => type === 'simaware' ? x.properties!.id === feature.properties!.id && x.properties!.name === feature.properties!.name : x.id === feature.id);
+        const previousFeature = geojson.features.find(x => 'name' in feature.properties ? x.properties!.id === feature.properties!.id && x.properties!.name === feature.properties!.name : x.id === feature.id);
         if (!previousFeature) {
             geojson.features.push({
                 ...feature,

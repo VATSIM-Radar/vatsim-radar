@@ -110,8 +110,6 @@ export async function updateVatsimExtendedPilots() {
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
         origPilot: VatsimShortenedAircraft;
-
-        controllers?: Set<string>;
     }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({
         pilot: structuredClone(pilot),
         origPilot: pilot,
@@ -120,7 +118,6 @@ export async function updateVatsimExtendedPilots() {
     for (const {
         pilot: extendedPilot,
         origPilot,
-        controllers,
     } of pilotsToProcess) {
         let totalDist: number | null = null;
 
@@ -196,10 +193,6 @@ export async function updateVatsimExtendedPilots() {
             else if (!extendedPilot.isOnGround && !extendedPilot.status && totalDist && extendedPilot.toGoDist) {
                 extendedPilot.status = totalDist / 2 < extendedPilot.toGoDist ? 'climbing' : 'descending';
             }
-        }
-
-        if (controllers?.size) {
-            extendedPilot.firs = [...controllers];
         }
 
         if (!extendedPilot.status) {

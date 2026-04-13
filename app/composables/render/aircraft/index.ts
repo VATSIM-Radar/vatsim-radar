@@ -2,7 +2,7 @@ import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorImageLayer from 'ol/layer/VectorImage';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { ownFlight } from '~/composables/vatsim/pilots';
+import { allPilotsOnGround, ownFlight } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -15,8 +15,8 @@ import { aircraftIcons } from '~/utils/icons';
 import { createDefaultStyle } from 'ol/style/Style';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
-import type { MapAirport } from '~/types/map';
 import { aircraftState } from './state';
+import type { DataAirport } from '~/composables/render/storage';
 
 export interface TrackData { show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }
 
@@ -55,7 +55,7 @@ function getAircraftScale(pilot: VatsimShortenedAircraft | undefined, coordinate
     return +(baseScale * getZoomScaleMultiplier({ zoom: useMapStore().zoom, baseScale, iconPixelWidth: iconWidth, latitude: lat, isPilotOnGround })).toFixed(3);
 }
 
-function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, isOnGround }: AircraftRenderState, airportsMap: Record<string, MapAirport>): MapAircraftStatus {
+function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, isOnGround }: AircraftRenderState, airportsMap: Record<string, DataAirport>): MapAircraftStatus {
     const store = useStore();
 
     if (selfFlight || store.config.allAircraftGreen) return 'green';
@@ -105,18 +105,9 @@ export async function setMapAircraft(settings: {
 
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
 
-    const allPilotsOnGround = new Set<number>();
-    for (const airport of dataStore.vatsim.data.airports.value) {
-        const arr = airport.aircraft.groundArr;
-        if (arr) for (const cid of arr) allPilotsOnGround.add(cid);
-        const dep = airport.aircraft.groundDep;
-        if (dep) for (const cid of dep) allPilotsOnGround.add(cid);
-    }
-
     const linesFeatures = linesSource.getFeatures();
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
     const keyedShownPilots = new Set(shownPilots.map(x => x.cid));
-    const airportsMap = Object.fromEntries(useDataStore().vatsim.data.airports.value.map(x => [x.icao, x]));
 
     for (const cid of Object.keys(dataStore.navigraphWaypoints.value)) {
         if (!keyedShownPilots.has(+cid) && +cid !== 1) {
@@ -156,7 +147,7 @@ export async function setMapAircraft(settings: {
 
         const pilot = dataStore.vatsim.data.keyedPilots.value[aircraft.cid] as VatsimShortenedAircraft | undefined;
         const overlay = overlays[aircraft.cid];
-        const isOnGround = allPilotsOnGround.has(aircraft.cid);
+        const isOnGround = allPilotsOnGround.value.has(aircraft.cid);
         const scale = getAircraftScale(pilot, coordinates, aircraft.icon);
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
@@ -174,7 +165,7 @@ export async function setMapAircraft(settings: {
             coordinates,
         };
 
-        const status = getAircraftStatus(renderState, airportsMap);
+        const status = getAircraftStatus(renderState, dataStore.airportsList.value);
 
         renderState.status = status;
 

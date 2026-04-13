@@ -23,6 +23,7 @@ export default defineEventHandler(async event => {
                     realIcao: {},
                     realIata: {},
                 },
+                features: radarStorage.vatspy.data.features,
             },
         };
     }

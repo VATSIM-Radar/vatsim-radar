@@ -91,8 +91,7 @@ mapStore.$reset();
 
 const list = computed(() => {
     return [
-        ...dataStore.vatsim.data.locals.value.map(x => x.atc).filter(x => !x.atis_code && !x.duplicated),
-        ...dataStore.vatsim.data.firs.value.map(x => x.controller).filter(x => !x.duplicated),
+        ...dataStore.vatsim.data.controllers.value.filter(x => !x.duplicated),
         ...dataStore.vatsim.data.general.value?.sups ?? [],
         ...dataStore.vatsim.data.general.value?.adm ?? [],
     ];

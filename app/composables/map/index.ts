@@ -188,12 +188,6 @@ export const useOnlineCounters = () => computed(() => {
         });
     }
 
-    const [atc, atis] = dataStore.vatsim.data.locals.value.reduce((acc, atc) => {
-        if (atc.isATIS) acc[0]++;
-        else acc[1]++;
-        return acc;
-    }, [0, 0]);
-
     const updateTimestamp = dataStore.vatsim.updateTime.value;
 
     const date = updateTimestamp ? new Date(updateTimestamp) : null;
@@ -201,9 +195,8 @@ export const useOnlineCounters = () => computed(() => {
     return {
         inRadar: dataStore.vatsim.data.general?.value?.onlineWSUsers,
         total: dataStore.vatsim.data.general.value?.unique_users,
-        firs: dataStore.vatsim.data.firs.value.length,
-        atc,
-        atis,
+        controllers: dataStore.vatsim.data.controllers.value.filter(x => !x.duplicated).length,
+        atis: dataStore.vatsim.data.atis.value.length,
         pilots: dataStore.vatsim.data.pilots.value.length,
         sups: dataStore.vatsim.data.general.value?.sups?.length,
         adm: dataStore.vatsim.data.general.value?.adm?.length,

@@ -10,29 +10,8 @@ import type { VatSpyAirport } from '~/types/data/vatspy';
 import type { Units } from 'ol/control/ScaleLine.js';
 import type { DataAirport } from '~/composables/render/storage';
 
-/**
- * @deprecated
- */
-export interface MapAirport {
-    icao: string;
-    iata?: string;
-    isPseudo: boolean;
-    isSimAware: boolean;
-    aircraft: Partial<{
-        groundDep: number[];
-        groundArr: number[];
-        prefiles: number[];
-        departures: number[];
-        arrivals: number[];
-    }>;
-}
-
-export interface MapAirportVatspy extends MapAirport {
-    data: VatSpyAirport;
-}
-
 export interface MapAirportRender {
-    airport: MapAirportVatspy;
+    airport: DataAirport;
     visible: boolean;
 }
 

@@ -173,7 +173,7 @@ const counters = computed(() => ([
     ['Connections', onlineCounters.value.total],
     ['In VATSIM Radar', onlineCounters.value.inRadar],
     ['Pilots', onlineCounters.value.pilots],
-    ['ATC', onlineCounters.value.firs + onlineCounters.value.atc],
+    ['ATC', onlineCounters.value.controllers],
     ['Supervisors', onlineCounters.value.sups],
     ['Admins', onlineCounters.value.adm],
     ['Last updated', onlineCounters.value.lastUpdated],

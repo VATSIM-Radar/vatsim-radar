@@ -95,7 +95,7 @@
                             <span>{{ getCounts.pilots }}</span> pilots
                         </div>
                         <div class="map-footer__connections_info_item">
-                            <span>{{ getCounts.firs + getCounts.atc }}</span> ATC
+                            <span>{{ getCounts.controllers }}</span> ATC
                         </div>
                         <div
                             v-if="getCounts.sups"

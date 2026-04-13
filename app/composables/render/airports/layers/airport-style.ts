@@ -192,7 +192,9 @@ export function setAirportStyle(layer: VectorLayer) {
                 const width = 14;
                 const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * (width - 2);
 
-                const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(mapStore.compactAirportView);
+                const booked = properties.facility.atc.every(x => x.isBooking);
+
+                const styleCacheKey = String(properties.index) + String(letter) + String(booked) + String(properties.totalCount) + String(properties.selected) + String(mapStore.compactAirportView);
 
                 if (!styleCache[styleCacheKey]) {
                     if (mapStore.compactAirportView) {
@@ -204,7 +206,7 @@ export function setAirportStyle(layer: VectorLayer) {
                                 offsetY: 10,
                                 padding: [2, 4, 0, 5],
                                 fill: getCachedFill('transparent'),
-                                backgroundFill: getCachedFill(`rgba(${ getFacilityPositionColor(properties.facility.facility, true).join(',') }, ${ properties.facility.booked ? 0.5 : 1 })`),
+                                backgroundFill: getCachedFill(`rgba(${ getFacilityPositionColor(properties.facility.facility, true).join(',') }, ${ booked ? 0.5 : 1 })`),
                                 declutterMode: 'none',
                             }),
                             zIndex: properties.index + (properties.selected ? 5 : 0) + 100,
@@ -213,7 +215,7 @@ export function setAirportStyle(layer: VectorLayer) {
                     else {
                         styleCache[styleCacheKey] = new Style({
                             image: new Icon({
-                                src: `/icons/atc/${ letter }${ properties.facility.booked ? '-booked' : '' }.png`,
+                                src: `/icons/atc/${ letter }${ booked ? '-booked' : '' }.png`,
                                 width: width + (properties.selected ? 2 : 0),
                                 displacement: [offsetX, -width],
                                 declutterMode: 'none',

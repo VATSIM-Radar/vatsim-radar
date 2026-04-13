@@ -65,7 +65,6 @@
 import UiTable from '~/components/ui/data/UiTable.vue';
 import type { TableSort } from '~/components/ui/data/UiTable.vue';
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
-import type { MapAirport } from '~/types/map';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import { provideAirport } from '~/composables/vatsim/airport';
@@ -79,14 +78,14 @@ const mapStore = useMapStore();
 
 mapStore.$reset();
 
-type Airport = MapAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; count: number };
+type Airport = DataAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; count: number };
 
 const sort = ref<TableSort[]>([]);
 const overlayData = computed(() => mapStore.overlays.find(x => x.type === 'airport')?.data);
 provideAirport(overlayData);
 
 const airports = computed<Airport[]>(() => {
-    return dataStore.vatsim.data.airports.value.map(x => ({
+    return Object.values(dataStore.airportsList.value).map(x => ({
         ...x,
         ...dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao],
         departed: x.aircraft.departures?.length ?? 0,
@@ -94,7 +93,7 @@ const airports = computed<Airport[]>(() => {
         departing: x.aircraft.groundDep?.length ?? 0,
         arrived: x.aircraft.groundArr?.length ?? 0,
         count: Object.values(x.aircraft).reduce((sum, a) => sum + a.length, 0),
-    })).filter(x => x.name).sort((a, b) => b.count - a.count) as unknown as Airport[];
+    })).sort((a, b) => b.count - a.count) as unknown as Airport[];
 });
 </script>
 

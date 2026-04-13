@@ -4,9 +4,9 @@ import type { VatSpyAirport, VatSpyData, VatSpyDataProperties } from '~/types/da
 import type { Feature, MultiPolygon } from 'geojson';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
-import type { DataAirport } from '~/composables/render/storage';
+import type { DataAirport, DataSector } from '~/composables/render/storage';
 
-const callsignSplitRegex = /_+/;
+export const callsignSplitRegex = /_+/;
 const vatspySplitRegex = /[-_]/;
 
 let uirsMap: Record<string, VatSpyData['uirs'][0]> | undefined;
@@ -52,13 +52,14 @@ async function findFirsForCallsign(callsign: string, prefix?: string) {
     return filterFirsForList(firsMapByIcao[prefix || callsign], callsign);
 }
 
-function addSector(context: DataUpdateContext, sector: FirFindResult, controller: VatsimShortenedController) {
+function addSector(context: DataUpdateContext, sector: FirFindResult, controller: VatsimShortenedController, uir?: DataSector['uir']) {
     const sectorKey = sector.fir.callsign ? `${ sector.fir.callsign }-${ sector.fir.icao }` : sector.fir.icao;
     const existingSector = context.sectors[sectorKey];
     if (existingSector) existingSector.atc.push(controller);
     else {
         context.sectors[sectorKey] = {
             fir: sector.fir,
+            uir,
             feature: sector.feature,
             atc: [controller],
         };
@@ -105,7 +106,19 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    const bookings = (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
+    let bookings = (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
+
+    if (!store.bookingOverride) {
+        const now = new Date();
+        const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
+
+        bookings = bookings.filter(x => {
+            const start = new Date(x.start);
+            const end = new Date(x.end);
+
+            return !(start > timeInHours || now > end);
+        });
+    }
 
     const controllers = [
         ...(store.bookingOverride ? [] : dataStore.vatsim.data.controllers.value),
@@ -127,7 +140,7 @@ export async function updateControllers(context: DataUpdateContext) {
         const prefix = split[0];
         const middleName = split.length === 3 ? split.slice(0, 2) : prefix;
 
-        if (!isATIS && controller.facility === facilities.CTR || controller.facility === facilities.FSS) {
+        if (!isATIS && (controller.facility === facilities.CTR || controller.facility === facilities.FSS)) {
             if (!uirsMap) continue;
 
             const uir = uirsMap[prefix];
@@ -138,7 +151,7 @@ export async function updateControllers(context: DataUpdateContext) {
                     const firs = await findFirsForCallsign(fir);
                     foundFir ||= !!firs.length;
 
-                    firs.forEach(x => addSector(context, x, controller));
+                    firs.forEach(x => addSector(context, x, controller, uir));
                 }
 
                 if (foundFir) continue;
@@ -247,19 +260,6 @@ export async function updateControllers(context: DataUpdateContext) {
             if (!dataAirport) continue;
 
             dataAirport.atc.push({ ...controller, isATIS });
-
-            if (feature) {
-                dataAirport.features ??= [];
-                const existingFeature = dataAirport.features.find(x => x.id === feature?.properties.id);
-                if (existingFeature) existingFeature.controllers.push(controller);
-                else {
-                    dataAirport.features.push({
-                        id: feature.properties.id,
-                        controllers: [controller],
-                        traconFeature: feature,
-                    });
-                }
-            }
         }
     }
 }

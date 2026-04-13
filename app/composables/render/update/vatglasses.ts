@@ -166,11 +166,12 @@ function convertSectorToGeoJson(country: VatglassesData[string], sector: Vatglas
     return false;
 }
 
+export const runwaysState = useStorageLocal<Record<string, string>>('vg-runways', {});
+
 export async function updateVATGlasses(context: DataUpdateContext) {
     const { airports } = context;
     const { default: combinedWorker } = await import('~/composables/render/combination-worker.ts?worker');
     worker ??= new combinedWorker();
-    const runwaysState = useStorageLocal<Record<string, string>>('vg-runways', {});
 
     // Update positions and airspaces
 

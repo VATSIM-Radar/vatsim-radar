@@ -109,7 +109,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
         });
     }
 
-    const airportsMap = Object.fromEntries(airports.map(airport => [airport.airport.icao, airport.aircraft]));
+    const airportsMap = Object.fromEntries(airports.map(airport => [airport.icao, airport.aircraft]));
 
     for (const icao in navigraphData) {
         const gates = navigraphData[icao]?.gates;
