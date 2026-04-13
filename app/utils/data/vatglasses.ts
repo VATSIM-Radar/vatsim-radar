@@ -1,6 +1,6 @@
 import type { Feature as TurfFeature, Polygon as TurfPolygon } from 'geojson';
 import type {
-    VatglassesAirspace, VatglassesAPIData, VatglassesData,
+    VatglassesAirspace,
 } from '~/utils/server/storage.js';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
