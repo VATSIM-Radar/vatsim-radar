@@ -486,20 +486,25 @@ const restoreOverlays = async () => {
     await checkAndAddOwnAircraft().catch(useRadarError);
 
     for (const overlay of localOverlays) {
-        const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
-        if (existingOverlay) return;
+        try {
+            const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
+            if (existingOverlay) return;
 
-        if (overlay.type === 'pilot') {
-            await mapStore.addPilotOverlay(overlay.key, undefined, overlay);
+            if (overlay.type === 'pilot') {
+                await mapStore.addPilotOverlay(overlay.key, undefined, overlay);
+            }
+            else if (overlay.type === 'prefile') {
+                await mapStore.addPrefileOverlay(overlay.key, overlay);
+            }
+            else if (overlay.type === 'atc') {
+                await mapStore.addAtcOverlay(overlay.key, overlay);
+            }
+            else if (overlay.type === 'airport') {
+                await mapStore.addAirportOverlay(overlay.key, undefined, overlay);
+            }
         }
-        else if (overlay.type === 'prefile') {
-            await mapStore.addPrefileOverlay(overlay.key, overlay);
-        }
-        else if (overlay.type === 'atc') {
-            await mapStore.addAtcOverlay(overlay.key, overlay);
-        }
-        else if (overlay.type === 'airport') {
-            await mapStore.addAirportOverlay(overlay.key, undefined, overlay);
+        catch (e) {
+            console.error(e);
         }
     }
 
@@ -564,19 +569,24 @@ const restoreOverlays = async () => {
 
             if (!type || !key) continue;
 
-            switch (type) {
-                case 'pilot':
-                    await mapStore.addPilotOverlay(key, undefined, { sticky, collapsed });
-                    break;
-                case 'prefile':
-                    await mapStore.addPrefileOverlay(key, { sticky, collapsed });
-                    break;
-                case 'airport':
-                    await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed });
-                    break;
-                case 'atc':
-                    await mapStore.addAtcOverlay(key, { sticky, collapsed });
-                    break;
+            try {
+                switch (type) {
+                    case 'pilot':
+                        await mapStore.addPilotOverlay(key, undefined, { sticky, collapsed });
+                        break;
+                    case 'prefile':
+                        await mapStore.addPrefileOverlay(key, { sticky, collapsed });
+                        break;
+                    case 'airport':
+                        await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed });
+                        break;
+                    case 'atc':
+                        await mapStore.addAtcOverlay(key, { sticky, collapsed });
+                        break;
+                }
+            }
+            catch (e) {
+                console.error(e);
             }
         }
     }
@@ -631,9 +641,23 @@ watch([isMobile, popups], () => {
     popupsHeight.value = popups.value?.clientHeight ?? 0;
 });
 
+function saveOverlays() {
+    if (!restoredOverlays.value) return;
+    localStorage.setItem('overlays', JSON.stringify(
+        mapStore.overlays.map(x => ({
+            ...x,
+            data: undefined,
+        })),
+    ));
+}
+
 watch([visibleOverlays, popupsHeight, isMobile], async () => {
     await nextTick();
-    if (!popups.value && !isMobile.value) return;
+    if (!popups.value && !isMobile.value) {
+        if (!store.config.airport) saveOverlays();
+
+        return;
+    }
     if (import.meta.server) return;
 
     if (popups.value) {
@@ -664,14 +688,7 @@ watch([visibleOverlays, popupsHeight, isMobile], async () => {
         });
     }
 
-    if (!store.config.airport) {
-        localStorage.setItem('overlays', JSON.stringify(
-            mapStore.overlays.map(x => ({
-                ...x,
-                data: undefined,
-            })),
-        ));
-    }
+    if (!store.config.airport) saveOverlays();
 }, {
     deep: true,
 });

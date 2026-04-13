@@ -9,13 +9,14 @@
     >
         <transition-group name="minified-overlays--appear">
             <ui-button
-                v-for="item in mapStore.overlays.filter(x => isMobile || x.minified)"
+                v-for="item in mapStore.overlays.filter(x => isTouch || x.minified)"
                 :key="item.id"
+                v-on-long-press="[() => isTouch && ((item.type !== 'airport' || hoveredAirport === item.data.icao) ? hoveredAirport = '' : (hoveredAirport = item.data.icao)), { delay: 200, modifiers: { prevent: true } }]"
                 size="S"
                 :type="item.minified ? 'secondary' : 'primary'"
                 @click="itemClick(item)"
                 @mouseleave="hoveredAirport = ''"
-                @mouseover="item.type === 'airport' && (hoveredAirport = item.data.icao)"
+                @mouseover="!isTouch && item.type === 'airport' && (hoveredAirport = item.data.icao)"
             >
                 <div
                     class="minified-overlays__minified-btn"
@@ -88,8 +89,10 @@ import type { StoreOverlay } from '~/store/map';
 import UiText from '~/components/ui/text/UiText.vue';
 import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
 import { getAircraftForAirport } from '~/composables/vatsim/airport';
+import { vOnLongPress } from '@vueuse/components';
 
 const isMobile = useIsMobile();
+const isTouch = useIsTouch();
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
