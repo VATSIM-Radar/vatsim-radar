@@ -331,7 +331,7 @@ export const duplicatingSettings = [
             NGF: 'NGF_APP',
             OGG: 'OGG_S_APP',
             ITO: 'ITO_APP',
-        }
+        },
     },
      /**
     * @description ZME Center and TRACONs
