@@ -127,13 +127,13 @@ model NavigraphUser {
 }
 
 model VatsimUser {
-  id                String   @id
-  accessToken       String   @db.Text
-  accessTokenExpire DateTime
-  refreshToken      String   @db.Text
+  id                String    @id
+  accessToken       String    @db.Text
+  accessTokenExpire DateTime?
+  refreshToken      String?   @db.Text
   fullName          String
-  userId            Int      @unique
-  user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+  userId            Int       @unique
+  user              User      @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
 enum NotamType {

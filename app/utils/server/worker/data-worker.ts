@@ -1,6 +1,6 @@
 import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
-import type { VatsimData } from '~/types/data/vatsim';
+import type { VatsimData, VatsimShortenedController } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
     updateVatsimExtendedPilots,
@@ -317,6 +317,8 @@ defineCronJob('* * * * * *', async () => {
         const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
         const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
 
+        const duplicatedPositions: VatsimShortenedController[] = [];
+
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
 
@@ -356,16 +358,21 @@ defineCronJob('* * * * * *', async () => {
                 for (const setting of duplicatingSettings) {
                     if (controller.text_atis?.length && setting.regex.test(controller.callsign)) {
                         match = true;
-                        const atisText = controller.text_atis.join(' ').toLowerCase();
+                        const atisText = controller.text_atis.join(' ');
 
                         for (const [areaText, targetCallsign] of Object.entries(setting.mapping)) {
-                            if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
-                                radarStorage.vatsim.data.controllers.push({
+                            const areaTextRegExp = new RegExp(`\\b${ RegExp.escape(areaText) }\\b`, 'i');
+
+                            if (areaTextRegExp.test(atisText) && controller.callsign !== targetCallsign) {
+                                const duplicated = {
                                     ...controller,
                                     callsign: targetCallsign,
                                     duplicatedBy: controller.callsign,
                                     duplicated: true,
-                                });
+                                };
+
+                                radarStorage.vatsim.data.controllers.push(duplicated);
+                                duplicatedPositions.push(duplicated);
                             }
                         }
                     }
@@ -398,6 +405,18 @@ defineCronJob('* * * * * *', async () => {
                     duplicated: true,
                     duplicatedBy: controller.callsign,
                 });
+            }
+        }
+
+        for (const controller of duplicatedPositions) {
+            if (!controller.duplicatedBy?.endsWith('CTR')) continue;
+
+            const duplicatedPosition = duplicatedPositions.some(x => x.callsign === controller.callsign && !x.duplicatedBy?.endsWith('CTR'));
+            if (duplicatedPosition) {
+                radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers
+                    .filter(x => {
+                        return x.cid !== controller.cid || x.callsign !== controller.callsign || x.duplicatedBy !== controller.duplicatedBy;
+                    });
             }
         }
 

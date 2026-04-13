@@ -63,7 +63,7 @@ export async function vatsimGetUser(token: string) {
         },
     })).data;
 
-    if (result.oauth.token_valid !== 'true') {
+    if (result?.oauth?.token_valid !== 'true') {
         throw createError({
             statusCode: 401,
             data: 'Token is not valid',

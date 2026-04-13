@@ -25,7 +25,7 @@
             </template>
             <div class="atc-popup_list">
                 <vatsim-controller-info
-                    v-for="(controller, controllerIndex) in controllers"
+                    v-for="(controller, controllerIndex) in getControllers"
                     :key="controller.cid + controllerIndex"
                     :controller="controller"
                     :show-atis="showAtis"
@@ -44,7 +44,7 @@ import VatsimControllerInfo from '~/components/features/vatsim/controllers/Vatsi
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import type { Positioning } from 'ol/Overlay';
 
-defineProps({
+const props = defineProps({
     controllers: {
         type: Array as PropType<VatsimShortenedController[]>,
         required: true,
@@ -80,7 +80,28 @@ const emit = defineEmits({
         return true;
     },
 });
+
 defineSlots<{ title?(): any; additionalTitle?(): any }>();
+
+const getControllers = computed(() => {
+    const facilities = useFacilitiesIds();
+    let ctrAllDuplicated = true;
+    let appAllDuplicated = true;
+    const realCallsigns = new Set<string>();
+
+    for (const controller of props.controllers) {
+        if (!controller.duplicated) {
+            realCallsigns.add(controller.callsign);
+        }
+    }
+
+    for (const controller of props.controllers) {
+        if (controller.facility === facilities.CTR && !controller.duplicated) ctrAllDuplicated = false;
+        if (controller.facility === facilities.APP && (!controller.duplicated || realCallsigns.has(controller.duplicatedBy ?? ''))) appAllDuplicated = false;
+    }
+
+    return props.controllers?.filter(x => !x.duplicated || (x.facility === facilities.CTR ? ctrAllDuplicated : x.facility === facilities.APP ? appAllDuplicated : true));
+});
 </script>
 
 <style scoped lang="scss">

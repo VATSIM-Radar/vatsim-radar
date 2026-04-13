@@ -14,71 +14,67 @@
                 I'm a supervisor
             </ui-toggle>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                            CID
-                        </th>
-                        <th>
-                            Callsign
-                        </th>
-                        <th>
-                            Name
-                        </th>
-                        <th>
-                            Altitude
-                        </th>
-                        <th>
-                            GS
-                        </th>
-                        <th>
-                            A/C
-                        </th>
-                        <th>
-                            Route
-                        </th>
-                        <th>
-                            Remarks
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="pilot in pilots"
-                        :key="pilot.cid"
-                    >
-                        <td>
-                            {{ pilot.cid }}
-                        </td>
-                        <td>
-                            {{ pilot.callsign }}
-                        </td>
-                        <td>
-                            {{ parseEncoding(pilot.name) }}
-                        </td>
-                        <td>
-                            {{ pilot.altitude }}
-                        </td>
-                        <td>
-                            {{ pilot.groundspeed }}
-                        </td>
-                        <td class="aircraft">
-                            {{ pilot.flight_plan?.aircraft_short?.split('/')[0] }}
-                        </td>
-                        <td>
-                            <small>
-                                {{ pilot.flight_plan?.route }}
-                            </small>
-                        </td>
-                        <td>
-                            <small>
-                                {{ pilot.flight_plan?.remarks }}
-                            </small>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <ui-toggle
+                v-if="store.user?.isSup"
+                v-model="militaryFilter"
+                align-left
+            >
+                Military filter
+            </ui-toggle>
+
+            <div
+                v-if="store.user?.isSup"
+                class="pilots_settings"
+            >
+                <ui-input-text v-model="militaryRegex">
+                    Remarks RegEx (i)
+                </ui-input-text>
+                <ui-input-number v-model="militaryGS">
+                    Ground speed is more than and not CONC
+                </ui-input-number>
+                <ui-input-text
+                    v-model="militaryAircraft"
+                    placeholder="For example, su21|mi8"
+                >
+                    Military aircraft RegEx (i)
+                </ui-input-text>
+                <ui-button @click="reset()">
+                    Reset to defaults
+                </ui-button>
+            </div>
+
+            <ui-table
+                :data="getPilots"
+                :headers="[
+                    { key: 'cid', name: 'CID', width: 80, sort: true },
+                    { key: 'callsign', name: 'Callsign', width: 100, sort: true },
+                    { key: 'name', name: 'Name', width: 120 },
+                    { key: 'altitude', name: 'Alt', width: 60, sort: true },
+                    { key: 'groundspeed', name: 'GS', width: 60, sort: true },
+                    { key: 'aircraft', name: 'A/C', width: 70 },
+                    { key: 'route', name: 'Route' },
+                    { key: 'remarks', name: 'Remarks' },
+                ]"
+                item-key="cid"
+                multiple-sort
+            >
+                <template #data-name="{ data }">
+                    {{ parseEncoding(data) }}
+                </template>
+                <template #data-aircraft="{ item }">
+                    {{ item.flight_plan?.aircraft_short?.split('/')[0] }}
+                </template>
+                <template #data-route="{ item }">
+                    <div class="route">
+                        {{ item.flight_plan?.route }}
+                    </div>
+                </template>
+                <template #data-remarks="{ item }">
+                    <div class="route">
+                        {{ item.flight_plan?.remarks }}
+                    </div>
+                </template>
+            </ui-table>
         </ui-page-container>
     </div>
 </template>
@@ -88,10 +84,71 @@ import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 const { data: pilots, refresh } = useAsyncData('sup-pilots', () => $fetch<VatsimExtendedPilot[]>('/api/data/vatsim/data/pilots'));
 
 const store = useStore();
+
+const militaryFilter = useCookie<boolean>('sup-military-filter', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+    default: () => false,
+});
+
+const militaryGSDefault = 900;
+const militaryRegexDefault = 'surveillance|intercept| cap |air force';
+const militaryAircraftDefault = '';
+
+const militaryGS = useCookie<number>('sup-military-gs', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+    default: () => militaryGSDefault,
+});
+
+const militaryRegex = useCookie<string>('sup-military-regex', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+    default: () => militaryRegexDefault,
+});
+
+const militaryAircraft = useCookie<string>('sup-military-aircraft-regex', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+    default: () => militaryAircraftDefault,
+});
+
+function reset() {
+    militaryGS.value = militaryGSDefault;
+    militaryRegex.value = militaryRegexDefault;
+    militaryAircraft.value = militaryAircraftDefault;
+}
+
+const regex = computed(() => new RegExp(militaryRegex.value, 'i'));
+const aircraftRegex = computed(() => !militaryAircraft.value ? null : new RegExp(militaryAircraft.value, 'i'));
+
+const getPilots = computed(() => {
+    if (!militaryFilter.value || !store.user?.isSup) return pilots.value ?? [];
+
+    return pilots.value?.filter(x => {
+        const isSupersonic = x.groundspeed > militaryGS.value && !x.flight_plan?.aircraft_short?.includes('CONC');
+        const isRemark = x.flight_plan?.remarks && regex.value.test(x.flight_plan.remarks);
+        const isAircraft = aircraftRegex.value && x.flight_plan?.aircraft_short && aircraftRegex.value.test(x.flight_plan?.aircraft_short);
+
+        return isSupersonic || isRemark || isAircraft;
+    }) ?? [];
+});
 
 async function setSupStatus(enabled: boolean) {
     try {
@@ -122,20 +179,24 @@ onBeforeUnmount(() => clearInterval(interval));
 
 <style lang="scss" scoped>
 .pilots {
-    table {
-        border-collapse: collapse;
+    .route {
+        line-height: 120%;
     }
 
-    table, th, td {
+    :deep(.table__row) {
+        content-visibility: auto;
+    }
+
+    &_settings {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        margin-bottom: 8px;
         padding: 8px;
-        border: 1px solid varToRgba('lightgray150', 0.2);
         border-radius: 8px;
-    }
 
-    thead {
-        position: sticky;
-        top: 55px;
-        background: $darkgray1000;
+        background: $darkgray850;
     }
 }
 </style>
