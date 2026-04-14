@@ -54,6 +54,7 @@
                     { key: 'aircraft', name: 'A/C', width: 70 },
                     { key: 'route', name: 'Route' },
                     { key: 'remarks', name: 'Remarks' },
+                    { key: 'actions', name: 'Actions', width: 120 },
                 ]"
                 item-key="cid"
                 multiple-sort
@@ -66,13 +67,23 @@
                 </template>
                 <template #data-route="{ item }">
                     <div class="route">
-                        {{ item.flight_plan?.route }}
+                        <strong>{{item.flight_plan?.departure}}</strong> {{ item.flight_plan?.route }} <strong>{{item.flight_plan?.arrival}}</strong>
                     </div>
                 </template>
                 <template #data-remarks="{ item }">
                     <div class="route">
                         {{ item.flight_plan?.remarks }}
                     </div>
+                </template>
+                <template #data-actions="{ item }">
+                    <a
+                        class="__link"
+                        :href="`/?pilot=${ item.cid }`"
+                        target="_blank"
+                        @click.stop
+                    >
+                        View on map
+                    </a>
                 </template>
             </ui-table>
         </ui-page-container>
@@ -135,8 +146,31 @@ function reset() {
     militaryAircraft.value = militaryAircraftDefault;
 }
 
-const regex = computed(() => new RegExp(militaryRegex.value, 'i'));
-const aircraftRegex = computed(() => !militaryAircraft.value ? null : new RegExp(militaryAircraft.value, 'i'));
+const regex = computed(() => {
+    try {
+        return new RegExp(militaryRegex.value, 'i');
+    }
+    catch (e) {
+        console.error(e);
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        militaryRegex.value = militaryRegexDefault;
+        return new RegExp(militaryRegexDefault, 'i');
+    }
+});
+
+const aircraftRegex = computed(() => {
+    if (!militaryAircraft.value) return null;
+
+    try {
+        return new RegExp(militaryAircraft.value, 'i');
+    }
+    catch (e) {
+        console.error(e);
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        militaryAircraft.value = '';
+        return null;
+    }
+});
 
 const getPilots = computed(() => {
     if (!militaryFilter.value || !store.user?.isSup) return pilots.value ?? [];
@@ -163,6 +197,9 @@ async function setSupStatus(enabled: boolean) {
     catch (e) {
         console.error(e);
         alert('You are not a supervisor, or an unknown issue has occurred');
+        if (import.meta.dev && store.user) {
+            store.user.isSup = true;
+        }
     }
 }
 
