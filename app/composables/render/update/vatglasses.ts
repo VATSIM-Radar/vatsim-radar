@@ -334,16 +334,19 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                     if (runwaysState.value[runway.icao] && vgRunways.includes(runwaysState.value[runway.icao])) {
                         airport.activeRunway = runwaysState.value[runway.icao];
                     }
-                    else if (!airport.activeRunway) {
-                        // Update runways config
-                        updateAirportAtisConfig({
+                    else {
+                        const airportForUpdate = {
                             ...airport,
                             atc: [
                                 atisMap[`${ runway.icao }_ATIS`],
                                 atisMap[`${ runway.icao }_D_ATIS`],
                                 atisMap[`${ runway.icao }_A_ATIS`],
                             ].filter(x => x),
-                        });
+                        };
+
+                        // Update runways config
+                        updateAirportAtisConfig(airportForUpdate);
+                        airport.atis = airportForUpdate.atis;
 
                         if (airport.atis?.runways?.departure?.length || airport.atis?.runways?.arrival?.length) {
                             const airportConfig = [
@@ -351,8 +354,11 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                                 ...airport.atis?.runways?.arrival ?? [],
                             ];
 
-                            const runway = vgRunways.find(x => x.split('/').some(x => airportConfig.includes(x)));
+                            let runway = vgRunways.find(x => x.split('/').some(x => airportConfig.includes(x)));
+                            if (!runway) runway = vgRunways.find(x => x.split('/').some(x => airportConfig.some(y => y.slice(0, 2) === x)));
+
                             if (runway) airport.activeRunway = runway;
+                            else airport.activeRunway = vgRunways[0];
                         }
                         else airport.activeRunway = vgRunways[0];
                     }

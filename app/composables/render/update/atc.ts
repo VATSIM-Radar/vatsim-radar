@@ -8,7 +8,6 @@ import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { checkForVATSpy } from '~/composables/init';
 
 export const callsignSplitRegex = /_+/gm;
-const vatspySplitRegex = /[-_]/gm;
 
 let uirsMap: Record<string, VatSpyData['uirs'][0]> | undefined;
 
@@ -29,11 +28,24 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
     const result: {
         fir: VatSpyData['firs'][0];
         feature: Feature<MultiPolygon, VatSpyDataProperties>;
+        symbols: number;
     }[] = [];
+
+    let maxStart = 0;
 
     for (const item of list) {
         const fir = firsMap[item];
         if (!fir || (fir.callsign ? !callsign.startsWith(fir.callsign) : !callsign.startsWith(fir.icao))) continue;
+
+        let word = '';
+
+        for (let i = 0; i < (fir.callsign ?? fir.icao).length; i++) {
+            word += (fir.callsign ?? fir.icao)[i];
+            if (!callsign.startsWith(word)) break;
+        }
+
+        if (word.length < maxStart) break;
+        maxStart = word.length;
 
         const features = await dataStore.vatspy.value?.feature(fir.boundary) ?? [];
         if (!features.length) continue;
@@ -42,10 +54,11 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
             feature: features.length === 1
                 ? features[0]
                 : features.find(x => x.properties.oceanic === callsign.endsWith('_FSS')) ?? features[0],
+            symbols: word.length,
         });
     }
 
-    return result;
+    return result.filter(x => x.symbols === maxStart);
 }
 
 async function findFirsForCallsign(callsign: string, prefix?: string) {
@@ -251,6 +264,7 @@ export async function updateControllers(context: DataUpdateContext) {
                     aircraft: {},
                     atc: [],
                     atis: {},
+                    aircraftCount: 0,
                 };
 
                 dataAirport = context.airports[key];
@@ -264,6 +278,7 @@ export async function updateControllers(context: DataUpdateContext) {
                     aircraft: {},
                     atc: [],
                     atis: {},
+                    aircraftCount: 0,
                 };
 
                 if (!context.airports[airport.icao!].airport) context.airports[airport.icao!].airport = airport as VatSpyAirport;

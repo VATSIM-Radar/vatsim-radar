@@ -104,7 +104,7 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
 
 export function findAtcByCallsign(callsign: string): VatsimShortenedController | undefined {
     const dataStore = useDataStore();
-    return dataStore.vatsim.data.controllers.value.find(x => x.callsign === callsign);
+    return dataStore.vatsim.data.controllers.value.find(x => x.callsign === callsign) || dataStore.vatsim.data.atis.value.find(x => x.callsign === callsign);
 }
 
 export function getATCTime(controller: VatsimShortenedController) {
@@ -121,9 +121,9 @@ export async function findAtcAirport(atc: VatsimShortenedController): Promise<Va
 
     store.updateATCTracons = true;
     await new Promise(resolve => watch(dataStore.vatsim.parsedAirports, resolve, { once: true }));
-    const airport = dataStore.vatsim.parsedAirportsList.value.find(x => x.features.some(x => x.controllers.some(x => x.callsign === atc.callsign)));
+    const airport = dataStore.vatsim.parsedAirportsList.value.find(x => x.features?.some(x => x.controllers.some(x => x.callsign === atc.callsign)));
     store.updateATCTracons = false;
-    if (airport) return airport.airport;
+    if (airport) return airport.airport ?? null;
 
     const iataAirport = dataStore.vatspy.value?.data.keyAirports.iata[title];
     if (iataAirport) {

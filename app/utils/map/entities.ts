@@ -18,6 +18,7 @@ import type {
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
+    sectors: null as VectorSource | null,
 };
 
 export interface FeatureAirportProperties {

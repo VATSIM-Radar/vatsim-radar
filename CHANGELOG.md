@@ -2,16 +2,26 @@
 
 # [2.0.0-alpha.7]
 
+Sectors and airports list render has been reworked from scratch. Please take a moment to compare what you see with production Radar.
+
 ## Improvements and changes
 
 - Bookings are now rendered in VATGlasses mode; bookings not showing up or duplicated facilities issues have all been fixed
+- VATGlasses controllers and TRACONs covering multiple airports are now properly shown in "ATC" tab of pilot or airport
+- Added active runway parsing from ATIS on airport/ATIS, as well as runway auto-select for VATGlasses
+- Airport counters update will be much faster now
+- "Booked until" will now be displayed for controllers on hover
+
+## Bug Fixes
+
+- Fixed many bookings not showing up
+
+## Performance Improvements
+
 - Significantly improved performance for VATGlasses mode
 - Significantly improved memory usage for VATGlasses mode, not consuming it for countries that are not rendered
 - Significantly improved memory usage for VATSpy data
-- Significantly reduced traffic used on regular updates
-- VATGlasses controllers are now properly shown in "ATC" tab of pilot or airport
-- Added active runway parsing from ATIS on airport/ATIS, as well as runway auto-select for VATGlasses
-- Airport counters update will be much faster now
+- Reduced traffic used on regular updates
 
 ## Technical changes
 

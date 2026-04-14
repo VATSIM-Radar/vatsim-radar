@@ -52,6 +52,7 @@ export const activeAirportsList = globalComputed(() => {
             atis: {},
             icao: airport!,
             aircraft: {},
+            aircraftCount: 0,
         };
     }
 
@@ -91,7 +92,9 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
             airportsMap[airportsByFeatureIds[id] ?? '']?.features?.find(x => x.id === id);
 
         if (existingSector) {
-            existingSector.controllers.push(controller);
+            if (!existingSector.controllers.some(x => x.cid === controller.cid)) {
+                existingSector.controllers.push(controller);
+            }
         }
         else {
             existingSector = {
@@ -114,7 +117,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     for (const airport of airportsArr) {
         airport.features ??= [];
 
-        const arrAtc = airport.atc.filter(x => x.facility === facilities.APP);
+        const arrAtc = airport.atc.filter(x => !dataStore.atcAddedDuringUpdate.value.has(x.callsign));
 
         if (!arrAtc.length) continue;
 
@@ -132,6 +135,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
 
             for (const controller of arrAtc) {
                 if (added.has(controller.cid)) continue;
+                if (controller.facility !== facilities.APP && !suffix) continue;
                 const splittedCallsign = controller.callsign.split('_');
 
                 if (
@@ -224,6 +228,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
                     aircraft: {},
                     atis: {},
                     atc: [],
+                    aircraftCount: 0,
                 };
                 triggerRef(airportList);
             }

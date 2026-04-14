@@ -12,7 +12,7 @@ export const useFacilitiesIds = () => {
     };
 };
 
-const facilitiesMap: { [key: string]: number } = {
+const facilitiesMap = {
     OBS: 0,
     FSS: 1,
     DEL: 2,
@@ -23,10 +23,8 @@ const facilitiesMap: { [key: string]: number } = {
 };
 
 export function getFacilityByCallsign(callsign: string): number {
-    for (const suffix in facilitiesMap) {
-        if (callsign.endsWith(suffix)) {
-            return facilitiesMap[suffix];
-        }
-    }
-    return -1;
+    let postfix = callsign.split('_').at(-1);
+    if (postfix === 'DEP') postfix = 'APP';
+    if (postfix === 'RMP') postfix = 'GND';
+    return facilitiesMap[postfix as keyof typeof facilitiesMap] ?? -1;
 }

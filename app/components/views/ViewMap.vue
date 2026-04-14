@@ -325,6 +325,7 @@ import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { updateControllersRender } from '~/composables/render/update';
+import { runwaysState } from '~/composables/render/update/vatglasses';
 
 defineProps({
     mode: {
@@ -1076,7 +1077,7 @@ await setupDataFetch({
 
 const vgLevel = computed(() => store.localSettings.vatglassesLevel);
 
-useUpdateCallback(['short', isVatGlassesActive, vgLevel], () => {
+useUpdateCallback(['short', isVatGlassesActive, vgLevel, runwaysState], () => {
     updateControllersRender();
 }, {
     immediate: true,

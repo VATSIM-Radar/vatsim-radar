@@ -6,7 +6,6 @@ export interface RadarEventPayload<T = MapFeatures, P = never | void> { feature:
 
 export const hoveredAircraft = safeRef<number | null>(null);
 
-// TODO: replace everything with Feature<type>
 export async function handleAircraftClick({ feature }: RadarEventPayload<FeatureAirport>) {
     const store = useStore();
     const mapStore = useMapStore();

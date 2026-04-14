@@ -1,9 +1,8 @@
 import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
 import type { VatsimData, VatsimShortenedController } from '~/types/data/vatsim';
-import {
+import updateVatsimExtendedPilots, {
     updateVatsimDataStorage,
-    updateVatsimExtendedPilots,
     updateVatsimMandatoryDataStorage,
 } from '~/utils/server/vatsim/update';
 import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/server/influx/influx';

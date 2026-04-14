@@ -73,6 +73,17 @@
             <template #title>
                 {{getPopupName}}
             </template>
+            <template
+                v-if="runways?.runways?.departure?.length ||runways?.runways?.arrival?.length "
+                #additionalTitle
+            >
+                <template v-if="runways.runways?.departure?.length">
+                    D {{runways?.runways?.departure.join(',')}}
+                </template>
+                <template v-if="runways.runways?.arrival?.length">
+                    A {{runways?.runways?.arrival.join(',')}}
+                </template>
+            </template>
         </vatsim-controllers-list>
     </map-html-overlay>
 </template>
@@ -95,6 +106,7 @@ import VatsimControllerInfo from '~/components/features/vatsim/controllers/Vatsi
 import UiText from '~/components/ui/text/UiText.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import { getAirportCountry } from '~/composables/vatsim/airport';
+import { updateAirportAtisConfig } from '~/composables/render/update/utils';
 
 const props = defineProps({
     payload: {
@@ -207,6 +219,18 @@ const getPosition = computed<Coordinate>(() => {
         props.payload.coordinate[0],
         (props.payload.feature.getGeometry()?.getCoordinates() as Coordinate)[1] ?? props.payload.coordinate[1],
     ];
+});
+
+const runways = computed(() => {
+    if (isMapFeature('airport', properties.value)) {
+        const dataAirport = dataStore.airportsList.value[properties.value.icao];
+        if (dataAirport) {
+            updateAirportAtisConfig(dataAirport);
+            return dataAirport.atis;
+        }
+    }
+
+    return null;
 });
 </script>
 

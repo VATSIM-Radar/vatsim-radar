@@ -21,13 +21,13 @@ function addAircraftToAirport(context: DataUpdateContext, aircraft: VatsimShorte
                 departures: [],
                 arrivals: [],
             },
+            aircraftCount: 0,
             atis: {},
         };
     }
 
     airports[icao].aircraft[kind] ??= [];
     airports[icao].aircraft[kind].push(aircraft.cid);
-    airports[icao].aircraftCount ??= 0;
     airports[icao].aircraftCount++;
     context.airportsAdded.add(icao);
 }
@@ -36,8 +36,8 @@ export function updateAircraft(context: DataUpdateContext) {
     const dataStore = useDataStore();
 
     for (const aircraft of dataStore.vatsim.data.pilots.value) {
-        if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, aircraft.departure === aircraft.airport ? 'groundDep' : 'departures');
-        if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.arrival === aircraft.airport ? 'groundArr' : 'arrivals');
+        if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, (aircraft.departure === aircraft.airport && aircraft.status === 'depTaxi') ? 'groundDep' : 'departures');
+        if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
 
         if (aircraft.airport && aircraft.airport !== aircraft.departure && aircraft.airport !== aircraft.arrival) {
             addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');

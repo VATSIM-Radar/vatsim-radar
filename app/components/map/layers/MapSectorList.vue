@@ -9,6 +9,7 @@ import { useStore } from '~/store';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { setMapSectors } from '~/composables/render/sectors';
+import {globalMapEntities} from "~/utils/map/entities";
 
 defineOptions({
     render: () => null,
@@ -45,6 +46,8 @@ onMounted(async () => {
         wrapX: true,
     });
 
+    globalMapEntities.sectors = vectorSource;
+
     vectorLayer = new VectorLayer<any>({
         source: vectorSource,
         zIndex: FEATURES_Z_INDEX.SECTORS,
@@ -77,6 +80,7 @@ onMounted(async () => {
     const debouncedUpdate = useThrottleFn(async () => {
         if (hideAtc.value || hideOnZoom.value) {
             vectorSource.clear();
+            globalMapEntities.sectors = null;
         }
         else {
             setMapSectors({
@@ -99,6 +103,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     vectorLayer?.dispose();
     vectorSource?.clear();
+    globalMapEntities.sectors = null;
 
     labelsLayer?.dispose();
     labelsSource?.clear();

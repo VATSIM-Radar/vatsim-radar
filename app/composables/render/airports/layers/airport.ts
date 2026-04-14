@@ -44,58 +44,28 @@ function createFacility(facilityId: number): Facility {
 export function setMapAirports({ source, airports, layer }: {
     source: VectorSource;
     layer: VectorLayer;
-    airports: AirportListItem[];
+    airports: DataAirport[];
 }) {
     const store = useStore();
     const mapStore = useMapStore();
+    const dataStore = useDataStore();
     const facilitiesIds = useFacilitiesIds();
 
     if (layer.getStyle() === createDefaultStyle) setAirportStyle(layer);
 
-    const map: Record<string, AirportListItem> = {};
+    const map: Record<string, DataAirport> = {};
 
     for (const airport of airports) {
         map[airport.icao] = airport;
-        const existingFeature = getMapFeature('airport', source, `airport-${ airport.icao }`);
-        if (existingFeature) {
-            const color = colorForAirport(airport);
-
-            existingFeature.setProperties({
-                color,
-                aircraftList: airport.aircraft,
-                atcLength: airport.atc.filter(x => !x.isATIS).length,
-                atc: sortControllersByPosition(airport.atc),
-            });
-        }
-        else if (airport.airport) {
-            source.addFeature(createMapFeature('airport', {
-                geometry: new Point([airport.airport.lon, airport.airport.lat]),
-                type: 'airport',
-                id: `airport-${ airport.airport.icao }`,
-                icao: airport.airport.icao,
-                iata: airport.airport.iata,
-                name: airport.airport.name,
-                isPseudo: airport.airport.isPseudo,
-                lon: airport.airport.lon,
-                lat: airport.airport.lat,
-                atcLength: airport.atc.filter(x => !x.isATIS).length,
-                aircraftList: airport.aircraft,
-                color: colorForAirport(airport),
-                atc: sortControllersByPosition(airport.atc),
-            }));
-        }
-
-        const appr = airport.atc.filter(x => x.facility === facilitiesIds.APP);
-
-        let isDuplicated = appr.every(x => x.duplicated);
-        let isBooked = appr.every(x => x.isBooking);
 
         // Locals
         const facilitiesMap = new Map<number, Facility>();
         const locals = airport.atc.filter(x => x.facility !== facilitiesIds.APP && x.facility !== facilitiesIds.CTR && x.facility !== facilitiesIds.FSS);
+        const featuresCallsigns = new Set<string>(airport.features?.flatMap(x => x.controllers.map(x => x.callsign)));
 
         locals.forEach(local => {
-            if (local.facility === facilitiesIds.APP || local.facility === facilitiesIds.CTR || local.facility === facilitiesIds.FSS) return;
+            if (featuresCallsigns.has(local.callsign) || dataStore.atcAddedDuringUpdate.value.has(local.callsign)) return;
+            if (local.facility === facilitiesIds.CTR || local.facility === facilitiesIds.FSS) return;
             const facilityId = local.isATIS ? -1 : local.facility;
             let facility = facilitiesMap.get(facilityId);
 
@@ -116,14 +86,32 @@ export function setMapAirports({ source, airports, layer }: {
                 facilitiesMap.set(facilityId, facility);
             }
 
+            if (!local.isBooking) {
+                const booking = locals.find(x => x.isBooking && x.cid === local.cid && x.callsign === local.callsign);
+                if (booking) {
+                    local.booking = booking.booking;
+                }
+            }
+
             facility.atc.push(local);
         });
 
         const facilities = sortControllersByPosition(Array.from(facilitiesMap.values()));
+        const atc: VatsimShortenedController[] = [];
+        const atcLength = airport.atc.filter(x => !x.isATIS && !x.isBooking).length;
 
         facilities.forEach((facility, index) => {
             const key = `airport-${ airport.icao }-${ facility.facility }` as const;
             const existingFacility = getMapFeature('airport-atc', source, key);
+            const bookedOnly = facility.atc.every(x => x.isBooking);
+
+            if (!bookedOnly) {
+                facility.atc = facility.atc.filter(x => !x.isBooking);
+            }
+
+            atc.push(...facility.atc);
+
+            if (facility.facility === facilitiesIds.APP) return;
 
             if (existingFacility) {
                 existingFacility.setProperties({
@@ -146,6 +134,41 @@ export function setMapAirports({ source, airports, layer }: {
                 source.addFeature(feature);
             }
         });
+
+        // Airport
+        const existingFeature = getMapFeature('airport', source, `airport-${ airport.icao }`);
+        if (existingFeature) {
+            const color = colorForAirport(airport);
+
+            existingFeature.setProperties({
+                color,
+                aircraftList: airport.aircraft,
+                atcLength,
+                atc: sortControllersByPosition(airport.atc),
+            });
+        }
+        else if (airport.airport) {
+            source.addFeature(createMapFeature('airport', {
+                geometry: new Point([airport.airport.lon, airport.airport.lat]),
+                type: 'airport',
+                id: `airport-${ airport.airport.icao }`,
+                icao: airport.airport.icao,
+                iata: airport.airport.iata,
+                name: airport.airport.name,
+                isPseudo: !dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao],
+                lon: airport.airport.lon,
+                lat: airport.airport.lat,
+                atcLength,
+                aircraftList: airport.aircraft,
+                color: colorForAirport(airport),
+                atc: sortControllersByPosition(atc),
+            }));
+        }
+
+        const appr = airport.atc.filter(x => x.facility === facilitiesIds.APP && !dataStore.atcAddedDuringUpdate.value.has(x.callsign));
+
+        let isDuplicated = appr.every(x => x.duplicated);
+        let isBooked = appr.every(x => x.isBooking);
 
         // Counters
         if (airport.aircraft && mapStore.renderedAirports?.includes(airport.icao)) {
@@ -173,7 +196,7 @@ export function setMapAirports({ source, airports, layer }: {
                         totalCount,
                         index,
                         localsLength,
-                        atcLength: airport.atc.filter(x => !x.isATIS).length,
+                        atcLength,
                         aircraftList: airport.aircraft,
                     });
                 }
@@ -190,7 +213,7 @@ export function setMapAirports({ source, airports, layer }: {
                         localsLength,
                         counterType: key,
                         aircraft: value,
-                        atcLength: airport.atc.filter(x => !x.isATIS).length,
+                        atcLength,
                         aircraftList: airport.aircraft,
                     });
                     source.addFeature(feature);
@@ -199,7 +222,7 @@ export function setMapAirports({ source, airports, layer }: {
         }
 
         // Approach
-        if (appr.length) {
+        if (appr.length || airport.features?.length) {
             const atc = appr.filter(x => isDuplicated || !x.duplicated);
 
             if (!airport.features?.length && airport.airport && !airport.airport.isPseudo) {
@@ -213,7 +236,7 @@ export function setMapAirports({ source, airports, layer }: {
                         isTWR: false,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.atc.filter(x => !x.isATIS).length,
+                        atcLength,
                         aircraftList: airport.aircraft,
                     });
                 }
@@ -245,7 +268,7 @@ export function setMapAirports({ source, airports, layer }: {
                         isTWR: false,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.atc.filter(x => !x.isATIS).length,
+                        atcLength,
                         aircraftList: airport.aircraft,
                     });
 
@@ -279,7 +302,7 @@ export function setMapAirports({ source, airports, layer }: {
                             isDuplicated,
                             isBooked,
                             aircraftList: airport.aircraft,
-                            atcLength: airport.atc.filter(x => !x.isATIS).length,
+                            atcLength,
                         });
                     }
                     else {
@@ -320,7 +343,7 @@ export function setMapAirports({ source, airports, layer }: {
                             featureId: atc.id,
                             traconId: atc.traconFeature.properties?.id,
                             aircraftList: airport.aircraft,
-                            atcLength: airport.atc.filter(x => !x.isATIS).length,
+                            atcLength,
                         });
 
                         source.addFeature(tracon);
@@ -353,7 +376,7 @@ export function setMapAirports({ source, airports, layer }: {
             }
 
             if (isMapFeature('airport-tracon', properties) || isMapFeature('airport-tracon-label', properties)) {
-                if (!airport.atc.some(x => x.facility === facilitiesIds.APP) || !airport.features?.some(x => x.id === properties.featureId)) {
+                if (!airport.features?.some(x => x.id === properties.featureId)) {
                     source.removeFeature(feature);
                     feature.dispose();
                 }

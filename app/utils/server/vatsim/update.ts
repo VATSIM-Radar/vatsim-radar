@@ -26,6 +26,8 @@ import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/server';
 import { setRedisData } from '~/utils/server/redis';
 import { isDebug } from '~/utils/server/debug';
+import type { VatSpyData } from '~/types/data/vatspy';
+import type { Coordinate } from 'ol/coordinate.js';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -44,6 +46,9 @@ export function updateVatsimDataStorage() {
             frequencies: transceiver.frequencies,
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
+
+    data.general.sups ??= [];
+    data.general.adm ??= [];
 
     for (const controller of data.controllers) {
         if (controller.rating === 11) data.general.sups.push(controller);
@@ -101,7 +106,13 @@ export function updateVatsimMandatoryDataStorage() {
     radarStorage.vatsim.mandatoryData = newData;
 }
 
-export async function updateVatsimExtendedPilots() {
+const groundZone = 0.09;
+
+function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft): boolean {
+    return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;
+}
+
+async function updateVatsimExtendedPilots() {
     const vatspy = (radarStorage.vatspy)!;
 
     radarStorage.vatsim.extendedPilots = [];
@@ -115,11 +126,47 @@ export async function updateVatsimExtendedPilots() {
         origPilot: pilot,
     }));
 
+    const groundPilots: Record<number, VatSpyData['airports']> = {};
+
+    const filteredPilots = pilotsToProcess.filter(x => x.pilot.groundspeed < 50);
+
+    for (const airport of vatspy.data!.airports) {
+        if (airport.isPseudo) continue;
+        const zone = [airport.lon, airport.lat];
+        for (const pilot of filteredPilots) {
+            if (isAircraftOnGround(zone, pilot.pilot)) {
+                groundPilots[pilot.pilot.cid] ??= [];
+                groundPilots[pilot.pilot.cid].push(airport);
+            }
+        }
+    }
+
     for (const {
         pilot: extendedPilot,
         origPilot,
     } of pilotsToProcess) {
         let totalDist: number | null = null;
+
+        const groundAirports = groundPilots[extendedPilot.cid] ?? null;
+
+        let groundAirport = (groundAirports && groundAirports?.length > 1)
+            ? groundAirports.sort((a, b) => {
+                const aDistance = Math.sqrt(Math.pow(extendedPilot.latitude - a.lat, 2) + Math.pow(extendedPilot.longitude - a.lon, 2));
+                const bDistance = Math.sqrt(Math.pow(extendedPilot.latitude - b.lat, 2) + Math.pow(extendedPilot.longitude - b.lon, 2));
+
+                return aDistance - bDistance;
+            })[0]
+            : groundAirports?.[0] ?? null;
+
+        if (groundAirports && groundAirports?.length > 1 && (extendedPilot.flight_plan?.departure || extendedPilot.flight_plan?.arrival)) {
+            const airport = groundAirports.find(x => (
+                x.icao === extendedPilot.flight_plan?.arrival ||
+                x.iata === extendedPilot.flight_plan?.arrival ||
+                x.icao === extendedPilot.flight_plan?.departure ||
+                x.iata === extendedPilot.flight_plan?.departure
+            ));
+            if (airport) groundAirport = airport;
+        }
 
         const dep = extendedPilot.flight_plan?.departure && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.departure];
         const arr = extendedPilot.flight_plan?.arrival && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.arrival];
@@ -131,6 +178,14 @@ export async function updateVatsimExtendedPilots() {
 
             totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
             extendedPilot.depDist = calculateDistanceInNauticalMiles(depCoords, pilotCoords);
+            if (groundAirport?.icao) {
+                if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
+                else extendedPilot.status = 'arrTaxi';
+
+                extendedPilot.airport = groundAirport.icao;
+                origPilot.airport = groundAirport.icao;
+            }
+
             if (extendedPilot.status !== 'arrGate' && extendedPilot.status !== 'arrTaxi') {
                 extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
                 extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
@@ -140,16 +195,10 @@ export async function updateVatsimExtendedPilots() {
                 if (extendedPilot.toGoDist < 100) {
                     extendedPilot.airport = arr.icao;
                     origPilot.airport = arr.icao;
-                    if (!extendedPilot.status && extendedPilot.toGoDist < 40) {
-                        extendedPilot.status = 'arriving';
-                    }
                 }
                 else if (extendedPilot.depDist < 40) {
                     extendedPilot.airport = dep.icao;
                     origPilot.airport = dep.icao;
-                    if (!extendedPilot.status) {
-                        extendedPilot.status = 'departed';
-                    }
                 }
             }
         }
@@ -260,6 +309,8 @@ export async function updateVatsimExtendedPilots() {
 
     radarStorage.vatsim.extendedPilotsMap = updatePilots;
 }
+
+export default updateVatsimExtendedPilots;
 
 const xmlParser = new XMLParser({
     ignoreAttributes: false,
@@ -420,7 +471,7 @@ export async function updateBookings() {
         end.setMinutes((end.getMinutes() + 60) * 3);
 
         const fakeBooking: VatsimBookingData = {
-            callsign: 'UMMV_CTR',
+            callsign: 'LAX_S_DEP',
             cid: 10000,
             start: start.getTime(),
             end: end.getTime(),
@@ -435,6 +486,50 @@ export async function updateBookings() {
         bookings.push({
             ...fakeBooking,
             atc,
+            start: start.getTime(),
+            end: end.getTime(),
+            division: undefined,
+            subdivision: undefined,
+        } as VatsimBooking);
+
+        const fakeBooking1: VatsimBookingData = {
+            callsign: 'SCT_APP',
+            cid: 10000,
+            start: start.getTime(),
+            end: end.getTime(),
+            id: 0,
+            type: 'booking',
+            division: '',
+            subdivision: '',
+        };
+
+        const atc1 = createAtcForBooking(fakeBooking1);
+
+        bookings.push({
+            ...fakeBooking1,
+            atc: atc1,
+            start: start.getTime(),
+            end: end.getTime(),
+            division: undefined,
+            subdivision: undefined,
+        } as VatsimBooking);
+
+        const fakeBooking2: VatsimBookingData = {
+            callsign: 'LAX_25_CTR',
+            cid: 10000,
+            start: start.getTime(),
+            end: end.getTime(),
+            id: 0,
+            type: 'booking',
+            division: '',
+            subdivision: '',
+        };
+
+        const atc2 = createAtcForBooking(fakeBooking2);
+
+        bookings.push({
+            ...fakeBooking2,
+            atc: atc2,
             start: start.getTime(),
             end: end.getTime(),
             division: undefined,

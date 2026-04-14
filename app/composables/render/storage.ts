@@ -168,7 +168,7 @@ export interface DataAirport {
         departures: number[];
         arrivals: number[];
     }>;
-    aircraftCount?: number;
+    aircraftCount: number;
     departureCall?: string;
     departureCallPosition?: string;
     vgRunways?: string[];

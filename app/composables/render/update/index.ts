@@ -20,7 +20,9 @@ export async function updateControllersRender() {
     for (const airport in dataStore.airportsList.value) {
         airports[airport] = Object.assign({}, dataStore.airportsList.value[airport]);
         airports[airport].aircraft = {};
+        airports[airport].aircraftCount = 0;
         airports[airport].atc = [];
+        airports[airport].features = [];
     }
 
     updateAircraft(context);
@@ -35,8 +37,9 @@ export async function updateControllersRender() {
     dataStore.airportsList.value = context.airports;
     dataStore.sectorsList.value = Object.values(context.sectors);
 
+    dataStore.atcAddedDuringUpdate.value.clear();
+
     if (context.atcAdded) {
-        dataStore.atcAddedDuringUpdate.value.clear();
         dataStore.atcAddedDuringUpdate.value = context.atcAdded;
     }
 }

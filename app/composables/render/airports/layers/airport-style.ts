@@ -79,98 +79,100 @@ export function setAirportStyle(layer: VectorLayer) {
             return [styleCache[key]];
         }
 
-        if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
-            const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
-            const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
-            const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isUir) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
+        if (!isHideAtcType('approach')) {
+            if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
+                const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+                const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isUir) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
 
-            if (!styleCache[key]) {
-                let fill: string | undefined;
+                if (!styleCache[key]) {
+                    let fill: string | undefined;
 
-                let mainColor = (store.bookingOverride || properties.isBooked)
-                    ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
-                    : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
+                    let mainColor = (store.bookingOverride || properties.isBooked)
+                        ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
+                        : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
 
-                const mainTransparency = 0.7;
+                    const mainTransparency = 0.7;
 
-                if (isDuplicated) {
-                    const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+                    if (isDuplicated) {
+                        const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
 
-                    mainColor = isUir
-                        ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600').join(',')
-                        : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',');
-                }
+                        mainColor = isUir
+                            ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600').join(',')
+                            : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',');
+                    }
 
-                if (properties.selected) {
-                    fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ mainColor }, 0.25)` : (`rgba(${ mainColor }, 0.25)`);
-                }
+                    if (properties.selected) {
+                        fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ mainColor }, 0.25)` : (`rgba(${ mainColor }, 0.25)`);
+                    }
 
-                styleCache[key] = new Style({
-                    stroke: new Stroke({
-                        color: (store.bookingOverride || properties.isBooked)
-                            ? getSelectedColorFromSettings('approachBookings') || `rgba(${ mainColor }, ${ mainTransparency })`
-                            : ((isDuplicated ? undefined : getSelectedColorFromSettings('approach')) || `rgba(${ mainColor }, ${ mainTransparency })`),
-                        width: 2,
-                        lineDash: properties.isDuplicated ? [8, 5] : undefined,
-                        lineJoin: 'round',
-                    }),
-                    fill: fill ? getCachedFill(fill) : undefined,
-                });
-            }
-
-            return styleCache[key];
-        }
-
-        if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
-            const declutterMode = getDeclutterMode(0);
-            const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
-            const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
-            const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isUir) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
-
-            if (!styleCache[strokeKey]) {
-                let defaultColor = getSelectedColorFromSettings('approach', true) || radarColors.citrus600Rgb.join(',');
-                let defaultTransparency = 1;
-
-                if (isDuplicated) {
-                    const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
-
-                    defaultColor = isUir
-                        ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600')?.join(',')
-                        : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700')?.join(',');
-
-                    defaultTransparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs') ?? 1;
-                }
-
-                styleCache[strokeKey] = new Style({
-                    text: new Text({
-                        font: getTextFont('caption-medium'),
-                        text: '',
-                        placement: 'point',
-                        overflow: true,
-                        fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor })`),
-                        backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
-                        backgroundStroke: new Stroke({
+                    styleCache[key] = new Style({
+                        stroke: new Stroke({
+                            color: (store.bookingOverride || properties.isBooked)
+                                ? getSelectedColorFromSettings('approachBookings') || `rgba(${ mainColor }, ${ mainTransparency })`
+                                : ((isDuplicated ? undefined : getSelectedColorFromSettings('approach')) || `rgba(${ mainColor }, ${ mainTransparency })`),
                             width: 2,
-                            lineDash: properties.isTWR ? [4, 8] : undefined,
+                            lineDash: properties.isDuplicated ? [8, 5] : undefined,
                             lineJoin: 'round',
-                            color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ defaultTransparency })`,
                         }),
-                        declutterMode,
-                        padding: [3, 1, 2, 3],
-                    }),
-                    zIndex: 0,
-                });
+                        fill: fill ? getCachedFill(fill) : undefined,
+                    });
+                }
+
+                return styleCache[key];
             }
 
-            styleCache[strokeKey].getText()!.setText(properties.isTWR
-                ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
-                : feature.getProperties()?.traconId || properties.icao);
-            styleCache[strokeKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1);
+            if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
+                const declutterMode = getDeclutterMode(0);
+                const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+                const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+                const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isUir) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
 
-            return styleCache[strokeKey];
+                if (!styleCache[strokeKey]) {
+                    let defaultColor = getSelectedColorFromSettings('approach', true) || radarColors.citrus600Rgb.join(',');
+                    let defaultTransparency = 1;
+
+                    if (isDuplicated) {
+                        const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+
+                        defaultColor = isUir
+                            ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600')?.join(',')
+                            : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700')?.join(',');
+
+                        defaultTransparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs') ?? 1;
+                    }
+
+                    styleCache[strokeKey] = new Style({
+                        text: new Text({
+                            font: getTextFont('caption-medium'),
+                            text: '',
+                            placement: 'point',
+                            overflow: true,
+                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor })`),
+                            backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                            backgroundStroke: new Stroke({
+                                width: 2,
+                                lineDash: properties.isTWR ? [4, 8] : undefined,
+                                lineJoin: 'round',
+                                color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ defaultTransparency })`,
+                            }),
+                            declutterMode,
+                            padding: [3, 1, 2, 3],
+                        }),
+                        zIndex: 0,
+                    });
+                }
+
+                styleCache[strokeKey].getText()!.setText(properties.isTWR
+                    ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
+                    : feature.getProperties()?.traconId || properties.icao);
+                styleCache[strokeKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1);
+
+                return styleCache[strokeKey];
+            }
         }
 
-        if (mapStore.renderedAirports?.includes(properties.icao)) {
+        if (!isHideAtcType('ground') && mapStore.renderedAirports?.includes(properties.icao)) {
             if (isMapFeature('airport-atc', properties)) {
                 let letter: string | undefined;
 

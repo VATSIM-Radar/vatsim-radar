@@ -40,6 +40,7 @@ const now = new Date();
 const end = ref(new Date());
 const mapSettings = computed(() => store.mapSettings);
 
+const dataStore = useDataStore();
 const airportsList = shallowRef<MapAirportRender[]>([]);
 const visibleAirports = shallowRef<DataAirport[]>([]);
 const airports = shallowRef<AirportListItem[]>([]);
@@ -150,7 +151,7 @@ onMounted(() => {
     map.value.addLayer(navigraphLayer);
     map.value.addLayer(gatesLayer);
 
-    useUpdateCallback(['short', 'extent', updateRelatedSettings], async newValue => {
+    useUpdateCallback(['short', 'extent', dataStore.airportsList, updateRelatedSettings], async newValue => {
         const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value! });
         if (!result) return;
         airportsList.value = result.all;

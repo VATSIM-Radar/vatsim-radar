@@ -24,7 +24,9 @@ export function makeBookingLocalTime(booking: VatsimBooking | VatsimBookingAtc) 
     return booking;
 }
 
-export function makeBookingTime(date: Date, local: boolean) {
+export function makeBookingTime(date: Date | number, local = false) {
+    if (!date) return '';
+    if (typeof date === 'number') date = new Date(date);
     return formatDate(date, isToday(date), local);
 }
 

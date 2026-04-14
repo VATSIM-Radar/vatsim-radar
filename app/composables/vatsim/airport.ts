@@ -9,6 +9,8 @@ import type {
 import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import { debounce } from '~/utils/shared';
 import type { PartialRecord } from '~/types';
+import aircraft from '~/pages/stats/aircraft.vue';
+import { getControllersForPosition } from '~/composables/render';
 
 /**
  * @note data must be reactive object or a computed
@@ -30,8 +32,17 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
         if (injected) return toValue(injected);
         const dataStore = useDataStore();
 
-        // TODO: CTR controllers search
-        const list = sortControllersByPosition(dataStore.airportsList.value[data.value.icao].atc);
+        let list = dataStore.airportsList.value[data.value.icao].atc;
+
+        const vatspyAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.icao];
+
+        if (vatspyAirport) {
+            for (const controller of getControllersForPosition([vatspyAirport.lon, vatspyAirport.lat])) {
+                if (!list.some(x => x.callsign === controller.callsign)) list.push(controller);
+            }
+        }
+
+        list = sortControllersByPosition(list);
 
         if (!list.length && data.value.airport?.vatInfo?.ctafFreq) {
             return [
@@ -246,6 +257,7 @@ type AircraftType = MapAircraftKeys | 'training';
 
 export function getAirportCounters(counters: MapAircraftList) {
     const store = useStore();
+    const dataStore = useDataStore();
     const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
 
     const departuresMode = store.mapSettings.airportsCounters?.departuresMode ?? 'ground';
@@ -257,12 +269,15 @@ export function getAirportCounters(counters: MapAircraftList) {
     let prefiles: Array<VatsimShortenedPrefile | VatsimShortenedAircraft> = [];
     let training: VatsimShortenedAircraft[] = [];
 
-    let groundDep = counters.groundDep;
+    const countersAircraft = Object.fromEntries(
+        Object.entries(counters)
+            .map(x => [x[0] as keyof MapAircraftList, x[1].map(x => dataStore.vatsim.data.keyedPilots.value[x]).filter(x => x)] satisfies [keyof MapAircraftList, VatsimShortenedAircraft[]]),
+    ) as PartialRecord<keyof MapAircraftList, VatsimShortenedAircraft[]>;
 
-    // stopped here TODO
+    let groundDep = countersAircraft.groundDep;
 
     if (!store.mapSettings.airportsCounters?.disableTraining) {
-        training = counters?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
+        training = countersAircraft?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
         if (groundDep) groundDep = groundDep.filter(x => !training.some(y => y.cid === x.cid));
     }
 
@@ -271,23 +286,23 @@ export function getAirportCounters(counters: MapAircraftList) {
             case 'total':
                 departures = [
                     ...groundDep ?? [],
-                    ...counters.departures ?? [],
+                    ...countersAircraft.departures ?? [],
                 ];
                 break;
             case 'totalMoving':
                 departures = [
                     ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
-                    ...counters.departures?.filter(x => x.groundspeed > 0) ?? [],
+                    ...countersAircraft.departures?.filter(x => x.groundspeed > 0) ?? [],
                 ];
                 break;
             case 'totalLanded':
                 departures = [
                     ...groundDep?.filter(x => x.status !== 'depGate') ?? [],
-                    ...counters.departures ?? [],
+                    ...countersAircraft.departures ?? [],
                 ];
                 break;
             case 'airborne':
-                departures = counters.departures?.filter(x => x.groundspeed > 0) ?? [];
+                departures = countersAircraft.departures?.filter(x => x.groundspeed > 0) ?? [];
                 break;
             case 'ground':
                 departures = groundDep ?? [];
@@ -302,30 +317,30 @@ export function getAirportCounters(counters: MapAircraftList) {
         switch (arrivalsMode) {
             case 'total':
                 arrivals = [
-                    ...counters.groundArr ?? [],
-                    ...counters.arrivals ?? [],
+                    ...countersAircraft.groundArr ?? [],
+                    ...countersAircraft.arrivals ?? [],
                 ];
                 break;
             case 'totalMoving':
                 arrivals = [
-                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
-                    ...counters.arrivals?.filter(x => x.groundspeed > 0) ?? [],
+                    ...countersAircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...countersAircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [],
                 ];
                 break;
             case 'totalLanded':
                 arrivals = [
-                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
-                    ...counters.arrivals ?? [],
+                    ...countersAircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...countersAircraft.arrivals ?? [],
                 ];
                 break;
             case 'airborne':
-                arrivals = counters.arrivals?.filter(x => x.groundspeed > 0) ?? [];
+                arrivals = countersAircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [];
                 break;
             case 'ground':
-                arrivals = counters.groundArr ?? [];
+                arrivals = countersAircraft.groundArr ?? [];
                 break;
             case 'groundMoving':
-                arrivals = counters.groundArr?.filter(x => x.groundspeed > 0) ?? [];
+                arrivals = countersAircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [];
                 break;
         }
     }
@@ -335,24 +350,24 @@ export function getAirportCounters(counters: MapAircraftList) {
             case 'total':
                 prefiles = [
                     ...groundDep ?? [],
-                    ...counters.departures ?? [],
-                    ...counters.groundArr ?? [],
-                    ...counters.arrivals ?? [],
+                    ...countersAircraft.departures ?? [],
+                    ...countersAircraft.groundArr ?? [],
+                    ...countersAircraft.arrivals ?? [],
                 ];
                 break;
             case 'prefiles':
-                prefiles = counters.prefiles ?? [];
+                prefiles = countersAircraft.prefiles ?? [];
                 break;
             case 'ground':
                 prefiles = [
                     ...groundDep ?? [],
-                    ...counters.groundArr ?? [],
+                    ...countersAircraft.groundArr ?? [],
                 ];
                 break;
             case 'groundMoving':
                 prefiles = [
                     ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
-                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...countersAircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
                 ];
                 break;
         }

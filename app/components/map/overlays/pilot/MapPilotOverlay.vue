@@ -71,14 +71,6 @@
             </div>
         </template>
         <template
-            v-if="vatGlassesActive"
-            #tab-atc
-        >
-            <ui-notification cookie-name="vatglasses-atc-warning">
-                This data may not be reliable when VatGlasses integration is active. Refer to map instead.
-            </ui-notification>
-        </template>
-        <template
             v-for="i in ['center', 'atis', 'app', 'ground', 'ctaf']"
             :key="i"
             #[`controllers-${i}`]="{ section }"
@@ -293,6 +285,7 @@ import AirportProcedures from '~/components/features/vatsim/airport/AirportProce
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupAchievement from '~/components/popups/PopupAchievement.vue';
+import { getControllersForPosition } from '~/composables/render';
 
 const props = defineProps({
     overlay: {
@@ -316,7 +309,6 @@ const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
-const vatGlassesActive = isVatGlassesActive;
 const selectedAchievement = shallowRef<VatsimAchievementUser | null>(null);
 
 const ctafFrequency = computed(() => {
@@ -383,8 +375,8 @@ const atcSections = computed<InfoPopupSection[]>(() => {
     return list;
 });
 
-const depRunways = computed(() => depAirport.value?.dataAirport?.vgRunways ?? null);
-const arrRunways = computed(() => arrAirport.value?.dataAirport?.vgRunways ?? null);
+const depRunways = computed(() => depAirport.value?.vgRunways ?? null);
+const arrRunways = computed(() => arrAirport.value?.vgRunways ?? null);
 
 const depBars = computed(() => {
     return depAirport.value && dataStore.vatsim.data.bars.value[depAirport.value.icao];
@@ -479,10 +471,13 @@ const facilities = useFacilitiesIds();
 const getAtcList = computed<AtcPopupSection[]>(() => {
     const sections: AtcPopupSection[] = [];
 
-    // TODO: rework to real time detection
-    const center = pilot.value
-        ? []
-        : null;
+    // This is intended to add this to recalculation dep
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    dataStore.airportsList.value;
+
+    const additionalATC = getControllersForPosition([pilot.value?.longitude, pilot.value?.latitude]);
+
+    const center = additionalATC.filter(x => x.facility === facilities.CTR || x.facility === facilities.FSS);
 
     if (center?.length) {
         sections.push({
@@ -496,7 +491,14 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
         });
     }
 
-    const controls = pilot.value.airport ? dataStore.airportsList.value[pilot.value.airport].atc : null;
+    const controls = pilot.value.airport ? dataStore.airportsList.value[pilot.value.airport]?.atc : null;
+
+    if (controls) {
+        for (const atc of additionalATC) {
+            if (atc.facility === facilities.CTR || atc.facility === facilities.FSS || controls.some(x => x.callsign === atc.callsign)) continue;
+            controls.push(atc);
+        }
+    }
 
     if (controls?.length) {
         const atis = controls.filter(x => x.isATIS);
