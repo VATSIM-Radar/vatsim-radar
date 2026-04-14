@@ -52,9 +52,9 @@ const airport = computed(() => dataStore.airportsList.value[props.airport]);
 
 function setActiveRunway(runway: string) {
     runwaysState.value = {
-      ...runwaysState.value,
-      [props.airport]: runway,
-    }
+        ...runwaysState.value,
+        [props.airport]: runway,
+    };
 }
 
 const getRunways = computed<Runway[]>(() => {

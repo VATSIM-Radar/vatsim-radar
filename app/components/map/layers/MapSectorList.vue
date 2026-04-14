@@ -9,7 +9,7 @@ import { useStore } from '~/store';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { setMapSectors } from '~/composables/render/sectors';
-import {globalMapEntities} from "~/utils/map/entities";
+import { globalMapEntities } from '~/utils/map/entities';
 
 defineOptions({
     render: () => null,
