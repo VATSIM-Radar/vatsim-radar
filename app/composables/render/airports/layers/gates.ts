@@ -1,6 +1,5 @@
 import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
-import type { AirportListItem } from '~/composables/render/airports';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style';

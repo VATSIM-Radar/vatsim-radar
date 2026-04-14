@@ -282,7 +282,6 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupAchievement from '~/components/popups/PopupAchievement.vue';
 import { getControllersForPosition } from '~/composables/render';

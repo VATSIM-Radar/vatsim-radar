@@ -1,6 +1,5 @@
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import type { MapAircraft, MapAircraftList, MapAirportRender } from '~/types/map';
-import type { VatSpyAirport } from '~/types/data/vatspy';
+import type { MapAirportRender } from '~/types/map';
 import { globalComputed, isPointInExtent } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';

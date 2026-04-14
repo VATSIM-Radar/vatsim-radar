@@ -15,7 +15,6 @@ import type { DataUpdateContext } from '~/composables/render/update/index';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'geojson';
 import { polygon } from '@turf/helpers';
 import { stringToArray } from '~/utils/shared';
-import { clientDB } from '~/composables/render/idb';
 
 let worker: Worker | null = null;
 
