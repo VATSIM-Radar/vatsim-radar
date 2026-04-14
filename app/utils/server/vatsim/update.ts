@@ -66,6 +66,8 @@ export function updateVatsimDataStorage() {
         prefiles.push(prefile);
     }
 
+    data.prefiles = prefiles;
+
     const positions = useFacilitiesIds();
 
     const observers: VatsimController[] = [];

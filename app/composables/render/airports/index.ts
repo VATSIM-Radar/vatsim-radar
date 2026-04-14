@@ -35,7 +35,7 @@ export const activeAirportsList = globalComputed(() => {
     else {
         list = {};
 
-        for (const airport in store.config.airports) {
+        for (const airport of store.config.airports ?? []) {
             if (dataStore.airportsList.value[airport]) list[airport] = dataStore.airportsList.value[airport];
         }
     }

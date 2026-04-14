@@ -269,7 +269,7 @@ export function getAirportCounters(counters: MapAircraftList) {
 
     const countersAircraft = Object.fromEntries(
         Object.entries(counters)
-            .map(x => [x[0] as keyof MapAircraftList, x[1].map(x => dataStore.vatsim.data.keyedPilots.value[x]).filter(x => x)] satisfies [keyof MapAircraftList, VatsimShortenedAircraft[]]),
+            .map(x => [x[0] as keyof MapAircraftList, x[1].map(x => dataStore.vatsim.data.keyedPilots.value[x] ?? dataStore.vatsim.data.keyedPrefiles.value[x]).filter(x => x)] satisfies [keyof MapAircraftList, VatsimShortenedAircraft[]]),
     ) as PartialRecord<keyof MapAircraftList, VatsimShortenedAircraft[]>;
 
     let groundDep = countersAircraft.groundDep;
