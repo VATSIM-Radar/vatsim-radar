@@ -202,8 +202,6 @@ defineCronJob('* * * * * *', async () => {
     try {
         dataProcessInProgress = true;
 
-        console.time('data worker');
-
         radarStorage.vatsim.data = structuredClone(data);
 
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
@@ -240,8 +238,6 @@ defineCronJob('* * * * * *', async () => {
             longitude: -160.23102,
             latitude: 17.56167
         })*/
-
-        console.timeLog('data worker', 'init');
 
         radarStorage.vatsim.data!.pilots.forEach(pilot => {
             const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
@@ -302,8 +298,6 @@ defineCronJob('* * * * * *', async () => {
                 deleted: undefined,
             });
         });
-
-        console.timeLog('data worker', 'forEach');
 
         const localControllers = isDebug() && getLocalText('controllers.json');
 
@@ -429,8 +423,6 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        console.timeLog('data worker', 'duplications');
-
         const pilotCallsigns = new Set(data.pilots.map(p => p.callsign));
         const atcCallsigns = new Set(data.controllers.map(c => c.callsign));
         const atisCallsigns = new Set(data.atis.map(a => a.callsign));
@@ -458,15 +450,10 @@ defineCronJob('* * * * * *', async () => {
         toDelete.atis.clear();
         toDelete.prefiles.clear();
 
-        console.timeLog('data worker', 'deletions');
-
         updateVatsimDataStorage();
-        console.timeLog('data worker', 'data storage');
         updateVatsimMandatoryDataStorage();
-        console.timeLog('data worker', 'mandatory');
 
         await updateVatsimExtendedPilots();
-        console.timeLog('data worker', 'extended');
 
         const regularData = excludeKeys(radarStorage.vatsim.data, {
             pilots: {
@@ -577,8 +564,6 @@ defineCronJob('* * * * * *', async () => {
             });
         }
 
-        console.timeLog('data worker', 'misc');
-
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);
             redisPublisher.publish('data', JSON.stringify({
@@ -595,8 +580,6 @@ defineCronJob('* * * * * *', async () => {
                 resolve();
             });
         });
-
-        console.timeEnd('data worker');
     }
     catch (e) {
         console.error(e);

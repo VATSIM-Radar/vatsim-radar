@@ -69,7 +69,7 @@ const getShownAirports = computed(() => {
             list = list.filter(x => {
                 const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
 
-                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length;
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
             });
             break;
     }

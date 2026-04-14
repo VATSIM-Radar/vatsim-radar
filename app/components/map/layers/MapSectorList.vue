@@ -89,7 +89,7 @@ onMounted(async () => {
                 firs: dataStore.sectorsList.value,
             });
         }
-    }, 1000);
+    }, 500, true);
 
     watch([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions, mapLevel], debouncedUpdate, {
         immediate: true,

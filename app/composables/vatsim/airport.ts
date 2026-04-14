@@ -4,7 +4,7 @@ import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortene
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type {
     MapAircraft,
-    MapAircraftKeys,
+    MapAircraftKeys, MapAircraftList,
 } from '~/types/map';
 import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import { debounce } from '~/utils/shared';
@@ -244,7 +244,7 @@ export const getAirportCountry = (icao?: string | null) => {
 
 type AircraftType = MapAircraftKeys | 'training';
 
-export function getAirportCounters(counters: MapAircraft) {
+export function getAirportCounters(counters: MapAircraftList) {
     const store = useStore();
     const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
 
@@ -258,6 +258,8 @@ export function getAirportCounters(counters: MapAircraft) {
     let training: VatsimShortenedAircraft[] = [];
 
     let groundDep = counters.groundDep;
+
+    // stopped here TODO
 
     if (!store.mapSettings.airportsCounters?.disableTraining) {
         training = counters?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];

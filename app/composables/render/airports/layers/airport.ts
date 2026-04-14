@@ -62,7 +62,7 @@ export function setMapAirports({ source, airports, layer }: {
 
             existingFeature.setProperties({
                 color,
-                aircraftList: airport.aircraftList,
+                aircraftList: airport.aircraft,
                 atcLength: airport.atc.filter(x => !x.isATIS).length,
                 atc: sortControllersByPosition(airport.atc),
             });
@@ -79,7 +79,7 @@ export function setMapAirports({ source, airports, layer }: {
                 lon: airport.airport.lon,
                 lat: airport.airport.lat,
                 atcLength: airport.atc.filter(x => !x.isATIS).length,
-                aircraftList: airport.aircraftList,
+                aircraftList: airport.aircraft,
                 color: colorForAirport(airport),
                 atc: sortControllersByPosition(airport.atc),
             }));
@@ -148,7 +148,7 @@ export function setMapAirports({ source, airports, layer }: {
         });
 
         // Counters
-        if (airport.aircraftList && mapStore.renderedAirports?.includes(airport.icao)) {
+        if (airport.aircraft && mapStore.renderedAirports?.includes(airport.icao)) {
             const counters = getAirportCounters(airport.aircraft);
             const list = Object.entries(counters);
             const totalCount = list.filter(x => x[1].length).length;
@@ -174,7 +174,7 @@ export function setMapAirports({ source, airports, layer }: {
                         index,
                         localsLength,
                         atcLength: airport.atc.filter(x => !x.isATIS).length,
-                        aircraftList: airport.aircraftList,
+                        aircraftList: airport.aircraft,
                     });
                 }
                 else if (airport.airport) {
@@ -191,7 +191,7 @@ export function setMapAirports({ source, airports, layer }: {
                         counterType: key,
                         aircraft: value,
                         atcLength: airport.atc.filter(x => !x.isATIS).length,
-                        aircraftList: airport.aircraftList,
+                        aircraftList: airport.aircraft,
                     });
                     source.addFeature(feature);
                 }
@@ -202,7 +202,7 @@ export function setMapAirports({ source, airports, layer }: {
         if (appr.length) {
             const atc = appr.filter(x => isDuplicated || !x.duplicated);
 
-            if (!airport.features.length && airport.airport && !airport.airport.isPseudo) {
+            if (!airport.features?.length && airport.airport && !airport.airport.isPseudo) {
                 const existingCircle = getMapFeature('airport-circle', source, `airport-${ airport.airport.icao }-circle`);
                 const existingCircleLabel = getMapFeature('airport-circle-label', source, `airport-${ airport.airport.icao }-circleLabel`);
 
@@ -214,7 +214,7 @@ export function setMapAirports({ source, airports, layer }: {
                         isDuplicated,
                         isBooked,
                         atcLength: airport.atc.filter(x => !x.isATIS).length,
-                        aircraftList: airport.aircraftList,
+                        aircraftList: airport.aircraft,
                     });
                 }
                 else {
@@ -246,7 +246,7 @@ export function setMapAirports({ source, airports, layer }: {
                         isDuplicated,
                         isBooked,
                         atcLength: airport.atc.filter(x => !x.isATIS).length,
-                        aircraftList: airport.aircraftList,
+                        aircraftList: airport.aircraft,
                     });
 
                     source.addFeature(circle);
@@ -254,9 +254,9 @@ export function setMapAirports({ source, airports, layer }: {
                 }
             }
             else {
-                const leftAtc = appr.filter(x => (isDuplicated || !x.duplicated) && !airport.features.some(y => y.controllers.some(y => y.cid === x.cid && y.callsign === x.callsign)));
+                const leftAtc = appr.filter(x => (isDuplicated || !x.duplicated) && !airport.features?.some(y => y.controllers.some(y => y.cid === x.cid && y.callsign === x.callsign)));
 
-                for (const atc of airport.features) {
+                for (const atc of airport.features ?? []) {
                     const existingTraconId = `airport-${ airport.icao }-${ atc.id }` as const;
 
                     const existingTracon = getMapFeature('airport-tracon', source, existingTraconId);
@@ -278,7 +278,7 @@ export function setMapAirports({ source, airports, layer }: {
                             isTWR,
                             isDuplicated,
                             isBooked,
-                            aircraftList: airport.aircraftList,
+                            aircraftList: airport.aircraft,
                             atcLength: airport.atc.filter(x => !x.isATIS).length,
                         });
                     }
@@ -319,7 +319,7 @@ export function setMapAirports({ source, airports, layer }: {
                             isBooked,
                             featureId: atc.id,
                             traconId: atc.traconFeature.properties?.id,
-                            aircraftList: airport.aircraftList,
+                            aircraftList: airport.aircraft,
                             atcLength: airport.atc.filter(x => !x.isATIS).length,
                         });
 
@@ -346,14 +346,14 @@ export function setMapAirports({ source, airports, layer }: {
             }
 
             if (isMapFeature('airport-circle', properties) || isMapFeature('airport-circle-label', properties)) {
-                if (!airport.atc.some(x => x.facility === facilitiesIds.APP) || airport.features.length) {
+                if (!airport.atc.some(x => x.facility === facilitiesIds.APP) || airport.features?.length) {
                     source.removeFeature(feature);
                     feature.dispose();
                 }
             }
 
             if (isMapFeature('airport-tracon', properties) || isMapFeature('airport-tracon-label', properties)) {
-                if (!airport.atc.some(x => x.facility === facilitiesIds.APP) || !airport.features.some(x => x.id === properties.featureId)) {
+                if (!airport.atc.some(x => x.facility === facilitiesIds.APP) || !airport.features?.some(x => x.id === properties.featureId)) {
                     source.removeFeature(feature);
                     feature.dispose();
                 }

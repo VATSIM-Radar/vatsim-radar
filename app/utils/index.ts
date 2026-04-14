@@ -91,16 +91,3 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
 
     return new Polygon([coords]);
 }
-
-export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
-    return {
-        cid: booking.atc.cid,
-        name: booking.atc.name,
-        callsign: booking.atc.callsign,
-        frequency: booking.atc.frequency,
-        facility: booking.atc.facility,
-        rating: booking.atc.rating,
-        logon_time: booking.atc.logon_time,
-        text_atis: booking.atc.text_atis,
-    };
-}

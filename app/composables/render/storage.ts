@@ -1,5 +1,5 @@
 import type { VatDataVersions } from '~/types/data';
-import type { VatSpyAPIData, VatSpyData, VatSpyDataProperties } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyAPIData, VatSpyData, VatSpyDataProperties } from '~/types/data/vatspy';
 import type {
     VatsimBooking,
     VatsimExtendedPilot,
@@ -48,7 +48,7 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Feature, MultiPolygon } from 'geojson';
-import type { AirportListItem } from '~/composables/render/airports';
+import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -160,6 +160,7 @@ async function getNavigraphIDBData(key: any) {
 export interface DataAirport {
     icao: string;
     iata?: string;
+    airport?: VatSpyAirport | null;
     aircraft: Partial<{
         groundDep: number[];
         groundArr: number[];
@@ -167,6 +168,7 @@ export interface DataAirport {
         departures: number[];
         arrivals: number[];
     }>;
+    aircraftCount?: number;
     departureCall?: string;
     departureCallPosition?: string;
     vgRunways?: string[];
@@ -181,6 +183,7 @@ export interface DataAirport {
         };
     };
     atc: VatsimShortenedController[];
+    features?: AirportTraconFeature[];
 }
 
 export interface DataSector {
@@ -231,6 +234,7 @@ export interface UseDataStore {
 
     airportsList: ShallowRef<Record<string, DataAirport>>;
     sectorsList: ShallowRef<DataSector[]>;
+    atcAddedDuringUpdate: ShallowRef<Set<string>>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
      * @deprecated
@@ -281,6 +285,7 @@ const dataStore: UseDataStore = {
     vatglasses,
     airportsList: shallowRef({}),
     sectorsList: shallowRef([]),
+    atcAddedDuringUpdate: shallowRef(new Set()),
     vatglassesActivePositions,
     vatglassesActiveRunways,
     vatglassesCombiningInProgress,

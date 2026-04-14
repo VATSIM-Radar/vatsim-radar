@@ -69,11 +69,11 @@ const quietAirports = computed(() => {
         .filter(x => x.airport && !x.airport.isPseudo && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
         .slice()
         .sort((a, b) => {
-            const aArrivals = (a.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
-            const bArrivals = (b.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
+            const aArrivals = (a.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
+            const bArrivals = (b.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
 
-            const aSum = aArrivals.length + (a.aircraftList.groundDep?.length ?? 0);
-            const bSum = bArrivals.length + (b.aircraftList.groundDep?.length ?? 0);
+            const aSum = aArrivals.length + (a.aircraft.groundDep?.length ?? 0);
+            const bSum = bArrivals.length + (b.aircraft.groundDep?.length ?? 0);
 
             const diff = aSum - bSum;
 

@@ -5,9 +5,10 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type { DataAirport, DataSector } from '~/composables/render/storage';
+import { checkForVATSpy } from '~/composables/init';
 
-export const callsignSplitRegex = /_+/;
-const vatspySplitRegex = /[-_]/;
+export const callsignSplitRegex = /_+/gm;
+const vatspySplitRegex = /[-_]/gm;
 
 let uirsMap: Record<string, VatSpyData['uirs'][0]> | undefined;
 
@@ -20,7 +21,9 @@ export interface FirFindResult {
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
 }
 
-async function filterFirsForList(list: string[], callsign: string) {
+async function filterFirsForList(list: string[] | undefined, callsign: string) {
+    if (!list) return [];
+
     const dataStore = useDataStore();
 
     const result: {
@@ -30,7 +33,7 @@ async function filterFirsForList(list: string[], callsign: string) {
 
     for (const item of list) {
         const fir = firsMap[item];
-        if (!fir || (fir.callsign && !callsign.startsWith(fir.callsign)) || !callsign.startsWith(fir.icao)) continue;
+        if (!fir || (fir.callsign ? !callsign.startsWith(fir.callsign) : !callsign.startsWith(fir.icao))) continue;
 
         const features = await dataStore.vatspy.value?.feature(fir.boundary) ?? [];
         if (!features.length) continue;
@@ -71,18 +74,23 @@ export async function updateControllers(context: DataUpdateContext) {
     const store = useStore();
     const facilities = useFacilitiesIds();
 
+    if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
+        dataStore.versions.value!.vatspy = '';
+        await checkForVATSpy();
+    }
+
     if (!uirsMap) {
-        if (dataStore.vatspy.value) {
+        if (dataStore.vatspy.value && dataStore.vatspy.value?.data.uirs?.length && dataStore.vatspy.value?.data.firs?.length) {
             uirsMap = {};
 
             for (const uir of dataStore.vatspy.value?.data.uirs ?? []) {
-                uirsMap[uir.icao.split(vatspySplitRegex)[0]] = uir;
+                uirsMap[uir.icao.split(callsignSplitRegex)[0]] = uir;
             }
 
             for (const fir of dataStore.vatspy.value?.data.firs ?? []) {
-                const icao = fir.icao.split(vatspySplitRegex)[0];
-                const callsign = fir.callsign && fir.callsign.split(vatspySplitRegex)[0];
-                // const boundary = fir.boundary && fir.boundary.split(vatspySplitRegex)[0];
+                const icao = fir.icao.split(callsignSplitRegex)[0];
+                const callsign = fir.callsign && fir.callsign.split(callsignSplitRegex)[0];
+                // const boundary = fir.boundary && fir.boundary.split(callsignSplitRegex)[0];
 
                 const key = fir.callsign ? `${ fir.icao }-${ fir.callsign }` : fir.icao;
 
@@ -131,6 +139,9 @@ export async function updateControllers(context: DataUpdateContext) {
     ];
 
     for (const controller of controllers) {
+        const freq = parseFloat(controller.frequency || '0');
+        if (freq > 137 || freq < 117) continue;
+
         // Already in VATGlasses, skipping
         if (context.atcAdded?.has(controller.callsign)) continue;
 
@@ -249,10 +260,13 @@ export async function updateControllers(context: DataUpdateContext) {
                 context.airports[airport.icao!] ??= {
                     icao: airport.icao!,
                     iata: airport.iata,
+                    airport: airport as VatSpyAirport,
                     aircraft: {},
                     atc: [],
                     atis: {},
                 };
+
+                if (!context.airports[airport.icao!].airport) context.airports[airport.icao!].airport = airport as VatSpyAirport;
 
                 dataAirport = context.airports[airport.icao!];
             }

@@ -1,3 +1,7 @@
+import {
+
+    isVatGlassesActive,
+} from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties, VatglassesActiveAirspaces, VatglassesActivePositions } from '~/utils/data/vatglasses';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type {
@@ -11,6 +15,7 @@ import type { DataUpdateContext } from '~/composables/render/update/index';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'geojson';
 import { polygon } from '@turf/helpers';
 import { stringToArray } from '~/utils/shared';
+import { clientDB } from '~/composables/render/idb';
 
 let worker: Worker | null = null;
 
@@ -169,6 +174,8 @@ function convertSectorToGeoJson(country: VatglassesData[string], sector: Vatglas
 export const runwaysState = useStorageLocal<Record<string, string>>('vg-runways', {});
 
 export async function updateVATGlasses(context: DataUpdateContext) {
+    if (!isVatGlassesActive.value) return;
+
     const { airports } = context;
     const { default: combinedWorker } = await import('~/composables/render/combination-worker.ts?worker');
     worker ??= new combinedWorker();
@@ -304,25 +311,9 @@ export async function updateVATGlasses(context: DataUpdateContext) {
 
             if (controllersForPosition?.length) {
                 for (const airport of vgPositionAirports[positionCountryCode + positionPositionCode] ?? []) {
-                    if (!airport.icao) continue;
+                    if (!airport.icao || !airports[airport.icao]) continue;
 
-                    // Airport creation
-                    if (!airports[airport.icao]) {
-                        airports[airport.icao] = {
-                            icao: airport.icao,
-                            atc: [],
-                            aircraft: {
-                                groundDep: [],
-                                groundArr: [],
-                                prefiles: [],
-                                departures: [],
-                                arrivals: [],
-                            },
-                            atis: {},
-                        };
-                    }
-
-                    airports[airport.icao].atc.push(...controllersForPosition);
+                    controllersForPosition.forEach(x => !airports[airport.icao!].atc.some(y => y.cid === x.cid) && airports[airport.icao!].atc.push(x));
                 }
             }
 

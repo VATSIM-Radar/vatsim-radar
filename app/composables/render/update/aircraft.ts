@@ -12,6 +12,7 @@ function addAircraftToAirport(context: DataUpdateContext, aircraft: VatsimShorte
 
         airports[icao] = {
             icao,
+            airport: vatAirport,
             atc: [],
             aircraft: {
                 groundDep: [],
@@ -26,6 +27,8 @@ function addAircraftToAirport(context: DataUpdateContext, aircraft: VatsimShorte
 
     airports[icao].aircraft[kind] ??= [];
     airports[icao].aircraft[kind].push(aircraft.cid);
+    airports[icao].aircraftCount ??= 0;
+    airports[icao].aircraftCount++;
     context.airportsAdded.add(icao);
 }
 

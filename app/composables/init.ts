@@ -72,7 +72,7 @@ export function checkForUpdates() {
                         resolve();
                         clearInterval(interval);
                     }
-                }, 1000);
+                }, 3000);
             });
         }
 
@@ -224,8 +224,9 @@ export function checkForVG() {
     return initCheck('vatglasses', async ({ dataStore }) => {
         if (!isVatGlassesActive.value) return 'notRequired';
         let vatglasses = await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined;
+        const vatglassesVersion = await clientDB.vatglasses.get('version') as string | undefined;
 
-        if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
+        if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value!.vatglasses || vatglassesVersion !== dataStore.versions.value!.vatglasses) {
             vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
             await clientDB.data.put(vatglasses, 'vatglasses').catch(() => {
                 clientDB.delete();
@@ -243,18 +244,25 @@ export function checkForVG() {
                 vgPositions[`country-${ country }`] = data[country];
 
                 for (const position in data[country].positions) {
-                    const key = `position-${ position.split('_')[0] }`;
+                    let prefixes = data[country].positions[position].pre;
+                    if (typeof prefixes === 'string') prefixes = [prefixes];
 
-                    vgPositions[key] ??= [];
-                    (vgPositions[key] as VatglassesPosition[]).push({
-                        ...data[country].positions[position],
-                        id: position,
-                        countryId: country,
-                    });
+                    if (!prefixes) continue;
+                    for (const prefix of prefixes) {
+                        const key = `position-${ prefix.split('_')[0] }`;
+
+                        vgPositions[key] ??= [];
+                        (vgPositions[key] as VatglassesPosition[]).push({
+                            ...data[country].positions[position],
+                            id: position,
+                            countryId: country,
+                        });
+                    }
                 }
             }
 
             await clientDB.vatglasses.bulkPut(Object.values(vgPositions), Object.keys(vgPositions));
+            await clientDB.vatglasses.put(dataStore.versions.value!.vatglasses, 'version');
         }
 
         dataStore.vatglasses.value = vatglasses.version;

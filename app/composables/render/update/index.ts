@@ -27,4 +27,16 @@ export async function updateControllersRender() {
 
     await updateVATGlasses(context);
     await updateControllers(context);
+
+    for (const airport in context.airports) {
+        if (!context.airportsAdded.has(airport)) delete context.airports[airport];
+    }
+
+    dataStore.airportsList.value = context.airports;
+    dataStore.sectorsList.value = Object.values(context.sectors);
+
+    if (context.atcAdded) {
+        dataStore.atcAddedDuringUpdate.value.clear();
+        dataStore.atcAddedDuringUpdate.value = context.atcAdded;
+    }
 }

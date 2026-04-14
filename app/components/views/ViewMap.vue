@@ -323,6 +323,8 @@ import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { updateControllersRender } from '~/composables/render/update';
 
 defineProps({
     mode: {
@@ -1070,6 +1072,14 @@ await setupDataFetch({
 
         success = true;
     },
+});
+
+const vgLevel = computed(() => store.localSettings.vatglassesLevel);
+
+useUpdateCallback(['short', isVatGlassesActive, vgLevel], () => {
+    updateControllersRender();
+}, {
+    immediate: true,
 });
 
 function handleKeys(event: KeyboardEvent) {

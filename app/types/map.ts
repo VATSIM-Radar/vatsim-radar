@@ -19,6 +19,9 @@ export type MapAircraftKeys = keyof DataAirport['aircraft'];
 export type MapAircraftList = DataAirport['aircraft'];
 export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
 
+/**
+ * @deprecated
+ */
 export type MapAircraft = PartialRecord<Exclude<keyof DataAirport['aircraft'], 'prefiles'>, VatsimShortenedAircraft[]> & {
     prefiles?: VatsimShortenedPrefile[];
 };

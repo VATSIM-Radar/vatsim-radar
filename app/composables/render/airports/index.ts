@@ -63,60 +63,32 @@ interface VisibleAirportsResult {
     visible: DataAirport[];
 }
 
-export interface AirportListItem {
-    icao: string;
-    aircraft: MapAircraft;
-    aircraftList: MapAircraftList;
-    aircraftCount: number;
-    airport: VatSpyAirport | null;
-    dataAirport: DataAirport | null;
-    atc: VatsimShortenedController[];
-    features: AirportTraconFeature[];
-}
+/**
+ * @deprecated
+ */
+export type AirportListItem = DataAirport;
 
 export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     airports: MapAirportRender[];
     visibleAirports: DataAirport[];
-}): Promise<AirportListItem[]> => {
+}): Promise<DataAirport[]> => {
     const dataStore = useDataStore();
 
-    const airportsMap: Record<string, AirportListItem> = {};
-    let airportsArr: AirportListItem[] = [];
-
-    const keyedPrefiles = Object.fromEntries(dataStore.vatsim.data.prefiles.value.map(x => ([x.cid, x])));
+    const airportsMap: Record<string, DataAirport> = {};
+    const airportsByFeatureIds: Record<string, string> = {};
+    let airportsArr: DataAirport[] = [];
 
     for (const { airport } of airports) {
         // if (!visible && !store.fullAirportsUpdate) continue;
-        airportsMap[airport.icao] = {
-            icao: airport.icao,
-            aircraft: {
-                departures: airport.aircraft.departures?.map(x => dataStore.vatsim.data.keyedPilots.value[x]),
-                arrivals: airport.aircraft.arrivals?.map(x => dataStore.vatsim.data.keyedPilots.value[x]),
-                groundArr: airport.aircraft.groundArr?.map(x => dataStore.vatsim.data.keyedPilots.value[x]),
-                groundDep: airport.aircraft.groundDep?.map(x => dataStore.vatsim.data.keyedPilots.value[x]),
-                prefiles: airport.aircraft.prefiles?.map(x => keyedPrefiles[x]),
-            },
-            aircraftList: airport.aircraft,
-            aircraftCount: Object.values(airport.aircraft).reduce((acc, x) => acc + x.length, 0),
-            airport: dataStore.vatspy.value?.data.keyAirports.realIata[airport.iata ?? ''] ??
-            dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao] ??
-                dataStore.vatspy.value?.data.keyAirports.iata[airport.iata ?? ''] ??
-                dataStore.vatspy.value?.data.keyAirports.icao[airport.icao] ??
-                null,
-            dataAirport: airport,
-            atc: airport.atc,
-            features: [],
-        };
-
-        if (airport.iata) airportsMap[airport.iata] = airportsMap[airport.icao];
-        airportsArr.push(airportsMap[airport.icao]);
+        airportsMap[airport.icao] = airport;
+        airportsArr.push(airport);
     }
 
-    function addFeatureToAirport(sector: SimAwareDataFeature, airport: AirportListItem, controller: VatsimShortenedController) {
+    function addFeatureToAirport(sector: SimAwareDataFeature, airport: DataAirport, controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
 
-        let existingSector = airport.features.find(x => x.id === id) ||
-            airportsArr.find(x => x.features.some(x => x.id === id))?.features.find(x => x.id === id);
+        let existingSector = airport.features?.find(x => x.id === id) ||
+            airportsMap[airportsByFeatureIds[id] ?? '']?.features?.find(x => x.id === id);
 
         if (existingSector) {
             existingSector.controllers.push(controller);
@@ -128,6 +100,9 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
                 controllers: [controller],
             };
 
+            airportsByFeatureIds[id] = airport.icao;
+
+            airport.features ??= [];
             airport.features.push(existingSector);
         }
 
@@ -137,13 +112,9 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     const facilities = useFacilitiesIds();
 
     for (const airport of airportsArr) {
-        const addedCallsings = new Set<string>();
+        airport.features ??= [];
 
-        for (const feature of airport.features) {
-            feature.controllers.forEach(controller => addedCallsings.add(controller.callsign));
-        }
-
-        const arrAtc = airport.atc.filter(x => !addedCallsings.has(x.callsign) && x.facility === facilities.APP);
+        const arrAtc = airport.atc.filter(x => x.facility === facilities.APP);
 
         if (!arrAtc.length) continue;
 

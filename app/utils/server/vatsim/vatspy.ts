@@ -9,7 +9,7 @@ import { setRedisData } from '~/utils/server/redis';
 import { getLocalText, isDebug } from '~/utils/server/debug';
 
 const revisions: Record<string, number> = {
-    'v2602.1': 2,
+    'v2602.2': 2,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -163,7 +163,7 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
             properties: {
                 id: boundary.properties!.id,
                 oceanic: boundary.properties!.oceanic === '1',
-                label: [boundary.properties!.label_lon, boundary.properties!.label_lat],
+                label: [+boundary.properties!.label_lon, +boundary.properties!.label_lat],
             },
         });
     }

@@ -158,13 +158,3 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
         arrival: Array.from(arrRunways),
     };
 }
-
-const data = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
-const json = await data.json();
-
-for (const atis of json.atis) {
-    if (!atis.text_atis?.length) continue;
-    const runways = getActiveRunways(atis.text_atis);
-    if (!runways.departure.length && !runways.arrival.length) console.log(atis.callsign);
-    else console.log(atis.callsign, 'dep', runways.departure.join(','), 'arr', runways.arrival.join(','));
-}
