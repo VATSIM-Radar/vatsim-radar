@@ -26,7 +26,7 @@ spec:
         app: influx-v2
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx-ctp
+        doks.digitalocean.com/node-pool: influx-m
       imagePullSecrets:
         - name: ghcr-login-secret
       containers:
@@ -40,8 +40,8 @@ spec:
               cpu: 300m
               memory: 600Mi
             limits:
-              cpu: 7500m
-              memory: 15500Mi
+              cpu: 1800m
+              memory: 3800Mi
           volumeMounts:
             - name: influx-data-v2
               mountPath: /root/.influxdbv2
