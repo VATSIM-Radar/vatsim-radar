@@ -3,7 +3,10 @@
         v-if="pilot.departure && pilot.arrival"
         class="destination_wrap"
     >
-        <div class="destination">
+        <div
+            class="destination"
+            :class="{ 'destination--short': short }"
+        >
             <div class="destination_airport">
                 <ui-text
                     class="destination_airport_title"
@@ -143,6 +146,10 @@ onMounted(() => {
         flex-direction: column;
         gap: 4px;
         justify-content: center;
+    }
+
+    &--short .destination_icon :deep(svg) {
+        width: 16px;
     }
 }
 </style>

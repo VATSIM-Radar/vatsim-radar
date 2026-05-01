@@ -20,7 +20,7 @@
             <template
                 #title
             >
-                <ui-text type="2b">
+                <ui-text :type="isShortInfo ? '3b' : '2b'">
                     <span> {{ pilot.callsign }}</span>
                 </ui-text>
             </template>
@@ -32,7 +32,7 @@
                     class="aircraft-hover__title_type"
                     type="caption-light"
                 >
-                    {{ pilot.aircraft_faa }}
+                    {{ pilot.aircraft_short }}
                 </ui-text>
             </template>
             <template
@@ -41,6 +41,7 @@
             >
                 <ui-bubble
                     class="aircraft-hover__frequency"
+                    :text-type="isShortInfo ? 'caption-light' : undefined"
                     type="primary-flat"
                 >
                     {{ pilot.frequencies[0] }}
@@ -99,12 +100,12 @@
                 >
                     <ui-data-list
                         :gap="isShortInfo ? '8px 4px' : '8px 8px'"
-                        :grid-columns="3"
+                        :grid-columns="isShortInfo ? 2 : 3"
                         :items="[
                             { title: isShortInfo ? undefined : 'Ground speed', text: `${ pilot.groundspeed } kts` },
                             { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
                             { title: isShortInfo ? undefined : 'Heading', text: `${ pilot.heading }°` },
-                        ]"
+                        ].slice(0, isShortInfo ? 2 : 3)"
                     />
                 </div>
             </div>
@@ -236,10 +237,14 @@ const getOverlaySettings = computed<Options>(() => {
     }
 
     &--short {
-        width: 210px;
+        width: 160px;
 
         :deep(.popup-block_title), .aircraft-hover_body > * {
             padding: 4px 8px !important;
+        }
+
+        :deep(.popup-block_title) {
+            gap: 8px;
         }
     }
 

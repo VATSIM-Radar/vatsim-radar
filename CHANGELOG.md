@@ -23,6 +23,7 @@
 - Redesigned header
 - Redesigned tabs
 - Redesigned controls: radios, toggles, etc
+- Made compact aircraft hover mode much more compact than before
 
 # [2.0.0-alpha.7.12]
 

@@ -89,7 +89,7 @@
                     :model-value="!!store.mapSettings.shortAircraftView"
                     @update:modelValue="setUserMapSettings({ shortAircraftView: $event })"
                 >
-                    Short aircraft view
+                    Compact aircraft view
 
                     <template #description>
                         Reduces on-hover displayed info
