@@ -3,12 +3,13 @@
         class="input"
         :class="{ 'input--focused': focused }"
     >
-        <div
+        <ui-text
             v-if="$slots.default"
             class="input_label"
+            type="2b-medium"
         >
             <slot/>
-        </div>
+        </ui-text>
         <div class="input_container">
             <label class="input__input">
                 <div
@@ -35,6 +36,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     inputAttrs: {
@@ -51,6 +53,9 @@ defineProps({
     placeholder: {
         type: String,
     },
+    max: {
+        type: Number,
+    },
 });
 
 defineEmits({
@@ -62,7 +67,12 @@ defineEmits({
     },
 });
 
-defineSlots<{ default?: () => string; icon?: () => any }>();
+defineSlots<{
+    default?: () => any;
+    icon?: () => any;
+    prepend?: () => any;
+    append?: () => any;
+}>();
 
 const focused = defineModel('focused', { type: Boolean });
 const model = defineModel({ type: String as PropType<null | string>, default: null });
@@ -73,9 +83,7 @@ const model = defineModel({ type: String as PropType<null | string>, default: nu
     width: 100%;
 
     &_label {
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 600;
+        margin-bottom: 12px;
     }
 
     &_container {
