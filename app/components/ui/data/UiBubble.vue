@@ -1,18 +1,21 @@
 <template>
-    <component
-        :is
+    <ui-text
         class="bubble"
         :class="[
             `bubble--size-${ size }`,
             `bubble--type-${ type }`,
         ]"
+        :tag="is"
+        :type="textType"
     >
         <slot/>
-    </component>
+    </ui-text>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
 
 defineProps({
     size: {
@@ -22,6 +25,10 @@ defineProps({
     type: {
         type: String as PropType<'primary' | 'secondary' | 'primary-flat'>,
         default: 'primary',
+    },
+    textType: {
+        type: String as PropType<UiTextTypes>,
+        default: 'caption-medium' satisfies UiTextTypes,
     },
     is: {
         type: String,
@@ -40,29 +47,26 @@ defineSlots<{ default: () => any }>();
     padding: 2px 4px;
     border-radius: 4px;
 
-    font-family: $defaultFont;
-    font-size: 11px;
-    font-weight: 600;
     line-height: 100%;
-    color: $lightgray150Orig;
+    color: $typographyPrimaryOrig;
     text-align: center;
     text-decoration: none;
 
-    background: $primary500;
+    background: $brandPrimary;
 
     &--size-M {
         padding: 4px 8px;
     }
 
     &--type-secondary {
-        color: $lightgray150;
-        background: $darkgray875;
+        color: $typographyPrimary;
+        background: $darkGray800;
     }
 
     &--type-primary-flat {
         padding: 0;
         border-radius: 0;
-        color: $primary500;
+        color: $brandPrimary;
         background: transparent;
     }
 }

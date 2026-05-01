@@ -26,7 +26,11 @@
                     >
                         <close-icon/>
                     </div>
-                    <popup-map-info content-padding="12px">
+                    <popup-map-info
+                        content-padding="12px"
+                        :model-value="model"
+                        @update:modelValue="model = $event ?? false"
+                    >
                         <template
                             v-if="$slots.title"
                             #title

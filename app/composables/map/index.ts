@@ -1,5 +1,6 @@
 import PatreonIcon from 'assets/icons/basic/patreon.svg?component';
 import MapIcon from 'assets/icons/kit/map.svg?component';
+import StatsIcon from 'assets/icons/kit/stats.svg?component';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 import EventsIcon from 'assets/icons/kit/event.svg?component';
 import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
@@ -62,8 +63,13 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             ],
         },
         {
-            text: 'Stats',
+            text: 'Dashboard',
             icon: DataIcon,
+            disabled: true,
+        },
+        {
+            text: 'Stats',
+            icon: StatsIcon,
             children: [
                 {
                     text: 'Airports',

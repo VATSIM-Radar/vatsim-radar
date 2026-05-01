@@ -234,7 +234,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 const height = 12;
                 let offsetX = 30;
                 if (properties.localsLength > 3) offsetX = 35;
-                const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 1));
+                const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 2));
 
                 let textColor = getCachedFill(radarColors.green600Hex);
 

@@ -6,7 +6,8 @@ import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import {
-    fetchAircraftIcon,
+    fetchAircraftPngIcon,
+    fetchAircraftSvgIcon,
     getAircraftStatusColor, getFilteredAircraftSettings,
     getFlightRowColor,
     ownFlight,
@@ -16,11 +17,13 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
+import type { WatchHandle } from 'vue';
 
-const styleImageCache: Record<string, Icon> = {};
+let styleImageCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};
 
-const fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
+let fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
+let fetchedPngIcons: PartialRecord<string, HTMLImageElement | Promise<HTMLImageElement>> = {};
 
 function scheduleIconForFetch(icon: AircraftIcon) {
     if (typeof fetchedIcons[icon] === 'string') return fetchedIcons[icon];
@@ -28,12 +31,28 @@ function scheduleIconForFetch(icon: AircraftIcon) {
     // Already scheduled
     if (fetchedIcons[icon]) return null;
 
-    fetchedIcons[icon] = fetchAircraftIcon(icon);
+    fetchedIcons[icon] = fetchAircraftSvgIcon(icon);
     fetchedIcons[icon]
         .then(x => fetchedIcons[icon] = x)
         .catch(e => {
             console.error(e);
             delete fetchedIcons[icon];
+        });
+
+    return null;
+}
+
+function schedulePngIconForFetch(src: string) {
+    // Already scheduled
+    if (fetchedPngIcons[src] && 'then' in fetchedPngIcons[src]) return null;
+    if (fetchedPngIcons[src]) return fetchedPngIcons[src];
+
+    fetchedPngIcons[src] = fetchAircraftPngIcon(src);
+    fetchedPngIcons[src]
+        .then(x => fetchedPngIcons[src] = x)
+        .catch(e => {
+            console.error(e);
+            delete fetchedPngIcons[src];
         });
 
     return null;
@@ -64,6 +83,8 @@ function svgToDataURI(svg: string) {
         .replace(/"/g, '%22');
     return `data:image/svg+xml,${ encoded }`;
 }
+
+let watcher: WatchHandle | undefined = undefined;
 
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
@@ -112,7 +133,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 }
             }
 
-            const [scaledWidth,,resolvedScale] = getResolvedScale({
+            const [scaledWidth, scaledHeight, resolvedScale] = getResolvedScale({
                 width: radarIcons[icon.icon].width,
                 height: radarIcons[icon.icon].height,
                 onGround,
@@ -139,28 +160,34 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache.aircraftImage = new Style();
             }
 
-            const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`;
+            const suffix = `${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
+            const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;
+            let png: HTMLImageElement | null = null;
 
             if (!pngImage) svg = scheduleIconForFetch(icon.icon);
+            else png = schedulePngIconForFetch(pngSrc);
             const shouldDeclutter = store.mapSettings.aircraftDeclutter === 'always'
                 ? true
                 : store.mapSettings?.aircraftDeclutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100)) : false;
 
-            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!svg) + String(shouldDeclutter);
+            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!png) + String(!!svg) + String(shouldDeclutter);
+
+            const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
 
             if (!styleImageCache[imageStyleKey]) {
                 styleImageCache[imageStyleKey] = new Icon({
-                    src: svg ? svgToDataURI(reColorSvg(svg, status, cid)) : pngSrc,
+                    src: svg ? svgToDataURI(reColorSvg(svg, status, cid)) : typeof pngItem === 'string' ? pngItem : undefined,
+                    img: png ?? undefined,
                     declutterMode: shouldDeclutter ? 'declutter' : 'obstacle',
                     width: scaledWidth,
+                    height: scaledHeight,
                     rotateWithView: true,
                 });
             }
 
             if (pngImage || !svg) {
-                styleImageCache[imageStyleKey].setSrc(pngSrc);
                 styleImageCache[imageStyleKey].setRotation(rotation);
                 styleImageCache[imageStyleKey].setColor(filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined));
                 styleImageCache[imageStyleKey].setOpacity(filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)));
@@ -174,6 +201,18 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
             return [styleCache.aircraftImage, styleCache.aircraftText];
+        }
+    });
+
+    watcher?.();
+
+    watcher = watch(() => mapStore.renderedPilots?.length, val => {
+        // Zoomed in, we can clean some stuff
+        if (val && Object.values(fetchedPngIcons).length > val) {
+            if (useIsDebug()) console.log(Object.values(fetchedPngIcons).length, Object.values(styleImageCache).length, 'aircraft cleanup');
+            styleImageCache = {};
+            fetchedIcons = {};
+            fetchedPngIcons = {};
         }
     });
 }

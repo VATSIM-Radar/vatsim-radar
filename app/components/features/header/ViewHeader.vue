@@ -16,61 +16,72 @@
                     <div
                         v-for="button in headerMenu"
                         :key="button.text"
-                        class="header__buttons_btn-wrapper"
-                        :class="{ 'header__buttons_btn-wrapper--has-children': button.children }"
+                        class="header__buttons_btn"
+                        :class="{ 'header__buttons_btn--has-children': button.children }"
+                        :style="{ '--header-btn-width': button.width }"
                     >
-                        <ui-button
-                            class="header__buttons_btn-container"
-                            :disabled="button.disabled"
+                        <ui-text
+                            class="header__btn"
+                            :class="{
+                                'header__btn--disabled': button.disabled,
+                                'header__btn--active': button.active,
+                            }"
                             :to="button.path"
-                            :type="button.active ? 'primary' : 'secondary'"
-                            :width="button.width"
+                            type="2b"
                             @click="button.action?.()"
                         >
-                            <template
+                            <div
                                 v-if="button.icon"
-                                #icon
+                                class="header__btn_icon"
                             >
                                 <component :is="button.icon"/>
-                            </template>
-                            <template
+                            </div>
+                            <div
                                 v-if="!isMobileOrTablet || button.children?.length"
-                                #default
+                                class="header__btn_content"
                             >
-                                <div class="header__buttons_btn">
-                                    <div class="header__buttons_btn_text">
-                                        {{ button.text }}
-                                    </div>
-                                    <div
-                                        v-if="button.children"
-                                        class="header__buttons_btn_children"
-                                    >
-                                        <arrow-top-icon class="header__buttons_btn_children_icon"/>
-                                    </div>
+                                <div class="header__btn_content_text">
+                                    {{ button.text }}
                                 </div>
-                            </template>
-                        </ui-button>
+                                <div
+                                    v-if="button.children"
+                                    class="header__btn_content_children"
+                                >
+                                    <arrow-top-icon class="header__btn_content_icon"/>
+                                </div>
+                            </div>
+                        </ui-text>
                         <div
                             v-if="button.children"
                             class="header__buttons_btn_children_menu"
                         >
-                            <ui-button
-                                v-for="childrenButton in button.children"
-                                :key="childrenButton.text"
-                                :disabled="childrenButton.disabled"
-                                :to="childrenButton.path"
-                                :type="childrenButton.active ? 'primary' : 'secondary'"
-                                @click="childrenButton.action?.()"
+                            <ui-menu
+                                item-padding="16px"
+                                :items="button.children.map(x => ({ title: x.text, key: x.text, onClick: () => x.action ? x.action() : x.path ? $router.push(x.path) : undefined, item: x }))"
                             >
-                                <template
-                                    v-if="childrenButton.icon"
-                                    #icon
-                                >
-                                    <component :is="childrenButton.icon"/>
-                                </template>
+                                <template #default="{ item: { item } }">
+                                    <ui-text
+                                        class="header__buttons__children"
+                                        :class="{
+                                            'header__buttons__children--disabled': item.disabled,
+                                            'header__buttons__children--active': item.active,
+                                        }"
+                                        :to="item.path"
+                                        type="2b"
+                                    >
+                                        <div
+                                            v-if="item.icon"
+                                            class="header__buttons__children_icon"
+                                        >
+                                            <component :is="item.icon"/>
+                                        </div>
 
-                                {{ childrenButton.text }}
-                            </ui-button>
+                                        <div class="header__buttons__children_text">
+                                            {{ item.text }}
+                                        </div>
+                                    </ui-text>
+                                </template>
+                            </ui-menu>
                         </div>
                     </div>
                 </div>
@@ -187,8 +198,8 @@
                     Install App
                 </ui-tooltip>
                 <ui-tooltip
-                    align="right"
-                    location="bottom"
+                    align="left"
+                    location="left"
                     width="200px"
                 >
                     <template #activator>
@@ -283,6 +294,9 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
+import UiTabs from '~/components/ui/data/UiTabs.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import UiMenu from '~/components/ui/data/UiMenu.vue';
 
 const headerMenu = useHeaderMenu();
 
@@ -305,19 +319,25 @@ const mobileMenuOpened = ref(false);
     top: 0;
 
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
 
     height: 56px;
-    padding: 8px 24px;
+    padding: 0 8px;
 
-    background: $darkgray1000;
+    color: $typographyPrimary;
+
+    background: $black;
 
     &_left {
         display: flex;
         gap: 40px;
         align-items: center;
         margin-right: 32px;
+
+        .header__sections {
+            align-self: stretch;
+        }
     }
 
     &_right {
@@ -392,70 +412,127 @@ const mobileMenuOpened = ref(false);
         }
     }
 
-
     &__buttons {
-        &_btn {
+        gap: 0 !important;
+        align-self: stretch;
+
+        .header__btn {
+            cursor: default;
+
+            position: relative;
+
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
+            height: 100%;
+            padding: 8px 16px;
+
+            &::after {
+                content: '';
+
+                position: absolute;
+                bottom: 2px;
+                left: 0;
+
+                width: 100%;
+                height: 0;
+
+                background: $blue500;
+
+                transition: 0.3s;
+            }
+
+            &:is(a) {
+                cursor: pointer;
+            }
+
+            &_icon {
+                svg {
+                    height: 16px;
+                }
+            }
+
+            &_content {
+                display: flex;
+                flex-grow: 1;
+                gap: 16px;
+                align-items: center;
+                justify-content: space-between;
+
+                &_children {
+                    svg {
+                        transform-origin: center;
+                        transform: rotate(90deg);
+                        width: 8px;
+                        transition: 0.3s;
+                    }
+                }
+            }
+
+            &--disabled {
+                pointer-events: none;
+                cursor: default;
+                opacity: 0.2;
+            }
+
+            &--active::after {
+                height: 2px;
+            }
+        }
+
+        &__children {
             display: flex;
             gap: 8px;
             align-items: center;
-            justify-content: space-between;
 
-            width: 100%;
-
-            text-align: left;
-
-            &-container {
-                position: relative;
+            &_icon {
+                width: 16px;
+                min-width: 16px;
             }
 
-            &-wrapper {
-                position: relative;
+            &--disabled {
+                pointer-events: none;
+                cursor: default;
+                opacity: 0.2;
+            }
 
-                &--has-children {
-                    &:hover {
-                        .header__buttons_btn-container {
-                            border-bottom-right-radius: 0 !important;
-                            border-bottom-left-radius: 0 !important;
-                            background: $darkgray875 !important;
-                        }
+            &--active {
+                color: $blue500;
+            }
+        }
 
-                        .header__buttons_btn_children_menu {
-                            visibility: visible;
-                            opacity: 1;
-                        }
+        &_btn {
+            position: relative;
+            align-self: stretch;
+            width: var(--header-btn-width);
 
-                        .header__buttons_btn_children_icon {
-                            transform: rotate(0deg);
-                        }
+            &--has-children {
+                &:hover {
+                    .header__buttons_btn_children_menu {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+
+                    .header__btn_content_children svg {
+                        transform: rotate(180deg);
                     }
                 }
             }
 
             &_children {
-                &_icon {
-                    transform: rotate(180deg);
-                    width: 12px;
-                    transition: 0.3s;
-                }
-
                 &_menu {
                     position: absolute;
                     z-index: 10;
                     top: calc(100% - 1px);
                     left: 0;
 
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-
                     width: 100%;
-                    padding: 8px;
-                    border-bottom-right-radius: 8px;
-                    border-bottom-left-radius: 8px;
+                    border-top: 1px solid $strokeDefault;
 
                     visibility: hidden;
                     opacity: 0;
-                    background: $darkgray1000;
+                    background: $black;
 
                     transition: 0.3s;
                 }

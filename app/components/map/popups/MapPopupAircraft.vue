@@ -13,23 +13,30 @@
             v-if="pilot"
             class="aircraft-hover"
             :class="{ 'aircraft-hover--short': isShortInfo }"
+            content-padding="0"
             :open-from="getOverlaySettings.positioning ?? null"
             @mouseleave="emit('close')"
         >
             <template
-                v-if="!isShortInfo"
                 #title
             >
-                {{ pilot.callsign }}
+                <ui-text type="2b">
+                    <span> {{ pilot.callsign }}</span>
+                </ui-text>
             </template>
             <template
-                v-if="pilot.aircraft_faa && !isShortInfo"
+                v-if="pilot.aircraft_faa"
                 #additionalTitle
             >
-                {{ pilot.aircraft_faa }}
+                <ui-text
+                    class="aircraft-hover__title_type"
+                    type="caption-light"
+                >
+                    {{ pilot.aircraft_faa }}
+                </ui-text>
             </template>
             <template
-                v-if="pilot.frequencies.length >= 1 && !isShortInfo"
+                v-if="pilot.frequencies.length >= 1"
                 #titleAppend
             >
                 <ui-bubble
@@ -54,17 +61,6 @@
                 </ui-bubble>
             </template>
             <div class="aircraft-hover_body">
-                <ui-data-list
-                    v-if="isShortInfo"
-                    class="aircraft-hover_sections"
-                    gap="8px 4px"
-                    :grid-columns="3"
-                    :items="[
-                        { text: pilot.callsign },
-                        { title: pilot.aircraft_faa },
-                        { title: pilot.frequencies[0] },
-                    ]"
-                />
                 <ui-data-list-item class="aircraft-hover_pilot">
                     <template
                         v-if="!isShortInfo && (pilot.pilot_rating !== 0 || pilot.military_rating) && !isShortInfo"
@@ -73,32 +69,39 @@
                         {{ usePilotRating(pilot).join(' | ') }}
                     </template>
                     <ui-spoiler type="pilot">
-                        <template v-if="friend && isNaN(Number(friend.name))">
-                            {{friend.name}}
-                            <ui-text
-                                v-if="friend.comment"
-                                tag="span"
-                                type="caption-light"
-                            >
-                                {{friend.comment}}
-                            </ui-text>
-                        </template>
-                        <template v-else>
-                            {{ parseEncoding(pilot.name) }}
-                        </template>
+                        <ui-text type="3b">
+                            <template v-if="friend && isNaN(Number(friend.name))">
+                                {{friend.name}}
+                                <ui-text
+                                    v-if="friend.comment"
+                                    tag="span"
+                                    type="caption-medium"
+                                >
+                                    {{friend.comment}}
+                                </ui-text>
+                            </template>
+                            <template v-else>
+                                {{ parseEncoding(pilot.name) }}
+                            </template>
+                        </ui-text>
                     </ui-spoiler>
                 </ui-data-list-item>
 
-                <vatsim-pilot-destination
-                    :pilot
-                    :short="isShortInfo"
-                />
-                <div class="aircraft-hover_sections">
+                <div class="aircraft-hover_destination">
+                    <vatsim-pilot-destination
+                        :pilot
+                        :short="isShortInfo"
+                    />
+                </div>
+                <div
+                    class="aircraft-hover_sections"
+                    :class="{ 'aircraft-hover_sections--short': isShortInfo }"
+                >
                     <ui-data-list
                         :gap="isShortInfo ? '8px 4px' : undefined"
-                        :grid-columns="3"
+                        :grid-columns="isShortInfo ? 3 : undefined"
                         :items="[
-                            { title: isShortInfo ? undefined : 'Groundspeed', text: `${ pilot.groundspeed } kts` },
+                            { title: isShortInfo ? undefined : 'Ground speed', text: `${ pilot.groundspeed } kts` },
                             { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
                             { title: isShortInfo ? undefined : 'Heading', text: `${ pilot.heading }°` },
                         ]"
@@ -211,15 +214,33 @@ const getOverlaySettings = computed<Options>(() => {
     flex-direction: column;
 
     width: 248px;
-    border-radius: 8px;
+    border-radius: 2px;
 
     font-size: 13px;
     overflow-wrap: anywhere;
 
     background: $darkgray1000;
 
+    :deep(.popup-block_title .text span) {
+        color: $brandPrimary;
+    }
+
+    &__title_type {
+        line-height: 100%;
+    }
+
+    &_destination {
+        border: dashed $whiteAlpha12;
+        border-width: 1px 0;
+        background: $darkGray800
+    }
+
     &--short {
         width: 210px;
+
+        :deep(.popup-block_title), .aircraft-hover_body > * {
+            padding: 4px 8px !important;
+        }
     }
 
     &__frequency {
@@ -251,12 +272,12 @@ const getOverlaySettings = computed<Options>(() => {
     }
 
     &_body {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        >* {
+            padding: 8px;
+        }
     }
 
-    &_sections {
+    &_sections--short {
         :deep(.list-item:nth-child(2)) {
             align-items: center;
         }

@@ -271,6 +271,8 @@ export type VatsimLiveDataMap = {
         dep?: number;
         // arrival
         arr?: number;
+        // diverted
+        dv?: boolean;
         // diverted arrival
         dva?: number;
         // diverted origin

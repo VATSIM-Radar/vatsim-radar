@@ -359,6 +359,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             aircraft_short: _vatsimData.map.aircraft_short[pilot.tsh ?? -1],
             departure: _vatsimData.map.airports[pilot.dep ?? -1],
             arrival: _vatsimData.map.airports[pilot.arr ?? -1],
+            diverted: pilot.dv,
             diverted_arrival: _vatsimData.map.airports[pilot.dva ?? -1],
             diverted_origin: _vatsimData.map.airports[pilot.dvo ?? -1],
             status: _vatsimData.map.status[pilot.s ?? -1],

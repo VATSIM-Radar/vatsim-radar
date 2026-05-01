@@ -556,6 +556,7 @@ defineCronJob('* * * * * *', async () => {
                 tsh: !pilot.aircraft_short ? undefined : shortDatafeed.map.aircraft_short.indexOf(pilot.aircraft_short),
                 dep: !pilot.departure ? undefined : shortDatafeed.map.airports.indexOf(pilot.departure),
                 arr: !pilot.arrival ? undefined : shortDatafeed.map.airports.indexOf(pilot.arrival),
+                dv: pilot.diverted,
                 dva: !pilot.diverted_arrival ? undefined : shortDatafeed.map.airports.indexOf(pilot.diverted_arrival),
                 dvo: !pilot.diverted_origin ? undefined : shortDatafeed.map.airports.indexOf(pilot.diverted_origin),
                 s: !pilot.status ? undefined : shortDatafeed.map.status.indexOf(pilot.status),

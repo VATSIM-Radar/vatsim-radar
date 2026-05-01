@@ -154,8 +154,6 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     }
 }
 
-const icons: Record<string, string | Promise<string>> = {};
-
 export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
         active: getCurrentThemeHexColor('warning700'),
@@ -235,13 +233,15 @@ export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number)
 
 export type MapAircraftStatus = 'default' | 'ground' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
 
-export async function fetchAircraftIcon(icon: AircraftIcon) {
+const svgIconsCache: Record<string, string | Promise<string>> = {};
+
+export async function fetchAircraftSvgIcon(icon: AircraftIcon) {
     const store = useStore();
-    let svg = icons[icon];
+    let svg = svgIconsCache[icon];
 
     if (typeof svg === 'object') svg = await svg;
     else if (!svg) {
-        icons[icon] = new Promise<string>(async (resolve, reject) => {
+        svgIconsCache[icon] = new Promise<string>(async (resolve, reject) => {
             try {
                 const result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
                 svg = result;
@@ -252,10 +252,27 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
                 reject();
             }
         });
-        await icons[icon];
+        await svgIconsCache[icon];
     }
 
     return svg;
+}
+
+export async function fetchAircraftPngIcon(src: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+
+        img.onload = () => {
+            resolve(img);
+        };
+
+        img.onerror = () => {
+            reject(new Error(`Failed to load aircraft png icon: ${ src }`));
+            return;
+        };
+
+        img.src = src;
+    });
 }
 
 export const useShowPilotStats = () => {

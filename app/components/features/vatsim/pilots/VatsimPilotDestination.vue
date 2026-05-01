@@ -54,8 +54,6 @@
             <template #title>
                 Diverted from {{pilot.diverted_origin}}
             </template>
-
-            {{divOrgAirport?.name}}
         </ui-data-list-item>
     </div>
 </template>
@@ -65,7 +63,7 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import AircraftIcon from '~/assets/icons/kit/aircraft.svg?component';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiText from '~/components/ui/text/UiText.vue';
-import { fetchAircraftIcon } from '~/composables/vatsim/pilots';
+import { fetchAircraftSvgIcon } from '~/composables/vatsim/pilots';
 
 const props = defineProps({
     pilot: {
@@ -96,7 +94,7 @@ onMounted(() => {
         const icon = getAircraftIcon(props.pilot);
         if (!icon) return;
 
-        svg.value = await fetchAircraftIcon(icon.icon);
+        svg.value = await fetchAircraftSvgIcon(icon.icon);
     }, {
         immediate: true,
     });

@@ -217,7 +217,7 @@
 import { parseEncoding } from '~/utils/data';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import {
-    fetchAircraftIcon,
+    fetchAircraftSvgIcon,
     getAircraftDistance,
     getPilotStatus,
     reColorSvg,
@@ -330,7 +330,7 @@ onMounted(() => {
         const icon = getAircraftIcon(props.pilot);
         if (!icon) return;
 
-        svg.value = await fetchAircraftIcon(icon.icon);
+        svg.value = await fetchAircraftSvgIcon(icon.icon);
     }, {
         immediate: true,
     });

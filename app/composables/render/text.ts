@@ -16,7 +16,7 @@ const textTypes = {
     '3b-medium-alt': '600 12px Jura, Arial, sans-serif',
 
     caption: '500 11px LibreFranklin, Arial, sans-serif',
-    'caption-light': 'normal 11px Jura, Arial, sans-serif',
+    'caption-light': 'normal 11px LibreFranklin, Arial, sans-serif',
     'caption-medium': '600 11px LibreFranklin, Arial, sans-serif',
     'caption-medium-alt': '600 11px Jura, Arial, sans-serif',
 } satisfies PartialRecord<UiTextTypes, string>;

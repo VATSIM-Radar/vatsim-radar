@@ -9,6 +9,11 @@
 - Fixed some FIRs such as LPPO_CTR not displaying as they should
 - Improved sectors render performance by moving empty FIR boundaries to a performance-optimized layer variant
 - Fixed observers logon time
+- Improved switching between airport facilities on hover
+- Improved aircraft loading performance and stability
+- Added memory cleanup for aircraft to prevent memory leak
+- Redesigned pilot hover popup (again, but better)
+- Fixed diverts not showing
 
 ## Redesign
 
