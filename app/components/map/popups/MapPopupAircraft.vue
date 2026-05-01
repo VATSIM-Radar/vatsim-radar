@@ -98,8 +98,8 @@
                     :class="{ 'aircraft-hover_sections--short': isShortInfo }"
                 >
                     <ui-data-list
-                        :gap="isShortInfo ? '8px 4px' : undefined"
-                        :grid-columns="isShortInfo ? 3 : undefined"
+                        :gap="isShortInfo ? '8px 4px' : '8px 8px'"
+                        :grid-columns="3"
                         :items="[
                             { title: isShortInfo ? undefined : 'Ground speed', text: `${ pilot.groundspeed } kts` },
                             { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },

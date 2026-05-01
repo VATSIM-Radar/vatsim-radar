@@ -312,13 +312,21 @@ async function updateNavigraph() {
         mapStore.isNavigraphUpdating = true;
 
         const type = store.user?.hasFms ? 'current' : 'outdated';
-        const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?airac=${ dataStore.versions.value?.navigraph?.[type] }&version=${ store.version }`);
+        const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?airac=${ dataStore.versions.value?.navigraph?.[type] }&version=${ store.version }`).catch(e => {
+            console.error(e);
+        });
+
         mapStore.navigraphUpdateProgress = 10;
 
         await clientDB.navigraphData.clear();
         await clientDB.navigraphAirports.clear();
         await clientDB.navigraphDB.clear();
         dataStore.navigraph.version.value = null;
+
+        if (!fetchedData) {
+            mapStore.isNavigraphUpdating = false;
+            return;
+        }
 
         await upsertBagsByIdentifier('airways', fetchedData.airways);
         await upsertBagsByIdentifier('waypoints', fetchedData.waypoints);

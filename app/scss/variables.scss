@@ -78,3 +78,17 @@ $appColor: $citrus600;
         }
     }
 }
+
+@mixin boxShadowActiveProp($color: $blue500Alpha32) {
+    box-shadow: 0 0 0 3px $color;
+}
+
+@mixin boxShadowActive($color: $blue500Alpha32) {
+    @include boxShadowActiveProp(transparent);
+
+    @include hover {
+        &:active {
+            @include boxShadowActiveProp($color);
+        }
+    }
+}

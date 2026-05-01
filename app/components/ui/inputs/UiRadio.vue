@@ -11,11 +11,15 @@
             type="radio"
         >
         <span class="radio_icon"/>
-        <span class="radio_text">
+        <ui-text
+            class="radio_text"
+            tag="span"
+            type="2b-medium"
+        >
             <slot>
                 {{ text || value }}
             </slot>
-        </span>
+        </ui-text>
         <span class="radio_spacer"/>
         <ui-tooltip
             v-if="hint || $slots.hint"
@@ -39,6 +43,7 @@
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import type { TooltipLocation } from '~/components/ui/data/UiTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 export interface RadioItem<T extends string | number | boolean | null = string | number | boolean | null> {
     value: T;
@@ -62,14 +67,11 @@ const model = defineModel({
 <style scoped lang="scss">
 .radio {
     cursor: pointer;
+    user-select: none;
 
     display: flex;
     align-items: center;
 
-    padding: 4px;
-
-    font-size: 12px;
-    font-weight: 600;
     text-align: left;
 
     &--checked {
@@ -87,20 +89,23 @@ const model = defineModel({
         align-items: center;
         justify-content: center;
 
-        width: 16px;
-        min-width: 16px;
-        height: 16px;
-        border: 1px solid $lightgray150;
+        width: 20px;
+        min-width: 20px;
+        height: 20px;
+        border: 1px solid $strokeDefault;
 
-        background: transparent;
+        background: $darkGray700;
+
+        transition: 0.3s;
+        @include boxShadowActiveProp(transparent);
 
         &::before {
             content: '';
 
             position: absolute;
 
-            width: 8px;
-            height: 8px;
+            width: 12px;
+            height: 12px;
 
             background: transparent;
         }
@@ -121,11 +126,10 @@ const model = defineModel({
 
     &--checked .radio {
         &_icon {
-            border-color: $primary500;
-            background: $lightgray50Orig;
+            border-color: $brandPrimaryStroke;
 
             &::before {
-                background: $primary500;
+                background: $brandPrimaryStroke;
             }
         }
     }
@@ -141,6 +145,22 @@ const model = defineModel({
 
         svg {
             width: 16px;
+        }
+    }
+
+    @include hover {
+        &:hover {
+            .radio_icon {
+                border-color: $darkGray100;
+            }
+
+            &.radio--checked .radio_icon {
+                border-color: $brandPrimary;
+            }
+        }
+
+        &:active .radio_icon {
+            @include boxShadowActiveProp;
         }
     }
 }

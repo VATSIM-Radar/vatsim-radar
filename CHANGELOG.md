@@ -14,6 +14,7 @@
 - Added memory cleanup for aircraft to prevent memory leak
 - Redesigned pilot hover popup (again, but better)
 - Fixed diverts not showing
+- Fixed local setup not starting without Navigraph
 
 ## Redesign
 

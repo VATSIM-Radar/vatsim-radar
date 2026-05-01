@@ -416,6 +416,10 @@ const mobileMenuOpened = ref(false);
         gap: 0 !important;
         align-self: stretch;
 
+        :deep(.menu_item:not(:hover)) {
+            background: $black;
+        }
+
         .header__btn {
             cursor: default;
 
@@ -506,9 +510,12 @@ const mobileMenuOpened = ref(false);
             position: relative;
             align-self: stretch;
             width: var(--header-btn-width);
+            transition: 0.3s;
 
             &--has-children {
                 &:hover {
+                    background: $darkGray900;
+
                     .header__buttons_btn_children_menu {
                         visibility: visible;
                         opacity: 1;
@@ -524,11 +531,13 @@ const mobileMenuOpened = ref(false);
                 &_menu {
                     position: absolute;
                     z-index: 10;
-                    top: calc(100% - 1px);
+                    top: calc(100% - 4px);
                     left: 0;
 
                     width: 100%;
-                    border-top: 1px solid $strokeDefault;
+                    border: 1px solid $whiteAlpha4;
+                    border-top: 2px solid $strokeDefault;
+                    border-radius: 0 0 4px 4px;
 
                     visibility: hidden;
                     opacity: 0;
