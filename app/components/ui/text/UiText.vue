@@ -93,7 +93,7 @@ const getTag = computed(() => {
     font-weight: normal;
     font-style: normal;
     line-height: 100%;
-    color: currentColor;
+    color: var(--text-primary-color, currentColor);
     text-decoration: none;
 
     &[class^='text--type-h'], &[class*=' text--type-h'] {
