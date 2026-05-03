@@ -161,7 +161,13 @@ function addSector(context: DataUpdateContext, sector: FirFindResult, controller
 
     if (existingSector && controller) {
         // Don't add booking controllers to same sectors
-        if (controller.isBooking && existingSector.atc.length) return;
+        if (controller.isBooking && existingSector.atc.length) {
+            const similar = existingSector.atc.find(x => !x.isBooking && x.callsign === controller.callsign)
+
+            if (similar) similar.booking = controller.booking;
+
+            return;
+        }
 
         if (!existingSector.atc.some(x => x.callsign === controller.callsign)) {
             existingSector.atc.push(controller);
@@ -458,7 +464,13 @@ export async function updateControllers(context: DataUpdateContext) {
             if (!dataAirport) continue;
 
             // Booking ATC are added last, so that makes sense
-            if (controller.isBooking && dataAirport.atc.some(x => x.facility === controller.facility)) continue;
+            if (controller.isBooking && dataAirport.atc.some(x => x.facility === controller.facility)) {
+                const similar = dataAirport.atc.find(x => x.callsign === controller.callsign && !x.isBooking);
+
+                if (similar) similar.booking = controller.booking;
+
+                continue;
+            }
 
             dataAirport.atc.push({ ...controller, isATIS });
         }

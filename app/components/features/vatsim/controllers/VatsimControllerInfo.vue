@@ -85,7 +85,7 @@
                 class="atc__frequencies"
                 type="caption-light"
             >
-                Also listens:
+                Monitoring
                 <div
                     v-for="freq in additionalFrequencies"
                     :key="freq"

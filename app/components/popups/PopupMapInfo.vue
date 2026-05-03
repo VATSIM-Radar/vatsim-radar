@@ -116,6 +116,10 @@ onMounted(() => {
 
         color: $lightGray200;
 
+        :deep(.bubble) {
+            display: block;
+        }
+
         .__spacer {
             margin: 0 -16px;
         }

@@ -20,19 +20,19 @@
             <template
                 #title
             >
-                <ui-text :type="isShortInfo ? '3b' : '2b'">
+                <ui-text :type="isShortInfo ? '3b' : '3b-medium'">
                     <span> {{ pilot.callsign }}</span>
                 </ui-text>
             </template>
             <template
-                v-if="pilot.aircraft_faa"
+                v-if="pilot.aircraft_short"
                 #additionalTitle
             >
                 <ui-text
                     class="aircraft-hover__title_type"
-                    type="caption-light"
+                    :type="isShortInfo ? 'caption-light' : '3b'"
                 >
-                    {{ pilot.aircraft_short }}
+                    {{ pilot.aircraft_short?.split('/')[0] }}
                 </ui-text>
             </template>
             <template

@@ -175,6 +175,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!png) + String(!!svg) + String(shouldDeclutter);
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
+            const iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined);
 
             if (!styleImageCache[imageStyleKey]) {
                 styleImageCache[imageStyleKey] = new Icon({
@@ -183,13 +184,14 @@ export function setAircraftStyle(layer: VectorLayer) {
                     declutterMode: shouldDeclutter ? 'declutter' : 'obstacle',
                     width: scaledWidth,
                     height: scaledHeight,
+                    color: (pngImage || !svg) ? iconColor : undefined,
                     rotateWithView: true,
                 });
             }
 
             if (pngImage || !svg) {
                 styleImageCache[imageStyleKey].setRotation(rotation);
-                styleImageCache[imageStyleKey].setColor(filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined));
+                styleImageCache[imageStyleKey].setColor(iconColor);
                 styleImageCache[imageStyleKey].setOpacity(filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)));
             }
             else {

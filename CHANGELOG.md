@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-alpha.8.1]
+
+- Restored "booked until" functionality
+- Fixed long aircraft types on hover
+- Fixed "big" aircraft
+- Slightly improved aircraft hover header style
+
 # [2.0.0-alpha.8]
 
 ## Alpha changes
