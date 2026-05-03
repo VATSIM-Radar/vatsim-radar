@@ -3,7 +3,7 @@
         <ui-button
             v-if="Object.keys(store.mapSettings).length"
             size="S"
-            type="secondary-875"
+            type="secondary"
             @click="resetActive = true"
         >
             Reset to defaults
@@ -89,7 +89,7 @@
                     :model-value="!!store.mapSettings.shortAircraftView"
                     @update:modelValue="setUserMapSettings({ shortAircraftView: $event })"
                 >
-                    Short aircraft view
+                    Compact aircraft view
 
                     <template #description>
                         Reduces on-hover displayed info
@@ -128,9 +128,7 @@
                     :model-value="store.mapSettings.aircraftDeclutter ?? false"
                     @update:modelValue="setUserMapSettings({ aircraftDeclutter: $event as any })"
                 >
-                    <template #label>
-                        Aircraft Declutter
-                    </template>
+                    Aircraft Declutter
                 </ui-select>
             </template>
         </ui-columns-display>
@@ -140,12 +138,10 @@
             :model-value="store.mapSettings.overlaysPositions ?? 'bottom-left'"
             @update:modelValue="setUserMapSettings({ overlaysPositions: $event as any })"
         >
-            <template #label>
-                Minified Overlays position
-            </template>
+            Minified Overlays position
         </ui-select>
         <ui-notification
-            cookie-name="settings-emergency"
+            remember-message="SETTINGS_EMERGENCY"
             type="info"
         >
             Emergencies are aircraft squawking 7700 and 7600
@@ -290,13 +286,13 @@
 
             <template #actions>
                 <ui-button
-                    type="secondary-flat"
+                    type="secondary"
                     @click="[resetUserMapSettings(), resetActive = false]"
                 >
                     Confirm reset
                 </ui-button>
                 <ui-button
-                    type="secondary-875"
+                    type="secondary"
                     @click="backupMapSettings()"
                 >
                     Backup data

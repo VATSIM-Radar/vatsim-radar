@@ -11,33 +11,32 @@
                 class="search_input"
                 height="40px"
                 placeholder="Search"
+                @appendClick="$event.input?.focus()"
+                @prependClick="filtersEnabled = !filtersEnabled"
                 @update:focused="$event && ([opened = true, filtersEnabled = false])"
             >
-                <template #icon>
+                <template #prepend>
+                    <ui-button
+                        class="search_filters"
+                        type="link"
+                        @click.stop="filtersEnabled = !filtersEnabled"
+                    >
+                        <template #icon>
+                            <filter-icon/>
+
+                            <div
+                                v-if="filtersCount"
+                                class="search_filters_badge"
+                            >
+                                {{ filtersCount }}
+                            </div>
+                        </template>
+                    </ui-button>
+                </template>
+                <template #append>
                     <search-icon width="16"/>
                 </template>
             </ui-input-text>
-            <transition
-                name="search_filters--appear"
-            >
-                <ui-button
-                    v-if="opened"
-                    class="search_filters"
-                    :type="filtersEnabled ? 'primary' : 'secondary'"
-                    @click="filtersEnabled = !filtersEnabled"
-                >
-                    <template #icon>
-                        <filter-icon/>
-
-                        <div
-                            v-if="filtersCount"
-                            class="search_filters_badge"
-                        >
-                            {{ filtersCount }}
-                        </div>
-                    </template>
-                </ui-button>
-            </transition>
         </div>
         <transition name="search_window--appear">
             <div
@@ -101,6 +100,24 @@
                     class="__info-sections"
                     :class="{ 'search__results-airports-match': exactAirportsMatch }"
                 >
+                    <div
+                        v-if="searchResults.history"
+                        class="__info-sections search__results search__results--history"
+                    >
+                        <ui-block-title
+                            :bubble="searchResults.history.length"
+                            remove-margin
+                        >
+                            History
+                        </ui-block-title>
+                        <ui-text-block
+                            v-for="item in searchResults.history"
+                            :key="item"
+                            :bottom-items="[item]"
+                            is-button
+                            @click="search = item"
+                        />
+                    </div>
                     <div
                         v-if="searchResults.flights && canSearchBy('flights')"
                         class="__info-sections search__results search__results--flights"
@@ -234,12 +251,15 @@ const collapsedData = reactive<PartialRecord<keyof SearchResults, boolean>>({});
 const searchResults = shallowRef<Partial<SearchResults>>({});
 
 const isOpened = computed(() => {
-    return (opened.value && Object.values(searchResults.value).some(x => x.length)) || filtersEnabled.value;
+    return (opened.value && (history.value.length || Object.values(searchResults.value).some(x => x.length))) || filtersEnabled.value;
 });
 
 const filterBy = computed<SearchFilter[]>(() => store.localSettings.traffic?.searchBy?.length ? store.localSettings.traffic?.searchBy : ['atc', 'flights', 'airports']);
 const filtersCount = computed(() => (filterBy.value.length === 0 || filterBy.value.length === 3) ? 0 : filterBy.value.length);
 const searchLimit = computed(() => store.localSettings.traffic?.searchLimit ?? 10);
+const history = useLocalStorage<string[]>('search-history', [], {
+    shallow: true,
+});
 
 const canSearchBy = (filter: SearchFilter): boolean => {
     if (!filtersCount.value) return true;
@@ -288,17 +308,22 @@ function compareFlightWithSearch(search: string, data: SearchResults['flights'])
 }
 
 watch([search, opened], async ([val]) => {
-    await sleep(500);
+    await sleep(300);
     if (search.value !== val) return;
 
     val = val.trim().toUpperCase();
 
     if (!val) {
-        searchResults.value = {};
+        searchResults.value = {
+            history: history.value,
+        };
         return;
     }
 
     const results: Partial<SearchResults> = {};
+
+    history.value.unshift(val);
+    history.value = Array.from(new Set(history.value.slice(0, 10)));
 
     exactAirportsMatch.value = false;
 
@@ -426,16 +451,6 @@ onMounted(() => {
         }
     }
 
-    @include pc {
-        & &_input {
-            width: 280px;
-        }
-
-        &--opened .search_input {
-            width: 240px;
-        }
-    }
-
     @include mobile {
         & &_input {
             height: 40px;
@@ -483,11 +498,9 @@ onMounted(() => {
     }
 
     &_window {
-        scrollbar-gutter: stable;
-
         position: absolute;
         z-index: 10;
-        top: 100%;
+        top: calc(100% - 2px);
         left: 0;
 
         overflow: auto;
@@ -496,9 +509,9 @@ onMounted(() => {
         gap: 16px;
 
         width: 100%;
-        min-height: 320px;
         max-height: 50vh;
-        padding: 16px;
+        padding: 8px;
+        border: 1px solid $darkGray200;
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
 

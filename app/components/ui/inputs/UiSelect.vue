@@ -2,57 +2,73 @@
     <div
         ref="select"
         class="select"
-        :class="{
-            'select--selected': activeItems.length,
-            'select--opened': opened,
-            'select--disabled': disabled,
-        }"
-        @click="opened = !opened"
     >
-        <div
-            v-if="$slots.label"
-            class="select_label"
+        <ui-input-text
+            class="select_input"
+            :disabled
+            :focused="opened"
+            @appendClick="emit('appendClick', $event)"
+            @click="opened = !opened"
+            @prependClick="emit('prependClick', $event)"
         >
-            <slot name="label"/>
-        </div>
-        <div
-            class="select_container"
-        >
-            <div class="select__text">
-                {{ shownValue }}
-            </div>
-            <div class="select__arrow">
-                <arrow-top-icon/>
-            </div>
-        </div>
-        <transition name="select_items--appear">
-            <div
-                v-if="opened"
-                class="select_items"
-                @click.stop
+            <template
+                v-if="$slots.default"
+                #default
             >
-                <div
-                    v-for="item in items.filter(x => multiple || !activeItems.includes(x.value))"
-                    :key="String(item.value)"
-                    class="select__item"
-                    @click="updateModel(item.value, !activeItems.includes(item.value))"
-                >
-                    <slot :item="item">
-                        <template v-if="!multiple">
-                            {{ item.text || String(item.value) }}
-                        </template>
-                        <ui-checkbox
-                            v-else
-                            :model-value="activeItems.includes(item.value)"
-                            @click.stop
-                            @update:modelValue="updateModel(item.value, $event)"
-                        >
-                            {{ item.text || String(item.value) }}
-                        </ui-checkbox>
-                    </slot>
+                <slot/>
+            </template>
+
+            <template #htmlContent>
+                <div class="select__text">
+                    {{ shownValue }}
                 </div>
-            </div>
-        </transition>
+            </template>
+
+            <template #append>
+                <div class="select__append">
+                    <div
+                        v-if="$slots.append"
+                        class="select__append_slot"
+                    />
+                    <ui-separator
+                        v-if="$slots.append"
+                        distance="0"
+                        full
+                    />
+                    <div
+                        class="select__expand-icon"
+                        :class="{ 'select__expand-icon--expanded': opened }"
+                    >
+                        <arrow-top-icon/>
+                    </div>
+                    <transition name="select__dropdown--appear">
+                        <ui-menu
+                            v-if="opened && getItems.length"
+                            class="select__dropdown"
+                            item-padding="12px"
+                            :items="getItems.map(x => ({ title: x.text ?? String(x.value), item: x, key: String(x.value), onClick: () => updateModel(x.value, !activeItems.includes(x.value)) }))"
+                            @click.stop
+                        >
+                            <template #default="{ item: { item } }">
+                                <ui-text type="3b">
+                                    <template v-if="!multiple">
+                                        {{ item.text || String(item.value) }}
+                                    </template>
+                                    <ui-checkbox
+                                        v-else
+                                        :model-value="activeItems.includes(item.value)"
+                                        @click.stop
+                                        @update:modelValue="updateModel(item.value, $event)"
+                                    >
+                                        {{ item.text || String(item.value) }}
+                                    </ui-checkbox>
+                                </ui-text>
+                            </template>
+                        </ui-menu>
+                    </transition>
+                </div>
+            </template>
+        </ui-input-text>
     </div>
 </template>
 
@@ -61,6 +77,10 @@ import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { SelectItem, SelectItemValueType } from '~/types/components/select';
 import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 import type { PropType } from 'vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiMenu from '~/components/ui/data/UiMenu.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     width: {
@@ -99,14 +119,29 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default: (settings: { item: SelectItem }) => any; label?: () => any }>();
+const emit = defineEmits({
+    prependClick(settings: { event: Event; input: HTMLInputElement | null }) {
+        return true;
+    },
+    appendClick(settings: { event: Event; input: HTMLInputElement | null }) {
+        return true;
+    },
+});
+
+defineSlots<{
+    prepend?: () => any;
+    append?: () => any;
+    item: (settings: { item: SelectItem }) => any;
+    default?: () => any;
+}>();
+
 const model = defineModel<SelectItemValueType | SelectItemValueType[]>({ required: true });
 const opened = defineModel('opened', {
     type: Boolean,
     default: false,
 });
 
-const select = ref<HTMLDivElement | null>(null);
+const select = useTemplateRef('select');
 useClickOutside({
     element: select,
     callback: () => opened.value = false,
@@ -122,6 +157,10 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
     }
 
     return [model.value];
+});
+
+const getItems = computed(() => {
+    return props.items.filter(x => props.multiple || !activeItems.value.includes(x.value));
 });
 
 const shownValue = computed<string>(() => {
@@ -154,140 +193,75 @@ function updateModel(value: SelectItemValueType, add: boolean) {
 
 <style scoped lang="scss">
 .select {
-    cursor: pointer;
-    user-select: none;
+    &_input {
+        cursor: pointer;
 
-    position: relative;
-    z-index: 5;
+        :deep(input) {
+            display: none;
+        }
 
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-
-    width: v-bind(width);
-    max-width: 100%;
-
-    font-size: 13px;
-    line-height: 100%;
-    color: $lightgray150;
-    text-align: left;
-
-    transition: 0.6s;
-
-    &--disabled {
-        pointer-events: none;
-        opacity: 0.5;
+        :deep(label) {
+            cursor: pointer;
+        }
     }
 
-    &_label {
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    &_container, &__item {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    &_container {
-        position: relative;
-        z-index: 9;
-
+    &__append {
         display: flex;
-        gap: 16px;
+        align-items: stretch;
+    }
+
+    &__expand-icon {
+        display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
 
-        width: 100%;
+        width: 16px;
         height: 40px;
-        padding: 0 16px;
-        border: 2px solid $darkgray950;
-        border-radius: 8px;
 
-        font-weight: 600;
+        svg {
+            transform: rotate(180deg);
+            width: 12px;
+            height: 12px;
+            transition: 0.3s;
+        }
 
-        background: $darkgray900;
-
-        transition: 0.3s ease-in-out;
+        &--expanded svg {
+            transform: rotate(0);
+        }
     }
 
-    &__arrow {
-        transform: rotate(180deg);
-        width: 12px;
-        min-width: 12px;
-        transition: 0.3s ease-in-out;
-    }
-
-
-    &_items {
-        cursor: initial;
-        scrollbar-gutter: stable;
-
+    &__dropdown {
         position: absolute;
-        z-index: 8;
+        z-index: 6;
         top: calc(100% - 2px);
-        left: 0;
+        left: -1px;
 
         overflow: auto;
 
-        width: 100%;
-        max-height: v-bind(maxDropdownHeight);
-        padding: 8px;
-        border: 2px solid $darkgray950;
-        border-top-color: $darkgray900 !important;
-        border-radius: 0 0 8px 8px;
-
-        background: $darkgray900;
+        width: calc(100% + 2px);
+        max-height: 180px;
+        border: 1px solid $darkGray100;
+        border-top-color: $whiteAlpha12;
+        border-radius: 0 0 2px 2px;
 
         &--appear {
             &-enter-active,
             &-leave-active {
-                overflow: hidden;
                 transition: 0.3s ease-in-out;
             }
 
             &-enter-from,
             &-leave-to {
-                top: 20px;
-                overflow: hidden;
-                max-height: 0;
+                top: calc(100% - 20px);
+                opacity: 0;
             }
         }
     }
 
-    &--opened {
-        z-index: 6;
-        transition: 0s;
-
-        .select {
-            &__arrow {
-                transform: rotate(0deg);
-            }
-
-            &_container {
-                border-radius: 8px 8px 0 0;
-            }
-
-            &_container, &_items {
-                border-color: $darkgray800;
-            }
-        }
-    }
-
-    &__item {
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 8px;
-        transition: 0.3s;
-
-        @include hover {
-            &:hover {
-                background: $darkgray850;
-            }
-        }
+    &__text {
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 }
 </style>

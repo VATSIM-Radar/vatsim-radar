@@ -7,10 +7,14 @@ import {
 } from '~/utils/data/vatglasses';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
+import type VectorImageLayer from 'ol/layer/VectorImage';
 
-export function setMapSectors({ source, firs, layer, labelsLayer }: {
+export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
     source: VectorSource;
     layer: VectorLayer;
+
+    emptySource: VectorSource;
+    emptyLayer: VectorImageLayer;
 
     labelsLayer: VectorLayer;
 
@@ -23,11 +27,16 @@ export function setMapSectors({ source, firs, layer, labelsLayer }: {
         setSectorStyle(layer);
     }
 
+    if (emptyLayer.getStyle() === createDefaultStyle) {
+        setSectorStyle(emptyLayer);
+    }
+
     if (labelsLayer.getStyle() === createDefaultStyle) {
         setSectorStyle(labelsLayer, true);
     }
 
     const activeIds = new Set<string>();
+    const emptyIds = new Set<string>();
 
     for (const fir of firs) {
         const controllers = fir.atc;
@@ -36,9 +45,10 @@ export function setMapSectors({ source, firs, layer, labelsLayer }: {
             : 'empty';
 
         const id: any = 'sector-' + String(fir.fir?.icao) + String(fir.fir?.callsign) + String(fir.feature.properties.id) + String(sectorType);
-        activeIds.add(id);
+        if (sectorType === 'empty') emptyIds.add(id);
+        else activeIds.add(id);
 
-        const existingFeature = getMapFeature('sector', source, id);
+        const existingFeature = getMapFeature('sector', sectorType === 'empty' ? emptySource : source, id);
         const isBooking = store.bookingOverride || (!!controllers.length && controllers.every(x => x.booking));
         const isDuplicated = !!controllers.length && controllers.every(x => x.duplicated);
 
@@ -55,6 +65,7 @@ export function setMapSectors({ source, firs, layer, labelsLayer }: {
         }
 
         if (existingFeature) {
+            if (sectorType === 'empty') continue;
             existingFeature.setProperties({
                 sectorType,
                 booked: isBooking,
@@ -82,7 +93,7 @@ export function setMapSectors({ source, firs, layer, labelsLayer }: {
                 name,
                 isOceanic: fir.feature.properties.oceanic,
             });
-            source.addFeature(feature);
+            (sectorType === 'empty' ? emptySource : source).addFeature(feature);
         }
     }
 
@@ -154,6 +165,17 @@ export function setMapSectors({ source, firs, layer, labelsLayer }: {
         const properties = feature.getProperties();
 
         if ((isMapFeature('sector', properties) && !activeIds.has(properties.id)) || (isMapFeature('sector-vatglasses', properties) && !activeIds.has(properties.vgSectorId))) {
+            source.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+
+    const emptyFeatures = emptySource.getFeatures().slice(0);
+
+    for (const feature of emptyFeatures) {
+        const properties = feature.getProperties();
+
+        if (isMapFeature('sector', properties) && !emptyIds.has(properties.id)) {
             source.removeFeature(feature);
             feature.dispose();
         }

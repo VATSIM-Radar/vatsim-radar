@@ -52,7 +52,7 @@ watch(dataStore.vatsim.tracks, async () => {
                     ...track,
                     geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 })),
                     key: 'nat',
-                    id: `nat-${ waypoint.identifier }-connector`,
+                    id: `nat-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,
                     featureType: 'airways',
                     type: 'navigraph',

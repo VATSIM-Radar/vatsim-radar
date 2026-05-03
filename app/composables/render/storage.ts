@@ -1,6 +1,7 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAirport, VatSpyAPIData, VatSpyData, VatSpyDataProperties } from '~/types/data/vatspy';
 import type {
+    VatsimActiveEvent,
     VatsimBooking,
     VatsimExtendedPilot,
     VatsimLiveCompactDataShort, VatsimLiveData, VatsimLiveDataShort,
@@ -359,6 +360,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             aircraft_short: _vatsimData.map.aircraft_short[pilot.tsh ?? -1],
             departure: _vatsimData.map.airports[pilot.dep ?? -1],
             arrival: _vatsimData.map.airports[pilot.arr ?? -1],
+            diverted: pilot.dv,
             diverted_arrival: _vatsimData.map.airports[pilot.dva ?? -1],
             diverted_origin: _vatsimData.map.airports[pilot.dvo ?? -1],
             status: _vatsimData.map.status[pilot.s ?? -1],
@@ -406,6 +408,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             name: atc.n,
             callsign: atc.ca,
             frequencies: atc.frq?.map(x => _vatsimData.map.frequencies[x]),
+            logon_time: atc.lg,
         });
     }
 
@@ -490,6 +493,7 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;
+let eventsInterval: NodeJS.Timeout | undefined;
 
 function initBookings() {
     const store = useStore();
@@ -533,6 +537,45 @@ function initBookings() {
     }
 
     updateEnd();
+}
+
+function initEvents() {
+    const store = useStore();
+    const dataStore = useDataStore();
+
+    let lastUpdate = Date.now();
+    const start = ref(0);
+    const queryParams = computed(() => ({
+        starting: start.value,
+    }));
+
+    async function updateEvents() {
+        lastUpdate = Date.now();
+        store.events = await $fetch<VatsimActiveEvent[]>('/api/data/vatsim/events/short', {
+            query: queryParams.value,
+        });
+    }
+
+    function updateStart() {
+        const d = new Date();
+        d.setTime(Date.now() + ((((store.mapSettings.eventsHours ?? 2) * 60) * 60) * 1000));
+        start.value = d.getTime();
+    }
+
+    const eventsHours = computed(() => store.mapSettings.eventsHours);
+    // Every 30 minutes
+    const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 30);
+
+    watch(queryParams, updateEvents);
+    watch(eventsHours, updateStart, { immediate: true });
+
+    if (!eventsInterval) {
+        eventsInterval = setInterval(() => {
+            if (needToUpdate.value) updateStart();
+        }, 1000 * 30);
+    }
+
+    updateStart();
 }
 
 export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
@@ -647,6 +690,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         initControllersUpdate();
 
         initBookings();
+        initEvents();
 
         store.initStatus.status = true;
 

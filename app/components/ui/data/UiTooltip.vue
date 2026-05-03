@@ -30,13 +30,13 @@
                     <ui-text
                         v-if="$slots.title"
                         class="tooltip_container_content_title"
-                        type="caption"
+                        :type="titleTextType"
                     >
                         <slot name="title"/>
                     </ui-text>
                     <ui-text
                         class="tooltip_container_content_text"
-                        type="caption-light"
+                        :type="textType"
                     >
                         <slot/>
                     </ui-text>
@@ -52,6 +52,7 @@ import type { ClickOutsideOptions } from '~/composables/map/click-outside';
 import QuestionIcon from '~/assets/icons/basic/question.svg?component';
 import TooltipArrow from '~/assets/icons/kit/tooltip-arrow.svg?component';
 import UiText from '~/components/ui/text/UiText.vue';
+import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     location: {
@@ -88,6 +89,14 @@ const props = defineProps({
     questionMarkSize: {
         type: String,
         default: '12px',
+    },
+    titleTextType: {
+        type: String as PropType<UiTextTypes>,
+        default: 'caption' satisfies UiTextTypes,
+    },
+    textType: {
+        type: String as PropType<UiTextTypes>,
+        default: 'caption-light' satisfies UiTextTypes,
     },
 });
 defineSlots<{ default(): any; activator(): any; title(): any }>();

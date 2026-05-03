@@ -14,20 +14,21 @@ enum DiscordStrategy {
 }
 
 model User {
-  id                   Int                @id @default(autoincrement())
+  id                   Int                        @id @default(autoincrement())
   navigraph            NavigraphUser?
   vatsim               VatsimUser?
   discordId            String?
   discordStrategy      DiscordStrategy?
-  showFriendsInProfile Boolean            @default(false)
-  privateMode          Boolean            @default(false)
+  showFriendsInProfile Boolean                    @default(false)
+  privateMode          Boolean                    @default(false)
   privateUntil         DateTime?
-  isSup                Boolean            @default(false)
+  isSup                Boolean                    @default(false)
   tokens               UserToken[]
-  settings             Json?              @default("{}")
+  settings             Json?                      @default("{}")
   presets              UserPreset[]
   requests             UserRequest[]
   lists                UserTrackingList[]
+  messages             UserAcknowledgedMessages[]
 }
 
 model UserToken {
@@ -52,6 +53,16 @@ model UserRequest {
   userId    Int
   user      User     @relation(onDelete: Cascade, fields: [userId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model UserAcknowledgedMessages {
+  id        Int      @id @default(autoincrement())
+  message   String
+  userId    Int
+  user      User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([message, userId])
 }
 
 enum UserPresetType {

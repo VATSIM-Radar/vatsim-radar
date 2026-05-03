@@ -201,7 +201,7 @@
                 You are about to load {{ activePreset.name }} preset. That will overwrite all your current settings.
                 <template #actions>
                     <ui-button
-                        type="secondary-875"
+                        type="secondary"
                         @click="[emit('save', activePreset.json), states.load = false]"
                     >
                         Load and overwrite
@@ -218,7 +218,7 @@
                 You are about to overwrite {{ activePreset.name }} preset with current settings. That will delete all previous selected preset data.
                 <template #actions>
                     <ui-button
-                        type="secondary-875"
+                        type="secondary"
                         @click="[overwritePreset(), states.overwrite = false]"
                     >
                         Overwrite preset
@@ -239,13 +239,13 @@
                 <template #actions>
                     <ui-button
                         primary-color="error500"
-                        type="secondary-flat"
+                        type="secondary"
                         @click="deletePreset()"
                     >
                         Permanently delete
                     </ui-button>
                     <ui-button
-                        type="secondary-875"
+                        type="secondary"
                         @click="exportPreset(activePreset)"
                     >
                         Backup data

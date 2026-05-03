@@ -10,7 +10,15 @@ $achievementAspectRatio: math.div(1280, 1024);
 $strokeDefault: $darkGray400;
 $navigraphColor: #da2f2b;
 $typographyPrimary: $lightGray200;
+$typographyPrimaryOrig: $lightGray200Orig;
+$typographySecondary: $lightGray900;
+
 $brandPrimary: $blue400;
+$brandPrimaryStroke: $blue500;
+$errorPrimaryStroke: $error500;
+$warningPrimaryStroke: $orange500;
+$successPrimaryStroke: $green500;
+
 $backgroundLevel1: $darkgray900;
 $backgroundLevel4: $darkGray600;
 
@@ -67,6 +75,20 @@ $appColor: $citrus600;
     @include mobileOnly() {
         @supports (-webkit-hyphens:none) {
             @content;
+        }
+    }
+}
+
+@mixin boxShadowActiveProp($color: $blue500Alpha32) {
+    box-shadow: 0 0 0 3px $color;
+}
+
+@mixin boxShadowActive($color: $blue500Alpha32) {
+    @include boxShadowActiveProp(transparent);
+
+    @include hover {
+        &:active {
+            @include boxShadowActiveProp($color);
         }
     }
 }

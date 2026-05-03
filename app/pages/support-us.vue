@@ -51,7 +51,7 @@
                 <ui-button
                     href="https://boosty.to/vatsimradar24"
                     target="_blank"
-                    type="secondary-875"
+                    type="secondary"
                 >
                     Support us on Boosty
                 </ui-button>

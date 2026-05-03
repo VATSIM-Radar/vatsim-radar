@@ -29,7 +29,7 @@
                 class="event-card_details_btn"
                 size="S"
                 :to="`/events/${ event.id }`"
-                type="secondary-875"
+                type="secondary"
             >
                 Open in a separate page
             </ui-button>

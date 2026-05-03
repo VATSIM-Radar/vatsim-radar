@@ -8,7 +8,7 @@
                 v-if="!isMobile"
                 class="controls_item"
                 size="S"
-                :type="store.localSettings.distance?.enabled ? 'primary' : 'secondary-flat'"
+                :type="store.localSettings.distance?.enabled ? 'primary' : 'secondary-black'"
                 @click="setUserLocalSettings({ distance: { enabled: !store.localSettings.distance?.enabled } })"
             >
                 <template #icon>
@@ -19,7 +19,7 @@
                 class="controls_item"
                 :disabled="mapStore.zoom >= view.getMaxZoom()"
                 size="S"
-                type="secondary-flat"
+                type="secondary-black"
                 @click="setZoom(true)"
             >
                 <template #icon>
@@ -30,7 +30,7 @@
                 class="controls_item"
                 :disabled="mapStore.zoom <= view.getMinZoom()"
                 size="S"
-                type="secondary-flat"
+                type="secondary-black"
                 @click="setZoom(false)"
             >
                 <template #icon>
@@ -40,7 +40,7 @@
             <ui-button
                 class="controls_item"
                 size="S"
-                type="secondary-flat"
+                type="secondary-black"
                 @click="setRotate(false)"
             >
                 <template #icon>
@@ -53,7 +53,7 @@
             class="controls_item"
             :disabled="mapStore.rotation === 0"
             size="S"
-            type="secondary-flat"
+            type="secondary-black"
             @click="setRotate('reset')"
         >
             <template #icon>
@@ -64,7 +64,7 @@
             v-if="!isMobile"
             class="controls_item"
             size="S"
-            type="secondary-flat"
+            type="secondary-black"
             @click="setRotate(true)"
         >
             <template #icon>

@@ -47,6 +47,7 @@ export interface SearchResults {
     flights: (VatsimShortenedAircraft | VatsimShortenedPrefile)[];
     airports: VatSpyAirport[];
     atc: VatsimShortenedController[];
+    history?: string[];
 }
 
 export type SearchFilter = keyof SearchResults;

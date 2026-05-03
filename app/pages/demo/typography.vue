@@ -11,6 +11,29 @@
             >
                 Lorem ipsum ({{type}})
             </ui-text>
+            <ui-label>
+                Test
+            </ui-label>
+            <ui-label
+                v-for="type in ['L', 'M', 'S', 'XS', null] as any[]"
+                :key="type"
+                :headline-type="type"
+            >
+                Test
+
+                <template #tooltip>
+                    test
+                </template>
+
+                <template #text>
+                    Test
+                </template>
+            </ui-label>
+            <ui-label>
+                <template #text>
+                    Test
+                </template>
+            </ui-label>
         </div>
     </ui-page-container>
 </template>
@@ -19,6 +42,7 @@
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
+import UiLabel from '~/components/ui/text/UiLabel.vue';
 
 const types: Record<UiTextTypes, true> = {
     h1: true,

@@ -154,3 +154,24 @@ const ipRegex = /^(?!https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})((https?:\/\/\d{1,3
 export function isValidIPOrigin(origin: string) {
     return ipRegex.test(origin);
 }
+
+export enum UserMessageType {
+    FRIENDS_CLICK_TUTORIAL = 'FRIENDS_CLICK_TUTORIAL',
+    VATSPY_IMPORT = 'VATSPY_IMPORT',
+    BOOKMARKS_KEYS = 'BOOKMARKS_KEYS',
+    BARS_IN_USE = 'BARS_IN_USE',
+    VATGLASSES_RUNWAYS = 'VATGLASSES_RUNWAYS',
+    ATC_FREQUENCIES = 'ATC_FREQUENCIES',
+    FULL_ROUTE_TIP = 'FULL_ROUTE_TIP',
+    // TODO: remove
+    NEXT_WEIRD_DESTINATION = 'NEXT_WEIRD_DESTINATION',
+    FILTERS_INPUT = 'FILTERS_INPUT',
+    FILTERS_ROUTES_FORMAT = 'FILTERS_ROUTES_FORMAT',
+    LAYERS_TUTORIAL = 'LAYERS_TUTORIAL',
+    IFR_TUTORIAL = 'IFR_TUTORIAL',
+    SETTINGS_EMERGENCY = 'SETTINGS_EMERGENCY',
+    NAVIGRAPH_CONNECT_WARNING = 'NAVIGRAPH_CONNECT_WARNING',
+    ACHIEVEMENTS_LINK = 'ACHIEVEMENTS_LINK',
+}
+
+export const userMessageTypes = new Set<UserMessageType>(Object.values(UserMessageType));

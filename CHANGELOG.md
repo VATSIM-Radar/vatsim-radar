@@ -1,5 +1,44 @@
 # Changelog
 
+# [2.0.0-alpha.8]
+
+## Alpha changes
+
+- Buttons have been redesigned. They can look weird there and there, please take a look at them!
+- Notifications have been redesigned. They can start to look weird too, or not fit to a specific place
+- Fixed some FIRs such as LPPO_CTR not displaying as they should
+- Improved sectors render performance by moving empty FIR boundaries to a performance-optimized layer variant
+- Fixed observers logon time
+- Improved switching between airport facilities on hover
+- Improved aircraft loading performance and stability
+- Added memory cleanup for aircraft to prevent memory leak
+- Redesigned pilot hover popup (again, but better)
+- Fixed diverts not showing
+- Fixed local setup not starting without Navigraph
+- Added all frequencies display on hover
+- Fixed some UIRs, such as AFRN or GULF and ASEA, not showing correct sectors
+- Removed runways from airport on-hover popup
+- Fixed CTR -> FSS sorting in hover popup
+- Fixed edge case when atc tracons with same prefixes were not showing
+- Fixed pilots labels toggle not working
+
+## Features and improvements
+
+- Added support for search history
+- Upcoming and current events will now show on map
+- Booked favorite controller will now show in Favorite section
+- You can now hover over empty airports to find out their name
+
+## Redesign
+
+- Buttons have been redesigned for new VATSIM Radar simple look
+- Notifications have been redesigned - each closed notification now also saves into your account, in case you are logged in. You can now also reset all saw notifications in settings
+- Redesigned header
+- Redesigned tabs
+- Redesigned controls: radios, toggles, etc
+- Made compact aircraft hover mode much more compact than before
+- Redesigned inputs and selects
+
 # [2.0.0-alpha.7.12]
 
 - Fixed VATGlasses/CTR sectors not showed in ATC tab when on ground, and also not clickable

@@ -120,7 +120,7 @@
         >
             <ui-notification
                 v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
-                cookie-name="full-route-tip"
+                remember-message="FULL_ROUTE_TIP"
                 type="info"
             >
                 Want to always show full route? Visit <a

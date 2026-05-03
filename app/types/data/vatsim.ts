@@ -198,7 +198,7 @@ export type VatsimShortenedData = {
         }
     >;
     controllers: Omit<VatsimController, 'visual_range' | 'server' | 'last_updated'>[];
-    observers: Omit<VatsimController, 'frequency' | 'facility' | 'rating' | 'visual_range' | 'text_atis' | 'server' | 'last_updated' | 'logon_time'>[];
+    observers: Omit<VatsimController, 'frequency' | 'facility' | 'rating' | 'visual_range' | 'text_atis' | 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'visual_range' | 'server' | 'last_updated'>[];
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'flight_rules'>>>;
     bars: BARSShort;
@@ -271,6 +271,8 @@ export type VatsimLiveDataMap = {
         dep?: number;
         // arrival
         arr?: number;
+        // diverted
+        dv?: boolean;
         // diverted arrival
         dva?: number;
         // diverted origin
@@ -298,7 +300,7 @@ export type VatsimLiveDataMap = {
         fr?: number;
         frq?: number[];
     }[];
-    observers: Pick<VatsimLiveDataMap['controllers'][0], 'ci' | 'n' | 'ca' | 'frq'>[];
+    observers: Pick<VatsimLiveDataMap['controllers'][0], 'ci' | 'n' | 'ca' | 'frq' | 'lg'>[];
     atis: Array<VatsimLiveDataMap['controllers'][0] & {
         // ATIS code map
         co?: number;
@@ -370,6 +372,8 @@ export interface VatsimEvent {
     description: string;
     banner: string;
 }
+
+export type VatsimActiveEvent = Pick<VatsimEvent, 'id' | 'type' | 'name' | 'airports' | 'start_time' | 'end_time'>;
 
 export type VatsimMemberStats = Record<
     | 'id'

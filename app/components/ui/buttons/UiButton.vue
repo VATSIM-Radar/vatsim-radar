@@ -14,10 +14,10 @@
         :style="{
             '--button-width': width ?? 'auto',
             '--icon-width': iconWidth,
-            '--primary-color': radarColors[primaryColor],
-            '--link-color': radarColors[linkColor],
-            '--hover-color': radarColors[hoverColor],
-            '--focus-color': radarColors[focusColor],
+            '--primary-color': primaryColor ? radarColors[primaryColor] : null,
+            '--link-color': linkColor ? radarColors[linkColor] : null,
+            '--hover-color': hoverColor ? radarColors[hoverColor] : null,
+            '--focus-color': focusColor ? radarColors[focusColor] : null,
         }"
         :target="target"
         v-bind="getAttrs"
@@ -29,11 +29,18 @@
         >
             <slot name="icon"/>
         </div>
-        <div
+        <ui-text
             v-if="$slots.default"
             class="button_content"
+            type="2b"
         >
             <slot name="default"/>
+        </ui-text>
+        <div
+            v-if="$slots.append"
+            class="button_append"
+        >
+            <slot name="append"/>
         </div>
     </component>
 </template>
@@ -44,6 +51,7 @@ import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
 import type { ColorsList } from '~/utils/colors';
 import { radarColors } from '#build/radar/colors';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     tag: {
@@ -57,7 +65,7 @@ const props = defineProps({
         default: '16px',
     },
     type: {
-        type: String as PropType<'primary' | 'secondary' | 'secondary-875' | 'secondary-flat' | 'link' | 'transparent'>,
+        type: String as PropType<'primary' | 'secondary' | 'secondary-black' | 'destructive' | 'link'>,
         default: 'primary',
     },
     orientation: {
@@ -85,20 +93,20 @@ const props = defineProps({
         default: null,
     },
     primaryColor: {
-        type: String as PropType<ColorsList>,
-        default: 'primary500',
+        type: String as PropType<ColorsList | null>,
+        default: null,
     },
     linkColor: {
         type: String as PropType<ColorsList>,
-        default: 'lightgray150',
+        default: 'lightGray200',
     },
     hoverColor: {
-        type: String as PropType<ColorsList>,
-        default: 'primary400',
+        type: String as PropType<ColorsList | null>,
+        default: null,
     },
     focusColor: {
-        type: String as PropType<ColorsList>,
-        default: 'primary600',
+        type: String as PropType<ColorsList | null>,
+        default: null,
     },
     textAlign: {
         type: String,
@@ -115,6 +123,7 @@ defineEmits({
 defineSlots<{
     default?(): any;
     icon?(): any;
+    append?(): any;
 }>();
 
 const getTag = computed(() => {
@@ -148,19 +157,16 @@ const getAttrs = computed(() => {
 
     width: var(--button-width);
     min-height: 40px;
-    padding: 8px 16px;
+    padding: 8px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
 
-    font-family: $defaultFont;
-    font-size: 13px;
-    font-weight: 600;
-    color: $lightgray50Orig;
+    color: $typographyPrimary;
     text-align: v-bind(textAlign);
     text-decoration: none;
 
     appearance: none;
-    background: var(--primary-color);
+    background: var(--primary-color, $blue500);
     outline: none;
     box-shadow: none;
 
@@ -173,12 +179,16 @@ const getAttrs = computed(() => {
         transition: 0.3s;
 
         &:hover {
-            background: var(--hover-color);
+            background: var(--hover-color, $blue400);
         }
 
         &:focus, &:active {
-            background: var(--focus-color);
+            background: var(--focus-color, $blue600);
         }
+    }
+
+    &--type-primary {
+        color: $typographyPrimaryOrig;
     }
 
     &_icon {
@@ -186,54 +196,38 @@ const getAttrs = computed(() => {
         min-width: var(--icon-width);
     }
 
-    &--type-secondary, &--type-secondary-flat, &--type-secondary-875 {
-        color: $lightgray50;
-        background: $darkgray900;
+    &--type-secondary, &--type-destructive {
+        background: var(--primary-color, transparent);
     }
 
-    &--type-secondary-875 {
-        background: $darkgray875;
-    }
-
-    &--type-secondary, &--type-secondary-875 {
+    &--type-secondary, &--type-destructive {
         @include hover {
             &:hover {
-                background: $darkgray850;
+                background: var(--hover-color, $whiteAlpha4);
             }
 
-            &:focus, &:active {
-                background: $darkgray800;
+            &:active, &:focus {
+                background: var(--focus-color, $blue500Alpha32);
             }
         }
     }
 
-    &--type-secondary-flat {
+    &--type-secondary-black {
+        background: var(--primary-color, $darkgray900);
+
         @include hover {
             &:hover {
-                color: $primary500;
-                background: $darkgray900;
+                background: var(--hover-color, $darkGray600);
             }
 
-            &:focus, &:active {
-                color: $primary500;
-                background: $darkgray900;
+            &:active, &:focus {
+                background: var(--focus-color, $darkGray400);
             }
         }
     }
 
-    &--type-transparent {
-        color: $lightgray150;
-        background: transparent !important;
-
-        @include hover {
-            &:hover {
-                color: $primary500;
-            }
-
-            &:focus, &:active {
-                color: $primary600;
-            }
-        }
+    &--type-destructive .button_content {
+        color: $red600;
     }
 
     &--orientation-vertical {
@@ -287,7 +281,11 @@ const getAttrs = computed(() => {
     }
 
     &--disabled {
-        opacity: 0.5;
+        opacity: 0.24;
+
+        &.button--type-primary {
+            background: $whiteAlpha2;
+        }
 
         &, &:deep(svg) {
             pointer-events: none;

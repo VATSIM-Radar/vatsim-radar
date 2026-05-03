@@ -2,7 +2,7 @@
     <div class="bars">
         <ui-notification
             class="bars_title"
-            cookie-name="bars-in-use"
+            remember-message="BARS_IN_USE"
             type="info"
         >
             BARS integration is active for this airport.<br> <a

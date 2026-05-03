@@ -1,23 +1,32 @@
 <template>
     <div
         class="checkbox"
-        :class="{ 'checkbox--checked': checked, 'checkbox--revert': revert }"
+        :class="{ 'checkbox--checked': checked, 'checkbox--revert': revert, 'checkbox--disabled': disabled }"
         @click="checked = !checked"
     >
         <div class="checkbox_icon">
             <check-icon/>
         </div>
-        <div class="checkbox_text">
+        <ui-text
+            v-if="$slots.default"
+            class="checkbox_text"
+            type="2b-medium"
+        >
             <slot/>
-        </div>
+        </ui-text>
     </div>
 </template>
 
 <script setup lang="ts">
 import CheckIcon from '~/assets/icons/kit/check.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     revert: {
+        type: Boolean,
+        default: false,
+    },
+    disabled: {
         type: Boolean,
         default: false,
     },
@@ -34,13 +43,8 @@ const checked = defineModel({ type: Boolean, required: true });
     user-select: none;
 
     display: flex;
-    gap: 16px;
+    gap: 24px;
     align-items: center;
-
-    font-family: $defaultFont;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 100%;
 
     &--revert {
         flex-direction: row-reverse;
@@ -51,10 +55,13 @@ const checked = defineModel({ type: Boolean, required: true });
         align-items: center;
         justify-content: center;
 
-        width: 16px;
-        height: 16px;
-        border: 1px solid $lightgray100;
+        width: 20px;
+        min-width: 20px;
+        height: 20px;
+        border: 1px solid $strokeDefault;
         border-radius: 4px;
+
+        @include boxShadowActiveProp(transparent);
 
         transition: 0.3s;
 
@@ -65,15 +72,42 @@ const checked = defineModel({ type: Boolean, required: true });
         }
     }
 
+    @include hover {
+        &:hover .checkbox_icon {
+            border-color: $darkGray100;
+        }
+
+        &:active .checkbox_icon {
+            @include boxShadowActiveProp;
+        }
+    }
+
     &--checked .checkbox {
         &_icon {
-            border-color: $primary500;
-            background: $primary500;
+            border-color: $brandPrimaryStroke;
+            color: $lightGray400Orig;
+            background: $brandPrimaryStroke;
 
             svg {
                 transform: scale(1);
-                color: $lightgray150Orig;
             }
+        }
+
+        @include hover {
+            &:hover .checkbox_icon {
+                border-color: $brandPrimary;
+            }
+        }
+    }
+
+    &--disabled {
+        pointer-events: none;
+        cursor: default;
+
+        .checkbox_icon {
+            border-color: $whiteAlpha2;
+            color: $whiteAlpha24;
+            background: $darkGray900;
         }
     }
 }

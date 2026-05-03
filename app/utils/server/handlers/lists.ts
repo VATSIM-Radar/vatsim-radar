@@ -7,6 +7,7 @@ import { UserTrackingListType } from '#prisma';
 import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
 import { colorsList } from '~/utils/colors';
 import type {
+    VatsimBooking,
     VatsimShortenedAircraft,
     VatsimShortenedController, VatsimShortenedData,
     VatsimShortenedPrefile,
@@ -50,6 +51,11 @@ export interface UserListLiveUserController extends UserListUser {
     data: VatsimShortenedController;
 }
 
+export interface UserListLiveUserBooking extends UserListUser {
+    type: 'booking';
+    data: VatsimBooking;
+}
+
 export interface UserListLiveUserSup extends UserListUser {
     type: 'sup';
     data: VatsimShortenedController;
@@ -60,7 +66,7 @@ export interface UserListLiveUserOffline extends UserListUser {
     data?: undefined;
 }
 
-export type UserListLiveUser = UserListLiveUserPilot | UserListLiveUserPrefile | UserListLiveUserController | UserListLiveUserOffline | UserListLiveUserSup;
+export type UserListLiveUser = UserListLiveUserPilot | UserListLiveUserPrefile | UserListLiveUserController | UserListLiveUserBooking | UserListLiveUserOffline | UserListLiveUserSup;
 
 export type UserListLive = Omit<UserList, 'users'> & { users: UserListLiveUser[] };
 

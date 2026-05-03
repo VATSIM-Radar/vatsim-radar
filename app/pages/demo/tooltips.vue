@@ -9,18 +9,14 @@
             :model-value="tooltipSettings.location"
             @update:modelValue="tooltipSettings.location = $event as any"
         >
-            <template #label>
-                Location
-            </template>
+            Location
         </ui-select>
         <ui-select
             :items="[{ value: 'left' }, { value: 'right' }, { value: 'center' }]"
             :model-value="tooltipSettings.align"
             @update:modelValue="tooltipSettings.align = $event as any"
         >
-            <template #label>
-                Align
-            </template>
+            Align
         </ui-select>
 
         <div class="wrapper">

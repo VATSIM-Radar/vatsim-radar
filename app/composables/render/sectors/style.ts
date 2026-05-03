@@ -10,6 +10,7 @@ import type { SettingsColorType } from '~/composables/settings/colors';
 import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';
+import type VectorImageLayer from 'ol/layer/VectorImage';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style | Style[]> = {};
@@ -182,7 +183,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
     return styleCache[key] as Style;
 };
 
-export function setSectorStyle(layer: VectorLayer, labelType = false) {
+export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType = false) {
     styleFillCache = {};
     styleCache = {};
     geometryCache = {};

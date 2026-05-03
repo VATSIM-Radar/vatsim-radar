@@ -12,7 +12,7 @@
         <ui-button
             v-if="multiple"
             size="S"
-            type="secondary-875"
+            type="secondary"
             @click="delete dataStore.navigraphProcedures.value[props.airport]"
         >
             Reset all

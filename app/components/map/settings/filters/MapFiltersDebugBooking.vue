@@ -35,18 +35,14 @@
                     :items="atcPositions"
                     width="100%"
                 >
-                    <template #label>
-                        Facility (optional)
-                    </template>
+                    Facility (optional)
                 </ui-select>
                 <ui-select
                     v-model="booking.atc.rating"
                     :items="atcRatings"
                     width="100%"
                 >
-                    <template #label>
-                        Rating
-                    </template>
+                    Rating
                 </ui-select>
             </template>
         </ui-columns-display>

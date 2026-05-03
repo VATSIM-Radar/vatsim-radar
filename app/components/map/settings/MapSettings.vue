@@ -26,7 +26,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'map' }"
                     @click="selectFilter('map')"
                 >
-                    <ui-button :type="selectedFilter === 'map' ? 'primary' : 'secondary'">
+                    <ui-button :type="selectedFilter === 'map' ? 'primary' : 'secondary-black'">
                         <template #icon>
                             <map-layers-icon/>
                         </template>
@@ -54,7 +54,7 @@
                 >
                     <ui-button
                         icon-width="18px"
-                        :type="selectedFilter === 'weather' ? 'primary' : 'secondary'"
+                        :type="selectedFilter === 'weather' ? 'primary' : 'secondary-black'"
                     >
                         <template #icon>
                             <weather-icon/>
@@ -108,7 +108,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'filters', 'filters_sections_section--active': hasActivePilotFilter() }"
                     @click="selectFilter('filters')"
                 >
-                    <ui-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary'">
+                    <ui-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary-black'">
                         <template #icon>
                             <filters-icon/>
                         </template>
@@ -164,7 +164,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'settings' }"
                     @click="selectFilter('settings')"
                 >
-                    <ui-button :type="selectedFilter === 'settings' ? 'primary' : 'secondary'">
+                    <ui-button :type="selectedFilter === 'settings' ? 'primary' : 'secondary-black'">
                         <template #icon>
                             <settings-icon/>
                         </template>
@@ -224,7 +224,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'debug' }"
                     @click="selectFilter('debug')"
                 >
-                    <ui-button :type="selectedFilter === 'debug' ? 'primary' : 'secondary'">
+                    <ui-button :type="selectedFilter === 'debug' ? 'primary' : 'secondary-black'">
                         <template #icon>
                             <debug-icon/>
                         </template>
@@ -250,7 +250,7 @@
                     :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
                     @click="handleUserTrack"
                 >
-                    <ui-button :type="myOverlay?.data.tracked ? 'primary' : 'secondary'">
+                    <ui-button :type="myOverlay?.data.tracked ? 'primary' : 'secondary-black'">
                         <template #icon>
                             <location-icon/>
                         </template>

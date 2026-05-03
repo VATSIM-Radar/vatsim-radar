@@ -14,7 +14,7 @@
             </ui-button>
 
             <ui-notification
-                cookie-name="next-weird-destination"
+                remember-message="NEXT_WEIRD_DESTINATION"
                 type="info"
             >
                 Yes I know this looks goofy.<br> Will be redesigned to something much nicer later
@@ -112,7 +112,10 @@
                 </ui-text-block>
             </div>
         </template>
-        <ui-notification v-else>
+        <ui-notification
+            v-else
+            type="error"
+        >
             No flight plan uploaded
         </ui-notification>
         <ui-copy-info

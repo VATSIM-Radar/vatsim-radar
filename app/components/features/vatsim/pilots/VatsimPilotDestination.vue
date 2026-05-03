@@ -3,7 +3,10 @@
         v-if="pilot.departure && pilot.arrival"
         class="destination_wrap"
     >
-        <div class="destination">
+        <div
+            class="destination"
+            :class="{ 'destination--short': short }"
+        >
             <div class="destination_airport">
                 <ui-text
                     class="destination_airport_title"
@@ -54,8 +57,6 @@
             <template #title>
                 Diverted from {{pilot.diverted_origin}}
             </template>
-
-            {{divOrgAirport?.name}}
         </ui-data-list-item>
     </div>
 </template>
@@ -65,7 +66,7 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import AircraftIcon from '~/assets/icons/kit/aircraft.svg?component';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiText from '~/components/ui/text/UiText.vue';
-import { fetchAircraftIcon } from '~/composables/vatsim/pilots';
+import { fetchAircraftSvgIcon } from '~/composables/vatsim/pilots';
 
 const props = defineProps({
     pilot: {
@@ -84,7 +85,7 @@ const svg = shallowRef<string | null>(null);
 
 const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.departure ?? ''] ?? null);
 const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.arrival ?? ''] ?? null);
-const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_origin ?? ''] ?? null);
+// const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_origin ?? ''] ?? null);
 
 onMounted(() => {
     watch(() => props.pilot.aircraft_short, async val => {
@@ -96,7 +97,7 @@ onMounted(() => {
         const icon = getAircraftIcon(props.pilot);
         if (!icon) return;
 
-        svg.value = await fetchAircraftIcon(icon.icon);
+        svg.value = await fetchAircraftSvgIcon(icon.icon);
     }, {
         immediate: true,
     });
@@ -145,6 +146,10 @@ onMounted(() => {
         flex-direction: column;
         gap: 4px;
         justify-content: center;
+    }
+
+    &--short .destination_icon :deep(svg) {
+        width: 16px;
     }
 }
 </style>

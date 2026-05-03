@@ -150,13 +150,13 @@
 
             <template #actions>
                 <ui-button
-                    type="secondary-flat"
+                    type="secondary"
                     @click="syncThemes"
                 >
                     Confirm overwrite
                 </ui-button>
                 <ui-button
-                    type="secondary-875"
+                    type="secondary"
                     @click="backupMapSettings()"
                 >
                     Backup data

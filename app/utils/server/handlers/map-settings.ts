@@ -92,9 +92,10 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('pilotsInfo' in val && typeof val.pilotsInfo !== 'boolean') return false;
         if ('atcInfo' in val && typeof val.atcInfo !== 'boolean') return false;
         if ('pilotLabels' in val && typeof val.pilotLabels !== 'boolean') return false;
+        if ('events' in val && typeof val.events !== 'boolean') return false;
         if ('bookings' in val && typeof val.bookings !== 'boolean') return false;
 
-        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'bookings', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels'])) return false;
+        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'bookings', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels', 'events'])) return false;
 
         return true;
     },
@@ -106,6 +107,12 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     bookingsLocalTimezone: val => {
         return typeof val === 'boolean';
+    },
+    eventsHours: val => {
+        if (typeof val === 'string') val = Number(val);
+        if (isNaN(val as number)) return false;
+
+        return isNumber(val, 1) && val > 0 && val <= 24;
     },
     disableQueryUpdate: val => {
         return typeof val === 'boolean';
@@ -297,9 +304,11 @@ export interface IUserMapSettings {
         pilotsInfo?: boolean;
         atcInfo?: boolean;
         bookings?: boolean;
+        events?: boolean;
         pilotLabels?: boolean;
     };
     bookingHours: number;
+    eventsHours: number;
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
     shortAircraftView?: boolean;

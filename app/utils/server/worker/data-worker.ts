@@ -429,7 +429,6 @@ defineCronJob('* * * * * *', async () => {
                 visual_range: true,
                 flight_plan: true,
                 last_updated: true,
-                logon_time: true,
             },
         });
 
@@ -557,6 +556,7 @@ defineCronJob('* * * * * *', async () => {
                 tsh: !pilot.aircraft_short ? undefined : shortDatafeed.map.aircraft_short.indexOf(pilot.aircraft_short),
                 dep: !pilot.departure ? undefined : shortDatafeed.map.airports.indexOf(pilot.departure),
                 arr: !pilot.arrival ? undefined : shortDatafeed.map.airports.indexOf(pilot.arrival),
+                dv: pilot.diverted,
                 dva: !pilot.diverted_arrival ? undefined : shortDatafeed.map.airports.indexOf(pilot.diverted_arrival),
                 dvo: !pilot.diverted_origin ? undefined : shortDatafeed.map.airports.indexOf(pilot.diverted_origin),
                 s: !pilot.status ? undefined : shortDatafeed.map.status.indexOf(pilot.status),
@@ -638,11 +638,18 @@ defineCronJob('* * * * * *', async () => {
         }
 
         for (const atc of radarStorage.vatsim.regularData!.observers) {
+            if (atc.frequencies?.length) {
+                for (const frequency of atc.frequencies) {
+                    if (!shortDatafeed.map.frequencies.includes(frequency)) shortDatafeed.map.frequencies.push(frequency);
+                }
+            }
+
             shortDatafeed.observers.push({
                 ci: atc.cid,
                 n: atc.name,
                 ca: atc.callsign,
                 frq: atc.frequencies?.map(x => shortDatafeed.map.frequencies.indexOf(x)),
+                lg: atc.logon_time,
             });
         }
 

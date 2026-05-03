@@ -8,21 +8,27 @@
             v-if="$slots.default"
             class="toggle_label"
         >
-            <div class="toggle_label_title">
+            <ui-text
+                class="toggle_label_title"
+                type="2b-medium"
+            >
                 <slot/>
-            </div>
-            <div
+            </ui-text>
+            <ui-text
                 v-if="$slots.description"
                 class="toggle_label_description"
+                type="caption"
             >
                 <slot name="description"/>
-            </div>
+            </ui-text>
         </div>
         <div class="toggle_toggler"/>
     </div>
 </template>
 
 <script setup lang="ts">
+import UiText from '~/components/ui/text/UiText.vue';
+
 defineProps({
     disabled: {
         type: Boolean,
@@ -48,10 +54,10 @@ const model = defineModel({
     user-select: none;
 
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 12px;
+    align-items: flex-start;
 
-    min-height: 24px;
+    min-height: 20px;
 
     font-family: $defaultFont;
 
@@ -64,17 +70,11 @@ const model = defineModel({
 
     &_label {
         width: 100%;
-        font-size: 13px;
-        color: $lightgray150;
-
-        &_title {
-            font-weight: 600;
-        }
+        color: $typographyPrimary;
 
         &_description {
             margin-top: 4px;
-            font-size: 10px;
-            opacity: 0.8;
+            color: $typographySecondary;
         }
     }
 
@@ -87,34 +87,57 @@ const model = defineModel({
 
         display: flex;
 
-        width: 32px;
-        min-width: 32px;
-        height: 8px;
-        border-radius: 8px;
+        width: 36px;
+        min-width: 36px;
+        height: 20px;
+        border: 1px solid $strokeDefault;
+        border-radius: 9999px;
 
-        background: $darkgray850;
+        background: $darkGray500;
+
+        transition: 0.3s;
+
+        @include boxShadowActive;
 
         &::before {
             content: '';
 
             position: absolute;
-            left: 0;
+            left: 2px;
 
             align-self: center;
 
             width: 16px;
             height: 16px;
-            border-radius: 100%;
+            border-radius: 9999px;
 
-            background: $lightgray150;
+            background: $lightGray400;
 
             transition: 0.3s ease-in-out;
         }
     }
 
-    &--toggled .toggle_toggler::before {
-        left: calc(100% - 16px);
-        background: $primary500;
+    @include hover {
+        &:hover .toggle_toggler {
+            border-color: $darkGray100;
+        }
+    }
+
+    &--toggled {
+        .toggle_toggler {
+            border-color: $brandPrimaryStroke;
+            background: $brandPrimaryStroke;
+
+            &::before {
+                left: calc(100% - 16px - 2px);
+            }
+        }
+
+        @include hover {
+            &:hover .toggle_toggler {
+                border-color: $brandPrimary;
+            }
+        }
     }
 }
 </style>

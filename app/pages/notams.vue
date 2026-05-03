@@ -57,9 +57,7 @@
                     v-model="activeNotam.type"
                     :items="[{ value: NotamType.ERROR }, { value: NotamType.WARNING }, { value: NotamType.ANNOUNCEMENT }]"
                 >
-                    <template #label>
-                        Type
-                    </template>
+                    Type
                 </ui-select>
                 <ui-toggle v-model="activeNotam.active">
                     Active

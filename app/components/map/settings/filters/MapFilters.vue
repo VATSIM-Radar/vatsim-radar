@@ -14,7 +14,7 @@
 
         <template v-if="tab === 'filter'">
             <ui-notification
-                cookie-name="filters-input"
+                remember-message="FILTERS_INPUT"
                 type="info"
             >
                 Press enter in search field to add your value to list
@@ -189,7 +189,7 @@
                     Routes
                 </ui-combo-box>
                 <ui-notification
-                    cookie-name="filters-routes-format"
+                    remember-message="FILTERS_ROUTES_FORMAT"
                     type="info"
                 >
                     Format: ICAO-ICAO
@@ -264,9 +264,7 @@
                             placeholder="Status"
                             @update:modelValue="setUserFilter({ flights: { status: $event as any } })"
                         >
-                            <template #label>
-                                Status
-                            </template>
+                            Status
                         </ui-select>
                     </template>
                     <template #col2>
@@ -275,9 +273,7 @@
                             :model-value="store.filter.flights?.type ?? 'all'"
                             @update:modelValue="setUserFilter({ flights: { type: $event as any } })"
                         >
-                            <template #label>
-                                Type
-                            </template>
+                            Type
                         </ui-select>
                     </template>
                 </ui-columns-display>
@@ -333,9 +329,7 @@
                     :model-value="store.filter.flights?.plan ?? 'all'"
                     @update:modelValue="setUserFilter({ flights: { plan: $event as any } })"
                 >
-                    <template #label>
-                        Flight plan
-                    </template>
+                    Flight plan
                 </ui-select>
                 <ui-toggle
                     :model-value="!!store.filter.flights?.diverted"
@@ -418,13 +412,13 @@
 
             <template #actions>
                 <ui-button
-                    type="secondary-flat"
+                    type="secondary"
                     @click="[resetUserFilter(), filterReset = false]"
                 >
                     Confirm reset
                 </ui-button>
                 <ui-button
-                    type="secondary-875"
+                    type="secondary"
                     @click="backupUserFilter()"
                 >
                     Backup data

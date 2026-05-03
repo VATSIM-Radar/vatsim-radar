@@ -13,6 +13,7 @@ import { simawareCache } from '~/composables/render/airports';
 export const callsignSplitRegex = /_+/gm;
 
 let uirsMap: Record<string, VatSpyData['uirs'][0]> | undefined;
+const uirsMapByCallsign: Record<string, string[]> = {};
 
 const firsMap: Record<string, VatSpyData['firs'][0]> = {};
 const firsMapByIcao: Record<string, string[]> = {};
@@ -26,7 +27,7 @@ export interface FirFindResult {
 const setVatspyBoundaries = new Set<string>();
 
 async function filterFirsForList(list: string[] | undefined, callsign: string) {
-    if (!list) return [];
+    if (!list?.length) return [];
 
     const dataStore = useDataStore();
 
@@ -43,27 +44,20 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
     const callsignMiddle = callsignSplit.join('_');
 
     let maxStart = 0;
-    let foundExact = false;
+    const foundExact = false;
 
     for (const item of list) {
         const fir = firsMap[item];
-        let exact = false;
-        let foundExactHere = false;
+        const exact = false;
 
-        if (!fir || (fir.callsign ? !callsign.startsWith(fir.callsign) : !callsign.startsWith(fir.icao))) {
-            if (callsign.startsWith(fir?.icao)) {
-                exact = true;
-                if (!foundExact) foundExactHere = true;
-                foundExact = true;
-            }
-            else continue;
+        if (!fir || ((!fir.callsign || !callsign.startsWith(fir.callsign)) && !callsign.startsWith(fir.icao))) {
+            continue;
         }
 
-        let word = '';
+        const word = '';
 
         for (let i = 0; i < (fir.callsign ?? fir.icao).length; i++) {
-            word += (fir.callsign ?? fir.icao)[i];
-            if (!callsign.startsWith(word)) break;
+            if (!callsign.startsWith(fir.callsign ?? fir.icao) && !callsign.startsWith(fir.icao)) break;
         }
 
         let length = word.length;
@@ -71,10 +65,6 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
         if ((fir.callsign || fir.icao) === callsignMiddle) length = 100;
 
         if (length < maxStart) {
-            if (foundExactHere) {
-                foundExact = false;
-            }
-
             continue;
         }
         maxStart = length;
@@ -82,10 +72,6 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
         const features = dataStore.vatspy.value?.data.features[fir.boundary] ?? [];
 
         if (!features.length) {
-            if (foundExactHere) {
-                foundExact = false;
-            }
-
             continue;
         }
 
@@ -104,11 +90,62 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
     return result.filter(x => (!foundExact || x.exact) && x.symbols === maxStart);
 }
 
-async function findFirsForCallsign(callsign: string, prefix?: string) {
-    const fir = await filterFirsForList(firsMapByCallsign[prefix || callsign], callsign);
-    if (fir.length) return fir;
+function findFirsForCallsign(callsign: string, prefix?: string) {
+    return filterFirsForList([
+        ...firsMapByCallsign[prefix || callsign] ?? [],
+        ...firsMapByIcao[prefix || callsign] ?? [],
+    ], callsign);
+}
 
-    return filterFirsForList(firsMapByIcao[prefix || callsign], callsign);
+function findUirForCallsign(callsign: string, prefix: string) {
+    const list = uirsMapByCallsign[prefix] ?? [];
+    if (!list?.length) return undefined;
+
+    const result: {
+        uir: VatSpyData['uirs'][0];
+        symbols: number;
+        exact: boolean;
+    }[] = [];
+
+    let callsignSplit = callsign.split(callsignSplitRegex);
+    callsignSplit = callsignSplit.slice(0, callsignSplit.length - 1);
+
+    const callsignMiddle = callsignSplit.join('_');
+
+    let maxStart = 0;
+    const foundExact = false;
+
+    for (const item of list) {
+        const uir = uirsMap?.[item];
+        const exact = false;
+
+        if (!uir || !callsign.startsWith(uir.icao)) {
+            continue;
+        }
+
+        const word = '';
+
+        for (let i = 0; i < uir.icao.length; i++) {
+            if (!callsign.startsWith(uir.icao)) break;
+        }
+
+        let length = word.length;
+
+        if (uir.icao === callsignMiddle) length = 100;
+
+        if (length < maxStart) {
+            continue;
+        }
+        maxStart = length;
+
+        result.push({
+            uir,
+            symbols: length,
+            exact,
+        });
+    }
+
+    return result.find(x => (!foundExact || x.exact) && x.symbols === maxStart);
 }
 
 function addSector(context: DataUpdateContext, sector: FirFindResult, controller: VatsimShortenedController | null, uir?: DataSector['uir']) {
@@ -168,7 +205,12 @@ export async function updateControllers(context: DataUpdateContext) {
             uirsMap = {};
 
             for (const uir of dataStore.vatspy.value?.data.uirs ?? []) {
-                uirsMap[uir.icao.split(callsignSplitRegex)[0]] = uir;
+                const icao = uir.icao.split(callsignSplitRegex)[0];
+
+                uirsMap[uir.icao] = uir;
+
+                uirsMapByCallsign[icao] ??= [];
+                uirsMapByCallsign[icao].push(uir.icao);
             }
 
             for (const fir of dataStore.vatspy.value?.data.firs ?? []) {
@@ -289,16 +331,16 @@ export async function updateControllers(context: DataUpdateContext) {
         if (!isATIS && (controller.facility === facilities.CTR || controller.facility === facilities.FSS)) {
             if (!uirsMap) continue;
 
-            const uir = uirsMap[prefix];
+            const uir = findUirForCallsign(callsign, prefix);
 
             if (uir) {
                 let foundFir = false;
 
-                for (const fir of uir.firs.split(',')) {
+                for (const fir of uir.uir.firs.split(',')) {
                     const firs = await findFirsForCallsign(fir);
                     foundFir ||= !!firs.length;
 
-                    firs.forEach(x => addSector(context, x, controller, uir));
+                    firs.forEach(x => addSector(context, x, controller, uir.uir));
                 }
 
                 if (foundFir) continue;
@@ -383,7 +425,7 @@ export async function updateControllers(context: DataUpdateContext) {
             if (isApp && !feature && airport?.isPseudo) continue;
 
             if (!airport && feature) {
-                const key = feature?.properties.id + feature?.properties.prefix.join(',');
+                const key = feature?.properties.id + feature?.properties.prefix.map(x => x.split(callsignSplitRegex)[0]).join(',');
                 context.airportsAdded.add(key);
                 context.airports[key] ??= {
                     icao: validPrefix ?? feature.properties.id,

@@ -14,7 +14,7 @@
             v-if="airport.airport"
             :disabled="!map"
             size="S"
-            type="secondary-875"
+            type="secondary"
             @click.stop="showAirportOnMap(airport.airport, map)"
         >
             <template #icon>

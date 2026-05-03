@@ -55,6 +55,13 @@
                                     placeholder="Enter name"
                                     @change="settings.headerName = ($event.target as HTMLInputElement).value"
                                 />
+                                <ui-input-text
+                                    :model-value="settings.headerName ?? ''"
+                                    placeholder="Enter name"
+                                    @change="settings.headerName = ($event.target as HTMLInputElement).value"
+                                >
+                                    Name
+                                </ui-input-text>
                             </div>
                         </div>
                     </template>
@@ -154,9 +161,7 @@
                     :model-value="settings.timeFormat ?? '24h'"
                     @update:modelValue="settings.timeFormat = $event as any"
                 >
-                    <template #label>
-                        Time format
-                    </template>
+                    Time format
                 </ui-select>
             </div>
         </template>

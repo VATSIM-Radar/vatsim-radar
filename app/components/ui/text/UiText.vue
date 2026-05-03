@@ -5,10 +5,12 @@
         :class="[`text--type-${ type }`, {
             'text--type-b': isTypeB,
         }]"
+        :href="href ?? undefined"
         :style="{
             '--text-primary-color': color !== 'currentColor' ? `var(--${ color })` : undefined,
             '--text-hover-color': linkHoverColor ? `var(--${ linkHoverColor })` : undefined,
         }"
+        :to="to ?? undefined"
     >
         <slot/>
     </component>
@@ -91,6 +93,8 @@ const getTag = computed(() => {
     font-weight: normal;
     font-style: normal;
     line-height: 100%;
+    color: var(--text-primary-color, currentColor);
+    text-decoration: none;
 
     &[class^='text--type-h'], &[class*=' text--type-h'] {
         margin: 0;
@@ -174,7 +178,6 @@ const getTag = computed(() => {
     }
 
     &--type-caption-light {
-        font-family: $juraFont;
         font-size: 11px;
         font-weight: normal;
         letter-spacing: -0.04em;

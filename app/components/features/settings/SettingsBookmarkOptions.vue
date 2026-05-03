@@ -45,7 +45,7 @@
                 Key Binding (optional)
             </ui-block-title>
             <ui-notification
-                cookie-name="bookmarks-keys"
+                remember-message="BOOKMARKS_KEYS"
                 type="info"
             >
                 Supported combinations: Shift/Alt/Ctrl/Win/CMD plus any <strong>keyboard</strong> button

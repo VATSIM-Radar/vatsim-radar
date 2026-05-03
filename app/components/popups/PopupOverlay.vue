@@ -60,6 +60,7 @@
                     v-if="tabs && Object.values(tabs).length > 1"
                     v-model="activeTab"
                     class="info-popup_content_tabs"
+                    full-width
                     :tabs="tabs"
                 />
                 <slot

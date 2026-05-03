@@ -107,7 +107,7 @@
                         href="https://discord.com/invite/vatsim"
                         orientation="horizontal"
                         target="_blank"
-                        type="secondary-875"
+                        type="secondary"
                     >
                         <template #icon>
                             <discord-icon/>

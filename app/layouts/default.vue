@@ -58,7 +58,7 @@
                 </div>
                 <div class="app_consent_actions">
                     <ui-button
-                        type="secondary-875"
+                        type="secondary"
                         @click="consentChoose = true"
                     >
                         Customize

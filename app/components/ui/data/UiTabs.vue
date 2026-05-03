@@ -1,10 +1,14 @@
 <template>
     <div
         class="tabs"
-        :class="{ 'tabs--vertical': isMobile && mobileVertical }"
+        :class="{
+            'tabs--vertical': isMobile && mobileVertical,
+            'tabs--full-width': fullWidth,
+        }"
+        :style="{ '--background': radarColors[background as ColorsList] ?? background }"
     >
         <div class="tabs_list">
-            <div
+            <ui-text
                 v-for="(tab, key) in tabs"
                 :key="key"
                 class="tabs_tab"
@@ -12,10 +16,11 @@
                     'tabs_tab--active': key === model,
                     'tabs_tab--disabled': tab.disabled,
                 }"
+                type="2b"
                 @click="model = key"
             >
                 {{ tab.title }}
-            </div>
+            </ui-text>
         </div>
         <div
             v-if="model && $slots[model]"
@@ -28,6 +33,8 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import type { ColorsList } from '~/utils/colors';
+import UiText from '~/components/ui/text/UiText.vue';
 
 interface Tab {
     title: string;
@@ -44,6 +51,14 @@ const props = defineProps({
     mobileVertical: {
         type: Boolean,
         default: false,
+    },
+    fullWidth: {
+        type: Boolean,
+        default: false,
+    },
+    background: {
+        type: String as PropType<ColorsList | 'transparent'>,
+        default: 'black' satisfies ColorsList,
     },
 });
 
@@ -64,24 +79,21 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
     &_list {
         display: flex;
-        gap: 16px;
         align-items: flex-end;
 
         height: 40px;
-        padding: 0 24px;
-        border-bottom: 2px solid $primary700;
+        padding: 0 16px;
+        border-bottom: 1px solid $strokeDefault;
 
-        background: $darkgray1000;
-
-        @include mobile {
-            gap: 4px;
-            padding: 0 8px;
-        }
+        background: var(--background) !important;
 
         @at-root .tabs--vertical & {
             flex-direction: column;
+
             height: auto;
             padding: 0;
+            border-bottom: 0;
+            border-left: 1px solid $strokeDefault;
         }
     }
 
@@ -92,75 +104,83 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         position: relative;
 
         display: flex;
-        flex: 1 1 0;
         align-items: flex-end;
         justify-content: center;
 
-        width: 0;
-        height: 32px;
-        margin-bottom: -2px;
-        padding-bottom: 10px;
-        border: solid transparent;
-        border-width: 2px 2px 0;
-        border-radius: 8px 8px 0 0;
+        height: 100%;
+        padding: 8px 16px;
 
-        font-family: $defaultFont;
-        font-size: 14px;
-        font-weight: 600;
         line-height: 100%;
-        color: $lightgray125;
+        color: $typographySecondary;
         text-align: center;
-
-        transition: 0.3s;
-
-        @at-root .tabs--vertical & {
-            flex: auto;
-            width: 100%;
-        }
 
         &::after {
             content: '';
 
             position: absolute;
-            bottom: 0;
+            bottom: -1px;
 
-            width: 0;
-            height: 2px;
+            width: 100%;
+            height: 0;
+            border-radius: 0 0 100% 100%;
 
-            background: $darkgray1000;
+            background: transparent;
 
             transition: 0.3s;
-
-            @at-root .tabs--vertical & {
-                background: $primary700;
-            }
         }
 
         @include hover {
             &:not(&--active):hover {
+                color: $typographyPrimary;
+
                 &::after {
-                    width: 50%;
+                    height: 1px;
+                    background: varToRgba('blue500', 0.5);
                 }
             }
         }
 
         &--active {
             cursor: default;
-
-            height: 40px;
-            border-color: $primary700;
-            border-bottom-color: $darkgray1000;
-
-            color: $primary500;
+            color: $typographyPrimary;
 
             &::after {
-                width: 100%;
+                height: 2px;
+                background: $brandPrimaryStroke;
             }
         }
 
         &--disabled {
             pointer-events: none;
             opacity: 0.2;
+        }
+    }
+
+    &--full-width .tabs_tab {
+        flex: 1 0 auto;
+        width: 0;
+    }
+
+    &--vertical .tabs_tab {
+        width: 100%;
+
+        &::after {
+            bottom: 0;
+            left: -1px;
+
+            width: 0;
+            height: 100% !important;
+            border-radius: 0 100% 100% 0;
+        }
+
+        @include hover {
+            &:hover::after {
+                width: 1px;
+            }
+        }
+
+        &--active::after {
+            width: 2px;
         }
     }
 }

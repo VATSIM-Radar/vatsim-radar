@@ -37,7 +37,7 @@
                     <ui-button
                         icon-width="12px"
                         size="S"
-                        :type="controller.visual_range === -1000 ? 'secondary-875' : 'primary'"
+                        :type="controller.visual_range === -1000 ? 'secondary' : 'primary'"
                         @click="setVisualRange(controller)"
                     >
                         <template #icon>

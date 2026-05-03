@@ -15,7 +15,7 @@ export default defineComponent({
                 if (!slot.props) slot.props = {};
 
                 if (!slot.props.type) {
-                    slot.props.type = 'transparent';
+                    slot.props.type = 'secondary';
                 }
 
                 if (!slot.props.orientation) {

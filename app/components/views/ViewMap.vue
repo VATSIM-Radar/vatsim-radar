@@ -134,7 +134,7 @@
 
                 <template #actions>
                     <ui-button
-                        type="secondary-875"
+                        type="secondary"
                         @click="store.presetImport.preset = null"
                     >
                         Cancel import

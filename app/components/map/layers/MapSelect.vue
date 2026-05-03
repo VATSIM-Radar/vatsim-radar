@@ -373,7 +373,7 @@ const definitions = {
         hover: payload => {
             const properties = payload.feature.getProperties();
 
-            if (isMapFeature('airport', properties) && properties.atc.length) {
+            if (isMapFeature('airport', properties)) {
                 openOverlay('airportControllers', payload, 'airportControllers');
             }
         },
@@ -773,7 +773,7 @@ watch(map, val => {
         condition: pointerMove,
         multi: true,
         style: null,
-        hitTolerance: 5,
+        hitTolerance: 0,
         filter,
     });
 

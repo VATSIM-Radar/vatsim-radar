@@ -1,7 +1,7 @@
 <template>
     <div class="runways-container">
         <ui-notification
-            cookie-name="vatglasses-runways"
+            remember-message="VATGLASSES_RUNWAYS"
             type="info"
         >
             In this block you can select active runway config<br> for VatGlasses sectors

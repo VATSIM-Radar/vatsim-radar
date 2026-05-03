@@ -8,6 +8,7 @@ import { handleH3Error } from '~/utils/server/h3';
 import type { UserList } from '~/utils/server/handlers/lists';
 import type { UserTrackingList } from '#prisma';
 import { isNext } from '~/utils/server/debug';
+import type { UserMessageType } from '~/utils/shared';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -51,6 +52,11 @@ export async function findUserWithListsByCookie(event: H3Event) {
     return null;
 }
 
+export interface UserMessage {
+    id: number;
+    message: UserMessageType;
+}
+
 export interface FullUser {
     id: number;
     hasFms: boolean | null;
@@ -60,6 +66,7 @@ export interface FullUser {
     settings: UserSettings;
     discordId: string | null;
     lists: UserList[];
+    messages: UserMessage[];
     privateMode: boolean;
     privateUntil: string | null;
     isSup: boolean;
@@ -104,6 +111,12 @@ export async function findAndRefreshUserByCookie(event: H3Event, refresh = true,
                         select: {
                             id: true,
                             fullName: true,
+                        },
+                    },
+                    messages: {
+                        select: {
+                            id: true,
+                            message: true,
                         },
                     },
                     discordId: true,
@@ -182,6 +195,7 @@ export async function findAndRefreshUserByCookie(event: H3Event, refresh = true,
             privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
             isSup: token.user.isSup,
             lists,
+            messages: token.user.messages as UserMessage[],
         };
     }
     return null;

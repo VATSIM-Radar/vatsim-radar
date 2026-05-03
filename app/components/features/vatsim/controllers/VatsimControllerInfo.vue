@@ -80,6 +80,26 @@
             v-if="(showAtis && controller.text_atis?.length) || controller.isBooking"
             class="atc_atis"
         >
+            <ui-text
+                v-if="additionalFrequencies.length"
+                class="atc__frequencies"
+                type="caption-light"
+            >
+                Also listens:
+                <div
+                    v-for="freq in additionalFrequencies"
+                    :key="freq"
+                    class="atc_frequency atc_frequency--secondary"
+                    @click.prevent.stop="[copy(freq), copiedFor = freq]"
+                >
+                    <template v-if="isCopied(freq)">
+                        Copied
+                    </template>
+                    <template v-else>
+                        {{freq}}
+                    </template>
+                </div>
+            </ui-text>
             <template v-if="showAtis && controller.text_atis?.length">
                 <ui-text type="3b-medium-alt">
                     <ul class="atc__atis">
@@ -178,6 +198,14 @@ const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
 const store = useStore();
 
+const additionalFrequencies = computed(() => {
+    return props.controller.frequencies?.filter(x => {
+        if (x === props.controller.frequency) return false;
+        const freq = parseFloat(x);
+        return freq <= 137 && freq >= 117;
+    }) ?? [];
+});
+
 const notTunedUp = computed(() => {
     return props.controller?.rating && !isATIS.value && (!props.controller?.frequencies?.length || (props.controller.frequencies?.some(x => x[3] === '.') && !props.controller.frequencies?.some(x => x === props.controller.frequency)));
 });
@@ -274,6 +302,11 @@ const isCopied = (key: string) => {
 
         transition: 0.3s;
 
+        &--secondary {
+            margin-top: 0;
+            color: currentColor;
+        }
+
         &--not-tuned-up {
             color: $red500;
         }
@@ -308,6 +341,12 @@ const isCopied = (key: string) => {
 
     &_separator:last-child {
         display: none;
+    }
+
+    &__frequencies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
     }
 }
 </style>

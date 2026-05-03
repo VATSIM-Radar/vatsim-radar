@@ -4,7 +4,7 @@
 
         <ui-notification
             class="achievements_notification"
-            cookie-name="achievements-link"
+            remember-message="ACHIEVEMENTS_LINK"
             type="info"
         >
             <a

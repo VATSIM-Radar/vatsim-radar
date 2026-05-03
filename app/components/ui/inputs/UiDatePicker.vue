@@ -2,7 +2,7 @@
     <div class="time-picker">
         <div class="time-picker-container">
             <ui-button
-                type="secondary-flat"
+                type="secondary"
                 @click="adjustTime(true, -30)"
             >
                 -
@@ -13,7 +13,7 @@
                 @input="updateStartDate"
             />
             <ui-button
-                type="secondary-flat"
+                type="secondary"
                 @click="adjustTime(true, 30)"
             >
                 +
@@ -28,7 +28,7 @@
             class="time-picker-container"
         >
             <ui-button
-                type="secondary-flat"
+                type="secondary"
                 @click="adjustTime(false, -30)"
             >
                 -
@@ -39,7 +39,7 @@
                 @input="updateEndDate"
             />
             <ui-button
-                type="secondary-flat"
+                type="secondary"
                 @click="adjustTime(false, 30)"
             >
                 +

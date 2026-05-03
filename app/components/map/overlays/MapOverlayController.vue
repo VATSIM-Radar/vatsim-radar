@@ -28,7 +28,10 @@
             </div>
         </template>
         <template #data>
-            <ui-notification v-if="atc.duplicatedBy">
+            <ui-notification
+                v-if="atc.duplicatedBy"
+                type="info"
+            >
                 This facility is owned and extended by {{atc.duplicatedBy}}
             </ui-notification>
             <div class="atc__sections">
@@ -90,7 +93,7 @@
         </template>
         <template #frequencies>
             <ui-notification
-                cookie-name="atc-frequencies"
+                remember-message="ATC_FREQUENCIES"
                 type="info"
             >
                 Those are frequencies this ATC is listening to - you should only contact this ATC on primary frequency, unless instructed otherwise (highlighted with blue)

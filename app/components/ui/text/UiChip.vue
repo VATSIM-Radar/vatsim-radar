@@ -35,7 +35,7 @@
         <div
             v-if="model === true && typeof atcFacility !== 'number'"
             class="chip_close"
-            @click="model = false"
+            @click.prevent.stop="model = false"
         >
             <close-icon/>
         </div>
