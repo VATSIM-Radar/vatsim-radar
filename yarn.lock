@@ -9657,9 +9657,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^10.2.1":
-  version: 10.2.1
-  resolution: "eslint@npm:10.2.1"
+"eslint@npm:^10.3.0":
+  version: 10.3.0
+  resolution: "eslint@npm:10.3.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
@@ -9698,7 +9698,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/176795a3794a785502fa5cd14a9609264c2be5405552d20fed3e499bd465c29639c91ac44619ae66787b0fb7494e72d112550a2136a735d92a26bc6a7af4915c
+  checksum: 10c0/81e3ceba949f62d1b530660279db86cf814f5dc43d7cc3759a8008fe4fc679d46568279fe1cceb7ddbbc98ab57a96ae524f6e811ffc6897b49b90ea08aa785e5
   languageName: node
   linkType: hard
 
@@ -12156,12 +12156,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^18.0.2":
-  version: 18.0.2
-  resolution: "marked@npm:18.0.2"
+"marked@npm:^18.0.3":
+  version: 18.0.3
+  resolution: "marked@npm:18.0.3"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/d04f58c0dee158a8069dad88de549b0039f2af7e1f0fd078aa783f360655e39296662f6c722dc6dd94c1c9ce9ba7ca9355ee1d8d77dd7b9a2f8162ebac6d9bbd
+  checksum: 10c0/f2943a439acf17942058f8e4c51373e0f8aa88194b55625ffa22db7955b9c2752fe9bdd4a31498f667d30e5667bab2c27e3f2f56a1045f53b693f000a6199840
   languageName: node
   linkType: hard
 
@@ -14010,7 +14010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.10, postcss@npm:^8.5.12, postcss@npm:^8.5.13, postcss@npm:^8.5.6, postcss@npm:^8.5.8, postcss@npm:^8.5.9":
+"postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.10, postcss@npm:^8.5.12, postcss@npm:^8.5.13, postcss@npm:^8.5.6, postcss@npm:^8.5.8":
   version: 8.5.13
   resolution: "postcss@npm:8.5.13"
   dependencies:
@@ -16063,9 +16063,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.9.1":
-  version: 17.9.1
-  resolution: "stylelint@npm:17.9.1"
+"stylelint@npm:^17.10.0":
+  version: 17.10.0
+  resolution: "stylelint@npm:17.10.0"
   dependencies:
     "@csstools/css-calc": "npm:^3.2.0"
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
@@ -16094,7 +16094,7 @@ __metadata:
     micromatch: "npm:^4.0.8"
     normalize-path: "npm:^3.0.0"
     picocolors: "npm:^1.1.1"
-    postcss: "npm:^8.5.9"
+    postcss: "npm:^8.5.13"
     postcss-safe-parser: "npm:^7.0.1"
     postcss-selector-parser: "npm:^7.1.1"
     postcss-value-parser: "npm:^4.2.0"
@@ -16105,7 +16105,7 @@ __metadata:
     write-file-atomic: "npm:^7.0.1"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/889e31c66ceedac576ba222e0b1d867eae9a7f3a596d4806f3e5ee982aa77e216a247fba487d009a7e8bf1298ddddf707c21fd267d441395d76daf2deff979f9
+  checksum: 10c0/4a899cdc9de7d281dcd94174e5eb94f1c904f3e608df5a13039d2f67a4f7d7a304ea75c5a6c77e448f83f66c12dcde1e0d4aa03ed7ee5c964d3966de6a6ad2e6
   languageName: node
   linkType: hard
 
@@ -17258,7 +17258,7 @@ __metadata:
     deep-equal: "npm:^2.2.3"
     dexie: "npm:^4.4.2"
     discord.js: "npm:^14.26.4"
-    eslint: "npm:^10.2.1"
+    eslint: "npm:^10.3.0"
     fast-xml-parser: "npm:^5.7.2"
     ioredis: "npm:^5.10.1"
     jsonwebtoken: "npm:^9.0.3"
@@ -17266,7 +17266,7 @@ __metadata:
     kafkajs: "npm:^2.2.4"
     klona: "npm:^2.0.6"
     magvar: "npm:^2.0.1"
-    marked: "npm:^18.0.2"
+    marked: "npm:^18.0.3"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.3"
     nuxt: "npm:^4.4.4"
@@ -17281,7 +17281,7 @@ __metadata:
     sass-embedded: "npm:^1.99.0"
     sharp: "npm:^0.34.5"
     srvx: "npm:^0.11.15"
-    stylelint: "npm:^17.9.1"
+    stylelint: "npm:^17.10.0"
     stylelint-config-clean-order: "npm:^8.0.1"
     stylelint-config-recommended-scss: "npm:^17.0.1"
     stylelint-config-recommended-vue: "npm:^1.6.1"
