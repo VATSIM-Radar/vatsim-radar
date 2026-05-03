@@ -161,9 +161,7 @@
                     :model-value="settings.timeFormat ?? '24h'"
                     @update:modelValue="settings.timeFormat = $event as any"
                 >
-                    <template #label>
-                        Time format
-                    </template>
+                    Time format
                 </ui-select>
             </div>
         </template>

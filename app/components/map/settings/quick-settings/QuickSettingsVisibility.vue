@@ -48,9 +48,7 @@
                 :model-value="store.mapSettings.airportsHide ?? 'unstaffed'"
                 @update:modelValue="setUserMapSettings({ airportsHide: $event as any })"
             >
-                <template #label>
-                    Hide airports on zoom
-                </template>
+                Hide airports on zoom
             </ui-select>
 
             <ui-block-title>

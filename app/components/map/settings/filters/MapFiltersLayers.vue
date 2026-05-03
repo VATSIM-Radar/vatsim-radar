@@ -89,9 +89,7 @@
                         :model-value="store.localSettings.natTrak?.direction ?? 'all'"
                         @update:modelValue="setUserLocalSettings({ natTrak: { direction: $event as any } })"
                     >
-                        <template #label>
-                            Tracks Direction
-                        </template>
+                        Tracks Direction
                     </ui-select>
                 </template>
             </ui-columns-display>
@@ -170,9 +168,7 @@
                     :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
                     @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
                 >
-                    <template #label>
-                        Distance unit
-                    </template>
+                    Distance unit
                 </ui-select>
                 <ui-block-title remove-margin>
                     Distance tool
@@ -209,9 +205,7 @@
                     :model-value="store.localSettings.distance?.units ?? 'nautical'"
                     @update:modelValue="setUserLocalSettings({ distance: { units: $event as Units } })"
                 >
-                    <template #label>
-                        Distance unit
-                    </template>
+                    Distance unit
                 </ui-select>
                 <ui-toggle
                     :model-value="!!store.localSettings.distance?.ctrlClick"
@@ -244,9 +238,7 @@
                 :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
                 @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
             >
-                <template #label>
-                    Active date
-                </template>
+                Active date
             </ui-radio-group>
             <settings-sigmets/>
             <div class="__partner-info">

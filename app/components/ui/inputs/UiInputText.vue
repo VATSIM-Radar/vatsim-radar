@@ -2,6 +2,7 @@
     <div
         class="input"
         :class="{ 'input--focused': focused, 'input--error': error, 'input--disabled': disabled }"
+        :style="{ '--input-height': height }"
     >
         <ui-text
             v-if="$slots.default"
@@ -29,11 +30,20 @@
                 class="input__input"
                 tag="label"
                 type="2b"
+                @click="(e: Event) => !!$slots.htmlContent && e.preventDefault()"
             >
+                <div
+                    v-if="$slots.htmlContent"
+                    class="input__input_input"
+                    @click="input?.focus()"
+                >
+                    <slot name="htmlContent"/>
+                </div>
                 <input
                     v-bind="inputAttrs"
                     ref="input"
                     v-model="model"
+                    class="input__input_input"
                     :placeholder
                     :type="inputType"
                     @blur="focused = false"
@@ -126,6 +136,7 @@ defineSlots<{
     default?: () => any;
     prepend?: () => any;
     append?: () => any;
+    htmlContent?: () => any;
 }>();
 
 const focused = defineModel('focused', { type: Boolean });
@@ -142,14 +153,17 @@ watch(model, val => {
     width: 100%;
 
     &_label {
+        user-select: none;
         margin-bottom: 12px;
     }
 
     &_container {
+        position: relative;
+
         display: flex;
 
         width: 100%;
-        height: v-bind(height);
+        height: var(--input-height, 40px);
         border: 1px solid $strokeDefault;
         border-radius: 4px;
 
@@ -211,9 +225,9 @@ watch(model, val => {
         width: 100%;
         padding: 0 8px;
 
-        input {
+        &_input {
             width: 100%;
-            padding: 12px 0;
+            height: 100%;
             border: none;
 
             font-family: $defaultFont;
@@ -230,6 +244,21 @@ watch(model, val => {
             &::placeholder {
                 color: $whiteAlpha36;
                 opacity: 1;
+            }
+
+            &:is(div) {
+                position: relative;
+                z-index: 1;
+
+                + input {
+                    position: absolute;
+                    inset: 0;
+
+                    width: 100%;
+                    height: 100%;
+
+                    opacity: 0;
+                }
             }
 
             @include mobileSafariOnly {

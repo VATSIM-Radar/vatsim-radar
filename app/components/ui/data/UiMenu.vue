@@ -40,7 +40,9 @@ export interface UIMenuItem {
 
 <style scoped lang="scss">
 .menu {
+    user-select: none;
     border-radius: 2px;
+    background: $darkGray900;
 
     &_item {
         cursor: pointer;

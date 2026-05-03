@@ -56,6 +56,7 @@ const checked = defineModel({ type: Boolean, required: true });
         justify-content: center;
 
         width: 20px;
+        min-width: 20px;
         height: 20px;
         border: 1px solid $strokeDefault;
         border-radius: 4px;

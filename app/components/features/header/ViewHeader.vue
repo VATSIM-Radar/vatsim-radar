@@ -294,7 +294,6 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
-import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 

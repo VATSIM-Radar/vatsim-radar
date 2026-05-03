@@ -128,9 +128,7 @@
                     :model-value="store.mapSettings.aircraftDeclutter ?? false"
                     @update:modelValue="setUserMapSettings({ aircraftDeclutter: $event as any })"
                 >
-                    <template #label>
-                        Aircraft Declutter
-                    </template>
+                    Aircraft Declutter
                 </ui-select>
             </template>
         </ui-columns-display>
@@ -140,9 +138,7 @@
             :model-value="store.mapSettings.overlaysPositions ?? 'bottom-left'"
             @update:modelValue="setUserMapSettings({ overlaysPositions: $event as any })"
         >
-            <template #label>
-                Minified Overlays position
-            </template>
+            Minified Overlays position
         </ui-select>
         <ui-notification
             remember-message="SETTINGS_EMERGENCY"

@@ -85,7 +85,7 @@ const svg = shallowRef<string | null>(null);
 
 const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.departure ?? ''] ?? null);
 const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.arrival ?? ''] ?? null);
-const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_origin ?? ''] ?? null);
+// const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_origin ?? ''] ?? null);
 
 onMounted(() => {
     watch(() => props.pilot.aircraft_short, async val => {

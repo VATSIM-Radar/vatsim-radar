@@ -308,9 +308,7 @@
                         vatSpyImport = null,
                     ]"
                 >
-                    <template #label>
-                        Select a list
-                    </template>
+                    Select a list
                 </ui-select>
             </div>
         </popup-fullscreen>

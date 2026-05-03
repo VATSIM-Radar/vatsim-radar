@@ -15,6 +15,7 @@
 - Redesigned pilot hover popup (again, but better)
 - Fixed diverts not showing
 - Fixed local setup not starting without Navigraph
+- Added all frequencies display on hover
 
 ## Redesign
 
@@ -24,6 +25,7 @@
 - Redesigned tabs
 - Redesigned controls: radios, toggles, etc
 - Made compact aircraft hover mode much more compact than before
+- Redesigned inputs and selects
 
 # [2.0.0-alpha.7.12]
 

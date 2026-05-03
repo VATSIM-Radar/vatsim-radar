@@ -23,9 +23,7 @@
                             :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
                             @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
                         >
-                            <template #label>
-                                Active date
-                            </template>
+                            Active date
                         </ui-radio-group>
 
                         <settings-sigmets/>

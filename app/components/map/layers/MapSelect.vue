@@ -183,7 +183,6 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import { sendUserPreset } from '~/composables/fetchers';
-import type Point from 'ol/geom/Point.js';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
