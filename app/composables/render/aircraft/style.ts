@@ -140,7 +140,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 scale,
             });
 
-            const hideText = scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
+            const hideText = store.mapSettings.visibility?.pilotLabels === true || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
             const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;

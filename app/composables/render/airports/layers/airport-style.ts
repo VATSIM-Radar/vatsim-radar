@@ -6,6 +6,8 @@ import { getSelectedColorFromSettings, getSelectedColorTransparencyFromSettings 
 import { getCurrentThemeHexColor } from '~/composables';
 import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
 import type { MapAircraftList } from '~/types/map';
+import CircleStyle from 'ol/style/Circle.js';
+import { VatsimEventType } from '~/types/data/vatsim';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style> = {};
@@ -57,7 +59,10 @@ export function setAirportStyle(layer: VectorLayer) {
             const declutterMode = getDeclutterMode(properties.atcLength);
 
             const zIndex = calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength });
-            const key = `${ properties.icao }-${ declutterMode }`;
+            const event = store.eventsMap[properties.icao];
+            const now = Date.now();
+            const eventStarted = event && new Date(event.start_time).getTime() > now;
+            const key = `${ properties.color }-${ declutterMode }-${ String(event?.type) }-${ String(!!eventStarted) }`;
 
             if (!styleCache[key]) {
                 styleCache[key] = new Style({
@@ -69,6 +74,21 @@ export function setAirportStyle(layer: VectorLayer) {
                         fill: getCachedFill(properties.color),
                         declutterMode,
                     }),
+                    image: event
+                        ? new CircleStyle({
+                            radius: 4,
+                            fill: getCachedFill(eventStarted ? 'transparent' : event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red500Hex),
+                            stroke: eventStarted
+                                ? new Stroke({
+                                    color: event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red500Hex,
+                                    width: 1,
+                                })
+                                : undefined,
+
+                            displacement: [20, 8],
+                            declutterMode: 'none',
+                        })
+                        : undefined,
                     zIndex,
                 });
             }

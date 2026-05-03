@@ -16,7 +16,7 @@ export default defineEventHandler(async event => {
 
     const body = await readBody<{ message: UserMessageType }>(event);
 
-    if (!body?.message || !UserMessageType[body.message]) {
+    if (!body?.message || !Object.hasOwn(UserMessageType, body.message)) {
         return handleH3Error({
             event,
             statusCode: 400,

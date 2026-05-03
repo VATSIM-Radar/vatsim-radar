@@ -160,20 +160,41 @@
                 >
                     Bookings local time
                 </ui-toggle>
-            </div>
-
-            <div class="__grid-info-sections __grid-info-sections--large-title">
-                <div class="__grid-info-sections_title">
-                    Hours In Advance
-                </div>
                 <ui-select
                     :disabled="!(store.mapSettings.visibility?.bookings ?? true)"
                     :items="[{ value: 0.5, text: '30 min' }, { value: 1, text: '1h' }, { value: 2, text: '2h' }, { value: 3, text: '3h' }, { value: 4, text: '4h' }]"
                     :model-value="store.mapSettings.bookingHours ?? 0.5"
                     placeholder="1h"
                     @update:modelValue="setUserMapSettings({ bookingHours: $event as any })"
-                />
+                >
+                    Hours in advance for bookings
+                </ui-select>
             </div>
+
+            <ui-columns-display
+                align-items="flex-start"
+                class="__section-group __section-group--even"
+            >
+                <template #col1>
+                    <ui-toggle
+                        :model-value="store.mapSettings.visibility?.bookings ?? true"
+                        @update:modelValue="setUserMapSettings({ visibility: { bookings: $event } })"
+                    >
+                        Show Events on Map
+                    </ui-toggle>
+                </template>
+                <template #col2>
+                    <ui-select
+                        :disabled="!(store.mapSettings.visibility?.events ?? true)"
+                        :items="[{ value: 1, text: '1h' }, { value: 2, text: '2h' }, { value: 3, text: '3h' }, { value: 6, text: '6h' }, { value: 12, text: '12h' }, { value: 24, text: '24h' }]"
+                        :model-value="store.mapSettings.eventsHours ?? 0.5"
+                        placeholder="2h"
+                        @update:modelValue="setUserMapSettings({ eventsHours: $event as any })"
+                    >
+                        Hours in advance for events
+                    </ui-select>
+                </template>
+            </ui-columns-display>
 
             <ui-notification
                 v-if="store.bookingOverride"
@@ -389,6 +410,7 @@ import UiTabs from '~/components/ui/data/UiTabs.vue';
 import type { SelectItem } from '~/types/components/select';
 import type { IUserMapSettings } from '~/utils/server/handlers/map-settings';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
+import UiColumnsDisplay from '~/components/ui/data/UiColumnsDisplay.vue';
 
 const store = useStore();
 

@@ -373,6 +373,8 @@ export interface VatsimEvent {
     banner: string;
 }
 
+export type VatsimActiveEvent = Pick<VatsimEvent, 'id' | 'type' | 'name' | 'airports' | 'start_time' | 'end_time'>;
+
 export type VatsimMemberStats = Record<
     | 'id'
     | 'atc'

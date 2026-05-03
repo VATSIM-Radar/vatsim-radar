@@ -16,6 +16,18 @@
 - Fixed diverts not showing
 - Fixed local setup not starting without Navigraph
 - Added all frequencies display on hover
+- Fixed some UIRs, such as AFRN or GULF and ASEA, not showing correct sectors
+- Removed runways from airport on-hover popup
+- Fixed CTR -> FSS sorting in hover popup
+- Fixed edge case when atc tracons with same prefixes were not showing
+- Fixed pilots labels toggle not working
+
+## Features and improvements
+
+- Added support for search history
+- Upcoming and current events will now show on map
+- Booked favorite controller will now show in Favorite section
+- You can now hover over empty airports to find out their name
 
 ## Redesign
 

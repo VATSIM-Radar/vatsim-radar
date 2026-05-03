@@ -1,7 +1,7 @@
 <template>
     <map-html-overlay
         ref="overlay"
-        class="select-result"
+        class="popup-airport"
         is-interaction
         model-value
         :settings="{
@@ -73,16 +73,45 @@
             <template #title>
                 {{getPopupName}}
             </template>
-            <template
-                v-if="runways?.runways?.departure?.length ||runways?.runways?.arrival?.length "
-                #additionalTitle
-            >
-                <template v-if="runways.runways?.departure?.length">
-                    D {{runways?.runways?.departure.join(',')}}
-                </template>
-                <template v-if="runways.runways?.arrival?.length">
-                    A {{runways?.runways?.arrival.join(',')}}
-                </template>
+
+            <template #prepend>
+                <nuxt-link
+                    v-if="event"
+                    class="popup-airport_event"
+                    target="_blank"
+                    :to="`/events/${ event.id }`"
+                >
+                    <div class="popup-airport_event_title">
+                        <ui-text
+                            class="popup-airport_event_title_name"
+                            type="3b-medium"
+                        >
+                            {{event.name}}
+                        </ui-text>
+
+                        <ui-text
+                            class="popup-airport_event_title_type"
+                            type="caption-medium-alt"
+                        >
+                            {{event.type}}
+                        </ui-text>
+                    </div>
+                    <ui-text
+                        class="popup-airport_event_date"
+                        type="caption"
+                    >
+                        Live from {{makeBookingTime(new Date(event.start_time))}}z to {{makeBookingTime(new Date(event.end_time))}}z
+                    </ui-text>
+                    <div class="popup-airport_event_action">
+                        <ui-button
+                            link-color="blue400"
+                            size="S"
+                            type="link"
+                        >
+                            Learn more
+                        </ui-button>
+                    </div>
+                </nuxt-link>
             </template>
         </vatsim-controllers-list>
     </map-html-overlay>
@@ -106,7 +135,9 @@ import VatsimControllerInfo from '~/components/features/vatsim/controllers/Vatsi
 import UiText from '~/components/ui/text/UiText.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import { getAirportCountry } from '~/composables/vatsim/airport';
-import { updateAirportAtisConfig } from '~/composables/render/update/utils';
+import { sortControllersByPosition } from '~/composables/vatsim/controllers';
+import { makeBookingTime } from '~/composables/vatsim/bookings';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 const props = defineProps({
     payload: {
@@ -169,7 +200,7 @@ const getPopupName = computed(() => {
     }
 
     if (type.value === 'sector-vatglasses') return 'Positions';
-    if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' ? 'Controllers' : '' }`;
+    if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' && featureProps.atc?.length ? 'Controllers' : '' }`;
     if ('facility' in featureProps) {
         const airport = (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name;
         let facility = featureProps.facility.facility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === (featureProps as any).facility?.facility)?.long;
@@ -182,13 +213,17 @@ const getPopupName = computed(() => {
     return `${ (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name } Approach/Departure`;
 });
 
+const event = computed(() => {
+    return store.eventsMap[properties.value.type === 'airport' ? properties.value.icao : ''] ?? null;
+});
+
 const getATC = computed<VatsimShortenedController[]>(() => {
     const featureProps = properties.value;
 
     if (props.payload.additionalPayload?.length) {
         const atc: Record<number, VatsimShortenedController> = {};
         props.payload.additionalPayload.forEach(x => {
-            x.atc.forEach(controller => {
+            sortControllersByPosition(x.atc).forEach(controller => {
                 if (atc[controller.cid]) return;
                 atc[controller.cid] = controller;
             });
@@ -197,8 +232,8 @@ const getATC = computed<VatsimShortenedController[]>(() => {
         return Object.values(atc);
     }
 
-    if (isMapFeature('airport-atc', featureProps)) return featureProps.facility.atc;
-    else return featureProps.atc;
+    if (isMapFeature('airport-atc', featureProps)) return sortControllersByPosition(featureProps.facility.atc);
+    else return sortControllersByPosition(featureProps.atc);
 });
 
 const getPosition = computed<Coordinate>(() => {
@@ -221,7 +256,7 @@ const getPosition = computed<Coordinate>(() => {
     ];
 });
 
-const runways = computed(() => {
+/* const runways = computed(() => {
     if (isMapFeature('airport', properties.value)) {
         const dataAirport = dataStore.airportsList.value[properties.value.icao];
         if (dataAirport) {
@@ -231,7 +266,7 @@ const runways = computed(() => {
     }
 
     return null;
-});
+});*/
 </script>
 
 <style lang="scss" scoped>
@@ -254,6 +289,29 @@ const runways = computed(() => {
     .atc-popup_level {
         font-size: 14px;
         font-weight: 600;
+    }
+}
+
+.popup-airport {
+    &_event {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+
+        padding: 8px 12px;
+        border-bottom: 1px dashed $strokeDefault;
+
+        color: $typographyPrimary;
+        text-decoration: none;
+
+        &_title {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-self: stretch;
+            justify-content: space-between;
+        }
     }
 }
 </style>

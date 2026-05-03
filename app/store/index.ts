@@ -5,6 +5,7 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 import type { ThemesList } from '~/utils/colors';
 import type { VatDataVersions } from '~/types/data';
 import type {
+    VatsimActiveEvent,
     VatsimBooking,
     VatsimLiveCompactData, VatsimLiveCompactDataShort,
     VatsimMandatoryData,
@@ -69,6 +70,7 @@ export const useStore = defineStore('index', {
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
 
+        events: [] as VatsimActiveEvent[],
         fetchedBookings: [] as VatsimBooking[],
         bookingsStartTime: new Date(),
         bookingsEndTime: new Date(Date.now() + (5 * 60 * 60 * 1000)),
@@ -214,6 +216,15 @@ export const useStore = defineStore('index', {
                     }
                 }
 
+                for (const booking of this.bookings) {
+                    if (listsUsers.has(booking.atc.cid)) {
+                        foundUsers[booking.atc.cid] = {
+                            type: 'booking',
+                            data: booking,
+                        };
+                    }
+                }
+
                 for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
                     if (listsUsers.has(atc.cid)) {
                         if (foundUsers[atc.cid]) foundUsers[atc.cid].suping = atc.callsign;
@@ -266,6 +277,18 @@ export const useStore = defineStore('index', {
         userMessages(): PartialRecord<UserMessageType, UserMessage> {
             if (!this.user) return {};
             return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));
+        },
+        eventsMap(): Record<string, VatsimActiveEvent> {
+            const icaoMap: Record<string, VatsimActiveEvent> = {};
+
+            for (const event of this.events) {
+                for (const { icao } of event.airports) {
+                    if (icaoMap[icao]) continue;
+                    icaoMap[icao] = event;
+                }
+            }
+
+            return icaoMap;
         },
     },
     actions: {

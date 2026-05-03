@@ -94,6 +94,7 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
         if (position === ids.APP) return 3;
         if (position === ids.ATIS) return 4;
         if (position === ids.CTR) return 5;
+        if (position === ids.FSS) return 6;
         return 6;
     };
 

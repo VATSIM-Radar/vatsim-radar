@@ -40,7 +40,7 @@
             v-if="$slots.append"
             class="button_append"
         >
-            <slot name="default"/>
+            <slot name="append"/>
         </div>
     </component>
 </template>

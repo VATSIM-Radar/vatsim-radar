@@ -46,7 +46,7 @@
                     <div
                         v-if="user.type !== 'offline'"
                         class="users_user_info_status"
-                        :class="{ 'users_user_info_status--no-action': user.type === 'sup' }"
+                        :class="{ 'users_user_info_status--no-action': user.type === 'sup' || user.type === 'booking' }"
                         @click.stop="store.settingsPopup = false"
                     >
                         <div
@@ -94,6 +94,12 @@
                             @click="[mapStore.addAtcOverlay(user.data.callsign), map && showAtcOnMap(user.data, map)]"
                         >
                             Controlling as {{ user.data.callsign }}
+                        </div>
+                        <div
+                            v-else-if="user.type === 'booking'"
+                            class="users_user__btn"
+                        >
+                            Booked {{user.data.atc.callsign}} from {{ makeBookingTime(user.data.start) }}z to {{makeBookingTime(user.data.end)}}z
                         </div>
                         <div
                             v-else-if="user.type === 'sup'"
@@ -208,6 +214,7 @@ import type { Map } from 'ol';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import { makeBookingTime } from '~/composables/vatsim/bookings';
 
 const props = defineProps({
     list: {

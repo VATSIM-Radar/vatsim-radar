@@ -5,12 +5,12 @@
         :class="[`text--type-${ type }`, {
             'text--type-b': isTypeB,
         }]"
-        :href
+        :href="href ?? undefined"
         :style="{
             '--text-primary-color': color !== 'currentColor' ? `var(--${ color })` : undefined,
             '--text-hover-color': linkHoverColor ? `var(--${ linkHoverColor })` : undefined,
         }"
-        :to
+        :to="to ?? undefined"
     >
         <slot/>
     </component>

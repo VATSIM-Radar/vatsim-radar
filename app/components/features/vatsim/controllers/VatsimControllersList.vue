@@ -23,6 +23,7 @@
             >
                 <slot name="additionalTitle"/>
             </template>
+            <slot name="prepend"/>
             <div class="atc-popup_list">
                 <vatsim-controller-info
                     v-for="(controller, controllerIndex) in getControllers"
@@ -81,7 +82,11 @@ const emit = defineEmits({
     },
 });
 
-defineSlots<{ title?(): any; additionalTitle?(): any }>();
+defineSlots<{
+    title?(): any;
+    additionalTitle?(): any;
+    prepend?(): any;
+}>();
 
 const getControllers = computed(() => {
     const facilities = useFacilitiesIds();
