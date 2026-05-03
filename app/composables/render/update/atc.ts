@@ -126,7 +126,7 @@ function findUirForCallsign(callsign: string, prefix: string) {
         const word = '';
 
         for (let i = 0; i < uir.icao.length; i++) {
-            if (!callsign.startsWith(uir.icao) && !callsign.startsWith(uir.icao)) break;
+            if (!callsign.startsWith(uir.icao)) break;
         }
 
         let length = word.length;
