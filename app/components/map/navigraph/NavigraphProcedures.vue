@@ -37,7 +37,7 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
             name,
             type: 'navigraph',
             featureType: 'procedure',
-            id: `enroute-${ procedure }-${ name }-${waypoint.identifier}`,
+            id: `enroute-${ procedure }-${ name }-${ waypoint.identifier }`,
             dbType: null,
         }));
     }

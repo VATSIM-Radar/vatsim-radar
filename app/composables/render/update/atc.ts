@@ -162,7 +162,7 @@ function addSector(context: DataUpdateContext, sector: FirFindResult, controller
     if (existingSector && controller) {
         // Don't add booking controllers to same sectors
         if (controller.isBooking && existingSector.atc.length) {
-            const similar = existingSector.atc.find(x => !x.isBooking && x.callsign === controller.callsign)
+            const similar = existingSector.atc.find(x => !x.isBooking && x.callsign === controller.callsign);
 
             if (similar) similar.booking = controller.booking;
 
