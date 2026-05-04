@@ -281,7 +281,7 @@ async function update() {
                 else {
                     for (let k = 0; k < waypoint.airway!.value[2].length; k++) {
                         const currWaypoint = waypoint.airway!.value[2][k];
-                        const nextWaypoint = waypoint.airway!.value[2][k + 1];
+                        const nextAirwayWaypoint = waypoint.airway!.value[2][k + 1];
 
                         checkAircraftStepclimb(currWaypoint[0]);
 
@@ -292,11 +292,11 @@ async function update() {
                         }
 
                         if (!foundWaypoint && speed >= 50 && !full) {
-                            if (!nextWaypoint && nextCoordinate?.[0]) {
+                            if (!nextAirwayWaypoint && nextCoordinate?.[0]) {
                                 applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
                             }
-                            else if (nextWaypoint) {
-                                applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]]);
+                            else if (nextAirwayWaypoint) {
+                                applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]]);
                             }
 
                             continue;
@@ -345,15 +345,15 @@ async function update() {
                             }));
                         }
 
-                        if (!nextWaypoint) {
+                        if (!nextAirwayWaypoint) {
                             // Last one
                             if (nextCoordinate?.[0]) {
                                 applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
 
-                                addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`, () => ({
+                                addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`, () => ({
                                     geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
                                     key: '',
-                                    id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
+                                    id: `enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`,
                                     identifier: '',
                                     featureType: 'enroute-airways',
                                     type: 'navigraph',
@@ -369,12 +369,12 @@ async function update() {
                             continue;
                         }
 
-                        applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]]);
+                        applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]]);
 
-                        addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`, () => ({
-                            geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
+                        addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`, () => ({
+                            geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
-                            id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
+                            id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`,
                             identifier: disableLabels ? '' : waypoint.airway!.value[0],
                             inbound: currWaypoint[1],
                             outbound: currWaypoint[2],
