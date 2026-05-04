@@ -575,7 +575,7 @@ export async function getFlightPlanWaypoints({
                 if (arrStar || arrApproach || star !== -1) {
                     starInit = true;
 
-                    const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
+                    const starProcedure: NavDataProcedure<NavigraphNavDataStar> | null = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
                     let arrivalProcedures = (arrRunway && await getNavigraphAirportShortProceduresForKey('approaches', arrival));
 
                     if (!arrivalProcedures && Array.isArray(procedure?.procedure.runways) && procedure?.procedure.runways.length === 1 && procedure?.procedure.runways[0]) {
@@ -628,7 +628,8 @@ export async function getFlightPlanWaypoints({
                                 : null;
 
                         if (fetchedProcedure) {
-                            const transition = fetchedProcedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === entries[entries.length - 2]);
+                            const transition = fetchedProcedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === starProcedure?.waypoints[starProcedure.waypoints.length - 1]?.identifier);
+
                             if (transition) {
                                 deleteDoubleWaypoint(transition?.waypoints[0]?.identifier ?? '');
 
@@ -792,6 +793,8 @@ export async function getFlightPlanWaypoints({
             const vhfs = await getNavigraphParsedData('vhf', search);
             const ndbs = await getNavigraphParsedData('ndb', search);
             const waypointsList = await getNavigraphParsedData('waypoints', search);
+
+            if (search === 'NEGIX') console.log(waypointsList);
 
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {
