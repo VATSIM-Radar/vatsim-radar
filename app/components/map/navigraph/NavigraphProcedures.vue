@@ -37,30 +37,30 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
             name,
             type: 'navigraph',
             featureType: 'procedure',
-            id: `enroute-${ procedure }-${ name }`,
+            id: `enroute-${ procedure }-${ name }-${waypoint.identifier}`,
             dbType: null,
         }));
+    }
 
-        if (constraints) {
-            newFeatures.push(...waypoints.map(x => createMapFeature('navigraph', {
-                geometry: new Point(x.coordinate),
-                key: x.identifier,
-                waypoint: x.identifier,
-                description: x.description,
-                usage: x.type,
-                featureType: 'procedure-waypoint',
-                type: 'navigraph',
-                id: `procedure-waypoint-${ x.identifier }`,
+    if (constraints) {
+        newFeatures.push(...waypoints.map(x => createMapFeature('navigraph', {
+            geometry: new Point(x.coordinate),
+            key: x.identifier,
+            waypoint: x.identifier,
+            description: x.description,
+            usage: x.type,
+            featureType: 'procedure-waypoint',
+            type: 'navigraph',
+            id: `procedure-waypoint-${ x.identifier }`,
 
-                altitude: x.altitude,
-                altitude1: x.altitude1,
-                altitude2: x.altitude2,
-                speed: x.speed,
-                speedLimit: x.speedLimit,
+            altitude: x.altitude,
+            altitude1: x.altitude1,
+            altitude2: x.altitude2,
+            speed: x.speed,
+            speedLimit: x.speedLimit,
 
-                dbType: null,
-            })));
-        }
+            dbType: null,
+        })));
     }
 }
 
@@ -79,7 +79,7 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
     enrouteTransitions.forEach(x => addWaypoints(newFeatures, x.waypoints, constraints, type));
 }
 
-watch(() => dataStore.navigraphProcedures, () => {
+watch(dataStore.navigraphProcedures, () => {
     const newFeatures: Feature[] = [];
 
     for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures.value as Record<string, DataStoreNavigraphProceduresAirport>)) {
@@ -107,7 +107,6 @@ watch(() => dataStore.navigraphProcedures, () => {
     source?.value.addFeatures(features);
 }, {
     immediate: true,
-    deep: 4,
 });
 
 onBeforeUnmount(() => {

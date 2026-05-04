@@ -90,9 +90,16 @@
 
                 <div class="aircraft-hover_destination">
                     <vatsim-pilot-destination
+                        v-if="pilot.departure && pilot.arrival"
                         :pilot
                         :short="isShortInfo"
                     />
+                    <ui-text
+                        v-else
+                        type="3b-medium"
+                    >
+                        No flight plan
+                    </ui-text>
                 </div>
                 <div
                     class="aircraft-hover_sections"

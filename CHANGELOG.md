@@ -1,5 +1,23 @@
 # Changelog
 
+# [2.0.0-alpha.8.2]
+
+## Alpha changes
+
+- Aircraft without fpln hover has been fixed
+- Fixed minified overlay background
+- When overlay is collapsed, new overlay will not close collapsed overlay, even it was not sticky
+- Fixed airport proc tab not doing anything
+- Fixed airport proc tab adding much more waypoints than needed
+- Fixed airport proc procedures not rendering
+- Fixed procedure not rendering and crashing if a star was not selected
+- Fixed sectors displaying as booked even when active
+
+## Bug Fixes
+
+- Fixed waypoints sometimes not connecting with airways
+- Fixed some waypoints not showing correctly
+
 # [2.0.0-alpha.8.1]
 
 - Restored "booked until" functionality

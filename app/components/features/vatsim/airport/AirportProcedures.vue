@@ -199,63 +199,60 @@ const runways = computed(() => {
     return Array.from(list).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 });
 
-const selectedAirport = computed({
-    get: () => {
-        if (props.from === 'pilotOverlay') {
-            if (props.flightType === 'departure') return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.departure;
-            else return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.arrival;
-        }
+const selectedAirport = computed(() => {
+    if (props.from === 'pilotOverlay') {
+        if (props.flightType === 'departure') return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.departure;
+        else return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.arrival;
+    }
 
-        return dataStore.navigraphProcedures.value[props.airport];
-    },
-    set: val => {
-        if (!val) return;
-
-        if (props.from === 'pilotOverlay') {
-            dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()] ||= {
-                departure: {
-                    icao: '',
-                    sids: {},
-                    stars: {},
-                    approaches: {},
-                    runways: [],
-                    setBy: props.from,
-                },
-                arrival: {
-                    icao: '',
-                    sids: {},
-                    stars: {},
-                    approaches: {},
-                    runways: [],
-                    setBy: props.from,
-                },
-            };
-
-            if (props.flightType === 'departure') {
-                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.departure = {
-                    icao: props.airport,
-                    ...val,
-                };
-            }
-            else {
-                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.arrival = {
-                    icao: props.airport,
-                    ...val,
-                };
-            }
-
-            if (dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()]) {
-                dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()].waypoints = [];
-            }
-            triggerRef(dataStore.navigraphAircraftProcedures);
-
-            return;
-        }
-
-        dataStore.navigraphProcedures.value[props.airport] = val;
-        triggerRef(dataStore.navigraphProcedures);
-    },
+    return dataStore.navigraphProcedures.value[props.airport];
 });
+
+function updateSelection(val = selectedAirport.value as DataStoreNavigraphProceduresAirport) {
+    if (props.from === 'pilotOverlay') {
+        dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()] ||= {
+            departure: {
+                icao: '',
+                sids: {},
+                stars: {},
+                approaches: {},
+                runways: [],
+                setBy: props.from,
+            },
+            arrival: {
+                icao: '',
+                sids: {},
+                stars: {},
+                approaches: {},
+                runways: [],
+                setBy: props.from,
+            },
+        };
+
+        if (props.flightType === 'departure') {
+            dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.departure = {
+                icao: props.airport,
+                ...val,
+            };
+        }
+        else {
+            dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.arrival = {
+                icao: props.airport,
+                ...val,
+            };
+        }
+
+        if (dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()]) {
+            dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()].waypoints = [];
+        }
+        triggerRef(dataStore.navigraphAircraftProcedures);
+
+        return;
+    }
+
+    dataStore.navigraphProcedures.value[props.airport] = val;
+    triggerRef(dataStore.navigraphProcedures);
+}
 
 function selectTransition(selection: DataStoreNavigraphProcedure<NavigraphNavDataStar> | DataStoreNavigraphProcedure<NavigraphNavDataApproach>, name: string) {
     if (selection.transitions.includes(name)) {
@@ -270,7 +267,7 @@ function selectTransition(selection: DataStoreNavigraphProcedure<NavigraphNavDat
         }
     }
 
-    triggerRef(selectedAirport);
+    updateSelection();
 }
 
 async function selectItem(type: 'runway', value: string | null): Promise<void>;
@@ -333,7 +330,7 @@ async function selectItem(type: 'runway' | keyof IDBNavigraphProcedures, value: 
         }
     }
 
-    triggerRef(selectedAirport);
+    updateSelection();
 }
 
 const transitionsList = computed(() => {
@@ -350,13 +347,13 @@ const transitionsList = computed(() => {
 
 function setAirport() {
     if (!selectedAirport.value) {
-        selectedAirport.value = {
+        updateSelection({
             sids: {},
             stars: {},
             approaches: {},
             runways: [],
             setBy: props.from,
-        };
+        });
     }
 }
 

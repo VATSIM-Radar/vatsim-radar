@@ -13,7 +13,7 @@
                 :key="item.id"
                 v-on-long-press="[() => isTouch && ((item.type !== 'airport' || hoveredAirport === item.data.icao) ? hoveredAirport = '' : (hoveredAirport = item.data.icao)), { delay: 200, modifiers: { prevent: true } }]"
                 size="S"
-                :type="item.minified ? 'secondary' : 'primary'"
+                :type="item.minified ? 'secondary-black' : 'primary'"
                 @click="itemClick(item)"
                 @mouseleave="hoveredAirport = ''"
                 @mouseover="!isTouch && item.type === 'airport' && (hoveredAirport = item.data.icao)"

@@ -182,7 +182,7 @@ export const useMapStore = defineStore('map', {
                 });
                 const ipfsRequest = (pilot.status === 'depGate' || pilot.status === 'depTaxi') && $fetch<IpfsUser>(`/api/data/vatsim/pilot/${ cid }/ipfs`).catch(() => {});
                 if (!params.sticky) {
-                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
+                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || x.collapsed || store.user?.settings.toggleAircraftOverlays);
                 }
                 if (params?.data?.tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
@@ -231,7 +231,7 @@ export const useMapStore = defineStore('map', {
                     timeout: 5000,
                 });
                 if (!params?.sticky) {
-                    this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                    this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky || x.collapsed);
                 }
                 await nextTick();
 
@@ -266,7 +266,7 @@ export const useMapStore = defineStore('map', {
                 if (!controller) return;
 
                 if (!params?.sticky) {
-                    this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                    this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky || x.collapsed);
                 }
                 await nextTick();
 
@@ -311,7 +311,7 @@ export const useMapStore = defineStore('map', {
                 if (!vatSpyAirport) return;
 
                 if (!params?.sticky) {
-                    this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                    this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky || x.collapsed);
                 }
                 await nextTick();
                 const overlay = this.addOverlay<StoreOverlayAirport>({
