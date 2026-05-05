@@ -50,8 +50,7 @@ onMounted(async () => {
 
     globalMapEntities.sectors = vectorSource;
 
-    // @ts-expect-error wrong type
-    vectorLayer = new VectorImageLayer<any>({
+    vectorLayer = new VectorLayer<any>({
         source: vectorSource,
         zIndex: FEATURES_Z_INDEX.SECTORS,
         declutter: 'airports',
