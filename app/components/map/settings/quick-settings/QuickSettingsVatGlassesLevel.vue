@@ -1,15 +1,18 @@
 <template>
     <div
-        v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
+        v-if="!store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
         class="vg-level"
     >
         <div
             v-if="store.viewport.width > 1400 || store.viewport.width < 1350"
             class="vg-level_title __grid-info-sections_title"
         >
-            Flight<br> Level
+            VAT<br> Glasses
         </div>
-        <div class="vg-level_content">
+        <div
+            v-if="vatglassesActive"
+            class="vg-level_content"
+        >
             <input
                 v-if="(!disabledLevel || showAuto) && store.viewport.width > 1500"
                 v-model="vatglassesLevel"
@@ -43,6 +46,16 @@
                 A
             </label>
         </div>
+        <ui-toggle
+            v-if="showAuto && !store.mapSettings.vatglasses?.active && store.user && ownFlight"
+            :model-value="!!store.mapSettings.vatglasses?.autoEnable"
+            @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+        />
+        <ui-toggle
+            v-else
+            :model-value="!!store.mapSettings.vatglasses?.active"
+            @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+        />
     </div>
 </template>
 
@@ -53,6 +66,7 @@ import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 
 defineProps({
     hideIfDisabled: {
@@ -140,10 +154,6 @@ label {
 }
 
 .vatglassesLevel-input{
-    width: 60px;
-
-    :deep(.input_container) {
-        padding: 0 8px;
-    }
+    width: 50px;
 }
 </style>

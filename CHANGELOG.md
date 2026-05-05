@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-alpha.8.3]
+
+## Alpha changes
+
+- Fixed VATGlasses altitude selection
+
+## Improvements and changes
+
+- Added a way to quickly disable and enable VATGlasses
+
 # [2.0.0-alpha.8.2]
 
 ## Alpha changes

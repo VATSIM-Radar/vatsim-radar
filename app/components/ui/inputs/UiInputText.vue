@@ -241,6 +241,12 @@ watch(model, val => {
             outline: none;
             box-shadow: none;
 
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                margin: 0;
+                appearance: none;
+            }
+
             &::placeholder {
                 color: $whiteAlpha36;
                 opacity: 1;
