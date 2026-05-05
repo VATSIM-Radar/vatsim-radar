@@ -316,7 +316,7 @@ const visibleSet = useThrottleFn(() => {
     const log = logBench('aircraftPrepare');
     setVisiblePilots();
     log();
-}, 1000, true);
+}, 500, true);
 
 const debouncedUpdate = useThrottleFn(() => {
     if (!canRender.value) {
