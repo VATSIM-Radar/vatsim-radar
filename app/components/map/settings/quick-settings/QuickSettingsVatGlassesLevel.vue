@@ -48,7 +48,7 @@
         </div>
         <ui-toggle
             v-if="showAuto && !store.mapSettings.vatglasses?.active && store.user && ownFlight"
-            :model-value="!!store.mapSettings.vatglasses?.autoEnable"
+            :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
             @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
         />
         <ui-toggle
