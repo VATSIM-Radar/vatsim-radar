@@ -133,6 +133,7 @@ export async function setMapAircraft(settings: {
 
     for (const aircraft of shownPilots) {
         const isSelfFlight = aircraft?.cid === ownFlight.value?.cid;
+        const actualAircraft = dataStore.vatsim.data.keyedPilots.value[aircraft.cid.toString()];
 
         if (isSelfFlight && dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
             dataStore.vatsim.selfCoordinate.value = null;
@@ -140,11 +141,11 @@ export async function setMapAircraft(settings: {
 
         const coordinates = (isSelfFlight && dataStore.vatsim.selfCoordinate.value)
             ? dataStore.vatsim.selfCoordinate.value.coordinate
-            : [aircraft.longitude, aircraft.latitude];
+            : [(actualAircraft ?? aircraft).longitude, (actualAircraft ?? aircraft).latitude];
 
         const heading = (isSelfFlight && dataStore.vatsim.selfCoordinate.value)
             ? dataStore.vatsim.selfCoordinate.value.heading
-            : aircraft.heading;
+            : (actualAircraft ?? aircraft).heading;
 
         const pilot = dataStore.vatsim.data.keyedPilots.value[aircraft.cid] as VatsimShortenedAircraft | undefined;
         const overlay = overlays[aircraft.cid];

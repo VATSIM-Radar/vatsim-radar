@@ -246,12 +246,14 @@ function updateSelection(val = selectedAirport.value as DataStoreNavigraphProced
             dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()].waypoints = [];
         }
         triggerRef(dataStore.navigraphAircraftProcedures);
+        triggerRef(selectedAirport);
 
         return;
     }
 
     dataStore.navigraphProcedures.value[props.airport] = val;
     triggerRef(dataStore.navigraphProcedures);
+    triggerRef(selectedAirport);
 }
 
 function selectTransition(selection: DataStoreNavigraphProcedure<NavigraphNavDataStar> | DataStoreNavigraphProcedure<NavigraphNavDataApproach>, name: string) {

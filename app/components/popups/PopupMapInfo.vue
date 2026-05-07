@@ -25,7 +25,7 @@
                 >
                     <slot name="additionalTitle"/>
                 </ui-text>
-                <template v-if="$slots.titleAppend || model !== null">
+                <template v-if="$slots.titleAppend || (model !== null && !disabled)">
                     <div class="__spacer"/>
                     <div
                         v-if="$slots.titleAppend"
@@ -34,7 +34,7 @@
                         <slot name="titleAppend"/>
                     </div>
                     <div
-                        v-if="model !== null"
+                        v-if="model !== null && !disabled"
                         class="popup-block_title_close"
                         @click="model = false"
                     >
@@ -75,6 +75,10 @@ defineProps({
     openFrom: {
         type: String as PropType<Positioning | null>,
         default: null,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
 });
 

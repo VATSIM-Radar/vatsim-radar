@@ -49,16 +49,17 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
         {
             text: 'Calendar',
             icon: CalendarIcon,
+            path: '/events',
             children: [
-                {
-                    text: 'Bookings',
-                    path: '/bookings',
-                    icon: BookingsIcon,
-                },
                 {
                     text: 'Events',
                     path: '/events',
                     icon: EventsIcon,
+                },
+                {
+                    text: 'Bookings',
+                    path: '/bookings',
+                    icon: BookingsIcon,
                 },
             ],
         },

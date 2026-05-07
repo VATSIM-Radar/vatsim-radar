@@ -404,7 +404,6 @@ defineCronJob('* * * * * *', async () => {
                 qnh_i_hg: true,
                 flight_plan: true,
                 last_updated: true,
-                logon_time: true,
             },
             controllers: {
                 visual_range: true,
@@ -564,6 +563,7 @@ defineCronJob('* * * * * *', async () => {
                 dpg: pilot.toGoDist,
                 ap: !pilot.airport ? undefined : shortDatafeed.map.airports.indexOf(pilot.airport),
                 rl: pilot.flight_rules,
+                lg: pilot.logon_time,
             });
         }
 

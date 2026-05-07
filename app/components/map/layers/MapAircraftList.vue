@@ -130,6 +130,7 @@ function setVisiblePilots() {
     // Calculating tracks data
     dataStore.visiblePilots.value.forEach(x => {
         const pilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
+        if (!pilot) return;
 
         const isOverlay = pilotsOverlays.value.includes(x.cid);
         const isShown = visibleFeatures.has(x.cid);
@@ -316,7 +317,7 @@ const visibleSet = useThrottleFn(() => {
     const log = logBench('aircraftPrepare');
     setVisiblePilots();
     log();
-}, 500, true);
+}, 300, true);
 
 const debouncedUpdate = useThrottleFn(() => {
     if (!canRender.value) {
@@ -325,24 +326,26 @@ const debouncedUpdate = useThrottleFn(() => {
     }
     else {
         const log = logBench('aircraftRender');
-        setMapAircraft({
-            source: vectorSource,
-            layer: vectorLayer,
-            linesSource: linesSource,
-            linesLayer: linesLayer,
-            shownPilots: getShownPilots.value,
-            tracks: showTracks.value,
-        });
+        if (store.isTabVisible) {
+            setMapAircraft({
+                source: vectorSource,
+                layer: vectorLayer,
+                linesSource: linesSource,
+                linesLayer: linesLayer,
+                shownPilots: getShownPilots.value,
+                tracks: showTracks.value,
+            });
+        }
         log();
     }
-}, 500, true);
+}, 300, true);
 
 useUpdateCallback(['mandatory', 'short', 'extent', showTracks, updateRelatedSettings], () => {
     if (!init) return;
     visibleSet();
 });
 
-watch([getShownPilots, canRender, showTracks, renderedPilots], debouncedUpdate);
+watch([getShownPilots, canRender, showTracks, renderedPilots, dataStore.vatsim.data.keyedPilots], debouncedUpdate);
 
 watch(map, val => {
     if (!val) return;

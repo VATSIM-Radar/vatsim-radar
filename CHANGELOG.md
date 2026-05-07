@@ -1,5 +1,18 @@
 # Changelog
 
+# [2.0.0-alpha.8.4]
+
+- Removed close button from init popup
+- Fixed VG toggle displayed twice in map settings
+- Fixed logon time not showing in stats for pilots
+- Fixed airport Proc tab not responsive to selections
+- Fixed VG alt arrows in Firefox
+- Fixed some filters crashing pilots render
+
+## Improvements and changes
+
+- Changed calendar menu to open events by default
+
 # [2.0.0-alpha.8.3]
 
 ## Alpha changes

@@ -267,6 +267,10 @@ watch(model, val => {
                 }
             }
 
+            &:is(input) {
+                appearance: textfield;
+            }
+
             @include mobileSafariOnly {
                 font-size: 16px;
             }

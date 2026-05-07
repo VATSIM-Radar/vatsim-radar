@@ -28,6 +28,7 @@
                     </div>
                     <popup-map-info
                         content-padding="12px"
+                        :disabled
                         :model-value="model"
                         @update:modelValue="model = $event ?? false"
                     >

@@ -368,6 +368,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             toGoDist: pilot.dpg,
             airport: _vatsimData.map.airports[pilot.ap ?? -1],
             flight_rules: pilot.rl,
+            logon_time: pilot.lg,
         });
     }
 

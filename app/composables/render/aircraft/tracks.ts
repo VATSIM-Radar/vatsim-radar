@@ -184,7 +184,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.turnsStart = '';
         }
 
-        const shortUpdate = !!updateState.turnsFirstGroupTimestamp;
+        let shortUpdate = !!updateState.turnsFirstGroupTimestamp;
 
         let turns = await new Promise<InfluxGeojson | null | undefined>(async resolve => {
             if (track.show === 'short') {
@@ -219,6 +219,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         // Doing a full update
         if (firstUpdate) {
+            updateState.turnsFirstGroupTimestamp = '';
+            updateState.turnsSecondGroupPoint = null;
+            updateState.turnsTimestamp = '';
+            updateState.lastTurnsUpdate = 0;
+            updateState.lastTurnsUpdateData = undefined;
+            shortUpdate = false;
+
             turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=`, {
                 timeout: 1000 * 5,
             }).catch(console.error) ?? null;

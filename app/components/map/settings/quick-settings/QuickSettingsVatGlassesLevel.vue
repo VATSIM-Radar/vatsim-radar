@@ -7,7 +7,12 @@
             v-if="store.viewport.width > 1400 || store.viewport.width < 1350"
             class="vg-level_title __grid-info-sections_title"
         >
-            VAT<br> Glasses
+            <template v-if="showAuto">
+                VAT<br> Glasses
+            </template>
+            <template v-else>
+                Flight Level
+            </template>
         </div>
         <div
             v-if="vatglassesActive"
@@ -52,7 +57,7 @@
             @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
         />
         <ui-toggle
-            v-else
+            v-else-if="showAuto"
             :model-value="!!store.mapSettings.vatglasses?.active"
             @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
         />
