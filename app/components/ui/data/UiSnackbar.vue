@@ -89,13 +89,7 @@ const model = defineModel({ type: Boolean, default: null });
     }
 
     &_text {
-        overflow: hidden;
-        display: -webkit-box;
         flex-grow: 1;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-
-        max-height: 54px;
     }
 
     &_close {
