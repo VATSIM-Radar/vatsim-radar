@@ -578,17 +578,17 @@ export async function getFlightPlanWaypoints({
                     const starProcedure: NavDataProcedure<NavigraphNavDataStar> | null = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
                     let arrivalProcedures = (arrRunway && await getNavigraphAirportShortProceduresForKey('approaches', arrival));
 
-                    if (!arrivalProcedures && Array.isArray(procedure?.procedure.runways) && procedure?.procedure.runways.length === 1 && procedure?.procedure.runways[0]) {
-                        arrRunway = procedure?.procedure.runways[0];
+                    if (!arrivalProcedures && Array.isArray(starProcedure?.procedure.runways) && starProcedure?.procedure.runways.length === 1 && starProcedure?.procedure.runways[0]) {
+                        arrRunway = starProcedure?.procedure.runways[0];
                         arrivalProcedures = await getNavigraphAirportShortProceduresForKey('approaches', arrival);
                     }
 
-                    const enrouteTransition = procedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
+                    const enrouteTransition = starProcedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
                         deleteDoubleWaypoint(enrouteTransition.waypoints[0].identifier);
 
                         waypoints.push(...enrouteTransition.waypoints.map(x => ({
-                            title: procedure?.procedure.identifier,
+                            title: starProcedure?.procedure.identifier,
                             identifier: x.identifier,
                             coordinate: x.coordinate,
                             description: x.description,
@@ -602,10 +602,10 @@ export async function getFlightPlanWaypoints({
                         } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                     }
 
-                    deleteDoubleWaypoint(procedure?.waypoints[0]?.identifier ?? '');
+                    deleteDoubleWaypoint(starProcedure?.waypoints[0]?.identifier ?? '');
 
-                    waypoints.push(...procedure?.waypoints.map(x => ({
-                        title: procedure?.procedure.identifier,
+                    waypoints.push(...starProcedure?.waypoints.map(x => ({
+                        title: starProcedure?.procedure.identifier,
                         identifier: x.identifier,
                         coordinate: x.coordinate,
                         description: x.description,

@@ -8,6 +8,12 @@ outline: [2, 3]
 [[toc]]
 :::
 
+# 1.2.4.7.2
+
+- Fixed waypoints sometimes not connecting with airways
+- Fixed some waypoints not showing correctly
+- Improved performance and stability of aircraft tracks
+
 # 1.2.4.7.1
 
 - Added support for NAT frequencies for ATC and pilots
