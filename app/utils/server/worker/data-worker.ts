@@ -471,24 +471,10 @@ defineCronJob('* * * * * *', async () => {
             const pilots = getShortInfluxDataForPilots();
             if (plans.length) {
                 influxDBWritePlans.writeRecords(plans);
-
-                await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('Influx plans write Failed by timeout')), 5000);
-                    await influxDBWritePlans.flush(true).catch(console.error);
-                    clearTimeout(timeout);
-                    resolve();
-                }).catch(console.error);
             }
 
             if (pilots.length) {
                 influxDBWriteMain.writeRecords(pilots);
-
-                await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('Influx pilots write Failed by timeout')), 5000);
-                    await influxDBWriteMain.flush(true).catch(console.error);
-                    clearTimeout(timeout);
-                    resolve();
-                }).catch(console.error);
             }
         }
 
