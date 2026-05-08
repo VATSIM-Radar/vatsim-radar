@@ -138,7 +138,7 @@ interface PreviousPilot {
 let previousShortData: Record<number, PreviousPilot> = {};
 
 export function getPlanInfluxDataForPilots() {
-    const date = `${ Date.now() }000000`;
+    const date = Date.now();
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousPlanData[pilot.cid];
@@ -197,7 +197,7 @@ function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousA
 }
 
 export function getShortInfluxDataForPilots() {
-    const date = `${ Date.now() }000000`;
+    const date = Date.now();
 
     const newPilotsData: typeof previousShortData = {};
 
