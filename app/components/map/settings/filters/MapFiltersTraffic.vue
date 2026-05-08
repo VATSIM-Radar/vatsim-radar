@@ -124,7 +124,7 @@ const copyUrl = () => {
         const url = new URL(location.href);
         url.searchParams.delete('overlay[]');
         for (const overlay of mapStore.overlays) {
-            url.searchParams.append('overlay[]', `type=${ overlay.type };key=${ overlay.key };sticky=${ Number(overlay.sticky) };collapsed=${ Number(overlay.collapsed) }`);
+            url.searchParams.append('overlay[]', `type=${ overlay.type };key=${ overlay.key };sticky=${ Number(overlay.sticky) };collapsed=${ Number(overlay.collapsed) };minified=${ Number(overlay.minified) }`);
         }
 
         text = url.toString();

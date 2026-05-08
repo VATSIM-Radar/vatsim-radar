@@ -575,22 +575,23 @@ const restoreOverlays = async () => {
             const key = data.find(x => x.startsWith('key='))?.split('=')[1];
             const sticky = data.find(x => x.startsWith('sticky='))?.split('=')[1] === '1';
             const collapsed = data.find(x => x.startsWith('collapsed='))?.split('=')[1] === '1';
+            const minified = data.find(x => x.startsWith('minified='))?.split('=')[1] === '1';
 
             if (!type || !key) continue;
 
             try {
                 switch (type) {
                     case 'pilot':
-                        await mapStore.addPilotOverlay(key, undefined, { sticky, collapsed });
+                        await mapStore.addPilotOverlay(key, undefined, { sticky, collapsed, minified });
                         break;
                     case 'prefile':
-                        await mapStore.addPrefileOverlay(key, { sticky, collapsed });
+                        await mapStore.addPrefileOverlay(key, { sticky, collapsed, minified });
                         break;
                     case 'airport':
-                        await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed });
+                        await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed, minified });
                         break;
                     case 'atc':
-                        await mapStore.addAtcOverlay(key, { sticky, collapsed });
+                        await mapStore.addAtcOverlay(key, { sticky, collapsed, minified });
                         break;
                 }
             }
