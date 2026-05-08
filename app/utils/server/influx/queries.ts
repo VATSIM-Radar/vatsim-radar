@@ -4,7 +4,7 @@ import { influxDBQuery } from '~/utils/server/influx/influx';
 export type InfluxFlight = {
     [K in keyof Pick<VatsimPilot, 'altitude' | 'callsign' | 'cid' | 'groundspeed' | 'heading' | 'latitude' | 'longitude' | 'name' | 'qnh_mb' | 'transponder'>]?: VatsimPilot[K] | null
 } & {
-    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'enroute_time' | 'flight_rules' | 'route'> as `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
+    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
 } & {
     _time: string;
     time: number;
@@ -20,6 +20,7 @@ const flightKeys = Object.keys({
     callsign: true,
     cid: true,
     fpl_departure: true,
+    fpl_departure_time: true,
     disconnected: true,
     fpl_enroute_time: true,
     fpl_flight_rules: true,
@@ -60,13 +61,18 @@ export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
     return rows.filter((row, index) => {
         const nextRow = rows[index + 1];
 
-        const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival);
+        const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival;
         const isFplnChange = row?.fpl_arrival !== nextRow?.fpl_arrival && row?.fpl_departure !== nextRow?.fpl_departure;
 
         if (isNew && !isFplnChange) return true;
 
         const similarRow = (
-            row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && row.callsign === nextRow.callsign
+            row.fpl_arrival &&
+            nextRow?.fpl_departure === row.fpl_departure &&
+            nextRow.fpl_arrival === row.fpl_arrival &&
+            nextRow.fpl_enroute_time === row.fpl_enroute_time &&
+            nextRow.fpl_departure_time === row.fpl_departure_time &&
+            nextRow.callsign === row.callsign
         ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
             ? rows[index + 1]
             : null;
