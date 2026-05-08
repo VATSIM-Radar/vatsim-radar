@@ -14,11 +14,10 @@ export function initInfluxDB() {
         });
 
         influxDBQuery = influxDB.getQueryApi(process.env.INFLUX_ORG!);
-        influxDBWritePlans = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_PLANS!);
-        influxDBWriteMain = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_MAIN!);
+        influxDBWritePlans = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_PLANS!, 'ms');
+        influxDBWriteMain = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_MAIN!, 'ms');
     }
     catch (e) {
         console.error(e);
     }
 }
-

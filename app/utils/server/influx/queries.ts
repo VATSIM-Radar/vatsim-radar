@@ -35,6 +35,23 @@ const flightKeys = Object.keys({
     transponder: true,
 } satisfies Record<keyof InfluxFlight, true>) as Array<keyof InfluxFlight>;
 
+const planFields: Array<keyof InfluxFlight> = [
+    'callsign',
+    'fpl_arrival',
+    'fpl_departure',
+    'fpl_departure_time',
+    'fpl_enroute_time',
+    'heading',
+    'name',
+    'qnh_mb',
+    'transponder',
+];
+const turnsFields: Array<keyof InfluxFlight> = ['altitude', 'groundspeed', 'latitude', 'longitude'];
+
+function getFieldsFilter(fields: Array<keyof InfluxFlight>) {
+    return `|> filter(fn: (r) => ${ fields.map(x => `r["_field"] == "${ x }"`).join(' or ') })`;
+}
+
 async function getFlightRows(query: string) {
     const rows: Record<string, InfluxFlight> = {};
     const result = await influxDBQuery.collectRows<{ _time: string; _value: any; _field: keyof InfluxFlight; cid: string }>(query);
@@ -97,7 +114,9 @@ export async function getInfluxFlightsForCid({
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
   |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
   |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ cid }")`;
+  |> filter(fn: (r) => r["cid"] == "${ cid }")
+  ${ getFieldsFilter(planFields) }
+  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
 
     const rows = await getFlightRows(fluxQuery);
 
@@ -119,7 +138,9 @@ export async function getInfluxLatestFlightForCids({
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
   |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
   |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => ${ cids.map(x => `r["cid"] == "${ x }"`).join(' or ') })`;
+  |> filter(fn: (r) => ${ cids.map(x => `r["cid"] == "${ x }"`).join(' or ') })
+  ${ getFieldsFilter(planFields) }
+  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
 
     const rows = await getFlightRows(fluxQuery);
 
@@ -155,7 +176,9 @@ export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
         `from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
   |> range(start: time(v: ${ start || row._time }))
   |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ cid }")`;
+  |> filter(fn: (r) => r["cid"] == "${ cid }")
+  ${ getFieldsFilter(turnsFields) }
+  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
 
     const rows = await getFlightRows(fluxQuery);
 
@@ -191,7 +214,8 @@ export async function getInfluxOnlineFlightsTurns(cids: number[]) {
   |> range(start: ${ flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time }, stop: -5s)
   |> filter(fn: (r) => r["_measurement"] == "data")
   |> filter(fn: (r) => ${ flights.map(x => `r["cid"] == "${ x.cid }"`).join(' or ') })
-  |> keep(columns: ["_time", "cid", "altitude", "latitude", "longitude", "groundspeed"])
+  ${ getFieldsFilter(turnsFields) }
+  |> keep(columns: ["_time", "cid", "_field", "_value"])
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
