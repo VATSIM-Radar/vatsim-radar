@@ -10,7 +10,7 @@
                 :key="key"
                 class="sigmets-settings_btn"
                 :class="{
-                    'sigmets-settings_btn--dark': button.color.startsWith('lightgray'),
+                    'sigmets-settings_btn--dark': button.color.startsWith('lightGray'),
                     'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key),
                 }"
                 :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"

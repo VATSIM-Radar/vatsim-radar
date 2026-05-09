@@ -1,7 +1,7 @@
 <template>
     <ui-button
         :hover-color="cleared ? 'green700' : 'red700'"
-        :primary-color="cleared ? 'green500' : 'red500'"
+        :primary-color="cleared ? 'green500' : 'red600'"
         size="S"
         @click="clear()"
     >

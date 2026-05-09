@@ -106,7 +106,7 @@ useClickOutside({
     cursor: initial;
 
     position: absolute;
-    z-index: 5;
+    z-index: 7;
 
     width: v-bind(width);
     max-width: v-bind(maxWidth);
@@ -117,7 +117,7 @@ useClickOutside({
 
     color: $lightGray500;
 
-    background: $darkGray900;
+    background: $black;
 
     &--center-by-start {
         --transform: calc(0% + v-bind(centerByOffset));
@@ -174,7 +174,7 @@ useClickOutside({
         margin: -16px;
         padding: 16px;
 
-        background: $darkGray900;
+        background: $black;
 
         &_title {
             font-size: 16px;

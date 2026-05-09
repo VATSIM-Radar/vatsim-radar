@@ -31,7 +31,7 @@ export function calculateProgressPercentage(current: Coordinate, dep: Coordinate
 
 export function calculateArrivalTime(current: Coordinate, dest: Coordinate, groundSpeed: number): Date {
     const distance = calculateDistanceInNauticalMiles(current, dest);
-    const timeInHours = distance / groundSpeed;
+    const timeInHours = distance / (groundSpeed || 1);
 
     const currentTime = new Date();
 

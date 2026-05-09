@@ -2,6 +2,12 @@
 
 # [2.0.0-alpha.9]
 
+## Alpha changes
+
+- Fixed Firefox font being too bold sometimes
+- Fixed favorite list going above minified overlays
+- Fixed favorite list showing booked friend when friend is already controlling
+
 ## Improvements and changes
 
 - Added departed and landed time to pilot overlay

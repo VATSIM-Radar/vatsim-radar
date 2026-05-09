@@ -407,8 +407,8 @@ watch(getSections, sections => {
             z-index: 5;
             bottom: -8px;
 
-            margin-bottom: -8px;
-            padding: 8px 0;
+            margin: 0 calc(var(--horizontal-padding) * -1) -8px;
+            padding: 8px var(--horizontal-padding);
 
             background: $black;
 

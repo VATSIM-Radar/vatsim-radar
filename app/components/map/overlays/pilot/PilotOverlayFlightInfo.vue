@@ -206,7 +206,7 @@
                                 {{Math.round(distance?.toGoDist ?? 0)}} NM
                             </template>
                             <template v-else>
-                                {{ datetime.format(new Date(distance?.toGoTime! ?? 0))?.toUpperCase() }}z
+                                {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
                             </template>
                         </ui-chip>
                     </div>

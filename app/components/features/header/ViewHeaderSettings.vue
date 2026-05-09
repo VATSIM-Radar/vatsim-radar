@@ -55,13 +55,6 @@
                                     placeholder="Enter name"
                                     @change="settings.headerName = ($event.target as HTMLInputElement).value"
                                 />
-                                <ui-input-text
-                                    :model-value="settings.headerName ?? ''"
-                                    placeholder="Enter name"
-                                    @change="settings.headerName = ($event.target as HTMLInputElement).value"
-                                >
-                                    Name
-                                </ui-input-text>
                             </div>
                         </div>
                     </template>
