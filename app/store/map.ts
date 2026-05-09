@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia';
 import type { Extent } from 'ol/extent.js';
-import type { VatsimAchievementUser, VatsimExtendedPilot, VatsimPrefile, IpfsUser } from '~/types/data/vatsim';
+import type {
+    VatsimAchievementUser,
+    VatsimExtendedPilot,
+    VatsimPrefile,
+    IpfsUser,
+    PlaneSpottersPhoto,
+} from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
@@ -30,6 +36,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
         pilot: VatsimExtendedPilot;
         achievements?: VatsimAchievementUser[];
         ipfs?: IpfsUser;
+        photo?: PlaneSpottersPhoto | null;
         airport?: VatsimAirportInfo;
         tracked?: boolean;
         fullRoute?: boolean;
@@ -181,6 +188,7 @@ export const useMapStore = defineStore('map', {
                     timeout: 5000,
                 });
                 const ipfsRequest = (pilot.status === 'depGate' || pilot.status === 'depTaxi') && $fetch<IpfsUser>(`/api/data/vatsim/pilot/${ cid }/ipfs`).catch(() => {});
+                const photoRequest = (pilot.flight_plan?.remarks?.includes('REG/')) && $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/pilot/${ cid }/photo`).catch(() => {});
                 if (!params.sticky) {
                     this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || x.minified || store.user?.settings.toggleAircraftOverlays);
                 }
@@ -209,6 +217,7 @@ export const useMapStore = defineStore('map', {
 
                 achievementsRequest.then(result => overlay.data.achievements = result).catch(console.error);
                 if (ipfsRequest) ipfsRequest.then(result => result && (overlay.data.ipfs = result)).catch(console.error);
+                if (photoRequest) photoRequest.then(result => result && (overlay.data.photo = 'status' in result ? null : result)).catch(console.error);
                 return overlay;
             }
             finally {

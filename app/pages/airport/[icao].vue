@@ -808,18 +808,6 @@ await setupDataFetch({
 
     margin: 16px;
 
-    :deep(.info-block) {
-        background: $darkgray875 !important;
-    }
-
-    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot), :deep(.tabs_list), :deep(.tabs_tab::after) {
-        background: $darkgray900 !important;
-    }
-
-    :deep(.tabs_tab) {
-        border-bottom-color: $darkgray900 !important;
-    }
-
     :deep(.aircraft_nav) {
         top: 30px !important;
     }
@@ -863,7 +851,7 @@ await setupDataFetch({
 
                 font-size: 11px;
 
-                background: $darkgray900;
+                background: $black;
 
                 &::after {
                     left: calc(100% + 16px) !important;
@@ -1094,9 +1082,10 @@ await setupDataFetch({
             overflow: auto;
 
             padding: 16px;
+            border: 1px solid $strokeDefault;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $black;
 
             &:not(:only-child) {
                 height: calc(var(--dashboard-height) / 2 - 8px);
@@ -1122,6 +1111,7 @@ await setupDataFetch({
             justify-content: space-between;
 
             width: calc(100% + 16px);
+            margin-top: -8px;
             margin-bottom: 16px;
             margin-left: -16px;
             padding: 4px 0 4px 16px;
@@ -1131,7 +1121,15 @@ await setupDataFetch({
             font-weight: 700;
             color: $lightgray150;
 
-            background: $darkgray900;
+            background: $black;
+
+            :deep(.tabs_list) {
+                height: auto;
+            }
+
+            :deep(.tabs_tab) {
+                padding-top: 0;
+            }
         }
     }
 

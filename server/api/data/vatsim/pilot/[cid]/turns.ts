@@ -31,7 +31,7 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         const start = getQuery(event).start;
 
         try {
-            const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined);
+            const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined, getQuery(event).full === '1');
 
             if (geojson) {
                 return Object.assign(geojson, {

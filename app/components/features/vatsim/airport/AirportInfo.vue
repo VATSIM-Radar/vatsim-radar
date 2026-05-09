@@ -3,60 +3,27 @@
         v-if="airportInfo"
         class="__info-sections"
     >
-        <div class="__grid-info-sections">
-            <div class="__grid-info-sections_title">
-                Name
-            </div>
-            <ui-text-block
-                :bottom-items="[airportInfo.name]"
-                class="__grid-info-sections_content"
-                :top-items="[airportInfo.icao, airportInfo.iata]"
-            />
-        </div>
-        <div
-            v-if="airportInfo.altitude_m"
-            class="__grid-info-sections"
-        >
-            <div class="__grid-info-sections_title">
-                Elevation
-            </div>
-            <ui-text-block
-                :bottom-items="[
-                    `${ airportInfo.altitude_m } meters`,
-                    `${ airportInfo.altitude_ft } feet`,
-                ]"
-                class="__grid-info-sections_content"
-            />
-        </div>
-        <div
-            v-if="airportInfo.transition_level"
-            class="__grid-info-sections"
-        >
-            <div class="__grid-info-sections_title">
-                Transition
-            </div>
-            <ui-text-block
-                :bottom-items="[airportInfo.transition_level?.toString(), airportInfo.transition_alt?.toString()]"
-                class="__grid-info-sections_content"
-                :top-items="['Level', 'Altitude']"
-            />
-        </div>
-        <div class="__grid-info-sections">
-            <div class="__grid-info-sections_title">
-                Location
-            </div>
-            <ui-text-block
-                :bottom-items="[`Division ${ airportInfo.division_id }`]"
-                class="__grid-info-sections_content"
-                :top-items="[airportInfo.country, airportInfo.city]"
-            />
-        </div>
+        <ui-data-list
+            :grid-columns="3"
+            :items="[
+                { title: 'ICAO', text: airportInfo.icao },
+                { title: 'IATA', text: airportInfo.iata, hide: !airportInfo.iata },
+                { title: 'Name', text: airportInfo.name },
+                { title: 'Country', text: airportInfo.country },
+                { title: 'City', text: airportInfo.city },
+                { title: 'Division', text: airportInfo.division_id },
+                { title: 'Elevation', text: `${ airportInfo.altitude_m }m, ${ airportInfo.altitude_ft }ft` },
+                { title: 'Transition Level', text: airportInfo.transition_level },
+                { title: 'Transition Altitude', text: airportInfo.transition_alt },
+            ]"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
 
 const data = injectAirport();
 

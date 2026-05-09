@@ -279,7 +279,6 @@ const listsSections = computed<InfoPopupSection[]>(() => {
             key: 'new-list',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 

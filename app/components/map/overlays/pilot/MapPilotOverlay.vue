@@ -11,11 +11,11 @@
         :style="{ '--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color] }"
         :tabs="{
             info: {
-                title: 'Info',
+                title: 'General',
                 sections,
             },
             proc: {
-                title: 'Proc',
+                title: 'Procedures',
                 sections: [{
                     key: 'procedures',
                     title: `${ pilot.status?.includes('dep') ? depAirport?.icao : arrAirport?.icao } procedures`,
@@ -28,11 +28,16 @@
                 disabled: !atcSections.length,
             },
         }"
-        @collapsedSection="(event) => event.key === 'achievements' ? (collapsedAchievements = event.value) : event.key === 'ipfs' ? (collapsedViff = event.value) : undefined"
+        @collapsedSection="(event) => event.key === 'achievements' ? (collapsedAchievements = event.value) : event.key === 'ipfs' ? (collapsedViff = event.value) : event.key === 'photo' ? (collapsedPhoto = event.value) : undefined"
         @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
+                <ui-badge
+                    :animate="overlay.collapsed"
+                    :color="radarColors[getStatus.color]"
+                    :type="isOffline ? 'offline' : 'online'"
+                />
                 <div class="pilot-header_title">
                     {{ pilot.callsign }}
                 </div>
@@ -43,11 +48,6 @@
                 >
                     VFR
                 </ui-bubble>
-                <div
-                    v-if="overlay.collapsed"
-                    class="pilot_header_status"
-                    :class="{ 'pilot_header_status--offline': isOffline }"
-                />
                 <div
                     v-if="overlay.collapsed"
                     class="pilot_header_line"
@@ -97,12 +97,28 @@
         </template>
         <template #flight>
             <pilot-overlay-flight-info
-                class="pilot__content __info-sections"
+                class="pilot__content"
                 :ctaf="ctafFrequency"
                 :is-offline="isOffline"
                 :pilot
                 @viewRoute="viewRoute()"
             />
+        </template>
+        <template
+            v-if="props.overlay.data.photo"
+            #photo
+        >
+            <ui-text
+                class="pilot__photo"
+                :href="props.overlay.data.photo.link"
+                target="_blank"
+                type="3b-medium"
+            >
+                <img :src="(props.overlay.data.photo.thumbnail_large ?? props.overlay.data.photo.thumbnail).src">
+                <div class="pilot__photo_author">
+                    {{props.overlay.data.photo.photographer}}
+                </div>
+            </ui-text>
         </template>
         <template #ipfs>
             <map-popup-ipfs
@@ -189,7 +205,7 @@
         </template>
         <template #flightplan>
             <pilot-overlay-flight-plan
-                class="pilot__content __info-sections"
+                class="pilot__content"
                 :flight-plan="pilot.flight_plan ?? null"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
@@ -227,15 +243,6 @@
                     </template>
                     Route
                 </ui-button>
-                <ui-button
-                    :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
-                    target="_blank"
-                >
-                    <template #icon>
-                        <stats-icon/>
-                    </template>
-                    Stats
-                </ui-button>
                 <ui-button @click="copy.copy(`${ config.public.DOMAIN }/?pilot=${ pilot.cid }`)">
                     <template #icon>
                         <share-icon/>
@@ -260,7 +267,7 @@ import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
 import type {
     VatsimAchievementUser,
     VatsimExtendedPilot,
-    VatsimShortenedController, IpfsUser,
+    VatsimShortenedController, IpfsUser, PlaneSpottersPhoto,
 } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';
@@ -293,6 +300,8 @@ import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupAchievement from '~/components/popups/PopupAchievement.vue';
 import { getControllersForPosition } from '~/composables/render';
 import MapPopupIpfs from '~/components/map/popups/MapPopupIpfs.vue';
+import UiBadge from '~/components/ui/data/UiBadge.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     overlay: {
@@ -318,6 +327,13 @@ const collapsedViff = useCookie<boolean>('collapsedViff', {
     maxAge: 60 * 60 * 24 * 7 * 360,
 });
 
+const collapsedPhoto = useCookie<boolean>('collapsedPhoto', {
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7 * 360,
+});
+
 const copy = useCopyText();
 
 const store = useStore();
@@ -327,7 +343,7 @@ const config = useRuntimeConfig();
 const selectedAchievement = shallowRef<VatsimAchievementUser | null>(null);
 
 const ctafFrequency = computed(() => {
-    const ctaf = atcList.value.find(x => x.key === 'atc-ctaf');
+    const ctaf = atcList.value.find(x => x.key === 'controllers-ctaf');
     if (ctaf) return ctaf?.controllers?.[0]?.frequency ?? null;
     return null;
 });
@@ -404,8 +420,6 @@ const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
             key: 'flight',
-            title: 'Flight Details',
-            collapsible: true,
         },
     ];
 
@@ -414,7 +428,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             key: 'achievements',
             title: 'Achievements',
             collapsedDefault: !!collapsedAchievements.value,
-            collapsedDefaultOnce: true,
             collapsible: true,
             bubble: props.overlay.data.achievements?.length,
         });
@@ -425,7 +438,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             key: 'graph',
             title: 'Speed & Altitude graph',
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
             collapsible: true,
         });
     }
@@ -435,9 +447,17 @@ const sections = computed<InfoPopupSection[]>(() => {
             key: 'ipfs',
             title: 'vIFF Departure Info',
             collapsedDefault: !!collapsedViff.value,
-            collapsedDefaultOnce: true,
             collapsible: true,
             bubble: props.overlay?.data.ipfs.isCdm ? 'CDM online' : undefined,
+        });
+    }
+
+    if (props.overlay?.data.photo) {
+        sections.push({
+            key: 'photo',
+            title: 'Photo',
+            collapsedDefault: collapsedPhoto.value !== false,
+            collapsible: true,
         });
     }
 
@@ -469,7 +489,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             title: `${ depAirport.value?.icao } BARS`,
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 
@@ -479,7 +498,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             title: `${ arrAirport.value?.icao } BARS`,
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 
@@ -494,8 +512,9 @@ type AtcPopupSection = InfoPopupSection & {
 const facilities = useFacilitiesIds();
 
 const atcList = shallowRef<AtcPopupSection[]>([]);
+const ctaf = computed(() => airportInfo.value?.ctafFreq);
 
-watch(dataStore.airportsList, () => {
+watch([dataStore.airportsList, ctaf], () => {
     const sections: AtcPopupSection[] = [];
 
     const additionalATC = getControllersForPosition([pilot.value?.longitude, pilot.value?.latitude]);
@@ -510,7 +529,6 @@ watch(dataStore.airportsList, () => {
             key: 'controllers-center',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 
@@ -538,7 +556,6 @@ watch(dataStore.airportsList, () => {
                 key: 'controllers-atis',
                 collapsible: true,
                 collapsedDefault: true,
-                collapsedDefaultOnce: true,
             });
         }
 
@@ -550,7 +567,6 @@ watch(dataStore.airportsList, () => {
                 key: 'controllers-ground',
                 collapsible: true,
                 collapsedDefault: true,
-                collapsedDefaultOnce: true,
             });
         }
 
@@ -562,7 +578,6 @@ watch(dataStore.airportsList, () => {
                 key: 'controllers-app',
                 collapsible: true,
                 collapsedDefault: true,
-                collapsedDefaultOnce: true,
             });
         }
     }
@@ -593,25 +608,24 @@ watch(dataStore.airportsList, () => {
     });
 
     if (!sections.length && airportInfo?.value?.ctafFreq) {
-        return [{
+        sections.push({
             type: 'ground',
             controllers: [
                 {
                     cid: Math.random(),
                     callsign: '',
-                    facility: -1,
+                    facility: -2,
                     text_atis: null,
                     name: '',
                     logon_time: '',
                     rating: 0,
-                    visual_range: 0,
                     frequency: airportInfo.value?.ctafFreq,
                 },
             ],
             title: 'CTAF',
             key: 'controllers-ctaf',
             collapsible: false,
-        }];
+        });
     }
 
     atcList.value = sections;
@@ -687,6 +701,18 @@ onMounted(() => {
         immediate: true,
     });
 
+    watch(() => pilot.value.flight_plan?.remarks, async val => {
+        try {
+            if (props.overlay?.data.photo || !val?.includes('REG/')) return;
+
+            const photo = await $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/pilot/${ props.overlay.key }/photo`).catch(() => {});
+            if (photo && !('status' in photo)) props.overlay.data.photo = photo;
+        }
+        catch { /* empty */ }
+    }, {
+        immediate: true,
+    });
+
     map.value?.on('pointerdrag', handlePointerDrag);
 });
 
@@ -701,74 +727,11 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .pilot {
-    div.pilot_header {
-        &_status {
-            position: relative;
-
-            width: 8px;
-            height: 8px;
-            border-radius: 100%;
-
-            background: var(--status-color);
-
-            &:not(&--offline) {
-                @keyframes status {
-                    0% {
-                        transform: scale(0);
-                        opacity: 0;
-                    }
-
-                    60% {
-                        transform: scale(0);
-                        opacity: 0;
-                    }
-
-                    100% {
-                        transform: scale(1);
-                        opacity: 0.5;
-                    }
-                }
-
-                &::before {
-                    content: '';
-
-                    position: absolute;
-                    top: -2px;
-                    left: -2px;
-
-                    width: 12px;
-                    height: 12px;
-                    border-radius: 100%;
-
-                    background: var(--status-color);
-
-                    animation: status 1.4s alternate-reverse infinite;
-                }
-            }
-        }
-
-        &_line {
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: -16px;
-
-            width: calc(100% + 32px);
-
-            &::before {
-                content: '';
-
-                position: absolute;
-                top: 0;
-                left: 0;
-
-                width: var(--percent);
-                height: 36px;
-                border-radius: 8px 0 0 8px;
-
-                background: $whiteAlpha2;
-            }
-        }
+    &_header {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--status-color);
     }
 
     &__content {
@@ -836,6 +799,26 @@ onBeforeUnmount(() => {
                 background-position: center;
                 background-size: contain;
             }
+        }
+    }
+
+    &__photo {
+        position: relative;
+
+        img {
+            border-radius: 8px;
+        }
+
+        &_author {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+
+            padding: 4px;
+            border-radius: 4px;
+
+            background: $blackAlpha64;
+            backdrop-filter: blur(8px);
         }
     }
 }

@@ -1,116 +1,123 @@
 <template>
     <div class="flight-plan">
         <template v-if="flightPlan?.departure && flightPlan.arrival">
+            <div class="flight-plan__airports">
+                <div class="flight-plan__airports_left">
+                    <div class="flight-plan__airports_left_icon">
+                        <airport-icon/>
+                    </div>
+                    <div class="flight-plan__airports_left_icon">
+                        <airport-icon/>
+                    </div>
+                </div>
+                <div class="flight-plan__airports_right">
+                    <div
+                        class="flight-plan__airports__airport"
+                        :class="{ 'flight-plan__airports__airport--exists': depAirport }"
+                        @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
+                    >
+                        <ui-text type="3b-medium">
+                            {{depAirport?.icao ?? flightPlan?.departure ?? 'ZZZZ'}}
+                        </ui-text>
+                        <ui-text
+                            v-if="depAirport?.name"
+                            type="caption-light"
+                        >
+                            {{depAirport?.name}}
+                        </ui-text>
+                    </div>
+                    <div
+                        v-if="flightPlan?.diverted_origin"
+                        class="flight-plan__airports__airport flight-plan__airports__airport--orig"
+                        :class="{ 'flight-plan__airports__airport--exists': divOrgAirport }"
+                        @click="divOrgAirport && mapStore.addAirportOverlay(divOrgAirport.icao)"
+                    >
+                        <ui-text type="3b-medium">
+                            {{divOrgAirport?.icao ?? flightPlan?.diverted_origin ?? 'ZZZZ'}}
+                        </ui-text>
+                        <ui-text
+                            v-if="divOrgAirport?.name"
+                            type="caption-light"
+                        >
+                            {{divOrgAirport?.name}}
+                        </ui-text>
+                    </div>
+                    <div
+                        class="flight-plan__airports__airport"
+                        :class="{ 'flight-plan__airports__airport--exists': arrAirport }"
+                        @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
+                    >
+                        <ui-text type="3b-medium">
+                            {{arrAirport?.icao ?? flightPlan?.arrival ?? 'ZZZZ'}}
+                        </ui-text>
+                        <ui-text
+                            v-if="arrAirport?.name"
+                            type="caption-light"
+                        >
+                            {{arrAirport?.name}}
+                        </ui-text>
+                    </div>
+                </div>
+            </div>
+
             <ui-button
+                v-if="depAirport || arrAirport"
                 size="S"
                 text-align="left"
-                type="secondary"
+                type="link"
                 @click="store.metarRequest = (!status || status?.startsWith('dep')) ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
             >
-                <template #icon>
-                    <ground-icon/>
-                </template>
-                Weather Request
+                <ui-text type="caption-light">
+                    Weather Request
+                </ui-text>
             </ui-button>
 
-            <ui-notification
-                remember-message="NEXT_WEIRD_DESTINATION"
-                type="info"
-            >
-                Yes I know this looks goofy.<br> Will be redesigned to something much nicer later
-            </ui-notification>
-
-            <vatsim-pilot-destination
-                :pilot="{
-                    departure: flightPlan.departure,
-                    arrival: flightPlan.arrival,
-                    diverted: flightPlan.diverted,
-                    diverted_arrival: flightPlan.diverted_arrival,
-                    diverted_origin: flightPlan.diverted_origin,
-                }"
+            <ui-separator
+                dashed
+                distance="0"
+                full
+                horizontal
+                width="100%"
             />
-            <div
-                v-if="(flightPlan.deptime || flightPlan.enroute_time) && (!status || status === 'depGate' || status === 'depTaxi')"
-                class="flight-plan__cols"
-            >
-                <ui-text-block
-                    v-if="flightPlan.deptime"
-                    :bottom-items="[`${ convertTime(flightPlan.deptime) }z`]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Planned EOBT']"
+
+            <ui-data-container>
+                <ui-data-list
+                    :items="[
+                        { title: 'EOBT', text: `${ convertTime(flightPlan.deptime ?? '') }z`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.deptime },
+                        { title: 'Time Enroute', text: `${ convertTime(flightPlan.enroute_time ?? '') }`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.enroute_time },
+                        { title: 'Fuel Time', text: `${ convertTime(flightPlan.fuel_time ?? '') }`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.fuel_time },
+                        { title: 'Aircraft Type', text: flightPlan.aircraft_faa, hide: !flightPlan.aircraft_faa },
+                        { title: 'Cruise TAS', text: `${ flightPlan.cruise_tas } kts`, hide: !flightPlan.cruise_tas },
+                        { title: 'Cruise Altitude', text: `${ numberFormatter.format(flightPlan.altitude ? +flightPlan.altitude : 0) } ft`, hide: !flightPlan.altitude },
+                        { title: 'Registration', text: registration, hide: !registration },
+                        { title: 'Alternate', text: alternates.alt, hide: !alternates.alt },
+                        { title: 'Voice Rules', text: commType, hide: commType === 'Voice' },
+                        ...alternates.takeoff?.map(x => ({ title: 'Takeoff Alternate', text: x })) ?? [],
+                        ...alternates.enroute?.map(x => ({ title: 'Enroute Alternate', text: x })) ?? [],
+                    ]"
                 />
-                <ui-text-block
-                    v-if="flightPlan.enroute_time"
-                    :bottom-items="[convertTime(flightPlan.enroute_time)]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Planned Enroute']"
+            </ui-data-container>
+
+            <template v-if="stepclimbs?.length">
+                <ui-separator
+                    dashed
+                    distance="0"
+                    full
+                    horizontal
+                    width="100%"
                 />
-            </div>
-            <div class="flight-plan__cols">
-                <ui-text-block
-                    :bottom-items="[flightPlan.aircraft_faa]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Aircraft Type']"
-                />
-                <ui-text-block
-                    :bottom-items="[`${ flightPlan.cruise_tas } kts`]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['True Air Speed']"
-                />
-                <ui-text-block
-                    :bottom-items="[`${ flightPlan.altitude } ft`]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Cruise Altitude']"
-                />
-            </div>
-            <div
-                v-if="registration || alternates.alt || commType !== 'Voice'"
-                class="flight-plan__cols"
-            >
-                <ui-text-block
-                    v-if="registration"
-                    :bottom-items="[registration]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Registration']"
-                />
-                <ui-text-block
-                    v-if="alternates.alt"
-                    :bottom-items="[alternates.alt]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Alternate']"
-                />
-                <ui-text-block
-                    v-if="commType !== 'Voice'"
-                    :bottom-items="[commType]"
-                    class="flight-plan__card"
-                    text-align="center"
-                    :top-items="['Voice Rules']"
-                />
-            </div>
-            <div
-                v-if="stepclimbs?.length"
-                class="flight-plan__cols"
-            >
-                <ui-text-block
-                    :bottom-items="stepclimbs.map(() => 'stepclimb')"
-                    class="flight-plan__card"
-                    text-align="center"
-                >
-                    <template #bottom="{ index }">
-                        <div class="flight-plan__stepclimb">
-                            <strong>{{ stepclimbs[index!].waypoint }}</strong><br>
-                            {{ stepclimbs[index!].measurement === 'M' ? 'S' : 'FL' }}{{ stepclimbs[index!].level }}
-                        </div>
-                    </template>
-                </ui-text-block>
-            </div>
+
+                <ui-text type="2b-medium">
+                    Stepclimbs
+                </ui-text>
+
+                <ui-data-container>
+                    <ui-data-list
+                        circle-divider
+                        :items="stepclimbs?.map(x => ({ title: `${ x.measurement === 'M' ? 'S' : 'FL' }${ x.level }`, text: x.waypoint })) ?? []"
+                    />
+                </ui-data-container>
+            </template>
         </template>
         <ui-notification
             v-else
@@ -145,25 +152,14 @@
                 v-if="selcal"
                 #prepend
             >
-                <div class="flight-plan__selcal">
+                <ui-text
+                    class="flight-plan__selcal"
+                    type="caption-light"
+                >
                     SELCAL: {{selcal}}
-                </div>
+                </ui-text>
             </template>
         </ui-copy-info>
-        <ui-text-block
-            v-if="alternates.takeoff?.length"
-            :bottom-items="alternates.takeoff"
-            class="flight-plan__card"
-            text-align="center"
-            :top-items="['Takeoff alternates']"
-        />
-        <ui-text-block
-            v-if="alternates.enroute?.length"
-            :bottom-items="alternates.enroute"
-            class="flight-plan__card"
-            text-align="center"
-            :top-items="['Enroute alternates']"
-        />
     </div>
 </template>
 
@@ -171,13 +167,16 @@
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
-import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import GroundIcon from '~/assets/icons/kit/mountains.svg?component';
 import { useStore } from '~/store';
+import AirportIcon from '~/assets/icons/kit/airport-dest.svg?component';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 const props = defineProps({
     flightPlan: {
@@ -194,7 +193,11 @@ const props = defineProps({
     },
 });
 
+const numberFormatter = new Intl.NumberFormat('ru-RU');
+
 const store = useStore();
+const mapStore = useMapStore();
+const dataStore = useDataStore();
 
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);
@@ -203,19 +206,12 @@ const convertTime = (time: string) => {
     return `${ hours }:${ minutes }`;
 };
 
-function getFlightPlanParam(param: string) {
-    if (!props.flightPlan?.remarks) return null;
-
-    const result = new RegExp(`( |^)${ param }\/(?<val>.+?)( [A-Z]+\/.*|$)`).exec(props.flightPlan.remarks);
-    return result?.groups?.val || null;
-}
-
 const selcal = computed<string | null>(() => {
-    return getFlightPlanParam('SEL');
+    return getFlightPlanParam(props.flightPlan?.remarks, 'SEL');
 });
 
 const registration = computed<string | null>(() => {
-    return getFlightPlanParam('REG');
+    return getFlightPlanParam(props.flightPlan?.remarks, 'REG');
 });
 
 const commType = computed<'Voice' | 'Receive Voice' | 'Text Only'>(() => {
@@ -227,8 +223,8 @@ const commType = computed<'Voice' | 'Receive Voice' | 'Text Only'>(() => {
 });
 
 const alternates = computed(() => {
-    const TALT = getFlightPlanParam('TALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
-    const RALT = getFlightPlanParam('RALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
+    const TALT = getFlightPlanParam(props.flightPlan?.remarks, 'TALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
+    const RALT = getFlightPlanParam(props.flightPlan?.remarks, 'RALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
 
     return {
         alt: props.flightPlan?.alternate ?? null,
@@ -236,6 +232,10 @@ const alternates = computed(() => {
         enroute: RALT,
     };
 });
+
+const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.departure ?? ''] ?? null);
+const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.arrival ?? ''] ?? null);
+const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.diverted_origin ?? ''] ?? null);
 </script>
 
 <style scoped lang="scss">
@@ -245,102 +245,73 @@ const alternates = computed(() => {
 
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
 
-    &__stepclimb {
-        text-align: center;
-    }
-
-    &__cols {
+    &__airports {
         display: flex;
-        gap: 4px;
+        gap: 16px;
 
-        > * {
-            flex: 1 1 0;
-            width: 0;
+        &_left, &_right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: space-between;
         }
-    }
 
-    &__selcal {
-        font-size: 12px;
-        font-weight: 600;
-    }
+        &_left {
+            position: relative;
+            width: 20px;
 
-    &__title {
-        font-size: 13px;
-        font-weight: 600;
-        text-align: center;
-    }
+            &::before {
+                content: '';
 
-    &__card {
-        &_route {
+                position: absolute;
+                top: 20px;
+                left: calc(50% - 1px);
+
+                height: calc(100% - 40px);
+                border-left: 1px dashed $whiteAlpha12;
+            }
+
+            &_icon {
+                width: 20px;
+                min-width: 20px;
+            }
+        }
+
+        &_right {
+            flex-grow: 1;
+            min-height: 64px;
+        }
+
+        &__airport {
             display: flex;
             flex-direction: column;
             gap: 4px;
 
-            &_header {
-                display: flex;
-                gap: 8px;
-                justify-content: space-between;
-
-                font-size: 13px;
-                font-weight: 600;
-
-                &_status {
-                    font-size: 12px;
-                    color: var(--status-color);
-                }
+            &:first-child {
+                margin-top: -4px;
             }
 
-            &_line {
-                position: relative;
-                display: flex;
-                align-items: center;
-                height: 24px;
+            &:last-child {
+                margin-bottom: -4px;
+            }
 
-                &::before, &::after {
-                    content: '';
+            &--orig {
+                color: $whiteAlpha36;
+                text-decoration: line-through;
+            }
 
-                    position: absolute;
+            &--exists {
+                cursor: pointer;
 
-                    width: 100%;
-                    height: 2px;
-                    border-radius: 4px;
+                @include hover {
+                    transition: 0.3s;
 
-                    background: $darkgray850;
-                }
-
-                &::after {
-                    width: var(--percent);
-                    background: $primary500;
-                }
-
-                svg {
-                    position: relative;
-                    z-index: 1;
-                    left: var(--percent);
-                    transform: translateX(-50%) rotate(90deg);
-
-                    height: 24px;
-
-                    :deep(path:last-child:not(:only-child)) {
-                        color: $darkgray1000;
+                    &:hover {
+                        color: $blue500;
                     }
                 }
-
-                &--start svg {
-                    transform: rotate(90deg);
-                }
-            }
-
-            &_footer {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                justify-content: space-between;
-
-                font-size: 11px;
-                font-weight: 400;
             }
         }
     }

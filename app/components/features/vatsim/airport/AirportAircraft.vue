@@ -4,12 +4,6 @@
         class="aircraft"
         :class="{ 'aircraft--simple': simpleMode }"
     >
-        <airport-aircraft-filter
-            v-if="!filterRelativeToAircraft"
-            v-model="aircraftGroundMode"
-            v-model:opened="aircraftGroundFilterOpened"
-        />
-
         <div
             v-if="!simpleMode"
             class="aircraft_nav"
@@ -71,7 +65,6 @@
                             <filter-icon/>
 
                             <airport-aircraft-filter
-                                v-if="filterRelativeToAircraft"
                                 v-model="aircraftGroundMode"
                                 v-model:opened="aircraftGroundFilterOpened"
                                 is-relative
@@ -414,7 +407,6 @@ defineExpose({
     }
 
     &_list {
-        --block-title-background: #{$darkgray950};
         display: flex;
         flex-direction: column;
         gap: 8px;

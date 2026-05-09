@@ -207,7 +207,7 @@ async function initLayer() {
 
         style ??= new Style({
             fill: new Fill({
-                color: getCurrentThemeHexColor('darkgray1000'),
+                color: getCurrentThemeHexColor('black'),
             }),
         });
 

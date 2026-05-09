@@ -272,11 +272,11 @@ const roadmap = reactive<Roadmap[]>([
         ],
     },
     {
-        title: 'Stage 3',
+        title: 'V2.0',
         items: [
             {
                 title: 'Pilot/airport mouse context menu',
-                status: 'in-progress',
+                status: 'next',
             },
             {
                 title: 'Oceanic Tracks integration',
@@ -358,16 +358,19 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Settings Page',
                 status: 'todo',
             },
+            {
+                title: 'Images or aircraft type, airline + operator',
+                status: 'next',
+            },
         ],
     },
     {
-        title: 'Stage 4',
+        title: 'Post-V2.0',
         items: [
             {
                 title: 'Detailed Stats',
                 description: 'Popular over time etc',
             },
-            'Images or aircraft type, airline + operator',
             'Flights/controllers sessions history, VATSIM user page',
             'History of events / events traffic',
             {

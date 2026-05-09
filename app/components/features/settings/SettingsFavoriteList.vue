@@ -10,7 +10,7 @@
             :close-method="isPopup ? 'click' : 'clickOutside'"
             :location
             :open-method="addedList ? 'disabled' : 'click'"
-            :width="isMobile ? '60vw' : '300px'"
+            :width="isPopup ? '0' : isMobile ? '60vw' : '300px'"
         >
             <template #activator>
                 <div
@@ -19,7 +19,7 @@
                 >
                     <component
                         :is="addedList ? StarFilledIcon : StarIcon"
-                        width="16"
+                        :width="iconSize"
                     />
                 </div>
             </template>
@@ -108,6 +108,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    iconSize: {
+        type: Number,
+        default: 16,
+    },
     location: {
         type: String as PropType<TooltipLocation>,
         default: 'left',
@@ -138,6 +142,10 @@ onMounted(() => {
     if (store.lists.length === 1) selectedList.value = store.lists[0];
 });
 
+watch(() => props.name, () => {
+    name.value = props.name.split(' ').slice(0, 2).join(' ');
+});
+
 const addToList = async () => {
     if (!selectedList.value) return;
 
@@ -163,6 +171,7 @@ const addToList = async () => {
     }
 
     tooltipOpen.value = false;
+    comment.value = '';
 };
 
 const removeFromList = () => {

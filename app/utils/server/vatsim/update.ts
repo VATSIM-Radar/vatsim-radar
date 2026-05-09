@@ -254,7 +254,7 @@ async function updateVatsimExtendedPilots() {
             }
 
             const pilotAlt = getPilotTrueAltitude(extendedPilot) + 300;
-            if (pilotAlt >= Number(extendedPilot.flight_plan?.altitude)) extendedPilot.status = 'cruising';
+            if (pilotAlt >= Number(extendedPilot.flight_plan?.altitude) && extendedPilot.groundspeed > 50) extendedPilot.status = 'cruising';
 
             if (extendedPilot.stepclimbs?.length &&
                 !extendedPilot.isOnGround &&
@@ -271,15 +271,14 @@ async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
-        // Diversion Detection
-        if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
-            extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
-            extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
-            const oldPilot = radarStorage.vatsim.extendedPilotsMap[extendedPilot.cid];
-            const arrival = extendedPilot.flight_plan?.arrival;
-            const oldFlightPlan = oldPilot?.flight_plan;
+        const oldPilot = radarStorage.vatsim.extendedPilotsMap[extendedPilot.cid];
+        const arrival = extendedPilot.flight_plan?.arrival;
+        const oldFlightPlan = oldPilot?.flight_plan;
 
-            if (arrival && oldFlightPlan) {
+        if (arrival && oldFlightPlan) {
+            if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
+                    extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
+                    extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
                 if (oldFlightPlan.diverted) {
                     extendedPilot.flight_plan ??= {};
 
@@ -304,9 +303,9 @@ async function updateVatsimExtendedPilots() {
                 }
                 else if (
                     arrival !== 'ZZZZ' && oldFlightPlan.arrival !== 'ZZZZ' &&
-                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival &&
-                    radarStorage.vatspy.data?.keyAirports.realIcao[oldFlightPlan.arrival] && radarStorage.vatspy.data?.keyAirports.realIcao[arrival] &&
-                    extendedPilot.flight_plan?.flight_rules !== 'V'
+                        oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival &&
+                        radarStorage.vatspy.data?.keyAirports.realIcao[oldFlightPlan.arrival] && radarStorage.vatspy.data?.keyAirports.realIcao[arrival] &&
+                        extendedPilot.flight_plan?.flight_rules !== 'V'
                 ) {
                     extendedPilot.flight_plan = {
                         ...extendedPilot.flight_plan,
@@ -314,6 +313,30 @@ async function updateVatsimExtendedPilots() {
                         diverted_arrival: arrival,
                         diverted_origin: oldFlightPlan.arrival,
                     };
+                }
+            }
+
+            if (extendedPilot.flight_plan) {
+                if (oldFlightPlan.departed_at && (extendedPilot.status === 'depGate' || extendedPilot.status === 'depTaxi')) {
+                    oldFlightPlan.departed_at = undefined;
+                }
+
+                if (oldFlightPlan.arrived_at && (extendedPilot.status !== 'arrTaxi' && extendedPilot.status !== 'arrGate')) {
+                    oldFlightPlan.arrived_at = undefined;
+                }
+
+                if (!oldFlightPlan.departed_at && extendedPilot.status === 'departed') {
+                    extendedPilot.flight_plan.departed_at = new Date().toISOString();
+                }
+                else if (oldFlightPlan.departed_at) {
+                    extendedPilot.flight_plan.departed_at = oldFlightPlan.departed_at;
+                }
+
+                if (!oldFlightPlan.arrived_at && extendedPilot.status === 'arrTaxi') {
+                    extendedPilot.flight_plan.arrived_at = new Date().toISOString();
+                }
+                else if (oldFlightPlan.arrived_at) {
+                    extendedPilot.flight_plan.arrived_at = oldFlightPlan.arrived_at;
                 }
             }
         }

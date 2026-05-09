@@ -139,7 +139,6 @@ export interface InfoPopupSection {
     title?: string;
     collapsible?: boolean;
     collapsedDefault?: boolean;
-    collapsedDefaultOnce?: boolean;
     bubble?: string | number;
 }
 
@@ -220,7 +219,7 @@ const getSections = computed(() => {
 
 watch(getSections, sections => {
     sections.forEach(section => {
-        if (section.collapsedDefaultOnce && collapsedOnceSections.has(section.key)) return;
+        if (collapsedOnceSections.has(section.key)) return;
 
         if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) {
             collapsedSections.value.push(section.key);
@@ -234,6 +233,8 @@ watch(getSections, sections => {
 
 <style scoped lang="scss">
 .info-popup {
+    --horizontal-padding: 12px;
+
     scrollbar-width: none;
     scrollbar-gutter: stable;
 
@@ -245,7 +246,7 @@ watch(getSections, sections => {
     width: 360px;
     max-width: calc(100dvw - 48px);
     max-height: var(--max-height);
-    padding: 0 16px 8px;
+    padding-bottom: 8px;
     border: 1px solid $strokeDefault;
     border-radius: 8px;
 
@@ -275,7 +276,8 @@ watch(getSections, sections => {
         align-items: center;
         justify-content: space-between;
 
-        padding: 8px 0;
+        padding: 8px var(--horizontal-padding);
+        border-bottom: 1px solid $strokeDefault;
 
         background: $black;
 
@@ -369,6 +371,7 @@ watch(getSections, sections => {
         justify-content: space-between;
 
         margin-top: 8px;
+        padding: 0 var(--horizontal-padding);
 
         &--collapse {
             &-enter-active, &-leave-active {
@@ -386,8 +389,8 @@ watch(getSections, sections => {
             z-index: 6;
             top: 36px;
 
-            margin-top: -16px;
-            padding-bottom: 16px;
+            width: calc(100% + calc(var(--horizontal-padding) * 2));
+            margin: -16px calc(var(--horizontal-padding) * -1) 8px;
 
             background: $black;
 
@@ -402,9 +405,9 @@ watch(getSections, sections => {
         &--actions {
             position: sticky;
             z-index: 5;
-            bottom: -16px;
+            bottom: -8px;
 
-            margin-bottom: -16px;
+            margin-bottom: -8px;
             padding: 8px 0;
 
             background: $black;
@@ -413,43 +416,6 @@ watch(getSections, sections => {
                 position: relative;
                 bottom: 0;
                 margin-bottom: 0;
-            }
-        }
-
-        &_separator {
-            user-select: none;
-
-            position: relative;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            &::before {
-                content: '';
-
-                position: absolute;
-
-                width: 100%;
-                height: 1px;
-
-                background: $darkGray700;
-            }
-
-            &:not(:only-child) {
-                margin-bottom: 16px;
-            }
-
-            &_title, &_collapse {
-                position: relative;
-                background: $black;
-            }
-
-            &_title {
-                margin-left: 8px;
-                padding: 0 4px;
-                border-radius: 4px;
-                font-size: 12px;
             }
         }
     }

@@ -35,6 +35,9 @@ defineProps({
         type: String,
         default: '8px',
     },
+    width: {
+        type: String,
+    },
 });
 
 defineSlots<{ default: () => any }>();
@@ -45,6 +48,7 @@ const slots = useSlots();
 .separator {
     --_size: var(--size, 75%);
     position: relative;
+    width: v-bind(width);
 
     &::before {
         content: '';
@@ -86,6 +90,7 @@ const slots = useSlots();
         }
 
         &.separator--horizontal {
+            align-self: center;
             margin: v-bind(distance) 0;
             padding: v-bind(distance) 0;
         }

@@ -92,7 +92,6 @@ const groups = computed(() => {
     }
 
     &_list {
-        --block-title-background: #{$darkgray950};
         display: flex;
         flex-direction: column;
         gap: 8px;

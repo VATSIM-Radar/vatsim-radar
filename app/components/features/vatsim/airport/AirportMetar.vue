@@ -7,32 +7,16 @@
             auto-expand
             :text="metar || data.airport?.metar"
         />
-        <div
-            v-if="metarData.hour"
-            class="__grid-info-sections"
-        >
-            <div class="__grid-info-sections_title">
-                Issued
-            </div>
-            <ui-text-block class="__grid-info-sections_content">
-                <template #top>
-                    {{ `0${ metarData.hour }`.slice(-2) }}:{{ `0${ metarData.minute }`.slice(-2) }}Z
-                </template>
-            </ui-text-block>
-        </div>
-        <div
-            v-if="typeof metarData.temperature === 'number'"
-            class="__grid-info-sections"
-        >
-            <div class="__grid-info-sections_title">
-                Temp
-            </div>
-            <ui-text-block class="__grid-info-sections_content">
-                <template #top>
-                    {{ metarData.temperature }}° C / Dew Point {{ metarData.dewPoint }}° C
-                </template>
-            </ui-text-block>
-        </div>
+
+        <ui-data-list
+            :grid-columns="3"
+            :items="[
+                { title: 'Issued', text: `${ `0${ metarData.hour }`.slice(-2) }:${ `0${ metarData.minute }`.slice(-2) }z` },
+                { title: 'Temperature', text: `${ metarData.temperature }° C` },
+                { title: 'Dew Point', text: `${ metarData.dewPoint }° C` },
+            ]"
+        />
+
         <airport-metar-blocks :metar="metarData"/>
     </div>
 </template>
@@ -43,6 +27,7 @@ import { injectAirport } from '~/composables/vatsim/airport';
 import { parseMetar } from 'metar-taf-parser';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
 
 const props = defineProps({
     metar: {

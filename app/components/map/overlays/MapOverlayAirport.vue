@@ -272,15 +272,6 @@
                         Link
                     </template>
                 </ui-button>
-                <ui-button
-                    :href="`https://where2fly.today/?icao=${ airport.icao }&utm_source=vatsimradar&utm_medium=airport-popup`"
-                    target="_blank"
-                >
-                    <template #icon>
-                        <aircraft-unknown-dest-icon/>
-                    </template>
-                    Where2Fly
-                </ui-button>
             </ui-button-group>
         </template>
     </popup-overlay>
@@ -426,7 +417,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'Bookmark',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 
@@ -457,7 +447,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'BARS is in use',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
             key: 'bars',
         });
     }
@@ -467,7 +456,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'METAR',
             collapsible: true,
             collapsedDefault: !!vatInfo.value,
-            collapsedDefaultOnce: true,
             key: 'metar',
         });
     }
@@ -477,7 +465,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'TAF',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
             key: 'taf',
         });
     }
@@ -487,7 +474,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'NOTAMS',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
             key: 'notams',
         });
     }
@@ -497,7 +483,6 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'Booked Controllers',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
             key: 'bookings',
         });
     }

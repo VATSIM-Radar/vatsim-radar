@@ -8,7 +8,10 @@
         }"
         @click="collapsed !== null ? collapsed = !collapsed : undefined"
     >
-        <div class="title_text">
+        <ui-text
+            class="title_text"
+            type="2b"
+        >
             <div
                 v-if="$slots.bubble || bubble"
                 class="title_text_bubble"
@@ -24,7 +27,13 @@
             <div class="title_text_content">
                 <slot/>
             </div>
-        </div>
+        </ui-text>
+        <ui-separator
+            class="title_separator"
+            distance="0"
+            full
+            horizontal
+        />
         <div
             v-if="$slots.append"
             class="title_append"
@@ -43,6 +52,8 @@
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     bubble: {
@@ -73,64 +84,33 @@ const collapsed = defineModel<boolean | null>('collapsed', {
     z-index: 0;
 
     display: flex;
-    gap: 16px;
+    gap: 8px;
     align-items: center;
     justify-content: space-between;
 
-    &::before {
-        content: '';
-
-        position: absolute;
-
-        width: 100%;
-        height: 1px;
-
-        background: $darkGray800;
-    }
-
     &:not(:only-child, &--remove-margin) {
-        margin-bottom: 16px;
-    }
-
-    &_text > *, &_collapse, &_append {
-        position: relative;
-        z-index: 1;
-        background: var(--block-title-background, $black);
+        margin-bottom: 8px;
     }
 
     &_text {
         display: flex;
-        gap: 16px;
-
-        padding-left: 8px;
-        border-radius: 4px;
-
-        font-size: 14px;
+        gap: 8px;
         font-weight: 600;
+    }
 
-        &_content {
-            padding: 0 4px;
-        }
+    &_separator {
+        flex-grow: 1;
     }
 
     &_collapse {
         display: flex;
         align-items: center;
         justify-content: center;
-
-        width: 44px;
-        height: 24px;
+        width: 16px;
 
         svg {
+            width: 12px;
             transition: 0.3s;
-        }
-
-        @include hover {
-            &:hover {
-                svg {
-                    color: $primary500;
-                }
-            }
         }
     }
 
@@ -142,6 +122,14 @@ const collapsed = defineModel<boolean | null>('collapsed', {
 
     &--collapsible {
         cursor: pointer;
+    }
+
+    @include hover {
+        &:hover {
+            .title_collapse {
+                color: $blue500;
+            }
+        }
     }
 }
 </style>

@@ -48,7 +48,6 @@
                 </ui-block-title>
                 <pilot-overlay-flight-plan
                     v-if="!collapsedPlan"
-                    class="__info-sections"
                     :flight-plan="pilot.flight_plan"
                     :status="'status' in pilot ? pilot.status : undefined"
                     :stepclimbs="'stepclimbs' in pilot ? pilot.stepclimbs : undefined"

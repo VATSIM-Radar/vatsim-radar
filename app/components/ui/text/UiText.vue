@@ -10,6 +10,7 @@
             '--text-primary-color': color !== 'currentColor' ? `var(--${ color })` : undefined,
             '--text-hover-color': linkHoverColor ? `var(--${ linkHoverColor })` : undefined,
         }"
+        :target
         :to="to ?? undefined"
     >
         <slot/>
@@ -160,6 +161,7 @@ const getTag = computed(() => {
         font-family: $juraFont;
         font-size: 12px;
         font-weight: 600;
+        line-height: 90%;
         text-transform: uppercase;
         letter-spacing: 0.02em;
     }
@@ -168,6 +170,7 @@ const getTag = computed(() => {
         font-family: $juraFont;
         font-size: 12px;
         font-weight: 600;
+        line-height: 90%;
         text-transform: uppercase;
         letter-spacing: 0.02em;
     }
@@ -192,6 +195,7 @@ const getTag = computed(() => {
         font-family: $juraFont;
         font-size: 11px;
         font-weight: 600;
+        line-height: 90%;
         text-transform: uppercase;
         // letter-spacing: 0.02em;
     }

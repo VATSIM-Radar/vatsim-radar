@@ -107,13 +107,31 @@
                 >
                     <ui-data-list
                         :gap="isShortInfo ? '8px 4px' : '8px 8px'"
-                        :grid-columns="isShortInfo ? 2 : 3"
+                        :grid-columns="(isShortInfo || !pilot.vertical_speed) ? 2 : 3"
                         :items="[
                             { title: isShortInfo ? undefined : 'Ground speed', text: `${ pilot.groundspeed } kts` },
                             { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
-                            { title: isShortInfo ? undefined : 'Heading', text: `${ pilot.heading }°` },
-                        ].slice(0, isShortInfo ? 2 : 3)"
-                    />
+                            { key: 'vs', title: isShortInfo ? undefined : 'Vertical speed', text: `${ Math.round(Math.abs(pilot.vertical_speed ?? 0) / 100) }00` },
+                        ].slice(0, (isShortInfo || !pilot.vertical_speed) ? 2 : 3)"
+                    >
+                        <template #default="{ item }">
+                            <template v-if="item.key !== 'vs'">
+                                {{item.text}}
+                            </template>
+                            <div
+                                v-else
+                                class="aircraft-hover__vs"
+                                :class="{ 'aircraft-hover__vs--negative': pilot.vertical_speed && pilot.vertical_speed < 0 }"
+                            >
+                                <span class="aircraft-hover__vs_icon">
+                                    ↑
+                                </span>
+                                <div class="aircraft-hover__vs_value">
+                                    {{item.text}}
+                                </div>
+                            </div>
+                        </template>
+                    </ui-data-list>
                 </div>
             </div>
         </popup-map-info>
@@ -296,6 +314,23 @@ const getOverlaySettings = computed<Options>(() => {
 
         :deep(.list-item:last-child) {
             align-items: flex-end;
+        }
+    }
+
+    &__vs {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+
+        &_icon {
+            position: relative;
+            top: -0.1em;
+            line-height: 100%;
+        }
+
+        &--negative .aircraft-hover__vs_icon {
+            top: 0.1em;
+            transform: rotate(180deg);
         }
     }
 }

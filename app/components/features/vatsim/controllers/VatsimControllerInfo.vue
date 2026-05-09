@@ -335,6 +335,7 @@ const isCopied = (key: string) => {
         }
 
         &_booking {
+            margin-top: 10px;
             text-align: right;
         }
     }

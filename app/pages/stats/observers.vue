@@ -66,7 +66,6 @@
                     :pilot="overlayData!.pilot!"
                 />
                 <pilot-overlay-flight-plan
-                    class="__info-sections"
                     :flight-plan="overlayData?.pilot?.flight_plan ?? null"
                     :status="overlayData!.pilot.status"
                     :stepclimbs="overlayData!.pilot.stepclimbs"

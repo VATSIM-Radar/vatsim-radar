@@ -21,7 +21,18 @@
                 <div
                     class="minified-overlays__minified-btn"
                     :class="[`minified-overlays__minified-btn--${ item.type }`]"
+                    :title="item.type === 'pilot' ? getPilotStatus(dataStore.vatsim.data.keyedPilots.value[item.key]?.status, !dataStore.vatsim.data.keyedPilots.value[item.key]).title : undefined"
                 >
+                    <div
+                        v-if="item.type === 'pilot' && item.minified"
+                        class="minified-overlays__status"
+                    >
+                        <ui-badge
+                            :color="radarColors[getPilotStatus(dataStore.vatsim.data.keyedPilots.value[item.key]?.status, !dataStore.vatsim.data.keyedPilots.value[item.key]).color]"
+                            :type="dataStore.vatsim.data.keyedPilots.value[item.key] ? 'online' : 'offline'"
+                        />
+                    </div>
+
                     <ui-text
                         class="minified-overlays__minified-btn_text"
                         tag="span"
@@ -90,6 +101,8 @@ import UiText from '~/components/ui/text/UiText.vue';
 import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
 import { getAircraftForAirport } from '~/composables/vatsim/airport';
 import { vOnLongPress } from '@vueuse/components';
+import UiBadge from '~/components/ui/data/UiBadge.vue';
+import { getPilotStatus } from '~/composables/vatsim/pilots';
 
 const isMobile = useIsMobile();
 const isTouch = useIsTouch();

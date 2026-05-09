@@ -35,6 +35,7 @@ export interface VatsimPilot {
     frequencies: string[];
     sim?: string;
     icon?: AircraftIcon;
+    vertical_speed?: number;
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -74,6 +75,8 @@ export type VatsimPilotFlightPlan = Partial<{
     diverted?: boolean;
     diverted_arrival?: string;
     diverted_origin?: string;
+    departed_at?: string;
+    arrived_at?: string;
 }>;
 
 export interface VatsimController {
@@ -261,6 +264,7 @@ export type VatsimLiveDataMap = {
         ts: VatsimPilot['transponder'];
         hd: VatsimPilot['heading'];
         qn: VatsimPilot['qnh_mb'];
+        vs: VatsimPilot['vertical_speed'];
         frq: number[];
         sim?: VatsimPilot['sim'];
         // aircraft faa map
@@ -493,4 +497,16 @@ export interface IpfsUser {
         // Comma-separated
         regulations: string;
     };
+}
+
+export interface PlaneSpottersPhoto {
+    id: string;
+    thumbnail: {
+        src: string;
+    };
+    thumbnail_large: {
+        src: string;
+    };
+    link: string;
+    photographer: string;
 }

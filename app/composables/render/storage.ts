@@ -354,6 +354,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             transponder: pilot.ts,
             heading: pilot.hd,
             qnh_mb: pilot.qn,
+            vertical_speed: pilot.vs,
             frequencies: pilot.frq.map(x => _vatsimData.map.frequencies[x]),
             sim: pilot.sim,
             aircraft_faa: _vatsimData.map.aircraft_faa[pilot.tfa ?? -1],

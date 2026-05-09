@@ -1,5 +1,8 @@
 <template>
-    <div class="flight-graph">
+    <div
+        :key="store.viewport.width"
+        class="flight-graph"
+    >
         <chart-line
             v-if="data"
             :data
@@ -33,7 +36,7 @@ const props = defineProps({
 
 ChartJS.register(CategoryScale, PointElement, LineElement, LinearScale, Tooltip, Legend);
 
-const { data: tracks, refresh } = await useAsyncData(computed(() => `${ props.pilot.cid }-graph`), () => $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.pilot.cid }/turns`, {
+const { data: tracks, refresh } = await useAsyncData(computed(() => `${ props.pilot.cid }-graph`), () => $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.pilot.cid }/turns?full=1`, {
     timeout: 1000 * 5,
 }).catch(console.error));
 
@@ -62,15 +65,15 @@ const data = computed(() => {
             {
                 label: 'Altitude',
                 data: data.map(x => x.altitude),
-                borderColor: getCurrentThemeHexColor('primary500'),
-                backgroundColor: `rgba(${ getCurrentThemeRgbColor('primary500') }, 0.5)`,
+                borderColor: getCurrentThemeHexColor('blue500'),
+                backgroundColor: getCurrentThemeHexColor('blue500'),
                 yAxisID: 'y',
             },
             {
                 label: 'Speed',
                 data: data.map(x => x.speed),
-                borderColor: getCurrentThemeHexColor('warning500'),
-                backgroundColor: `rgba(${ getCurrentThemeRgbColor('warning500') }, 0.5)`,
+                borderColor: getCurrentThemeHexColor('orange500'),
+                backgroundColor: getCurrentThemeHexColor('orange500'),
                 yAxisID: 'y1',
             },
         ],

@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-alpha.9]
+
+## Improvements and changes
+
+- Added departed and landed time to pilot overlay
+- Added vertical speed to non-compact pilot hover and pilot overlay
+- Improved speed/altitude graph
+
+## Redesigned
+
+- Redesigned all overlays
+
 # [2.0.0-alpha.8.4]
 
 - Removed close button from init popup

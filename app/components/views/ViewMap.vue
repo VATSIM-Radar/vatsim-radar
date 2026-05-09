@@ -1161,6 +1161,7 @@ onBeforeUnmount(() => {
     flex-direction: column;
 
     width: 100%;
+    border: 1px solid $strokeDefault;
     border-radius: 16px;
 
     &_container {
