@@ -21,11 +21,7 @@
             <map-overlay-pin-icon :overlay="overlay"/>
         </template>
         <template #title>
-            <div class="pilot-header">
-                <div class="pilot-header_title">
-                    {{ props.overlay.data.callsign }}
-                </div>
-            </div>
+            {{ props.overlay.data.callsign }}
         </template>
         <template #data>
             <ui-notification
@@ -36,58 +32,60 @@
             </ui-notification>
             <div class="atc__sections">
                 <div class="atc__info">
-                    <ui-spoiler type="controller">
-                        <ui-text-block
-                            :bottom-items="[
-                                shortRating,
-                                stats?.total ? `${ stats.total }h total time` : null,
-                                stats?.rating ? `${ stats.rating }h on ${ shortRating }` : null,
-                            ]"
-                            class="atc__sections_section atc__sections_section--self"
-                            :top-items="[atc.name, atc.cid]"
-                        >
-                            <template #bottom="{ item, index }">
-                                <ui-bubble
-                                    v-if="index === 0"
-                                    class="atc__rating"
-                                >
-                                    {{ item }}
-                                </ui-bubble>
-                                <template v-else>
-                                    {{ item }}
-                                </template>
+                    <ui-data-container>
+                        <ui-data-list :items="[{ key: 'name', text: atc.name }, { key: 'cid', text: atc.cid }, { key: 'favorite', text: 'favorite' }]">
+                            <template #item-name="{ item }">
+                                <ui-spoiler type="controller">
+                                    {{item.text}}
+                                </ui-spoiler>
                             </template>
-                        </ui-text-block>
-
-                        <template #name>
-                            Show Controller Info
-                        </template>
-                    </ui-spoiler>
-                    <settings-favorite-list
-                        v-if="store.user"
-                        :cid="atc.cid"
-                        :name="atc.name"
-                    />
+                            <template #item-cid="{ item }">
+                                <ui-spoiler
+                                    is-cid
+                                    type="controller"
+                                >
+                                    <ui-bubble
+                                        text-type="caption"
+                                        type="primary-flat"
+                                    >
+                                        {{item.text}}
+                                    </ui-bubble>
+                                </ui-spoiler>
+                            </template>
+                            <template #item-favorite>
+                                <settings-favorite-list
+                                    v-if="store.user"
+                                    :cid="atc.cid"
+                                    :icon-size="12"
+                                    is-popup
+                                    :name="atc.name"
+                                />
+                            </template>
+                        </ui-data-list>
+                        <ui-data-list :items="[{ key: 'rating', text: shortRating }, { key: 'total', text: stats?.total }, { key: 'on-rating', text: stats?.rating }]">
+                            <template #item-rating>
+                                <ui-bubble>
+                                    {{ shortRating }}
+                                </ui-bubble>
+                            </template>
+                            <template #item-total="{ item }">
+                                <span class="atc__chip">
+                                    Total Hours: <ui-chip text-type="caption-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                </span>
+                            </template>
+                            <template #item-on-rating="{ item }">
+                                <span class="atc__chip">
+                                    Hours on {{shortRating}}: <ui-chip text-type="caption-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                </span>
+                            </template>
+                        </ui-data-list>
+                    </ui-data-container>
                 </div>
-                <div
-                    v-if="airport"
-                    class="atc__sections_section atc__airport"
-                >
-                    <div class="atc__airport_title">
-                        Airport
-                    </div>
-                    <ui-text-block
-                        :bottom-items="[airport?.name]"
-                        class="atc__airport_content"
-                        is-button
-                        :top-items="[airport?.icao, country?.country]"
-                        @click="mapStore.addAirportOverlay(airport.icao)"
-                    />
-                </div>
-                <vatsim-controller-time-online
-                    class="atc__time-online"
-                    :controller="atc"
-                    full
+                <ui-data-list
+                    :items="[
+                        { title: 'Airport', text: airport?.icao, hide: !airport },
+                        { title: 'Time Online', text: getATCTime(atc) },
+                    ]"
                 />
             </div>
         </template>
@@ -199,11 +197,10 @@ import type { PropType, ShallowRef } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAtc } from '~/store/map';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
-import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers/VatsimControllerTimeOnline.vue';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import type { Map } from 'ol';
-import { findAtcAirport, showAtcOnMap } from '~/composables/vatsim/controllers';
+import { findAtcAirport, getATCTime, showAtcOnMap } from '~/composables/vatsim/controllers';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
@@ -218,6 +215,9 @@ import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import { useStore } from '~/store';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
 
 const props = defineProps({
     overlay: {
@@ -235,6 +235,8 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const tab = ref('info');
 const config = useRuntimeConfig();
 const copy = useCopyText();
+
+const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const atc = computed(() => {
     return findAtcByCallsign(props.overlay?.data.callsign);
@@ -260,12 +262,6 @@ watch(() => props.overlay?.data.callsign, async val => {
     }
 }, {
     immediate: true,
-});
-
-const country = computed(() => {
-    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.realIcao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
-
-    return icaoAirport ? getAirportCountry(airport.value?.icao) : undefined;
 });
 
 const shortRating = computed(() => {
@@ -335,7 +331,7 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
 
     &__atis-error {
         font-weight: 600;
-        color: $error500;
+        color: $red500;
         text-align: center;
     }
 
@@ -354,9 +350,15 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
 
             &--primary {
                 order: 1;
-                color: $primary500;
+                color: $blue500;
             }
         }
+    }
+
+    &__chip {
+        display: flex;
+        gap: 4px;
+        align-items: center;
     }
 }
 </style>

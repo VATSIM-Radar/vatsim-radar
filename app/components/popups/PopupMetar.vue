@@ -33,7 +33,7 @@
                     </div>
                     <ui-button
                         class="metar_favorite_item_remove"
-                        hover-color="error500"
+                        hover-color="red500"
                         type="link"
                         @click.stop="[favorite = favorite.filter(x => x !== airport), saveFavorite()]"
                     >
@@ -81,7 +81,7 @@
                         </div>
                         <div class="metar__item_title_actions">
                             <ui-button
-                                hover-color="warning500"
+                                hover-color="yellow500"
                                 type="link"
                                 @click="[favorite.includes(item.icao) ? favorite = favorite.filter(x => x !== item.icao) : favorite.push(item.icao), saveFavorite()]"
                             >
@@ -97,8 +97,8 @@
                                 </template>
                             </ui-button>
                             <ui-button
-                                hover-color="error700"
-                                link-color="error500"
+                                hover-color="red700"
+                                link-color="red500"
                                 type="link"
                                 @click="list = list.filter(x => x !== item.icao)"
                             >
@@ -272,20 +272,20 @@ const metars = computed(() => {
 
             font-size: 14px;
 
-            background: $darkgray875;
+            background: $darkGray600;
 
             transition: 0.3s;
 
             &--active {
-                border-color: $primary500;
+                border-color: $blue500;
             }
 
             @include hover {
                 &:hover {
-                    border-color: varToRgba('primary500', 0.5);
+                    border-color: varToRgba('blue500', 0.5);
 
                     &.metar_favorite_item--active {
-                        border-color: varToRgba('error500', 0.5);
+                        border-color: varToRgba('red500', 0.5);
                     }
                 }
             }
@@ -304,7 +304,7 @@ const metars = computed(() => {
         padding: 8px;
         border-radius: 8px;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         &_title {
             display: flex;
@@ -349,10 +349,10 @@ const metars = computed(() => {
                 border-radius: 4px;
 
                 font-size: 11px;
-                color: $lightgray150;
+                color: $lightGray500;
 
                 appearance: none;
-                background: $darkgray850;
+                background: $darkGray500;
                 outline: none;
                 box-shadow: none;
             }

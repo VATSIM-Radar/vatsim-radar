@@ -2,52 +2,92 @@ import type { PartialRecord } from '~/types';
 
 export const colorsList = {
     //#region legacy
+    // darkGray500
     mapSectorBorder: '#2d2d30',
+    // red500
     divertedBackground: '#de5656',
+    // lightGray900
     divertedTextColor: '#97979d',
 
+    // lightGray100
     lightgray0: '#F7F7FA',
+    // lightGray200
     lightgray50: '#F2F2F7',
+    // lightGray300
     lightgray100: '#EDEDF2',
+    // lightGray400
     lightgray125: '#E6E6EB',
+    // lightGray500
     lightgray150: '#DEDEE7',
+    // lightGray600
     lightgray200: '#D5D5E4',
 
+    // darkGray900
     darkgray1000: '#131316',
+    // darkGray800
     darkgray950: '#18181B',
+    // darkGray700
     darkgray900: '#202024',
+    // darkGray600
     darkgray875: '#26262C',
+    // darkGray500
     darkgray850: '#2B2B33',
+    // darkGray400
     darkgray800: '#30303C',
 
+    // blue300
     primary300: '#5ca2fd',
+    // blue400
     primary400: '#5987FF',
+    // blue500
     primary500: '#3B6CEC',
+    // blue600
     primary600: '#2052D4',
+    // blue700
     primary700: '#174ACF',
 
+    // green700
     success300: '#05AD5C',
+    // green700
     success400: '#029C59',
+    // green700
     success500: '#008856',
+    // green800
     success600: '#00754E',
+    // green800
     success700: '#006649',
 
+    // yellow400
     warning300: '#ECD15B',
+    // orange400
     warning400: '#EAC453',
+    // orange500
     warning500: '#ECB549',
+    // orange500
     warning600: '#E5A23E',
+    // orange600
     warning700: '#E49335',
 
+    // citrus600
     error300: '#DA5525',
+    // citrus600
     error400: '#D54A20',
+    // citrus700
     error500: '#CB421C',
+    // citrus700
     error600: '#BF3318',
+    // citrus700
     error700: '#B82A14',
 
+    // purple400
     info300: '#A667F9',
+    // purple500
     info400: '#984EF9',
+    // purple500
     info500: '#8837FB',
+    // purple600
     info600: '#7C21FD',
+    // purple700
     info700: '#6C0AFF',
     //#endregion
 

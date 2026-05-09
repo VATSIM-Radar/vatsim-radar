@@ -71,7 +71,7 @@
                     {{ bookmark.binding?.code.replace('Key', '').replace('Digit', '') }}
                 </span>
                 <ui-button
-                    link-color="error500"
+                    link-color="red500"
                     type="link"
                     @click="delete bookmark.binding"
                 >

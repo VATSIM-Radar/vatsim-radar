@@ -35,56 +35,56 @@
             Turns transparency
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'error300' }"
+            :default-color="{ color: 'red300' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.approach"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approach: $event } } })"
         >
             Approach tracon/circle
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'info300', transparency: 0.7 }"
+            :default-color="{ color: 'purple300', transparency: 0.7 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.approachBookings"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approachBookings: $event } } })"
         >
             Booked approach
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'success500', transparency: 0.1 }"
+            :default-color="{ color: 'green500', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.firs"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
             FIR (ARTCC)
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'lightgray125', transparency: 0.07 }"
+            :default-color="{ color: 'lightGray400', transparency: 0.07 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.centerBookings"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBookings: $event } } })"
         >
             Booked FIR (ARTCC)
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'info400', transparency: 0.1 }"
+            :default-color="{ color: 'purple400', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.uirs"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { uirs: $event } } })"
         >
             UIR (FSS)
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'lightgray150' }"
+            :default-color="{ color: 'lightGray500' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.centerText"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerText: $event } } })"
         >
             FIR label (text)
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'darkgray850' }"
+            :default-color="{ color: 'darkGray500' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.centerBg"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBg: $event } } })"
         >
             FIR label (background)
         </ui-input-color>
         <ui-input-color
-            :default-color="{ color: 'error300', transparency: 0.7 }"
+            :default-color="{ color: 'red300', transparency: 0.7 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.runways"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { runways: $event } } })"
         >
@@ -120,7 +120,7 @@
         </ui-block-title>
 
         <ui-input-color
-            :default-color="{ color: 'primary500' }"
+            :default-color="{ color: 'blue500' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.main"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { main: $event } } } })"
         >

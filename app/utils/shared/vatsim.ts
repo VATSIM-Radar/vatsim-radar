@@ -187,3 +187,10 @@ export function getFacilityByCallsign(callsign: string): number {
     if (postfix === 'RMP') postfix = 'GND';
     return facilitiesMap[postfix as keyof typeof facilitiesMap] ?? -1;
 }
+
+export function getFlightPlanParam(remarks: string | null | undefined, param: string) {
+    if (!remarks) return null;
+
+    const result = new RegExp(`( |^)${ param }\/(?<val>.+?)( [A-Z]+\/.*|$)`).exec(remarks);
+    return result?.groups?.val || null;
+}

@@ -138,7 +138,7 @@ onMounted(() => {
     }
 
     &_diverted {
-        color: $divertedBackground !important;
+        color: $red500 !important;
     }
 
     &_wrap {

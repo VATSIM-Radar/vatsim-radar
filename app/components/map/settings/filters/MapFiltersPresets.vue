@@ -171,9 +171,9 @@
 
                             <div class="presets__delete">
                                 <ui-button
-                                    focus-color="error700"
-                                    hover-color="error300"
-                                    link-color="error500"
+                                    focus-color="red700"
+                                    hover-color="red300"
+                                    link-color="red500"
                                     theme="red"
                                     type="link"
                                     @click="states.delete = true"
@@ -238,7 +238,7 @@
                 You are about to <strong>permanently</strong> delete {{ activePreset.name }} preset
                 <template #actions>
                     <ui-button
-                        primary-color="error500"
+                        primary-color="red500"
                         type="secondary"
                         @click="deletePreset()"
                     >
@@ -456,7 +456,7 @@ const deletePreset = async () => {
         &_divider {
             width: 1px;
             height: 24px;
-            background: varToRgba('lightgray150', 0.2);
+            background: varToRgba('lightGray500', 0.2);
 
             @include mobileOnly {
                 display: none;
@@ -471,7 +471,7 @@ const deletePreset = async () => {
     }
 
     &__warning {
-        color: $error400;
+        color: $red400;
     }
 
     &__list-title {

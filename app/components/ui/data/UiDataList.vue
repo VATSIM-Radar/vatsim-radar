@@ -1,27 +1,43 @@
 <template>
     <div
         class="list"
+        :class="{ 'list--divider': circleDivider }"
         :style="gridOptions"
     >
         <ui-data-list-item
-            v-for="(item, index) in items"
+            v-for="(item, index) in items.filter(x => !x.hide && (x.title || x.text))"
             :key="item.key ?? index"
             class="list_item"
             :class="{ 'list_item--clickable': !!item.onClick }"
             :tooltip-location="item.tooltipLocation ?? tooltipLocation ?? 'top'"
+            :tooltip-width="item?.tooltipWidth"
             @click="item.onClick?.()"
         >
             <slot
+                v-if="!item.key || !$slots[`item-${ item.key }`]"
                 :index
                 :item
             >
                 {{item.text}}
             </slot>
+            <slot
+                v-else
+                :index
+                :item
+                :name="`item-${ item.key }`"
+            />
             <template
-                v-if="item.title || $slots.title"
+                v-if="item.title || $slots.title || $slots[`item-title-${ item.key }`]"
                 #title
             >
                 <slot
+                    v-if="$slots[`item-title-${ item.key }`]"
+                    :index
+                    :item
+                    :name="`item-title-${ item.key }`"
+                />
+                <slot
+                    v-else
                     :index
                     :item
                     name="title"
@@ -63,12 +79,14 @@ import type { TooltipLocation } from '~/components/ui/data/UiTooltip.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 
 export interface DataListItem {
-    title?: string;
+    title?: string | number | null;
     text?: string | number | null;
     key?: string;
     tooltip?: string;
     tooltipTitle?: string;
+    tooltipWidth?: string;
     tooltipLocation?: TooltipLocation;
+    hide?: boolean;
     onClick?: () => any;
 }
 
@@ -90,6 +108,10 @@ const props = defineProps({
         type: Array as PropType<DataListItem[]>,
         required: true,
     },
+    circleDivider: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineSlots<{
@@ -97,9 +119,14 @@ defineSlots<{
     title?(options: SlotOptions): any;
     tooltip?(options: SlotOptions): any;
     tooltipTitle?(options: SlotOptions): any;
+    [key: `item-${ string }`]: (options: SlotOptions) => any;
 }>();
 
 type SlotOptions = { item: DataListItem; index: number };
+
+const horizontalGap = computed(() => {
+    return props.gap.split(' ')[1];
+});
 
 const gridOptions = computed(() => {
     if (!props.gridColumns) return {};
@@ -118,9 +145,28 @@ const gridOptions = computed(() => {
     display: flex;
     flex-wrap: wrap;
     gap: v-bind(gap);
+    align-items: center;
 
     &_item--clickable {
         cursor: pointer;
+    }
+
+    &--divider .list_item:not(:last-child) {
+        position: relative;
+
+        &::after {
+            content: '';
+
+            position: absolute;
+            top: calc(50% - 1px);
+            left: calc(100% + v-bind(horizontalGap) / 2 - 1px);
+
+            width: 2px;
+            height: 2px;
+            border-radius: 100%;
+
+            background: $whiteAlpha12
+        }
     }
 }
 </style>

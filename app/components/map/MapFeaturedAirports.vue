@@ -109,7 +109,7 @@ div.featured-airports {
         padding: 8px;
         border-radius: 4px;
 
-        background: $darkgray950;
+        background: $darkGray800;
 
         &::before {
             content: '';
@@ -123,7 +123,7 @@ div.featured-airports {
             width: 1px;
             height: 24px;
 
-            background: varToRgba('lightgray150', 0.15);
+            background: varToRgba('lightGray500', 0.15);
         }
 
         >* {

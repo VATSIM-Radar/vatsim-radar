@@ -55,13 +55,6 @@
                                     placeholder="Enter name"
                                     @change="settings.headerName = ($event.target as HTMLInputElement).value"
                                 />
-                                <ui-input-text
-                                    :model-value="settings.headerName ?? ''"
-                                    placeholder="Enter name"
-                                    @change="settings.headerName = ($event.target as HTMLInputElement).value"
-                                >
-                                    Name
-                                </ui-input-text>
                             </div>
                         </div>
                     </template>
@@ -279,7 +272,6 @@ const listsSections = computed<InfoPopupSection[]>(() => {
             key: 'new-list',
             collapsible: true,
             collapsedDefault: true,
-            collapsedDefaultOnce: true,
         });
     }
 
@@ -314,7 +306,7 @@ const newList = reactive<UserListLive>({
     id: -1,
     name: '',
     type: 'OTHER',
-    color: 'info500',
+    color: 'purple500',
     users: [],
     showInMenu: false,
 });
@@ -389,7 +381,7 @@ async function addList() {
         id: -1,
         name: '',
         type: 'OTHER',
-        color: 'info500',
+        color: 'purple500',
         users: [],
     });
 }
@@ -432,7 +424,7 @@ async function addList() {
     }
 
     & :is(&__logout, &__delete):not(:hover, :focus, :active) {
-        color: $error500;
+        color: $red500;
     }
 
     & &__delete {
@@ -451,10 +443,10 @@ async function addList() {
 
         font-size: 13px;
         font-weight: 600;
-        color: $lightgray150;
+        color: $lightGray500;
 
         &--unlimited .settings__navigraph_status {
-            color: $success500;
+            color: $green500;
         }
     }
 }

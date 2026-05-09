@@ -34,7 +34,7 @@ defineProps({
 
         &--sticky {
             transform: rotate(45deg);
-            color: $primary500;
+            color: $blue500;
         }
     }
 }

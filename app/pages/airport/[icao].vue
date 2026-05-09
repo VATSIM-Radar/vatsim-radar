@@ -254,8 +254,8 @@
                             >
                                 <vatsim-traffic-rate
                                     :aircraft="aircraft"
-                                    :icon-color="radarColors.warning500"
-                                    :text-color="radarColors.warning500"
+                                    :icon-color="radarColors.yellow500"
+                                    :text-color="radarColors.yellow500"
                                     :use-opacity="store.theme === 'default'"
                                 />
                             </div>
@@ -591,17 +591,17 @@ const controllerColumns = computed(() => {
 
         switch (x.value) {
             case 'prefiles':
-                color = radarColors.lightgray200;
+                color = radarColors.lightGray600;
                 darkColor = store.theme === 'default';
                 break;
             case 'groundDep':
-                color = radarColors.success500;
+                color = radarColors.green500;
                 break;
             case 'departures':
-                color = radarColors.primary700;
+                color = radarColors.blue700;
                 break;
             case 'arrivals':
-                color = radarColors.warning500;
+                color = radarColors.yellow500;
                 darkColor = true;
                 break;
             case 'groundArr':
@@ -808,18 +808,6 @@ await setupDataFetch({
 
     margin: 16px;
 
-    :deep(.info-block) {
-        background: $darkgray875 !important;
-    }
-
-    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot), :deep(.tabs_list), :deep(.tabs_tab::after) {
-        background: $darkgray900 !important;
-    }
-
-    :deep(.tabs_tab) {
-        border-bottom-color: $darkgray900 !important;
-    }
-
     :deep(.aircraft_nav) {
         top: 30px !important;
     }
@@ -863,7 +851,7 @@ await setupDataFetch({
 
                 font-size: 11px;
 
-                background: $darkgray900;
+                background: $black;
 
                 &::after {
                     left: calc(100% + 16px) !important;
@@ -890,7 +878,7 @@ await setupDataFetch({
                                 width: 1px;
                                 height: 16px;
 
-                                background: varToRgba('lightgray150', 0.2);
+                                background: varToRgba('lightGray500', 0.2);
                             }
                         }
                     }
@@ -907,13 +895,13 @@ await setupDataFetch({
 
                     s {
                         cursor: pointer;
-                        color: $lightgray200;
+                        color: $lightGray600;
                         opacity: 0.5;
                     }
 
                     strong {
                         font-weight: 600;
-                        color: $primary500;
+                        color: $blue500;
                     }
 
                     &_item {
@@ -947,7 +935,7 @@ await setupDataFetch({
                         width: 1px;
                         height: 24px;
 
-                        background: varToRgba('lightgray150', 0.2);
+                        background: varToRgba('lightGray500', 0.2);
                     }
                 }
             }
@@ -965,7 +953,7 @@ await setupDataFetch({
 
             &_name {
                 font-weight: 600;
-                color: $primary500
+                color: $blue500
             }
 
             &_refresh {
@@ -991,19 +979,19 @@ await setupDataFetch({
             height: 32px;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include hover {
                 transition: 0.3s;
 
                 &:hover {
-                    background: $darkgray875;
+                    background: $darkGray600;
                 }
             }
 
             &--disabled {
                 opacity: 0.5;
-                background: $darkgray850;
+                background: $darkGray500;
 
                 &, svg {
                     pointer-events: none;
@@ -1033,7 +1021,7 @@ await setupDataFetch({
 
             font-size:  12px;
 
-            background: $darkgray900;
+            background: $darkGray700;
         }
     }
 
@@ -1094,9 +1082,10 @@ await setupDataFetch({
             overflow: auto;
 
             padding: 16px;
+            border: 1px solid $strokeDefault;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $black;
 
             &:not(:only-child) {
                 height: calc(var(--dashboard-height) / 2 - 8px);
@@ -1108,7 +1097,7 @@ await setupDataFetch({
             }
 
             :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
-                background: $darkgray875 !important;
+                background: $darkGray600 !important;
             }
         }
 
@@ -1122,6 +1111,7 @@ await setupDataFetch({
             justify-content: space-between;
 
             width: calc(100% + 16px);
+            margin-top: -8px;
             margin-bottom: 16px;
             margin-left: -16px;
             padding: 4px 0 4px 16px;
@@ -1129,9 +1119,17 @@ await setupDataFetch({
 
             font-size: 17px;
             font-weight: 700;
-            color: $lightgray150;
+            color: $lightGray500;
 
-            background: $darkgray900;
+            background: $black;
+
+            :deep(.tabs_list) {
+                height: auto;
+            }
+
+            :deep(.tabs_tab) {
+                padding-top: 0;
+            }
         }
     }
 
@@ -1149,7 +1147,7 @@ await setupDataFetch({
             background: var(--color);
 
             &--dark {
-                color: $darkgray800Orig;
+                color: $darkGray400Orig;
             }
         }
 

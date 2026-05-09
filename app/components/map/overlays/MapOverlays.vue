@@ -53,28 +53,5 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapOverlayAirport.v
     display: flex;
     max-height: var(--max-height) !important;
     transition: 0.5s ease-in-out;
-
-    :deep(.pilot-header) {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-
-        font-size: 17px;
-        font-weight: 700;
-
-        &, a {
-            color: var(--status-color, $primary500);
-        }
-
-        .pilot-header_title:is(a) {
-            text-underline-offset: 2px;
-        }
-
-        > * {
-            position: relative;
-            z-index: 2;
-        }
-    }
 }
 </style>

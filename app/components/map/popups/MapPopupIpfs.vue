@@ -1,82 +1,16 @@
 <template>
     <div class="ipfs-info">
-        <div
-            class="ipfs-info__cols"
-            :class="{ 'ipfs-info__cols--rows': blocks.length >= 4 }"
-        >
-            <ui-text-block
-                v-for="(block, index) in blocks"
-                :key="block.title"
-                :bottom-items="[block.value]"
-                text-align="center"
-                :top-items="[block.title]"
-            >
-                <template #top="{ item }">
-                    <div class="ipfs-info__info">
-                        <span>{{item}}</span>
-                        <ui-tooltip
-                            v-if="block.hint"
-                            :location="getTooltipLocation(index)"
-                            width="250px"
-                        >
-                            <template #activator>
-                                <div class="radio__hint">
-                                    <question-icon width="16"/>
-                                </div>
-                            </template>
-                            {{block.hint}}
-                        </ui-tooltip>
-                    </div>
-                </template>
-            </ui-text-block>
-        </div>
-        <div
-            v-if="status || ipfs.cdmData.depInfo || ipfs.aobt"
-            class="ipfs-info__cols"
-        >
-            <ui-text-block
-                v-if="status"
-                :bottom-items="[status]"
-                text-align="center"
-                :top-items="['Status']"
-            >
-                <template #top="{ item }">
-                    <div class="ipfs-info__info">
-                        <span>{{item}}</span>
-                        <ui-tooltip
-                            v-if="statusHint"
-                            :location="(ipfs.cdmData.depInfo || ipfs.aobt) ? 'right' : 'bottom'"
-                            width="250px"
-                        >
-                            <template #activator>
-                                <div class="radio__hint">
-                                    <question-icon width="16"/>
-                                </div>
-                            </template>
-                            {{statusHint}}
-                        </ui-tooltip>
-                    </div>
-                </template>
-            </ui-text-block>
-            <ui-text-block
-                v-if="ipfs.cdmData.depInfo"
-                :bottom-items="[ipfs.cdmData.depInfo.split('/').join(' | ')]"
-                text-align="center"
-                :top-items="['Departure info']"
+        <ui-data-container>
+            <template #icon>
+                <plane-icon/>
+            </template>
+
+            <ui-data-list
+                :grid-columns="3"
+                :items="[...blocks, ...secondBlocks].map((x, index) => ({ title: x.title, text: x.value, tooltip: x.hint, tooltipWidth: '150px', tooltipLocation: 'right' }))"
             />
-            <ui-text-block
-                v-if="ipfs.cdmSts === ViffStatus.REA && ipfs.atfcmStatus !== ViffStatus.REA"
-                :bottom-items="['Ready']"
-                text-align="center"
-                :top-items="['Ready status']"
-            />
-            <ui-text-block
-                v-else-if="ipfs.aobt"
-                :bottom-items="[`${ ipfs.aobt.slice(0,4) }z`]"
-                text-align="center"
-                :top-items="['AOBT']"
-            />
-        </div>
+        </ui-data-container>
+
         <ui-notification
             v-if="ipfs.cdmData.reason"
             type="info"
@@ -213,15 +147,16 @@
 import type { PropType } from 'vue';
 import { ViffRegulationType, ViffStatus } from '~/types/data/vatsim';
 import type { IpfsUser, VatsimExtendedPilot } from '~/types/data/vatsim';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
-import type { TooltipLocation } from '~/components/ui/data/UiTooltip.vue';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import PlaneIcon from '~/assets/icons/kit/plane.svg?component';
+import QuestionIcon from '~/assets/icons/basic/question.svg?component';
 
 const props = defineProps({
     pilot: {
@@ -247,20 +182,6 @@ interface Block {
     title: string;
     value: string;
     hint?: string;
-}
-
-function getTooltipLocation(index: number): TooltipLocation {
-    if (blocks.value.length === 2 || blocks.value.length === 4) {
-        return index % 2 === 0 ? 'right' : 'left';
-    }
-
-    if (blocks.value.length === 3) {
-        if (index === 0) return 'right';
-        if (index === 1) return 'bottom';
-        if (index === 2) return 'left';
-    }
-
-    return 'bottom';
 }
 
 const blocks = computed(() => {
@@ -324,6 +245,41 @@ const blocks = computed(() => {
             title: 'REGUL',
             value: props.ipfs.cdmData.mostPenalisingRegulation,
             hint,
+        });
+    }
+
+    return items;
+});
+
+const secondBlocks = computed(() => {
+    const items: Block[] = [];
+
+    if (status.value) {
+        items.push({
+            title: 'Status',
+            value: status.value,
+            hint: statusHint.value,
+        });
+    }
+
+    if (props.ipfs.cdmData.depInfo) {
+        items.push({
+            title: 'Departure info',
+            value: props.ipfs.cdmData.depInfo.split('/').join(' | '),
+        });
+    }
+
+    if (props.ipfs.cdmSts === ViffStatus.REA && props.ipfs.atfcmStatus !== ViffStatus.REA) {
+        items.push({
+            title: 'Ready status',
+            value: `Ready`,
+        });
+    }
+
+    if (props.ipfs.aobt) {
+        items.push({
+            title: 'AOBT',
+            value: `${ props.ipfs.aobt.slice(0, 4) }z`,
         });
     }
 

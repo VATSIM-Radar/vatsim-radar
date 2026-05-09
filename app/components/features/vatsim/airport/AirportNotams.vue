@@ -201,7 +201,7 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
 
     padding: 8px 0;
 
-    background: $darkgray900;
+    background: $darkGray700;
 }
 </style>
 
@@ -244,7 +244,7 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     &_notam{
         &:not(:nth-child(2)) {
             padding-top: 8px;
-            border-top: 1px solid $darkgray850;
+            border-top: 1px solid $darkGray500;
         }
     }
 }

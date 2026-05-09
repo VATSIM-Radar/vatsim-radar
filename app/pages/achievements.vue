@@ -87,12 +87,11 @@ const groups = computed(() => {
         margin-bottom: 16px;
 
         .__link {
-            color: $lightgray200;
+            color: $lightGray600;
         }
     }
 
     &_list {
-        --block-title-background: #{$darkgray950};
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -118,12 +117,12 @@ const groups = computed(() => {
 
         width: 200px;
         padding: 16px;
-        border: 1px solid $darkgray800;
+        border: 1px solid $darkGray400;
         border-radius: 8px;
 
         text-align: center;
 
-        background: $darkgray1000;
+        background: $darkGray900;
 
         @include mobileOnly {
             width: auto;
@@ -133,7 +132,7 @@ const groups = computed(() => {
             width: 100%;
             padding: 8px;
             border-radius: 8px;
-            background-color: $darkgray1000;
+            background-color: $darkGray900;
 
             &_item {
                 aspect-ratio: $achievementAspectRatio;

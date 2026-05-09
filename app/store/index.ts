@@ -170,7 +170,7 @@ export const useStore = defineStore('index', {
                 lists.unshift({
                     id: 0,
                     name: 'Friends',
-                    color: 'success300',
+                    color: 'green300',
                     type: 'FRIENDS',
                     showInMenu: true,
                     users: [],
@@ -206,21 +206,21 @@ export const useStore = defineStore('index', {
                     }
                 }
 
+                for (const booking of this.bookings) {
+                    if (listsUsers.has(booking.atc.cid)) {
+                        foundUsers[booking.atc.cid] = {
+                            type: 'booking',
+                            data: booking,
+                        };
+                    }
+                }
+
                 for (const atc of dataStore.vatsim.data.controllers.value) {
                     if (atc.duplicated) continue;
                     if (listsUsers.has(atc.cid)) {
                         foundUsers[atc.cid] = {
                             type: 'atc',
                             data: atc,
-                        };
-                    }
-                }
-
-                for (const booking of this.bookings) {
-                    if (listsUsers.has(booking.atc.cid)) {
-                        foundUsers[booking.atc.cid] = {
-                            type: 'booking',
-                            data: booking,
                         };
                     }
                 }

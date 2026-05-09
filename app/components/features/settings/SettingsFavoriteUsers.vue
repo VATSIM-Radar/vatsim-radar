@@ -141,7 +141,7 @@
                     <ui-button
                         :href="`https://stats.vatsim.net/stats/${ user.cid }`"
                         icon-width="18px"
-                        link-color="primary500"
+                        link-color="blue500"
                         target="_blank"
                         type="link"
                     >
@@ -152,7 +152,7 @@
                     <ui-button
                         v-if="list"
                         icon-width="18px"
-                        link-color="primary500"
+                        link-color="blue500"
                         type="link"
                         @click="deletedUsers.has(user.cid)
                             ? [deletedUsers.delete(user.cid), editUserList({ id: list.id, users: list.users.filter(x => !deletedUsers.has(x.cid)) }, false)]
@@ -269,7 +269,7 @@ if (!props.list) {
     padding: 8px;
     border-radius: 8px;
 
-    background: $darkgray950;
+    background: $darkGray800;
 
     &_user {
         &-container {
@@ -283,7 +283,7 @@ if (!props.list) {
             padding: 8px;
             border-radius: 4px;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include mobileOnly {
                 flex-wrap: wrap;
@@ -300,18 +300,18 @@ if (!props.list) {
             height: 8px;
             border-radius: 100%;
 
-            background: $darkgray850;
+            background: $darkGray500;
 
             @include mobileOnly {
                 order: 0;
             }
 
             &--online {
-                background: $success500;
+                background: $green500;
             }
 
             &--hidden {
-                background: $error500;
+                background: $red500;
             }
         }
 
@@ -340,7 +340,7 @@ if (!props.list) {
 
                 display: inline-block;
 
-                color: $primary500;
+                color: $blue500;
                 text-decoration: underline;
                 text-underline-offset: 3px;
 
@@ -350,7 +350,7 @@ if (!props.list) {
 
                 &--no-action {
                     cursor: default;
-                    color: $lightgray125 !important;
+                    color: $lightGray400 !important;
                     text-decoration: none;
                 }
 
@@ -358,7 +358,7 @@ if (!props.list) {
                     transition: 0.3s;
 
                     &:hover {
-                        color: $primary300;
+                        color: $blue300;
                     }
                 }
             }
@@ -389,7 +389,7 @@ if (!props.list) {
             padding: 16px;
             border-radius: 0 0 4px 4px;
 
-            background: $darkgray875;
+            background: $darkGray600;
         }
     }
 

@@ -6,12 +6,6 @@
         <div class="atc-time_info">
             {{ getATCTime(controller) }}
         </div>
-        <div
-            v-if="full && controller.logon_time"
-            class="atc-time_text"
-        >
-            since {{formatter.format(new Date(controller.logon_time))}}z
-        </div>
     </div>
 </template>
 
@@ -25,20 +19,6 @@ defineProps({
         type: Object as PropType<VatsimShortenedController>,
         required: true,
     },
-    full: {
-        type: Boolean,
-        default: false,
-    },
-});
-
-const store = useStore();
-
-const formatter = new Intl.DateTimeFormat(['en-DE'], {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC',
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
 });
 </script>
 
@@ -53,12 +33,12 @@ const formatter = new Intl.DateTimeFormat(['en-DE'], {
 
     font-size: 11px;
     font-weight: 300;
-    color: $lightgray150;
+    color: $lightGray500;
 
     &_info {
         padding: 2px 4px;
         border-radius: 4px;
-        background: $darkgray950;
+        background: $darkGray800;
     }
 }
 </style>

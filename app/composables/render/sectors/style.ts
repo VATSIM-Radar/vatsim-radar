@@ -116,7 +116,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
         }
 
         if (!labelType && !label && useStore().localSettings.filters?.layers?.layer === 'basic') {
-            cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
+            cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.03)`);
         }
 
         styleCache[key] = cachedStyle;
@@ -140,7 +140,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         rgba = hexToRgb(colour);
     }
     catch {
-        rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('success500').join(',');
+        rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green500').join(',');
     }
 
     const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }`;

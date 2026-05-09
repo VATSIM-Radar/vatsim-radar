@@ -6,7 +6,7 @@
         >
             <ui-text
                 class="list-item_title_text"
-                type="caption-light"
+                :type="swapTypes ? '3b-medium' : 'caption-light'"
             >
                 <slot name="title"/>
             </ui-text>
@@ -14,6 +14,7 @@
                 v-if="$slots.tooltip"
                 class="list-item_title_tooltip"
                 :location="tooltipLocation"
+                :width="tooltipWidth"
             >
                 <template
                     v-if="$slots.tooltipTitle"
@@ -27,7 +28,7 @@
         <ui-text
             v-if="$slots.default"
             class="list-item_text"
-            type="3b-medium"
+            :type="!swapTypes ? '3b-medium' : 'caption-light'"
         >
             <slot/>
         </ui-text>
@@ -44,6 +45,13 @@ defineProps({
     tooltipLocation: {
         type: String as PropType<TooltipLocation>,
         default: 'top',
+    },
+    tooltipWidth: {
+        type: String,
+    },
+    swapTypes: {
+        type: Boolean,
+        default: false,
     },
 });
 

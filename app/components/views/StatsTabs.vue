@@ -35,14 +35,14 @@ div.tabs {
     margin-bottom: 8px;
     padding: 16px;
     border-radius: 16px;
-    background: $darkgray900;
+    background: $darkGray700;
 
     :deep(.tabs_list) {
-        background: $darkgray900;
+        background: $darkGray700;
     }
 
     :deep(.tabs_tab::after) {
-        background: $darkgray900;
+        background: $darkGray700;
     }
 }
 </style>

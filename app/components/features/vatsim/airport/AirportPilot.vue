@@ -48,7 +48,6 @@
                 </ui-block-title>
                 <pilot-overlay-flight-plan
                     v-if="!collapsedPlan"
-                    class="__info-sections"
                     :flight-plan="pilot.flight_plan"
                     :status="'status' in pilot ? pilot.status : undefined"
                     :stepclimbs="'stepclimbs' in pilot ? pilot.stepclimbs : undefined"
@@ -133,19 +132,19 @@ onMounted(() => {
     padding: 16px;
     border-radius: 8px;
 
-    background: $darkgray1000;
+    background: $darkGray900;
 
     &_header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        color: $lightgray150;
+        color: $lightGray500;
 
         &_title {
             font-size: 17px;
             font-weight: 700;
             line-height: 100%;
-            color: $primary500;
+            color: $blue500;
         }
 
         &_close {
@@ -156,7 +155,7 @@ onMounted(() => {
 
             @include hover {
                 &:hover {
-                    color: $error500;
+                    color: $red500;
                 }
             }
         }

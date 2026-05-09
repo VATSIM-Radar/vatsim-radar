@@ -35,9 +35,13 @@ export function kafkaAddClient(event: KafkaAddClient) {
 }
 
 export function kafkaRemoveClient(event: KafkaRmClient) {
+    if (event.Callsign) {
+        updatedPilots.delete(event.Callsign);
+        pilotPositionUpdatedAt.delete(event.Callsign);
+    }
+
     if (event.Callsign && wssPilots[event.Callsign]) {
         wssPilots[event.Callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
-        updatedPilots.delete(event.Callsign);
     }
 }
 
@@ -66,9 +70,26 @@ export function kafkaUpdateController(event: KafkaAD) {
 }
 
 const updatedPilots = new Set<string>();
+const pilotPositionUpdatedAt = new Map<string, number>();
+
+const verticalSpeedAltitudeTolerance = 50;
+
+function getVerticalSpeed(pilot: Partial<VatsimPilot> | undefined, event: KafkaPD, now: number): VatsimPilot['vertical_speed'] {
+    const previousPositionUpdatedAt = pilotPositionUpdatedAt.get(event.Callsign);
+    if (!previousPositionUpdatedAt || typeof pilot?.altitude !== 'number') return 0;
+
+    const altitudeDiff = event.Altitude - pilot.altitude;
+    if (Math.abs(altitudeDiff) <= verticalSpeedAltitudeTolerance) return 0;
+
+    const timeDiffMinutes = (now - previousPositionUpdatedAt) / 1000 / 60;
+    if (timeDiffMinutes <= 0) return pilot.vertical_speed ?? 0;
+
+    return Math.round(altitudeDiff / timeDiffMinutes);
+}
 
 export function kafkaUpdatePilot(event: KafkaPD) {
     let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
+    const now = Date.now();
 
     const qnhIhb = Number((29.92 - (event.PressureDifference / 1000.0)).toFixed(2));
     const qnhMb = Math.round(qnhIhb * 33.86389);
@@ -83,12 +104,13 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         heading: event.Heading,
         qnh_i_hg: qnhIhb,
         qnh_mb: qnhMb,
+        vertical_speed: getVerticalSpeed(pilot, event, now),
     };
 
     if (!pilot) {
         pilot = {
             ...fields,
-            date: Date.now(),
+            date: now,
             deleted: false,
         };
         radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
@@ -97,7 +119,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         const positionChanged = pilot.altitude && pilot.groundspeed && pilot.groundspeed < 100 && pilot.altitude < 25000 && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
 
         Object.assign(pilot, fields);
-        pilot.date = Date.now();
+        pilot.date = now;
         pilot.deleted = false;
 
         if (pilot.callsign && wssPilots[pilot.callsign]) {
@@ -111,6 +133,8 @@ export function kafkaUpdatePilot(event: KafkaPD) {
             }
         }
     }
+
+    pilotPositionUpdatedAt.set(event.Callsign, now);
 }
 
 export function kafkaUpdatePlan(event: KafkaPlan) {

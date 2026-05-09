@@ -56,13 +56,13 @@ defineProps({
     &_list {
         &_item {
             padding: 8px;
-            border: 1px solid varToRgba('lightgray125', 0.15);
+            border: 1px solid varToRgba('lightGray400', 0.15);
             border-radius: 8px;
 
             &_runway {
                 font-size :14px;
                 font-weight: 600;
-                color: $primary300;
+                color: $blue300;
             }
 
         }
@@ -80,12 +80,12 @@ defineProps({
 
             font-size: 12px;
             font-weight: 600;
-            color: $success500;
+            color: $green500;
 
-            background: $darkgray875;
+            background: $darkGray600;
 
             &--up {
-                color: $error500;
+                color: $red500;
             }
         }
     }

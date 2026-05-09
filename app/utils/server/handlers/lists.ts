@@ -177,7 +177,7 @@ export async function handleListsEvent(event: H3Event) {
                         data: 'Color is required when creating list',
                     });
                 }
-                else body.color = colorsList.success300;
+                else body.color = colorsList.green300;
             }
 
             if (body.name && body.name.length > 30) {

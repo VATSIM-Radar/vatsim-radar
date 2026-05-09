@@ -207,7 +207,7 @@ async function initLayer() {
 
         style ??= new Style({
             fill: new Fill({
-                color: getCurrentThemeHexColor('darkgray1000'),
+                color: getCurrentThemeHexColor('black'),
             }),
         });
 
@@ -374,7 +374,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .--dark-matter-vector .app_content > .map {
-    background: $darkgray900;
+    background: $darkGray700;
 }
 
 .--positron-vector .app_content > .map {
@@ -382,6 +382,6 @@ onBeforeUnmount(() => {
 }
 
 .--basic-layer .app_content > .map {
-    background: $darkgray850;
+    background: $darkGray500;
 }
 </style>

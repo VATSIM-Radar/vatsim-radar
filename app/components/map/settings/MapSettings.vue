@@ -433,9 +433,9 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
         border-radius: 8px;
 
         font-size: 11px;
-        color: $lightgray150;
+        color: $lightGray500;
 
-        background: $darkgray850;
+        background: $darkGray500;
     }
 
     &_toggle {
@@ -504,10 +504,10 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
                     width: 12px;
                     height: 12px;
-                    border: 2px solid $lightgray125;
+                    border: 2px solid $lightGray400;
                     border-radius: 100%;
 
-                    background: $primary500;
+                    background: $blue500;
                 }
             }
 
@@ -548,7 +548,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
         font-size: 14px;
         font-weight: 600;
-        color: $lightgray150Orig;
+        color: $lightGray500Orig;
         text-align: center;
         text-decoration: none;
 
@@ -561,7 +561,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
     &__import {
         padding-right: 16px;
-        border-right: 1px solid varToRgba('lightgray150', 0.15);
+        border-right: 1px solid varToRgba('lightGray500', 0.15);
 
         svg {
             cursor: pointer;
@@ -570,7 +570,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
         @include hover {
             svg:hover {
-                color:$primary500;
+                color:$blue500;
             }
         }
     }

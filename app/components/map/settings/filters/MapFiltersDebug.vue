@@ -54,9 +54,9 @@
                         </template>
                     </ui-button>
                     <ui-button
-                        hover-color="error700"
+                        hover-color="red700"
                         icon-width="12px"
-                        primary-color="error500"
+                        primary-color="red500"
                         size="S"
                         @click="deleteController(controller.cid)"
                     >
@@ -131,9 +131,9 @@
                         </template>
                     </ui-button>
                     <ui-button
-                        hover-color="error700"
+                        hover-color="red700"
                         icon-width="12px"
-                        primary-color="error500"
+                        primary-color="red500"
                         size="S"
                         @click="deleteBooking(booking.atc.cid)"
                     >
@@ -205,8 +205,8 @@
                         <ui-button
                             class="debug__save-button"
                             :disabled="!prs[key] || prs[key] === 'loading'"
-                            :hover-color="prs[key] === true ? 'success700' : undefined"
-                            :primary-color="prs[key] === true ? 'success500' : undefined"
+                            :hover-color="prs[key] === true ? 'green700' : undefined"
+                            :primary-color="prs[key] === true ? 'green500' : undefined"
                             size="S"
                             @click="getFromPr(key)"
                         >
@@ -589,9 +589,9 @@ const send = async (key: DataKey) => {
 .debug {
     &_data {
         padding: 8px;
-        border: 1px solid varToRgba('lightgray125', 0.1);
+        border: 1px solid varToRgba('lightGray400', 0.1);
         border-radius: 8px;
-        background: $darkgray950;
+        background: $darkGray800;
 
         &:first-child {
             grid-area: full;
@@ -622,13 +622,13 @@ const send = async (key: DataKey) => {
             justify-content: space-between;
 
             padding: 8px;
-            border: 1px solid varToRgba('lightgray125', 0.1);
+            border: 1px solid varToRgba('lightGray400', 0.1);
             border-radius: 4px;
 
             font-size: 14px;
             font-weight: 600;
 
-            background: $darkgray950;
+            background: $darkGray800;
 
             &_actions {
                 display: flex;

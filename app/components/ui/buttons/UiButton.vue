@@ -213,7 +213,7 @@ const getAttrs = computed(() => {
     }
 
     &--type-secondary-black {
-        background: var(--primary-color, $darkgray900);
+        background: var(--primary-color, $darkGray700);
 
         @include hover {
             &:hover {

@@ -184,7 +184,7 @@ const store = useStore();
         padding: 48px;
         border-radius: 8px;
 
-        color: $lightgray125;
+        color: $lightGray400;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
 
@@ -200,7 +200,7 @@ const store = useStore();
         &_title, &_text, &_contact {
             span {
                 font-weight: 700;
-                color: $primary500;
+                color: $blue500;
             }
         }
 
@@ -233,12 +233,12 @@ const store = useStore();
 
             &_link {
                 font-weight: 600;
-                color: $primary500;
+                color: $blue500;
                 text-decoration: none;
                 transition: color 0.2s;
 
                 &:hover {
-                    color: $primary400;
+                    color: $blue400;
                     text-decoration: underline;
                 }
             }
@@ -279,7 +279,7 @@ const store = useStore();
 
                     font-size: 20px;
                     font-weight: 700;
-                    color: $primary500;
+                    color: $blue500;
 
                     @include mobile {
                         position: static;
@@ -295,7 +295,7 @@ const store = useStore();
         position: relative;
         padding: 24px;
         border-radius: 8px;
-        background: $darkgray900;
+        background: $darkGray700;
 
         @include mobile {
             padding: 16px;
@@ -305,7 +305,7 @@ const store = useStore();
             margin-bottom: 16px;
             font-size: 24px;
             font-weight: 700;
-            color: $lightgray125;
+            color: $lightGray400;
 
             @include mobile {
                 font-size: 20px;
@@ -325,7 +325,7 @@ const store = useStore();
             li {
                 font-size: 15px;
                 line-height: 1.6;
-                color: $lightgray150;
+                color: $lightGray500;
 
                 @include mobile {
                     font-size: 14px;
@@ -333,7 +333,7 @@ const store = useStore();
 
                 span {
                     font-weight: 600;
-                    color: $primary500;
+                    color: $blue500;
                 }
 
                 ol {

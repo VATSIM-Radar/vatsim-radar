@@ -4,12 +4,6 @@
         class="aircraft"
         :class="{ 'aircraft--simple': simpleMode }"
     >
-        <airport-aircraft-filter
-            v-if="!filterRelativeToAircraft"
-            v-model="aircraftGroundMode"
-            v-model:opened="aircraftGroundFilterOpened"
-        />
-
         <div
             v-if="!simpleMode"
             class="aircraft_nav"
@@ -71,7 +65,6 @@
                             <filter-icon/>
 
                             <airport-aircraft-filter
-                                v-if="filterRelativeToAircraft"
                                 v-model="aircraftGroundMode"
                                 v-model:opened="aircraftGroundFilterOpened"
                                 is-relative
@@ -300,7 +293,7 @@ function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof 
             return getPilotStatus('arrTaxi');
         case 'prefiles':
             return {
-                color: 'lightgray150',
+                color: 'lightGray500',
                 title: 'Prefile',
             };
     }
@@ -397,7 +390,7 @@ defineExpose({
             height: 40px;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             transition: 0.3s;
 
@@ -407,14 +400,13 @@ defineExpose({
 
             &--active {
                 cursor: default;
-                color: $lightgray150Orig;
-                background: $primary500;
+                color: $lightGray500Orig;
+                background: $blue500;
             }
         }
     }
 
     &_list {
-        --block-title-background: #{$darkgray950};
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -422,7 +414,7 @@ defineExpose({
         padding: 8px;
         border-radius: 8px;
 
-        background: $darkgray950;
+        background: $darkGray800;
 
         &__filter {
             cursor: pointer;
@@ -431,9 +423,9 @@ defineExpose({
 
             padding: 0 8px;
 
-            color: $primary500;
+            color: $blue500;
 
-            background: $darkgray950;
+            background: $darkGray800;
 
             svg {
                 width: 16px;
@@ -441,7 +433,7 @@ defineExpose({
             }
 
             &--active {
-                color: $success500;
+                color: $green500;
             }
         }
     }
@@ -457,7 +449,7 @@ defineExpose({
 
     &__pilot {
         border: 2px solid transparent;
-        background: $darkgray900;
+        background: $darkGray700;
         transition: 0.3s;
 
         &_header {
@@ -475,7 +467,7 @@ defineExpose({
 
                 &_stats, &_frequency {
                     padding-left: 8px;
-                    border-left: 1px solid varToRgba('lightgray150', 0.15)
+                    border-left: 1px solid varToRgba('lightGray500', 0.15)
                 }
             }
 

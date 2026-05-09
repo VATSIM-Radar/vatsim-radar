@@ -737,12 +737,12 @@ function stopDrag() {
     padding-top: 8px;
     padding-right: 4px;
     border-bottom: solid;
-    border-bottom-color: $darkgray900;
+    border-bottom-color: $darkGray700;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 
-    background: $darkgray1000;
+    background: $darkGray900;
 
     &-heads {
         position: sticky;
@@ -754,9 +754,9 @@ function stopDrag() {
 
         height: 100%;
         border-right: solid;
-        border-right-color: $darkgray900;
+        border-right-color: $darkGray700;
 
-        background: $darkgray1000;
+        background: $darkGray900;
 
         @include mobileOnly {
             position: static;
@@ -781,11 +781,11 @@ function stopDrag() {
     flex-direction: row;
 
     border-right: solid;
-    border-right-color: $darkgray900;
+    border-right-color: $darkGray700;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
 
-    background: $darkgray1000;
+    background: $darkGray900;
 
     @include mobileOnly {
         position: static;
@@ -840,25 +840,25 @@ function stopDrag() {
 
     &-lightmode {
         .timeline-timeline-time {
-            background: $darkgray850;
+            background: $darkGray500;
             box-shadow: 0 2px 5px rgb(black, 0.3);
         }
 
         .timeline-timeline-day-txt {
-            background: $darkgray850;
+            background: $darkGray500;
             box-shadow: 0 2px 5px rgb(black, 0.3);
         }
 
         .header {
-            background: $darkgray900;
+            background: $darkGray700;
         }
 
         .header-head {
-            background: $darkgray900;
+            background: $darkGray700;
         }
 
         .id {
-            background: $darkgray900;
+            background: $darkGray700;
         }
     }
 
@@ -897,7 +897,7 @@ function stopDrag() {
                 padding: 8px;
                 border-radius: 8px;
 
-                background-color: rgb(var(--darkgray900), 0.9);
+                background-color: rgb(var(--darkGray700), 0.9);
                 box-shadow: inset -3px -3px 7px rgb(black, 0.3);
             }
         }
@@ -912,7 +912,7 @@ function stopDrag() {
             padding: 8px;
             border-radius: 8px;
 
-            background-color: rgb(var(--darkgray900), 0.9);
+            background-color: rgb(var(--darkGray700), 0.9);
             box-shadow: inset -3px -3px 7px rgb(black, 0.3);
         }
     }
@@ -946,7 +946,7 @@ function stopDrag() {
 
                 color: currentColor;
 
-                background-color: $darkgray800;
+                background-color: $darkGray400;
             }
         }
 
@@ -968,7 +968,7 @@ function stopDrag() {
         width: 100%;
         height: 20vh;
 
-        color: $error300;
+        color: $red300;
     }
 
     @include mobileOnly {
@@ -1014,7 +1014,7 @@ function stopDrag() {
 
     &::after {
         transform: rotateY(70deg);
-        color: $primary700;
+        color: $blue700;
         animation-delay: .4s;
     }
 }

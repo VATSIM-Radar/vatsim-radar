@@ -135,7 +135,7 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
     }
 
     const fill = new Fill({
-        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.9)`,
+        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.9)`,
     });
 
     const baseText = {

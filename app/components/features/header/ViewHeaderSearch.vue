@@ -437,7 +437,7 @@ onMounted(() => {
         height: calc(100vh - 56px);
         padding: 16px;
 
-        background: $darkgray950;
+        background: $darkGray800;
     }
 
     &_container {
@@ -486,7 +486,7 @@ onMounted(() => {
 
             height:14px;
             padding: 0 4px;
-            border: 1px solid $darkgray950;
+            border: 1px solid $darkGray800;
             border-radius: 4px;
 
             font-size: 12px;
@@ -515,7 +515,7 @@ onMounted(() => {
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
 
-        background: $darkgray1000;
+        background: $darkGray900;
 
         @include mobile {
             position: relative;

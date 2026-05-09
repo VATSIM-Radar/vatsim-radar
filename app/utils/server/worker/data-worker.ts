@@ -535,6 +535,7 @@ defineCronJob('* * * * * *', async () => {
                 ts: pilot.transponder,
                 hd: pilot.heading,
                 qn: pilot.qnh_mb,
+                vs: pilot.vertical_speed,
                 frq: pilot.frequencies.map(x => shortDatafeed.map.frequencies.indexOf(x)),
                 sim: pilot.sim,
                 tfa: !pilot.aircraft_faa ? undefined : shortDatafeed.map.aircraft_faa.indexOf(pilot.aircraft_faa),

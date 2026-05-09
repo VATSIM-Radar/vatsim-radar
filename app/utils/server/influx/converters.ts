@@ -79,23 +79,14 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
 
     let hadStanding = false;
 
-    let lastTime = '';
-
     for (const group of rowsGroups) {
         for (let i = 0; i < group.features.length; i++) {
             const feature = group.features[i];
-            const savedTime = feature.properties.timestamp;
 
-            if ((short || lastTime === feature.properties.timestamp!.slice(0, 16)) && i !== 0 && i !== group.features.length - 1) {
-                delete feature.properties!.altitude;
-                delete feature.properties!.speed;
-                delete feature.properties!.timestamp;
-            }
-            else if (short) {
+            if (short) {
                 delete feature.properties!.altitude;
                 delete feature.properties!.speed;
             }
-            if (savedTime) lastTime = savedTime.slice(0, 16);
 
             if (!hadStanding && feature.properties!.standing) {
                 hadStanding = true;
@@ -113,11 +104,11 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
     };
 }
 
-export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: string): Promise<InfluxGeojson | null> {
+export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: string, full = false): Promise<InfluxGeojson | null> {
     const rows = await getInfluxOnlineFlightTurns(cid, start);
     if (!rows?.features.length) return null;
 
-    return getGeojsonForData(rows.features, rows.flightPlanStart, !!start);
+    return getGeojsonForData(rows.features, rows.flightPlanStart, !!start && !full);
 }
 
 function outputInfluxValue(value: string | number | boolean, isFloat = false) {

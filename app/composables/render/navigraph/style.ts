@@ -18,28 +18,28 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     const ndbStyle = new Icon({
         src: '/icons/compressed/ndb.png',
         width: 16,
-        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
         opacity: 0.6,
     });
 
     const vordmeStyle = new Icon({
         src: '/icons/compressed/vordme.png',
         width: 16,
-        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
         opacity: 0.6,
     });
 
     const ndbStyleSmall = new Icon({
         src: '/icons/compressed/ndb.png',
         width: 12,
-        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
         opacity: 0.6,
     });
 
     const vordmeStyleSmall = new Icon({
         src: '/icons/compressed/vordme.png',
         width: 12,
-        color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+        color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
         opacity: 0.6,
     });
 
@@ -50,7 +50,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         default: new Style({
             image: new Icon({
                 src: '/icons/compressed/compulsory-rep.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.6,
             }),
@@ -59,7 +59,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         flyOver: new Style({
             image: new Icon({
                 src: '/icons/compressed/fly-over.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.8,
             }),
@@ -68,7 +68,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         flyBy: new Style({
             image: new Icon({
                 src: '/icons/compressed/fly-by.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.8,
             }),
@@ -77,7 +77,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         onRequest: new Style({
             image: new Icon({
                 src: '/icons/compressed/on-request.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.6,
             }),
@@ -86,7 +86,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         compulsoryFlyBy: new Style({
             image: new Icon({
                 src: '/icons/compressed/compulsory-fly-by.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.6,
             }),
@@ -95,7 +95,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         approachFix: new Style({
             image: new Icon({
                 src: '/icons/compressed/final-approach-fix.png',
-                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                color: `rgb(${ getCurrentThemeRgbColor('lightGray400').join(',') })`,
                 width: 8,
                 opacity: 0.6,
             }),
@@ -104,57 +104,57 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     };
 
     const waypointStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.1)`,
         width: 2,
     });
 
     const holdingStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.1)`,
         width: 2,
     });
 
     const waypointBlueStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.1)`,
+        color: `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.1)`,
         width: 2,
     });
 
     const enrouteStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.5)`,
         width: 4,
     });
 
     const enrouteSidStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('purple500').join(',') }, 0.5)`,
         width: 4,
     });
 
     const sidStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('purple500').join(',') }, 0.5)`,
         width: 5,
     });
 
     const enrouteStarStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('green400').join(',') }, 0.5)`,
         width: 4,
     });
 
     const starStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('green400').join(',') }, 0.5)`,
         width: 5,
     });
 
     const enrouteApproachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
         width: 4,
     });
 
     const approachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
         width: 5,
     });
 
     const missApproachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
         width: 3,
         lineJoin: 'round',
         lineDash: [6, 12],
@@ -227,7 +227,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                             textAlign: 'left',
                             justify: 'center',
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.8)`,
                             }),
                         }),
                         zIndex: 5,
@@ -334,7 +334,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                         justify: 'left',
                         padding: [2, 2, 2, 2],
                         fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.8)`,
                         }),
                     }),
                     zIndex,
@@ -476,7 +476,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                             placement: 'line',
                             justify: 'center',
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.8)`,
                             }),
                         }),
                         stroke: sidStroke,
@@ -501,7 +501,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                             placement: 'line',
                             justify: 'center',
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.8)`,
                             }),
                         }),
                         stroke: starStroke,

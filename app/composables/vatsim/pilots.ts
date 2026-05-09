@@ -90,7 +90,7 @@ export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedP
 export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList; title: string } {
     if (isOffline) {
         return {
-            color: 'darkgray800',
+            color: 'whiteAlpha24',
             title: 'Offline',
         };
     }
@@ -98,57 +98,57 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     switch (status) {
         case 'depGate':
             return {
-                color: 'success500',
+                color: 'green500',
                 title: 'Departing | At gate',
             };
         case 'depTaxi':
             return {
-                color: 'success500',
+                color: 'green500',
                 title: 'Departing',
             };
         case 'departed':
             return {
-                color: 'warning500',
+                color: 'blue300',
                 title: 'Departed',
+            };
+        case 'climbing':
+            return {
+                color: 'blue400',
+                title: 'Climbing',
             };
         case 'enroute':
             return {
-                color: 'primary500',
+                color: 'blue500',
                 title: 'Enroute',
             };
         case 'cruising':
             return {
-                color: 'primary500',
+                color: 'blue500',
                 title: 'Cruising',
-            };
-        case 'climbing':
-            return {
-                color: 'primary400',
-                title: 'Climbing',
             };
         case 'descending':
             return {
-                color: 'primary600',
+                color: 'orange400',
                 title: 'Descending',
             };
         case 'arriving':
             return {
-                color: 'warning600',
+                color: 'orange500',
                 title: 'Arriving',
             };
         case 'arrTaxi':
             return {
-                color: 'error500',
+                color: 'red500',
                 title: 'Arrived',
             };
         case 'arrGate':
             return {
-                color: 'error500',
+                color: 'red500',
                 title: 'Arrived | At gate',
             };
         default:
             return {
-                color: 'darkgray1000',
+                color: 'whiteAlpha64',
                 title: 'Status unknown',
             };
     }
@@ -156,16 +156,16 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
 
 export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
-        active: getCurrentThemeHexColor('warning700'),
-        default: getCurrentThemeHexColor('primary500'),
-        ground: getCurrentThemeHexColor('primary500'),
-        green: getCurrentThemeHexColor('success500'),
-        hover: getCurrentThemeHexColor('warning600'),
-        neutral: getCurrentThemeHexColor('lightgray150'),
+        active: getCurrentThemeHexColor('yellow700'),
+        default: getCurrentThemeHexColor('blue500'),
+        ground: getCurrentThemeHexColor('blue500'),
+        green: getCurrentThemeHexColor('green500'),
+        hover: getCurrentThemeHexColor('yellow600'),
+        neutral: getCurrentThemeHexColor('lightGray500'),
 
-        departing: getCurrentThemeHexColor('success400'),
-        arriving: getCurrentThemeHexColor('warning500'),
-        landed: getCurrentThemeHexColor('error300'),
+        departing: getCurrentThemeHexColor('green400'),
+        arriving: getCurrentThemeHexColor('yellow500'),
+        landed: getCurrentThemeHexColor('red300'),
     };
 };
 

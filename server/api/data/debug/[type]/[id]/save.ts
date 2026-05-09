@@ -25,7 +25,7 @@ export default defineEventHandler(async event => {
         saveLocalFile(JSON.stringify(data), 'simaware.geojson');
         const changedData = getDiffPolygons(data, 'simaware');
 
-        return (await changedData).features.filter(x => x.properties!.fill === 'success500' || x.properties!.fill === 'primary500').flatMap(x => {
+        return (await changedData).features.filter(x => x.properties!.fill === 'green500' || x.properties!.fill === 'blue500').flatMap(x => {
             const properties = x.properties!;
 
             const controllers: VatsimController[] = [];
@@ -58,7 +58,7 @@ export default defineEventHandler(async event => {
         saveLocalFile(dat, 'vatspy.dat');
         const changedData = getDiffPolygons(vatspyDataToGeojson(compiled), 'vatspy');
 
-        const changedControllers: VatsimController[] = (await changedData).features.filter(x => x.properties!.fill === 'success500' || x.properties!.fill === 'primary500').flatMap(x => {
+        const changedControllers: VatsimController[] = (await changedData).features.filter(x => x.properties!.fill === 'green500' || x.properties!.fill === 'blue500').flatMap(x => {
             const properties = x.properties!;
             const neededFirs = compiled.firs.filter(x => x.boundary === properties!.id);
             if (!neededFirs?.length) return [] as VatsimController[];

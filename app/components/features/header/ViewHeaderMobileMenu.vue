@@ -199,7 +199,7 @@ const counters = computed(() => ([
     padding: 16px;
     border-radius: 16px 16px 0 0;
 
-    background: $darkgray950;
+    background: $darkGray800;
 
     &__flex-start {
         align-self: flex-start;
@@ -236,7 +236,7 @@ const counters = computed(() => ([
             padding: 8px;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include tablet {
                 padding: 12px;

@@ -1,5 +1,24 @@
 # Changelog
 
+# [2.0.0-alpha.9]
+
+## Alpha changes
+
+- Fixed Firefox font being too bold sometimes
+- Fixed favorite list going above minified overlays
+- Fixed favorite list showing booked friend when friend is already controlling
+
+## Improvements and changes
+
+- Added departed and landed time to pilot overlay
+- Added vertical speed to non-compact pilot hover and pilot overlay
+- Improved speed/altitude graph
+
+## Redesigned
+
+- Redesigned all overlays
+- All colors have been upgraded to a new palette
+
 # [2.0.0-alpha.8.4]
 
 - Removed close button from init popup

@@ -1,220 +1,292 @@
 <template>
     <div
         class="flight-info"
-        :style="{ '--percent': `${ distance?.toGoPercent ?? 0 }%` , '--status-color': radarColors[getStatus.color] }"
+        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
     >
-        <div class="flight-info_self">
-            <div class="flight-info_self_title">Pilot</div>
-            <ui-text-block
-                :bottom-items="[...usePilotRating(pilot), stats ? stats.atc ? `${ stats.pilot ?? 0 }h pilot, ${ stats.atc }h atc` : `${ stats.pilot ?? 0 }h total time` : undefined]"
-                class="flight-info__card"
-                :top-items="[parseEncoding(pilot.name), pilot.cid, friend?.comment]"
+        <ui-data-container>
+            <template #icon>
+                <user-icon/>
+            </template>
+
+            <ui-data-list
+                circle-divider
+                :items="[
+                    { key: 'name', text: pilot.name },
+                    { key: 'cid', text: pilot.cid },
+                    { key: 'comment', text: friend?.comment },
+                    { key: 'favorite', text: Number(!!store.user) },
+                ]"
             >
-                <template #top="{ item, index }">
-                    <ui-spoiler
-                        :is-cid="index === 1"
-                        type="pilot"
-                    >
-                        <template v-if="index === 0 && !isNaN(Number(item)) && friend">
-                            {{friend.name}}
-                        </template>
-                        <template v-else>
-                            {{ item }}
-                        </template>
+                <template #item-name="{ item }">
+                    <ui-spoiler type="pilot">
+                        {{item.text}}
                     </ui-spoiler>
                 </template>
-            </ui-text-block>
-            <ui-button
-                v-if="showStats"
-                class="flight-info_self_stats"
-                :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
-                target="_blank"
-                type="link"
-            >
-                <template #icon>
-                    <dashboard-icon/>
+                <template #item-cid="{ item }">
+                    <ui-spoiler
+                        is-cid
+                        type="pilot"
+                    >
+                        <ui-bubble
+                            text-type="caption"
+                            type="primary-flat"
+                        >
+                            {{item.text}}
+                        </ui-bubble>
+                    </ui-spoiler>
                 </template>
-            </ui-button>
-            <settings-favorite-list
-                v-if="store.user"
-                :cid="pilot.cid"
-                class="flight-info_self_favorite"
-                :name="pilot.name"
-            />
-        </div>
-        <div
-            v-if="airline"
-            class="flight-info_self"
-        >
-            <div class="flight-info_self_title">Airline</div>
-            <ui-text-block
-                :bottom-items="[airline.icao, airline.callsign, airline.virtual ? '1' : null]"
-                class="flight-info__card flight-info__card--airline"
-                :top-items="[airline.name]"
+                <template #item-favorite>
+                    <settings-favorite-list
+                        :cid="pilot.cid"
+                        class="flight-info_self_favorite"
+                        :icon-size="12"
+                        is-popup
+                        :name="pilot.name"
+                    />
+                </template>
+            </ui-data-list>
+
+            <ui-data-list
+                circle-divider
+                class="flight-info__secondary"
+                gap="0px 16px"
+                :items="[
+                    ...usePilotRating(pilot).map(x => ({ text: x })),
+                    { key: 'hours', text: stats?.pilot },
+                    { key: 'stats', text: 'stats' },
+                    { key: 'atc-hours', text: stats?.atc },
+                ]"
             >
-                <template #top="{ item }">
-                    <span :title="item as string">
-                        {{ item }}
+                <template #item-hours="{ item }">
+                    <span class="flight-info__chip">
+                        Flight Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
                     </span>
                 </template>
-                <template #bottom="{ item, index }">
-                    <ui-bubble
-                        :is="airline.website ? 'a' : 'div'"
-                        v-if="index === 2"
-                        :href="airline.website"
-                        target="_blank"
-                    >
-                        Virtual Airline
-                    </ui-bubble>
-                    <template v-else>
-                        {{ item }}
-                    </template>
+                <template #item-atc-hours="{ item }">
+                    <span class="flight-info__chip">
+                        ATC Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                    </span>
                 </template>
-            </ui-text-block>
-        </div>
-        <ui-text-block
-            :key="dataStore.vatsim.updateTimestamp.value.toString()"
-            class="flight-info__card"
-        >
-            <template #top>
-                <div class="flight-info__card_route">
-                    <div
-                        :key="String(depAirport) + String(arrAirport) + getStatus.title"
-                        class="flight-info__card_route_header"
+                <template #item-stats>
+                    <ui-button
+                        :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
+                        icon-width="14"
+                        target="_blank"
+                        type="link"
                     >
-                        <component
-                            :is="(depAirport && !showStats) ? UiButton : 'div'"
-                            class="flight-info__card_route_header_airport flight-info__card_route_header_airport--dep"
-                            type="link"
-                            @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
+                        <template #icon>
+                            <stats-icon width="14"/>
+                        </template>
+                    </ui-button>
+                </template>
+            </ui-data-list>
+        </ui-data-container>
+        <ui-data-container v-if="airline || pilot.flight_plan?.aircraft_short">
+            <template #icon>
+                <airline-icon/>
+            </template>
+
+            <div class="flight-info__columns">
+                <template v-if="airline">
+                    <ui-data-list-item>
+                        {{airline.name}}
+
+                        <ui-data-list
+                            circle-divider
+                            class="flight-info__secondary"
+                            :items="[{ text: airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
                         >
-                            {{
-                                (pilot.flight_plan?.departure || ((pilot.status === 'depTaxi' || pilot.status === 'depGate') && pilot.airport)) || ''
-                            }}
-                        </component>
-                        <div
-                            class="flight-info__card_route_header_status"
-                        >
-                            {{ getStatus.title }}
-                        </div>
-                        <component
-                            :is="(arrAirport && !showStats) ? UiButton : 'div'"
-                            class="flight-info__card_route_header_airport flight-info__card_route_header_airport--arr"
-                            type="link"
-                            @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
-                        >
-                            {{ pilot.flight_plan?.arrival || '' }}
-                        </component>
-                    </div>
-                    <div
-                        v-show="distance?.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
-                        class="flight-info__card_route_line"
-                        :class="{
-                            'flight-info__card_route_line--start': distance?.toGoPercent && distance.toGoPercent < 10,
-                            'flight-info__card_route_line--end': distance?.toGoPercent && distance.toGoPercent > 90,
-                        }"
-                        v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
+                            <template #item-virtual>
+                                <ui-text
+                                    :href="airline.website ?? undefined"
+                                    target="_blank"
+                                    type="caption-light"
+                                >
+                                    <ui-bubble
+                                        text-type="caption-light"
+                                        type="primary-flat"
+                                    >
+                                        <span :class="airline.website ? '__link' : ''">
+                                            VIRTUAL
+                                        </span>
+                                    </ui-bubble>
+                                </ui-text>
+                            </template>
+                        </ui-data-list>
+                    </ui-data-list-item>
+                    <ui-separator
+                        dashed
+                        distance="0"
+                        full
                     />
-                    <div class="flight-info__card_route_footer">
-                        <div class="flight-info__card_route_footer_left">
-                            {{
-                                (distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(distance.depDist) } NM,` : ''
-                            }} Online
-                            <span v-if="pilot.logon_time">
-                                {{ getLogonTime }}
-                            </span>
-                        </div>
-                        <div
-                            v-if="getDistAndTime"
-                            class="flight-info__card_route_footer_right"
-                        >
-                            {{ getDistAndTime }}
-                        </div>
+                </template>
+                <ui-data-list-item
+                    v-if="pilot.flight_plan?.aircraft_short"
+                    swap-types
+                >
+                    <template #title>
+                        {{pilot.flight_plan?.aircraft_short?.split('/')[0]}}
+                    </template>
+                    Aircraft Type
+                </ui-data-list-item>
+            </div>
+        </ui-data-container>
+        <div class="flight-info__progress">
+            <ui-text
+                class="flight-info__progress_title"
+                type="caption"
+            >
+                {{getStatus.title}}
+            </ui-text>
+            <div class="flight-info__progress_line">
+                <ui-text
+                    class="flight-info__progress_line_airport"
+                    :class="{ 'flight-info__progress_line_airport--disabled': !depAirport }"
+                    type="h5"
+                    @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
+                >
+                    {{depAirport?.icao ?? 'ZZZZ'}}
+                </ui-text>
+                <div class="flight-info__progress__line">
+                    <div class="flight-info__progress__line_svg">
+                        <span
+                            v-if="svg"
+                            v-html="reColorSvg(svg, 'neutral')"
+                        />
+                        <aircraft-icon v-else/>
                     </div>
                 </div>
-            </template>
-        </ui-text-block>
-        <div class="flight-info__cols">
-            <ui-text-block
-                :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
-                class="flight-info__card"
-                text-align="center"
-                title="Ground Speed"
-                :top-items="['GS']"
-            />
-            <ui-text-block
-                :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
-                class="flight-info__card"
-                text-align="center"
-                :title="pilot.altitude"
-                :top-items="['Altitude']"
-            />
-            <ui-text-block
-                :bottom-items="[`${ pilot.heading }°`]"
-                class="flight-info__card"
-                text-align="center"
-                :top-items="['Heading']"
-            />
-        </div>
-        <div
-            v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder"
-            class="flight-info__cols"
-        >
-            <ui-text-block
-                :bottom-items="[
-                    `${ pilot.transponder || 'None' }`,
-                    canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined,
-                ]"
-                class="flight-info__card"
-                text-align="center"
-                :top-items="['Squawk']"
+                <ui-text
+                    class="flight-info__progress_line_airport"
+                    :class="{ 'flight-info__progress_line_airport--disabled': !arrAirport }"
+                    type="h5"
+                    @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
+                >
+                    {{arrAirport?.icao ?? 'ZZZZ'}}
+                </ui-text>
+            </div>
+            <ui-text
+                class="flight-info__progress_footer"
+                type="caption"
             >
-                <template #top>
-                    <ui-tooltip
-                        :location="pilot.frequencies.length ? 'right' : 'bottom'"
-                        width="150px"
+                <div
+                    class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
+                >
+                    <template v-if="pilot.flight_plan?.departed_at || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                        <div class="flight-info__progress_footer__item">
+                            <ui-chip>
+                                {{pilot.flight_plan?.departed_at ? `${ datetime.format(new Date(pilot.flight_plan.departed_at)) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
+                            </ui-chip>
+                        </div>
+                        <ui-separator
+                            distance="0"
+                            horizontal
+                        />
+                    </template>
+                    <div class="flight-info__progress_footer__item">
+                        Online
+                        <ui-chip>
+                            {{ getLogonTime }}
+                        </ui-chip>
+                    </div>
+                    <ui-separator
+                        v-if="(distance?.toGoTime || distance?.toGoDist || pilot.flight_plan?.arrived_at)"
+                        distance="0"
+                        horizontal
+                    />
+                    <div
+                        v-if="distance?.toGoTime || distance?.toGoDist || pilot.flight_plan?.arrived_at"
+                        class="flight-info__progress_footer__item"
                     >
-                        <template #activator>
-                            <div class="flight-info__card_question">
-                                Squawk
-
-                                <question-icon width="14"/>
-                            </div>
-                        </template>
-
-                        The left value is currently set on the aircraft,<br> while the right value was assigned by ATC.
-
-                        <template v-if="!canShowRightTransponder">
-                            <br><br>
-
-                            You don't see the right value because it might be the same as the set value or a squawk may not have been assigned.
-                        </template>
-                    </ui-tooltip>
-                </template>
-            </ui-text-block>
-            <ui-text-block
-                v-if="ctaf && !pilot.frequencies.some(x => x === ctaf)"
-                align-items="space-evenly"
-                :bottom-items="[ctaf]"
-                class="flight-info__card"
-                text-align="center"
-                :top-items="['CTAF']"
-            />
-            <ui-text-block
-                v-for="(frequency, index) in pilot.frequencies"
-                :key="frequency+index"
-                align-items="space-evenly"
-                :bottom-items="[frequency]"
-                class="flight-info__card"
-                text-align="center"
-                :top-items="[`COM${ index+1 }`]"
-            />
+                        <ui-chip>
+                            <template v-if="pilot.flight_plan?.arrived_at">
+                                {{datetime.format(new Date(pilot.flight_plan.arrived_at))}}z
+                            </template>
+                            <template v-else-if="pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime">
+                                {{Math.round(distance?.toGoDist ?? 0)}} NM
+                            </template>
+                            <template v-else>
+                                {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
+                            </template>
+                        </ui-chip>
+                    </div>
+                </div>
+                <div
+                    v-if="!isPilotOnGround(pilot)"
+                    class="flight-info__progress_footer_section flight-info__progress_footer_section--additional"
+                >
+                    <template v-if="distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                        <div class="flight-info__progress_footer__item">
+                            <ui-chip>
+                                {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
+                            </ui-chip>
+                        </div>
+                        <ui-separator
+                            distance="0"
+                            horizontal
+                        />
+                    </template>
+                    <div
+                        v-if="distance?.toGoDist"
+                        class="flight-info__progress_footer__item"
+                    >
+                        <ui-chip>
+                            {{Math.round(distance.toGoDist)}} NM
+                        </ui-chip>
+                    </div>
+                    <ui-separator
+                        v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                        distance="0"
+                        horizontal
+                    />
+                    <div
+                        v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                        class="flight-info__progress_footer__item"
+                    >
+                        <ui-chip>
+                            {{ getTimeRemains(new Date(distance.toGoTime!)) }}
+                        </ui-chip>
+                    </div>
+                </div>
+            </ui-text>
         </div>
+        <ui-data-container>
+            <template #icon>
+                <aircraft-icon/>
+            </template>
+            <ui-data-list
+                :grid-columns="pilot.vertical_speed ? 4 : 3"
+                :items="[
+                    { title: pilot.vertical_speed ? 'GS' : 'Ground Speed', text: `${ pilot.groundspeed ?? 0 } kts` },
+                    { title: 'Altitude', text: `${ numberFormatter.format(getPilotTrueAltitude(pilot)) } ft` },
+                    { title: 'Heading', text: `${ pilot.heading }°` },
+                    { title: !pilot.vertical_speed ? undefined : 'VS', tooltip: 'Vertical Speed', text: !pilot.vertical_speed ? undefined : `${ pilot.vertical_speed > 0 ? '↑' : '↓' } ${ Math.round(Math.abs(pilot.vertical_speed ?? 0) / 100) }00` },
+                ]"
+            />
+            <ui-data-list
+                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : 3"
+                :items="[
+                    { key: 'squawk', title: 'Squawk' },
+                    { key: 'ctaf', title: ctaf && !pilot.frequencies.some(x => x === ctaf) ? 'CTAF' : undefined },
+                    { title: pilot.frequencies[0] ? 'COM1' : undefined, text: pilot.frequencies[0] },
+                    { title: pilot.frequencies[1] ? 'COM2' : undefined, text: pilot.frequencies[1] },
+                ]"
+            >
+                <template #item-squawk>
+                    <ui-data-list
+                        circle-divider
+                        :items="[{ text: pilot.transponder ?? '' }, { text: canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined }]"
+                    />
+                </template>
+                <template #item-ctaf>
+                    {{ctaf}}
+                </template>
+            </ui-data-list>
+        </ui-data-container>
     </div>
 </template>
 
 <script setup lang="ts">
-import { parseEncoding } from '~/utils/data';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import {
     fetchAircraftSvgIcon,
@@ -222,22 +294,27 @@ import {
     getPilotStatus,
     reColorSvg,
 } from '~/composables/vatsim/pilots';
-import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
+import StatsIcon from 'assets/icons/kit/stats.svg?component';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import { getHoursAndMinutes } from '~/utils';
 import { useMapStore } from '~/store/map';
-import DashboardIcon from '~/assets/icons/kit/dashboard.svg?component';
-import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
-import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
+import UserIcon from '~/assets/icons/kit/user.svg?component';
+import AirlineIcon from '~/assets/icons/kit/airline.svg?component';
+import AircraftIcon from '~/assets/icons/kit/aircraft.svg?component';
 import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';
 import { getAirlineFromCallsign } from '~/composables';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import { useStore } from '~/store';
-import { useRadarError } from '~/composables/errors';
 import type { RadarDataAirline } from '~/utils/server/storage';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
+import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 
 const props = defineProps({
     pilot: {
@@ -258,7 +335,6 @@ const props = defineProps({
     },
 });
 
-const dataStore = useDataStore();
 const mapStore = useMapStore();
 const store = useStore();
 
@@ -271,7 +347,7 @@ const canShowRightTransponder = computed(() => {
 });
 
 const depAirport = computed(() => {
-    return getAirportByIcao(props.pilot.flight_plan?.departure);
+    return getAirportByIcao(props.pilot.flight_plan?.departure ?? props.pilot.airport);
 });
 
 const arrAirport = computed(() => {
@@ -287,6 +363,8 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
     immediate: true,
 });
 
+const numberFormatter = new Intl.NumberFormat('ru-RU');
+
 const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
     hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
@@ -295,24 +373,6 @@ const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
 }));
 
 const distance = computed(() => getAircraftDistance(props.pilot));
-
-const getDistAndTime = computed(() => {
-    try {
-        if (!distance.value?.toGoDist || !distance.value.toGoTime || distance.value.toGoTime === Infinity) return null;
-
-        const dist = Math.round(distance.value.toGoDist);
-        const goTime = new Date(distance.value.toGoTime!);
-        let date = datetime.value.format(goTime).toUpperCase();
-        if (store.user?.settings.timeFormat === '12h') date += ' ';
-
-        if (props.pilot?.isOnGround) return `${ dist } NM`;
-        return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
-    }
-    catch (e) {
-        useRadarError(e);
-        return null;
-    }
-});
 
 const getStatus = computed(() => {
     return getPilotStatus(props.pilot.status, props.isOffline);
@@ -342,122 +402,157 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
 
 <style scoped lang="scss">
 .flight-info {
-    &_self {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    &__chip {
         display: flex;
-        gap: 16px;
+        gap: 4px;
+        align-items: center;
+    }
+
+    &__secondary :deep(.text) {
+        font-weight: normal !important;
+
+        &:not(.bubble, .chip){
+            color: $typographySecondary
+        }
+    }
+
+    &__columns {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    &__progress {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
         align-items: center;
 
-        font-size: 13px;
-        font-weight: 700;
+        margin: 0 calc(var(--horizontal-padding) * -1);
+        padding: 8px;
+        border: dashed $strokeDefault;
+        border-width: 1px 0;
+
+        background: $backgroundLevel1;
 
         &_title {
-            min-width: 50px;
+            display: flex;
+            align-items: center;
+            height: 20px;
+            color: var(--status-color);
         }
 
-        .flight-info__card {
-            flex: 1 1 0;
-            width: 0;
+        &_line {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            width: 100%;
 
-            &--airline {
-                :deep(.info-block_top) {
-                    flex-wrap: nowrap;
+            &_airport:not(&--disabled) {
+                cursor: pointer;
 
-                    .info-block__content {
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
+                @include hover {
+                    transition: 0.3s;
+
+                    &:hover {
+                        color: $blue500;
                     }
                 }
             }
         }
-    }
 
-    &__card {
-        &_question {
+        &__line {
+            position: relative;
+
             display: flex;
-            gap: 4px;
+            flex-grow: 1;
             align-items: center;
-            justify-content: center;
-        }
 
-        &_route {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 0 8px;
+            height: 2px;
 
-            &_header {
-                display: flex;
-                gap: 8px;
-                justify-content: space-between;
+            background: $backgroundLevel5;
 
-                &, & .button {
-                    font-size: 13px;
-                    font-weight: 600;
-                }
+            &::before {
+                content: '';
 
-                &_status {
-                    font-size: 12px;
-                    color: var(--status-color);
-                }
+                position: absolute;
+                inset: 0;
+
+                width: var(--percent);
+                height: 100%;
+
+                background: $blue500;
             }
 
-            &_line {
-                position: relative;
-                display: flex;
-                align-items: center;
-                height: 24px;
+            &, &::before {
+                border-radius: 9999px;
+            }
 
-                &::before, &::after {
-                    content: '';
-
-                    position: absolute;
-
-                    width: 100%;
-                    height: 2px;
-                    border-radius: 4px;
-
-                    background: $darkgray850;
-                }
-
-                &::after {
-                    width: var(--percent);
-                    background: $primary500;
-                }
+            &_svg {
+                position: absolute;
+                left: var(--percent);
+                transform: translateX(-50%) rotate(90deg);
 
                 :deep(svg) {
-                    position: relative;
-                    z-index: 1;
-                    left: var(--percent);
-                    transform: translateX(-50%) rotate(90deg);
-
-                    height: 24px;
-                }
-
-                &--start svg {
-                    transform: rotate(90deg);
+                    width: 16px;
                 }
             }
+        }
 
-            &_footer {
+        &_footer {
+            overflow: visible;
+            height: 20px;
+            color: $typographySecondary;
+
+            &_section {
+                position: relative;
+                top: 0;
+
                 display: flex;
                 gap: 8px;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: center;
 
-                font-size: 11px;
-                font-weight: 400;
+                height: 20px;
+
+                transition: 0.3s ease-in-out;
+
+                :deep(.separator) {
+                    width: 6px;
+                }
+
+                &--additional {
+                    z-index: 1;
+                    top: 0;
+                    visibility: hidden;
+                    opacity: 0;
+                }
             }
-        }
-    }
 
-    &__cols {
-        display: flex;
-        gap: 4px;
+            &:hover, &:active {
+                .flight-info__progress_footer_section--initial:not(:only-child) {
+                    top: 20px;
+                    height: 0;
+                    visibility: hidden;
+                    opacity: 0;
+                }
 
-        > * {
-            flex: 1 1 0;
-            width: 0;
+                .flight-info__progress_footer_section--additional {
+                    top: 0;
+                    visibility: visible;
+                    opacity: 1;
+                }
+            }
+
+            &__item {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
         }
     }
 }

@@ -69,7 +69,7 @@ const distanceDisplay = computed(() => {
 
 const lineStyle = new Style({
     stroke: new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.15)`,
         lineDash: [10, 10],
         width: 2,
     }),
@@ -287,7 +287,7 @@ watch(map, val => {
                     textBaseline: 'middle',
                     font: getTextFont('caption-medium-alt'),
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.8)`,
                     }),
                     padding: [2, 0, 2, 2],
                     rotation: -angleRad,

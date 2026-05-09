@@ -89,7 +89,7 @@ const { refresh } = useLazyAsyncData('map-presets', async () => {
 
         &_warning {
             font-size: 14px;
-            color: $error400;
+            color: $red400;
         }
     }
 
@@ -101,7 +101,7 @@ const { refresh } = useLazyAsyncData('map-presets', async () => {
         margin-bottom: -16px;
         padding-bottom: 16px;
 
-        background: $darkgray1000;
+        background: $darkGray900;
     }
 }
 </style>
