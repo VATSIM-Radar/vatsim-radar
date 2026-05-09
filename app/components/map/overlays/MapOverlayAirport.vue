@@ -305,7 +305,6 @@ import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
-import AircraftUnknownDestIcon from '@/assets/icons/kit/aircraft-unknown-dest.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import type { TooltipCloseMethod } from '~/components/ui/data/UiTooltip.vue';

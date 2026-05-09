@@ -150,13 +150,11 @@ import type { IpfsUser, VatsimExtendedPilot } from '~/types/data/vatsim';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
-import type { TooltipLocation } from '~/components/ui/data/UiTooltip.vue';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
-import PlaneIcon from '~/assets/icons/kit/plane.svg?component';
 
 const props = defineProps({
     pilot: {
@@ -182,20 +180,6 @@ interface Block {
     title: string;
     value: string;
     hint?: string;
-}
-
-function getTooltipLocation(index: number, total: number): TooltipLocation {
-    if (blocks.value.length === 2 || blocks.value.length === 4) {
-        return index % 2 === 0 ? 'right' : 'left';
-    }
-
-    if (blocks.value.length === 3) {
-        if (index === 0) return 'right';
-        if (index === 1) return 'bottom';
-        if (index === 2) return 'left';
-    }
-
-    return 'bottom';
 }
 
 const blocks = computed(() => {

@@ -218,7 +218,6 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
-import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 
 const props = defineProps({
     overlay: {
@@ -263,12 +262,6 @@ watch(() => props.overlay?.data.callsign, async val => {
     }
 }, {
     immediate: true,
-});
-
-const country = computed(() => {
-    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.realIcao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
-
-    return icaoAirport ? getAirportCountry(airport.value?.icao) : undefined;
 });
 
 const shortRating = computed(() => {

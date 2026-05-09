@@ -306,7 +306,6 @@ import SettingsFavoriteList from '~/components/features/settings/SettingsFavorit
 import { getAirlineFromCallsign } from '~/composables';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import { useStore } from '~/store';
-import { useRadarError } from '~/composables/errors';
 import type { RadarDataAirline } from '~/utils/server/storage';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
@@ -336,7 +335,6 @@ const props = defineProps({
     },
 });
 
-const dataStore = useDataStore();
 const mapStore = useMapStore();
 const store = useStore();
 
@@ -375,24 +373,6 @@ const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
 }));
 
 const distance = computed(() => getAircraftDistance(props.pilot));
-
-const getDistAndTime = computed(() => {
-    try {
-        if (!distance.value?.toGoDist || !distance.value.toGoTime || distance.value.toGoTime === Infinity) return null;
-
-        const dist = Math.round(distance.value.toGoDist);
-        const goTime = new Date(distance.value.toGoTime!);
-        let date = datetime.value.format(goTime).toUpperCase();
-        if (store.user?.settings.timeFormat === '12h') date += ' ';
-
-        if (props.pilot?.isOnGround) return `${ dist } NM`;
-        return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
-    }
-    catch (e) {
-        useRadarError(e);
-        return null;
-    }
-});
 
 const getStatus = computed(() => {
     return getPilotStatus(props.pilot.status, props.isOffline);

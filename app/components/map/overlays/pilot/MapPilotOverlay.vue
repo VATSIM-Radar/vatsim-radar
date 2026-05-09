@@ -271,7 +271,6 @@ import type {
 } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';
-import StatsIcon from '~/assets/icons/kit/stats.svg?component';
 import ShareIcon from '~/assets/icons/kit/share.svg?component';
 import PathIcon from '~/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';

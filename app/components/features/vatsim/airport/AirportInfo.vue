@@ -22,7 +22,6 @@
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/vatsim/airport';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 
 const data = injectAirport();
