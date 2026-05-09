@@ -405,7 +405,7 @@ const mobileMenuOpened = ref(false);
                     left: 0;
 
                     height: 24px;
-                    border-left: 1px solid varToRgba('lightgray150', 0.2);
+                    border-left: 1px solid varToRgba('lightGray500', 0.2);
                 }
             }
         }
@@ -561,7 +561,7 @@ const mobileMenuOpened = ref(false);
             height: 2px;
             border-radius: 4px;
 
-            background: $lightgray100;
+            background: $lightGray300;
 
             transition: 0.3s;
         }

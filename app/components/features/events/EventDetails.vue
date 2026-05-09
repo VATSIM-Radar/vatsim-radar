@@ -221,12 +221,12 @@ const organisers = computed(() => {
 
 
     :deep(a) {
-        color: $primary500;
+        color: $blue500;
         @include hover {
             transition: 0.3s;
 
             &:hover {
-                color: $primary300;
+                color: $blue300;
             }
         }
     }
@@ -283,7 +283,7 @@ const organisers = computed(() => {
         &_route {
             padding: 8px;
             border-radius: 8px;
-            background: $darkgray800;
+            background: $darkGray400;
 
             &_airports {
                 display: flex;
@@ -294,7 +294,7 @@ const organisers = computed(() => {
                 span:not(:nth-child(2)) {
                     padding: 4px;
                     border-radius: 4px;
-                    background: $darkgray900;
+                    background: $darkGray700;
                 }
 
                 span {
@@ -326,13 +326,13 @@ const organisers = computed(() => {
             color: currentColor;
             text-decoration: none;
 
-            background: $darkgray875;
+            background: $darkGray600;
 
             @include hover {
                 transition: 0.3s;
 
                 &:hover {
-                    background: $darkgray850;
+                    background: $darkGray500;
                 }
             }
 
@@ -383,7 +383,7 @@ const organisers = computed(() => {
 .detail-item_content {
     padding: 8px;
     border-radius: 8px;
-    background: $darkgray875;
+    background: $darkGray600;
     @include mobile {
         overflow: auto;
         max-height: 25vh;
@@ -409,7 +409,7 @@ const organisers = computed(() => {
         &_text {
             padding: 4px;
             border-radius: 4px;
-            background: $darkgray800;
+            background: $darkGray400;
         }
     }
 }

@@ -182,8 +182,8 @@ function doSort(header: TableHeader) {
 .table {
     padding: 16px;
     border-radius: 16px;
-    color: $lightgray100;
-    background: $darkgray900;
+    color: $lightGray300;
+    background: $darkGray700;
 
     &__row {
         display: grid;
@@ -202,12 +202,12 @@ function doSort(header: TableHeader) {
         top: 56px;
 
         margin-bottom: 16px;
-        border-bottom: 1px solid $darkgray850;
+        border-bottom: 1px solid $darkGray500;
 
         font-size: 14px;
         line-height: 100%;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         .table {
             &__data {
@@ -232,7 +232,7 @@ function doSort(header: TableHeader) {
             transition: 0.3s;
 
             &--active {
-                color: $primary400;
+                color: $blue400;
             }
 
             &--desc {
@@ -256,7 +256,7 @@ function doSort(header: TableHeader) {
         .table {
             &__row {
                 border-radius: 8px;
-                background: $darkgray850;
+                background: $darkGray500;
 
                 &--clickable {
                     cursor: pointer;
@@ -265,7 +265,7 @@ function doSort(header: TableHeader) {
                         transition: 0.3s;
 
                         &:hover {
-                            background: $darkgray800;
+                            background: $darkGray400;
                         }
                     }
                 }

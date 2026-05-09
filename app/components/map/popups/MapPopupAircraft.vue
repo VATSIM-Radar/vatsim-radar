@@ -245,7 +245,7 @@ const getOverlaySettings = computed<Options>(() => {
     font-size: 13px;
     overflow-wrap: anywhere;
 
-    background: $darkgray1000;
+    background: $darkGray900;
 
     :deep(.popup-block_title .text span) {
         color: $brandPrimary;
@@ -282,7 +282,7 @@ const getOverlaySettings = computed<Options>(() => {
         + .aircraft-hover__frequency{
             margin-left: 4px;
             padding-left: 4px;
-            border-left: 1px solid varToRgba('lightgray150', 0.1);
+            border-left: 1px solid varToRgba('lightGray500', 0.1);
         }
     }
 

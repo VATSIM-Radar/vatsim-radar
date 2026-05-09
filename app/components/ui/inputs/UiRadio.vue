@@ -141,7 +141,7 @@ const model = defineModel({
 
         min-width: 16px;
 
-        color: $primary600;
+        color: $blue600;
 
         svg {
             width: 16px;

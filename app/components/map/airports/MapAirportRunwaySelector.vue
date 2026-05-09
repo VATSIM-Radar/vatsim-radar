@@ -78,7 +78,7 @@ const getRunways = computed<Runway[]>(() => {
 }
 
 .runways {
-    --background: #{$darkgray800};
+    --background: #{$darkGray400};
     display: flex;
     gap: 8px;
 
@@ -105,18 +105,18 @@ const getRunways = computed<Runway[]>(() => {
             content: '';
             position: absolute;
             width: 100%;
-            border: 1px dashed varToRgba('lightgray150', 0.5);
+            border: 1px dashed varToRgba('lightGray500', 0.5);
         }
 
         @include hover {
             &:hover {
-                border-color: $primary300;
+                border-color: $blue300;
             }
         }
 
         &--active {
             cursor: default;
-            border-color: $primary500 !important;
+            border-color: $blue500 !important;
         }
 
         &_number {
@@ -128,7 +128,7 @@ const getRunways = computed<Runway[]>(() => {
 
             font-size: 14px;
             font-weight: 600;
-            color: $lightgray0;
+            color: $lightGray100;
 
             background: var(--background);
         }

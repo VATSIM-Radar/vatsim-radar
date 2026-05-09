@@ -51,11 +51,11 @@ onBeforeUnmount(() => scaleLine?.dispose());
     :deep(.ol-scale-line) {
         left: auto;
         border-radius: 4px;
-        background: varToRgba('darkgray1000', 0.75);
+        background: varToRgba('darkGray900', 0.75);
 
         .ol-scale-line-inner {
-            border-color: varToRgba('lightgray125', 0.2);
-            color: $lightgray125;
+            border-color: varToRgba('lightGray400', 0.2);
+            color: $lightGray400;
         }
     }
 }

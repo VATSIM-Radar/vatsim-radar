@@ -244,7 +244,7 @@ const store = useStore();
         padding: 48px;
         border-radius: 8px;
 
-        color: $lightgray125;
+        color: $lightGray400;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
 
@@ -263,7 +263,7 @@ const store = useStore();
 
             span {
                 font-weight: 700;
-                color: $primary500;
+                color: $blue500;
             }
 
             @include mobile {
@@ -281,11 +281,11 @@ const store = useStore();
             max-width: 500px;
             font-size: 14px;
             line-height: 1.5;
-            color: $lightgray150;
+            color: $lightGray500;
 
             span {
                 font-weight: 600;
-                color: $primary500;
+                color: $blue500;
             }
         }
 
@@ -304,7 +304,7 @@ const store = useStore();
 
                     font-size: 13px;
                     font-weight: 600;
-                    color: $lightgray150;
+                    color: $lightGray500;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                 }
@@ -314,7 +314,7 @@ const store = useStore();
                     font-weight: 500;
 
                     a {
-                        color: $primary500;
+                        color: $blue500;
                         text-decoration: none;
 
                         &:hover {
@@ -358,7 +358,7 @@ const store = useStore();
         &_card {
             padding: 24px;
             border-radius: 8px;
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include mobile {
                 padding: 16px;
@@ -368,7 +368,7 @@ const store = useStore();
                 margin-bottom: 16px;
                 font-size: 17px;
                 font-weight: 600;
-                color: $lightgray125;
+                color: $lightGray400;
 
                 @include mobile {
                     margin-bottom: 12px;
@@ -387,9 +387,9 @@ const store = useStore();
 
                     font-size: 14px;
                     font-weight: 500;
-                    color: $primary500;
+                    color: $blue500;
 
-                    background: $darkgray850;
+                    background: $darkGray500;
                 }
             }
         }
@@ -401,7 +401,7 @@ const store = useStore();
 
             font-size: 13px;
             font-weight: 600;
-            color: $lightgray150;
+            color: $lightGray500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
 
@@ -434,7 +434,7 @@ const store = useStore();
             border: 2px solid transparent;
             border-radius: 8px;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             transition: all 0.2s ease;
 
@@ -445,7 +445,7 @@ const store = useStore();
             }
 
             &:hover {
-                border-color: $primary500;
+                border-color: $blue500;
             }
 
             &_avatar {
@@ -466,9 +466,9 @@ const store = useStore();
 
                     font-size: 20px;
                     font-weight: 700;
-                    color: $primary500;
+                    color: $blue500;
 
-                    background: $darkgray800;
+                    background: $darkGray400;
 
                     @include mobile {
                         font-size: 18px;
@@ -480,7 +480,7 @@ const store = useStore();
                 font-size: 15px;
                 font-weight: 600;
                 line-height: 1.3;
-                color: $lightgray125;
+                color: $lightGray400;
                 text-align: center;
 
                 @include mobile {
@@ -493,7 +493,7 @@ const store = useStore();
 
                 font-size: 12px;
                 line-height: 1.3;
-                color: $lightgray150;
+                color: $lightGray500;
                 text-align: center;
 
                 @include mobile {
@@ -511,10 +511,10 @@ const store = useStore();
                 margin-top: 4px;
                 border-radius: 4px;
 
-                color: $lightgray150;
+                color: $lightGray500;
                 text-decoration: none;
 
-                background: $darkgray850;
+                background: $darkGray500;
 
                 transition: all 0.2s;
 
@@ -524,8 +524,8 @@ const store = useStore();
                 }
 
                 &:hover {
-                    color: $lightgray125;
-                    background: $primary500;
+                    color: $lightGray400;
+                    background: $blue500;
                 }
             }
         }
@@ -534,7 +534,7 @@ const store = useStore();
     &__support {
         padding: 24px;
         border-radius: 8px;
-        background: $darkgray900;
+        background: $darkGray700;
 
         @include mobile {
             padding: 16px;
@@ -549,7 +549,7 @@ const store = useStore();
         &_title {
             font-size: 17px;
             font-weight: 600;
-            color: $lightgray125;
+            color: $lightGray400;
 
             @include mobile {
                 font-size: 15px;
@@ -559,7 +559,7 @@ const store = useStore();
         &_text {
             font-size: 14px;
             line-height: 1.6;
-            color: $lightgray150;
+            color: $lightGray500;
 
             @include mobile {
                 font-size: 13px;

@@ -26,13 +26,13 @@ watch(map, map => {
         style: new Style({
             image: new Circle({
                 radius: 5,
-                fill: new Fill({ color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.3)` }),
+                fill: new Fill({ color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.3)` }),
             }),
             fill: new Fill({
-                color: store.theme === 'default' ? `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.4)` : `rgba(${ radarColors.darkgray950Rgb.join(',') }, 0.05)`,
+                color: store.theme === 'default' ? `rgba(${ getCurrentThemeRgbColor('darkGray800').join(',') }, 0.4)` : `rgba(${ radarColors.darkGray800Rgb.join(',') }, 0.05)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+                color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.2)`,
             }),
         }),
     });

@@ -18,13 +18,13 @@ const props = defineProps({
 });
 
 const colors = {
-    10: getCurrentThemeHexColor('error700'),
-    50: getCurrentThemeHexColor('error300'),
-    100: getCurrentThemeHexColor('warning700'),
-    200: getCurrentThemeHexColor('warning500'),
-    500: getCurrentThemeHexColor('success300'),
-    1000: getCurrentThemeHexColor('info500'),
-    3000: getCurrentThemeHexColor('info300'),
+    10: getCurrentThemeHexColor('red700'),
+    50: getCurrentThemeHexColor('red300'),
+    100: getCurrentThemeHexColor('yellow700'),
+    200: getCurrentThemeHexColor('yellow500'),
+    500: getCurrentThemeHexColor('green300'),
+    1000: getCurrentThemeHexColor('purple500'),
+    3000: getCurrentThemeHexColor('purple300'),
 } satisfies Record<number, ColorsList | string>;
 
 const color = computed(() => {

@@ -99,7 +99,7 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
 
     font-size: 14px;
 
-    background: $darkgray900;
+    background: $darkGray700;
 
     transition: 0.3s;
 
@@ -112,7 +112,7 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
 
     @include hover {
         &:hover {
-            background: $darkgray875;
+            background: $darkGray600;
         }
     }
 
@@ -126,11 +126,11 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
     }
 
     &_active {
-        border: 2px solid $info300;
+        border: 2px solid $purple300;
     }
 
     &_name_active {
-        color: $info300;
+        color: $purple300;
     }
 
     &_details {
@@ -139,11 +139,11 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
 
         margin: 0 20px;
         padding: 0 0 8px 8px;
-        border: 2px solid $darkgray800;
+        border: 2px solid $darkGray400;
         border-top: 0;
         border-radius: 4px;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         &_btn {
             align-self: flex-start;

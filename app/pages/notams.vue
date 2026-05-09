@@ -31,7 +31,7 @@
                     </template>
                 </ui-button>
                 <ui-button
-                    primary-color="error500"
+                    primary-color="red500"
                     size="S"
                     @click="[activeNotam=notam, deleteActive = true]"
                 >
@@ -163,7 +163,7 @@ const deleteActiveNotam = async () => {
         padding: 8px;
         border-radius: 8px;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         &_actions {
             display: flex;

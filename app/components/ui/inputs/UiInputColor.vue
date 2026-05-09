@@ -185,7 +185,7 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         >svg {
             width: 16px;
             min-width: 16px;
-            color: $lightgray200;
+            color: $lightGray600;
         }
     }
 
@@ -197,7 +197,7 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         width: 32px;
         min-width: 32px;
         height: 32px;
-        border: 1px solid $lightgray200;
+        border: 1px solid $lightGray600;
         border-radius: 8px;
 
         background: var(--color);
@@ -249,7 +249,7 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
             width: calc(9cqw - 4px * 9 / 10);
             height: calc(9cqw - 4px * 9 / 10);
-            border: 1px solid $darkgray800;
+            border: 1px solid $darkGray400;
             border-radius: 4px;
 
             background: var(--color);
@@ -262,13 +262,13 @@ const transparencyOptions = computed<SelectItem[]>(() => {
             }
 
             &--active {
-                border-color: $primary500;
+                border-color: $blue500;
                 border-width: 2px;
             }
 
             &:hover {
                 transform: scale(1.2);
-                border-color: $lightgray200;
+                border-color: $lightGray600;
             }
         }
     }

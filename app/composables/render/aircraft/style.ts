@@ -111,7 +111,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                         declutterMode: 'declutter',
                         textBaseline: 'middle',
                         fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 1)`,
                         }),
                         offsetY: 0,
                     }),
@@ -160,7 +160,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache.aircraftImage = new Style();
             }
 
-            const suffix = `${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
+            const suffix = `${ (filterColor || (color && color.color !== 'blue500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;
@@ -175,7 +175,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!png) + String(!!svg) + String(shouldDeclutter);
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
-            const iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined);
+            const iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
 
             if (!styleImageCache[imageStyleKey]) {
                 styleImageCache[imageStyleKey] = new Icon({

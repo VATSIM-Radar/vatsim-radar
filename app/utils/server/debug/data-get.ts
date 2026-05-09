@@ -46,15 +46,15 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
         const previousFeature = dataToCompare.features.find(x => type === 'simaware' ? JSON.stringify(x.properties) === JSON.stringify(feature.properties) : x.id === feature.id);
 
         if (!previousFeature) {
-            feature.properties!.fill = 'success500';
+            feature.properties!.fill = 'green500';
         }
         else if (JSON.stringify(previousFeature.geometry) !== JSON.stringify(feature.geometry)) {
-            feature.properties!.fill = 'primary500';
+            feature.properties!.fill = 'blue500';
             toPush.push({
                 ...previousFeature,
                 properties: {
                     ...previousFeature.properties,
-                    fill: 'info500',
+                    fill: 'purple500',
                 },
             });
         }
@@ -68,7 +68,7 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
                 ...feature,
                 properties: {
                     ...feature.properties,
-                    fill: 'error500',
+                    fill: 'red500',
                 },
             });
         }

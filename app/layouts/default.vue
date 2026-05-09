@@ -11,7 +11,7 @@
                 <view-update-popup v-if="!hasObs() && showUpdatePopup"/>
                 <view-metar v-if="store.metarRequest"/>
             </client-only>
-            <nuxt-loading-indicator color="rgb(var(--primary500))"/>
+            <nuxt-loading-indicator color="rgb(var(--blue500))"/>
             <slot/>
         </div>
         <popup-fullscreen
@@ -276,7 +276,7 @@ watch(() => policy.value.sentry, val => {
     immediate: true,
 });
 
-const themeColor = getCurrentThemeHexColor('darkgray1000');
+const themeColor = getCurrentThemeHexColor('darkGray900');
 
 useHead(() => {
     const theme = store.theme ?? 'default';
@@ -460,7 +460,7 @@ await useAsyncData('default-init', async () => {
         opacity: 0.5;
 
         &, * {
-            color: $lightgray150;
+            color: $lightGray500;
             text-decoration-skip-ink: none;
         }
     }
@@ -483,7 +483,7 @@ await useAsyncData('default-init', async () => {
     padding: 16px;
     border-radius: 8px;
 
-    background: $darkgray950;
+    background: $darkGray800;
 
     @include mobileOnly {
         flex-direction: column;
@@ -519,10 +519,10 @@ await useAsyncData('default-init', async () => {
         gap: 8px;
 
         padding: 8px;
-        border: 1px solid varToRgba('lightgray125', 0.15);
+        border: 1px solid varToRgba('lightGray400', 0.15);
         border-radius: 8px;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         transition: 0.3s;
 
@@ -536,7 +536,7 @@ await useAsyncData('default-init', async () => {
         }
 
         &--enabled {
-            border-color: $primary300;
+            border-color: $blue300;
         }
 
         &_text {
@@ -556,7 +556,7 @@ html, body {
     padding: 0;
 
     font-family: $defaultFont;
-    color: $lightgray150;
+    color: $lightGray500;
     text-size-adjust: 100%;
 
     color-scheme: dark;
@@ -736,7 +736,7 @@ img {
 .__small-title {
     font-size: 13px;
     font-weight: 600;
-    color: $lightgray150;
+    color: $lightGray500;
 }
 
 .__spacer {
@@ -744,14 +744,14 @@ img {
 }
 
 .__link {
-    color: var(--text-primary-color, #{$primary500});
+    color: var(--text-primary-color, #{$blue500});
     text-decoration: underline;
 
     @include hover {
         transition: 0.3s;
 
         &:hover {
-            color: var(--text-hover-color, #{$primary400});
+            color: var(--text-hover-color, #{$blue400});
         }
     }
 }

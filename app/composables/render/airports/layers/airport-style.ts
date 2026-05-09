@@ -109,8 +109,8 @@ export function setAirportStyle(layer: VectorLayer) {
                     let fill: string | undefined;
 
                     let mainColor = (store.bookingOverride || properties.isBooked)
-                        ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
-                        : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
+                        ? getSelectedColorFromSettings('approachBookings', true) || radarColors.purple300Rgb.join(',')
+                        : getSelectedColorFromSettings('approach', true) || radarColors.red300Rgb.join(',');
 
                     const mainTransparency = 0.7;
 

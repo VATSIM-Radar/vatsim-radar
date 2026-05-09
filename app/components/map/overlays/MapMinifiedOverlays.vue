@@ -60,8 +60,8 @@
                         >
                             <vatsim-traffic-rate
                                 :aircraft="airportAircraft"
-                                :icon-color="radarColors.lightgray200"
-                                :text-color="radarColors.error500"
+                                :icon-color="radarColors.lightGray600"
+                                :text-color="radarColors.red500"
                                 use-opacity
                             />
                         </ui-text>
@@ -282,15 +282,15 @@ onMounted(() => {
 
         &_counter {
             &--departures {
-                color: $success300;
+                color: $green300;
             }
 
             &--ground {
-                color: $lightgray100;
+                color: $lightGray300;
             }
 
             &--arrivals {
-                color: $error500;
+                color: $red500;
             }
         }
     }

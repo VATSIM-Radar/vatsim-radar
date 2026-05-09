@@ -419,9 +419,9 @@ const zoomOptions = (() => {
     width: 20px;
     height: 20px;
     // border: 4px solid rgba(0, 0, 0, 0.1);
-    border: 4px solid $darkgray850;
+    border: 4px solid $darkGray500;
     // border-left-color: #000;
-    border-left-color: $lightgray200;
+    border-left-color: $lightGray600;
     border-radius: 50%;
 
     animation: spin 1s linear infinite;

@@ -1,8 +1,8 @@
 <template>
     <div class="debug-upload">
         <ui-button
-            :hover-color="model ? 'success700' : undefined"
-            :primary-color="model ? 'success500' : undefined"
+            :hover-color="model ? 'green700' : undefined"
+            :primary-color="model ? 'green500' : undefined"
             size="S"
             :type="model ? 'primary' : 'secondary'"
             @click="file?.click()"

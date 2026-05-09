@@ -26,7 +26,7 @@
                 You have applied filter
 
                 <ui-button
-                    link-color="error500"
+                    link-color="red500"
                     type="link"
                     @click="resetUserActiveFilter"
                 >
@@ -652,7 +652,7 @@ const createFilterPreset = async (name: string, json: UserFilter) => {
         margin: 0 -16px -16px;
         padding: 16px;
 
-        background: $darkgray1000;
+        background: $darkGray900;
     }
 }
 </style>

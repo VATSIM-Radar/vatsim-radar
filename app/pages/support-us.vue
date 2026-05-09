@@ -216,7 +216,7 @@ const features: Feature[] = [
         padding: 48px;
         border-radius: 8px;
 
-        color: $lightgray125;
+        color: $lightGray400;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
 
@@ -232,7 +232,7 @@ const features: Feature[] = [
         &_title, &_text {
             span {
                 font-weight: 700;
-                color: $primary500;
+                color: $blue500;
             }
         }
 
@@ -273,7 +273,7 @@ const features: Feature[] = [
                         width: 1px;
                         height: 24px;
 
-                        background: varToRgba('lightgray150', 0.15);
+                        background: varToRgba('lightGray500', 0.15);
                     }
                 }
 
@@ -283,7 +283,7 @@ const features: Feature[] = [
                     font-size: 42px;
                     font-weight: 700;
                     line-height: 100%;
-                    color: $primary500;
+                    color: $blue500;
 
                     @include mobile {
                         font-size: 24px;
@@ -370,7 +370,7 @@ const features: Feature[] = [
                     width: 1px;
                     height: 100%;
 
-                    background: varToRgba('lightgray150', 0.15);
+                    background: varToRgba('lightGray500', 0.15);
                 }
             }
         }
@@ -382,7 +382,7 @@ const features: Feature[] = [
             font-size: 15px;
             font-weight: 600;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include mobileOnly {
                 font-size: 13px;
@@ -390,22 +390,22 @@ const features: Feature[] = [
 
             &--type-instructor {
                 --gradient: linear-gradient(90deg, #984EF9 0%, #DA5525 60%, #EAC453 100%);
-                --color: #{$info300};
+                --color: #{$purple300};
             }
 
             &--type-examiner {
                 --gradient: linear-gradient(90deg, #ECD15B 0%, #DA5525 100%);
-                --color: #{$warning700};
+                --color: #{$yellow700};
             }
 
             &--type-commercial {
                 --gradient: linear-gradient(90deg, #05AD5C 0%, #006649 100%);
-                --color: #{$success500};
+                --color: #{$green500};
             }
 
             &--type-private {
                 --gradient: linear-gradient(90deg, #3B6CEC 0%, #174ACF 100%);
-                --color: #{$primary500};
+                --color: #{$blue500};
             }
 
             &_title {
@@ -415,7 +415,7 @@ const features: Feature[] = [
 
                 margin-bottom: 16px;
                 padding-bottom: 16px;
-                border-bottom: 1px solid $darkgray850;
+                border-bottom: 1px solid $darkGray500;
 
                 & .bubble {
                     background: var(--color);

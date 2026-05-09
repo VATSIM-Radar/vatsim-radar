@@ -188,7 +188,7 @@ onBeforeUnmount(() => {
         width: 200dvw;
         height: 300dvh;
 
-        background: varToRgba('darkgray1000', 0.33);
+        background: varToRgba('darkGray900', 0.33);
         backdrop-filter: blur(5px);
     }
 
@@ -219,13 +219,13 @@ onBeforeUnmount(() => {
 
         width: 16px;
 
-        color: $lightgray150;
+        color: $lightGray500;
 
         transition: 0.3s;
 
         @include hover {
             &:hover {
-                color: $error500;
+                color: $red500;
             }
         }
     }

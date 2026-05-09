@@ -112,12 +112,12 @@ useClickOutside({
     max-width: v-bind(maxWidth);
     min-height: v-bind(minHeight);
     padding: 16px;
-    border: 1px solid varToRgba('lightgray150', 0.15);
+    border: 1px solid varToRgba('lightGray500', 0.15);
     border-radius: 8px;
 
-    color: $lightgray150;
+    color: $lightGray500;
 
-    background: $darkgray1000;
+    background: $darkGray900;
 
     &--center-by-start {
         --transform: calc(0% + v-bind(centerByOffset));
@@ -174,13 +174,13 @@ useClickOutside({
         margin: -16px;
         padding: 16px;
 
-        background: $darkgray1000;
+        background: $darkGray900;
 
         &_title {
             font-size: 16px;
             font-weight: 700;
             line-height: 100%;
-            color: $lightgray100;
+            color: $lightGray300;
         }
 
         &_close {
@@ -191,7 +191,7 @@ useClickOutside({
 
             @include hover {
                 &:hover {
-                    color: $error500;
+                    color: $red500;
                 }
             }
         }

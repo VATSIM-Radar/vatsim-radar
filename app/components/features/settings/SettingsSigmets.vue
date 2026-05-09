@@ -55,47 +55,47 @@ interface Button {
 const buttons: Record<SigmetType, Button> = {
     CONV: {
         text: 'CONV',
-        color: 'error500',
+        color: 'red500',
     },
     TS: {
         text: 'TS',
-        color: 'error300',
+        color: 'red300',
     },
     ICE: {
         text: 'ICE',
-        color: 'primary300',
+        color: 'blue300',
     },
     FZLVL: {
         text: 'FZLVL',
-        color: 'primary500',
+        color: 'blue500',
     },
     TURB: {
         text: 'TURB',
-        color: 'warning700',
+        color: 'yellow700',
     },
     MTW: {
         text: 'MTW',
-        color: 'warning600',
+        color: 'yellow600',
     },
     WIND: {
         text: 'WIND',
-        color: 'lightgray200',
+        color: 'lightGray600',
     },
     WS: {
         text: 'WS',
-        color: 'lightgray150',
+        color: 'lightGray500',
     },
     IFR: {
         text: 'IFR',
-        color: 'info700',
+        color: 'purple700',
     },
     OBSC: {
         text: 'OBSC',
-        color: 'info500',
+        color: 'purple500',
     },
     VA: {
         text: 'VA',
-        color: 'darkgray800',
+        color: 'darkGray400',
     },
 };
 </script>
@@ -120,14 +120,14 @@ const buttons: Record<SigmetType, Button> = {
         font-family: $defaultFont;
         font-size: 12px;
         font-weight: 600;
-        color: $lightgray100Orig;
+        color: $lightGray300Orig;
 
         background: transparent;
 
         transition: 0.3s;
 
         &--dark.sigmets-settings_btn--active {
-            color: $darkgray1000Orig;
+            color: $darkGray900Orig;
         }
 
         @include hover {

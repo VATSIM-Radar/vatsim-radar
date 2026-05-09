@@ -125,28 +125,28 @@ function buildStyle(color: ColorsListRgb, type: string) {
 }
 
 let styles = {
-    default: buildStyle('lightgray125', 'SIGMET'),
-    WIND: buildStyle('lightgray200', 'WIND'),
-    ICE: buildStyle('primary300', 'ICE'),
-    TURB: buildStyle('warning300', 'TURB'),
-    MTW: buildStyle('warning300', 'MTW'),
-    IFR: buildStyle('info500', 'IFR'),
-    TS: buildStyle('error300', 'TS'),
-    CONV: buildStyle('error300', 'CONV'),
-    VA: buildStyle('lightgray125', 'VA'),
+    default: buildStyle('lightGray400', 'SIGMET'),
+    WIND: buildStyle('lightGray600', 'WIND'),
+    ICE: buildStyle('blue300', 'ICE'),
+    TURB: buildStyle('yellow300', 'TURB'),
+    MTW: buildStyle('yellow300', 'MTW'),
+    IFR: buildStyle('purple500', 'IFR'),
+    TS: buildStyle('red300', 'TS'),
+    CONV: buildStyle('red300', 'CONV'),
+    VA: buildStyle('lightGray400', 'VA'),
 };
 
 watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
     styles = {
-        default: buildStyle('lightgray125', 'SIGMET'),
-        WIND: buildStyle('lightgray200', 'WIND'),
-        ICE: buildStyle('primary300', 'ICE'),
-        TURB: buildStyle('warning300', 'TURB'),
-        MTW: buildStyle('warning300', 'MTW'),
-        IFR: buildStyle('info500', 'IFR'),
-        TS: buildStyle('error300', 'TS'),
-        CONV: buildStyle('error300', 'CONV'),
-        VA: buildStyle('lightgray125', 'VA'),
+        default: buildStyle('lightGray400', 'SIGMET'),
+        WIND: buildStyle('lightGray600', 'WIND'),
+        ICE: buildStyle('blue300', 'ICE'),
+        TURB: buildStyle('yellow300', 'TURB'),
+        MTW: buildStyle('yellow300', 'MTW'),
+        IFR: buildStyle('purple500', 'IFR'),
+        TS: buildStyle('red300', 'TS'),
+        CONV: buildStyle('red300', 'CONV'),
+        VA: buildStyle('lightGray400', 'VA'),
     };
 });
 

@@ -25,8 +25,8 @@
             </ui-button>
             <ui-button
                 class="footer-time-popup__apply"
-                :hover-color="bookingChanged ? 'warning400' : 'primary400'"
-                :primary-color="bookingChanged ? 'warning500' : 'primary500'"
+                :hover-color="bookingChanged ? 'yellow400' : 'blue400'"
+                :primary-color="bookingChanged ? 'yellow500' : 'blue500'"
                 size="M"
                 type="primary"
                 @click="applyBookingTimes"

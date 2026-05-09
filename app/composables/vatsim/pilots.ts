@@ -156,16 +156,16 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
 
 export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
-        active: getCurrentThemeHexColor('warning700'),
-        default: getCurrentThemeHexColor('primary500'),
-        ground: getCurrentThemeHexColor('primary500'),
-        green: getCurrentThemeHexColor('success500'),
-        hover: getCurrentThemeHexColor('warning600'),
-        neutral: getCurrentThemeHexColor('lightgray150'),
+        active: getCurrentThemeHexColor('yellow700'),
+        default: getCurrentThemeHexColor('blue500'),
+        ground: getCurrentThemeHexColor('blue500'),
+        green: getCurrentThemeHexColor('green500'),
+        hover: getCurrentThemeHexColor('yellow600'),
+        neutral: getCurrentThemeHexColor('lightGray500'),
 
-        departing: getCurrentThemeHexColor('success400'),
-        arriving: getCurrentThemeHexColor('warning500'),
-        landed: getCurrentThemeHexColor('error300'),
+        departing: getCurrentThemeHexColor('green400'),
+        arriving: getCurrentThemeHexColor('yellow500'),
+        landed: getCurrentThemeHexColor('red300'),
     };
 };
 

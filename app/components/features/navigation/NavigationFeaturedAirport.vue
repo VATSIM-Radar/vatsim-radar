@@ -176,7 +176,7 @@ const controllers = computed<Controller[]>(() => {
     padding: 8px;
     border-radius: 4px;
 
-    background: $darkgray900;
+    background: $darkGray700;
 
     transition: 0.3s;
 
@@ -187,7 +187,7 @@ const controllers = computed<Controller[]>(() => {
 
     @include hover {
         &:hover {
-            background: $darkgray875;
+            background: $darkGray600;
         }
     }
 
@@ -279,7 +279,7 @@ const controllers = computed<Controller[]>(() => {
                 font-size: 12px;
                 font-weight: 600;
                 line-height: 100%;
-                color: $lightgray0Orig;
+                color: $lightGray100Orig;
                 text-align: center;
 
                 background: var(--color);

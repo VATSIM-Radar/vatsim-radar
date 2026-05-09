@@ -151,10 +151,10 @@ watch([expanded, textarea], ([val]) => {
         border-radius: 4px;
 
         font-size: 11px;
-        color: $lightgray150;
+        color: $lightGray500;
 
         appearance: none;
-        background: $darkgray875;
+        background: $darkGray600;
         outline: none;
         box-shadow: none;
     }

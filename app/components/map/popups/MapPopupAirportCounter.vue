@@ -137,24 +137,24 @@ const getOffsetX = computed(() => {
 .airport-counts {
     .airport-counts_item, .airport-counts_title {
         &--groundDep {
-            color: $success500;
+            color: $green500;
         }
 
         &--prefiles {
-            color: $lightgray200;
+            color: $lightGray600;
         }
 
         &--training {
-            color: $info500;
+            color: $purple500;
         }
 
         &--groundArr {
-            color: $error500;
+            color: $red500;
         }
     }
 
     &__popup-callsign {
-        color: $primary500
+        color: $blue500
     }
 
     &__popup-info {

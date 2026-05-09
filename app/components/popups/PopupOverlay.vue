@@ -310,7 +310,7 @@ watch(getSections, sections => {
                 min-width: 16px;
                 min-height: 16px;
 
-                color: $lightgray150;
+                color: $lightGray500;
 
                 transition: 0.3s;
 
@@ -341,11 +341,11 @@ watch(getSections, sections => {
 
                 @include hover {
                     &.info-popup_header_actions_action--close:hover {
-                        color: $error500;
+                        color: $red500;
                     }
 
                     &:not(.info-popup_header_actions_action--close):hover {
-                        color: $primary500;
+                        color: $blue500;
                     }
                 }
 

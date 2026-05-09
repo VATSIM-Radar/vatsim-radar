@@ -233,7 +233,7 @@ onBeforeUnmount(() => clearInterval(interval));
         padding: 8px;
         border-radius: 8px;
 
-        background: $darkgray850;
+        background: $darkGray500;
     }
 }
 </style>

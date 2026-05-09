@@ -171,8 +171,8 @@
 
             <template #actions>
                 <ui-button
-                    hover-color="error700"
-                    primary-color="error500"
+                    hover-color="red700"
+                    primary-color="red500"
                     @click="deleteUserList(list)"
                 >
                     Permanently delete list
@@ -195,8 +195,8 @@
 
             <template #actions>
                 <ui-button
-                    hover-color="error700"
-                    primary-color="error500"
+                    hover-color="red700"
+                    primary-color="red500"
                     @click="editUserList({ id: list.id, users: []}).then(() => {
                         toClear = false
                     })"
@@ -491,7 +491,7 @@ watch(() => JSON.stringify(props.list), val => {
 
         &-container {
             padding: 8px 4px;
-            border: 1px solid varToRgba('lightgray125', 0.15);
+            border: 1px solid varToRgba('lightGray400', 0.15);
             border-radius: 4px;
         }
     }

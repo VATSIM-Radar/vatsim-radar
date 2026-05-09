@@ -170,7 +170,7 @@ export const useStore = defineStore('index', {
                 lists.unshift({
                     id: 0,
                     name: 'Friends',
-                    color: 'success300',
+                    color: 'green300',
                     type: 'FRIENDS',
                     showInMenu: true,
                     users: [],

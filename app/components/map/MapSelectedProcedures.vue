@@ -136,13 +136,13 @@ onBeforeUnmount(() => {
         min-width: max-content;
         height: 40px;
         padding: 8px 16px 12px;
-        border: 1px solid varToRgba('lightgray125', 0.15);
+        border: 1px solid varToRgba('lightGray400', 0.15);
         border-radius: 8px;
 
         font-size: 14px;
         font-weight: 600;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         transition: 0.3s;
 
@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
 
         @include hover {
             &:hover {
-                background: $darkgray850;
+                background: $darkGray500;
             }
         }
 
@@ -192,15 +192,15 @@ onBeforeUnmount(() => {
                 border-radius: 2px;
 
                 &--sid {
-                    background: $info500;
+                    background: $purple500;
                 }
 
                 &--star {
-                    background: $success500;
+                    background: $green500;
                 }
 
                 &--approach {
-                    background: $warning700;
+                    background: $yellow700;
                 }
             }
         }
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
 
             @include hover {
                 &:hover {
-                    color: $error500;
+                    color: $red500;
                 }
             }
 

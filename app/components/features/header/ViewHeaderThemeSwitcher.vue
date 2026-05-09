@@ -44,9 +44,9 @@ const theme = useCookie<ThemesList>('theme', {
     height: 32px;
     border-radius: 8px;
 
-    color: $lightgray150;
+    color: $lightGray500;
 
-    background: $darkgray900;
+    background: $darkGray700;
 
     &::before {
         content: '';
@@ -59,7 +59,7 @@ const theme = useCookie<ThemesList>('theme', {
         height: 100%;
         border-radius: 8px;
 
-        background: $primary500;
+        background: $blue500;
 
         transition: 0.5s ease-in-out;
     }
@@ -91,16 +91,16 @@ const theme = useCookie<ThemesList>('theme', {
 
         .theme_item--light {
             transform: rotate(-90deg);
-            color: $darkgray900;
+            color: $darkGray700;
             animation: lightColorChange 0.5s ease-in-out;
 
             @keyframes lightColorChange {
                 0% {
-                    color: $darkgray900Orig;
+                    color: $darkGray700Orig;
                 }
 
                 100% {
-                    color: $darkgray900;
+                    color: $darkGray700;
                 }
             }
         }

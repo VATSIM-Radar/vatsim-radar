@@ -84,10 +84,10 @@ const route = useRoute();
     &_image {
         width: 200px;
         padding: 8px;
-        border: 1px solid $darkgray800;
+        border: 1px solid $darkGray400;
         border-radius: 8px;
 
-        background-color: $darkgray950;
+        background-color: $darkGray800;
 
         &_item {
             aspect-ratio: $achievementAspectRatio;
@@ -101,7 +101,7 @@ const route = useRoute();
 
     &_provider + &_description {
         padding-top: 8px;
-        border-top: 1px solid $darkgray800;
+        border-top: 1px solid $darkGray400;
         text-align: justify;
     }
 }

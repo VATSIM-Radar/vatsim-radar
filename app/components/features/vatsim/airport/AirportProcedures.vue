@@ -470,34 +470,34 @@ onMounted(async () => {
             user-select: none;
 
             padding: 4px 8px;
-            border: 1px solid varToRgba('lightgray125', 0.15);
+            border: 1px solid varToRgba('lightGray400', 0.15);
             border-radius: 4px;
 
 
             font-size: 12px;
             font-weight: 600;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             transition: 0.3s;
 
             @include hover {
                 &:hover {
-                    background: $darkgray850;
+                    background: $darkGray500;
                 }
             }
 
             &--blurred {
                 order: 1;
-                border-color: varToRgba('error300', 0.5);
+                border-color: varToRgba('red300', 0.5);
             }
 
             &--active {
-                border-color: $primary500;
+                border-color: $blue500;
             }
 
             &--blurred.procedures__items_item--active {
-                background: varToRgba('error300', 0.3);
+                background: varToRgba('red300', 0.3);
             }
 
             &:not(&--blurred) {

@@ -43,7 +43,7 @@ const store = useStore();
     gap: 8px;
     align-items: center;
 
-    color: $lightgray50;
+    color: $lightGray200;
     text-decoration: none;
 
     &_icon {

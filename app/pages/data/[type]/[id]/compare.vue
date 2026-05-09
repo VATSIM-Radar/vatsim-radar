@@ -116,10 +116,10 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
             if (!x.properties!.fill) return true;
 
             if (showConfig.value === 'all') return true;
-            if (showConfig.value === 'changed') return x.properties!.fill === 'primary500';
-            if (showConfig.value === 'previous') return x.properties!.fill === 'info500';
-            if (showConfig.value === 'added') return x.properties!.fill === 'success500';
-            if (showConfig.value === 'removed') return x.properties!.fill === 'error500';
+            if (showConfig.value === 'changed') return x.properties!.fill === 'blue500';
+            if (showConfig.value === 'previous') return x.properties!.fill === 'purple500';
+            if (showConfig.value === 'added') return x.properties!.fill === 'green500';
+            if (showConfig.value === 'removed') return x.properties!.fill === 'red500';
             return false;
         }),
     });
@@ -162,11 +162,11 @@ watch(map, val => {
     if (!val || layer) return;
 
     const themes = {
-        primary500: buildStyle('primary500'),
-        success500: buildStyle('success500'),
-        error500: buildStyle('error500'),
-        info500: buildStyle('info500'),
-        default: buildStyle('lightgray200', 0.05, 0.2),
+        blue500: buildStyle('blue500'),
+        green500: buildStyle('green500'),
+        red500: buildStyle('red500'),
+        purple500: buildStyle('purple500'),
+        default: buildStyle('lightGray600', 0.05, 0.2),
     };
 
     val.on('singleclick', handleMapClick);
@@ -186,10 +186,10 @@ watch(map, val => {
                             color: `rgba(${ radarColors[`${ properties.fill as ColorsListRgb }Rgb`].join(',') }, 0.5)`,
                         }),
                         backgroundFill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('darkGray800').join(',') }, 1)`,
                         }),
                         backgroundStroke: new Stroke({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.15)`,
                         }),
                         padding: [2, 0, 2, 2],
                     }),
@@ -248,7 +248,7 @@ onBeforeUnmount(() => {
         font-size: 13px;
         overflow-wrap: anywhere;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         @include mobileOnly {
             max-width: 70dvw;
@@ -258,7 +258,7 @@ onBeforeUnmount(() => {
             gap: 0 !important;
             padding: 8px;
             border-radius: 8px;
-            background: $darkgray850;
+            background: $darkGray500;
         }
     }
 }

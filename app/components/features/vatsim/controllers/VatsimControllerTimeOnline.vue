@@ -33,12 +33,12 @@ defineProps({
 
     font-size: 11px;
     font-weight: 300;
-    color: $lightgray150;
+    color: $lightGray500;
 
     &_info {
         padding: 2px 4px;
         border-radius: 4px;
-        background: $darkgray950;
+        background: $darkGray800;
     }
 }
 </style>

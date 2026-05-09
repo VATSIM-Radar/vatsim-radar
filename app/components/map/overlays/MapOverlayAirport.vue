@@ -92,7 +92,7 @@
                             <div
                                 v-if="!listGroundDepartures"
                                 class="airport__counts_counter"
-                                :style="{ '--color': `rgb(var(--lightgray150))` }"
+                                :style="{ '--color': `rgb(var(--lightGray500))` }"
                             >
                                 <ground-icon class="airport__counts_counter_icon"/>
                                 <div class="airport__counts_counter_icon_text">
@@ -149,8 +149,8 @@
                     >
                         <vatsim-traffic-rate
                             :aircraft="aircraft"
-                            :icon-color="radarColors.lightgray200"
-                            :text-color="radarColors.error500"
+                            :icon-color="radarColors.lightGray600"
+                            :text-color="radarColors.red500"
                             use-opacity
                         />
                     </div>
@@ -600,7 +600,7 @@ onMounted(() => {
                 padding: 4px;
                 border-radius: 4px;
 
-                background: $darkgray1000;
+                background: $darkGray900;
             }
         }
 
@@ -631,13 +631,13 @@ onMounted(() => {
 
             > *:not(:first-child) {
                 padding-top: 8px;
-                border-top: 1px solid varToRgba('lightgray150', 0.15);
+                border-top: 1px solid varToRgba('lightGray500', 0.15);
             }
         }
 
         &_title {
             padding-top: 8px;
-            border-top: 1px solid varToRgba('lightgray150', 0.15);
+            border-top: 1px solid varToRgba('lightGray500', 0.15);
             font-size: 13px;
             font-weight: 600;
         }
@@ -714,7 +714,7 @@ onMounted(() => {
             }
 
             &--groundDep {
-                color: $success500;
+                color: $green500;
 
                 &::before {
                     top: -2px;
@@ -727,7 +727,7 @@ onMounted(() => {
             }
 
             &--prefiles {
-                color: $lightgray200;
+                color: $lightGray600;
 
                 &::before {
                     top: 3px;
@@ -738,7 +738,7 @@ onMounted(() => {
             }
 
             &--groundArr {
-                color: $error300;
+                color: $red300;
 
                 &::before {
                     top: 2px;

@@ -338,7 +338,7 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
 
     &__atis-error {
         font-weight: 600;
-        color: $error500;
+        color: $red500;
         text-align: center;
     }
 
@@ -357,7 +357,7 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
 
             &--primary {
                 order: 1;
-                color: $primary500;
+                color: $blue500;
             }
         }
     }

@@ -154,7 +154,7 @@ const retry = async () => {
         font-weight: 500;
         line-height: 100%;
 
-        background: $darkgray950;
+        background: $darkGray800;
 
         &_icon {
             display: flex;
@@ -164,10 +164,10 @@ const retry = async () => {
             width: 20px;
             height: 20px;
             padding: 4px;
-            border: 2px solid $darkgray800;
+            border: 2px solid $darkGray400;
             border-radius: 100%;
 
-            background: $darkgray875;
+            background: $darkGray600;
 
             transition: 0.3s;
 
@@ -187,48 +187,48 @@ const retry = async () => {
         }
 
         &--status-loading .init_item_icon {
-            border-color: $primary500;
+            border-color: $blue500;
             animation: 2s loading ease-in-out infinite;
 
             @keyframes loading {
                 0% {
-                    border-color: $primary400;
+                    border-color: $blue400;
                 }
 
                 25% {
-                    border-color: $primary500;
+                    border-color: $blue500;
                 }
 
                 50% {
-                    border-color: $primary600;
+                    border-color: $blue600;
                 }
 
                 75% {
-                    border-color: $primary500;
+                    border-color: $blue500;
                 }
 
                 100% {
-                    border-color: $primary400;
+                    border-color: $blue400;
                 }
             }
         }
 
         &--status-skip .init_item_icon {
-            border-color: varToRgba('primary500', 0.6);
-            color: $lightgray125Orig;
-            background: varToRgba('primary500', 0.3);
+            border-color: varToRgba('blue500', 0.6);
+            color: $lightGray400Orig;
+            background: varToRgba('blue500', 0.3);
         }
 
         &--status-success .init_item_icon {
-            border-color: varToRgba('success500', 0.6);
-            color: $lightgray125Orig;
-            background: varToRgba('success500', 0.3);
+            border-color: varToRgba('green500', 0.6);
+            color: $lightGray400Orig;
+            background: varToRgba('green500', 0.3);
         }
 
         &--status-failed .init_item_icon {
-            border-color: varToRgba('error500', 0.6);
-            color: $lightgray125Orig;
-            background: varToRgba('error500', 0.3);
+            border-color: varToRgba('red500', 0.6);
+            color: $lightGray400Orig;
+            background: varToRgba('red500', 0.3);
         }
     }
 }

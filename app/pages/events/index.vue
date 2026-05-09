@@ -122,7 +122,7 @@ useHead({
 
         font-size: 20px;
         font-weight: 500;
-        color: $primary500;
+        color: $blue500;
     }
 }
 

@@ -11,6 +11,7 @@
 ## Redesigned
 
 - Redesigned all overlays
+- All colors have been upgraded to a new palette
 
 # [2.0.0-alpha.8.4]
 

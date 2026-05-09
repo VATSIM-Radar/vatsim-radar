@@ -754,7 +754,7 @@ onBeforeUnmount(() => {
     &__track--tracked {
         transform-origin: center;
         transform: rotate(90deg);
-        color: $primary500;
+        color: $blue500;
     }
 
     :deep(.atc-popup), :deep(.atc-popup-container) {
@@ -783,13 +783,13 @@ onBeforeUnmount(() => {
             width: 100%;
             max-width: 70px;
             padding: 4px;
-            border: 1px solid $darkgray800;
+            border: 1px solid $darkGray400;
             border-radius: 8px;
 
             font-size: 10px;
             text-align: center;
 
-            background: $darkgray950;
+            background: $darkGray800;
 
             &_image {
                 aspect-ratio: $achievementAspectRatio;

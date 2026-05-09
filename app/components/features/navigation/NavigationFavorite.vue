@@ -53,13 +53,13 @@ if (!store.friends.length || (store.localSettings.featuredDefaultBookmarks && st
         cursor: pointer;
         padding: 10px;
         border-radius: 8px;
-        background: $darkgray900;
+        background: $darkGray700;
 
         @include hover {
             transition: 0.3s;
 
             &:hover {
-                background: $darkgray875;
+                background: $darkGray600;
             }
         }
     }

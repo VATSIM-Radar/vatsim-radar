@@ -146,11 +146,11 @@ function getSumOffset(index: number): number {
 
     font-size: 14px;
 
-    background: rgb(var(--primary300), 0.3);
-    box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
+    background: rgb(var(--blue300), 0.3);
+    box-shadow: 5px 5px 4px varToRgba($darkGray900, 0.3);
 
     &-lightmode {
-        background: rgb(var(--primary300), 0.4);
+        background: rgb(var(--blue300), 0.4);
     }
 
     &-tooltip {

@@ -159,8 +159,8 @@
 
                 <template #actions>
                     <ui-button
-                        hover-color="error700"
-                        primary-color="error500"
+                        hover-color="red700"
+                        primary-color="red500"
                         @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
                     >
                         Overwrite my old preset
@@ -1196,7 +1196,7 @@ onBeforeUnmount(() => {
 
         font-size: 14px;
         line-height: 100%;
-        color: $lightgray125Orig;
+        color: $lightGray400Orig;
 
         &--dismissable {
             cursor: grab;
@@ -1231,16 +1231,16 @@ onBeforeUnmount(() => {
         }
 
         &--type-WARNING {
-            color: $darkgray850Orig;
-            background: $warning500;
+            color: $darkGray500Orig;
+            background: $yellow500;
         }
 
         &--type-ERROR {
-            background: $error500;
+            background: $red500;
         }
 
         &--type-ANNOUNCEMENT {
-            background: $primary500;
+            background: $blue500;
         }
 
         &_icon {

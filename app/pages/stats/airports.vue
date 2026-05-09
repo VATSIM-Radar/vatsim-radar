@@ -100,19 +100,19 @@ const airports = computed<Airport[]>(() => {
 <style lang="scss" scoped>
 .airports {
     :deep(.table__data--type-departing) {
-        color: $success500;
+        color: $green500;
     }
 
     :deep(.table__data--type-arrived) {
-        color: $error300;
+        color: $red300;
     }
 
     :deep(.table__data--type-departed) {
-        color: $primary500;
+        color: $blue500;
     }
 
     :deep(.table__data--type-arriving) {
-        color: $warning500;
+        color: $yellow500;
     }
 }
 </style>

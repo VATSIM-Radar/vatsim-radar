@@ -42,7 +42,7 @@ defineSlots<{ default?: () => any; title?: () => any }>();
     padding: 24px;
     border-radius: 16px;
 
-    background: $darkgray950;
+    background: $darkGray800;
 
     @include mobileOnly {
         padding: 8px;
@@ -51,11 +51,11 @@ defineSlots<{ default?: () => any; title?: () => any }>();
     &_title {
         margin-bottom: 16px;
         padding-bottom: 8px;
-        border-bottom: 1px solid varToRgba('lightgray150', 0.2);
+        border-bottom: 1px solid varToRgba('lightGray500', 0.2);
 
         font-size: 32px;
         font-weight: 600;
-        color: $primary500;
+        color: $blue500;
 
         @include mobileOnly {
             font-size: 24px;

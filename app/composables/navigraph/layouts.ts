@@ -22,95 +22,95 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
     const themeStyles = {
         deicing: {
-            default: getCurrentThemeRgbColor('primary400').join(','),
-            light: getCurrentThemeRgbColor('primary300').join(','),
+            default: getCurrentThemeRgbColor('blue400').join(','),
+            light: getCurrentThemeRgbColor('blue300').join(','),
         },
         taxiway: {
             default: hexToRgb('#494952'),
             light: hexToRgb('#C3C3C9'),
         },
         taxiwayText: {
-            default: getCurrentThemeRgbColor('lightgray200').join(','),
-            light: getCurrentThemeRgbColor('lightgray200').join(','),
+            default: getCurrentThemeRgbColor('lightGray600').join(','),
+            light: getCurrentThemeRgbColor('lightGray600').join(','),
         },
         taxiwayBlue: {
-            default: getCurrentThemeRgbColor('primary500').join(','),
-            light: getCurrentThemeRgbColor('primary300').join(','),
+            default: getCurrentThemeRgbColor('blue500').join(','),
+            light: getCurrentThemeRgbColor('blue300').join(','),
         },
         taxiwayBlueText: {
-            default: getCurrentThemeRgbColor('primary300').join(','),
-            light: getCurrentThemeRgbColor('primary500').join(','),
+            default: getCurrentThemeRgbColor('blue300').join(','),
+            light: getCurrentThemeRgbColor('blue500').join(','),
         },
         taxiwayOrange: {
-            default: getCurrentThemeRgbColor('error500').join(','),
-            light: getCurrentThemeRgbColor('error300').join(','),
+            default: getCurrentThemeRgbColor('red500').join(','),
+            light: getCurrentThemeRgbColor('red300').join(','),
         },
         taxiwayOrangeText: {
-            default: getCurrentThemeRgbColor('error300').join(','),
-            light: getCurrentThemeRgbColor('error500').join(','),
+            default: getCurrentThemeRgbColor('red300').join(','),
+            light: getCurrentThemeRgbColor('red500').join(','),
         },
         taxiwayWhite: {
-            default: getCurrentThemeRgbColor('lightgray200').join(','),
-            light: getCurrentThemeRgbColor('lightgray200').join(','),
+            default: getCurrentThemeRgbColor('lightGray600').join(','),
+            light: getCurrentThemeRgbColor('lightGray600').join(','),
         },
         taxiwayWhiteText: {
-            default: getCurrentThemeRgbColor('lightgray200').join(','),
-            light: getCurrentThemeRgbColor('lightgray200').join(','),
+            default: getCurrentThemeRgbColor('lightGray600').join(','),
+            light: getCurrentThemeRgbColor('lightGray600').join(','),
         },
         taxiwayElement: {
-            default: getCurrentThemeRgbColor('darkgray900').join(','),
-            light: getCurrentThemeRgbColor('darkgray850').join(','),
+            default: getCurrentThemeRgbColor('darkGray700').join(','),
+            light: getCurrentThemeRgbColor('darkGray500').join(','),
         },
         terminal: {
-            default: getCurrentThemeRgbColor('darkgray875').join(','),
-            light: getCurrentThemeRgbColor('darkgray800').join(','),
+            default: getCurrentThemeRgbColor('darkGray600').join(','),
+            light: getCurrentThemeRgbColor('darkGray400').join(','),
         },
         apron850: {
-            default: getCurrentThemeRgbColor('darkgray850').join(','),
-            light: getCurrentThemeRgbColor('darkgray950').join(','),
+            default: getCurrentThemeRgbColor('darkGray500').join(','),
+            light: getCurrentThemeRgbColor('darkGray800').join(','),
         },
         apron875: {
-            default: getCurrentThemeRgbColor('darkgray875').join(','),
-            light: getCurrentThemeRgbColor('darkgray950').join(','),
+            default: getCurrentThemeRgbColor('darkGray600').join(','),
+            light: getCurrentThemeRgbColor('darkGray800').join(','),
         },
         apron950: {
-            default: getCurrentThemeRgbColor('darkgray950').join(','),
-            light: getCurrentThemeRgbColor('darkgray875').join(','),
+            default: getCurrentThemeRgbColor('darkGray800').join(','),
+            light: getCurrentThemeRgbColor('darkGray600').join(','),
         },
         apron1000: {
-            default: getCurrentThemeRgbColor('darkgray1000').join(','),
-            light: getCurrentThemeRgbColor('darkgray800').join(','),
+            default: getCurrentThemeRgbColor('darkGray900').join(','),
+            light: getCurrentThemeRgbColor('darkGray400').join(','),
         },
         runway1000: {
-            default: getCurrentThemeRgbColor('darkgray1000').join(','),
-            light: getCurrentThemeRgbColor('darkgray800').join(','),
+            default: getCurrentThemeRgbColor('darkGray900').join(','),
+            light: getCurrentThemeRgbColor('darkGray400').join(','),
         },
         runway950: {
-            default: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
-            light: `rgba(${ getCurrentThemeRgbColor('darkgray875').join(',') }, 1)`,
+            default: `rgba(${ getCurrentThemeRgbColor('darkGray800').join(',') }, 1)`,
+            light: `rgba(${ getCurrentThemeRgbColor('darkGray600').join(',') }, 1)`,
         },
         runwayMarking: {
-            default: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.3)`,
-            light: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
+            default: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.3)`,
+            light: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.5)`,
         },
         parking: {
-            default: getCurrentThemeRgbColor('darkgray800').join(','),
-            light: getCurrentThemeRgbColor('darkgray875').join(','),
+            default: getCurrentThemeRgbColor('darkGray400').join(','),
+            light: getCurrentThemeRgbColor('darkGray600').join(','),
         },
     } satisfies Record<string, Record<'default' | 'light', string>>;
 
     const heliDefaultStyle = new Style({
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.1)`,
+            color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.1)`,
         }),
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.1)`,
+            color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.1)`,
         }),
         text: new Text({
             text: 'H',
             font: 'bold 14px LibreFranklin',
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 1)`,
             }),
         }),
         zIndex: 2,
@@ -129,7 +129,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 color: `rgba(${ themeStyles.parking[theme] }, 1)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('lightGray600').join(',') }, 0.1)`,
             }),
             zIndex: 2,
         }),
@@ -163,7 +163,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         }),
         constructionarea: new Style({
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.1)`,
             }),
             zIndex: 4,
         }),
@@ -283,7 +283,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             const options: StyleOptions = {
                 stroke: new Stroke({
-                    color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.5)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('yellow700').join(',') }, 0.5)`,
                 }),
                 zIndex: 5,
             };
@@ -294,7 +294,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     font: 'bold 12px LibreFranklin',
                     placement: 'line',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.6)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('yellow700').join(',') }, 0.6)`,
                     }),
                     textBaseline: 'bottom',
                     textAlign: 'left',
@@ -302,8 +302,8 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             }
 
             if (properties.catstop === 2) {
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.5)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.6)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.5)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.6)`);
             }
 
             const barsStatus = getIntersectionStatus(properties.airport, properties.idlin!);
@@ -311,15 +311,15 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             if (properties.idlin && typeof barsStatus === 'boolean') {
                 options.stroke?.setWidth(2);
                 options.stroke?.setLineDash([1, 4]);
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'success500' : 'error700').join(',') }, 0.8)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'success500' : 'error700').join(',') }, 0.8)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'red700').join(',') }, 0.8)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'red700').join(',') }, 0.8)`);
             }
 
             return new Style(options);
         },
         verticallinestructure: new Style({
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('darkGray800').join(',') }, 1)`,
             }),
         }),
 
@@ -351,7 +351,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 text: feature.getProperties().idthr,
                 font: 'bold 12px LibreFranklin',
                 fill: new Fill({
-                    color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
+                    color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('red300').join(',') }, 0.7)`,
                 }),
                 rotation: toRadians(feature.getProperties().brngtrue!),
                 rotateWithView: true,
@@ -386,16 +386,16 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             return new Style({
                 fill: new Fill({
-                    color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.1)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.1)`,
                 }),
                 stroke: new Stroke({
-                    color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.1)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.1)`,
                 }),
                 text: new Text({
                     text: feature.getProperties().idrwy,
                     font: '14px LibreFranklin',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 1)`,
                     }),
                     rotateWithView: true,
                 }),
@@ -414,7 +414,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                         color: `rgba(${ themeStyles.terminal[theme] }, 1)`,
                     }),
                     stroke: new Stroke({
-                        color: `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.1)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('lightGray600').join(',') }, 0.1)`,
                         width: 2,
                     }),
                     text: new Text({
@@ -424,7 +424,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                         justify: 'center',
                         textBaseline: 'middle',
                         fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.5)`,
                         }),
                         rotateWithView: true,
                     }),
@@ -433,7 +433,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             return new Style({
                 fill: new Fill({
-                    color: `rgba(${ getCurrentThemeRgbColor('darkgray800').join(',') }, 0.4)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('darkGray400').join(',') }, 0.4)`,
                 }),
                 text: new Text({
                     text: feature.getProperties().ident,
@@ -442,7 +442,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     justify: 'center',
                     textBaseline: 'middle',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.5)`,
                     }),
                     rotateWithView: true,
                 }),

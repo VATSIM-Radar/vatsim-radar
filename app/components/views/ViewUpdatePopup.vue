@@ -170,7 +170,7 @@ const close = async () => {
 
         font-size: 17px;
         line-height: 100%;
-        color: $lightgray150;
+        color: $lightGray500;
 
         @include mobileOnly {
             flex-wrap: wrap;
@@ -179,7 +179,7 @@ const close = async () => {
 
         span {
             font-weight: 700;
-            color: $primary500;
+            color: $blue500;
         }
     }
 
@@ -204,12 +204,12 @@ const close = async () => {
         &_title {
             font-size: 14px;
             font-weight: 700;
-            color: $lightgray150;
+            color: $lightGray500;
         }
 
         &_image {
             height: 200px;
-            border: 2px solid $darkgray800;
+            border: 2px solid $darkGray400;
             border-radius: 8px;
             background: no-repeat top / cover;
 
@@ -224,7 +224,7 @@ const close = async () => {
             gap: 4px;
 
             font-size: 13px;
-            color: $lightgray150;
+            color: $lightGray500;
         }
 
         &_navigation {
@@ -244,13 +244,13 @@ const close = async () => {
                     height: 8px;
                     border-radius: 100%;
 
-                    background: $darkgray800;
+                    background: $darkGray400;
 
                     transition: 0.3s;
 
                     &--active {
                         cursor: default;
-                        background: $primary500;
+                        background: $blue500;
                     }
                 }
             }
@@ -262,13 +262,13 @@ const close = async () => {
 
                 width: 12px;
 
-                color: $primary400;
+                color: $blue400;
 
                 transition: 0.3s;
 
                 @include hover {
                     &:hover {
-                        color: $primary600;
+                        color: $blue600;
                     }
                 }
 
@@ -279,7 +279,7 @@ const close = async () => {
                 &--disabled {
                     pointer-events: none;
                     cursor: default;
-                    color: $darkgray800;
+                    color: $darkGray400;
                 }
             }
         }

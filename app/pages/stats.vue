@@ -29,13 +29,13 @@ if (route.path === '/stats') {
         border-radius: 100%;
 
         &.stats__place--0, &.stats__place--1, &.stats__place--2 {
-            color: $lightgray100Orig;
-            background: $primary500;
+            color: $lightGray300Orig;
+            background: $blue500;
         }
     }
 
     :deep(.stats__virtual--active) {
-        color: $primary400;
+        color: $blue400;
     }
 
     :deep(.stats__action) {

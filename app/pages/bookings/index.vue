@@ -11,8 +11,8 @@
                             placeholder="4"
                             @keyup.enter="changeRange('custom')"
                         /> Hours <ui-button
-                            hover-color="success700"
-                            primary-color="success400"
+                            hover-color="green700"
+                            primary-color="green400"
                             @click="changeRange('custom')"
                         >Apply</ui-button>
                     </div>
@@ -27,23 +27,23 @@
                     <div class="picker-presets-fixed">
                         <ui-button
                             :disabled="currentDateRange === 'today'"
-                            primary-color="primary600"
+                            primary-color="blue600"
                             @click="changeRange('today')"
                         >Today</ui-button>
                         <ui-button
                             :disabled="currentDateRange === 'todayTomorrow'"
-                            primary-color="primary600"
+                            primary-color="blue600"
                             @click="changeRange('todayTomorrow')"
                         >Today + Tomorrow</ui-button>
                         <ui-button
                             :disabled="currentDateRange === 'today7Days'"
-                            primary-color="primary600"
+                            primary-color="blue600"
                             @click="changeRange('today7Days')"
                         >Today + 7 Days</ui-button>
                     </div>
                     <div class="picker-actions">
                         <ui-button
-                            primary-color="primary600"
+                            primary-color="blue600"
                             type="primary"
                             @click="viewOnMap()"
                         >
@@ -63,16 +63,16 @@
         <div class="booking-sort-container">
             <ui-button
                 :disabled="sortMode === 'airport'"
-                hover-color="info700"
-                primary-color="info500"
+                hover-color="purple700"
+                primary-color="purple500"
                 @click="sortMode = 'airport'"
             >
                 Sort by Airport
             </ui-button>
             <ui-button
                 :disabled="sortMode === 'date'"
-                hover-color="info700"
-                primary-color="info500"
+                hover-color="purple700"
+                primary-color="purple500"
                 @click="sortMode = 'date'"
             >
                 Sort by Date

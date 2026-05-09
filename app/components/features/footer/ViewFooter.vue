@@ -133,7 +133,7 @@
 
             <div v-if="store.bookingOverride">
                 <ui-button
-                    primary-color="error700"
+                    primary-color="red700"
                     size="S"
                     type="primary"
                     @click="cancelBookingOverride"
@@ -376,7 +376,7 @@ function cancelBookingOverride() {
                     align-self: center;
 
                     height: 24px;
-                    border-right: 1px solid varToRgba('lightgray150', 0.1);
+                    border-right: 1px solid varToRgba('lightGray500', 0.1);
                 }
             }
         }
@@ -443,7 +443,7 @@ function cancelBookingOverride() {
                     align-self: center;
 
                     height: 24px;
-                    border-right: 1px solid varToRgba('lightgray150', 0.1);
+                    border-right: 1px solid varToRgba('lightGray500', 0.1);
                 }
             }
         }
@@ -461,8 +461,8 @@ function cancelBookingOverride() {
             color: $typographyPrimary;
 
             &--outdated span {
-                color: $lightgray100Orig;
-                background: $error600;
+                color: $lightGray300Orig;
+                background: $red600;
             }
 
             span {

@@ -40,7 +40,7 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     border-radius: 8px;
-    background: $darkgray950;
+    background: $darkGray800;
 
     @include mobileOnly {
         flex-wrap: wrap;
@@ -57,7 +57,7 @@ export default defineComponent({
         @include mobileOnly {
             flex: auto;
             width: auto;
-            background: $darkgray950;
+            background: $darkGray800;
         }
 
         :deep(> .button) {
@@ -78,7 +78,7 @@ export default defineComponent({
                     align-self: center;
 
                     height: 24px;
-                    border-right: 1px solid varToRgba('lightgray150', 0.2);
+                    border-right: 1px solid varToRgba('lightGray500', 0.2);
                 }
             }
         }
