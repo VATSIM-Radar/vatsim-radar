@@ -155,6 +155,8 @@ import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import PlaneIcon from '~/assets/icons/kit/plane.svg?component';
+import QuestionIcon from '~/assets/icons/basic/question.svg?component';
 
 const props = defineProps({
     pilot: {
