@@ -1,10 +1,10 @@
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import type VectorLayer from 'ol/layer/Vector';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { getCurrentThemeRgbColor } from '~/composables';
-import { Fill, Stroke, Style, Text } from 'ol/style';
-import { toRadians } from 'ol/math';
-import { Point } from 'ol/geom';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
+import { toRadians } from 'ol/math.js';
+import { Point } from 'ol/geom.js';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import { getSelectedColorFromSettings } from '~/composables/settings/colors';
 import { getGatesMatch } from '~/utils/shared/vatsim';
@@ -162,7 +162,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const id = `airport-${ icao }-runway-${ runway.runway_identifier }` as const;
 
             const existingFeature = getMapFeature('airport-navigraph', source, id);
-            const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.7)`;
+            const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('citrus600').join(',') }, 0.7)`;
 
             if (existingFeature) {
                 if (existingFeature.getProperties().gateColor !== color) {

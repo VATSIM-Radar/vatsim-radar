@@ -597,7 +597,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const config = useRuntimeConfig();
 
     function receiveMessage(event: MessageEvent) {
-        if (event.origin !== config.public.DOMAIN) {
+        if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
             return;
         }
 

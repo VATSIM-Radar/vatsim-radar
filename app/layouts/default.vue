@@ -119,6 +119,7 @@
                     </div>
                 </div>
                 <div
+                    v-if="false"
                     class="app_consent_item"
                     :class="{ 'app_consent_item--enabled': policy.sentry }"
                     @click="policy.sentry = !policy.sentry"
@@ -175,7 +176,6 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
-import * as Sentry from '@sentry/nuxt';
 import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
@@ -265,7 +265,7 @@ onMounted(() => {
 
 const policy = cookiePolicyStatus();
 
-watch(() => policy.value.sentry, val => {
+/* watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {
         Sentry.setUser({ id: store.user.cid });
     }
@@ -274,7 +274,7 @@ watch(() => policy.value.sentry, val => {
     }
 }, {
     immediate: true,
-});
+});*/
 
 const themeColor = getCurrentThemeHexColor('darkGray900');
 

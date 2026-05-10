@@ -1,5 +1,5 @@
 import { safeRef } from '~/composables';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type { FeatureAirport, MapFeatures } from '~/utils/map/entities';
 
 export interface RadarEventPayload<T = MapFeatures, P = never | void> { feature: T; coordinate: Coordinate; additionalPayload: P }

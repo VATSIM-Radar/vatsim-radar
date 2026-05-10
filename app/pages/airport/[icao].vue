@@ -381,7 +381,7 @@ const savedZoom = shallowRef<null | string>(null);
 const airportMapFrame = ref<HTMLIFrameElement | null>(null);
 let skipSelectedPilotWatch = false;
 function receiveMessage(event: MessageEvent) {
-    if (event.origin !== config.public.DOMAIN) {
+    if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
         return;
     }
     if (event.data && 'selectedPilot' in event.data) {

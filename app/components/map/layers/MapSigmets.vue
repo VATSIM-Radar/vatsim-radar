@@ -2,7 +2,7 @@
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import type { Sigmet, Sigmets } from '~/utils/server/storage';
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { ColorsListRgb } from '~/utils/colors';

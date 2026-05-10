@@ -1,4 +1,4 @@
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import type VectorLayer from 'ol/layer/Vector';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setSectorStyle } from '~/composables/render/sectors/style';

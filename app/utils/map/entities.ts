@@ -3,7 +3,7 @@ import type { Geometry, LineString, MultiLineString, Point } from 'ol/geom.js';
 import type Polygon from 'ol/geom/Polygon.js';
 import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import type { SigmetCombined, SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimNattrak, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
