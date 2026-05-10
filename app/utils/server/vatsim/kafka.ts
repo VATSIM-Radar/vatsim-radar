@@ -37,7 +37,7 @@ export function kafkaAddClient(event: KafkaAddClient) {
 export function kafkaRemoveClient(event: KafkaRmClient) {
     if (event.Callsign) {
         updatedPilots.delete(event.Callsign);
-        pilotPositionUpdatedAt.delete(event.Callsign);
+        pilotVerticalSpeedEntries.delete(event.Callsign);
     }
 
     if (event.Callsign && wssPilots[event.Callsign]) {
@@ -70,27 +70,70 @@ export function kafkaUpdateController(event: KafkaAD) {
 }
 
 const updatedPilots = new Set<string>();
-const pilotPositionUpdatedAt = new Map<string, number>();
+const pilotVerticalSpeedEntries = new Map<string, {
+    altitude: VatsimPilot['altitude'];
+    updatedAt: number;
+    verticalSpeed: NonNullable<VatsimPilot['vertical_speed']>;
+}>();
 
-const verticalSpeedAltitudeTolerance = 50;
+const verticalSpeedAltitudeTolerance = 50; // Ignore altitude noise below 50 ft.
+const verticalSpeedMinTimeDiff = 3000; // Wait at least 3s before calculating VS.
+const verticalSpeedZeroTimeDiff = 10000; // After 10s without meaningful altitude change, treat VS as 0.
+const verticalSpeedMaxTimeDiff = 60000; // Reset stale samples after 60s gaps.
 
-function getVerticalSpeed(pilot: Partial<VatsimPilot> | undefined, event: KafkaPD, now: number): VatsimPilot['vertical_speed'] {
-    const previousPositionUpdatedAt = pilotPositionUpdatedAt.get(event.Callsign);
-    if (!previousPositionUpdatedAt || typeof pilot?.altitude !== 'number') return 0;
+function setVerticalSpeedEntry(callsign: string, altitude: number, updatedAt: number, verticalSpeed = 0) {
+    pilotVerticalSpeedEntries.set(callsign, {
+        altitude,
+        updatedAt,
+        verticalSpeed,
+    });
 
-    const altitudeDiff = event.Altitude - pilot.altitude;
-    if (Math.abs(altitudeDiff) <= verticalSpeedAltitudeTolerance) return 0;
-
-    const timeDiffMinutes = (now - previousPositionUpdatedAt) / 1000 / 60;
-    if (timeDiffMinutes <= 0) return pilot.vertical_speed ?? 0;
-
-    return Math.round(altitudeDiff / timeDiffMinutes);
+    return verticalSpeed;
 }
 
-export function kafkaUpdatePilot(event: KafkaPD) {
-    let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
-    const now = Date.now();
+// Thanks to Codex for this function, I was too stupid to write it myself. Feel free to suggest a better approach if you are reading this
+function getVerticalSpeed(pilot: Partial<VatsimPilot> | undefined, event: KafkaPD, now: number): VatsimPilot['vertical_speed'] {
+    const entry = pilotVerticalSpeedEntries.get(event.Callsign);
+    const entryVerticalSpeed = entry?.verticalSpeed;
+    const pilotVerticalSpeed = pilot?.vertical_speed;
+    // Reuse the last finite VS while waiting for enough altitude/time delta.
+    const previousVerticalSpeed = typeof entryVerticalSpeed === 'number' && Number.isFinite(entryVerticalSpeed)
+        ? entryVerticalSpeed
+        : typeof pilotVerticalSpeed === 'number' && Number.isFinite(pilotVerticalSpeed)
+            ? pilotVerticalSpeed
+            : 0;
 
+    // Bad altitude or previously poisoned state should not make NaN stick forever.
+    if (!Number.isFinite(event.Altitude)) return previousVerticalSpeed;
+    if (!entry || !Number.isFinite(entry.altitude) || !Number.isFinite(entry.updatedAt)) return setVerticalSpeedEntry(event.Callsign, event.Altitude, now);
+
+    const timeDiff = now - entry.updatedAt;
+
+    // Out-of-order timestamps keep the previous value; long gaps start a fresh sample.
+    if (timeDiff <= 0) return previousVerticalSpeed;
+    if (timeDiff > verticalSpeedMaxTimeDiff) return setVerticalSpeedEntry(event.Callsign, event.Altitude, now);
+
+    // Short intervals are too noisy, especially with 1s Kafka updates.
+    if (timeDiff < verticalSpeedMinTimeDiff) return previousVerticalSpeed;
+
+    const altitudeDiff = event.Altitude - entry.altitude;
+
+    // Keep accumulating small altitude changes until we can confidently report 0.
+    if (Math.abs(altitudeDiff) < verticalSpeedAltitudeTolerance) {
+        return timeDiff < verticalSpeedZeroTimeDiff
+            ? previousVerticalSpeed
+            : setVerticalSpeedEntry(event.Callsign, event.Altitude, now);
+    }
+
+    // Calculate feet per minute from the accumulated altitude/time window.
+    const verticalSpeed = Math.round(altitudeDiff / (timeDiff / 1000 / 60));
+    if (!Number.isFinite(verticalSpeed)) return setVerticalSpeedEntry(event.Callsign, event.Altitude, now);
+
+    return setVerticalSpeedEntry(event.Callsign, event.Altitude, now, verticalSpeed);
+}
+
+export function kafkaUpdatePilot(event: KafkaPD, updatedAt: number) {
+    let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
     const qnhIhb = Number((29.92 - (event.PressureDifference / 1000.0)).toFixed(2));
     const qnhMb = Math.round(qnhIhb * 33.86389);
 
@@ -104,13 +147,13 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         heading: event.Heading,
         qnh_i_hg: qnhIhb,
         qnh_mb: qnhMb,
-        vertical_speed: getVerticalSpeed(pilot, event, now),
+        vertical_speed: getVerticalSpeed(pilot, event, updatedAt),
     };
 
     if (!pilot) {
         pilot = {
             ...fields,
-            date: now,
+            date: updatedAt,
             deleted: false,
         };
         radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
@@ -119,7 +162,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         const positionChanged = pilot.altitude && pilot.groundspeed && pilot.groundspeed < 100 && pilot.altitude < 25000 && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
 
         Object.assign(pilot, fields);
-        pilot.date = now;
+        pilot.date = updatedAt;
         pilot.deleted = false;
 
         if (pilot.callsign && wssPilots[pilot.callsign]) {
@@ -133,8 +176,6 @@ export function kafkaUpdatePilot(event: KafkaPD) {
             }
         }
     }
-
-    pilotPositionUpdatedAt.set(event.Callsign, now);
 }
 
 export function kafkaUpdatePlan(event: KafkaPlan) {

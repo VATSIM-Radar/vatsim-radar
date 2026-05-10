@@ -71,16 +71,17 @@ export async function initKafka() {
 
                 const json = JSON.parse(message.value.toString());
 
-                const timestamp = new Date(message.timestamp);
+                let timestamp = Number(message.timestamp);
+                if (isNaN(timestamp)) timestamp = Date.now();
                 const curDate = Date.now();
 
                 // Don't accept messages older than 10s
-                if (timestamp.getTime() + (1000 * 10) < curDate) return;
+                if (timestamp + (1000 * 10) < curDate) return;
 
                 if (topic === 'ADDCLIENT') return kafkaAddClient(json);
                 if (topic === 'RMCLIENT') return kafkaRemoveClient(json);
                 if (topic === 'AD') return kafkaUpdateController(json);
-                if (topic === 'PD') return kafkaUpdatePilot(json);
+                if (topic === 'PD') return kafkaUpdatePilot(json, timestamp);
                 if (topic === 'PLAN') return kafkaUpdatePlan(json);
                 if (topic === 'DELPLAN') return kafkaRemovePlan(json);
             },

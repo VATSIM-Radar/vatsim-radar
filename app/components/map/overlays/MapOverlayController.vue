@@ -62,7 +62,14 @@
                                 />
                             </template>
                         </ui-data-list>
-                        <ui-data-list :items="[{ key: 'rating', text: shortRating }, { key: 'total', text: stats?.total }, { key: 'on-rating', text: stats?.rating }]">
+                        <ui-data-list
+                            :items="[
+                                { key: 'rating', title: 'Rating', text: shortRating },
+                                { key: 'total', title: 'Total Hours', text: stats?.total },
+                                { key: 'on-rating', title: `Hours on ${ shortRating }`, text: stats?.rating },
+                                { key: 'time-online', title: 'Time Online', text: getATCTime(atc) },
+                            ]"
+                        >
                             <template #item-rating>
                                 <ui-bubble>
                                     {{ shortRating }}
@@ -70,23 +77,22 @@
                             </template>
                             <template #item-total="{ item }">
                                 <span class="atc__chip">
-                                    Total Hours: <ui-chip text-type="caption-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                    <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
                                 </span>
                             </template>
                             <template #item-on-rating="{ item }">
                                 <span class="atc__chip">
-                                    Hours on {{shortRating}}: <ui-chip text-type="caption-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                    <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                </span>
+                            </template>
+                            <template #item-time-online="{ item }">
+                                <span class="atc__chip">
+                                    <ui-chip text-type="3b-medium-alt">{{item.text}}</ui-chip>
                                 </span>
                             </template>
                         </ui-data-list>
                     </ui-data-container>
                 </div>
-                <ui-data-list
-                    :items="[
-                        { title: 'Airport', text: airport?.icao, hide: !airport },
-                        { title: 'Time Online', text: getATCTime(atc) },
-                    ]"
-                />
             </div>
         </template>
         <template #frequencies>

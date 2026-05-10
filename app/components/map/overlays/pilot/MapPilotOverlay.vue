@@ -114,7 +114,13 @@
                 target="_blank"
                 type="3b-medium"
             >
-                <img :src="(props.overlay.data.photo.thumbnail_large ?? props.overlay.data.photo.thumbnail).src">
+                <img
+                    :alt="props.overlay.data.photo.photographer"
+                    decoding="async"
+                    importance="low"
+                    referrerpolicy="origin-when-cross-origin"
+                    :src="(props.overlay.data.photo.thumbnail_large ?? props.overlay.data.photo.thumbnail).src"
+                >
                 <div class="pilot__photo_author">
                     {{props.overlay.data.photo.photographer}}
                 </div>

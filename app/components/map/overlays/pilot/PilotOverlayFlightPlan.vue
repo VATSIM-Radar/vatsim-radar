@@ -82,20 +82,8 @@
 
             <ui-data-container>
                 <ui-data-list
-                    :grid-columns="4"
-                    :items="[
-                        { title: 'EOBT', text: `${ convertTime(flightPlan.deptime ?? '') }z`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.deptime },
-                        { title: 'Time Enroute', text: `${ convertTime(flightPlan.enroute_time ?? '') }`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.enroute_time },
-                        { title: 'Fuel Time', text: `${ convertTime(flightPlan.fuel_time ?? '') }`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.fuel_time },
-                        { title: 'Aircraft Type', text: flightPlan.aircraft_faa, hide: !flightPlan.aircraft_faa },
-                        { title: 'Cruise TAS', text: `${ flightPlan.cruise_tas } kts`, hide: !flightPlan.cruise_tas },
-                        { title: 'Cruise Altitude', text: `${ numberFormatter.format(flightPlan.altitude ? +flightPlan.altitude : 0) } ft`, hide: !flightPlan.altitude },
-                        { title: 'Registration', text: registration, hide: !registration },
-                        { title: 'Alternate', text: alternates.alt, hide: !alternates.alt },
-                        { title: 'Voice Rules', text: commType, hide: commType === 'Voice' },
-                        ...alternates.takeoff?.map(x => ({ title: 'Takeoff Alternate', text: x })) ?? [],
-                        ...alternates.enroute?.map(x => ({ title: 'Enroute Alternate', text: x })) ?? [],
-                    ]"
+                    :grid-columns="flightPlanItems.length > 9 ? 4 : flightPlanItems.length % 4 === 0 ? 4 : flightPlanItems.length % 3 === 0 ? 3 : flightPlanItems.length % 2 === 0 ? 2 : 3"
+                    :items="flightPlanItems"
                 />
             </ui-data-container>
 
@@ -179,6 +167,7 @@ import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
+import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 const props = defineProps({
@@ -239,6 +228,24 @@ const alternates = computed(() => {
 const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.departure ?? ''] ?? null);
 const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.arrival ?? ''] ?? null);
 const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.diverted_origin ?? ''] ?? null);
+
+const flightPlanItems = computed(() => {
+    if (!props.flightPlan) return [];
+
+    return ([
+        { title: 'EOBT', text: `${ convertTime(props.flightPlan.deptime ?? '') }z`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.deptime },
+        { title: 'Time Enroute', text: `${ convertTime(props.flightPlan.enroute_time ?? '') }`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.enroute_time },
+        { title: 'Fuel Time', text: `${ convertTime(props.flightPlan.fuel_time ?? '') }`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.fuel_time },
+        { title: 'Aircraft Type', text: props.flightPlan.aircraft_faa, hide: !props.flightPlan.aircraft_faa },
+        { title: 'Cruise TAS', text: `${ props.flightPlan.cruise_tas } kts`, hide: !props.flightPlan.cruise_tas },
+        { title: 'Cruise Altitude', text: `${ numberFormatter.format(props.flightPlan.altitude ? +props.flightPlan.altitude : 0) } ft`, hide: !props.flightPlan.altitude },
+        { title: 'Registration', text: registration.value, hide: !registration.value },
+        { title: 'Alternate', text: alternates.value.alt, hide: !alternates.value.alt },
+        { title: 'Voice Rules', text: commType.value, hide: commType.value === 'Voice' },
+        ...alternates.value.takeoff?.map(x => ({ title: 'Takeoff Alternate', text: x })) ?? [],
+        ...alternates.value.enroute?.map(x => ({ title: 'Enroute Alternate', text: x })) ?? [],
+    ] satisfies DataListItem[] as DataListItem[]).filter(x => !x.hide && (x.title || x.text));
+});
 </script>
 
 <style scoped lang="scss">

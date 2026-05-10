@@ -8,6 +8,8 @@
 - Fixed approach color
 - Fixed some airports displaying TRACON name instead of airport name on hover
 - Disabled context menu on mobile
+- Improved vertical speed update
+- Implemented dynamic flight plan parameters column count
 
 ## Improvements and changed
 
