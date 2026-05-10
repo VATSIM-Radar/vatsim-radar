@@ -219,11 +219,6 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
-import { globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { Geometry } from 'ol/geom.js';
-import type { VatsimShortenedController } from '~/types/data/vatsim';
-import type { Extent } from 'ol/extent.js';
-import { extend } from 'ol/extent';
 
 const props = defineProps({
     overlay: {
@@ -231,8 +226,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-const facilities = useFacilitiesIds();
 
 const store = useStore();
 const mapStore = useMapStore();
