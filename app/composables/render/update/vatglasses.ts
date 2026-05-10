@@ -169,6 +169,7 @@ export const runwaysState = useStorageLocal<Record<string, string>>('vg-runways'
 let firstRun = true;
 
 export const vgPositionsCache: Record<string, VatglassesPosition[]> = {};
+export const vgCountriesCache: VatglassesData = {};
 
 export async function updateVATGlasses(context: DataUpdateContext) {
     if (!isVatGlassesActive.value) return;
@@ -249,8 +250,10 @@ export async function updateVATGlasses(context: DataUpdateContext) {
     const vgPositionAirports: Record<string, VatglassesAirport[]> = {};
 
     for (const country in foundControllers) {
-        const countryData = await dataStore.vgData.country(country);
+        const countryData = vgCountriesCache[country] ?? await dataStore.vgData.country(country);
         if (!countryData) continue;
+
+        vgCountriesCache[country] ??= countryData;
 
         countries[country] = countryData;
 
@@ -384,6 +387,10 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                 }
             }
         }
+    }
+
+    for (const country in vgCountriesCache) {
+        if (!countries[country]) delete vgCountriesCache[country];
     }
 
     for (const countryGroupId in foundAirspaces) {

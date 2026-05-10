@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-alpha.9.2]
+
+## Alpha changes
+
+- Improved VATGlasses update speed
+
+## Improvements and changes
+
+- Significantly optimized basic layer in terms of performance and memory usage, at a cost of low quality on high zoom
+- Removed Sentry to improve bundle size. It's not like I was checking errors anyway
+
 # [2.0.0-alpha.9.1]
 
 ## Alpha changes
@@ -11,12 +22,11 @@
 - Improved vertical speed update
 - Implemented dynamic flight plan parameters column count
 
-## Improvements and changed
+## Improvements and changes
 
 - Added an ability to zoom to any controller, including CTR
 - Controllers will now be focused when opened from search - same as with aircraft and airports
 - Weather request and route/remarks textareas are now not collapsed (except for Firefox in weather request, I'm sorry)
-- Significantly optimized basic layer in terms of performance and memory usage, at a cost of low quality on high zoom
 
 # [2.0.0-alpha.9]
 

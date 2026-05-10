@@ -282,7 +282,7 @@ onMounted(() => {
 
         &_counter {
             &--departures {
-                color: $green300;
+                color: $green600;
             }
 
             &--ground {

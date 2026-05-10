@@ -98,12 +98,12 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     switch (status) {
         case 'depGate':
             return {
-                color: 'green500',
+                color: 'green600',
                 title: 'Departing | At gate',
             };
         case 'depTaxi':
             return {
-                color: 'green500',
+                color: 'green600',
                 title: 'Departing',
             };
         case 'departed':
