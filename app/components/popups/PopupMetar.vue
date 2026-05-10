@@ -81,7 +81,7 @@
                         </div>
                         <div class="metar__item_title_actions">
                             <ui-button
-                                hover-color="yellow500"
+                                hover-color="orange500"
                                 type="link"
                                 @click="[favorite.includes(item.icao) ? favorite = favorite.filter(x => x !== item.icao) : favorite.push(item.icao), saveFavorite()]"
                             >
@@ -342,7 +342,7 @@ const metars = computed(() => {
             &_textarea {
                 resize: vertical;
 
-                field-sizing: normal;
+                field-sizing: content;
                 width: 100%;
                 padding: 8px;
                 border: none;

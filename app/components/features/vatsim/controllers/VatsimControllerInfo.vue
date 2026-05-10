@@ -185,7 +185,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    overlay() {
+    overlay(controller: VatsimShortenedController) {
         return true;
     },
 });
@@ -220,7 +220,7 @@ const handleClick = () => {
         return;
     }
     mapStore.addAtcOverlay(props.controller.callsign);
-    emit('overlay');
+    emit('overlay', props.controller);
 };
 
 const userList = computed(() => {

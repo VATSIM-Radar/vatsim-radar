@@ -20,8 +20,8 @@ const props = defineProps({
 const colors = {
     10: getCurrentThemeHexColor('red700'),
     50: getCurrentThemeHexColor('red300'),
-    100: getCurrentThemeHexColor('yellow700'),
-    200: getCurrentThemeHexColor('yellow500'),
+    100: getCurrentThemeHexColor('orange700'),
+    200: getCurrentThemeHexColor('orange500'),
     500: getCurrentThemeHexColor('green300'),
     1000: getCurrentThemeHexColor('purple500'),
     3000: getCurrentThemeHexColor('purple300'),

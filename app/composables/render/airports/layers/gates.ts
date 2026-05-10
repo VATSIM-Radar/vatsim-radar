@@ -128,7 +128,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
             const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
 
-            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('red700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('yellow700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('green700').join(',') }, ${ opacitySetting ?? 1 })`;
+            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('red700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('green700').join(',') }, ${ opacitySetting ?? 1 })`;
 
             const existingFeature = getMapFeature('airport-navigraph', source, id);
 
@@ -162,7 +162,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const id = `airport-${ icao }-runway-${ runway.runway_identifier }` as const;
 
             const existingFeature = getMapFeature('airport-navigraph', source, id);
-            const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('red300').join(',') }, 0.7)`;
+            const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.7)`;
 
             if (existingFeature) {
                 if (existingFeature.getProperties().gateColor !== color) {

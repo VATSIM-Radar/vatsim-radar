@@ -199,7 +199,10 @@ const getPopupName = computed(() => {
         return `${ featureProps.name } ${ country.callsign ?? 'Center' }`;
     }
 
+    const icaoName = (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name;
+
     if (type.value === 'sector-vatglasses') return 'Positions';
+    if ('atc' in featureProps && type.value === 'airport' && icaoName) return `${ icaoName }${ featureProps.atc?.length ? ' Controllers' : '' }`;
     if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' && featureProps.atc?.length ? 'Controllers' : '' }`;
     if ('facility' in featureProps) {
         const airport = (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name;
@@ -210,7 +213,7 @@ const getPopupName = computed(() => {
         return `${ airport } ${ facility }`;
     }
 
-    return `${ (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name } Approach/Departure`;
+    return `${ icaoName } Approach/Departure`;
 });
 
 const event = computed(() => {

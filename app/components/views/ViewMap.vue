@@ -1232,7 +1232,7 @@ onBeforeUnmount(() => {
 
         &--type-WARNING {
             color: $darkGray500Orig;
-            background: $yellow500;
+            background: $orange500;
         }
 
         &--type-ERROR {

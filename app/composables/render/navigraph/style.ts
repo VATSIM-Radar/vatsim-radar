@@ -144,17 +144,17 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     });
 
     const enrouteApproachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('orange600').join(',') }, 0.5)`,
         width: 4,
     });
 
     const approachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('orange600').join(',') }, 0.5)`,
         width: 5,
     });
 
     const missApproachStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('yellow600').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('orange600').join(',') }, 0.5)`,
         width: 3,
         lineJoin: 'round',
         lineDash: [6, 12],

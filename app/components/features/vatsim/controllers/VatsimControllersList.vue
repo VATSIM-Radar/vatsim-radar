@@ -31,7 +31,7 @@
                     :controller="controller"
                     :show-atis="showAtis"
                     :show-facility="showFacility"
-                    @overlay="emit('overlay')"
+                    @overlay="emit('overlay', $event)"
                 />
             </div>
         </popup-map-info>
@@ -77,7 +77,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-    overlay() {
+    overlay(controller: VatsimShortenedController) {
         return true;
     },
 });

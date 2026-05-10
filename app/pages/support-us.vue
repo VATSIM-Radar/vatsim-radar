@@ -395,7 +395,7 @@ const features: Feature[] = [
 
             &--type-examiner {
                 --gradient: linear-gradient(90deg, #ECD15B 0%, #DA5525 100%);
-                --color: #{$yellow700};
+                --color: #{$orange700};
             }
 
             &--type-commercial {

@@ -57,7 +57,7 @@ export const colorsList = {
     // green800
     success700: '#006649',
 
-    // yellow400
+    // orange400
     warning300: '#ECD15B',
     // orange400
     warning400: '#EAC453',

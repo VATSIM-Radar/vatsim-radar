@@ -95,7 +95,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         z-index: 1;
 
         padding: 4px 104px;
-        border: 1px solid $yellow500;
+        border: 1px solid $orange500;
         border-radius: 1px;
 
         font-size: 24px;

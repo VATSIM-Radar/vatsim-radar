@@ -154,18 +154,13 @@
         >
             <ui-button-group>
                 <ui-button
-                    :disabled="!airport || airport.isPseudo || atc.facility === facilities.CTR || atc.facility === facilities.FSS"
+                    :disabled="!airport && !feature"
                     @click="showOnMap"
                 >
                     <template #icon>
                         <location-icon/>
                     </template>
-                    <template v-if="!airport || airport.isPseudo || atc.facility === facilities.CTR || atc.facility === facilities.FSS">
-                        Focus On Map
-                    </template>
-                    <template v-else>
-                        Focus ({{ airport?.icao ?? airport?.iata }})
-                    </template>
+                    Focus On Map
                 </ui-button>
                 <ui-button
                     :href="`https://stats.vatsim.net/stats/${ atc.cid }`"
@@ -200,7 +195,7 @@ import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import type { Map } from 'ol';
-import { findAtcAirport, getATCTime, showAtcOnMap } from '~/composables/vatsim/controllers';
+import { findAtcAirport, findATCSector, getATCTime, showAtcOnMap } from '~/composables/vatsim/controllers';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
@@ -218,6 +213,11 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
+import { globalMapEntities, isMapFeature } from '~/utils/map/entities';
+import type { Geometry } from 'ol/geom.js';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { Extent } from 'ol/extent.js';
+import { extend } from 'ol/extent';
 
 const props = defineProps({
     overlay: {
@@ -256,6 +256,19 @@ const getSections = computed<InfoPopupSection[]>(() => {
 
 const airport = shallowRef<null | VatSpyAirport>(null);
 
+const feature = computed(() => {
+    if (!atc.value) return null;
+    return findATCSector(atc.value);
+});
+
+function focusOnFeature() {
+    if (!feature.value) return;
+
+    map.value?.getView().fit(feature.value, {
+        duration: 300,
+    });
+}
+
 watch(() => props.overlay?.data.callsign, async val => {
     if (atc.value) {
         airport.value = await findAtcAirport(atc.value);
@@ -274,7 +287,10 @@ const close = () => {
 
 const showOnMap = () => {
     if (!atc.value) return;
-    showAtcOnMap(atc.value, map.value);
+    if (feature.value) focusOnFeature();
+    else {
+        showAtcOnMap(atc.value, map.value);
+    }
 };
 
 watch(atc, value => {

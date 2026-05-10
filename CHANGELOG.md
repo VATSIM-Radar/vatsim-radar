@@ -1,5 +1,20 @@
 # Changelog
 
+# [2.0.0-alpha.9.1]
+
+## Alpha changes
+
+- Fixed runway color
+- Fixed approach color
+- Fixed some airports displaying TRACON name instead of airport name on hover
+- Disabled context menu on mobile
+
+## Improvements and changed
+
+- Added an ability to zoom to any controller, including CTR
+- Controllers will now be focused when opened from search - same as with aircraft and airports
+- Weather request and route/remarks textareas are now not collapsed (except for Firefox in weather request, I'm sorry)
+
 # [2.0.0-alpha.9]
 
 ## Alpha changes

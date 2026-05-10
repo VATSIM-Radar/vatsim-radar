@@ -42,12 +42,12 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             light: getCurrentThemeRgbColor('blue500').join(','),
         },
         taxiwayOrange: {
-            default: getCurrentThemeRgbColor('red500').join(','),
-            light: getCurrentThemeRgbColor('red300').join(','),
+            default: getCurrentThemeRgbColor('citrus500').join(','),
+            light: getCurrentThemeRgbColor('citrus300').join(','),
         },
         taxiwayOrangeText: {
-            default: getCurrentThemeRgbColor('red300').join(','),
-            light: getCurrentThemeRgbColor('red500').join(','),
+            default: getCurrentThemeRgbColor('citrus300').join(','),
+            light: getCurrentThemeRgbColor('citrus500').join(','),
         },
         taxiwayWhite: {
             default: getCurrentThemeRgbColor('lightGray600').join(','),
@@ -163,7 +163,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         }),
         constructionarea: new Style({
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('citrus500').join(',') }, 0.1)`,
             }),
             zIndex: 4,
         }),
@@ -283,7 +283,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             const options: StyleOptions = {
                 stroke: new Stroke({
-                    color: `rgba(${ getCurrentThemeRgbColor('yellow700').join(',') }, 0.5)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, 0.5)`,
                 }),
                 zIndex: 5,
             };
@@ -294,7 +294,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     font: 'bold 12px LibreFranklin',
                     placement: 'line',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('yellow700').join(',') }, 0.6)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, 0.6)`,
                     }),
                     textBaseline: 'bottom',
                     textAlign: 'left',
@@ -302,8 +302,8 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             }
 
             if (properties.catstop === 2) {
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.5)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.6)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('citrus500').join(',') }, 0.5)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('citrus500').join(',') }, 0.6)`);
             }
 
             const barsStatus = getIntersectionStatus(properties.airport, properties.idlin!);
@@ -311,8 +311,8 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             if (properties.idlin && typeof barsStatus === 'boolean') {
                 options.stroke?.setWidth(2);
                 options.stroke?.setLineDash([1, 4]);
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'red700').join(',') }, 0.8)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'red700').join(',') }, 0.8)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'citrus700').join(',') }, 0.8)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'green500' : 'citrus700').join(',') }, 0.8)`);
             }
 
             return new Style(options);
@@ -351,7 +351,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 text: feature.getProperties().idthr,
                 font: 'bold 12px LibreFranklin',
                 fill: new Fill({
-                    color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('red300').join(',') }, 0.7)`,
+                    color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('citrus600').join(',') }, 0.7)`,
                 }),
                 rotation: toRadians(feature.getProperties().brngtrue!),
                 rotateWithView: true,

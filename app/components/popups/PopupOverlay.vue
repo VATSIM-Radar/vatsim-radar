@@ -384,7 +384,7 @@ watch(getSections, sections => {
             }
         }
 
-        &_tabs {
+        & &_tabs {
             position: sticky;
             z-index: 6;
             top: 36px;

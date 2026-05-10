@@ -200,7 +200,7 @@ onBeforeUnmount(() => {
                 }
 
                 &--approach {
-                    background: $yellow700;
+                    background: $orange700;
                 }
             }
         }

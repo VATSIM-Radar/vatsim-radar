@@ -204,7 +204,7 @@ const removeFromList = () => {
             transition: 0.3s;
 
             &:hover {
-                color: $yellow500;
+                color: $orange500;
             }
         }
     }

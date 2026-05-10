@@ -640,7 +640,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 selectFeature(false);
             }
 
-            if (!arg.mapBrowserEvent || (type === 'hover' && isMobileOrTablet.value)) return;
+            if (!arg.mapBrowserEvent || (type !== 'click' && isMobileOrTablet.value)) return;
 
             let tookAction = false;
             let multiselect = false;

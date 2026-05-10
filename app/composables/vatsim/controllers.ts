@@ -7,6 +7,10 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '~/utils/data';
+import { globalMapEntities, isMapFeature } from '~/utils/map/entities';
+import { extend } from 'ol/extent';
+import type { Extent } from 'ol/extent';
+import type { Geometry } from 'ol/geom';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -161,8 +165,82 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     }
 }
 
+export function findATCSector(atc: VatsimShortenedController) {
+    const facilities = useFacilitiesIds();
+    const features: { atc: VatsimShortenedController[]; geometry: Geometry | undefined }[] = [];
+    const { airports, sectors } = globalMapEntities;
+
+    if (atc.facility > facilities.APP) {
+        features.push(...sectors?.getFeatures().map(x => {
+            const properties = x.getProperties();
+            if (isMapFeature('sector', properties) || isMapFeature('sector-vatglasses', properties)) {
+                return {
+                    atc: properties.atc.slice(),
+                    geometry: x.getGeometry(),
+                };
+            }
+
+            return [];
+        }).flat() ?? []);
+    }
+    else {
+        features.push(...[
+            ...airports?.getFeatures().map(x => {
+                const properties = x.getProperties();
+                if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
+                    return {
+                        atc: properties.atc.slice(),
+                        geometry: x.getGeometry(),
+                    };
+                }
+
+                return [];
+            }).flat() ?? [],
+            ...sectors?.getFeatures().map(x => {
+                const properties = x.getProperties();
+                if (isMapFeature('sector', properties) || isMapFeature('sector-vatglasses', properties)) {
+                    return {
+                        atc: properties.atc.slice(),
+                        geometry: x.getGeometry(),
+                    };
+                }
+
+                return [];
+            }).flat() ?? [],
+        ]);
+    }
+
+    let extent: Extent | null = null;
+
+    for (const feature of features) {
+        if (feature.atc.some(x => x.callsign === atc.callsign)) {
+            if (!extent) {
+                extent = feature.geometry?.getExtent() ?? null;
+            }
+            else {
+                const newExtent = feature.geometry?.getExtent();
+                if (!newExtent) continue;
+                extent = extend(extent, newExtent);
+            }
+        }
+    }
+
+    return extent;
+}
+
 export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
+
+    if (!map) return;
+
+    const sector = findATCSector(atc);
+    if (sector) {
+        map.getView().fit(sector, {
+            duration: 300,
+        });
+        return;
+    }
+
     const airport = await findAtcAirport(atc);
     if (!airport) return;
 

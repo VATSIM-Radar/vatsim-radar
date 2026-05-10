@@ -660,7 +660,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         }
 
         &--status-todo {
-            --status-color: #{$yellow600};
+            --status-color: #{$orange600};
         }
 
         &--status-in-progress {

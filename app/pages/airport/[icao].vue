@@ -254,8 +254,8 @@
                             >
                                 <vatsim-traffic-rate
                                     :aircraft="aircraft"
-                                    :icon-color="radarColors.yellow500"
-                                    :text-color="radarColors.yellow500"
+                                    :icon-color="radarColors.orange500"
+                                    :text-color="radarColors.orange500"
                                     :use-opacity="store.theme === 'default'"
                                 />
                             </div>
@@ -601,7 +601,7 @@ const controllerColumns = computed(() => {
                 color = radarColors.blue700;
                 break;
             case 'arrivals':
-                color = radarColors.yellow500;
+                color = radarColors.orange500;
                 darkColor = true;
                 break;
             case 'groundArr':

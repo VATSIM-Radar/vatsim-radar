@@ -112,7 +112,7 @@ const airports = computed<Airport[]>(() => {
     }
 
     :deep(.table__data--type-arriving) {
-        color: $yellow500;
+        color: $orange500;
     }
 }
 </style>

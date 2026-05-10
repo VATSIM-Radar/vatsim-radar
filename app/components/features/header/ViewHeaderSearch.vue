@@ -206,7 +206,7 @@
                                 max-height="auto"
                                 show-facility
                                 small
-                                @overlay="opened = false"
+                                @overlay="[opened = false, showAtcOnMap($event, map)]"
                             />
                         </template>
                     </div>
@@ -232,7 +232,7 @@ import VatsimControllersList from '~/components/features/vatsim/controllers/Vats
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
-import { showAirportOnMap } from '~/composables/vatsim/controllers';
+import { showAirportOnMap, showAtcOnMap } from '~/composables/vatsim/controllers';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 

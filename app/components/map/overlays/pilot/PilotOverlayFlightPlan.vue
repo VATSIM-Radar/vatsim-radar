@@ -82,6 +82,7 @@
 
             <ui-data-container>
                 <ui-data-list
+                    :grid-columns="4"
                     :items="[
                         { title: 'EOBT', text: `${ convertTime(flightPlan.deptime ?? '') }z`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.deptime },
                         { title: 'Time Enroute', text: `${ convertTime(flightPlan.enroute_time ?? '') }`, hide: (status !== 'depGate' && status !== 'depTaxi') || !flightPlan.enroute_time },
@@ -127,6 +128,7 @@
         </ui-notification>
         <ui-copy-info
             v-if="flightPlan?.route"
+            auto-expand
             :text="flightPlan.route"
         >
             Route
@@ -143,6 +145,7 @@
         </ui-copy-info>
         <ui-copy-info
             v-if="flightPlan?.remarks"
+            auto-expand
             :rows="3"
             :text="flightPlan.remarks"
         >

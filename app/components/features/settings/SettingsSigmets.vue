@@ -71,11 +71,11 @@ const buttons: Record<SigmetType, Button> = {
     },
     TURB: {
         text: 'TURB',
-        color: 'yellow700',
+        color: 'orange700',
     },
     MTW: {
         text: 'MTW',
-        color: 'yellow600',
+        color: 'orange600',
     },
     WIND: {
         text: 'WIND',
