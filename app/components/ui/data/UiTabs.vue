@@ -2,7 +2,7 @@
     <div
         class="tabs"
         :class="{
-            'tabs--vertical': isMobile && mobileVertical,
+            'tabs--vertical': vertical || (isMobile && mobileVertical),
             'tabs--full-width': fullWidth,
         }"
         :style="{ '--background': radarColors[background as ColorsList] ?? background }"
@@ -16,6 +16,7 @@
                     'tabs_tab--active': key === model,
                     'tabs_tab--disabled': tab.disabled,
                 }"
+                :to="tab.to"
                 type="2b"
                 @click="model = key"
             >
@@ -38,6 +39,7 @@ import UiText from '~/components/ui/text/UiText.vue';
 
 interface Tab {
     title: string;
+    to?: string;
     disabled?: boolean;
 }
 
@@ -49,6 +51,10 @@ const props = defineProps({
         required: true,
     },
     mobileVertical: {
+        type: Boolean,
+        default: false,
+    },
+    vertical: {
         type: Boolean,
         default: false,
     },
@@ -105,14 +111,14 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         display: flex;
         align-items: flex-end;
-        justify-content: center;
+        justify-content: flex-start;
 
         height: 100%;
         padding: 8px 16px;
 
         line-height: 100%;
         color: $typographySecondary;
-        text-align: center;
+        text-align: left;
 
         &::after {
             content: '';
@@ -180,7 +186,7 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         }
 
         &--active::after {
-            width: 2px;
+            width: 2px !important;
         }
     }
 }

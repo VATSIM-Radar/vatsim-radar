@@ -1,5 +1,6 @@
 <template>
     <ui-tabs
+        background="darkGray700"
         mobile-vertical
         :model-value="statsTab"
         :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, pilots: { title: 'Pilots' }, atc: { title: 'ATC' }, observers: { title: 'Observers' } }"
@@ -33,16 +34,8 @@ useHead(() => ({
 <style lang="scss" scoped>
 div.tabs {
     margin-bottom: 8px;
-    padding: 16px;
-    border-radius: 16px;
-    background: $darkGray700;
-
-    :deep(.tabs_list) {
-        background: $darkGray700;
-    }
-
-    :deep(.tabs_tab::after) {
-        background: $darkGray700;
-    }
+    padding: 4px 4px 8px;
+    border-radius: 4px;
+    background: var(--background);
 }
 </style>

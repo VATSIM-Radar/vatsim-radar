@@ -117,6 +117,8 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
+const cont = UiPageContainer;
+
 const { data: notams, refresh } = await useAsyncData('internal-notams', () => $fetch<RadarNotam[]>('/api/data/notams/0'), {
     server: false,
 });

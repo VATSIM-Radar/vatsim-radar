@@ -181,7 +181,7 @@ function doSort(header: TableHeader) {
 <style scoped lang="scss">
 .table {
     padding: 16px;
-    border-radius: 16px;
+    border-radius: 4px;
     color: $lightGray300;
     background: $darkGray700;
 
@@ -202,7 +202,7 @@ function doSort(header: TableHeader) {
         top: 56px;
 
         margin-bottom: 16px;
-        border-bottom: 1px solid $darkGray500;
+        border-bottom: 1px solid $strokeDefault;
 
         font-size: 14px;
         line-height: 100%;

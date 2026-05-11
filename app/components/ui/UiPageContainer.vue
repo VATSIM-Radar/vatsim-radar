@@ -1,28 +1,45 @@
 <template>
     <div class="page-block">
-        <ui-container v-if="container">
+        <component
+            :is="container ? UiContainer : 'div'"
+            class="page-block_container"
+        >
             <div
                 v-if="$slots.title"
-                class="page-block_title"
+                class="page-block__header"
             >
-                <slot name="title"/>
+                <div class="page-block__header_left">
+                    <ui-text
+                        v-if="$slots.title"
+                        class="page-block__header__title"
+                        type="h2"
+                    >
+                        <slot name="title"/>
+                    </ui-text>
+                    <ui-text
+                        v-if="$slots.description"
+                        class="page-block__header__description"
+                        type="3b"
+                    >
+                        <slot name="description"/>
+                    </ui-text>
+                </div>
+                <div
+                    v-if="$slots.append"
+                    class="page-block__header_right"
+                >
+                    <slot name="append"/>
+                </div>
             </div>
             <slot/>
-        </ui-container>
-        <template v-else>
-            <div
-                v-if="$slots.title"
-                class="page-block_title"
-            >
-                <slot name="title"/>
-            </div>
-            <slot/>
-        </template>
+        </component>
     </div>
 </template>
 
 <script lang="ts" setup>
 import UiContainer from '~/components/ui/UiContainer.vue';
+import { Fragment } from 'vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     container: {
@@ -31,34 +48,44 @@ defineProps({
     },
 });
 
-defineSlots<{ default?: () => any; title?: () => any }>();
+defineSlots<{ default?: () => any; title?: () => any; description?: () => any; append?: () => any }>();
 </script>
 
 <style scoped lang="scss">
 .page-block {
+    --container-vertical-padding: 24px;
+    --container-horizontal-padding: 24px;
+
     flex: 1 0 auto;
 
     width: 100%;
-    padding: 24px;
-    border-radius: 16px;
+    padding: var(--container-vertical-padding) var(--container-horizontal-padding);
+    border: 1px solid $strokeDefault;
+    border-radius: 8px;
 
-    background: $darkGray800;
+    background: $darkGray900;
 
     @include mobileOnly {
-        padding: 8px;
+        --container-vertical-padding: 8px;
+        --container-horizontal-padding: 8px;
     }
 
-    &_title {
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid varToRgba('lightGray500', 0.2);
+    &__header {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        justify-content: space-between;
 
-        font-size: 32px;
-        font-weight: 600;
-        color: $blue500;
+        margin-bottom: 32px;
 
-        @include mobileOnly {
-            font-size: 24px;
+        &_left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        & &__description {
+            color: $typographySecondary;
         }
     }
 }
