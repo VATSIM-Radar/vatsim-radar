@@ -281,6 +281,12 @@ watch(getSections, sections => {
 
         background: $black;
 
+        transition: border-bottom-color 0.5s;
+
+        @at-root .info-popup--collapsed & {
+            border-bottom-color: transparent;
+        }
+
         @include mobileOnly {
             flex-wrap: wrap;
         }

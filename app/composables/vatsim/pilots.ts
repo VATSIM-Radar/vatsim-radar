@@ -102,12 +102,12 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     switch (status) {
         case 'depGate':
             return {
-                color: 'green600',
+                color: 'green500',
                 title: 'Departing | At gate',
             };
         case 'depTaxi':
             return {
-                color: 'green600',
+                color: 'green500',
                 title: 'Departing',
             };
         case 'departed':
@@ -163,7 +163,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
         active: getCurrentThemeHexColor('orange600'),
         default: getCurrentThemeHexColor('blue500'),
         ground: getCurrentThemeHexColor('blue500'),
-        green: getCurrentThemeHexColor('green600'),
+        green: getCurrentThemeHexColor('green500'),
         hover: getCurrentThemeHexColor('orange500'),
         neutral: getCurrentThemeHexColor('lightGray500'),
 
