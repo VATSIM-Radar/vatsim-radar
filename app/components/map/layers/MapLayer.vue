@@ -9,7 +9,6 @@ import { XYZ } from 'ol/source.js';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
