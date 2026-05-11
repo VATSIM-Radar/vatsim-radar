@@ -182,8 +182,8 @@ const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway
 
 async function initLayer() {
     if (tileLayer.value) {
-      tileLayer.value.getSource()?.clear();
-      map.value?.removeLayer(tileLayer.value);
+        tileLayer.value.getSource()?.clear();
+        map.value?.removeLayer(tileLayer.value);
     }
     tileLayer.value?.dispose();
 
