@@ -25,6 +25,7 @@ let styleCache: Record<string, Style> = {};
 
 let fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
 let fetchedPngIcons: PartialRecord<string, HTMLImageElement | Promise<HTMLImageElement>> = {};
+let refreshAircraftStyle: (() => void) | undefined;
 
 function scheduleIconForFetch(icon: AircraftIcon) {
     if (typeof fetchedIcons[icon] === 'string') return fetchedIcons[icon];
@@ -34,7 +35,10 @@ function scheduleIconForFetch(icon: AircraftIcon) {
 
     fetchedIcons[icon] = fetchAircraftSvgIcon(icon);
     fetchedIcons[icon]
-        .then(x => fetchedIcons[icon] = x)
+        .then(x => {
+            fetchedIcons[icon] = x;
+            refreshAircraftStyle?.();
+        })
         .catch(e => {
             console.error(e);
             delete fetchedIcons[icon];
@@ -50,7 +54,10 @@ function schedulePngIconForFetch(src: string) {
 
     fetchedPngIcons[src] = fetchAircraftPngIcon(src);
     fetchedPngIcons[src]
-        .then(x => fetchedPngIcons[src] = x)
+        .then(x => {
+            fetchedPngIcons[src] = x;
+            refreshAircraftStyle?.();
+        })
         .catch(e => {
             console.error(e);
             delete fetchedPngIcons[src];
@@ -85,6 +92,11 @@ function svgToDataURI(svg: string) {
     return `data:image/svg+xml,${ encoded }`;
 }
 
+function getColorAlpha(color: string) {
+    if (!color.startsWith('rgba')) return undefined;
+    return parseFloat(color.split(',')[3]);
+}
+
 let watcher: WatchHandle | undefined = undefined;
 
 export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
@@ -93,6 +105,7 @@ export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
     const store = useStore();
     const mapStore = useMapStore();
+    refreshAircraftStyle = () => layer.changed();
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
@@ -176,34 +189,51 @@ export function setAircraftStyle(layer: VectorLayer) {
                 ? true
                 : store.mapSettings?.aircraftDeclutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100)) : false;
 
-            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!png) + String(!!svg) + String(shouldDeclutter);
-
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
-            const iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
+            const svgColor = svg || !pngImage ? getAircraftStatusColor(status, cid) : undefined;
+            const statusIconColor = svgColor ? `rgb(${ hexToRgb(svgColor) })` : undefined;
+            const statusIconOpacity = svgColor ? getColorAlpha(svgColor) ?? 1 : undefined;
+            const useSvgFallback = !pngImage && !svg;
+            let iconColor: string | undefined;
+            let iconOpacity: number | undefined;
+
+            if (useSvgFallback) {
+                iconColor = statusIconColor;
+                iconOpacity = store.mapSettings.heatmapLayer ? 0 : statusIconOpacity;
+            }
+            else {
+                iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
+                iconOpacity = filterColor ? getColorAlpha(filterColor) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1));
+            }
+
+            const svgSrc = svg ? svgToDataURI(reColorSvg(svg, status, cid)) : undefined;
+            const imageStyleKey = [
+                svgSrc ? 'svg' : 'png',
+                icon.icon,
+                scaledWidth,
+                scaledHeight,
+                shouldDeclutter,
+                svgSrc ? store.theme : undefined,
+                svgSrc ? svgColor : pngSrc,
+                svgSrc ? Number(!store.mapSettings.heatmapLayer) : iconColor,
+                svgSrc ? undefined : iconOpacity,
+                svgSrc ? undefined : !!png,
+            ].join('|');
 
             if (!styleImageCache[imageStyleKey]) {
                 styleImageCache[imageStyleKey] = new Icon({
-                    src: svg ? svgToDataURI(reColorSvg(svg, status, cid)) : typeof pngItem === 'string' ? pngItem : undefined,
-                    img: png ?? undefined,
+                    src: svgSrc ?? (typeof pngItem === 'string' ? pngItem : undefined),
+                    img: svgSrc ? undefined : png ?? undefined,
                     declutterMode: shouldDeclutter ? 'declutter' : 'obstacle',
                     width: scaledWidth,
                     height: scaledHeight,
-                    color: (pngImage || !svg) ? iconColor : undefined,
+                    color: svgSrc ? undefined : iconColor,
+                    opacity: svgSrc ? Number(!store.mapSettings.heatmapLayer) : iconOpacity,
                     rotateWithView: true,
                 });
             }
 
-            if (pngImage || !svg) {
-                styleImageCache[imageStyleKey].setRotation(rotation);
-                styleImageCache[imageStyleKey].setColor(iconColor);
-                styleImageCache[imageStyleKey].setOpacity(filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)));
-            }
-            else {
-                styleImageCache[imageStyleKey].setSrc(svgToDataURI(reColorSvg(svg, status, cid)));
-                styleImageCache[imageStyleKey].setRotation(rotation);
-                styleImageCache[imageStyleKey].setColor(null);
-                styleImageCache[imageStyleKey].setOpacity(Number(!store.mapSettings.heatmapLayer));
-            }
+            styleImageCache[imageStyleKey].setRotation(rotation);
 
             styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
             return [styleCache.aircraftImage, styleCache.aircraftText];
