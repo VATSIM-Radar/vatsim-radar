@@ -18,6 +18,7 @@ import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import type { WatchHandle } from 'vue';
+import { globalComputed } from '~/composables';
 
 let styleImageCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};
@@ -86,6 +87,8 @@ function svgToDataURI(svg: string) {
 
 let watcher: WatchHandle | undefined = undefined;
 
+export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
+
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
     const store = useStore();
@@ -140,7 +143,8 @@ export function setAircraftStyle(layer: VectorLayer) {
                 scale,
             });
 
-            const hideText = store.mapSettings.visibility?.pilotLabels === true || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
+            const hideText = !aircraftOverlays().value.includes(cid) && ownFlight.value?.cid !== cid &&
+                (store.mapSettings.visibility?.pilotLabels === true || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100));
             const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;

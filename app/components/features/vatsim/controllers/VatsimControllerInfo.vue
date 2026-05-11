@@ -117,18 +117,10 @@
                 >
                     {{userFriend?.comment}}
                 </ui-text>
-                <ui-text
-                    v-if="controller.booking"
-                    class="atc_atis_booking"
-                    type="caption"
-                >
-                    Booked until
-
-                    {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}Z
-                </ui-text>
                 <vatsim-controller-time-online
                     v-if="controller.logon_time"
                     :controller="controller"
+                    show-booking
                 />
             </template>
             <template v-else-if="controller.booking">

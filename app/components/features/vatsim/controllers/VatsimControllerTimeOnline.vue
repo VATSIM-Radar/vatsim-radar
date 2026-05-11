@@ -1,25 +1,50 @@
 <template>
-    <div class="atc-time">
-        <div class="atc-time_text">
-            Time online:
+    <ui-text
+        class="atc-time"
+        :class="{ 'atc-time--booking': controller.booking && showBooking }"
+        type="caption"
+    >
+        <div
+            v-if="controller.booking && showBooking"
+            class="atc-time_section"
+        >
+            <div class="atc-time_text">
+                Booked until:
+            </div>
+            <ui-chip class="atc-time_info">
+                {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}z
+            </ui-chip>
         </div>
-        <div class="atc-time_info">
-            {{ getATCTime(controller) }}
+        <div class="atc-time_section">
+            <div class="atc-time_text">
+                Time online:
+            </div>
+            <ui-chip class="atc-time_info">
+                {{ getATCTime(controller) }}
+            </ui-chip>
         </div>
-    </div>
+    </ui-text>
 </template>
 
 <script setup lang="ts">
 import { getATCTime } from '~/composables/vatsim/controllers';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     controller: {
         type: Object as PropType<VatsimShortenedController>,
         required: true,
     },
+    showBooking: {
+        type: Boolean,
+        default: false,
+    },
 });
+
+const store = useStore();
 </script>
 
 <style scoped lang="scss">
@@ -31,14 +56,16 @@ defineProps({
 
     width: 100%;
 
-    font-size: 11px;
-    font-weight: 300;
-    color: $lightGray500;
+    color: $typographyPrimary;
 
-    &_info {
-        padding: 2px 4px;
-        border-radius: 4px;
-        background: $darkGray800;
+    &_section {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    &--booking {
+        justify-content: space-between;
     }
 }
 </style>
