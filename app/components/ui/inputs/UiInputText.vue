@@ -98,6 +98,10 @@ const props = defineProps({
         type: String,
         default: 'text',
     },
+  width: {
+    type: String,
+    default: '100%',
+  },
     height: {
         type: String,
     },
@@ -150,7 +154,7 @@ watch(model, val => {
 
 <style scoped lang="scss">
 .input {
-    width: 100%;
+    width: v-bind(width);
 
     &_label {
         user-select: none;

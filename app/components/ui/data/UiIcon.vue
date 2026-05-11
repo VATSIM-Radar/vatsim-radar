@@ -1,6 +1,7 @@
 <template>
     <div
         class="icon"
+        :class="{ 'icon--real-offset': realOffset }"
         :style="{ '--color': color in radarColors ? radarColors[color as ColorsList] : color, '--size': `${ size }px`, '--offset': `${ iconOffset }px` }"
     >
         <slot/>
@@ -22,6 +23,10 @@ defineProps({
     iconOffset: {
         type: Number,
         default: 8,
+    },
+    realOffset: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -50,6 +55,16 @@ defineSlots<{ default?(): any }>();
 
         opacity: 0.12;
         background: currentColor;
+    }
+
+    &--real-offset {
+        width:  calc(var(--size) + var(--offset));
+        height: calc(var(--size) + var(--offset));
+        padding: calc(4px + var(--offset) / 2);
+
+        &::before {
+            inset: 0;
+        }
     }
 
     &:deep(svg) {

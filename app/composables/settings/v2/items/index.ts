@@ -38,7 +38,7 @@ export const settingsItemDebug = {
         type: 'color',
         title: 'Color',
         value: ref(null),
-        defaultColor: { color: 'blue500Hex' },
+        defaultColor: { color: 'blue500' },
         onChange: onChange,
     },
     select: {

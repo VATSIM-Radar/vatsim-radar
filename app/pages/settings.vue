@@ -7,7 +7,16 @@
             Manage your experience here
         </template>
         <template #append>
-            Search
+            <ui-input-text
+                v-model="search"
+                placeholder="Search"
+                width="448px"
+                @appendClick="$event.input?.focus()"
+            >
+                <template #append>
+                    <search-icon width="16"/>
+                </template>
+            </ui-input-text>
         </template>
 
         <div class="settings">
@@ -30,6 +39,7 @@
                             v-if="root.icon"
                             class="settings_menu_item_header_icon"
                             color="whiteAlpha64"
+                            real-offset
                             :size="20"
                         >
                             <component :is="root.icon"/>
@@ -61,12 +71,12 @@
             </div>
 
             <div class="settings_content">
-                <nuxt-page/>
+                <nuxt-page :item="currentItem" @jumped="search = ''"/>
             </div>
 
             <div class="settings_contents settings_menu">
                 <div
-                    v-if="currentItem?.items.filter(x => x.title).length"
+                    v-if="currentItem?.items.filter(x => x.title).length && !search"
                     class="settings_menu_item settings_menu_item--root"
                 >
                     <ui-text
@@ -78,10 +88,11 @@
                         </div>
                     </ui-text>
                     <div class="settings_menu_item_children">
+                        <!-- Model is incorrect for a reason -->
                         <ui-tabs
                             background="darkGray900"
-                            :model-value="childrenPath"
-                            :tabs="Object.fromEntries(currentItem.items.filter(x => x.title).map(x => ([x.title, ({ title: x.title })])))"
+                            :model-value="route.hash"
+                            :tabs="Object.fromEntries(currentItem.items.filter(x => x.title).map(x => ([x.key, ({ title: x.title!, to: `#${ x.key }` })])))"
                             vertical
                         />
                     </div>
@@ -98,7 +109,11 @@ import UiIcon from '~/components/ui/data/UiIcon.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import SearchIcon from '@/assets/icons/kit/search.svg?component';
+import type { SettingsItem, SettingsSectionBlock } from '~/composables/settings/v2/types';
 
+const search = ref('');
 const route = useRoute();
 
 const rootPath = computed(() => route.params.path?.[0] ?? null);
@@ -107,6 +122,69 @@ const childrenPath = computed(() => route.params.path?.[1] ?? null);
 const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: () => ([]) });
 
 const currentItem = computed(() => {
+    if (search.value) {
+        const block: SettingsSectionBlock = {
+            title: 'Search results',
+            description: 'Nothing has been found... Try again?',
+            key: 'search',
+            items: [],
+        };
+
+        const item: SettingsSection = {
+            title: 'Search',
+            url: '/search',
+            items: [block],
+        };
+
+        const searchLowercase = search.value.toLowerCase();
+
+        const foundBlocks: { item: SettingsItem; fullPath: string; score: number }[] = [];
+
+        for (const root of settingsSections) {
+            for (const section of root.sections) {
+                for (const item of section.items) {
+                    for (const component of item.items) {
+                        const match = {
+                            item: component,
+                            score: 0,
+                        };
+
+                        const words: string[] = [];
+
+                        if ('title' in component) {
+                            words.push(component.title.toLowerCase());
+                            if (component.description) words.push(component.description.toLowerCase());
+                            if (component.hint) words.push(component.hint.toLowerCase());
+                        }
+
+                        if (component.searchKeywords?.length) words.push(...component.searchKeywords.map(x => x.toLowerCase()));
+
+                        for (const word of words) {
+                            if (word === searchLowercase) {
+                                match.score = 3;
+                                break;
+                            }
+                            else if (word.startsWith(searchLowercase)) {
+                                if (match.score < 2) match.score = 2;
+                                else if (word.includes(searchLowercase)) if (match.score < 1) match.score = 1;
+                            }
+                        }
+
+                        if (match.score > 0 && !foundBlocks.some(x => x.item === component)) foundBlocks.push({ item: component, fullPath: `/settings/${ root.url }/${ section.url }#${ item.key }`, score: match.score });
+                    }
+                }
+            }
+        }
+
+        if (foundBlocks.length) block.description = `Found ${ foundBlocks.length } result${ foundBlocks.length > 1 ? 's' : '' }`;
+        block.items = foundBlocks.sort((a, b) => b.score - a.score).map(x => ({
+            ...x.item,
+            fullPath: x.fullPath,
+        }));
+
+        return item;
+    }
+
     for (const root of settingsSections) {
         if (root.url !== rootPath.value) continue;
 
@@ -125,18 +203,20 @@ const currentItem = computed(() => {
 
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 if (!currentItem.value) {
-    showError({ status: 404 });
+    if (!rootPath.value) {
+        navigateTo(`/settings/${ settingsSections[0].url }`, { replace: true });
+    }
+    else {
+        showError({ status: 404 });
+    }
 }
-
-useHead({
-    title: computed(() => `${ currentItem.value?.title }`),
-});
 </script>
 
 <style scoped lang="scss">
 .settings {
     display: grid;
     grid-template-columns: (220px + 24px) calc(100% - 48px - 440px) 220px;
+    flex-grow: 1;
     justify-content: space-between;
 
     &_menu {
@@ -147,13 +227,11 @@ useHead({
         display: flex;
         flex-direction: column;
         gap: 24px;
+        align-self: stretch;
 
-        width: calc(100% + var(--container-horizontal-padding));
-        max-height: calc(100dvh - 56px + var(--container-vertical-padding));
-        margin-top: calc(var(--container-vertical-padding) * -1);
-        margin-left: calc(var(--container-horizontal-padding) * -1);
-        padding-top: var(--container-vertical-padding);
-        padding-left: var(--container-horizontal-padding);
+        width: calc(100%);
+        max-height: calc(100dvh - 56px);
+        padding: 16px 0;
 
         &--nav {
             padding-right: 24px;

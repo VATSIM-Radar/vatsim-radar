@@ -6,13 +6,19 @@ import type { RadioItemGroup } from '~/components/ui/inputs/UiRadioGroup.vue';
 
 export interface SettingsItemMandatory {
     searchKeywords?: string[];
+    disabled?: MaybeRefOrGetter<boolean>;
+
+    /**
+     * Used in search
+     * @internal
+     */
+    fullPath?: string;
 }
 
 export interface SettingsItemDefault extends SettingsItemMandatory {
     title: string;
     description?: string;
     hint?: string;
-    disabled?: MaybeRefOrGetter<boolean>;
 }
 
 // Whole setting is a component
@@ -102,6 +108,7 @@ export type SettingsItemSearch = SettingsItem & {
 export interface SettingsSectionBlock {
     title?: string;
     description?: string;
+    key: string;
     items: SettingsItem[];
 }
 

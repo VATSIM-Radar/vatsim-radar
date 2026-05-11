@@ -7,8 +7,8 @@
         }]"
         :href="href ?? undefined"
         :style="{
-            '--text-primary-color': color !== 'currentColor' ? `var(--${ color })` : undefined,
-            '--text-hover-color': linkHoverColor ? `var(--${ linkHoverColor })` : undefined,
+            '--text-primary-color': color !== 'currentColor' ? `rgb(var(--${ color }))` : undefined,
+            '--text-hover-color': linkHoverColor ? `rgb(var(--${ linkHoverColor }))` : undefined,
         }"
         :target
         :to="to ?? undefined"

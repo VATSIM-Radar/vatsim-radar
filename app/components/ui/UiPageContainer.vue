@@ -56,7 +56,9 @@ defineSlots<{ default?: () => any; title?: () => any; description?: () => any; a
     --container-vertical-padding: 24px;
     --container-horizontal-padding: 24px;
 
+    display: flex;
     flex: 1 0 auto;
+    flex-direction: column;
 
     width: 100%;
     padding: var(--container-vertical-padding) var(--container-horizontal-padding);
@@ -87,6 +89,12 @@ defineSlots<{ default?: () => any; title?: () => any; description?: () => any; a
         & &__description {
             color: $typographySecondary;
         }
+    }
+
+    &_container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
 }
 </style>

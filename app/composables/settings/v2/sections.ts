@@ -15,15 +15,16 @@ export const settingsSections: SettingsMenuGroup[] = [
                     {
                         title: 'Section 1',
                         description: 'Section description',
+                        key: 'section-1',
                         items: [
                             settingsItemDebug.component,
-                            settingsItemDebug.inlineComponent,
                             settingsItemDebug.toggle,
                             settingsItemDebug.input,
                         ],
                     },
                     {
                         title: 'Section 2',
+                        key: 'section-2',
                         items: [
                             settingsItemDebug.number,
                             settingsItemDebug.color,
@@ -32,6 +33,7 @@ export const settingsSections: SettingsMenuGroup[] = [
                         ],
                     },
                     {
+                        key: 'section-3',
                         items: [
                             settingsItemDebug.radio,
                         ],
@@ -43,6 +45,7 @@ export const settingsSections: SettingsMenuGroup[] = [
                 url: 'lists',
                 items: [{
                     title: 'Section 1',
+                    key: 'section-1',
                     description: 'Section description',
                     items: [
                         settingsItemDebug.component,
