@@ -14,11 +14,11 @@ import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay } from '~/composables';
 
-export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
+export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
 
-    const ratings: string[] = [dataStore.vatsim.data.pilot_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? ''];
-    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
+    const ratings: string[] = [dataStore.vatsim.data.pilot_ratings.value.find(x => (!noneIfDefault || x.id) && x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? ''];
+    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => (!noneIfDefault || x.id) && x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
 }
@@ -159,7 +159,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
         active: getCurrentThemeHexColor('orange600'),
         default: getCurrentThemeHexColor('blue500'),
         ground: getCurrentThemeHexColor('blue500'),
-        green: getCurrentThemeHexColor('green500'),
+        green: getCurrentThemeHexColor('green600'),
         hover: getCurrentThemeHexColor('orange500'),
         neutral: getCurrentThemeHexColor('lightGray500'),
 

@@ -134,12 +134,12 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     });
 
     const enrouteStarStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('green400').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.5)`,
         width: 4,
     });
 
     const starStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('green400').join(',') }, 0.5)`,
+        color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 0.5)`,
         width: 5,
     });
 

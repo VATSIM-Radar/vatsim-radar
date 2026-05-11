@@ -194,7 +194,7 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
 
         if (isMapFeature('sector', properties)) {
             return buildFirStyle({
-                color: properties.sectorType === 'empty' ? 'white' : properties.sectorType === 'fir' ? 'green700' : 'purple600',
+                color: properties.sectorType === 'empty' ? 'mapSectorBorder' : properties.sectorType === 'fir' ? 'green700' : 'purple600',
                 settingsColor: properties.sectorType === 'empty' ? undefined : properties.sectorType === 'fir' ? 'firs' : 'uirs',
                 transparent: hideOnZoom,
                 dashed: properties.duplicated,
