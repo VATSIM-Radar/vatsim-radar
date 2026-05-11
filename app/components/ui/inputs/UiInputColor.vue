@@ -15,14 +15,16 @@
                     class="color-picker__container"
                     @click="tooltipOpened = !transparencyOnly && !tooltipOpened"
                 >
-                    <div class="color-picker__content">
-                        <div class="color-picker__content_text">
+                    <div
+                        v-if="$slots.default"
+                        class="color-picker__content"
+                    >
+                        <div
+                            v-if="$slots.default"
+                            class="color-picker__content_text"
+                        >
                             <slot/>
                         </div>
-                        <div
-                            v-if="getColor"
-                            class="color-picker__content_preview"
-                        />
                     </div>
                     <reset-icon
                         v-if="modelValue"

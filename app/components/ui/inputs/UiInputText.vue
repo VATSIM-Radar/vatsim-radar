@@ -44,6 +44,7 @@
                     ref="input"
                     v-model="model"
                     class="input__input_input"
+                    :disabled="$slots.htmlContent"
                     :placeholder
                     :type="inputType"
                     @blur="focused = false"
@@ -98,10 +99,10 @@ const props = defineProps({
         type: String,
         default: 'text',
     },
-  width: {
-    type: String,
-    default: '100%',
-  },
+    width: {
+        type: String,
+        default: '100%',
+    },
     height: {
         type: String,
     },

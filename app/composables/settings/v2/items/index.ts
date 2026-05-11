@@ -70,8 +70,12 @@ export const settingsItemDebug = {
                 text: 'test 2',
                 value: 1,
             },
+            {
+                text: 'test 3',
+                value: 2,
+            },
         ],
-        value: ref([]),
+        value: ref([0, 1]),
         onChange,
     },
     radio: {

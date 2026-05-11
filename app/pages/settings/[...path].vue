@@ -38,6 +38,7 @@
                     <ui-text
                         class="settings-page__item_left_title"
                         type="2b-medium"
+                        @click="labelClick"
                     >
                         <span>
                             {{item.title}}
@@ -107,6 +108,17 @@ watch(() => route.hash, val => {
     }
 });
 
+function labelClick(event: MouseEvent) {
+    const component = (event.target as HTMLDivElement).closest('.settings-page__item')!.querySelector('.settings-page__item_component > *');
+
+    if (component) {
+        const input = component.querySelector('input:not(:disabled)');
+
+        if (input) input.focus();
+        else if ('click' in component) (component as HTMLDivElement).click();
+    }
+}
+
 useHead({
     title: computed(() => props.item.title),
 });
@@ -132,6 +144,7 @@ useHead({
             gap: 8px;
 
             &_title {
+                cursor: pointer;
                 display: flex;
                 gap: 8px;
                 align-items: center;
@@ -142,6 +155,15 @@ useHead({
             display: grid;
             grid-template-columns: 31% calc(100% - 31% - 24px);
             justify-content: space-between;
+        }
+
+        &_component {
+            display: flex;
+            justify-content: flex-start;
+
+            :deep(.select) {
+                min-width: 240px;
+            }
         }
     }
 }
