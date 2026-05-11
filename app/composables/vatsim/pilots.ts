@@ -17,8 +17,12 @@ import { collapsingWithOverlay } from '~/composables';
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
 
-    const ratings: string[] = [dataStore.vatsim.data.pilot_ratings.value.find(x => (!noneIfDefault || x.id) && x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? ''];
-    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => (!noneIfDefault || x.id) && x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
+    const ratings: string[] = [];
+    if (!noneIfDefault || pilot.pilot_rating) {
+        const rating = dataStore.vatsim.data.pilot_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'];
+        if (rating) ratings.push(rating);
+    }
+    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
 }
