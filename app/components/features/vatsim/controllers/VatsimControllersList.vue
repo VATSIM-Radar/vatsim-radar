@@ -43,7 +43,7 @@ import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import VatsimControllerInfo from '~/components/features/vatsim/controllers/VatsimControllerInfo.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import type { Positioning } from 'ol/Overlay';
+import type { Positioning } from 'ol/Overlay.js';
 
 const props = defineProps({
     controllers: {

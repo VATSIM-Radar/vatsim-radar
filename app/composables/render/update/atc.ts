@@ -288,7 +288,7 @@ export async function updateControllers(context: DataUpdateContext) {
         const freq = parseFloat(controller.frequency || '0');
         if (freq > 137 || freq < 117) continue;
 
-        if (!controller.duplicated && !testedCallsigns.has(controller.callsign)) {
+        if (!controller.duplicated && !testedCallsigns.has(controller.callsign) && !context.atcAdded?.has(controller.callsign)) {
             let match = false;
 
             for (const setting of duplicatingSettings) {

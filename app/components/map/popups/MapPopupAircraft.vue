@@ -110,7 +110,7 @@
                         :grid-columns="(isShortInfo || !pilot.vertical_speed) ? 2 : 3"
                         :items="[
                             { title: isShortInfo ? undefined : 'Ground speed', text: `${ pilot.groundspeed } kts` },
-                            { title: isShortInfo ? undefined : 'Alt.', text: `${ getPilotTrueAltitude(pilot) } ft` },
+                            { title: isShortInfo ? undefined : 'Altitude', text: `${ getPilotTrueAltitude(pilot) } ft` },
                             { key: 'vs', title: isShortInfo ? undefined : 'Vertical speed', text: `${ Math.round(Math.abs(pilot.vertical_speed ?? 0) / 100) }00` },
                         ].slice(0, (isShortInfo || !pilot.vertical_speed) ? 2 : 3)"
                     >
@@ -151,7 +151,7 @@ import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import type { Options } from 'ol/Overlay';
+import type { Options } from 'ol/Overlay.js';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';

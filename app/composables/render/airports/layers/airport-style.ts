@@ -1,7 +1,7 @@
 import type VectorLayer from 'ol/layer/Vector';
 import { isMapFeature } from '~/utils/map/entities';
 import type { DeclutterMode } from 'ol/style/Style';
-import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { getSelectedColorFromSettings, getSelectedColorTransparencyFromSettings } from '~/composables/settings/colors';
 import { getCurrentThemeHexColor } from '~/composables';
 import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
@@ -109,7 +109,7 @@ export function setAirportStyle(layer: VectorLayer) {
                     let fill: string | undefined;
 
                     let mainColor = (store.bookingOverride || properties.isBooked)
-                        ? getSelectedColorFromSettings('approachBookings', true) || radarColors.purple300Rgb.join(',')
+                        ? getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',')
                         : getSelectedColorFromSettings('approach', true) || radarColors.citrus600Rgb.join(',');
 
                     const mainTransparency = 0.7;

@@ -206,7 +206,7 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate.js';
 import { useStore } from '~/store';

@@ -8,9 +8,9 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '~/utils/data';
 import { globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import { extend } from 'ol/extent';
-import type { Extent } from 'ol/extent';
-import type { Geometry } from 'ol/geom';
+import { extend } from 'ol/extent.js';
+import type { Extent } from 'ol/extent.js';
+import type { Geometry } from 'ol/geom.js';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();

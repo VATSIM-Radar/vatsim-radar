@@ -4,11 +4,16 @@
         class="__info-sections"
     >
         <ui-data-list
+            :grid-columns="1"
+            :items="[
+                { title: 'Name', text: airportInfo.name },
+            ]"
+        />
+        <ui-data-list
             :grid-columns="3"
             :items="[
                 { title: 'ICAO', text: airportInfo.icao },
                 { title: 'IATA', text: airportInfo.iata, hide: !airportInfo.iata },
-                { title: 'Name', text: airportInfo.name },
                 { title: 'Country', text: airportInfo.country },
                 { title: 'City', text: airportInfo.city },
                 { title: 'Division', text: airportInfo.division_id },

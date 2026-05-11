@@ -22,7 +22,7 @@ const colors = {
     50: getCurrentThemeHexColor('red300'),
     100: getCurrentThemeHexColor('orange700'),
     200: getCurrentThemeHexColor('orange500'),
-    500: getCurrentThemeHexColor('green300'),
+    500: getCurrentThemeHexColor('green600'),
     1000: getCurrentThemeHexColor('purple500'),
     3000: getCurrentThemeHexColor('purple300'),
 } satisfies Record<number, ColorsList | string>;

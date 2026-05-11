@@ -1,5 +1,5 @@
 import type VectorLayer from 'ol/layer/Vector';
-import { Text, Stroke, Style, Fill } from 'ol/style';
+import { Text, Stroke, Style, Fill } from 'ol/style.js';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
 import type { ColorsListRgb } from '~/utils/colors';

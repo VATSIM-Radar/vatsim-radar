@@ -1,7 +1,14 @@
 <template>
     <ui-text
         class="chip"
-        :class="[`chip--variant-${ variant }`, { 'chip--type-time': time, [`chip--facility-${ atcFacility }`]: typeof atcFacility === 'number', 'chip--type-atc': typeof atcFacility === 'number' }]"
+        :class="[
+            `chip--variant-${ variant }`,
+            {
+                'chip--type-time': time,
+                'chip--numeric': numeric,
+                [`chip--facility-${ atcFacility }`]: typeof atcFacility === 'number', 'chip--type-atc': typeof atcFacility === 'number',
+            },
+        ]"
         :style="{ '--atc-color': typeof atcFacility === 'number' && getFacilityPositionColor(atcFacility) }"
         :type="textType"
     >
@@ -71,6 +78,10 @@ const props = defineProps({
         type: String as PropType<UiTextTypes>,
         default: 'caption',
     },
+    numeric: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineSlots<{
@@ -124,6 +135,11 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
         svg {
             width: 8px;
         }
+    }
+
+    &--numeric {
+        font-family: $robotoFont;
+        font-variant-numeric: tabular-nums;
     }
 
     &--variant-accent {

@@ -84,7 +84,7 @@ function receiveMessage(event: MessageEvent) {
 
     if (event.source === window) return; // the message is from the same window, so we ignore it
 
-    if (event.data && 'proceduresUpdate' in event.data) {
+    if (event.data && typeof event.data === 'object' && !Array.isArray(event.data) && 'proceduresUpdate' in event.data) {
         updateCachedProcedures();
     }
 }

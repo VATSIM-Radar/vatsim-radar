@@ -25,7 +25,7 @@ import { useMapStore } from '~/store/map';
 import { Draw } from 'ol/interaction.js';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { Coordinate } from 'ol/coordinate.js';
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import type { EventsKey } from 'ol/events.js';
 import { getLength } from 'ol/sphere.js';
 import type { Geometry } from 'ol/geom.js';

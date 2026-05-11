@@ -14,6 +14,7 @@
                     { key: 'name', text: pilot.name },
                     { key: 'cid', text: pilot.cid },
                     { key: 'comment', text: friend?.comment },
+                    { key: 'stats', text: 'stats' },
                     { key: 'favorite', text: Number(!!store.user) },
                 ]"
             >
@@ -44,29 +45,6 @@
                         :name="pilot.name"
                     />
                 </template>
-            </ui-data-list>
-
-            <ui-data-list
-                circle-divider
-                class="flight-info__secondary"
-                gap="0px 16px"
-                :items="[
-                    ...usePilotRating(pilot).map(x => ({ text: x })),
-                    { key: 'hours', text: stats?.pilot },
-                    { key: 'stats', text: 'stats' },
-                    { key: 'atc-hours', text: stats?.atc },
-                ]"
-            >
-                <template #item-hours="{ item }">
-                    <span class="flight-info__chip">
-                        Flight Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
-                    </span>
-                </template>
-                <template #item-atc-hours="{ item }">
-                    <span class="flight-info__chip">
-                        ATC Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
-                    </span>
-                </template>
                 <template #item-stats>
                     <ui-button
                         :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
@@ -80,8 +58,30 @@
                     </ui-button>
                 </template>
             </ui-data-list>
+
+            <ui-data-list
+                circle-divider
+                class="flight-info__secondary"
+                gap="0px 16px"
+                :items="[
+                    ...usePilotRating(pilot, false, true).map(x => ({ text: x })),
+                    { key: 'hours', text: stats?.pilot },
+                    { key: 'atc-hours', text: stats?.atc },
+                ]"
+            >
+                <template #item-hours="{ item }">
+                    <span class="flight-info__chip">
+                        Flight Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                    </span>
+                </template>
+                <template #item-atc-hours="{ item }">
+                    <span class="flight-info__chip">
+                        ATC Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                    </span>
+                </template>
+            </ui-data-list>
         </ui-data-container>
-        <ui-data-container v-if="airline || pilot.flight_plan?.aircraft_short">
+        <ui-data-container v-if="airline">
             <template #icon>
                 <airline-icon/>
             </template>
@@ -120,15 +120,6 @@
                         full
                     />
                 </template>
-                <ui-data-list-item
-                    v-if="pilot.flight_plan?.aircraft_short"
-                    swap-types
-                >
-                    <template #title>
-                        {{pilot.flight_plan?.aircraft_short?.split('/')[0]}}
-                    </template>
-                    Aircraft Type
-                </ui-data-list-item>
             </div>
         </ui-data-container>
         <div class="flight-info__progress">

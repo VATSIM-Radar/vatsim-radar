@@ -9,9 +9,6 @@ import { XYZ } from 'ol/source.js';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import VectorSource from 'ol/source/Vector.js';
-import { Fill, Style } from 'ol/style.js';
-import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
@@ -183,44 +180,30 @@ useHead(() => ({
 
 const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
 
-let mapSource: VectorSource | undefined;
-let mapLayer: VectorImageLayer | undefined;
-let style: Style | undefined;
-
 async function initLayer() {
-    if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
+    if (tileLayer.value) {
+        tileLayer.value.getSource()?.clear();
+        map.value?.removeLayer(tileLayer.value);
+    }
     tileLayer.value?.dispose();
 
     if (attributionLayer) map.value?.removeLayer(attributionLayer);
     attributionLayer?.dispose();
 
-    if (mapLayer) map.value?.removeLayer(mapLayer);
-    mapLayer?.dispose();
-
     if (layer.value.url === 'basic') {
-        const continents = (await import('~/assets/continents.json')).default;
-
-        if (mapSource) {
-            mapSource.clear();
-        }
-        else mapSource = new VectorSource();
-
-        style ??= new Style({
-            fill: new Fill({
-                color: getCurrentThemeHexColor('black'),
+        tileLayer.value = new TileLayer({
+            source: new XYZ({
+                url: store.theme === 'light' ? 'https://r2.vatsim-radar.com/basic/light/{z}/{x}/{y}.png' : 'https://r2.vatsim-radar.com/basic/dark/{z}/{x}/{y}.png',
+                wrapX: true,
+                tileSize: 256,
+                minZoom: 2,
+                crossOrigin: 'anonymous',
+                maxZoom: 9,
             }),
-        });
-
-        mapLayer = new VectorImageLayer({
-            source: mapSource,
-            style,
             zIndex: 0,
-            imageRatio: store.isTouch ? 1 : 2,
+            cacheSize: 32,
         });
-
-        mapSource.addFeatures(geoJson.readFeatures(continents));
-
-        map.value?.addLayer(mapLayer);
+        map.value?.addLayer(tileLayer.value);
 
         return;
     }
@@ -368,7 +351,6 @@ watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], init
 
 onBeforeUnmount(() => {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
-    if (mapLayer) map.value?.removeLayer(mapLayer);
 });
 </script>
 

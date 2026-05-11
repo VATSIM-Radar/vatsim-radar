@@ -14,8 +14,8 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import { FEATURES_Z_INDEX } from '~/composables/render';
-import { wrapAndSliceX } from 'ol/extent';
-import { transformExtent } from 'ol/proj';
+import { wrapAndSliceX } from 'ol/extent.js';
+import { transformExtent } from 'ol/proj.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
@@ -41,7 +41,7 @@ const dataStore = useDataStore();
 const config = useRuntimeConfig();
 
 function receiveMessage(event: MessageEvent) {
-    if (event.origin !== config.public.DOMAIN) {
+    if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
         return;
     }
 

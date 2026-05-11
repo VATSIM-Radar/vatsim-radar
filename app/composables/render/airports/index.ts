@@ -8,7 +8,7 @@ import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type VectorSource from 'ol/source/Vector.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { wrapAndSliceX } from 'ol/extent.js';
-import { transformExtent } from 'ol/proj';
+import { transformExtent } from 'ol/proj.js';
 import { callsignSplitRegex } from '~/composables/render/update/atc';
 
 export interface AirportTraconFeature {

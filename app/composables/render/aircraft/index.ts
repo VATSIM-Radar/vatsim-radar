@@ -1,4 +1,4 @@
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorImageLayer from 'ol/layer/VectorImage';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
@@ -8,7 +8,7 @@ import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine, FeatureAircraftProperties } from '~/utils/map/entities';
-import { Point } from 'ol/geom';
+import { Point } from 'ol/geom.js';
 import type { StoreOverlayPilot } from '~/store/map';
 import { degreesToRadians } from '@turf/helpers';
 import { aircraftIcons } from '~/utils/icons';

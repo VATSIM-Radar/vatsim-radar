@@ -68,7 +68,7 @@ import type { ShallowRef } from 'vue';
 import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import type { FeatureCollection } from 'geojson';
 import type { ColorsListRgb } from '~/utils/colors';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';

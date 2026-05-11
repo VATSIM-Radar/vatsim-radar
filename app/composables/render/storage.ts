@@ -516,7 +516,7 @@ function initBookings() {
         lastUpdate = Date.now();
         store.fetchedBookings = await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
             query: bookingsQueryParams.value,
-        });
+        }).catch(() => []);
     }
 
     function updateEnd() {
@@ -555,7 +555,7 @@ function initEvents() {
         lastUpdate = Date.now();
         store.events = await $fetch<VatsimActiveEvent[]>('/api/data/vatsim/events/short', {
             query: queryParams.value,
-        });
+        }).catch(() => []);
     }
 
     function updateStart() {
@@ -597,7 +597,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const config = useRuntimeConfig();
 
     function receiveMessage(event: MessageEvent) {
-        if (event.origin !== config.public.DOMAIN) {
+        if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
             return;
         }
 

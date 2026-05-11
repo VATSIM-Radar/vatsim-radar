@@ -53,7 +53,7 @@
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
-import type { Positioning } from 'ol/Overlay';
+import type { Positioning } from 'ol/Overlay.js';
 
 defineProps({
     width: {

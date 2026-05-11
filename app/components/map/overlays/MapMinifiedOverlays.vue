@@ -190,7 +190,7 @@ onMounted(() => {
     pointer-events: none;
 
     position: absolute;
-    z-index: 7;
+    z-index: 5;
     bottom: 16px;
     left: 16px + 32px + 8px;
 
@@ -282,7 +282,7 @@ onMounted(() => {
 
         &_counter {
             &--departures {
-                color: $green300;
+                color: $green600;
             }
 
             &--ground {

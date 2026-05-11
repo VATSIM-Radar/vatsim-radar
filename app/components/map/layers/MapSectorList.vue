@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import VectorLayer from 'ol/layer/Vector';
 import { FEATURES_Z_INDEX } from '~/composables/render';
 import type { ShallowRef } from 'vue';

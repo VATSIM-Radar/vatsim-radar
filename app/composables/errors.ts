@@ -1,6 +1,5 @@
 import type { IFetchError } from 'ofetch';
 import { isFetchError } from '~/utils/shared';
-import { captureException, captureMessage } from '@sentry/nuxt';
 
 export type AnyError = unknown | Error | IFetchError;
 
@@ -18,7 +17,8 @@ export function useRadarError(error: AnyError) {
                 return;
             }
 
-            captureMessage(errorText, 'error');
+            // captureMessage(errorText, 'error');
+            console.error(errorText);
         }
         return;
     }
@@ -28,7 +28,9 @@ export function useRadarError(error: AnyError) {
             return;
         }
 
-        if (error instanceof Error) {
+        // TODO: support snackbar
+
+        /* if (error instanceof Error) {
             captureException(error);
         }
         else if (typeof error === 'object') {
@@ -37,7 +39,7 @@ export function useRadarError(error: AnyError) {
         else if (typeof error === 'string' || typeof error === 'number') {
             if (typeof error === 'string' && error.toLowerCase().includes('handled')) return;
             captureMessage(error.toString(), 'error');
-        }
+        }*/
 
         console.error(error);
     }
