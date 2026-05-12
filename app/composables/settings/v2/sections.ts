@@ -1,12 +1,14 @@
 import type { SettingsMenuGroup } from './types';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
 import { settingsItemDebug } from '~/composables/settings/v2/items';
+import PersonIcon from '~/assets/icons/kit/person.svg?component';
+import SettingsUserLists from '~/components/features/settings/v2/lists/SettingsUserLists.vue';
 
 export const settingsSections: SettingsMenuGroup[] = [
     {
         title: 'Account Settings',
         url: 'account',
-        icon: EditIcon,
+        icon: PersonIcon,
         sections: [
             {
                 title: 'Account Settings',
@@ -44,14 +46,12 @@ export const settingsSections: SettingsMenuGroup[] = [
                 title: 'User Lists',
                 url: 'lists',
                 items: [{
-                    title: 'Section 1',
-                    key: 'section-1',
-                    description: 'Section description',
+                    key: 'lists',
                     items: [
-                        settingsItemDebug.component,
-                        settingsItemDebug.inlineComponent,
-                        settingsItemDebug.toggle,
-                        settingsItemDebug.input,
+                        {
+                            type: 'component',
+                            component: SettingsUserLists,
+                        },
                     ],
                 }],
             },

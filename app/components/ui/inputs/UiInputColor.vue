@@ -37,7 +37,7 @@
                 >
                     <div class="color-picker__input_append">
                         <reset-icon
-                            v-if="modelValue"
+                            v-if="modelValue && defaultColor"
                             class="color-picker__input_reset"
                             @click.stop="emit('update:modelValue', null)"
                         />

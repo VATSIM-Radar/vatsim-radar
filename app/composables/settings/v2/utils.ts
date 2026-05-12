@@ -5,11 +5,15 @@ type SettingChangeValue<T> =
         ? V
         : never;
 
+export function onSettingChange() {
+    // TODO
+    console.log('save action executed');
+}
+
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {
     if (!('onChange' in item)) throw new Error(`Invalid setting type: received ${ item.type }, mutable expected`);
 
     const result = await item.onChange(value as never);
-    // TODO
-    console.log('save action executed');
+    onSettingChange();
     return result;
 }

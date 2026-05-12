@@ -96,6 +96,10 @@ const emit = defineEmits({
     },
 });
 
+definePageMeta({
+    pageTransition: { name: 'page', mode: 'out-in' },
+});
+
 const route = useRoute();
 
 watch(() => route.hash, val => {
@@ -157,5 +161,17 @@ useHead({
             justify-content: space-between;
         }
     }
+}
+</style>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+    transition: all 0.15s ease-out;
+}
+
+.page-enter-from,
+.page-leave-to {
+    opacity: 0;
 }
 </style>

@@ -55,9 +55,11 @@ export type SearchFilter = keyof SearchResults;
 export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC' | 'CONV';
 
 interface IUserLocalSettings {
+    // Keep
     location: Coordinate;
     zoom: number;
     vatglassesLevel: number;
+
     debugMode: boolean;
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
@@ -92,7 +94,6 @@ interface IUserLocalSettings {
             weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
             layerLabels?: boolean;
-            layerVector?: boolean;
             relativeIndicator?: boolean | Units;
             terminator?: boolean;
             terminatorDayNightLine?: boolean;

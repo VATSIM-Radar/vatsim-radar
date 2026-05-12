@@ -3,16 +3,24 @@ import type {
     UserMapSettingsColors, UserMapSettingsTurns,
     UserMapSettingsVisibilityATC,
 } from '~/utils/server/handlers/map-settings';
-import type { SigmetType } from '~/types/map';
+import type {
+    MapLayoutLayerWithOptions,
+    MapWeatherLayer,
+    NotamsSortBy, SearchFilter,
+    SigmetType,
+    UserLayersTransparencySettings,
+} from '~/types/map';
+import type { VatsimNattrak } from '~/types/data/vatsim';
+import type { Units } from 'ol/control/ScaleLine.js';
 
 export interface UserSettingsV2 {
-    user: {
-        headerName: string;
-    };
-
     appearance: {
+        headerName: string;
         theme: 'light' | 'dark' | null;
         timeFormat: '24h' | '12h';
+        eventsLocalTimezone: boolean;
+        bookingsLocalTimezone: boolean;
+        notamsSortBy: NotamsSortBy;
         favoriteSort: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
     };
 
@@ -20,19 +28,119 @@ export interface UserSettingsV2 {
         preferences: {
             autoFollow: boolean;
             autoZoom: boolean;
+            debugMode: boolean;
+
+            featuredDefaultBookmarks: boolean;
+            skipBookmarkAnimation: boolean;
+
+            showTotalDeparturesInFeaturedAirports: boolean;
+
+            searchBy: SearchFilter[];
+            searchLimit: number;
+            enableQueryUpdate: boolean;
+            shortAirportView: boolean;
+
+            overlaysPositions: 'bottom-left' | 'top-left';
+
+            aircraft: {
+                shortView: boolean;
+                scale: number;
+                dynamicScale: boolean;
+                tracks: {
+                    mode: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
+                    showOutOfBounds: boolean;
+                    limit: number;
+                };
+                showLimit: number;
+            };
+
+            airports: {
+                defaultZoomLevel: number;
+                shortView: boolean;
+                showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
+                hideIf: 'unstaffed' | 'all' | 'none';
+                onlyATISAsUnstaffed: boolean;
+                groundTraffic: {
+                    hide: 'always' | 'lowZoom' | 'never';
+                    excludeMyArrival: boolean;
+                    excludeMyLocation: boolean;
+                };
+                departuresCountInOverlay: boolean;
+                counters: {
+                    enabled: boolean;
+                    syncDeparturesArrivals?: boolean;
+                    departuresMode?: 'total' | 'totalMoving' | 'totalLanded' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
+                    arrivalsMode?: UserSettingsV2['map']['preferences']['airports']['counters']['departuresMode'];
+                    horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
+                    disableTraining?: boolean;
+                    syncWithOverlay?: boolean;
+                };
+                showLimit: number;
+            };
+
+            colors: {
+                light: UserMapSettingsColors;
+                default: UserMapSettingsColors;
+                turns: UserMapSettingsTurns;
+                turnsTransparency: number;
+            };
+        };
+
+        layers: {
+            weather: MapWeatherLayer | null;
+            layer: MapLayoutLayerWithOptions;
+            layerLabels: boolean;
+            relativeIndicator: boolean;
+            terminator: boolean;
+            heatmap: boolean;
+
+            transparency: UserLayersTransparencySettings;
+
+            natTrak: {
+                enabled: boolean;
+                concorde: boolean;
+                direction: VatsimNattrak['direction'] | 'both' | 'all';
+            };
+
+            distance: {
+                enabled: boolean;
+                units: Units;
+                interaction: 'dblclick' | 'ctrlclick';
+            };
         };
 
         traffic: {
             showFullRoute: boolean;
             toggleAircraftOverlays: boolean;
             autoShowAirportTracks: boolean;
+            disableFastUpdate: boolean;
+            declutter: boolean | 'always';
+            highlightEmergency: boolean;
+        };
+
+        vatglasses: {
+            active: boolean;
+            autoEnable: boolean;
+            autoLevel: boolean;
+            combined: boolean;
         };
 
         navigraph: {
+            enabled: boolean;
+
             routeParsing: {
                 enabled: boolean;
                 // TODO: recheck if working
                 enabledOnHover: boolean;
+
+                airportOverlay: {
+                    enabled: boolean;
+                    sid: boolean;
+                    star: boolean;
+                    holds: boolean;
+                    labels: boolean;
+                    waypoints: boolean;
+                };
             };
 
             layers: {
@@ -51,13 +159,36 @@ export interface UserSettingsV2 {
             };
 
             airport: {
-                disable: boolean;
+                enabled: boolean;
                 gatesFallback?: boolean;
                 hideTaxiways?: boolean;
                 hideGateGuidance?: boolean;
                 hideRunwayExit?: boolean;
                 hideDeicing?: boolean;
             };
+        };
+
+        visibility: {
+            atc?: UserMapSettingsVisibilityATC | boolean;
+            atcLabels: boolean;
+            airports: boolean;
+            pilots: boolean;
+            gates: boolean;
+            runways: boolean;
+            pilotsInfo: boolean;
+            atcInfo: boolean;
+            events: boolean;
+            pilotLabels: boolean;
+        };
+
+        bookings: {
+            enabled: boolean;
+            hours: number;
+        };
+
+        events: {
+            enabled: boolean;
+            hours: number;
         };
     };
 
@@ -67,70 +198,4 @@ export interface UserSettingsV2 {
         showAirmets: boolean;
         raw: boolean;
     };
-
-    // stopped here
-
-    visibility: {
-        atc?: Partial<UserMapSettingsVisibilityATC> | boolean;
-        atcLabels?: boolean;
-        airports?: boolean;
-        pilots?: boolean;
-        gates?: boolean;
-        runways?: boolean;
-        pilotsInfo?: boolean;
-        atcInfo?: boolean;
-        bookings?: boolean;
-        events?: boolean;
-        pilotLabels?: boolean;
-    };
-    bookingHours: number;
-    eventsHours: number;
-    bookingsLocalTimezone?: boolean;
-    disableQueryUpdate?: boolean;
-    shortAircraftView?: boolean;
-    shortAirportView?: boolean;
-    overlaysPositions?: 'bottom-left' | 'top-left';
-    aircraftDeclutter?: boolean | 'always';
-    aircraftHoverDelay?: number | boolean;
-    defaultAirportZoomLevel: number;
-    heatmapLayer: boolean;
-    highlightEmergency: boolean;
-    vatglasses: {
-        active?: boolean;
-        autoEnable?: boolean;
-        autoLevel?: boolean;
-        combined?: boolean;
-    };
-    groundTraffic: {
-        hide?: 'always' | 'lowZoom' | 'never';
-        excludeMyArrival?: boolean;
-        excludeMyLocation?: boolean;
-    };
-    aircraftScale: number;
-    dynamicAircraftScale?: boolean;
-    airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
-    airportsHide: 'unstaffed' | 'all' | 'none';
-    tracks: {
-        mode?: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
-        showOutOfBounds?: boolean;
-        limit?: number;
-    };
-    hideATISOnly: boolean;
-    airportsCounters: {
-        showCounters?: boolean;
-        syncDeparturesArrivals?: boolean;
-        departuresMode?: 'total' | 'totalMoving' | 'totalLanded' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
-        arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
-        horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
-        disableTraining?: boolean;
-        syncWithOverlay?: boolean;
-    };
-    colors: {
-        light?: UserMapSettingsColors;
-        default?: UserMapSettingsColors;
-        turns?: UserMapSettingsTurns;
-        turnsTransparency?: number;
-    };
-    pilotLabelLimit: number;
-    airportCounterLimit: number;
 }
