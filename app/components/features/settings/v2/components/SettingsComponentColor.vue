@@ -3,6 +3,7 @@
         :color-only="item.mode === 'color'"
         :default-color="item.defaultColor"
         :model-value="value"
+        setting="test"
         :transparency-only="item.mode === 'transparency'"
         @update:modelValue="handleSettingChange(item, $event)"
     />

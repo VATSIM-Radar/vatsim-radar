@@ -71,7 +71,10 @@
             </div>
 
             <div class="settings_content">
-                <nuxt-page :item="currentItem" @jumped="search = ''"/>
+                <nuxt-page
+                    :item="currentItem"
+                    @jumped="search = ''"
+                />
             </div>
 
             <div class="settings_contents settings_menu">
@@ -203,6 +206,7 @@ const currentItem = computed(() => {
 
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 if (!currentItem.value) {
+    // eslint-disable-next-line vue/no-ref-object-reactivity-loss
     if (!rootPath.value) {
         navigateTo(`/settings/${ settingsSections[0].url }`, { replace: true });
     }

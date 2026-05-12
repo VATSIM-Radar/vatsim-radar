@@ -44,7 +44,7 @@
                     ref="input"
                     v-model="model"
                     class="input__input_input"
-                    :disabled="$slots.htmlContent"
+                    :disabled="!!$slots.htmlContent"
                     :placeholder
                     :type="inputType"
                     @blur="focused = false"
@@ -200,6 +200,20 @@ watch(model, val => {
             &--append {
                 cursor: pointer;
             }
+
+            :deep(.select) {
+                width: calc(100% + 24px);
+                margin: 0 -12px;
+
+                .separator {
+                    display: none;
+                }
+
+                .input_container {
+                    border: 0;
+                    background: transparent;
+                }
+            }
         }
 
         &_counter {
@@ -208,7 +222,7 @@ watch(model, val => {
         }
     }
 
-    &--focused .input_container {
+    &--focused > .input_container {
         border-color: $darkGray100;
         @include boxShadowActiveProp;
     }

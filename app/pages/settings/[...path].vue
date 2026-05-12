@@ -1,7 +1,7 @@
 <template>
     <div class="settings-page">
         <div
-            v-for="(section, index) in item.items"
+            v-for="(section) in item.items"
             :key="section.key"
             class="settings-page_section"
             :data-section-id="section.key"
@@ -21,18 +21,18 @@
                 {{section.description}}
             </ui-text>
             <div
-                v-for="(item, index) in section.items"
+                v-for="(sectionItem, index) in section.items"
                 :key="index"
                 class="settings-page__item"
                 :class="[
-                    `settings-page__item--type-${ item.type }`, {
-                        'settings-page__item--has-left': 'title' in item ,
-                        'settings-page__item--disabled': toValue(item.disabled),
+                    `settings-page__item--type-${ sectionItem.type }`, {
+                        'settings-page__item--has-left': 'title' in sectionItem ,
+                        'settings-page__item--disabled': toValue(sectionItem.disabled),
                     },
                 ]"
             >
                 <div
-                    v-if="'title' in item"
+                    v-if="'title' in sectionItem"
                     class="settings-page__item_left"
                 >
                     <ui-text
@@ -41,28 +41,28 @@
                         @click="labelClick"
                     >
                         <span>
-                            {{item.title}}
+                            {{sectionItem.title}}
                         </span>
                         <ui-tooltip
-                            v-if="item.hint"
+                            v-if="sectionItem.hint"
                             location="right"
                         >
-                            {{item.hint}}
+                            {{sectionItem.hint}}
                         </ui-tooltip>
                     </ui-text>
                     <ui-text
-                        v-if="item.description"
+                        v-if="sectionItem.description"
                         class="settings-page__item_left_description"
                         color="lightGray900"
                         type="3b"
                     >
-                        {{item.description}}
+                        {{sectionItem.description}}
                     </ui-text>
                     <ui-button
-                        v-if="item.fullPath"
+                        v-if="sectionItem.fullPath"
                         class="settings-page__item_left_path"
                         link-color="blue500"
-                        :to="item.fullPath"
+                        :to="sectionItem.fullPath"
                         type="link"
                         @click="emit('jumped')"
                     >
@@ -70,7 +70,7 @@
                     </ui-button>
                 </div>
                 <div class="settings-page__item_component">
-                    <settings-component :item/>
+                    <settings-component :item="sectionItem"/>
                 </div>
             </div>
         </div>
@@ -112,7 +112,7 @@ function labelClick(event: MouseEvent) {
     const component = (event.target as HTMLDivElement).closest('.settings-page__item')!.querySelector('.settings-page__item_component > *');
 
     if (component) {
-        const input = component.querySelector('input:not(:disabled)');
+        const input = component.querySelector<HTMLInputElement>('input:not(:disabled)');
 
         if (input) input.focus();
         else if ('click' in component) (component as HTMLDivElement).click();
@@ -155,15 +155,6 @@ useHead({
             display: grid;
             grid-template-columns: 31% calc(100% - 31% - 24px);
             justify-content: space-between;
-        }
-
-        &_component {
-            display: flex;
-            justify-content: flex-start;
-
-            :deep(.select) {
-                min-width: 240px;
-            }
         }
     }
 }

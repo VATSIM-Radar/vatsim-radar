@@ -1,6 +1,8 @@
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 
-const onChange = (event: any) => alert(event);
+const onChange = (event: any) => alert(typeof event === 'object' && event ? JSON.stringify(event) : event);
+
+/* eslint-disable vue/require-typed-ref */
 
 export const settingsItemDebug = {
     component: {

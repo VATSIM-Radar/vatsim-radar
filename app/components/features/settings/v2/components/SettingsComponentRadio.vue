@@ -1,5 +1,6 @@
 <template>
     <ui-radio-group
+        class="settngs-radio-group"
         :items="item.items"
         :model-value="value"
         @update:modelValue="handleSettingChange(item, $event as SelectItemValue)"
@@ -20,3 +21,10 @@ const props = defineProps({
 
 const value = computed(() => toValue(props.item.value));
 </script>
+
+<style lang="scss" scoped>
+.settngs-radio-group {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+</style>

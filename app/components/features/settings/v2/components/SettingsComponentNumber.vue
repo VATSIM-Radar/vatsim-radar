@@ -6,14 +6,14 @@
         }"
         :model-value="value"
         :placeholder="item.placeholder"
-        @update:model-value="localValue = $event"
         @change="handleSettingChange(item, localValue)"
+        @update:modelValue="localValue = $event"
     />
 </template>
 
 <script setup lang="ts">
 import { handleSettingChange } from '~/composables/settings/v2/utils';
-import type {SettingsItemInputNumber} from '~/composables/settings/v2/types';
+import type { SettingsItemInputNumber } from '~/composables/settings/v2/types';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 
 const props = defineProps({
@@ -29,6 +29,6 @@ const value = computed(() => toValue(props.item.value));
 const localValue = ref<Parameters<SettingsItemInputNumber['onChange']>[0]>(value.value);
 
 watch(value, () => {
-  localValue.value = value.value;
-})
+    localValue.value = value.value;
+});
 </script>

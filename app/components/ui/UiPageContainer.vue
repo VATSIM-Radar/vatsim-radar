@@ -38,7 +38,6 @@
 
 <script lang="ts" setup>
 import UiContainer from '~/components/ui/UiContainer.vue';
-import { Fragment } from 'vue';
 import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({

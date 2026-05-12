@@ -1,5 +1,6 @@
 <template>
     <ui-toggle
+        align-left
         :model-value="value"
         @update:modelValue="handleSettingChange(item, $event)"
     />

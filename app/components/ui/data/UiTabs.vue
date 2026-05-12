@@ -111,14 +111,14 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         display: flex;
         align-items: flex-end;
-        justify-content: flex-start;
+        justify-content: center;
 
         height: 100%;
         padding: 8px 16px;
 
         line-height: 100%;
         color: $typographySecondary;
-        text-align: left;
+        text-align: center;
 
         &::after {
             content: '';
@@ -168,7 +168,9 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
     }
 
     &--vertical .tabs_tab {
+        justify-content: flex-start;
         width: 100%;
+        text-align: left;
 
         &::after {
             bottom: 0;

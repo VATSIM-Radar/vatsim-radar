@@ -99,6 +99,7 @@ const collapsed = defineModel<boolean | null>('collapsed', {
     }
 
     &_separator {
+        display: block !important;
         flex-grow: 1;
     }
 
