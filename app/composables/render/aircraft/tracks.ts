@@ -126,6 +126,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             track.isShown &&
             (pilot?.groundspeed > 50 || !!overlay || hovered) &&
             !store.localSettings.disableNavigraphRoute &&
+            (!store.localSettings.disableNavigraphRouteHover || !hovered) &&
             track.show !== 'short' &&
             !!dataStore.navigraph.version.value;
 
