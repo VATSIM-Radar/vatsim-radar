@@ -67,6 +67,7 @@ model UserAcknowledgedMessages {
 
 enum UserPresetType {
   MAP_SETTINGS
+  MAP_SETTINGS_V2
   FILTER
   BOOKMARK
   DASHBOARD_BOOKMARK
