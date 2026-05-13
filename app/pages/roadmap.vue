@@ -136,7 +136,7 @@ useHead({
 
 const roadmap = reactive<Roadmap[]>([
     {
-        title: 'Stage 1',
+        title: 'Open Beta',
         completed: true,
         items: [
             'VatSPY FIRS/UIRS API',
@@ -152,7 +152,7 @@ const roadmap = reactive<Roadmap[]>([
         ],
     },
     {
-        title: 'Stage 2',
+        title: 'v1.0',
         completed: true,
         items: [
             {
@@ -233,7 +233,7 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Settings (hide atc/aircraft/gates/etc)',
+                title: 'Settings (hide controllers/aircraft/gates/etc)',
                 status: 'completed',
             },
             {
@@ -272,11 +272,11 @@ const roadmap = reactive<Roadmap[]>([
         ],
     },
     {
-        title: 'Stage 3',
+        title: 'V2.0',
         items: [
             {
                 title: 'Pilot/airport mouse context menu',
-                status: 'in-progress',
+                status: 'next',
             },
             {
                 title: 'Oceanic Tracks integration',
@@ -320,7 +320,6 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular now etc',
                 status: 'completed',
             },
-            'Hoppie integration',
             {
                 title: 'PWA',
                 status: 'completed',
@@ -337,7 +336,6 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Name of aircraft operating company',
                 status: 'completed',
             },
-            'Lock North button',
             {
                 title: 'Distance measuring tool',
                 status: 'completed',
@@ -356,40 +354,50 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Settings Page',
-                status: 'todo',
+                status: 'in-progress',
+            },
+            {
+                title: 'Image of aircraft type',
+                status: 'next',
+            },
+            'Friends list UX improvements',
+            'Filters UX improvements',
+            {
+                title: 'Events/ATC Bookings 2.0',
+                description: 'Events on map, improved bookings display',
+                status: 'next',
+            },
+            {
+                title: 'Takeoff and arrival actual time',
+                status: 'next',
             },
         ],
     },
     {
-        title: 'Stage 4',
+        title: 'Post-V2.0',
         items: [
             {
-                title: 'Detailed Stats',
+                title: 'Historical Stats',
                 description: 'Popular over time etc',
             },
-            'Images or aircraft type, airline + operator',
-            'Flights/atc sessions history, VATSIM user page',
+            'Flights/controllers sessions history, VATSIM user page',
             'History of events / events traffic',
-            {
-                title: 'Proper Github local setup',
-                description: 'This includes the ability to view tracks, Navigraph data etc locally via token. Basic local setup is available right now!',
-            },
-            {
-                title: 'Events/ATC Bookings 2.0',
-                description: 'More complex integration than current events',
-            },
-            'Friends list UX improvements',
         ],
     },
     {
         title: 'Considering',
-        description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
+        description: 'Those features may eventually arrive, but are still considered if they will be done at all, or at what point',
         items: [
-            'PIPEPs',
+            'PIREPs',
             'Stream Deck integration',
-            'Map settings market',
+            'Settings Presets market',
             'Google Play app',
             'ATC/Booking notification for active flight',
+            'Events alerts',
+            {
+                title: 'Dynamic auto-zoom and flight following',
+                description: 'Automatic zoom during phases of flight, map direction synced with heading',
+            },
             'ECFMP integration',
             'Twitch/streamers integration',
             'Aircraft collision prediction',
@@ -397,6 +405,9 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
             },
+            'Hoppie integration',
+            'Lock North button',
+            'Desktop Application',
         ],
     },
 ]);
@@ -557,8 +568,6 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &_title {
             margin-bottom: 16px;
-
-            font-family: $openSansFont;
             font-size: 24px;
             font-weight: 700;
             text-align: center;
