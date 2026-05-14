@@ -794,8 +794,6 @@ export async function getFlightPlanWaypoints({
             const ndbs = await getNavigraphParsedData('ndb', search);
             const waypointsList = await getNavigraphParsedData('waypoints', search);
 
-            if (search === 'NEGIX') console.log(waypointsList);
-
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {
                     const aCoord = [a[1][4], a[1][5]];
