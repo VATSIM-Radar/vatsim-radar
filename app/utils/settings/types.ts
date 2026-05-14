@@ -12,6 +12,7 @@ import type {
 } from '~/types/map';
 import type { VatsimNattrak } from '~/types/data/vatsim';
 import type { Units } from 'ol/control/ScaleLine.js';
+import type { RecursivePartial } from '~/types';
 
 export interface UserSettingsV2 {
     appearance: {
@@ -199,3 +200,5 @@ export interface UserSettingsV2 {
         raw: boolean;
     };
 }
+
+export type UserSettingsV2Partial = RecursivePartial<UserSettingsV2>;
