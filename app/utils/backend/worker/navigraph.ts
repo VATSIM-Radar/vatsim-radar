@@ -48,7 +48,7 @@ async function updateNavigraph() {
         if (navigraphData.versions.current !== radarStorage.navigraph.current || navigraphData.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
             console.log('Update has started', radarStorage.navigraph.current, navigraphData.versions.current);
             await unsetRedisSync('navigraph-ready');
-            const current = await processDatabase(navigraphCurrentDb!, radarStorage.navigraph.current);
+            const current = await processDatabase(navigraphOutdatedDb!, radarStorage.navigraph.current);
             const outdated = await processDatabase(navigraphOutdatedDb!, radarStorage.navigraph.outdated);
 
             navigraphData.versions = { ...radarStorage.navigraph };
