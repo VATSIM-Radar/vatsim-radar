@@ -3,7 +3,7 @@ import { serve } from 'srvx';
 import { defaultRedis, setRedisSync, unsetRedisSync } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import { processDatabase } from '~/utils/backend/navigraph/navdata';
-import { initNavigraph, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
+import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
 import type { cycles } from '~/utils/backend/navigraph/db';
 import type {
     NavDataProcedure,
