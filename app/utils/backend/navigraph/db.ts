@@ -110,6 +110,14 @@ export async function checkNavigraphToken() {
 export async function initNavigraph() {
     await checkNavigraphToken();
 
+    const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
+        headers: {
+            Authorization: `Bearer ${ navigraphAccessKey.token }`,
+        },
+        timeout: 1000 * 60,
+        retry: 3,
+    });
+
     const [outdated] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=outdated', {
         headers: {
             Authorization: `Bearer ${ navigraphAccessKey.token }`,
@@ -118,7 +126,7 @@ export async function initNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ outdated.cycle }-${ outdated.revision }-current-1`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-1`;
     const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-1`;
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
@@ -143,7 +151,7 @@ export async function initNavigraph() {
         filesInPath.filter(x => x.name.includes('current')).forEach(file => unlinkSync(`${ file.parentPath }/${ file.name }`));
 
         await downloadNavigraphFile({
-            fileUrl: outdated.files[0].signed_url,
+            fileUrl: current.files[0].signed_url,
             path: dirPath,
             filename: currentFileName,
         });
