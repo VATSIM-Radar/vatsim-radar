@@ -14,21 +14,7 @@
             <nuxt-loading-indicator color="rgb(var(--blue500))"/>
             <slot/>
         </div>
-        <popup-fullscreen
-            v-if="store.updateRequired || $pwa?.needRefresh"
-            v-model="updateRequired"
-            disabled
-        >
-            <template #title>Page Reload Needed</template>
-
-            A new VATSIM Radar update is available! Please reload the page to apply the update.
-
-            <template #actions>
-                <ui-button @click="reload">
-                    Apply and reload
-                </ui-button>
-            </template>
-        </popup-fullscreen>
+        <layout-update-popup/>
         <div
             v-if="!store.config.hideFooter"
             class="app_footer"
@@ -44,119 +30,10 @@
             </div>
         </div>
         <client-only>
-            <div
-                v-if="!policy.accepted || policy.accepted <= 0"
-                class="app_consent"
-            >
-                <div class="app_consent_introduction __info-sections">
-                    <div class="app_consent_title">
-                        Data Policy
-                    </div>
-                    <div class="app_consent_description">
-                        Uh oh! VATSIM Radar wants to share some little data with 3rd party. What do we do?
-                    </div>
-                </div>
-                <div class="app_consent_actions">
-                    <ui-button
-                        type="secondary"
-                        @click="consentChoose = true"
-                    >
-                        Customize
-                    </ui-button>
-                    <ui-button @click="policy.accepted = 1">
-                        Accept All
-                    </ui-button>
-                </div>
-            </div>
+            <layout-consent/>
         </client-only>
-        <popup-fullscreen
-            :model-value="consentChoose || store.cookieCustomize"
-            @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
-        >
-            <template #title>
-                Choose privacy policy settings
-            </template>
-
-            <div class="app_consent_things __info-sections">
-                <div class="app_consent_item app_consent_item--enabled app_consent_item--disabled">
-                    <ui-checkbox
-                        class="app_consent_item_checkbox"
-                        model-value
-                    >
-                        Required Data
-                    </ui-checkbox>
-                    <div class="app_consent_item_text">
-                        Cookies, storage. Learn more:
-                        <a
-                            class="__link"
-                            href="/privacy-policy"
-                            target="_blank"
-                        >Privacy Policy</a>.
-
-                        This one is required for us to work correctly.
-                    </div>
-                </div>
-                <div
-                    class="app_consent_item"
-                    :class="{ 'app_consent_item--enabled': policy.rum }"
-                    @click="policy.rum = !policy.rum"
-                >
-                    <ui-checkbox
-                        v-model="policy.rum"
-                        class="app_consent_checkbox"
-                        @click.stop
-                    >
-                        CloudFlare Beacon
-                    </ui-checkbox>
-                    <div class="app_consent_item_text">
-                        Privacy-focused script to collect page load performance -
-                        <a
-                            class="__link"
-                            href="https://developers.cloudflare.com/web-analytics/data-metrics/"
-                            target="_blank"
-                            @click.stop
-                        >Learn More</a>.
-                    </div>
-                </div>
-                <div
-                    v-if="false"
-                    class="app_consent_item"
-                    :class="{ 'app_consent_item--enabled': policy.sentry }"
-                    @click="policy.sentry = !policy.sentry"
-                >
-                    <ui-checkbox
-                        v-model="policy.sentry"
-                        class="app_consent_checkbox app_consent_checkbox--disabled"
-                        @click.stop
-                    >
-                        Sentry Error Reporting
-                    </ui-checkbox>
-                    <div class="app_consent_item_text">
-                        This setting allows us to also send your VATSIM CID and request IP address to Sentry, as well as browser performance data. Error reporting is always enabled - but anonymous if this is not selected
-                    </div>
-                </div>
-            </div>
-
-            <template #actions>
-                <ui-button
-                    v-if="store.cookieCustomize"
-                    @click="store.cookieCustomize = false"
-                >
-                    Save
-                </ui-button>
-                <template v-else>
-                    <ui-button
-                        type="secondary"
-                        @click="consentChoose = false"
-                    >
-                        Cancel
-                    </ui-button>
-                    <ui-button @click="[policy.accepted = 1, consentChoose = false]">
-                        Agree
-                    </ui-button>
-                </template>
-            </template>
-        </popup-fullscreen>
+        <layout-consent-popup/>
+        <layout-notifications/>
     </div>
     <view-restricted-auth
         v-else
@@ -172,35 +49,24 @@ import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
 import type { ThemesList } from '~/utils/colors';
-import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
-import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
-import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import LayoutNotifications from '~/components/features/layout/LayoutNotifications.vue';
+import LayoutUpdatePopup from '~/components/features/layout/LayoutUpdatePopup.vue';
+import LayoutConsent from '~/components/features/layout/LayoutConsent.vue';
+import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.vue';
 
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const route = useRoute();
-const updateRequired = ref(true);
-const consentChoose = ref(false);
-const { $pwa } = useNuxtApp();
 
 const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/ViewUpdatePopup.vue'));
 const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
-
-const reload = () => {
-    if ($pwa?.needRefresh) {
-        $pwa.updateServiceWorker();
-    }
-    else {
-        location.reload();
-    }
-};
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
@@ -263,8 +129,6 @@ onMounted(() => {
     }
 });
 
-const policy = cookiePolicyStatus();
-
 /* watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {
         Sentry.setUser({ id: store.user.cid });
@@ -277,6 +141,7 @@ const policy = cookiePolicyStatus();
 });*/
 
 const themeColor = getCurrentThemeHexColor('darkGray900');
+const policy = cookiePolicyStatus();
 
 useHead(() => {
     const theme = store.theme ?? 'default';
@@ -462,85 +327,6 @@ await useAsyncData('default-init', async () => {
         &, * {
             color: $lightGray500;
             text-decoration-skip-ink: none;
-        }
-    }
-}
-
-.app_consent {
-    position: fixed;
-    z-index: 10;
-    bottom: 56px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-
-    width: 650px;
-    max-width: 90%;
-    padding: 16px;
-    border-radius: 8px;
-
-    background: $darkGray800;
-
-    @include mobileOnly {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    &_title {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    &_description {
-        font-size: 14px;
-    }
-
-    &_actions {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    &_introduction {
-        align-self: stretch;
-        justify-content: space-evenly;
-    }
-
-    &_item {
-        cursor: pointer;
-        user-select: none;
-
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        padding: 8px;
-        border: 1px solid varToRgba('lightGray400', 0.15);
-        border-radius: 8px;
-
-        background: $darkGray700;
-
-        transition: 0.3s;
-
-        &--disabled {
-            cursor: default;
-
-            .app_consent_item_checkbox {
-                pointer-events: none;
-                opacity: 0.8;
-            }
-        }
-
-        &--enabled {
-            border-color: $blue300;
-        }
-
-        &_text {
-            font-size: 14px;
         }
     }
 }

@@ -7,10 +7,12 @@ type SettingChangeValue<T> =
         : never;
 
 export function onSettingChange() {
-    // TODO
-    console.log('save action executed');
+    const settingsStore = useSettingsStore();
 
-    localStorage.setItem('settings', JSON.stringify(useSettingsStore().settings));
+    // TODO
+    console.log('save action executed', settingsStore.activeSettingsPreset);
+
+    localStorage.setItem('settings', JSON.stringify(settingsStore.activeSettingsPreset));
 }
 
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {

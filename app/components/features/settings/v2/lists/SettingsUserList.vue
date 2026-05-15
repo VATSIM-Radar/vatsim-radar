@@ -34,9 +34,33 @@ const localList = ref<UserList>({
 if (props.list) Object.assign(localList, props.list);
 
 const isNew = computed(() => localList.value.id === -1);
+const loading = ref(false);
+const deleteActive = ref(false);
 
 async function save() {
-    await addUserList(localList.value);
+    loading.value = true;
+    try {
+        if (isNew.value) {
+            await addUserList(localList.value);
+        }
+        else {
+            await editUserList(localList.value);
+        }
+    }
+    finally {
+        loading.value = false;
+    }
+}
+
+async function deleteList() {
+    loading.value = true;
+
+    try {
+        await deleteUserList(localList.value);
+    }
+    finally {
+        loading.value = false;
+    }
 }
 
 async function saveSort(sort: UserSettingsV2['appearance']['favoriteSort']) {

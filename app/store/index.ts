@@ -26,6 +26,7 @@ import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
+import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -54,6 +55,14 @@ export interface SiteConfig {
 
 export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
 export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
+
+export interface LocalNotification {
+    id?: number;
+    type: SnackbarType;
+    text: string;
+    timeout: number;
+    closable?: boolean;
+}
 
 export const useStore = defineStore('index', {
     state: () => ({
@@ -94,7 +103,7 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
-        cookieCustomize: false,
+        cookieCustomize: false as boolean | 'init',
 
         loginPopup: false,
         deleteAccountPopup: false,
@@ -142,6 +151,7 @@ export const useStore = defineStore('index', {
 
         wsOpen: false,
         wsCallsign: '',
+        localNotifications: [] as LocalNotification[],
     }),
     getters: {
         bookings(): VatsimBooking[] {
@@ -409,6 +419,14 @@ export const useStore = defineStore('index', {
         },
         async fetchBookmarks() {
             this.bookmarks = await $fetch<UserFilterPreset[]>('/api/user/bookmarks');
+        },
+        addNotification(notification: LocalNotification) {
+            notification.id = Date.now();
+            this.localNotifications.push(notification);
+
+            setTimeout(() => {
+                this.localNotifications = this.localNotifications.filter(x => x.id !== notification.id);
+            }, notification.timeout);
         },
     },
 });
