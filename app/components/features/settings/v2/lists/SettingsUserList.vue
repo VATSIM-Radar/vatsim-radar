@@ -33,6 +33,7 @@ const localList = ref<UserList>({
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 if (props.list) Object.assign(localList, props.list);
 
+const settingsStore = useSettingsStore();
 const isNew = computed(() => localList.value.id === -1);
 const loading = ref(false);
 const deleteActive = ref(false);
@@ -64,8 +65,18 @@ async function deleteList() {
 }
 
 async function saveSort(sort: UserSettingsV2['appearance']['favoriteSort']) {
-    // TODO: save stopped here
-    onSettingChange();
+    loading.value = true;
+
+    try {
+        await settingsStore.save({
+            appearance: {
+                favoriteSort: sort,
+            },
+        });
+    }
+    finally {
+        loading.value = false;
+    }
 }
 </script>
 

@@ -11,13 +11,13 @@ export const useSettingsStore = defineStore('settings', {
         autoSave: true,
     }),
     actions: {
-        save(settings: UserSettingsV2Partial) {
+        async save(settings: UserSettingsV2Partial) {
             if (this.autoSave && !this.activeSettingsPreset && this.settingsPresets.length) {
                 this.activeSettingsPreset = this.settingsPresets[0].id;
             }
 
             this.settings = customDefu(settings, JSON.parse(localStorage.getItem('settings') ?? '{}'));
-            onSettingChange();
+           await onSettingChange();
         },
     },
 });

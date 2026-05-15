@@ -1,6 +1,6 @@
 <template>
     <popup-fullscreen
-        :model-value="store.cookieCustomize"
+        :model-value="!!store.cookieCustomize"
         @update:modelValue="store.cookieCustomize = false"
     >
         <template #title>

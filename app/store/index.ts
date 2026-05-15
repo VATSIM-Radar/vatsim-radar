@@ -428,5 +428,12 @@ export const useStore = defineStore('index', {
                 this.localNotifications = this.localNotifications.filter(x => x.id !== notification.id);
             }, notification.timeout);
         },
+        addError(text: string, timeout = 5000) {
+            this.addNotification({
+                type: 'error',
+                text,
+                timeout,
+            });
+        },
     },
 });
