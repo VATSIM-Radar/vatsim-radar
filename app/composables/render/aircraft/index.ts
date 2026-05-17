@@ -1,6 +1,6 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { allPilotsOnGround, ownFlight } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
@@ -12,7 +12,7 @@ import { Point } from 'ol/geom.js';
 import type { StoreOverlayPilot } from '~/store/map';
 import { degreesToRadians } from '@turf/helpers';
 import { aircraftIcons } from '~/utils/icons';
-import { createDefaultStyle } from 'ol/style/Style';
+import { createDefaultStyle } from 'ol/style/Style.js';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
 import { aircraftState } from './state';

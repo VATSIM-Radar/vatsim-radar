@@ -1,6 +1,6 @@
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { isMapFeature } from '~/utils/map/entities';
-import type { DeclutterMode } from 'ol/style/Style';
+import type { DeclutterMode } from 'ol/style/Style.js';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { getSelectedColorFromSettings, getSelectedColorTransparencyFromSettings } from '~/composables/settings/colors';
 import { getCurrentThemeHexColor } from '~/composables';

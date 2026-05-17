@@ -1,5 +1,5 @@
-import type VectorLayer from 'ol/layer/Vector';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { useStore } from '~/store';

@@ -31,7 +31,7 @@ import { getLength } from 'ol/sphere.js';
 import type { Geometry } from 'ol/geom.js';
 import { LineString, Point } from 'ol/geom.js';
 import { unByKey } from 'ol/Observable.js';
-import VectorLayer from 'ol/layer/Vector';
+import VectorLayer from 'ol/layer/Vector.js';
 import { useStore } from '~/store';
 import {
     calculateHeadingPair,

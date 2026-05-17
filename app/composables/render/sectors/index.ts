@@ -1,5 +1,5 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setSectorStyle } from '~/composables/render/sectors/style';
 import {
@@ -7,7 +7,7 @@ import {
 } from '~/utils/data/vatglasses';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
     source: VectorSource;

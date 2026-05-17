@@ -1,5 +1,5 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
@@ -9,7 +9,7 @@ import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entit
 import { getSelectedColorFromSettings } from '~/composables/settings/colors';
 import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { createDefaultStyle } from 'ol/style/Style';
+import { createDefaultStyle } from 'ol/style/Style.js';
 
 const setAirports = new Set<string>();
 

@@ -211,7 +211,7 @@ import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate.js';
 import { useStore } from '~/store';
 import NavigraphAirways from '~/components/map/navigraph/NavigraphAirways.vue';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/server/navigraph/navdata/types';

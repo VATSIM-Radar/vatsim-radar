@@ -1,5 +1,5 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import type { AirportListItem } from '~/composables/render/airports';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';

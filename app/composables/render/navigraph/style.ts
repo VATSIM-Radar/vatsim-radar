@@ -3,9 +3,9 @@ import { Icon, Style, Fill, Stroke, Text } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Geometry } from 'ol/geom.js';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 
 let styleCache: Record<string, Style> = {};
 let stylesCache: Record<string, Style[]> = {};
