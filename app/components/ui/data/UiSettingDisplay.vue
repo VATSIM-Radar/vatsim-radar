@@ -72,6 +72,8 @@ function labelClick(event: MouseEvent) {
 
 <style lang="scss" scoped>
 .setting {
+    align-self: stretch;
+
     &_left {
         display: flex;
         flex-direction: column;

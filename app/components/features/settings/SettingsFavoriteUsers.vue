@@ -43,80 +43,7 @@
                             ({{ user.cid }})
                         </ui-spoiler>
                     </div>
-                    <div
-                        v-if="user.type !== 'offline'"
-                        class="users_user_info_status"
-                        :class="{ 'users_user_info_status--no-action': user.type === 'sup' || user.type === 'booking' }"
-                        @click.stop="store.settingsPopup = false"
-                    >
-                        <div
-                            v-if="user.type === 'pilot'"
-                            class="users_user__btn"
-                            @click="[mapStore.addPilotOverlay(user.cid.toString()), map && showPilotOnMap(user.data, map)]"
-                        >
-                            <template v-if="user.data.departure">
-                                <template v-if="user.data.status === 'depGate' || user.data.status === 'depTaxi'">
-                                    Departing from {{ user.data.departure }}
-                                </template>
-                                <template v-else-if="user.data.status === 'arrGate' || user.data.status === 'arrTaxi'">
-                                    Arrived to {{ user.data.arrival }}
-                                </template>
-                                <template v-else-if="user.data.status === 'departed'">
-                                    Departed from {{ user.data.departure }}
-                                </template>
-                                <template v-else-if="user.data.status === 'arriving'">
-                                    Arriving to {{ user.data.arrival }}
-                                </template>
-                                <template v-else>
-                                    Flying from {{ user.data.departure }} to {{ user.data.arrival }}
-                                </template>
-                                as {{ user.data.callsign }}
-                            </template>
-                            <template v-else>
-                                {{ user.data.callsign }}
-                            </template>
-                            <template v-if="user.sharedPilots.length">
-                                together with {{user.sharedPilots.map(x => x.name).join(', ')}}
-                            </template>
-                        </div>
-                        <div
-                            v-else-if="user.type === 'prefile'"
-                            class="users_user__btn"
-                            @click="[mapStore.addPrefileOverlay(user.cid.toString())]"
-                        >
-                            Preparing for a flight <template v-if="user.data.departure">
-                                from {{ user.data.departure }} to {{user.data.arrival}}
-                            </template> as {{ user.data.callsign }}
-                        </div>
-                        <div
-                            v-else-if="user.type === 'atc'"
-                            class="users_user__btn"
-                            @click="[mapStore.addAtcOverlay(user.data.callsign), map && showAtcOnMap(user.data, map)]"
-                        >
-                            Controlling as {{ user.data.callsign }}
-                        </div>
-                        <div
-                            v-else-if="user.type === 'booking'"
-                            class="users_user__btn"
-                        >
-                            Booked {{user.data.atc.callsign}} from {{ makeBookingTime(user.data.start) }}z to {{makeBookingTime(user.data.end)}}z
-                        </div>
-                        <div
-                            v-else-if="user.type === 'sup'"
-                            class="users_user__btn users_user__btn--no-action"
-                            @click.stop
-                        >
-                            SUPing as {{ user.data.callsign }}
-                        </div>
-                    </div>
-                    <div
-                        v-if="user.suping && user.type !== 'sup'"
-                        class="users_user_info_status users_user_info_status--no-action"
-                    >
-                        <div class="users_user__btn users_user__btn--no-action">
-                            SUPing as {{ user.suping }}
-                        </div>
-                    </div>
+                    <settings-user-status :user/>
                     <ui-spoiler
                         v-if="user.comment"
                         class="users_user_info_comment"
@@ -215,6 +142,7 @@ import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { makeBookingTime } from '~/composables/vatsim/bookings';
+import SettingsUserStatus from '~/components/features/settings/v2/lists/SettingsUserStatus.vue';
 
 const props = defineProps({
     list: {

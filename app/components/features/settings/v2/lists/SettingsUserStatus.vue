@@ -45,6 +45,9 @@
                 SUPing as {{ user.data.callsign }}
             </template>
         </div>
+        <ui-text color="whiteAlpha24" v-else class="user-status_text">
+            Offline
+        </ui-text>
         <div
             v-if="user.suping && user.type !== 'sup'"
             class="user-status_text"
@@ -69,7 +72,6 @@ defineProps({
     },
 });
 
-const store = useStore();
 const mapStore = useMapStore();
 const map = inject<ShallowRef<Map | null>>('map');
 const dataStore = useDataStore();
@@ -115,5 +117,12 @@ function openATC(cid: number) {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+a {
+    font-weight: 600;
+    color: $brandPrimary;
+}
+</style>
 
 

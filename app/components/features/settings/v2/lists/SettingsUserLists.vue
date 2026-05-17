@@ -1,5 +1,5 @@
 <template>
-    <div class="lists">
+    <div v-if="ready" class="lists">
         <transition-group name="lists--appear">
             <div
                 v-if="activeList || newList"
@@ -17,7 +17,7 @@
                     </ui-text>
                 </div>
                 <div class="lists_creation_list">
-                    <settings-user-list :list="activeList"/>
+                    <settings-user-list :list="activeListLive"/>
                 </div>
             </div>
 
@@ -37,6 +37,25 @@
                         Add New
                     </ui-button>
                 </div>
+
+                <ui-setting-display>
+                    <template #title>
+                        Friends list sort
+                    </template>
+
+                    <ui-select
+                        :items="[
+                            { text: 'Newest first', value: 'newest' },
+                            { text: 'Oldest first', value: 'oldest' },
+                            { text: 'Name (ASC)', value: 'abcAsc' },
+                            { text: 'Name (DESC)', value: 'abcDesc' },
+                            { text: 'CID (ASC)', value: 'cidAsc' },
+                            { text: 'CID (DESC)', value: 'cidDesc' },
+                        ]"
+                        :model-value="settingsStore.settings.appearance?.favoriteSort ?? 'newest'"
+                        @update:modelValue="settingsStore.save({ appearance: { favoriteSort: $event as UserSettingsV2['appearance']['favoriteSort'] } })"
+                    />
+                </ui-setting-display>
 
                 <template v-if="store.user">
                     <div class="lists_items">
@@ -83,19 +102,34 @@
 <script setup lang="ts">
 import UiText from '~/components/ui/text/UiText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import type { UserList } from '~/utils/server/handlers/lists';
 import { MAX_USER_LISTS } from '~/utils/shared';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import SettingsUserList from '~/components/features/settings/v2/lists/SettingsUserList.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import UiSelect from '~/components/ui/inputs/UiSelect.vue';
+import type { UserSettingsV2 } from '~/utils/settings/types';
+import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 
 const store = useStore();
+const settingsStore = useSettingsStore();
 
 const newList = ref(false);
-const activeList = ref<UserList | null>(null);
+const activeList = ref<number | null>(null);
+
+const activeListLive = computed(() => {
+    return activeList.value ? store.lists.find(x => x.id === activeList.value) ?? null : null;
+});
 
 const route = useRoute();
 const router = useRouter();
+
+const ready = ref(false);
+
+await setupDataFetch({
+    onSuccessCallback: () => {
+        ready.value = true;
+    },
+});
 
 watch(() => route.query.list, val => {
     if (!val) {
@@ -106,7 +140,7 @@ watch(() => route.query.list, val => {
         if (val === 'new') newList.value = true;
         else {
             const list = store.lists.find(x => x.id === +val);
-            if (list) activeList.value = list;
+            if (list) activeList.value = list.id;
         }
     }
 }, {

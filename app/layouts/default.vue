@@ -428,6 +428,12 @@ img {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
+    align-items: center;
+}
+
+.__horizontal-group-16 {
+    @extend .__horizontal-group-4;
+    gap: 16px;
 }
 
 .__vertical-group-16 {

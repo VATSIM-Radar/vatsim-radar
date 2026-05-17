@@ -2,13 +2,13 @@
     <component
         :is="getTag"
         class="text"
-        :class="[`text--type-${ type }`, {
+        :class="[`text--type-${ type ?? 'none' }`, {
             'text--type-b': isTypeB,
         }]"
         :href="href ?? undefined"
         :style="{
-            '--text-primary-color': color !== 'currentColor' ? `rgb(var(--${ color }))` : undefined,
-            '--text-hover-color': linkHoverColor ? `rgb(var(--${ linkHoverColor }))` : undefined,
+            '--text-primary-color': color !== 'currentColor' ? radarColors[color as ColorsList] : undefined,
+            '--text-hover-color': linkHoverColor ? radarColors[linkHoverColor as ColorsList] : undefined,
         }"
         :target
         :to="to ?? undefined"
@@ -26,7 +26,6 @@ import { NuxtLink } from '#components';
 const props = defineProps({
     type: {
         type: String as PropType<UiTextTypes>,
-        required: true,
     },
     tag: {
         type: String,
@@ -57,7 +56,7 @@ defineSlots<{ default: () => any }>();
 
 const bTypes: UiTextTypes[] = ['1b', '2b-medium', '2b', '3b', '3b-medium', '3b-medium-alt'];
 
-const isTypeB = computed(() => bTypes.includes(props.type));
+const isTypeB = computed(() => bTypes.includes(props.type ?? '' as UiTextTypes));
 
 export type UiTextTypes =
     | 'h1'
@@ -82,7 +81,7 @@ const getTag = computed(() => {
     if (props.to) return NuxtLink;
     if (props.tag) return props.tag;
 
-    if (props.type.startsWith('h')) return props.type;
+    if (props.type?.startsWith('h')) return props.type;
 
     return 'div';
 });
@@ -90,10 +89,6 @@ const getTag = computed(() => {
 
 <style scoped lang="scss">
 .text {
-    font-family: $defaultFont;
-    font-weight: normal;
-    font-style: normal;
-    line-height: 100%;
     color: var(--text-primary-color, currentColor);
     text-decoration: none;
 
@@ -101,6 +96,13 @@ const getTag = computed(() => {
         margin: 0;
         font-weight: 500;
         letter-spacing: -0.01em;
+    }
+
+    &:not(&--type-none) {
+        font-family: $defaultFont;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 100%;
     }
 
     &--type-h1 {

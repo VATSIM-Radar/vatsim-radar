@@ -8,7 +8,7 @@
                         :key="header.key"
                         class="table__data"
                         v-bind="header.headAttributes"
-                        @click="doSort(header)"
+                        @click="header.sort && doSort(header)"
                     >
                         <ui-text
                             class="table_header__data"

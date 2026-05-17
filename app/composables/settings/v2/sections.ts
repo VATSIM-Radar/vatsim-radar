@@ -52,6 +52,7 @@ export const settingsSections: SettingsMenuGroup[] = [
                         {
                             type: 'component',
                             component: SettingsUserLists,
+                            searchKeywords: ['friends', 'favorite', 'lists', 'favourite'],
                         },
                     ],
                 }],
