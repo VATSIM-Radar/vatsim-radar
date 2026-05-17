@@ -88,7 +88,7 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
 };
 
 const canShowPopup = computed(() => {
-    if (store.initStatus.status === false || Object.values(store.initStatus).every(x => x === true || x === 'notRequired')) return false;
+    if (store.initStatus.status === false) return false;
 
     let canShow = false;
 

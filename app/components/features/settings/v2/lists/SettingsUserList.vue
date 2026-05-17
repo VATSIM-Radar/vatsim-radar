@@ -128,7 +128,7 @@
                         hover-color="red700"
                         link-color="red600"
                         type="link"
-                        @click="localList.users = localList.users.filter(x => x.cid !== item.cid)"
+                        @click="[localList.users = localList.users.filter(x => x.cid !== item.cid), save()]"
                     >
                         <template #icon>
                             <close-icon/>
