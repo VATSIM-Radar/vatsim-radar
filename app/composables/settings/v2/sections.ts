@@ -20,6 +20,7 @@ export const settingsSections: SettingsMenuGroup[] = [
                         key: 'section-1',
                         items: [
                             settingsItemDebug.component,
+                            settingsItemDebug.inlineComponent,
                             settingsItemDebug.toggle,
                             settingsItemDebug.input,
                         ],

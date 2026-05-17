@@ -2,7 +2,12 @@
     <div
         class="icon"
         :class="{ 'icon--real-offset': realOffset }"
-        :style="{ '--color': color in radarColors ? radarColors[color as ColorsList] : color, '--size': `${ size }px`, '--offset': `${ iconOffset }px` }"
+        :style="{
+            '--color': color in radarColors ? radarColors[color as ColorsList] : color,
+            '--icon-color': (iconColor && iconColor in radarColors) ? radarColors[iconColor as ColorsList] : (iconColor ?? undefined),
+            '--size': `${ size }px`,
+            '--offset': `${ iconOffset }px`,
+        }"
     >
         <slot/>
     </div>
@@ -14,7 +19,11 @@ import type { ColorsList } from '~/utils/colors';
 defineProps({
     color: {
         type: String as PropType<string | ColorsList>,
-        default: 'transparent',
+        default: 'blue500',
+    },
+    iconColor: {
+        type: String as PropType<string | ColorsList | null>,
+        default: null,
     },
     size: {
         type: Number,
@@ -36,12 +45,9 @@ defineSlots<{ default?(): any }>();
 <style scoped lang="scss">
 .icon {
     position: relative;
-
     width: var(--size);
     height: var(--size);
     padding: 4px;
-
-    color: var(--color);
 
     &::before {
         content: '';
@@ -54,7 +60,7 @@ defineSlots<{ default?(): any }>();
         border-radius: 8px;
 
         opacity: 0.12;
-        background: currentColor;
+        background: var(--color);
     }
 
     &--real-offset {
@@ -69,6 +75,7 @@ defineSlots<{ default?(): any }>();
 
     &:deep(svg) {
         width: 100%;
+        color: var(--icon-color, var(--color));
     }
 }
 </style>

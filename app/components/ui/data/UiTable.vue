@@ -10,14 +10,17 @@
                         v-bind="header.headAttributes"
                         @click="doSort(header)"
                     >
-                        <div class="table_header__data">
+                        <ui-text
+                            class="table_header__data"
+                            type="3b"
+                        >
                             <slot
                                 :header="header"
                                 :name="`header-${ header.key }`"
                             >
                                 {{ header.name }}
                             </slot>
-                        </div>
+                        </ui-text>
                         <div
                             v-if="header.sort"
                             class="table_header__sort"
@@ -39,11 +42,12 @@
                     :class="{ 'table__row--clickable': clickable }"
                     @click="$emit('click', item)"
                 >
-                    <div
+                    <ui-text
                         v-for="header in headers"
                         :key="`${ String(item[itemKey]) }-${ header.key }`"
                         class="table__data"
                         :class="[`table__data--type-${ header.key }`]"
+                        type="3b"
                         v-bind="header.dataAttributes ?? header.headAttributes"
                     >
                         <slot
@@ -55,7 +59,7 @@
                         >
                             {{ item[header.key] }}
                         </slot>
-                    </div>
+                    </ui-text>
                 </div>
             </div>
         </div>
@@ -65,6 +69,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import SortIcon from '~/assets/icons/kit/sort.svg?component';
+import UiText from '~/components/ui/text/UiText.vue';
 
 export interface TableHeader<T = unknown> {
     key: string;
@@ -118,7 +123,7 @@ export interface TableSort {
 const sorting = defineModel<TableSort[]>('sort', { default: () => reactive([]) });
 
 const templateColumns = computed(() => {
-    return props.headers.map(x => typeof x.width === 'number' ? `${ x.width }px` : x.width || '1fr').join(' ');
+    return props.headers.map(x => typeof x.width === 'number' ? `${ x.width + 32 }px` : x.width ? `calc(${ x.width } + 32px)` : '1fr').join(' ');
 });
 
 const items = computed(() => {
@@ -180,18 +185,26 @@ function doSort(header: TableHeader) {
 
 <style scoped lang="scss">
 .table {
-    padding: 16px;
-    border-radius: 4px;
-    color: $lightGray300;
-    background: $darkGray700;
+    color: $typographyPrimary;
 
     &__row {
         display: grid;
         grid-auto-columns: auto;
         grid-template-columns: v-bind(templateColumns);
-        gap: 16px;
-        align-items: center;
 
+        &:not(:last-child) {
+            border-bottom: 1px dashed $strokeDefault;
+        }
+    }
+
+    &_header, &_data {
+        border-bottom: 1px solid $strokeDefault;
+    }
+
+    &__data {
+        display: flex;
+        align-items: center;
+        min-height: 56px;
         padding: 16px;
     }
 
@@ -199,28 +212,25 @@ function doSort(header: TableHeader) {
         user-select: none;
 
         position: sticky;
+        z-index: 1;
         top: 56px;
 
-        margin-bottom: 16px;
-        border-bottom: 1px solid $strokeDefault;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
 
-        font-size: 14px;
-        line-height: 100%;
-
-        background: $darkGray700;
+        background: $darkGray800;
 
         .table {
             &__data {
                 display: flex;
-                gap: 8px;
+                gap: 16px;
                 align-items: center;
+                min-height: unset;
             }
         }
 
         &__sort {
             cursor: pointer;
-
-            transform: scale(1, -1);
 
             display: flex;
             align-items: center;
@@ -229,14 +239,28 @@ function doSort(header: TableHeader) {
             width: 18px;
             min-width: 18px;
 
+            color: $lightGray400;
+
+            opacity: 0.4;
+
             transition: 0.3s;
 
+            @include hover {
+                &:hover {
+                    opacity: 0.8;
+
+                    &.table_header__sort--active {
+                        opacity: 1;
+                    }
+                }
+            }
+
             &--active {
-                color: $blue400;
+                opacity: 1;
             }
 
             &--desc {
-                transform: scale(1, 1);
+                transform: scale(1, -1);
             }
 
             svg {
@@ -246,18 +270,8 @@ function doSort(header: TableHeader) {
     }
 
     &_data {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        font-size: 13px;
-        line-height: 100%;
-
         .table {
             &__row {
-                border-radius: 8px;
-                background: $darkGray500;
-
                 &--clickable {
                     cursor: pointer;
 
@@ -265,7 +279,7 @@ function doSort(header: TableHeader) {
                         transition: 0.3s;
 
                         &:hover {
-                            background: $darkGray400;
+                            background: $whiteAlpha4;
                         }
                     }
                 }

@@ -418,6 +418,24 @@ img {
     }
 }
 
+.__vertical-group-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.__horizontal-group-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.__vertical-group-16 {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .__grid-info-sections {
     display: grid;
     grid-template-columns: 20% 75%;

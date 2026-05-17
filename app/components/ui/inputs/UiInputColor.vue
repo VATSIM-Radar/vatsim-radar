@@ -7,7 +7,7 @@
             <ui-input-text
                 :focused="isOpen"
                 :model-value="getHexColor"
-                placeholder="Custom hex"
+                :placeholder="themeColor ?? 'Custom hex'"
                 @change="hexColorRegex.test(($event.target as HTMLInputElement).value) && emit('update:modelValue', { ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
                 @update:focused="$event && (isOpen = $event)"
             >
@@ -186,10 +186,10 @@ function getHexColorFromHistory(color: string) {
     return color in radarColors ? getCurrentThemeHexColor(color as ColorsList) : color;
 }
 
-const themeColor = computed(() => props.modelValue ? getCurrentThemeHexColor(props.modelValue.color as any) : props.defaultColor);
+const themeColor = computed<string | undefined>(() => props.modelValue ? getCurrentThemeHexColor(props.modelValue.color as any) : props.defaultColor?.color ? getCurrentThemeHexColor(props.defaultColor?.color as ColorsList) : undefined);
 
 const getColor = computed(() => {
-    if (themeColor.value) return themeColor.value as string;
+    if (themeColor.value) return themeColor.value;
     return props.modelValue?.color ?? null;
 });
 

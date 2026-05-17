@@ -1,5 +1,5 @@
 <template>
-    <div class="settings-page">
+    <div class="settings-page" v-if="item">
         <div
             v-for="(section) in item.items"
             :key="section.key"
@@ -20,44 +20,34 @@
             >
                 {{section.description}}
             </ui-text>
-            <div
+            <ui-setting-display
                 v-for="(sectionItem, index) in section.items"
                 :key="index"
                 class="settings-page__item"
-                :class="[
-                    `settings-page__item--type-${ sectionItem.type }`, {
-                        'settings-page__item--has-left': 'title' in sectionItem ,
-                        'settings-page__item--disabled': toValue(sectionItem.disabled),
-                    },
-                ]"
+                :class="[`settings-page__item--type-${ sectionItem.type }`]"
             >
-                <div
+                <template
                     v-if="'title' in sectionItem"
-                    class="settings-page__item_left"
+                    #title
                 >
-                    <ui-text
-                        class="settings-page__item_left_title"
-                        type="2b-medium"
-                        @click="labelClick"
-                    >
-                        <span>
-                            {{sectionItem.title}}
-                        </span>
-                        <ui-tooltip
-                            v-if="sectionItem.hint"
-                            location="right"
-                        >
-                            {{sectionItem.hint}}
-                        </ui-tooltip>
-                    </ui-text>
-                    <ui-text
-                        v-if="sectionItem.description"
-                        class="settings-page__item_left_description"
-                        color="lightGray900"
-                        type="3b"
-                    >
-                        {{sectionItem.description}}
-                    </ui-text>
+                    {{sectionItem.title}}
+                </template>
+                <template
+                    v-if="'hint' in sectionItem"
+                    #hint
+                >
+                    {{sectionItem.hint}}
+                </template>
+                <template
+                    v-if="'description' in sectionItem"
+                    #description
+                >
+                    {{sectionItem.description}}
+                </template>
+                <template
+                    v-if="sectionItem.fullPath"
+                    #leftAppend
+                >
                     <ui-button
                         v-if="sectionItem.fullPath"
                         class="settings-page__item_left_path"
@@ -68,11 +58,9 @@
                     >
                         Jump to component
                     </ui-button>
-                </div>
-                <div class="settings-page__item_component">
-                    <settings-component :item="sectionItem"/>
-                </div>
-            </div>
+                </template>
+                <settings-component :item="sectionItem"/>
+            </ui-setting-display>
         </div>
     </div>
 </template>
@@ -82,10 +70,11 @@ import UiText from '~/components/ui/text/UiText.vue';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import SettingsComponent from '~/components/features/settings/v2/components/SettingsComponent.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 
 const props = defineProps({
     item: {
-        type: Object as PropType<SettingsSection>,
+        type: Object as PropType<SettingsSection | null>,
         required: true,
     },
 });
@@ -112,19 +101,8 @@ watch(() => route.hash, val => {
     }
 });
 
-function labelClick(event: MouseEvent) {
-    const component = (event.target as HTMLDivElement).closest('.settings-page__item')!.querySelector('.settings-page__item_component > *');
-
-    if (component) {
-        const input = component.querySelector<HTMLInputElement>('input:not(:disabled)');
-
-        if (input) input.focus();
-        else if ('click' in component) (component as HTMLDivElement).click();
-    }
-}
-
 useHead({
-    title: computed(() => props.item.title),
+    title: computed(() => props.item?.title),
 });
 </script>
 
@@ -139,27 +117,6 @@ useHead({
         display: flex;
         flex-direction: column;
         gap: 16px;
-    }
-
-    &__item {
-        &_left {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-
-            &_title {
-                cursor: pointer;
-                display: flex;
-                gap: 8px;
-                align-items: center;
-            }
-        }
-
-        &--has-left {
-            display: grid;
-            grid-template-columns: 31% calc(100% - 31% - 24px);
-            justify-content: space-between;
-        }
     }
 }
 </style>

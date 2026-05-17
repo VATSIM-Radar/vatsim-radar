@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-alpha.10.0]
+
+## Redesign
+
+- Tables redesign
+
 # [2.0.0-alpha.9.2]
 
 ## Alpha changes

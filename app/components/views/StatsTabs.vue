@@ -1,6 +1,6 @@
 <template>
     <ui-tabs
-        background="darkGray700"
+        background="darkGray800"
         mobile-vertical
         :model-value="statsTab"
         :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, pilots: { title: 'Pilots' }, atc: { title: 'ATC' }, observers: { title: 'Observers' } }"
