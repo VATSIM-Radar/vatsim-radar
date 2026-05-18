@@ -8,6 +8,7 @@
         :placeholder="item.placeholder"
         @change="handleSettingChange(item, localValue)"
         @update:modelValue="localValue = $event"
+        :allowed-after-dot="item.allowedAfterDot"
     />
 </template>
 

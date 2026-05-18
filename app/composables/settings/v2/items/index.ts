@@ -4,6 +4,8 @@ const onChange = (event: any) => alert(typeof event === 'object' && event ? JSON
 
 /* eslint-disable vue/require-typed-ref */
 
+const range = ref<number>(0);
+
 export const settingsItemDebug = {
     component: {
         type: 'component',
@@ -22,6 +24,7 @@ export const settingsItemDebug = {
         title: 'Toggle',
         value: ref(false),
         onChange,
+        appendComponent: BrandingLogo,
     },
     input: {
         type: 'text',
@@ -96,5 +99,17 @@ export const settingsItemDebug = {
         ],
         value: ref(0),
         onChange,
+    },
+    range: {
+        type: 'range',
+        min: 0,
+        max: 100,
+        minLabel: '0x',
+        maxLabel: '100x',
+        showInput: true,
+        label: 'test',
+        value: range,
+        onChange: (value) => range.value = value,
+        title: 'Range',
     },
 } satisfies Record<string, SettingsItem>;

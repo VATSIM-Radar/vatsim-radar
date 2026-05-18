@@ -23,6 +23,7 @@ export const settingsSections: SettingsMenuGroup[] = [
                             settingsItemDebug.inlineComponent,
                             settingsItemDebug.toggle,
                             settingsItemDebug.input,
+                            settingsItemDebug.range,
                         ],
                     },
                     {

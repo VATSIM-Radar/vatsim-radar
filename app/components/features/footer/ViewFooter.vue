@@ -450,7 +450,7 @@ function cancelBookingOverride() {
 
         &_vg {
             :deep(.input) {
-                height: 32px !important;
+                --input-height: 32px;
             }
         }
 

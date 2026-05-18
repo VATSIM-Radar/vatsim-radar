@@ -19,6 +19,7 @@ export interface SettingsItemDefault extends SettingsItemMandatory {
     title: string;
     description?: string;
     hint?: string;
+    appendComponent?: Component;
 }
 
 // Whole setting is a component
@@ -52,8 +53,23 @@ export interface SettingsItemInputNumber extends SettingsItemDefault {
     value: MaybeRefOrGetter<number>;
     min?: number;
     max?: number;
+    allowedAfterDot?: number;
     placeholder?: string;
     onChange: (val: number | null) => any;
+}
+
+export interface SettingsItemRange extends SettingsItemDefault {
+    type: 'range';
+    value: MaybeRefOrGetter<number>;
+    min: number;
+    max: number;
+    minLabel?: string;
+    maxLabel?: string;
+    showLabels?: boolean;
+    showInput?: boolean;
+    label?: string;
+    step?: number;
+    onChange: (val: number) => any;
 }
 
 export interface SettingsItemInputColor extends SettingsItemDefault {
@@ -97,6 +113,7 @@ export type SettingsItem =
     | SettingsItemInputText
     | SettingsItemInputColor
     | SettingsItemInputNumber
+    | SettingsItemRange
     | SettingsItemSelect
     | SettingsItemMultiSelect
     | SettingsItemRadio;

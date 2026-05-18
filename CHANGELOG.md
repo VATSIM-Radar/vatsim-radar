@@ -6,6 +6,7 @@
 
 - Tables redesign
 - Redesigned friends status: you can now click on individual links instead of one big link
+- Redesigned VATGlasses slider for a consistent look in all browsers
 
 # [2.0.0-alpha.9.2]
 

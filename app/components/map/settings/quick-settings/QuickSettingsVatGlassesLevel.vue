@@ -18,29 +18,16 @@
             v-if="vatglassesActive"
             class="vg-level_content"
         >
-            <input
-                v-if="(!disabledLevel || showAuto) && store.viewport.width > 1500"
+            <ui-range
                 v-model="vatglassesLevel"
                 class="range"
                 :class="{ 'range--wide': hideIfDisabled }"
                 :disabled="disabledLevel && !showAuto"
-                max="430"
-                min="0"
-                step="5"
-                type="range"
-                @wheel.prevent="handleWheel"
-            >
-            <ui-input-text
-                v-model="vatglassesLevel"
-                class="vatglassesLevel-input"
-                height="32px"
-                :input-attrs="{
-                    max: 430,
-                    min: 0,
-                    step: 5,
-                    disabled: disabledLevel && !showAuto,
-                }"
-                input-type="number"
+                hide-labels
+                :max="430"
+                :min="0"
+                show-input
+                :step="5"
             />
             <label v-if="store.user && ownFlight && showAuto">
                 <input
@@ -72,6 +59,7 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import UiRange from '~/components/ui/inputs/UiRange.vue';
 
 defineProps({
     hideIfDisabled: {
@@ -145,12 +133,8 @@ const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !==
     }
 }
 
-.range--wide {
-    width: 80px;
-}
-
 .range {
-    width: 80px;
+    width: 140px;
 }
 
 label {

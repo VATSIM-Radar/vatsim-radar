@@ -12,6 +12,7 @@ import SettingsComponentNumber from './SettingsComponentNumber.vue';
 import SettingsComponentRadio from './SettingsComponentRadio.vue';
 import SettingsComponentSelect from './SettingsComponentSelect.vue';
 import SettingsComponentText from './SettingsComponentText.vue';
+import SettingsComponentRange from './SettingsComponentRange.vue';
 import SettingsComponentToggle from './SettingsComponentToggle.vue';
 
 const props = defineProps({
@@ -40,6 +41,8 @@ const getComponent = computed(() => {
             return SettingsComponentMultiSelect;
         case 'radio':
             return SettingsComponentRadio;
+      case 'range':
+        return SettingsComponentRange;
         default:
             return 'div';
     }

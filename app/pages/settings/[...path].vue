@@ -1,5 +1,5 @@
 <template>
-    <div class="settings-page" v-if="item">
+    <div v-if="item" class="settings-page">
         <div
             v-for="(section) in item.items"
             :key="section.key"
@@ -59,7 +59,10 @@
                         Jump to component
                     </ui-button>
                 </template>
-                <settings-component :item="sectionItem"/>
+                <div class="__vertical-group-16">
+                    <settings-component :item="sectionItem"/>
+                    <component :is="sectionItem.appendComponent" v-if="'appendComponent' in sectionItem"/>
+                </div>
             </ui-setting-display>
         </div>
     </div>
