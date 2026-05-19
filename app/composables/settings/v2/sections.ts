@@ -2,9 +2,16 @@ import type { SettingsMenuGroup } from './types';
 import PersonIcon from '~/assets/icons/kit/person.svg?component';
 import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?component';
 import { settingsItemAccount } from '~/composables/settings/v2/items/account';
+import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
+import {settingsItemAppearance} from "~/composables/settings/v2/items/general/appearance";
 
 export const getSettingsSections = () => {
-    const itemsAccount = settingsItemAccount();
+    const items = {
+        account: settingsItemAccount(),
+        preferences: settingsItemPreferences(),
+        appearance: settingsItemAppearance(),
+    }
+    
     const store = useStore();
     const notLoggedIn = computed(() => !store.user);
 
@@ -20,25 +27,25 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: 'account',
-                            items: [itemsAccount.account],
+                            items: [items.account.account],
                             hide: notLoggedIn,
                         },
                         {
                             title: 'Privacy',
                             key: 'privacy',
-                            items: [itemsAccount.headerName, itemsAccount.privateMode],
+                            items: [items.account.headerName, items.account.privateMode],
                             hide: notLoggedIn,
                         },
                         {
                             title: 'Navigraph Account',
                             key: 'navigraph',
-                            items: [itemsAccount.navigraph],
+                            items: [items.account.navigraph],
                             hide: notLoggedIn,
                         },
                         {
                             title: 'Interface',
                             key: 'interface',
-                            items: [itemsAccount.theme],
+                            items: [items.account.theme],
                         },
                     ],
                 },
@@ -49,8 +56,17 @@ export const getSettingsSections = () => {
             url: 'general',
             icon: DisplaySettingsIcon,
             sections: [
-
+                {
+                    title: 'Appearance',
+                    url: '',
+                    items: [
+                        {
+                            key: 'appearance',
+                            items: [items.preferences.searchBy, items.preferences.searchLimit, items.appearance.overlaysPositions],
+                        },
+                    ],
+                },
             ],
         },
-    ] satisfies SettingsMenuGroup[];
+    ] satisfies SettingsMenuGroup[] as SettingsMenuGroup[];
 };

@@ -1,5 +1,6 @@
 import { getSettingValue, makeSettingsItems } from '~/composables/settings/v2/utils';
 import { setPrivateMode } from '~/composables/fetchers/lists';
+import type { SearchFilter } from '~/types/map';
 
 export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore, notLoggedIn }) => ({
     autoFollow: {
@@ -45,5 +46,44 @@ export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore,
         type: 'toggle',
         value: getSettingValue(() => settingsStore.settings.map?.preferences?.showTotalDeparturesInFeaturedAirports, false),
         onChange: value => settingsStore.save({ map: { preferences: { showTotalDeparturesInFeaturedAirports: value } } }),
+    },
+    searchBy: {
+        title: 'Map Search categories',
+        description: 'Limits what categories Map Search works for',
+        type: 'multi-select',
+        items: [
+            { value: 'atc', text: 'ATC' },
+            { value: 'airports', text: 'Airports' },
+            { value: 'flights', text: 'Flights' },
+        ],
+        value: getSettingValue(() => settingsStore.settings.map?.preferences?.searchBy, ['atc', 'airports', 'flights']),
+        onChange: _value => {
+            let value = _value;
+
+            if (!value.length) value = ['atc', 'airports', 'flights'];
+
+            settingsStore.save({ map: { preferences: { searchBy: value as SearchFilter[] } } });
+        },
+    },
+    searchLimit: {
+        title: 'Map Search limit',
+        description: 'Limits max count of results in each search category',
+        type: 'select',
+        items: [
+            { value: 5 },
+            { value: 10 },
+            { value: 20 },
+            { value: 50 },
+            { value: 75 },
+        ],
+        value: getSettingValue(() => settingsStore.settings.map?.preferences?.searchLimit, 10),
+        onChange: value => settingsStore.save({ map: { preferences: { searchLimit: value as number } } }),
+    },
+    enableQueryUpdate: {
+        title: 'Enable query update',
+        description: 'Enables browser URL update with center and zoom changes',
+        type: 'toggle',
+        value: getSettingValue(() => settingsStore.settings.map?.preferences?.enableQueryUpdate, false),
+        onChange: value => settingsStore.save({ map: { preferences: { enableQueryUpdate: value } } }),
     },
 }));

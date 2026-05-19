@@ -62,8 +62,8 @@
                     >
                         <ui-tabs
                             background="darkGray900"
-                            :model-value="childrenPath"
-                            :tabs="Object.fromEntries(root.sections.map(x => ([x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
+                            :model-value="rootPath + childrenPath"
+                            :tabs="Object.fromEntries(root.sections.map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
                             vertical
                         />
                     </div>
@@ -149,7 +149,7 @@ const currentItem = computed(() => {
             for (const section of root.sections) {
                 for (const item of section.items) {
                     for (const component of item.items) {
-                      if(component.disabled !== undefined && toValue(component.disabled)) continue
+                        if (component.disabled !== undefined && toValue(component.disabled)) continue;
                         const match = {
                             item: component,
                             score: 0,
