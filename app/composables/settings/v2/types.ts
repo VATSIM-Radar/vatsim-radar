@@ -3,6 +3,7 @@ import type { MaybeRefOrGetter } from '@vue/reactivity';
 import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
 import type { RadioItemGroup } from '~/components/ui/inputs/UiRadioGroup.vue';
+import type { SettingValueType } from '~/composables/settings/v2/utils';
 
 export interface SettingsItemMandatory {
     searchKeywords?: string[];
@@ -36,13 +37,13 @@ export interface SettingsItemInlineComponent extends SettingsItemDefault {
 
 export interface SettingsItemToggle extends SettingsItemDefault {
     type: 'toggle';
-    value: MaybeRefOrGetter<boolean>;
+    value: SettingValueType<boolean>;
     onChange: (val: boolean) => any;
 }
 
 export interface SettingsItemInputText extends SettingsItemDefault {
     type: 'text';
-    value: MaybeRefOrGetter<string>;
+    value: SettingValueType<string>;
     max?: number;
     placeholder?: string;
     onChange: (val: string | null) => any;
@@ -50,7 +51,7 @@ export interface SettingsItemInputText extends SettingsItemDefault {
 
 export interface SettingsItemInputNumber extends SettingsItemDefault {
     type: 'number';
-    value: MaybeRefOrGetter<number>;
+    value: SettingValueType<number>;
     min?: number;
     max?: number;
     allowedAfterDot?: number;
@@ -60,7 +61,7 @@ export interface SettingsItemInputNumber extends SettingsItemDefault {
 
 export interface SettingsItemRange extends SettingsItemDefault {
     type: 'range';
-    value: MaybeRefOrGetter<number>;
+    value: SettingValueType<number>;
     min: number;
     max: number;
     minLabel?: string;
@@ -74,7 +75,7 @@ export interface SettingsItemRange extends SettingsItemDefault {
 
 export interface SettingsItemInputColor extends SettingsItemDefault {
     type: 'color';
-    value: MaybeRefOrGetter<Partial<UserMapSettingsColor> | null>;
+    value: SettingValueType<Partial<UserMapSettingsColor> | null>;
     /**
      * @default all
      */
@@ -87,21 +88,22 @@ export type SelectItemValue = string | number | boolean | null;
 
 export interface SettingsItemSelect extends SettingsItemDefault {
     type: 'select';
-    value: MaybeRefOrGetter<SelectItemValue>;
+    value: SettingValueType<SelectItemValue>;
     items: SelectItem[];
     placeholder?: string;
+    showPlaceholder?: MaybeRefOrGetter<boolean>;
     onChange: (val: SelectItemValue) => any;
 }
 
 export interface SettingsItemMultiSelect extends Omit<SettingsItemSelect, 'value' | 'onChange' | 'type'> {
     type: 'multi-select';
-    value: MaybeRefOrGetter<Array<SelectItemValue>>;
+    value: SettingValueType<Array<SelectItemValue>>;
     onChange: (val: Array<SelectItemValue>) => any;
 }
 
 export interface SettingsItemRadio extends SettingsItemDefault {
     type: 'radio';
-    value: MaybeRefOrGetter<SelectItemValue>;
+    value: SettingValueType<SelectItemValue>;
     items: RadioItemGroup[];
     onChange: (val: SelectItemValue) => any;
 }
@@ -127,6 +129,7 @@ export interface SettingsSectionBlock {
     description?: string;
     key: string;
     items: SettingsItem[];
+    hide?: MaybeRefOrGetter<boolean>;
 }
 
 export interface SettingsSection {

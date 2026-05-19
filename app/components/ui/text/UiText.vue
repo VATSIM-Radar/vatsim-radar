@@ -89,6 +89,10 @@ const getTag = computed(() => {
 
 <style scoped lang="scss">
 .text {
+    font-family: $defaultFont;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 100%;
     color: var(--text-primary-color, currentColor);
     text-decoration: none;
 
@@ -98,11 +102,11 @@ const getTag = computed(() => {
         letter-spacing: -0.01em;
     }
 
-    &:not(&--type-none) {
-        font-family: $defaultFont;
-        font-weight: normal;
-        font-style: normal;
-        line-height: 100%;
+    &--type-none {
+        font-family: inherit;
+        font-weight: inherit;
+        font-style: inherit;
+        line-height: inherit;
     }
 
     &--type-h1 {

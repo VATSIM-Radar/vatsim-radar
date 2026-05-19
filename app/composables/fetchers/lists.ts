@@ -101,3 +101,57 @@ export function sortList(users: UserListLiveUser[]) {
         return 0;
     });
 }
+
+export async function setPrivateMode(expiration: '1h' | '3h' | '6h' | '12h' | '24h' | '7d' | null | false) {
+    const store = useStore();
+
+    if (expiration === false) {
+        await $fetch('/api/user/private', {
+            method: 'POST',
+            body: {
+                date: null,
+                enabled: false,
+            },
+        });
+
+        store.user!.privateMode = false;
+
+        return;
+    }
+
+    let date: number | null = null;
+    const currentDate = new Date();
+
+    switch (expiration) {
+        case '1h':
+            date = currentDate.setHours(currentDate.getHours() + 1);
+            break;
+        case '3h':
+            date = currentDate.setHours(currentDate.getHours() + 3);
+            break;
+        case '6h':
+            date = currentDate.setHours(currentDate.getHours() + 6);
+            break;
+        case '12h':
+            date = currentDate.setHours(currentDate.getHours() + 12);
+            break;
+        case '24h':
+            date = currentDate.setHours(currentDate.getHours() + 24);
+            break;
+        case '7d':
+            date = currentDate.setDate(currentDate.getDate() + 24);
+            break;
+    }
+
+    await $fetch('/api/user/private', {
+        method: 'POST',
+        body: {
+            date: date ? new Date(date).toISOString() : date,
+            enabled: true,
+        },
+    });
+
+    store.user!.privateMode = true;
+    store.user!.privateUntil = date !== null ? new Date(date).toISOString() : date;
+}
+

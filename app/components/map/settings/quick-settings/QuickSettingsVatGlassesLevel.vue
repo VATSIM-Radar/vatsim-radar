@@ -19,15 +19,16 @@
             class="vg-level_content"
         >
             <ui-range
-                v-model="vatglassesLevel"
                 class="range"
                 :class="{ 'range--wide': hideIfDisabled }"
                 :disabled="disabledLevel && !showAuto"
                 hide-labels
                 :max="430"
                 :min="0"
+                :model-value="vatglassesLevel ? +vatglassesLevel : 0"
                 show-input
                 :step="5"
+                @update:modelValue="vatglassesLevel = $event.toString()"
             />
             <label v-if="store.user && ownFlight && showAuto">
                 <input

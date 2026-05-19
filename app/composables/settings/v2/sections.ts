@@ -1,68 +1,56 @@
 import type { SettingsMenuGroup } from './types';
-import EditIcon from 'assets/icons/kit/edit.svg?component';
-import { settingsItemDebug } from '~/composables/settings/v2/items';
 import PersonIcon from '~/assets/icons/kit/person.svg?component';
-import SettingsUserLists from '~/components/features/settings/v2/lists/SettingsUserLists.vue';
+import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?component';
+import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 
-export const settingsSections: SettingsMenuGroup[] = [
-    {
-        title: 'Account Settings',
-        url: 'account',
-        icon: PersonIcon,
-        sections: [
-            {
-                title: 'Account Settings',
-                url: '',
-                items: [
-                    {
-                        title: 'Section 1',
-                        description: 'Section description',
-                        key: 'section-1',
-                        items: [
-                            settingsItemDebug.component,
-                            settingsItemDebug.inlineComponent,
-                            settingsItemDebug.toggle,
-                            settingsItemDebug.input,
-                            settingsItemDebug.range,
-                        ],
-                    },
-                    {
-                        title: 'Section 2',
-                        key: 'section-2',
-                        items: [
-                            settingsItemDebug.number,
-                            settingsItemDebug.color,
-                            settingsItemDebug.select,
-                            settingsItemDebug.multiSelect,
-                        ],
-                    },
-                    {
-                        key: 'section-3',
-                        items: [
-                            settingsItemDebug.radio,
-                        ],
-                    },
-                ],
-            },
-            {
-                title: 'User Lists',
-                url: 'lists',
-                items: [{
-                    key: 'lists',
+export const getSettingsSections = () => {
+    const itemsAccount = settingsItemAccount();
+    const store = useStore();
+    const notLoggedIn = computed(() => !store.user);
+
+    return [
+        {
+            title: 'Account Settings',
+            url: 'account',
+            icon: PersonIcon,
+            sections: [
+                {
+                    title: 'Account Settings',
+                    url: '',
                     items: [
                         {
-                            type: 'component',
-                            component: SettingsUserLists,
-                            searchKeywords: ['friends', 'favorite', 'lists', 'favourite'],
+                            key: 'account',
+                            items: [itemsAccount.account],
+                            hide: notLoggedIn,
+                        },
+                        {
+                            title: 'Privacy',
+                            key: 'privacy',
+                            items: [itemsAccount.headerName, itemsAccount.privateMode],
+                            hide: notLoggedIn,
+                        },
+                        {
+                            title: 'Navigraph Account',
+                            key: 'navigraph',
+                            items: [itemsAccount.navigraph],
+                            hide: notLoggedIn,
+                        },
+                        {
+                            title: 'Interface',
+                            key: 'interface',
+                            items: [itemsAccount.theme],
                         },
                     ],
-                }],
-            },
-        ],
-    },
-    {
-        title: 'Test',
-        url: 'test',
-        sections: [],
-    },
-];
+                },
+            ],
+        },
+        {
+            title: 'General Settings',
+            url: 'general',
+            icon: DisplaySettingsIcon,
+            sections: [
+
+            ],
+        },
+    ] satisfies SettingsMenuGroup[];
+};

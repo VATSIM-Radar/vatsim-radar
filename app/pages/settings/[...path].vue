@@ -1,7 +1,7 @@
 <template>
     <div v-if="item" class="settings-page">
         <div
-            v-for="(section) in item.items"
+            v-for="(section) in item.items.filter(x => x.hide === undefined || !toValue(x.hide))"
             :key="section.key"
             class="settings-page_section"
             :data-section-id="section.key"
@@ -25,6 +25,7 @@
                 :key="index"
                 class="settings-page__item"
                 :class="[`settings-page__item--type-${ sectionItem.type }`]"
+                :disabled="toValue(sectionItem.disabled)"
             >
                 <template
                     v-if="'title' in sectionItem"

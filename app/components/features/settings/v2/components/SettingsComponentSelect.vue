@@ -4,6 +4,7 @@
         :model-value="value"
         :multiple
         :placeholder="item.placeholder"
+        :show-placeholder="toValue(item.showPlaceholder )"
         @update:modelValue="handleSettingChange(item, $event)"
     />
 </template>
@@ -23,5 +24,5 @@ const props = defineProps({
     },
 });
 
-const value = computed(() => toValue(props.item.value));
+const value = computed(() => props.item.value.value.value);
 </script>

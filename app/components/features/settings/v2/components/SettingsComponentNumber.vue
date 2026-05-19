@@ -24,7 +24,7 @@ const props = defineProps({
     },
 });
 
-const value = computed(() => toValue(props.item.value));
+const value = computed(() => toValue(props.item.value).value);
 
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const localValue = ref<Parameters<SettingsItemInputNumber['onChange']>[0]>(value.value);

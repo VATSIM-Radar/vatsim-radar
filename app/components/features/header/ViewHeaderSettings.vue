@@ -312,7 +312,9 @@ const newList = reactive<UserListLive>({
 });
 
 async function setPrivateMode(expiration: '1h' | '3h' | '6h' | '12h' | '24h' | '7d' | null | false) {
-    if (expiration === false) {
+  const store = useStore();
+
+  if (expiration === false) {
         await $fetch('/api/user/private', {
             method: 'POST',
             body: {

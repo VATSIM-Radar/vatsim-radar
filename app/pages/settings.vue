@@ -107,7 +107,7 @@
 
 <script setup lang="ts">
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
-import { settingsSections } from '~/composables/settings/v2/sections';
+import { getSettingsSections } from '~/composables/settings/v2/sections';
 import UiIcon from '~/components/ui/data/UiIcon.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
@@ -123,6 +123,8 @@ const rootPath = computed(() => route.params.path?.[0] ?? null);
 const childrenPath = computed(() => route.params.path?.[1] ?? null);
 
 const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: () => ([]) });
+
+const settingsSections = getSettingsSections();
 
 const currentItem = computed(() => {
     if (search.value) {
@@ -147,6 +149,7 @@ const currentItem = computed(() => {
             for (const section of root.sections) {
                 for (const item of section.items) {
                     for (const component of item.items) {
+                      if(component.disabled !== undefined && toValue(component.disabled)) continue
                         const match = {
                             item: component,
                             score: 0,

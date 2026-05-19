@@ -17,5 +17,5 @@ const props = defineProps({
     },
 });
 
-const value = computed(() => toValue(props.item.value));
+const value = computed(() => toValue(props.item.value).value);
 </script>

@@ -36,6 +36,8 @@ export interface UserSettingsV2 {
 
             showTotalDeparturesInFeaturedAirports: boolean;
 
+            // stopped here
+
             searchBy: SearchFilter[];
             searchLimit: number;
             enableQueryUpdate: boolean;

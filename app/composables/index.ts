@@ -442,3 +442,9 @@ export function logBench(key: keyof ReturnType<typeof useStore>['bench']) {
         useStore().bench[key] = Date.now() - start;
     };
 }
+
+export function useColorFromProp(prop: string | ColorsList | undefined): string | undefined {
+    if (!prop) return;
+    if (prop in radarColors) return radarColors[prop as ColorsList];
+    return prop;
+}
