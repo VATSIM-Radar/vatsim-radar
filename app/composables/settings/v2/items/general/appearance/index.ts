@@ -1,5 +1,4 @@
-import { getSettingValue, makeSettingsItems } from '~/composables/settings/v2/utils';
-import { setPrivateMode } from '~/composables/fetchers/lists';
+import {getSettingValue, makeSettingsItems, setSettingByKey} from '~/composables/settings/v2/utils';
 
 export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }) => ({
     shortAirportView: {
@@ -17,7 +16,7 @@ export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }
             { value: 'bottom-left', text: 'Bottom Left' },
             { value: 'top-left', text: 'Top Left' },
         ],
-        value: getSettingValue(() => settingsStore.settings.map?.preferences?.overlaysPositions, 'bottom-left'),
-        onChange: value => settingsStore.save({ map: { preferences: { overlaysPositions: value as any } } }),
+        value: getSettingValue('map.preferences.overlaysPositions', 'bottom-left'),
+        onChange: value => setSettingByKey('map.preferences.overlaysPositions', value as any),
     },
 }));

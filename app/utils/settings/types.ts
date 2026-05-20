@@ -204,3 +204,27 @@ export interface UserSettingsV2 {
 }
 
 export type UserSettingsV2Partial = RecursivePartial<UserSettingsV2>;
+
+type Primitive = string | number | boolean | null | undefined | symbol | bigint | Date;
+
+export type DeepKeyOfSettings<T = UserSettingsV2> =
+    T extends Primitive ? never
+        : T extends readonly (infer U)[] // массив
+            ? `${ number }` | `${ number }.${ DeepKeyOfSettings<U> }`
+            : {
+                [K in Extract<keyof T, string>]:
+                T[K] extends Primitive
+                    ? K
+                    : K | `${ K }.${ DeepKeyOfSettings<T[K]> }`
+            }[Extract<keyof T, string>];
+
+export type DeepValueOfSetting<T, P extends DeepKeyOfSettings<T>> =
+    P extends `${ infer K }.${ infer Rest }`
+        ? K extends keyof T
+            ? Rest extends DeepKeyOfSettings<T[K]>
+                ? DeepValueOfSetting<T[K], Rest>
+                : never
+            : never
+        : P extends keyof T
+            ? T[P]
+            : never;
