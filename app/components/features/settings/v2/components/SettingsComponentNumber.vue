@@ -1,5 +1,6 @@
 <template>
     <ui-input-number
+        :allowed-after-dot="item.allowedAfterDot"
         :input-attrs="{
             max: item.max,
             min: item.min,
@@ -8,7 +9,6 @@
         :placeholder="item.placeholder"
         @change="handleSettingChange(item, localValue)"
         @update:modelValue="localValue = $event"
-        :allowed-after-dot="item.allowedAfterDot"
     />
 </template>
 

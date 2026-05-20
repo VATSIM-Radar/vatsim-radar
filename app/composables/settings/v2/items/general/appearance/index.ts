@@ -1,4 +1,4 @@
-import {getSettingValue, makeSettingsItems, setSettingByKey} from '~/composables/settings/v2/utils';
+import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 
 export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }) => ({
     shortAirportView: {

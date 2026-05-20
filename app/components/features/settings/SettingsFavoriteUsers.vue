@@ -129,7 +129,6 @@
 import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import StatsIcon from '~/assets/icons/kit/stats.svg?component';
-import { showPilotOnMap } from '~/composables/vatsim/pilots';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
@@ -141,7 +140,6 @@ import type { Map } from 'ol';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import { makeBookingTime } from '~/composables/vatsim/bookings';
 import SettingsUserStatus from '~/components/features/settings/v2/lists/SettingsUserStatus.vue';
 
 const props = defineProps({
@@ -154,8 +152,6 @@ const props = defineProps({
 });
 
 const store = useStore();
-const mapStore = useMapStore();
-const map = inject<ShallowRef<Map | null>>('map')!;
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 const sortedUsers = shallowRef<UserListLiveUser[]>([]);

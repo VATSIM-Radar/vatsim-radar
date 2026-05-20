@@ -46,6 +46,7 @@ module.exports = {
         'media-feature-range-notation': null,
         'at-rule-empty-line-before': null,
         'scss/no-global-function-names': null,
+        'scss/at-extend-no-missing-placeholder': null,
         'no-duplicate-selectors': null,
         'declaration-property-value-no-unknown': null,
         'at-rule-descriptor-value-no-unknown': null,

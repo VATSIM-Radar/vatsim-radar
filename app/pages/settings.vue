@@ -71,10 +71,12 @@
             </div>
 
             <div class="settings_content">
-                <nuxt-page
-                    :item="currentItem"
-                    @jumped="search = ''"
-                />
+                <client-only>
+                    <nuxt-page
+                        :item="currentItem"
+                        @jumped="search = ''"
+                    />
+                </client-only>
             </div>
 
             <div class="settings_contents settings_menu">

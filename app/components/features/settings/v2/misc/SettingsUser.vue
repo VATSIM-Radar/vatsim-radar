@@ -9,9 +9,9 @@
                 My stats
             </ui-button>
             <ui-button
-                type="destructive"
                 class="settings__logout"
                 href="/api/user/logout"
+                type="destructive"
             >
                 Logout
             </ui-button>
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import UiText from "~/components/ui/text/UiText.vue";
+import UiText from '~/components/ui/text/UiText.vue';
 
 const store = useStore();
 </script>

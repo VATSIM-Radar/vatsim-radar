@@ -283,7 +283,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserList, UserListLive, UserListLiveUser, UserListUser } from '~/utils/server/handlers/lists';
+import type { UserListLive, UserListLiveUser, UserListUser } from '~/utils/server/handlers/lists';
 import type { UserSettingsV2 } from '~/utils/settings/types';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
@@ -293,7 +293,6 @@ import UiTable from '~/components/ui/data/UiTable.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import ExternalIcon from '~/assets/icons/kit/external.svg?component';
-import UiIcon from '~/components/ui/data/UiIcon.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiBadge from '~/components/ui/data/UiBadge.vue';
 import SettingsUserStatus from '~/components/features/settings/v2/lists/SettingsUserStatus.vue';
@@ -312,12 +311,6 @@ const props = defineProps({
     list: {
         type: Object as PropType<UserListLive | null>,
         default: null,
-    },
-});
-
-defineEmits({
-    save() {
-        return true;
     },
 });
 
@@ -423,7 +416,7 @@ const localList = ref<UserListLive>({
     users: [],
 });
 
-// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
 if (props.list) Object.assign(localList.value, props.list);
 
 const router = useRouter();
@@ -457,21 +450,6 @@ async function deleteList() {
         router.push({
             query: {
                 list: undefined,
-            },
-        });
-    }
-    finally {
-        loading.value = false;
-    }
-}
-
-async function saveSort(sort: UserSettingsV2['appearance']['favoriteSort']) {
-    loading.value = true;
-
-    try {
-        await settingsStore.save({
-            appearance: {
-                favoriteSort: sort,
             },
         });
     }

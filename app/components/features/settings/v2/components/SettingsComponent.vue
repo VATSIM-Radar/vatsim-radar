@@ -41,8 +41,8 @@ const getComponent = computed(() => {
             return SettingsComponentMultiSelect;
         case 'radio':
             return SettingsComponentRadio;
-      case 'range':
-        return SettingsComponentRange;
+        case 'range':
+            return SettingsComponentRange;
         default:
             return 'div';
     }

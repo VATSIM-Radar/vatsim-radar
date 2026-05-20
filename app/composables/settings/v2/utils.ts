@@ -18,7 +18,7 @@ export function onSettingChange() {
     // TODO
     console.log('save action executed', settingsStore.activeSettingsPreset);
 
-    localStorage.setItem('settings', JSON.stringify(settingsStore.activeSettingsPreset));
+    localStorage.setItem('settings', JSON.stringify(settingsStore.settings));
 }
 
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {
@@ -56,8 +56,9 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         root = settingsStore.settings;
         result = root;
 
-        for (let i = 0; i < parts.length; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             const part = parts[i];
+
             if (!(part in (result as Record<string, unknown>))) return;
             result = result[part] as Record<string, unknown>;
             if (result === null || typeof result !== 'object') return;
@@ -68,15 +69,17 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         if (!(last in container)) return;
 
         delete container[last];
+        return useSettingsStore().save(root, true);
     }
     else {
-        for (let i = 0; i < parts.length; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             const part = parts[i];
             result[part] = {};
             result = result[part] as Record<string, unknown>;
         }
 
-        result[parts[parts.length - 1]] = value as unknown;
+        const last = parts[parts.length - 1];
+        result[last] = value as unknown;
 
         return useSettingsStore().save(root);
     }

@@ -3,15 +3,15 @@ import PersonIcon from '~/assets/icons/kit/person.svg?component';
 import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?component';
 import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
-import {settingsItemAppearance} from "~/composables/settings/v2/items/general/appearance";
+import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
 
 export const getSettingsSections = () => {
     const items = {
         account: settingsItemAccount(),
         preferences: settingsItemPreferences(),
         appearance: settingsItemAppearance(),
-    }
-    
+    };
+
     const store = useStore();
     const notLoggedIn = computed(() => !store.user);
 

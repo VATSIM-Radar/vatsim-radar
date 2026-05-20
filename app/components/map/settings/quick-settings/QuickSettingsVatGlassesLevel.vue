@@ -53,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -85,23 +84,6 @@ const vatglassesLevel = computed({
         }
     },
 });
-
-let lastScrollTime = 0;
-
-function handleWheel(e: WheelEvent) {
-    const now = Date.now();
-    const timeDiff = now - lastScrollTime;
-    lastScrollTime = now;
-
-    let stepMultiplier = 1;
-    if (timeDiff < 80) stepMultiplier = 5;
-
-    const delta = e.deltaY > 0 ? -1 : 1;
-    const change = delta * 5 * stepMultiplier;
-
-    const newValue = Math.min(430, Math.max(0, +(vatglassesLevel.value ?? '0') + change));
-    vatglassesLevel.value = newValue.toString();
-}
 
 watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
     if (!store.user) return;

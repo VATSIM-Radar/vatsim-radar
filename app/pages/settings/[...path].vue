@@ -44,6 +44,16 @@
                     #description
                 >
                     {{sectionItem.description}}
+
+                    <ui-button
+                        v-if="'value' in sectionItem && sectionItem.value.value.isSet"
+                        hover-color="red600"
+                        link-color="red500"
+                        type="link"
+                        @click="sectionItem.onChange(undefined as never)"
+                    >
+                        Reset
+                    </ui-button>
                 </template>
                 <template
                     v-if="sectionItem.fullPath"
@@ -71,7 +81,6 @@
 
 <script setup lang="ts">
 import UiText from '~/components/ui/text/UiText.vue';
-import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import SettingsComponent from '~/components/features/settings/v2/components/SettingsComponent.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';

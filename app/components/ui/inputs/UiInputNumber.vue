@@ -9,8 +9,8 @@
         @change="$emit('change', $event)"
         @input="$emit('input', $event)"
     >
-        <template #default v-if="$slots.default">
-          <slot/>
+        <template v-if="$slots.default" #default>
+            <slot/>
         </template>
         <template
             v-if="$slots.icon"

@@ -1,5 +1,4 @@
 import { getSettingValue, makeSettingsItems } from '~/composables/settings/v2/utils';
-import { setPrivateMode } from '~/composables/fetchers/lists';
 import type { SearchFilter } from '~/types/map';
 
 export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore, notLoggedIn }) => ({

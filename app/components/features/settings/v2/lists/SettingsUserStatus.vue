@@ -41,11 +41,15 @@
             <template v-else-if="user.type === 'booking'">
                 Booked {{user.data.atc.callsign}} from {{ makeBookingTime(user.data.start) }}z to {{makeBookingTime(user.data.end)}}z
             </template>
-            <template v-else-if="user.type === 'sup'" @click.stop>
+            <template v-else-if="user.type === 'sup'">
                 SUPing as {{ user.data.callsign }}
             </template>
         </div>
-        <ui-text color="whiteAlpha24" v-else class="user-status_text">
+        <ui-text
+            v-else
+            class="user-status_text"
+            color="whiteAlpha24"
+        >
             Offline
         </ui-text>
         <div
