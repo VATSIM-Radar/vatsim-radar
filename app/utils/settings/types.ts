@@ -36,12 +36,9 @@ export interface UserSettingsV2 {
 
             showTotalDeparturesInFeaturedAirports: boolean;
 
-            // stopped here
-
             searchBy: SearchFilter[];
             searchLimit: number;
             enableQueryUpdate: boolean;
-            shortAirportView: boolean;
 
             overlaysPositions: 'bottom-left' | 'top-left';
 
@@ -61,8 +58,8 @@ export interface UserSettingsV2 {
                 defaultZoomLevel: number;
                 shortView: boolean;
                 showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
-                hideIf: 'unstaffed' | 'all' | 'none';
-                onlyATISAsUnstaffed: boolean;
+                declutterIf: 'unstaffed' | 'all' | 'none';
+                ATISAsUnstaffed: boolean;
                 groundTraffic: {
                     hide: 'always' | 'lowZoom' | 'never';
                     excludeMyArrival: boolean;
@@ -76,7 +73,6 @@ export interface UserSettingsV2 {
                     arrivalsMode?: UserSettingsV2['map']['preferences']['airports']['counters']['departuresMode'];
                     horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
                     disableTraining?: boolean;
-                    syncWithOverlay?: boolean;
                 };
                 showLimit: number;
             };

@@ -5,8 +5,8 @@ export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }
         title: 'Short facilities view',
         description: 'Always shows airport facilities as lines',
         type: 'toggle',
-        value: getSettingValue(() => settingsStore.settings.map?.preferences?.shortAirportView, false),
-        onChange: value => settingsStore.save({ map: { preferences: { shortAirportView: value } } }),
+        value: getSettingValue('map.preferences.airports.shortView'),
+        onChange: value => setSettingByKey('map.preferences.airports.shortView', value as any),
     },
     overlaysPositions: {
         title: 'Minified Overlays positions',
@@ -16,7 +16,7 @@ export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }
             { value: 'bottom-left', text: 'Bottom Left' },
             { value: 'top-left', text: 'Top Left' },
         ],
-        value: getSettingValue('map.preferences.overlaysPositions', 'bottom-left'),
+        value: getSettingValue('map.preferences.overlaysPositions'),
         onChange: value => setSettingByKey('map.preferences.overlaysPositions', value as any),
     },
 }));

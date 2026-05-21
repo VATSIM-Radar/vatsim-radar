@@ -162,6 +162,7 @@ export default defineNuxtConfig({
 
     eslint: {
         checker: {
+            eslintPath: 'eslint',
             configType: 'flat',
         },
     },

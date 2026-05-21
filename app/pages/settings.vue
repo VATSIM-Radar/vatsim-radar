@@ -62,7 +62,7 @@
                     >
                         <ui-tabs
                             background="darkGray900"
-                            :model-value="rootPath + childrenPath"
+                            :model-value="String(rootPath) + (childrenPath ?? '')"
                             :tabs="Object.fromEntries(root.sections.map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
                             vertical
                         />
@@ -71,12 +71,10 @@
             </div>
 
             <div class="settings_content">
-                <client-only>
-                    <nuxt-page
-                        :item="currentItem"
-                        @jumped="search = ''"
-                    />
-                </client-only>
+                <nuxt-page
+                    :item="currentItem"
+                    @jumped="search = ''"
+                />
             </div>
 
             <div class="settings_contents settings_menu">

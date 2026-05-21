@@ -4,12 +4,14 @@ import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?compone
 import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
 import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
+import { settingsItemAppearanceAircraft } from '~/composables/settings/v2/items/general/appearance/aircraft';
 
 export const getSettingsSections = () => {
     const items = {
         account: settingsItemAccount(),
         preferences: settingsItemPreferences(),
         appearance: settingsItemAppearance(),
+        appearanceAircraft: settingsItemAppearanceAircraft(),
     };
 
     const store = useStore();
@@ -57,12 +59,44 @@ export const getSettingsSections = () => {
             icon: DisplaySettingsIcon,
             sections: [
                 {
-                    title: 'Appearance',
+                    title: 'Preferences',
                     url: '',
                     items: [
                         {
+                            key: 'preferences',
+                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.preferences.debugMode],
+                        },
+                        {
+                            key: 'favorite',
+                            title: 'Featured and Favorite',
+                            items: [items.preferences.featuredDefaultBookmarks, items.preferences.skipBookmarkAnimation, items.preferences.showTotalDeparturesInFeaturedAirports],
+                        },
+                        {
+                            key: 'search',
+                            title: 'Search',
+                            items: [items.preferences.searchBy, items.preferences.searchLimit],
+                        },
+                    ],
+                },
+                {
+                    title: 'Appearance',
+                    url: 'appearance',
+                    items: [
+                        {
                             key: 'appearance',
-                            items: [items.preferences.searchBy, items.preferences.searchLimit, items.appearance.overlaysPositions],
+                            items: [
+                                items.appearance.overlaysPositions,
+                                items.appearance.shortAirportView,
+                            ],
+                        },
+                        {
+                            key: 'aircraft',
+                            title: 'Aircraft',
+                            items: [
+                                items.appearanceAircraft.shortView,
+                                items.appearanceAircraft.dynamicScale,
+                                items.appearanceAircraft.scale,
+                            ],
                         },
                     ],
                 },

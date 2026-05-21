@@ -110,9 +110,9 @@ function handleWheel(e: WheelEvent) {
     if (timeDiff < props.timeDiff) stepMultiplier = 5;
 
     const delta = e.deltaY > 0 ? -1 : 1;
-    const change = delta * 5 * stepMultiplier;
+    const change = delta * (props.step ?? 5) * stepMultiplier;
 
-    model.value = Math.min(props.max, Math.max(props.min, +(model.value ?? '0') + change));
+    model.value = +Math.min(props.max, Math.max(props.min, +(model.value ?? '0') + change)).toFixed((props.step && props.step < 1) ? props.step?.toString().split('.')[1]?.length ?? 0 : 0);
 }
 </script>
 

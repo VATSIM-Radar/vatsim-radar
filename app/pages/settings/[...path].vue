@@ -1,81 +1,87 @@
 <template>
     <div v-if="item" class="settings-page">
-        <div
-            v-for="(section) in item.items.filter(x => x.hide === undefined || !toValue(x.hide))"
-            :key="section.key"
-            class="settings-page_section"
-            :data-section-id="section.key"
-        >
-            <ui-text
-                v-if="section.title"
-                :to="`#${ section.key }`"
-                type="h4"
+        <client-only>
+            <div
+                v-for="(section) in item.items.filter(x => x.hide === undefined || !toValue(x.hide))"
+                :key="section.key"
+                class="settings-page_section"
+                :data-section-id="section.key"
             >
-                {{section.title}}
-            </ui-text>
-            <ui-text
-                v-if="section.description"
-                color="lightGray900"
-                type="2b"
-            >
-                {{section.description}}
-            </ui-text>
-            <ui-setting-display
-                v-for="(sectionItem, index) in section.items"
-                :key="index"
-                class="settings-page__item"
-                :class="[`settings-page__item--type-${ sectionItem.type }`]"
-                :disabled="toValue(sectionItem.disabled)"
-            >
-                <template
-                    v-if="'title' in sectionItem"
-                    #title
+                <ui-text
+                    v-if="section.title"
+                    :to="`#${ section.key }`"
+                    type="h4"
                 >
-                    {{sectionItem.title}}
-                </template>
-                <template
-                    v-if="'hint' in sectionItem"
-                    #hint
+                    {{section.title}}
+                </ui-text>
+                <ui-text
+                    v-if="section.description"
+                    color="lightGray900"
+                    type="2b"
                 >
-                    {{sectionItem.hint}}
-                </template>
-                <template
-                    v-if="'description' in sectionItem"
-                    #description
+                    {{section.description}}
+                </ui-text>
+                <ui-setting-display
+                    v-for="(sectionItem, index) in section.items"
+                    :key="index"
+                    class="settings-page__item"
+                    :class="[`settings-page__item--type-${ sectionItem.type }`]"
+                    :disabled="toValue(sectionItem.disabled)"
                 >
-                    {{sectionItem.description}}
+                    <template
+                        v-if="'title' in sectionItem"
+                        #title
+                    >
+                        {{sectionItem.title}}
+                    </template>
+                    <template
+                        v-if="'hint' in sectionItem"
+                        #hint
+                    >
+                        {{sectionItem.hint}}
+                    </template>
+                    <template
+                        v-if="'description' in sectionItem"
+                        #description
+                    >
+                        {{sectionItem.description}}
 
-                    <ui-button
-                        v-if="'value' in sectionItem && sectionItem.value.value.isSet"
-                        hover-color="red600"
-                        link-color="red500"
-                        type="link"
-                        @click="sectionItem.onChange(undefined as never)"
-                    >
-                        Reset
-                    </ui-button>
-                </template>
-                <template
-                    v-if="sectionItem.fullPath"
-                    #leftAppend
-                >
-                    <ui-button
+                        <ui-button
+                            v-if="'value' in sectionItem"
+                            class="settings-page__reset"
+                            :class="{ 'settings-page__reset--hidden': !sectionItem.value.value.isSet }"
+                            hover-color="red600"
+                            link-color="red500"
+                            type="link"
+                            @click="sectionItem.onChange(undefined as never)"
+                        >
+                            <ui-text type="3b">
+                                Reset
+                            </ui-text>
+                        </ui-button>
+                    </template>
+                    <template
                         v-if="sectionItem.fullPath"
-                        class="settings-page__item_left_path"
-                        link-color="blue500"
-                        :to="sectionItem.fullPath"
-                        type="link"
-                        @click="emit('jumped')"
+                        #leftAppend
                     >
-                        Jump to component
-                    </ui-button>
-                </template>
-                <div class="__vertical-group-16">
-                    <settings-component :item="sectionItem"/>
-                    <component :is="sectionItem.appendComponent" v-if="'appendComponent' in sectionItem"/>
-                </div>
-            </ui-setting-display>
-        </div>
+                        <ui-button
+                            v-if="sectionItem.fullPath"
+                            class="settings-page__item_left_path"
+                            link-color="blue500"
+                            :to="sectionItem.fullPath"
+                            type="link"
+                            @click="emit('jumped')"
+                        >
+                            Jump to component
+                        </ui-button>
+                    </template>
+                    <div class="__vertical-group-16">
+                        <settings-component data-type="component" :item="sectionItem"/>
+                        <component :is="sectionItem.appendComponent" v-if="'appendComponent' in sectionItem"/>
+                    </div>
+                </ui-setting-display>
+            </div>
+        </client-only>
     </div>
 </template>
 
@@ -130,6 +136,15 @@ useHead({
         display: flex;
         flex-direction: column;
         gap: 16px;
+    }
+
+    &__reset {
+        transition: 0.3s;
+
+        &--hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
     }
 }
 </style>

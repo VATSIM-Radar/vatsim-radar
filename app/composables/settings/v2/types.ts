@@ -38,7 +38,7 @@ export interface SettingsItemInlineComponent extends SettingsItemDefault {
 export interface SettingsItemToggle extends SettingsItemDefault {
     type: 'toggle';
     value: SettingValueType<boolean>;
-    onChange: (val: boolean) => any;
+    onChange: (val: boolean | undefined) => any;
 }
 
 export interface SettingsItemInputText extends SettingsItemDefault {
@@ -46,7 +46,7 @@ export interface SettingsItemInputText extends SettingsItemDefault {
     value: SettingValueType<string>;
     max?: number;
     placeholder?: string;
-    onChange: (val: string | null) => any;
+    onChange: (val: string | null | undefined) => any;
 }
 
 export interface SettingsItemInputNumber extends SettingsItemDefault {
@@ -56,7 +56,7 @@ export interface SettingsItemInputNumber extends SettingsItemDefault {
     max?: number;
     allowedAfterDot?: number;
     placeholder?: string;
-    onChange: (val: number | null) => any;
+    onChange: (val: number | null | undefined) => any;
 }
 
 export interface SettingsItemRange extends SettingsItemDefault {
@@ -70,7 +70,7 @@ export interface SettingsItemRange extends SettingsItemDefault {
     showInput?: boolean;
     label?: string;
     step?: number;
-    onChange: (val: number) => any;
+    onChange: (val: number | undefined) => any;
 }
 
 export interface SettingsItemInputColor extends SettingsItemDefault {
@@ -81,7 +81,7 @@ export interface SettingsItemInputColor extends SettingsItemDefault {
      */
     mode?: 'transparency' | 'color' | 'all';
     defaultColor?: Partial<UserMapSettingsColor> | null;
-    onChange: (val: Partial<UserMapSettingsColor> | null) => any;
+    onChange: (val: Partial<UserMapSettingsColor> | null | undefined) => any;
 }
 
 export type SelectItemValue = string | number | boolean | null;
@@ -92,20 +92,20 @@ export interface SettingsItemSelect extends SettingsItemDefault {
     items: SelectItem[];
     placeholder?: string;
     showPlaceholder?: MaybeRefOrGetter<boolean>;
-    onChange: (val: SelectItemValue) => any;
+    onChange: (val: SelectItemValue | undefined) => any;
 }
 
 export interface SettingsItemMultiSelect extends Omit<SettingsItemSelect, 'value' | 'onChange' | 'type'> {
     type: 'multi-select';
     value: SettingValueType<Array<SelectItemValue>>;
-    onChange: (val: Array<SelectItemValue>) => any;
+    onChange: (val: Array<SelectItemValue> | undefined) => any;
 }
 
 export interface SettingsItemRadio extends SettingsItemDefault {
     type: 'radio';
     value: SettingValueType<SelectItemValue>;
     items: RadioItemGroup[];
-    onChange: (val: SelectItemValue) => any;
+    onChange: (val: SelectItemValue | undefined) => any;
 }
 
 export type SettingsItem =

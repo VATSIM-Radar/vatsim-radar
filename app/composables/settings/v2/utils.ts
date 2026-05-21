@@ -47,6 +47,63 @@ export function getSettingByKey<K extends DeepKeyOfSettings>(settings: UserSetti
     return result as any;
 }
 
+type SettingsDefaultValues<T extends UserSettingsV2 = UserSettingsV2> = {
+    [K in DeepKeyOfSettings<T>]?: DeepValueOfSetting<T, K>
+};
+
+const _settingsDefaultValues = {
+    'map.preferences.aircraft.shortView': false,
+    'map.preferences.aircraft.dynamicScale': true,
+    'map.preferences.aircraft.scale': 1,
+    'map.preferences.aircraft.tracks.mode': 'arrivalsOnly',
+    'map.preferences.aircraft.tracks.showOutOfBounds': false,
+    'map.preferences.aircraft.tracks.limit': 50,
+    'map.preferences.aircraft.showLimit': 100,
+
+    'map.preferences.airports.defaultZoomLevel': 14,
+
+
+    'map.preferences.airports.shortView': false,
+    'map.preferences.airports.showMode': 'all',
+    'map.preferences.airports.declutterIf': 'unstaffed',
+    'map.preferences.airports.ATISAsUnstaffed': false,
+
+    'map.preferences.airports.groundTraffic.hide': 'lowZoom',
+    'map.preferences.airports.groundTraffic.excludeMyArrival': true,
+    'map.preferences.airports.groundTraffic.excludeMyLocation': true,
+
+    'map.preferences.airports.departuresCountInOverlay': false,
+
+    'map.preferences.airports.counters.enabled': true,
+    'map.preferences.airports.counters.syncDeparturesArrivals': true,
+    'map.preferences.airports.counters.departuresMode': 'ground',
+    'map.preferences.airports.counters.arrivalsMode': 'ground',
+    'map.preferences.airports.counters.horizontalCounter': 'prefiles',
+    'map.preferences.airports.counters.disableTraining': false,
+    'map.preferences.airports.showLimit': 100,
+
+    // Stopped here
+    'map.preferences.colors.default.firs': { color: 'green500', transparency: 0.1 },
+
+    'map.preferences.overlaysPositions': 'bottom-left',
+    'map.preferences.autoFollow': false,
+    'map.preferences.autoZoom': false,
+    'map.preferences.debugMode': false,
+    'map.preferences.featuredDefaultBookmarks': false,
+    'map.preferences.skipBookmarkAnimation': false,
+    'map.preferences.showTotalDeparturesInFeaturedAirports': false,
+    'map.preferences.searchBy': ['atc', 'airports', 'flights'],
+    'map.preferences.searchLimit': 10,
+    'map.preferences.enableQueryUpdate': false,
+    'appearance.headerName': '',
+} satisfies SettingsDefaultValues;
+
+const settingsDefaultValues = _settingsDefaultValues as {
+    [K in keyof typeof _settingsDefaultValues]: DeepValueOfSetting<UserSettingsV2, K>
+};
+
+type SettingsKeysWithDefault = keyof typeof settingsDefaultValues;
+
 export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
     const parts = path.split('.');
     let root: UserSettingsV2Partial = {};
@@ -85,14 +142,14 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
     }
 }
 
-export function getSettingValue<K extends DeepKeyOfSettings, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, defaultValue: V): SettingValueType<V>;
+export function getSettingValue<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): SettingValueType<V>;
 export function getSettingValue<T>(setting: (() => T | undefined), defaultValue: T): SettingValueType<T>;
-export function getSettingValue(setting: DeepKeyOfSettings | (() => unknown | undefined), defaultValue: unknown): SettingValueType<unknown> {
+export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown): SettingValueType<unknown> {
     return computed(() => {
         if (typeof setting === 'string') {
             const val = getSettingByKey(settingsStore.settings, setting);
             return {
-                value: val === undefined ? defaultValue : val,
+                value: val === undefined ? settingsDefaultValues[setting] : val,
                 isSet: val !== undefined,
             };
         }
@@ -104,6 +161,17 @@ export function getSettingValue(setting: DeepKeyOfSettings | (() => unknown | un
             isSet: value !== undefined,
         };
     });
+}
+
+export function getSettingValueFromFunc<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V;
+export function getSettingValueFromFunc<T>(setting: (() => T | undefined), defaultValue: T): T;
+export function getSettingValueFromFunc(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown) {
+    // Otherwise TS curses me
+    const settingValue = typeof setting === 'function'
+        ? getSettingValue(setting, defaultValue as any)
+        : getSettingValue(setting);
+
+    return computed(() => settingValue.value.value);
 }
 
 let store: ReturnType<typeof useStore>;

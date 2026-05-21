@@ -59,7 +59,14 @@ defineProps({
 defineSlots<{ default?(): any; title?(): any; description?(): any; hint?(): any; leftAppend?(): any }>();
 
 function labelClick(event: MouseEvent) {
-    const component = (event.target as HTMLDivElement).closest('.setting')!.querySelector('.setting_component > *');
+    const setting = (event.target as HTMLDivElement).closest('.setting');
+
+    if (!setting || setting.classList.contains('setting--disabled')) {
+        return;
+    }
+
+    const component = setting.querySelector('[data-type="component"]') ??
+        setting.querySelector('.setting_component > *');
 
     if (component) {
         const input = component.querySelector<HTMLInputElement>('input:not(:disabled)');
