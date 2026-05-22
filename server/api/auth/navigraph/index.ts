@@ -3,6 +3,7 @@ import { prisma } from '~/utils/server/prisma';
 import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
 import { handleH3Exception } from '~/utils/server/h3';
 import { findUserByCookie } from '~/utils/server/user';
+import { createDBUser, getDBUserToken } from '~/utils/db/user';
 
 export default defineEventHandler(async event => {
     try {
