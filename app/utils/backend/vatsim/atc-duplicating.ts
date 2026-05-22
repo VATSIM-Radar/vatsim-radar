@@ -426,5 +426,16 @@ export const duplicatingSettings = [
             CUN: 'MMUN_APP',
         },
     },
+    /**
+     * @description CMH TRACON
+     * @author 1283146 and 1049778
+     */
+    {
+        regex: /^(CMH|DAY)(_\w{0,3})?_(APP)$/,
+        mapping: {
+            'CMH East': 'CMH_N_APP',
+            'CMH West': 'DAY_M_APP',
+        },
+    }
 
 ] satisfies DuplicatingSetting[];
