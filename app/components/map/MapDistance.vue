@@ -54,7 +54,7 @@ let drawing: Draw | null = null;
 const tooltip = ref<Coordinate | null>(null);
 const tooltipRotation = ref(0);
 const source = new VectorSource();
-const distanceSource = new VectorSource({ wrapX: false });
+const distanceSource = new VectorSource({ wrapX: true });
 let layer: VectorLayer | undefined;
 const sketch = shallowRef<null | Feature>(null);
 const currentResult = ref<string | null>(null);
