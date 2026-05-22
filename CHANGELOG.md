@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-alpha.9.3]
+
+## Production changes
+
+- Add CWM E/W sectors to ATC duplication
+- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
+- Fixed new Military Rating not displayed
+
+## Alpha changes
+
+- Added distance tool infinite worlds support by psergienko
+
 # [2.0.0-alpha.9.2]
 
 ## Alpha changes
