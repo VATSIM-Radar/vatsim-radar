@@ -78,7 +78,7 @@ export default defineEventHandler(async event => {
 
             navigraphUser = null;
         }
-        else if (navigraphUser && !user) {
+        else if (navigraphUser?.user.vatsim?.id && !user) {
             return sendRedirect(event, '/api/auth/vatsim/redirect');
         }
 
