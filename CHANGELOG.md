@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-8]
+
+- Add CWM E/W sectors to ATC duplication
+
 # [1.2.4-7.2]
 
 - Fixed waypoints sometimes not connecting with airways
