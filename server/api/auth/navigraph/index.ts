@@ -4,7 +4,6 @@ import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/backend/
 import { handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
-import { join } from 'path';
 
 export default defineEventHandler(async event => {
     try {
