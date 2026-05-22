@@ -177,6 +177,7 @@ function processEmptyFirs() {
     const newFeatures: Feature[] = [];
 
     for (const fir of emptyFirsList.value) {
+        if (!fir.fir.feature.geometry) console.log(fir);
         newFeatures.push(new Feature({
             geometry: new MultiPolygon(fir.fir.feature.geometry.coordinates),
             ...(fir.fir.feature.properties ?? {}),

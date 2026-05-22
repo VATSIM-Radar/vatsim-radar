@@ -55,8 +55,8 @@ export interface FullUser {
     id: number;
     hasFms: boolean | null;
     hasCharts: boolean | null;
-    cid: string;
-    fullName: string;
+    cid?: string;
+    fullName?: string;
     settings: UserSettings;
     discordId: string | null;
     lists: UserList[];
@@ -174,8 +174,8 @@ export async function findAndRefreshUserByCookie(event: H3Event, refresh = true,
             id: token.user.id,
             hasFms: token.user.navigraph?.hasFms ?? null,
             hasCharts: token.user.navigraph?.hasCharts ?? null,
-            cid: token.user.vatsim!.id,
-            fullName: token.user.vatsim!.fullName,
+            cid: token.user.vatsim?.id,
+            fullName: token.user.vatsim?.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
             discordId: token.user.discordId,
             privateMode: token.user.privateMode,
@@ -206,7 +206,7 @@ export async function filterUserLists(_lists: Array<UserTrackingList | UserList>
                 },
             },
         },
-    })).filter(x => x.privateMode).map(x => x.vatsim!.id);
+    })).filter(x => x.privateMode).map(x => x.vatsim?.id).filter(x => x);
 
     for (const list of lists) {
         for (const user of list.users) {

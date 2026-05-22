@@ -26,7 +26,7 @@
         </template>
         <template #account>
             <div class="settings__block settings__block--short-gap">
-                <common-info-block>
+                <common-info-block v-if="store.user!.cid">
                     <template #top>
                         <div class="settings__two-col-block">
                             <div class="settings__two-col-block_title">
@@ -89,6 +89,7 @@
                 </common-info-block>
                 <common-button-group>
                     <common-button
+                        :disabled="!store.user!.cid"
                         :href="`https://stats.vatsim.net/stats/${ store.user!.cid }`"
                         target="_blank"
                     >
@@ -195,7 +196,7 @@
         <template #navigraph>
             <div class="settings__block settings__block--long-gap">
                 <common-button
-                    v-if="store.user?.hasFms === null"
+                    v-if="!store.user || store.user?.hasFms === null"
                     href="/api/auth/navigraph/redirect"
                 >
                     Link Navigraph

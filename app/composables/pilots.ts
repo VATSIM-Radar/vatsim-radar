@@ -21,7 +21,7 @@ export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): s
     const dataStore = useDataStore();
 
     const ratings: string[] = [dataStore.vatsim.data.pilot_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? ''];
-    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
+    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.military_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
 }
@@ -498,7 +498,7 @@ export const observerFlight = computed(() => {
     const dataStore = useDataStore();
     const store = useStore();
 
-    const obs = store.user && dataStore.vatsim.data.observers.value.find(x => x.cid === +store.user!.cid);
+    const obs = store.user?.cid && dataStore.vatsim.data.observers.value.find(x => x.cid === +store.user!.cid!);
     if (!obs) return null;
 
     const similar = dataStore.vatsim.data.pilots.value.find(x => x.callsign === obs.callsign.slice(0, obs.callsign.length - 1));
@@ -511,8 +511,8 @@ export const ownFlight = computed(() => {
     const mapStore = useMapStore();
     const dataStore = useDataStore();
 
-    if (!store.user) return null;
-    if (mapStore.selectedCid && dataStore.vatsim.data.observers.value.some(x => x.cid === +store.user!.cid)) {
+    if (!store.user?.cid) return null;
+    if (mapStore.selectedCid && dataStore.vatsim.data.observers.value.some(x => x.cid === +store.user!.cid!)) {
         return dataStore.vatsim.data.keyedPilots.value[mapStore.selectedCid.toString()] ??
         dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ??
         null;
