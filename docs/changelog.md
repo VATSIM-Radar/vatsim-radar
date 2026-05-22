@@ -8,6 +8,22 @@ outline: [2, 3]
 [[toc]]
 :::
 
+## 1.2.4.8
+
+- Add CWM E/W sectors to ATC duplication
+- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
+- Fixed new Military Rating not displayed
+
+# 1.2.4.7.2
+
+- Fixed waypoints sometimes not connecting with airways
+- Fixed some waypoints not showing correctly
+- Improved performance and stability of aircraft tracks
+
+# 1.2.4.7.1
+
+- Added support for NAT frequencies for ATC and pilots
+
 # 1.2.4.7
 
 - Added vIFF & CDM system integration. Learn more: https://cdm.vatsimspain.es/

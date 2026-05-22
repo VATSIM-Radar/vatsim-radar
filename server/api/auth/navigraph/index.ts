@@ -3,6 +3,7 @@ import { prisma } from '~/utils/server/prisma';
 import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
 import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
 import { findUserByCookie } from '~/utils/server/user';
+import { join } from 'path';
 
 export default defineEventHandler(async event => {
     try {
@@ -54,6 +55,12 @@ export default defineEventHandler(async event => {
                 user: {
                     select: {
                         id: true,
+                        vatsim: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                            },
+                        },
                     },
                 },
             },
@@ -62,16 +69,8 @@ export default defineEventHandler(async event => {
             },
         });
 
-        const user = await findUserByCookie(event);
-        if (!user) {
-            return handleH3Error({
-                event,
-                statusCode: 401,
-                data: 'You should be authorized via VATSIM in order to link Navigraph account',
-            });
-        }
-
-        if (navigraphUser && user.id !== navigraphUser.user.id) {
+        let user = await findUserByCookie(event);
+        if (navigraphUser && user && user?.id !== navigraphUser.user.id) {
             await prisma.navigraphUser.delete({
                 where: {
                     id: jwt.sub,
@@ -79,6 +78,9 @@ export default defineEventHandler(async event => {
             });
 
             navigraphUser = null;
+        }
+        else if (navigraphUser && !user) {
+            return sendRedirect(event, '/api/auth/vatsim/redirect');
         }
 
         if (navigraphUser) {
@@ -98,13 +100,18 @@ export default defineEventHandler(async event => {
             return sendRedirect(event, config.public.DOMAIN);
         }
 
+        if (!user && !navigraphUser) {
+            user = await createDBUser();
+            await getDBUserToken(event, user);
+        }
+
         await prisma.navigraphUser.create({
             data: {
                 id: jwt.sub,
                 accessToken: token.access_token,
                 accessTokenExpire: expires,
                 refreshToken: token.refresh_token,
-                userId: user.id,
+                userId: user!.id,
                 hasFms: !!jwt.subscriptions?.includes('fmsdata'),
                 hasCharts: !!jwt.subscriptions?.includes('charts'),
             },

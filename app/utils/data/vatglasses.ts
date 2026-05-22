@@ -55,7 +55,7 @@ const _isVatGlassesActive = () => computed(() => {
     if (store.mapSettings.vatglasses?.active) return true;
 
     if (isAuto) {
-        if (store.user) {
+        if (store.user?.cid) {
             return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid || x.cid === mapStore.selectedCid);
         }
     }

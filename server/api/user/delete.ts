@@ -20,12 +20,6 @@ export default defineEventHandler(async event => {
                 data: 'Only POST methods are allowed for this route',
             });
         }
-
-        await prisma.user.delete({
-            where: {
-                id: user.id,
-            },
-        });
     }
     catch (e) {
         return handleH3Exception(event, e);
