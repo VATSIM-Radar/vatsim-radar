@@ -436,6 +436,5 @@ export const duplicatingSettings = [
             'CMH East': 'CMH_N_APP',
             'CMH West': 'DAY_M_APP',
         },
-    }
-
+    },
 ] satisfies DuplicatingSetting[];

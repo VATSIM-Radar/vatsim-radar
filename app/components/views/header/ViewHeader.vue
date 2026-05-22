@@ -141,7 +141,7 @@
                     v-else-if="store.user"
                     class="header__user"
                 >
-                    {{ store.user.settings.headerName || store.user.fullName.split(' ')[0] }}
+                    {{ store.user.settings.headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In' }}
                 </div>
             </div>
             <div

@@ -3,6 +3,8 @@
 # [1.2.4-8]
 
 - Add CWM E/W sectors to ATC duplication
+- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
+- Fixed new Military Rating not displayed
 
 # [1.2.4-7.2]
 

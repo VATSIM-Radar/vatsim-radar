@@ -250,7 +250,7 @@
                 Cancel
             </common-button>
             <common-button
-                v-if="store.user?.hasFms === null"
+                v-if="!store.user || store.user?.hasFms === null"
                 href="/api/auth/navigraph/redirect"
             >
                 Connect Navigraph
@@ -268,12 +268,6 @@
                     >
                 </template>
                 Subscription Options
-            </common-button>
-            <common-button
-                v-else
-                href="/api/auth/vatsim/redirect"
-            >
-                Connect
             </common-button>
         </template>
     </common-popup>

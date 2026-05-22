@@ -1,9 +1,10 @@
 import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/backend/prisma';
 import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
+import { handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
+import { join } from 'path';
 
 export default defineEventHandler(async event => {
     try {
@@ -55,6 +56,12 @@ export default defineEventHandler(async event => {
                 user: {
                     select: {
                         id: true,
+                        vatsim: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                            },
+                        },
                     },
                 },
             },
@@ -64,15 +71,7 @@ export default defineEventHandler(async event => {
         });
 
         let user = await findUserByCookie(event);
-        if (!user) {
-            return handleH3Error({
-                event,
-                statusCode: 401,
-                data: 'You should be authorized via VATSIM in order to link Navigraph account',
-            });
-        }
-
-        if (navigraphUser && user.id !== navigraphUser.user.id) {
+        if (navigraphUser && user && user?.id !== navigraphUser.user.id) {
             await prisma.navigraphUser.delete({
                 where: {
                     id: jwt.sub,
@@ -80,6 +79,9 @@ export default defineEventHandler(async event => {
             });
 
             navigraphUser = null;
+        }
+        else if (navigraphUser && !user) {
+            return sendRedirect(event, '/api/auth/vatsim/redirect');
         }
 
         if (navigraphUser) {
@@ -102,7 +104,7 @@ export default defineEventHandler(async event => {
             return sendRedirect(event, config.public.DOMAIN);
         }
 
-        if (!user) {
+        if (!user && !navigraphUser) {
             user = await createDBUser();
             await getDBUserToken(event, user);
         }
@@ -113,7 +115,7 @@ export default defineEventHandler(async event => {
                 accessToken: token.access_token,
                 accessTokenExpire: expires,
                 refreshToken: token.refresh_token,
-                userId: user.id,
+                userId: user!.id,
                 hasFms: !!jwt.subscriptions?.includes('fmsdata'),
                 hasCharts: !!jwt.subscriptions?.includes('charts'),
             },
