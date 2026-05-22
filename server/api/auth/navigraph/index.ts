@@ -1,9 +1,8 @@
 import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/server/prisma';
 import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
-import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
+import { handleH3Exception } from '~/utils/server/h3';
 import { findUserByCookie } from '~/utils/server/user';
-import { join } from 'path';
 
 export default defineEventHandler(async event => {
     try {
