@@ -160,7 +160,7 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: 'aircraft',
-                            items: [items.preferences.aircraft.shortView, items.preferences.traffic.highlightEmergency, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.scale],
+                            items: [items.preferences.aircraft.shortView, items.preferences.traffic.declutter, items.preferences.traffic.highlightEmergency, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.scale],
                         },
                         {
                             key: 'tracks',
@@ -217,12 +217,12 @@ export const getSettingsSections = () => {
             icon: MapSettingsIcon,
             sections: [
                 {
-                    title: 'Preferences',
+                    title: 'General',
                     url: '',
                     items: [
                         {
-                            key: 'preferences',
-                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.preferences.debugMode],
+                            key: '',
+                            items: [items.layers.layer, items.layers.layerLabels, items.layers.relativeIndicator, items.layers.terminator, items.layers.heatmap, items.layers.osmTransparency, items.layers.satelliteTransparency],
                         },
                         {
                             key: 'favorite',
@@ -233,28 +233,6 @@ export const getSettingsSections = () => {
                             key: 'search',
                             title: 'Search',
                             items: [items.preferences.searchBy, items.preferences.searchLimit],
-                        },
-                    ],
-                },
-                {
-                    title: 'Appearance',
-                    url: 'appearance',
-                    items: [
-                        {
-                            key: 'appearance',
-                            items: [
-                                items.appearance.overlaysPositions,
-                                items.preferences.airports.shortView,
-                            ],
-                        },
-                        {
-                            key: 'aircraft',
-                            title: 'Aircraft',
-                            items: [
-                                items.preferences.aircraft.shortView,
-                                items.preferences.aircraft.dynamicScale,
-                                items.preferences.aircraft.scale,
-                            ],
                         },
                     ],
                 },

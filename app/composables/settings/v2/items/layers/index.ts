@@ -14,6 +14,25 @@ const distanceUnits: Array<{ value: Units | false; text: string }> = [
     { value: 'metric', text: 'Metric (km)' },
 ];
 
+const transparencyOptions = (() => {
+    const options: Array<{ value: number; text: string }> = [];
+
+    for (let i = 0.1; i <= 1; i += 0.1) {
+        options.unshift({
+            value: +i.toFixed(2),
+            text: `${ Math.round(i * 100) }%`,
+        });
+    }
+
+    options.unshift({ value: 0.05, text: '5%' });
+    options.unshift({ value: 0.07, text: '7%' });
+    options.unshift({ value: 0.01, text: '1%' });
+
+    return options.sort((a, b) => b.value - a.value);
+})();
+
+const sigmetsTransparencyOptions = transparencyOptions.filter(item => item.value <= 0.5);
+
 export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ store, notLoggedIn }) => ({
     weather: {
         title: 'Weather layer',
@@ -53,7 +72,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         value: getSettingValue('map.layers.layerLabels'),
         onChange: value => setSettingByKey('map.layers.layerLabels', value),
     },
-    relativeIndicatorUnits: {
+    relativeIndicator: {
         title: 'Relative distance unit',
         type: 'select',
         items: distanceUnits,
@@ -74,48 +93,40 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     },
     osmTransparency: {
         title: 'OSM transparency',
-        type: 'range',
-        min: 0,
-        max: 1,
-        step: 0.05,
+        type: 'select',
+        disabled: computed(() => getSettingValue('map.layers.layer').value.value !== 'OSM'),
+        items: transparencyOptions,
         value: getSettingValue('map.layers.transparency.osm'),
-        onChange: value => setSettingByKey('map.layers.transparency.osm', value),
+        onChange: value => setSettingByKey('map.layers.transparency.osm', value as number),
     },
     satelliteTransparency: {
         title: 'Satellite transparency',
-        type: 'range',
-        min: 0,
-        max: 1,
-        step: 0.05,
+        type: 'select',
+        disabled: computed(() => !getSettingValue('map.layers.layer').value.value.includes('Satellite')),
+        items: transparencyOptions,
         value: getSettingValue('map.layers.transparency.satellite'),
-        onChange: value => setSettingByKey('map.layers.transparency.satellite', value),
+        onChange: value => setSettingByKey('map.layers.transparency.satellite', value as number),
     },
     weatherDarkTransparency: {
         title: 'Weather transparency (dark)',
-        type: 'range',
-        min: 0,
-        max: 1,
-        step: 0.05,
+        type: 'select',
+        items: transparencyOptions,
         value: getSettingValue(() => getSettingValue('map.layers.transparency.weatherDark').value.value ?? 0.4, 0.4),
-        onChange: value => setSettingByKey('map.layers.transparency.weatherDark', value),
+        onChange: value => setSettingByKey('map.layers.transparency.weatherDark', value as number),
     },
     weatherLightTransparency: {
         title: 'Weather transparency (light)',
-        type: 'range',
-        min: 0,
-        max: 1,
-        step: 0.05,
+        type: 'select',
+        items: transparencyOptions,
         value: getSettingValue(() => getSettingValue('map.layers.transparency.weatherLight').value.value ?? 0.6, 0.6),
-        onChange: value => setSettingByKey('map.layers.transparency.weatherLight', value),
+        onChange: value => setSettingByKey('map.layers.transparency.weatherLight', value as number),
     },
     sigmetsTransparency: {
         title: 'SIGMETs transparency',
-        type: 'range',
-        min: 0,
-        max: 0.5,
-        step: 0.05,
+        type: 'select',
+        items: sigmetsTransparencyOptions,
         value: getSettingValue('map.layers.transparency.sigmets'),
-        onChange: value => setSettingByKey('map.layers.transparency.sigmets', value),
+        onChange: value => setSettingByKey('map.layers.transparency.sigmets', value as number),
     },
     natTrakEnabled: {
         title: 'NAT Tracks',
