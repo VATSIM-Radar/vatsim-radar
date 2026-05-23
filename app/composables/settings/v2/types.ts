@@ -80,7 +80,6 @@ export interface SettingsItemInputColor extends SettingsItemDefault {
      * @default all
      */
     mode?: 'transparency' | 'color' | 'all';
-    defaultColor?: Partial<UserMapSettingsColor> | null;
     onChange: (val: Partial<UserMapSettingsColor> | null | undefined) => any;
 }
 

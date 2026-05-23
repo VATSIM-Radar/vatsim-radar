@@ -6,9 +6,6 @@ import type {
     UserSettingsV2,
     UserSettingsV2Partial,
 } from '~/utils/settings/types';
-import { aircraftSvgColors } from '~/composables/vatsim/pilots';
-import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
-import type { PartialRecord } from '~/types';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
@@ -97,6 +94,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
     'map.preferences.colors.default.approach': { color: 'red300' },
     'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
+    'map.preferences.colors.default.centerBookings': { color: 'lightGray400', transparency: 0.07 },
     'map.preferences.colors.default.staffedAirport': 1,
     'map.preferences.colors.default.defaultAirport': 1,
     'map.preferences.colors.default.runways': { color: 'red300' },
@@ -215,7 +213,7 @@ export const settingsDefaultValues = _settingsDefaultValues as {
     [K in keyof typeof _settingsDefaultValues]: DeepValueOfSetting<UserSettingsV2, K>
 };
 
-type SettingsKeysWithDefault = keyof typeof settingsDefaultValues;
+export type SettingsKeysWithDefault = keyof typeof settingsDefaultValues;
 
 export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
     const parts = path.split('.');
@@ -272,7 +270,12 @@ function changeColorPath<T extends string>(path: T) {
 }
 
 export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
-    return getSettingValue(changeColorPath(path));
+    const colorPath = changeColorPath(path);
+
+    return getSettingValue(
+        () => getSettingByKey(settingsStore.settings, colorPath),
+        settingsDefaultValues[path],
+    );
 }
 
 export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
