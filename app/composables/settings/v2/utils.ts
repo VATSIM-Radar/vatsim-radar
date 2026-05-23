@@ -255,6 +255,30 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
     }
 }
 
+function changeColorPath<T extends string>(path: T) {
+    if (!path.includes('preferences.colors')) return path;
+
+    const store = useStore();
+
+    if (store.theme === 'light' && path.includes('colors.default')) {
+        path = path.replace('colors.default', 'colors.light') as T;
+    }
+
+    else if (store.theme === 'default' && path.includes('colors.light')) {
+        path = path.replace('colors.light', 'colors.default') as T;
+    }
+
+    return path;
+}
+
+export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
+    return getSettingValue(changeColorPath(path));
+}
+
+export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
+    setSettingByKey(changeColorPath(path), value);
+}
+
 export function getSettingValue<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): SettingValueType<V>;
 export function getSettingValue<T>(setting: (() => T | undefined), defaultValue: T): SettingValueType<T>;
 export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown): SettingValueType<unknown> {

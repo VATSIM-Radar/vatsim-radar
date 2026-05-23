@@ -1,7 +1,69 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
-import type { SearchFilter } from '~/types/map';
+import type { NotamsSortBy, SearchFilter } from '~/types/map';
+import type { UserSettingsV2 } from '~/utils/settings/types';
 
 export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore, notLoggedIn }) => ({
+    headerName: {
+        title: 'Header Name',
+        description: 'Customize shown header name. Default: your real name',
+        type: 'text',
+        placeholder: 'My Custom Name',
+        value: getSettingValue('appearance.headerName'),
+        onChange: value => setSettingByKey('appearance.headerName', value ?? undefined),
+    },
+    timeFormat: {
+        title: 'Time format',
+        description: 'Changes time display between 12-hour and 24-hour formats',
+        type: 'select',
+        items: [
+            { value: '12h' },
+            { value: '24h' },
+        ],
+        value: getSettingValue('appearance.timeFormat'),
+        onChange: value => setSettingByKey('appearance.timeFormat', value as UserSettingsV2['appearance']['timeFormat']),
+    },
+    eventsLocalTimezone: {
+        title: 'Events Zulu time',
+        description: 'Shows VATSIM Events in your local timezone instead of Zulu time',
+        type: 'toggle',
+        value: getSettingValue('appearance.eventsLocalTimezone'),
+        onChange: value => setSettingByKey('appearance.eventsLocalTimezone', value),
+    },
+    bookingsLocalTimezone: {
+        title: 'Bookings local time',
+        description: 'Shows ATC bookings in your local timezone instead of Zulu time',
+        type: 'toggle',
+        value: getSettingValue('appearance.bookingsLocalTimezone'),
+        onChange: value => setSettingByKey('appearance.bookingsLocalTimezone', value),
+    },
+    notamsSortBy: {
+        title: 'NOTAMs sort',
+        description: 'Default sorting for airport NOTAMs',
+        type: 'select',
+        items: [
+            { value: 'startDesc', text: 'Effective From (newest, default)' },
+            { value: 'startAsc', text: 'Effective From (oldest)' },
+            { value: 'endAsc', text: 'Effective To (oldest)' },
+            { value: 'endDesc', text: 'Effective To (newest)' },
+        ],
+        value: getSettingValue('appearance.notamsSortBy'),
+        onChange: value => setSettingByKey('appearance.notamsSortBy', value as NotamsSortBy | null),
+    },
+    favoriteSort: {
+        title: 'Friends list sort',
+        description: 'Changes default sorting for friends lists',
+        type: 'select',
+        items: [
+            { text: 'Newest first', value: 'newest' },
+            { text: 'Oldest first', value: 'oldest' },
+            { text: 'Name (ASC)', value: 'abcAsc' },
+            { text: 'Name (DESC)', value: 'abcDesc' },
+            { text: 'CID (ASC)', value: 'cidAsc' },
+            { text: 'CID (DESC)', value: 'cidDesc' },
+        ],
+        value: getSettingValue('appearance.favoriteSort'),
+        onChange: value => setSettingByKey('appearance.favoriteSort', value as UserSettingsV2['appearance']['favoriteSort']),
+    },
     autoFollow: {
         title: 'Auto follow me',
         description: 'Enabling this will auto-follow your flight and enable tracking of it (on map load or whe`n spawned on ground)',

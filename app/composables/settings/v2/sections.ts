@@ -4,7 +4,7 @@ import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?compone
 import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
 import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
-import { settingsItemAppearanceAircraft } from '~/composables/settings/v2/items/general/appearance/aircraft';
+import { settingsItemAppearanceAircraft } from '~/composables/settings/v2/items/general/preferences/aircraft';
 import { settingsDefaultValues } from '~/composables/settings/v2/utils';
 
 export const getSettingsSections = () => {

@@ -59,4 +59,25 @@ export const settingsItemAppearanceAircraft = () => makeSettingsItems(({ setting
         value: getSettingValue('map.preferences.aircraft.tracks.mode'),
         onChange: value => setSettingByKey('map.preferences.aircraft.tracks.mode', value as any),
     },
+    showOutOfBounds: {
+        title: 'Show tracks when out of bounds',
+        description: 'Shows tracks for aircraft when out of bounds according to max shown tracks limit',
+        type: 'toggle',
+        value: getSettingValue('map.preferences.aircraft.tracks.showOutOfBounds'),
+        onChange: value => setSettingByKey('map.preferences.aircraft.tracks.showOutOfBounds', value),
+    },
+    tracksShowLimit: {
+        title: 'Max shown tracks limit',
+        description: 'Max tracks to be shown and fetched at the same time',
+        type: 'toggle',
+        value: getSettingValue('map.preferences.aircraft.tracks.limit'),
+        onChange: value => getSettingValue('map.preferences.aircraft.tracks.limit'),
+    },
+    showLimit: {
+        title: 'Aircraft Display limit',
+        description: 'Max aircraft to show labels for, max aircraft to apply declutter, and other optimization settings',
+        type: 'toggle',
+        value: getSettingValue('map.preferences.aircraft.showLimit'),
+        onChange: value => getSettingValue('map.preferences.aircraft.showLimit'),
+    }
 }));
