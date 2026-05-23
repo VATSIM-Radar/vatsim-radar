@@ -1,7 +1,7 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 import type { NavigraphSettingsLevel } from '~/utils/server/handlers/map-settings';
 
-export const settingsItemNavigraphLayers = () => makeSettingsItems(({ notLoggedIn }) => ({
+export const settingsItemNavigraphLayers = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     airwaysEnabled: {
         title: 'Airways',
         type: 'toggle',
@@ -73,4 +73,4 @@ export const settingsItemNavigraphLayers = () => makeSettingsItems(({ notLoggedI
         onChange: value => setSettingByKey('map.navigraph.layers.ifrMode', value as NavigraphSettingsLevel),
         disabled: computed(() => getSettingValue('map.navigraph.layers.ifrAuto').value.value),
     },
-}));
+})));

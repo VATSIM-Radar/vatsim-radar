@@ -5,7 +5,7 @@ import { setPrivateMode } from '~/composables/fetchers/lists';
 import SettingsPrivateMode from '~/components/features/settings/v2/misc/SettingsPrivateMode.vue';
 import SettingsUser from '~/components/features/settings/v2/misc/SettingsUser.vue';
 
-export const settingsItemAccount = () => makeSettingsItems(({ store, settingsStore, notLoggedIn }) => ({
+export const settingsItemAccount = globalComputed(() => makeSettingsItems(({ store, settingsStore, notLoggedIn }) => ({
     navigraph: {
         title: 'Status',
         description: 'Link Navigraph to receive latest AIRAC for route data and gates. Navigraph Unlimited members also get Airport Layouts feature',
@@ -17,14 +17,6 @@ export const settingsItemAccount = () => makeSettingsItems(({ store, settingsSto
         title: 'Interface theme',
         type: 'inline-component',
         component: SettingsTheme,
-    },
-    headerName: {
-        title: 'Header Name',
-        description: 'Customize shown header name. Default: your real name',
-        type: 'text',
-        placeholder: 'My Custom Name',
-        value: getSettingValue('appearance.headerName'),
-        onChange: value => setSettingByKey('appearance.headerName', value ?? undefined),
     },
     privateMode: {
         title: 'Private Mode',
@@ -52,4 +44,4 @@ export const settingsItemAccount = () => makeSettingsItems(({ store, settingsSto
         disabled: notLoggedIn,
         component: SettingsUser,
     },
-} satisfies Record<string, SettingsItem>));
+} satisfies Record<string, SettingsItem>)));

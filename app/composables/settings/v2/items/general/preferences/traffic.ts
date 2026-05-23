@@ -1,7 +1,7 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 import type { UserSettingsV2 } from '~/utils/settings/types';
 
-export const settingsItemTraffic = () => makeSettingsItems(({ notLoggedIn }) => ({
+export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     showFullRoute: {
         title: 'Default to full route instead of remaining',
         type: 'toggle',
@@ -47,4 +47,4 @@ export const settingsItemTraffic = () => makeSettingsItems(({ notLoggedIn }) => 
         value: getSettingValue('map.traffic.highlightEmergency'),
         onChange: value => setSettingByKey('map.traffic.highlightEmergency', value),
     },
-}));
+})));

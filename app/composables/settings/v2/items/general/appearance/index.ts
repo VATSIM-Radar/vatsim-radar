@@ -1,6 +1,6 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 
-export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }) => ({
+export const settingsItemAppearance = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     overlaysPositions: {
         title: 'Minified Overlays positions',
         description: 'Changes position of minified Map Overlays',
@@ -12,4 +12,4 @@ export const settingsItemAppearance = () => makeSettingsItems(({ settingsStore }
         value: getSettingValue('map.preferences.overlaysPositions'),
         onChange: value => setSettingByKey('map.preferences.overlaysPositions', value as any),
     },
-}));
+})));

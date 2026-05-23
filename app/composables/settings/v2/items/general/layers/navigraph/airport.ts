@@ -2,7 +2,7 @@ import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composabl
 
 const airportLayoutsDisabled = computed(() => !getSettingValue('map.navigraph.airport.enabled').value.value);
 
-export const settingsItemNavigraphAirport = () => makeSettingsItems(({ store }) => ({
+export const settingsItemNavigraphAirport = globalComputed(() => makeSettingsItems(({ store }) => ({
     enabled: {
         title: 'Navigraph Airports Layouts',
         description: 'Airports Layouts are available to Navigraph Unlimited subscribers only',
@@ -46,4 +46,4 @@ export const settingsItemNavigraphAirport = () => makeSettingsItems(({ store }) 
         onChange: value => setSettingByKey('map.navigraph.airport.hideDeicing', !value),
         disabled: airportLayoutsDisabled,
     },
-}));
+})));

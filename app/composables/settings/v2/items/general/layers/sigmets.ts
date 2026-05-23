@@ -1,7 +1,7 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 import type { SigmetType } from '~/types/map';
 
-export const settingsItemSigmets = () => makeSettingsItems(({ notLoggedIn }) => ({
+export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     showOnMap: {
         title: 'Enable',
         description: 'Shows SIGMETs on the map',
@@ -44,4 +44,4 @@ export const settingsItemSigmets = () => makeSettingsItems(({ notLoggedIn }) => 
         onChange: value => setSettingByKey('sigmets.raw', value),
         disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
     },
-}));
+})));

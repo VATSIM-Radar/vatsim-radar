@@ -76,6 +76,7 @@ export interface SettingsItemRange extends SettingsItemDefault {
 export interface SettingsItemInputColor extends SettingsItemDefault {
     type: 'color';
     value: SettingValueType<Partial<UserMapSettingsColor> | null>;
+    defaultColor?: Partial<UserMapSettingsColor> | null;
     /**
      * @default all
      */

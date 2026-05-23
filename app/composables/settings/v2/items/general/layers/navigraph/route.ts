@@ -2,7 +2,7 @@ import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composabl
 
 const airportOverlayDisabled = computed(() => !getSettingValue('map.navigraph.routeParsing.airportOverlay.enabled').value.value);
 
-export const settingsItemNavigraphRoute = () => makeSettingsItems(() => ({
+export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems(() => ({
     enabled: {
         title: 'Enable route parsing',
         type: 'toggle',
@@ -58,4 +58,4 @@ export const settingsItemNavigraphRoute = () => makeSettingsItems(() => ({
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.waypoints', value),
         disabled: airportOverlayDisabled,
     },
-}));
+})));

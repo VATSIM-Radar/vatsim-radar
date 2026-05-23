@@ -14,7 +14,7 @@ const distanceUnits: Array<{ value: Units | false; text: string }> = [
     { value: 'metric', text: 'Metric (km)' },
 ];
 
-export const settingsItemLayers = () => makeSettingsItems(({ store, notLoggedIn }) => ({
+export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ store, notLoggedIn }) => ({
     weather: {
         title: 'Weather layer',
         description: 'Shows selected weather overlay on the map',
@@ -240,4 +240,4 @@ export const settingsItemLayers = () => makeSettingsItems(({ store, notLoggedIn 
         onChange: value => setSettingByKey('map.events.hours', value as number),
         disabled: computed(() => !getSettingValue('map.events.enabled').value.value),
     },
-}));
+})));

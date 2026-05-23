@@ -5,8 +5,6 @@ import {
     setColorByKey,
     setSettingByKey,
     settingsDefaultValues,
-
-
 } from '~/composables/settings/v2/utils';
 import type { SettingsKeysWithDefault, SettingValueType } from '~/composables/settings/v2/utils';
 import type { UserMapSettingsColor, UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
@@ -25,7 +23,7 @@ function transparencyDefault(path: SettingsKeysWithDefault) {
     return { transparency: settingsDefaultValues[path] as number };
 }
 
-export const settingsItemAppearanceColors = () => makeSettingsItems(({ settingsStore }) => ({
+export const settingsItemAppearanceColors = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     turns: {
         type: 'select',
         title: 'Turns theme',
@@ -186,4 +184,4 @@ export const settingsItemAppearanceColors = () => makeSettingsItems(({ settingsS
         value: colorValue('map.preferences.colors.default.aircraft.departing'),
         onChange: value => setColorByKey('map.preferences.colors.default.aircraft.departing', value as UserMapSettingsColor),
     },
-}));
+})));

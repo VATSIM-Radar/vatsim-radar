@@ -1,7 +1,7 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 import SettingsScale from '~/components/features/settings/v2/misc/SettingsScale.vue';
 
-export const settingsItemAppearanceAircraft = () => makeSettingsItems(({ settingsStore }) => ({
+export const settingsItemPreferencesAircraft = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     shortView: {
         title: 'Short facilities view',
         description: 'Reduces on-hover displayed info',
@@ -37,7 +37,7 @@ export const settingsItemAppearanceAircraft = () => makeSettingsItems(({ setting
             },
             {
                 value: 'arrivalsOnly',
-                text: 'Airborne Arrivals (default)',
+                text: 'Airborne Arrivals',
             },
             {
                 value: 'departures',
@@ -69,7 +69,8 @@ export const settingsItemAppearanceAircraft = () => makeSettingsItems(({ setting
     tracksShowLimit: {
         title: 'Max shown tracks limit',
         description: 'Max tracks to be shown and fetched at the same time',
-        type: 'toggle',
+        type: 'select',
+        items: [{ value: 100 }, { value: 75 }, { value: 50 }, { value: 40 }, { value: 25 }, { value: 15 }, { value: 10 }],
         value: getSettingValue('map.preferences.aircraft.tracks.limit'),
         onChange: value => getSettingValue('map.preferences.aircraft.tracks.limit'),
     },
@@ -79,5 +80,5 @@ export const settingsItemAppearanceAircraft = () => makeSettingsItems(({ setting
         type: 'toggle',
         value: getSettingValue('map.preferences.aircraft.showLimit'),
         onChange: value => getSettingValue('map.preferences.aircraft.showLimit'),
-    }
-}));
+    },
+})));

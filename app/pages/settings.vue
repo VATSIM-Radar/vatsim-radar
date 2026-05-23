@@ -149,6 +149,8 @@ const currentItem = computed(() => {
             for (const section of root.sections) {
                 for (const item of section.items) {
                     for (const component of item.items) {
+                        if ('title' in component && component.title.includes('Aircraft Display')) console.log(component);
+
                         if (component.disabled !== undefined && toValue(component.disabled)) continue;
                         const match = {
                             item: component,
@@ -172,9 +174,11 @@ const currentItem = computed(() => {
                             }
                             else if (word.startsWith(searchLowercase)) {
                                 if (match.score < 2) match.score = 2;
-                                else if (word.includes(searchLowercase)) if (match.score < 1) match.score = 1;
                             }
+                            else if (word.includes(searchLowercase)) if (match.score < 1) match.score = 1;
                         }
+
+                        if ('title' in component && component.title.includes('Aircraft Display')) console.log(match, words, searchLowercase);
 
                         if (match.score > 0 && !foundBlocks.some(x => x.item === component)) foundBlocks.push({ item: component, fullPath: `/settings/${ root.url }/${ section.url }#${ item.key }`, score: match.score });
                     }

@@ -2,7 +2,7 @@ import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composabl
 import type { NotamsSortBy, SearchFilter } from '~/types/map';
 import type { UserSettingsV2 } from '~/utils/settings/types';
 
-export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore, notLoggedIn }) => ({
+export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({ settingsStore, notLoggedIn }) => ({
     headerName: {
         title: 'Header Name',
         description: 'Customize shown header name. Default: your real name',
@@ -40,6 +40,7 @@ export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore,
         title: 'NOTAMs sort',
         description: 'Default sorting for airport NOTAMs',
         type: 'select',
+        placeholder: 'Choose sort',
         items: [
             { value: 'startDesc', text: 'Effective From (newest, default)' },
             { value: 'startAsc', text: 'Effective From (oldest)' },
@@ -50,8 +51,9 @@ export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore,
         onChange: value => setSettingByKey('appearance.notamsSortBy', value as NotamsSortBy | null),
     },
     favoriteSort: {
-        title: 'Friends list sort',
-        description: 'Changes default sorting for friends lists',
+        title: 'Favorite list sort',
+        description: 'Changes default sorting for favorite lists',
+        placeholder: 'Choose sort',
         type: 'select',
         items: [
             { text: 'Newest first', value: 'newest' },
@@ -147,4 +149,4 @@ export const settingsItemPreferences = () => makeSettingsItems(({ settingsStore,
         value: getSettingValue('map.preferences.enableQueryUpdate'),
         onChange: value => setSettingByKey('map.preferences.enableQueryUpdate', value),
     },
-}));
+})));

@@ -23,7 +23,7 @@
                 </ui-text>
                 <ui-setting-display
                     v-for="(sectionItem, index) in section.items"
-                    :key="index"
+                    :key="section.key + index"
                     class="settings-page__item"
                     :class="[`settings-page__item--type-${ sectionItem.type }`]"
                     :disabled="toValue(sectionItem.disabled)"

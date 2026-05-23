@@ -1,6 +1,6 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 
-export const settingsItemVisibility = () => makeSettingsItems(({ notLoggedIn }) => ({
+export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     atcFirs: {
         title: 'FIRs',
         type: 'toggle',
@@ -68,4 +68,4 @@ export const settingsItemVisibility = () => makeSettingsItems(({ notLoggedIn }) 
         onChange: value => setSettingByKey('map.visibility.pilotLabels', value),
         disabled: computed(() => !getSettingValue('map.visibility.pilots').value.value),
     },
-}));
+})));

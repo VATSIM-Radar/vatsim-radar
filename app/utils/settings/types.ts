@@ -175,7 +175,6 @@ export interface UserSettingsV2 {
             runways: boolean;
             pilotsInfo: boolean;
             atcInfo: boolean;
-            events: boolean;
             pilotLabels: boolean;
         };
 

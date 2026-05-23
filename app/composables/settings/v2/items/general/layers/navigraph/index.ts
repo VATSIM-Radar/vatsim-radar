@@ -1,6 +1,6 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 
-export const settingsItemNavigraph = () => makeSettingsItems(() => ({
+export const settingsItemNavigraph = globalComputed(() => makeSettingsItems(() => ({
     enabled: {
         title: 'Enabled',
         description: 'Enables Navigraph layers',
@@ -8,4 +8,4 @@ export const settingsItemNavigraph = () => makeSettingsItems(() => ({
         value: getSettingValue('map.navigraph.enabled'),
         onChange: value => setSettingByKey('map.navigraph.enabled', value),
     },
-}));
+})));

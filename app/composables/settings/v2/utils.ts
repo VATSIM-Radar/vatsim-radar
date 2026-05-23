@@ -194,7 +194,6 @@ const _settingsDefaultValues = {
     'map.visibility.runways': true,
     'map.visibility.pilotsInfo': true,
     'map.visibility.atcInfo': true,
-    'map.visibility.events': true,
     'map.visibility.pilotLabels': true,
 
     'map.bookings.enabled': true,

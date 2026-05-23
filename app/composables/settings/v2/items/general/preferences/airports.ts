@@ -47,7 +47,7 @@ const airportLimitItems = [
     { value: 1000 },
 ];
 
-export const settingsItemAppearanceAirports = () => makeSettingsItems(({ notLoggedIn }) => ({
+export const settingsItemPreferencesAirports = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     defaultZoomLevel: {
         title: 'Default airport zoom level',
         description: 'Changes zoom level used when opening an airport on the map',
@@ -175,8 +175,8 @@ export const settingsItemAppearanceAirports = () => makeSettingsItems(({ notLogg
         disabled: computed(() => !getSettingValue('map.preferences.airports.counters.enabled').value.value),
     },
     countersDisableTraining: {
-        title: 'Locals counter',
-        description: 'Enables counter with aircraft on ground with same departure-arrival. When enabled, those aircraft are always excluded from departure list when on ground',
+        title: 'Hide Locals Counter',
+        description: 'Hides counter with aircraft on ground with same departure-arrival',
         type: 'toggle',
         value: getSettingValue('map.preferences.airports.counters.disableTraining'),
         onChange: value => setSettingByKey('map.preferences.airports.counters.disableTraining', value),
@@ -191,4 +191,4 @@ export const settingsItemAppearanceAirports = () => makeSettingsItems(({ notLogg
         onChange: value => setSettingByKey('map.preferences.airports.showLimit', value as number),
         disabled: computed(() => !getSettingValue('map.preferences.airports.counters.enabled').value.value),
     },
-}));
+})));
