@@ -307,6 +307,7 @@ import { getControllersForPosition } from '~/composables/render';
 import MapPopupIpfs from '~/components/map/popups/MapPopupIpfs.vue';
 import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
+import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 const props = defineProps({
     overlay: {
@@ -710,7 +711,9 @@ onMounted(() => {
         try {
             if (props.overlay?.data.photo || !val?.includes('REG/')) return;
 
-            const photo = await $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/pilot/${ props.overlay.key }/photo`).catch(() => {});
+            const reg = getFlightPlanParam(val, 'REG');
+
+            const photo = await $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/photo/${ reg }`).catch(() => {});
             if (photo && !('status' in photo)) props.overlay.data.photo = photo;
         }
         catch { /* empty */ }

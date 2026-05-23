@@ -14,6 +14,7 @@ import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
+import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -188,7 +189,7 @@ export const useMapStore = defineStore('map', {
                     timeout: 5000,
                 });
                 const ipfsRequest = (pilot.status === 'depGate' || pilot.status === 'depTaxi') && $fetch<IpfsUser>(`/api/data/vatsim/pilot/${ cid }/ipfs`).catch(() => {});
-                const photoRequest = (pilot.flight_plan?.remarks?.includes('REG/')) && $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/pilot/${ cid }/photo`).catch(() => {});
+                const photoRequest = (pilot.flight_plan?.remarks?.includes('REG/')) && $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/photo/${ getFlightPlanParam(pilot.flight_plan?.remarks, 'REG') }`).catch(() => {});
                 if (!params.sticky) {
                     this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || x.minified || store.user?.settings.toggleAircraftOverlays);
                 }
