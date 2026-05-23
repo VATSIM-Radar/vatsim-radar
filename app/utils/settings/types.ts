@@ -17,12 +17,11 @@ import type { RecursivePartial } from '~/types';
 export interface UserSettingsV2 {
     appearance: {
         headerName: string;
-        theme: 'light' | 'dark' | null;
         timeFormat: '24h' | '12h';
         eventsLocalTimezone: boolean;
         bookingsLocalTimezone: boolean;
-        notamsSortBy: NotamsSortBy;
-        favoriteSort: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
+        notamsSortBy: NotamsSortBy | null;
+        favoriteSort: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc' | null;
     };
 
     map: {
@@ -78,8 +77,8 @@ export interface UserSettingsV2 {
             };
 
             colors: {
-                light: UserMapSettingsColors;
-                default: UserMapSettingsColors;
+                light: Required<UserMapSettingsColors>;
+                default: Required<UserMapSettingsColors>;
                 turns: UserMapSettingsTurns;
                 turnsTransparency: number;
             };
@@ -89,7 +88,7 @@ export interface UserSettingsV2 {
             weather: MapWeatherLayer | null;
             layer: MapLayoutLayerWithOptions;
             layerLabels: boolean;
-            relativeIndicator: boolean;
+            relativeIndicator: false | Units;
             terminator: boolean;
             heatmap: boolean;
 
@@ -168,7 +167,7 @@ export interface UserSettingsV2 {
         };
 
         visibility: {
-            atc?: UserMapSettingsVisibilityATC | boolean;
+            atc: UserMapSettingsVisibilityATC;
             atcLabels: boolean;
             airports: boolean;
             pilots: boolean;

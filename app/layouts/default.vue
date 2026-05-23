@@ -105,11 +105,8 @@ onMounted(() => {
         if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
             theme.value = 'light';
         }
-        else {
-            theme.value = 'default';
-        }
 
-        store.theme = theme.value;
+        store.theme = theme.value ?? 'default';
     }
 
     if (store.user?.isSup) {

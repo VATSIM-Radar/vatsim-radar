@@ -5,6 +5,7 @@ import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
 import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
 import { settingsItemAppearanceAircraft } from '~/composables/settings/v2/items/general/appearance/aircraft';
+import { settingsDefaultValues } from '~/composables/settings/v2/utils';
 
 export const getSettingsSections = () => {
     const items = {
@@ -16,6 +17,14 @@ export const getSettingsSections = () => {
 
     const store = useStore();
     const notLoggedIn = computed(() => !store.user);
+
+    const aircraftColors = aircraftSvgColors();
+
+    const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing'] satisfies MapAircraftStatus[];
+
+    for (const option of aircraftOptions) {
+        settingsDefaultValues[`map.preferences.colors.default.aircraft.${ option }`] = { color: aircraftColors[option] };
+    }
 
     return [
         {

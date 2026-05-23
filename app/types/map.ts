@@ -36,8 +36,8 @@ export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions;
 export interface UserLayersTransparencySettings {
     satellite?: number;
     osm?: number;
-    weatherDark?: number;
-    weatherLight?: number;
+    weatherDark?: number | null;
+    weatherLight?: number | null;
     sigmets?: number;
 }
 

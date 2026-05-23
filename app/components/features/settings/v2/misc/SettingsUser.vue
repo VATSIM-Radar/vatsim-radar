@@ -3,6 +3,7 @@
         <ui-text type="1b">VATSIM ID: <strong>{{store.user?.cid ?? 'Not logged in'}}</strong></ui-text>
         <ui-button-group v-if="store.user">
             <ui-button
+                :disabled="!store.user?.cid"
                 :href="`https://stats.vatsim.net/stats/${ store.user?.cid }`"
                 target="_blank"
             >

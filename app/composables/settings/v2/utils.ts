@@ -6,6 +6,9 @@ import type {
     UserSettingsV2,
     UserSettingsV2Partial,
 } from '~/utils/settings/types';
+import { aircraftSvgColors } from '~/composables/vatsim/pilots';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
+import type { PartialRecord } from '~/types';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
@@ -52,6 +55,13 @@ type SettingsDefaultValues<T extends UserSettingsV2 = UserSettingsV2> = {
 };
 
 const _settingsDefaultValues = {
+    'appearance.headerName': '',
+    'appearance.timeFormat': '24h',
+    'appearance.eventsLocalTimezone': false,
+    'appearance.bookingsLocalTimezone': false,
+    'appearance.notamsSortBy': null,
+    'appearance.favoriteSort': null,
+
     'map.preferences.aircraft.shortView': false,
     'map.preferences.aircraft.dynamicScale': true,
     'map.preferences.aircraft.scale': 1,
@@ -61,7 +71,6 @@ const _settingsDefaultValues = {
     'map.preferences.aircraft.showLimit': 100,
 
     'map.preferences.airports.defaultZoomLevel': 14,
-
 
     'map.preferences.airports.shortView': false,
     'map.preferences.airports.showMode': 'all',
@@ -82,8 +91,27 @@ const _settingsDefaultValues = {
     'map.preferences.airports.counters.disableTraining': false,
     'map.preferences.airports.showLimit': 100,
 
-    // Stopped here
     'map.preferences.colors.default.firs': { color: 'green500', transparency: 0.1 },
+    'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
+    'map.preferences.colors.default.centerText': { color: 'lightGray500' },
+    'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
+    'map.preferences.colors.default.approach': { color: 'red300' },
+    'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
+    'map.preferences.colors.default.staffedAirport': 1,
+    'map.preferences.colors.default.defaultAirport': 1,
+    'map.preferences.colors.default.runways': { color: 'red300' },
+    'map.preferences.colors.default.gates': 1,
+    'map.preferences.colors.turns': 'magma',
+    'map.preferences.colors.turnsTransparency': 1,
+
+    'map.preferences.colors.default.aircraft.ground': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.active': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.green': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.hover': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.landed': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.arriving': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.departing': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.main': { color: 'red300' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
     'map.preferences.autoFollow': false,
@@ -95,10 +123,95 @@ const _settingsDefaultValues = {
     'map.preferences.searchBy': ['atc', 'airports', 'flights'],
     'map.preferences.searchLimit': 10,
     'map.preferences.enableQueryUpdate': false,
-    'appearance.headerName': '',
+
+    'map.layers.weather': null,
+    'map.layers.layer': 'protoData',
+    'map.layers.layerLabels': true,
+    'map.layers.relativeIndicator': 'metric',
+    'map.layers.terminator': false,
+    'map.layers.heatmap': true,
+
+    'map.layers.transparency.osm': 0.5,
+    'map.layers.transparency.satellite': 0.3,
+    'map.layers.transparency.weatherDark': null,
+    'map.layers.transparency.weatherLight': null,
+    'map.layers.transparency.sigmets': 0.15,
+
+    'map.layers.natTrak.enabled': false,
+    'map.layers.natTrak.concorde': false,
+    'map.layers.natTrak.direction': 'all',
+
+    'map.layers.distance.enabled': false,
+    'map.layers.distance.units': 'nautical',
+    'map.layers.distance.interaction': 'dblclick',
+
+    'map.traffic.showFullRoute': false,
+    'map.traffic.toggleAircraftOverlays': false,
+    'map.traffic.autoShowAirportTracks': false,
+    'map.traffic.disableFastUpdate': false,
+    'map.traffic.declutter': false,
+    'map.traffic.highlightEmergency': false,
+
+    'map.vatglasses.active': false,
+    'map.vatglasses.autoEnable': true,
+    'map.vatglasses.autoLevel': true,
+    'map.vatglasses.combined': false,
+
+    'map.navigraph.enabled': true,
+
+    'map.navigraph.routeParsing.enabled': true,
+    'map.navigraph.routeParsing.enabledOnHover': true,
+    'map.navigraph.routeParsing.airportOverlay.enabled': true,
+    'map.navigraph.routeParsing.airportOverlay.sid': true,
+    'map.navigraph.routeParsing.airportOverlay.star': true,
+    'map.navigraph.routeParsing.airportOverlay.holds': true,
+    'map.navigraph.routeParsing.airportOverlay.labels': true,
+    'map.navigraph.routeParsing.airportOverlay.waypoints': true,
+
+    'map.navigraph.layers.ndb': false,
+    'map.navigraph.layers.vordme': false,
+    'map.navigraph.layers.waypoints': false,
+    'map.navigraph.layers.terminalWaypoints': false,
+    'map.navigraph.layers.holdings': false,
+    'map.navigraph.layers.ifrMode': 'both',
+    'map.navigraph.layers.ifrAuto': true,
+    'map.navigraph.layers.airways.enabled': false,
+    'map.navigraph.layers.airways.showAirwaysLabel': true,
+    'map.navigraph.layers.airways.showWaypointsLabel': true,
+
+    'map.navigraph.airport.enabled': true,
+    'map.navigraph.airport.gatesFallback': false,
+    'map.navigraph.airport.hideTaxiways': false,
+    'map.navigraph.airport.hideGateGuidance': false,
+    'map.navigraph.airport.hideRunwayExit': false,
+    'map.navigraph.airport.hideDeicing': false,
+
+    'map.visibility.atc.firs': true,
+    'map.visibility.atc.approach': true,
+    'map.visibility.atc.ground': true,
+    'map.visibility.atcLabels': true,
+    'map.visibility.airports': true,
+    'map.visibility.pilots': true,
+    'map.visibility.gates': true,
+    'map.visibility.runways': true,
+    'map.visibility.pilotsInfo': true,
+    'map.visibility.atcInfo': true,
+    'map.visibility.events': true,
+    'map.visibility.pilotLabels': true,
+
+    'map.bookings.enabled': true,
+    'map.bookings.hours': 0.5,
+
+    'map.events.enabled': true,
+    'map.events.hours': 1,
+
+    'sigmets.showOnMap': false,
+    'sigmets.disabled': [],
+    'sigmets.showAirmets': false,
+    'sigmets.raw': false,
 } satisfies SettingsDefaultValues;
 
-const settingsDefaultValues = _settingsDefaultValues as {
+export const settingsDefaultValues = _settingsDefaultValues as {
     [K in keyof typeof _settingsDefaultValues]: DeepValueOfSetting<UserSettingsV2, K>
 };
 

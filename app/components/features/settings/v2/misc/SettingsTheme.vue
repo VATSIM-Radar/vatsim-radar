@@ -2,8 +2,8 @@
     <div class="theme __horizontal-group-4">
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': settingsStore.settings.appearance?.theme === 'dark' }"
-            @click="settingsStore.save({ appearance: { theme: 'dark' } })"
+            :class="{ 'theme_item--selected': theme === 'default' }"
+            @click="theme = 'default'"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeDark })` }"/>
@@ -15,14 +15,14 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="settingsStore.settings.appearance?.theme === 'dark'"
-                value="dark"
+                :model-value="theme === 'default'"
+                value="default"
             />
         </div>
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': typeof settingsStore.settings.appearance?.theme !== 'string' }"
-            @click="settingsStore.save({ appearance: { theme: null } })"
+            :class="{ 'theme_item--selected': !theme }"
+            @click="theme = null"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeSystem })` }"/>
@@ -34,14 +34,14 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="typeof settingsStore.settings.appearance?.theme !== 'string'"
+                :model-value="!theme"
                 value="null"
             />
         </div>
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': settingsStore.settings.appearance?.theme === 'light' }"
-            @click="settingsStore.save({ appearance: { theme: 'light' } })"
+            :class="{ 'theme_item--selected': theme === 'light' }"
+            @click="theme = 'light'"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeLight })` }"/>
@@ -53,7 +53,7 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="settingsStore.settings.appearance?.theme === 'light'"
+                :model-value="theme === 'light'"
                 value="light"
             />
         </div>
@@ -68,7 +68,24 @@ import ThemeSystem from '~/assets/images/theme-system.png';
 import UiRadio from '~/components/ui/inputs/UiRadio.vue';
 import SettingsThemeBg from '~/assets/icons/basic/settings-theme-bg.svg?component';
 
-const settingsStore = useSettingsStore();
+const store = useStore();
+
+const theme = useCookie<ThemesList | null>('theme', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+});
+
+watch(theme, val => {
+    if (!val) {
+        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+            theme.value = 'light';
+        }
+    }
+
+    store.theme = theme.value ?? 'default';
+});
 </script>
 
 <style scoped lang="scss">

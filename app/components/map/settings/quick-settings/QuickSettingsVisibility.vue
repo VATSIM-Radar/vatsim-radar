@@ -164,7 +164,7 @@
                     :disabled="!(store.mapSettings.visibility?.bookings ?? true)"
                     :items="[{ value: 0.5, text: '30 min' }, { value: 1, text: '1h' }, { value: 2, text: '2h' }, { value: 3, text: '3h' }, { value: 4, text: '4h' }]"
                     :model-value="store.mapSettings.bookingHours ?? 0.5"
-                    placeholder="1h"
+                    placeholder="30 min"
                     @update:modelValue="setUserMapSettings({ bookingHours: $event as any })"
                 >
                     Hours in advance for bookings
@@ -187,8 +187,8 @@
                     <ui-select
                         :disabled="!(store.mapSettings.visibility?.events ?? true)"
                         :items="[{ value: 1, text: '1h' }, { value: 2, text: '2h' }, { value: 3, text: '3h' }, { value: 6, text: '6h' }, { value: 12, text: '12h' }, { value: 24, text: '24h' }]"
-                        :model-value="store.mapSettings.eventsHours ?? 0.5"
-                        placeholder="2h"
+                        :model-value="store.mapSettings.eventsHours ?? 1"
+                        placeholder="21h"
                         @update:modelValue="setUserMapSettings({ eventsHours: $event as any })"
                     >
                         Hours in advance for events
