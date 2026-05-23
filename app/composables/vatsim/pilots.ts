@@ -158,19 +158,21 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     }
 }
 
-export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
-    return {
-        active: getCurrentThemeHexColor('orange600'),
-        default: getCurrentThemeHexColor('blue500'),
-        ground: getCurrentThemeHexColor('blue500'),
-        green: getCurrentThemeHexColor('green600'),
-        hover: getCurrentThemeHexColor('orange500'),
-        neutral: getCurrentThemeHexColor('lightGray500'),
+export const aircraftStatusColors: Record<MapAircraftStatus, ColorsList> = {
+    active: 'orange600',
+    default: 'blue500',
+    ground: 'blue500',
+    green: 'green600',
+    hover: 'orange500',
+    neutral: 'lightGray500',
 
-        departing: getCurrentThemeHexColor('green500'),
-        arriving: getCurrentThemeHexColor('orange400'),
-        landed: getCurrentThemeHexColor('red300'),
-    };
+    departing: 'green500',
+    arriving: 'orange400',
+    landed: 'red300',
+};
+
+export const aircraftSvgColors = () => {
+    return Object.fromEntries(Object.entries(aircraftStatusColors).map(([key, value]) => [key, getCurrentThemeHexColor(value)])) as Record<MapAircraftStatus, string>;
 };
 
 export const getFilteredAircraftSettings = (cid: number) => {

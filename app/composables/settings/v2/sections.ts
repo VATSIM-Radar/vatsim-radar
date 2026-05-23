@@ -8,15 +8,16 @@ import { settingsItemAppearance } from '~/composables/settings/v2/items/general/
 import { settingsItemPreferencesAircraft } from '~/composables/settings/v2/items/general/preferences/aircraft';
 import { settingsDefaultValues } from '~/composables/settings/v2/utils';
 import { settingsItemAppearanceColors } from '~/composables/settings/v2/items/general/appearance/colors';
-import { settingsItemLayers } from '~/composables/settings/v2/items/general/layers';
-import { settingsItemSigmets } from '~/composables/settings/v2/items/general/layers/sigmets';
-import { settingsItemVisibility } from '~/composables/settings/v2/items/general/layers/visibility';
-import { settingsItemNavigraph } from '~/composables/settings/v2/items/general/layers/navigraph';
-import { settingsItemNavigraphAirport } from '~/composables/settings/v2/items/general/layers/navigraph/airport';
-import { settingsItemNavigraphLayers } from '~/composables/settings/v2/items/general/layers/navigraph/layers';
-import { settingsItemNavigraphRoute } from '~/composables/settings/v2/items/general/layers/navigraph/route';
+import { settingsItemLayers } from '~/composables/settings/v2/items/layers';
+import { settingsItemSigmets } from '~/composables/settings/v2/items/layers/sigmets';
+import { settingsItemVisibility } from '~/composables/settings/v2/items/layers/visibility';
+import { settingsItemNavigraph } from '~/composables/settings/v2/items/layers/navigraph';
+import { settingsItemNavigraphAirport } from '~/composables/settings/v2/items/layers/navigraph/airport';
+import { settingsItemNavigraphLayers } from '~/composables/settings/v2/items/layers/navigraph/layers';
+import { settingsItemNavigraphRoute } from '~/composables/settings/v2/items/layers/navigraph/route';
 import { settingsItemPreferencesAirports } from '~/composables/settings/v2/items/general/preferences/airports';
 import { settingsItemTraffic } from '~/composables/settings/v2/items/general/preferences/traffic';
+import { aircraftStatusColors } from '~/composables/vatsim/pilots';
 
 export const getSettingsItems = globalComputed(() => {
     return {
@@ -46,18 +47,18 @@ export const getSettingsItems = globalComputed(() => {
 });
 
 export const getSettingsSections = () => {
-    const items = getSettingsItems().value;
-
     const store = useStore();
     const notLoggedIn = computed(() => !store.user);
 
-    const aircraftColors = aircraftSvgColors();
+    const aircraftColors = aircraftStatusColors;
 
     const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing'] satisfies MapAircraftStatus[];
 
     for (const option of aircraftOptions) {
         settingsDefaultValues[`map.preferences.colors.default.aircraft.${ option }`] = { color: aircraftColors[option] };
     }
+
+    const items = getSettingsItems().value;
 
     return [
         {
@@ -135,17 +136,46 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
+                    title: 'Colors & Appearance',
+                    url: 'appearance',
+                    items: [
+                        {
+                            key: 'appearance',
+                            items: [items.appearance.overlaysPositions],
+                        },
+                        {
+                            key: 'tracks',
+                            items: [items.appearance.colors.turns, items.appearance.colors.turnsTransparency],
+                        },
+                        {
+                            key: 'colors',
+                            title: 'Colors',
+                            items: Object.entries(items.appearance.colors).filter(x => !x[0].startsWith('turns')).map(x => x[1]),
+                        },
+                    ],
+                },
+                {
                     title: 'Aircraft',
                     url: 'aircraft',
                     items: [
                         {
                             key: 'aircraft',
-                            items: [items.preferences.aircraft.shortView, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.scale],
+                            items: [items.preferences.aircraft.shortView, items.preferences.traffic.highlightEmergency, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.scale],
                         },
                         {
                             key: 'tracks',
                             title: 'Tracks',
                             items: [items.preferences.aircraft.tracksMode, items.preferences.aircraft.tracksShowLimit, items.preferences.aircraft.showOutOfBounds],
+                        },
+                        {
+                            key: 'Overlays',
+                            title: 'Overlays',
+                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.toggleAircraftOverlays, items.preferences.traffic.autoShowAirportTracks],
+                        },
+                        {
+                            key: 'traffic',
+                            title: 'Traffic',
+                            items: [items.preferences.traffic.disableFastUpdate],
                         },
                     ],
                 },
@@ -171,6 +201,11 @@ export const getSettingsSections = () => {
                             key: 'counters',
                             title: 'Traffic Counter',
                             items: [items.preferences.airports.countersEnabled, items.preferences.airports.countersDeparturesMode, items.preferences.airports.countersSyncDeparturesArrivals, items.preferences.airports.countersArrivalsMode, items.preferences.airports.countersDisableTraining],
+                        },
+                        {
+                            key: 'overlays',
+                            title: 'Overlay Settings',
+                            items: [items.preferences.traffic.autoShowAirportTracks],
                         },
                     ],
                 },

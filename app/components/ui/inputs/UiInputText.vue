@@ -27,6 +27,7 @@
                 full
             />
             <ui-text
+                v-if="!hideInput"
                 class="input__input"
                 tag="label"
                 type="2b"
@@ -54,6 +55,7 @@
                     @input="$emit('input', $event)"
                 >
             </ui-text>
+            <div v-else class="__spacer"/>
             <ui-separator
                 v-if="max || $slots.append"
                 distance="0"
@@ -117,6 +119,10 @@ const props = defineProps({
         default: false,
     },
     disabled: {
+        type: Boolean,
+        default: false,
+    },
+    hideInput: {
         type: Boolean,
         default: false,
     },
@@ -274,14 +280,18 @@ watch(model, val => {
             &:is(div) {
                 position: relative;
                 z-index: 1;
+                display: flex;
+                align-items: center;
 
                 + input {
                     position: absolute;
+                    z-index: 0;
                     inset: 0;
 
                     width: 100%;
                     height: 100%;
 
+                    visibility: hidden;
                     opacity: 0;
                 }
             }

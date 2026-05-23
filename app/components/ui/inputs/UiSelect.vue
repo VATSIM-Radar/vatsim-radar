@@ -8,6 +8,7 @@
             class="select_input"
             :disabled
             :focused="opened"
+            :width
             @appendClick="emit('appendClick', $event)"
             @prependClick="emit('prependClick', $event)"
         >
@@ -85,7 +86,6 @@ import UiText from '~/components/ui/text/UiText.vue';
 const props = defineProps({
     width: {
         type: String,
-        default: '240px',
     },
     items: {
         type: Array as PropType<SelectItem[]>,

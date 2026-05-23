@@ -20,8 +20,13 @@
                         max-dropdown-height="150px"
                         :model-value="modelValue?.transparency ?? defaultColor?.transparency ?? 1"
                         placeholder="Transparency"
+                        width="100px"
                         @update:modelValue="emit('update:modelValue', { ...modelValue, transparency: +($event as string) })"
                     />
+                </template>
+
+                <template v-if="transparencyOnly" #htmlContent>
+                    Transparency
                 </template>
 
                 <template
@@ -32,12 +37,12 @@
                 </template>
 
                 <template
-                    v-if="modelValue || !transparencyOnly"
+                    v-if="(modelValue && defaultColor && (modelValue.color !== defaultColor.color || modelValue.transparency !== defaultColor.transparency)) || !transparencyOnly"
                     #append
                 >
                     <div class="color-picker__input_append">
                         <reset-icon
-                            v-if="modelValue && defaultColor"
+                            v-if="modelValue && defaultColor && (modelValue.color !== defaultColor.color || modelValue.transparency !== defaultColor.transparency)"
                             class="color-picker__input_reset"
                             @click.stop="emit('update:modelValue', null)"
                         />
@@ -195,6 +200,9 @@ const getColor = computed(() => {
 
 const getHexColor = computed(() => {
     if (themeColor.value || !getColor.value) return null;
+
+    if (getColor.value.startsWith('#')) return getColor.value;
+
     return rgbToHex(...getColor.value.split(',').map(x => +x));
 });
 
@@ -224,18 +232,18 @@ const transparencyOptions = computed<SelectItem[]>(() => {
     }
 
     options.unshift({
-        value: 0.95,
-        text: '95%',
+        value: 0.05,
+        text: '5%',
     });
 
     options.unshift({
-        value: 0.97,
-        text: '97%',
+        value: 0.07,
+        text: '7%',
     });
 
     options.unshift({
-        value: 0.99,
-        text: '99%',
+        value: 0.01,
+        text: '1%',
     });
 
     return options.sort((a, b) => (b.value as number) - (a.value as number));
@@ -271,6 +279,7 @@ const transparencyOptions = computed<SelectItem[]>(() => {
                 content: '';
 
                 position: absolute;
+                z-index: 1;
                 inset: 3px;
 
                 width: 18px;
@@ -279,6 +288,19 @@ const transparencyOptions = computed<SelectItem[]>(() => {
                 border-radius: 9999px;
 
                 background: var(--color, $darkGray900);
+            }
+
+            &::after {
+                content: '';
+
+                position: absolute;
+                inset: 3px;
+
+                width: 18px;
+                height: 18px;
+                border-radius: 100%;
+
+                background: $darkGray900;
             }
         }
     }

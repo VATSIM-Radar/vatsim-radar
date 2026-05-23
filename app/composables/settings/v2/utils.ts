@@ -109,7 +109,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.aircraft.landed': { color: 'red300' },
     'map.preferences.colors.default.aircraft.arriving': { color: 'red300' },
     'map.preferences.colors.default.aircraft.departing': { color: 'red300' },
-    'map.preferences.colors.default.aircraft.main': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.main': { color: 'blue500' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
     'map.preferences.autoFollow': false,
