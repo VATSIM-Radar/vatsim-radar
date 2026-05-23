@@ -8,6 +8,18 @@
 - Redesigned friends status: you can now click on individual links instead of one big link
 - Redesigned VATGlasses slider for a consistent look in all browsers
 
+# [2.0.0-alpha.9.3]
+
+## Production changes
+
+- Add CWM E/W sectors to ATC duplication
+- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
+- Fixed new Military Rating not displayed
+
+## Alpha changes
+
+- Added distance tool infinite worlds support by psergienko
+
 # [2.0.0-alpha.9.2]
 
 ## Alpha changes
@@ -528,6 +540,22 @@ Known Issues:
 - Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
 - Reduced gates memory consumption on render
+
+# [1.2.4-8]
+
+- Add CWM E/W sectors to ATC duplication
+- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
+- Fixed new Military Rating not displayed
+
+# [1.2.4-7.2]
+
+- Fixed waypoints sometimes not connecting with airways
+- Fixed some waypoints not showing correctly
+- Improved performance and stability of aircraft tracks
+
+# [1.2.4-7.1]
+
+- Added support for NAT frequencies for ATC and pilots
 
 # [1.2.4-7]
 

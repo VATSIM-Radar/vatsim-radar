@@ -259,7 +259,7 @@
                 Cancel
             </ui-button>
             <ui-button
-                v-if="store.user?.hasFms === null"
+                v-if="!store.user || store.user?.hasFms === null"
                 href="/api/auth/navigraph/redirect"
             >
                 Connect Navigraph
@@ -277,12 +277,6 @@
                     >
                 </template>
                 Subscription Options
-            </ui-button>
-            <ui-button
-                v-else
-                href="/api/auth/vatsim/redirect"
-            >
-                Connect
             </ui-button>
         </template>
     </popup-fullscreen>

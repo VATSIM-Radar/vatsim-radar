@@ -22,7 +22,7 @@ export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, no
         const rating = dataStore.vatsim.data.pilot_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'];
         if (rating) ratings.push(rating);
     }
-    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
+    if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.military_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
 }
@@ -163,11 +163,11 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
         active: getCurrentThemeHexColor('orange600'),
         default: getCurrentThemeHexColor('blue500'),
         ground: getCurrentThemeHexColor('blue500'),
-        green: getCurrentThemeHexColor('green500'),
+        green: getCurrentThemeHexColor('green600'),
         hover: getCurrentThemeHexColor('orange500'),
         neutral: getCurrentThemeHexColor('lightGray500'),
 
-        departing: getCurrentThemeHexColor('green400'),
+        departing: getCurrentThemeHexColor('green500'),
         arriving: getCurrentThemeHexColor('orange400'),
         landed: getCurrentThemeHexColor('red300'),
     };
@@ -359,7 +359,7 @@ export const observerFlight = computed(() => {
     const dataStore = useDataStore();
     const store = useStore();
 
-    const obs = store.user && dataStore.vatsim.data.observers.value.find(x => x.cid === +store.user!.cid);
+    const obs = store.user?.cid && dataStore.vatsim.data.observers.value.find(x => x.cid === +store.user!.cid!);
     if (!obs) return null;
 
     const similar = dataStore.vatsim.data.pilots.value.find(x => x.callsign === obs.callsign.slice(0, obs.callsign.length - 1));
@@ -372,8 +372,8 @@ export const ownFlight = computed(() => {
     const mapStore = useMapStore();
     const dataStore = useDataStore();
 
-    if (!store.user) return null;
-    if (mapStore.selectedCid && dataStore.vatsim.data.observers.value.some(x => x.cid === +store.user!.cid)) {
+    if (!store.user?.cid) return null;
+    if (mapStore.selectedCid && dataStore.vatsim.data.observers.value.some(x => x.cid === +store.user!.cid!)) {
         return dataStore.vatsim.data.keyedPilots.value[mapStore.selectedCid.toString()] ??
         dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ??
         null;

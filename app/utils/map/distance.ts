@@ -8,6 +8,7 @@ import { point } from '@turf/helpers';
 import { transform } from 'ol/proj.js';
 import { Fill, Text, Style } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
+import { getCurrentWorldCoordinate, getOriginalWorldCoordinate } from '~/composables/map/world';
 import type { GeometryFunction } from 'ol/interaction/Draw.js';
 
 export type HeadingPair = {
@@ -245,21 +246,46 @@ export function getMidpointOrientation(map: ShallowRef<Map | null>, line: LineSt
 export function toGeodesicLine(start?: Coordinate, end?: Coordinate) {
     if (!start || !end) return null;
 
+    const normalizedStart = getOriginalWorldCoordinate({ eventCoordinate: start }) as Coordinate;
+    const normalizedEnd = getOriginalWorldCoordinate({ eventCoordinate: end }) as Coordinate;
+
+    let shiftedEndX = normalizedEnd[0];
+    if (shiftedEndX - normalizedStart[0] > 180) shiftedEndX -= 360;
+    else if (shiftedEndX - normalizedStart[0] < -180) shiftedEndX += 360;
+
+    const turfEnd = getOriginalWorldCoordinate({ eventCoordinate: [shiftedEndX, normalizedEnd[1]] }) as Coordinate;
+
+    let coordinates: Coordinate[];
+
     try {
-        const circle = greatCircle(point(start), point(end), { npoints: GREAT_CIRCLE_POINTS });
-        const coordinates = circle.geometry.type === 'LineString'
+        const circle = greatCircle(point(normalizedStart), point(turfEnd), { npoints: GREAT_CIRCLE_POINTS });
+        const raw = circle.geometry.type === 'LineString'
             ? circle.geometry.coordinates as Coordinate[]
             : (circle.geometry.type === 'MultiLineString'
                 ? (circle.geometry.coordinates as Coordinate[][]).flat()
                 : null);
 
-        if (!coordinates?.length) return null;
-
-        return new LineString(coordinates);
+        if (!raw?.length) return null;
+        coordinates = raw;
     }
     catch {
-        return new LineString([start, end]);
+        coordinates = [normalizedStart, turfEnd];
     }
+
+    const adjusted: Coordinate[] = coordinates.map(c => [
+        getCurrentWorldCoordinate({ coordinate: c, eventCoordinate: start })[0],
+        c[1],
+    ]);
+
+    for (let i = 1; i < adjusted.length; i++) {
+        let x = adjusted[i][0];
+        const prevX = adjusted[i - 1][0];
+        while (x - prevX > 180) x -= 360;
+        while (x - prevX < -180) x += 360;
+        adjusted[i] = [x, adjusted[i][1]];
+    }
+
+    return new LineString(adjusted);
 }
 
 
