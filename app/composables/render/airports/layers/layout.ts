@@ -7,9 +7,9 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 import type Feature from 'ol/Feature.js';
 import type Geometry from 'ol/geom/Geometry.js';
 
-const setAirportsBySource = new WeakMap<VectorSource, Set<string>>();
-const featuresBySource = new WeakMap<VectorSource, Map<string, Feature<Geometry>[]>>();
-const settingsKeyBySource = new WeakMap<VectorSource, string>();
+const setAirports = new Set<string>();
+const airportFeatures = new Map<string, Feature<Geometry>[]>();
+let currentSettingsKey: string | undefined;
 
 export function setMapNavigraphLayout({ source, airports, navigraphData, layer }: {
     source: VectorSource;
@@ -18,11 +18,6 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
     navigraphData: AirportNavigraphData;
 }) {
     const store = useStore();
-    const setAirports = setAirportsBySource.get(source) ?? new Set<string>();
-    const airportFeatures = featuresBySource.get(source) ?? new Map<string, Feature<Geometry>[]>();
-
-    setAirportsBySource.set(source, setAirports);
-    featuresBySource.set(source, airportFeatures);
 
     if (!source.getFeatures().length) {
         for (const features of airportFeatures.values()) {
@@ -43,7 +38,7 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
     const disabledDeicing = store.mapSettings.navigraphLayers?.hideDeicing;
     const settingsKey = [disabledTaxiways, disabledGates, disabledRunways, disabledDeicing].map(String).join(':');
 
-    if (settingsKeyBySource.get(source) !== settingsKey) {
+    if (currentSettingsKey !== settingsKey) {
         for (const features of airportFeatures.values()) {
             for (const feature of features) {
                 source.removeFeature(feature);
@@ -53,7 +48,7 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
 
         setAirports.clear();
         airportFeatures.clear();
-        settingsKeyBySource.set(source, settingsKey);
+        currentSettingsKey = settingsKey;
     }
 
     if (!disabledTaxiways) ['taxiwayelement', 'taxiwayholdingposition', 'taxiwayguidanceline', 'taxiwayintersectionmarking'].forEach(x => supported.add(x as AmdbLayerName));
