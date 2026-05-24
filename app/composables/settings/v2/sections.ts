@@ -18,6 +18,8 @@ import { settingsItemNavigraphRoute } from '~/composables/settings/v2/items/laye
 import { settingsItemPreferencesAirports } from '~/composables/settings/v2/items/general/preferences/airports';
 import { settingsItemTraffic } from '~/composables/settings/v2/items/general/preferences/traffic';
 import { aircraftStatusColors } from '~/composables/vatsim/pilots';
+import SaveIcon from 'assets/icons/kit/save.svg?component';
+import SettingsManagement from '~/components/features/settings/v2/misc/SettingsManagement.vue';
 
 export const getSettingsItems = globalComputed(() => {
     return {
@@ -344,6 +346,23 @@ export const getSettingsSections = () => {
                             title: 'Airport Layout',
                             hide: computed(() => !store.user?.hasCharts),
                             items: Object.values(items.layers.navigraph.airports),
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            title: 'Presets & Save',
+            url: 'management',
+            icon: SaveIcon,
+            sections: [
+                {
+                    title: 'Presets & Save',
+                    url: 'save',
+                    items: [
+                        {
+                            key: 'save',
+                            items: [{ type: 'component', component: SettingsManagement }],
                         },
                     ],
                 },

@@ -21,7 +21,7 @@
                         :model-value="modelValue?.transparency ?? defaultColor?.transparency ?? 1"
                         placeholder="Transparency"
                         width="100px"
-                        @update:modelValue="emit('update:modelValue', { ...modelValue, transparency: +($event as string) })"
+                        @update:modelValue="emit('update:modelValue', { ...defaultColor, ...modelValue, transparency: +($event as string) })"
                     />
                 </template>
 
@@ -80,7 +80,7 @@
                                         class="color-picker__dropdown_history__item"
                                         :class="[`color-picker_list_item--color-${ color }`]"
                                         :style="{ '--color': getHexColorFromHistory(color) }"
-                                        @click="emit('update:modelValue', { ...modelValue, color })"
+                                        @click="emit('update:modelValue', { ...defaultColor, ...modelValue, color })"
                                     />
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                                     class="color-picker__dropdown_color"
                                     type="color"
                                     :value="getHexColor ? shortHexToLong(getHexColor) : '#000000'"
-                                    @change="emit('update:modelValue', { ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
+                                    @change="emit('update:modelValue', { ...defaultColor, ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
                                     @click.stop
                                 >
                             </div>
@@ -111,7 +111,7 @@
                                         class="color-picker__dropdown_item"
                                         :class="[{ 'color-picker__dropdown_item--active': color === modelValue?.color }, `color-picker__dropdown_item--color-${ color }`]"
                                         :style="{ '--color': hex }"
-                                        @click="emit('update:modelValue', { ...modelValue, color })"
+                                        @click="emit('update:modelValue', { ...defaultColor, ...modelValue, color })"
                                     />
                                 </div>
                             </div>

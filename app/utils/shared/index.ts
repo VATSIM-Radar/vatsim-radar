@@ -13,6 +13,7 @@ export function isObject(val: any): val is Record<string, unknown> {
 export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},( ?)\d{1,3},( ?)\d{1,3}(\)|,( ?)[0-9.]{1,4}\)))|(\d{1,3},\d{1,3},\d{1,3}))$/i;
 
 export const MAX_MAP_PRESETS = 5;
+export const MAX_SETTINGS_PRESETS = 6;
 export const MAX_USER_LISTS = 5;
 export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 5;

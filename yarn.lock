@@ -16107,6 +16107,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"valibot@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "valibot@npm:1.4.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/9eb9f02c1a4d685e0a76c312ae898b0012c2bdea24f75968c133fcf6019cde80c4d1d7e41f52e9a1189dde76a923baee05506fb412a0811d8d482d597bcfb4b9
+  languageName: node
+  linkType: hard
+
 "varint@npm:^6.0.0":
   version: 6.0.0
   resolution: "varint@npm:6.0.0"
@@ -16198,6 +16210,7 @@ __metadata:
     tsx: "npm:4.21.0"
     typescript: "npm:6.0.3"
     ua-parser-js: "npm:2.0.9"
+    valibot: "npm:^1.4.0"
     vite-plugin-eslint2: "npm:^5.1.0"
     vite-plugin-pwa: "npm:^1.3.0"
     vite-svg-loader: "npm:^5.1.1"

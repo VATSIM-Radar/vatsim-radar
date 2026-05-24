@@ -1,7 +1,6 @@
 <template>
     <ui-text
         class="scale"
-        :class="{ 'scale--hidden': value === 1 }"
         type="caption-light"
     >
         <div class="scale_col">

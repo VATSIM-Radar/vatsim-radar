@@ -290,7 +290,7 @@ export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknow
             const val = getSettingByKey(settingsStore.settings, setting);
             return {
                 value: val === undefined ? settingsDefaultValues[setting] : val,
-                isSet: val !== undefined,
+                isSet: val !== undefined && val !== settingsDefaultValues[setting],
             };
         }
 
