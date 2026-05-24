@@ -26,7 +26,7 @@
                     <div class="presets__row presets__row--no-wrap">
                         <ui-input-text
                             v-model="newPresetName"
-                            placeholder="Preset Name"
+                            placeholder="Save as..."
                         />
                         <div class="presets__row_divider"/>
                         <ui-button
@@ -38,6 +38,8 @@
                             <template #icon>
                                 <save-icon/>
                             </template>
+
+                            Save
                         </ui-button>
                     </div>
 
@@ -47,6 +49,9 @@
                     />
                 </template>
             </div>
+            <ui-notification v-else-if="!presets.length" type="info">
+                There is nothing to save... yet
+            </ui-notification>
 
             <small
                 v-if="presets.length >= maxPresets"
@@ -80,7 +85,7 @@
                                     <ui-toggle
                                         :model-value="currentPreset === preset.id"
                                         @click.stop
-                                        @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
+                                        @update:modelValue="$event ? noConfirm ? emit('save', preset.json, preset.id) : [states.load = true, activePreset = preset] : emit('reset')"
                                     />
                                     <drag-icon class="presets__drag"/>
                                 </div>
@@ -100,7 +105,7 @@
                                         v-model="activePreset!.name"
                                         @change="renamePreset()"
                                     />
-                                    <div class="presets__row_divider"/>
+                                    <div v-if="!disableActions" class="presets__row_divider"/>
                                     <ui-tooltip
                                         v-if="!disableActions"
                                         location="bottom"
@@ -138,7 +143,7 @@
                                             </ui-button>
                                         </template>
 
-                                        Share
+                                        Copy Link
                                     </ui-tooltip>
                                     <ui-tooltip
                                         v-if="!disableActions"
@@ -153,12 +158,12 @@
                                                 @click="states.overwrite = true"
                                             >
                                                 <template #icon>
-                                                    <edit-icon/>
+                                                    <save-icon/>
                                                 </template>
                                             </ui-button>
                                         </template>
 
-                                        Overwrite
+                                        Save
                                     </ui-tooltip>
                                 </div>
                             </div>
@@ -198,11 +203,11 @@
                 <template #title>
                     Preset Load
                 </template>
-                You are about to load {{ activePreset.name }} preset. That will overwrite all your current settings.
+                You are about to load preset {{ activePreset.name }}. That will overwrite all your current settings.
                 <template #actions>
                     <ui-button
                         type="secondary"
-                        @click="[emit('save', activePreset.json), states.load = false]"
+                        @click="[emit('save', activePreset.json, activePreset.id), states.load = false]"
                     >
                         Load and overwrite
                     </ui-button>
@@ -269,7 +274,6 @@ import { useFileDownload } from '~/composables/settings';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import ExportIcon from 'assets/icons/kit/load.svg?component';
-import EditIcon from 'assets/icons/kit/edit.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import ShareIcon from '~/assets/icons/kit/share.svg?component';
 import CheckIcon from '~/assets/icons/kit/check.svg?component';
@@ -280,6 +284,7 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import equal from 'deep-equal';
 import { VueDraggable } from 'vue-draggable-plus';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 const props = defineProps({
     presets: {
@@ -331,7 +336,7 @@ const emit = defineEmits({
     create(name: string, data: UserCustomPreset['json']) {
         return true;
     },
-    save(data: UserCustomPreset['json']) {
+    save(data: UserCustomPreset['json'], id: number) {
         return true;
     },
     reset() {
@@ -491,7 +496,7 @@ const deletePreset = async () => {
     &__drag {
         cursor: grab;
         position: absolute;
-        right: 48px;
+        right: 64px;
         width: 24px;
     }
 

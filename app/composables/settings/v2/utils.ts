@@ -6,17 +6,24 @@ import type {
     UserSettingsV2,
     UserSettingsV2Partial,
 } from '~/utils/settings/types';
+import type { UserCustomPreset } from '~/components/map/settings/filters/MapFiltersPresets.vue';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
         ? V
         : never;
 
-export function onSettingChange() {
+export async function onSettingChange() {
     const settingsStore = useSettingsStore();
 
-    // TODO
-    console.log('save action executed', settingsStore.activeSettingsPreset);
+    if (!settingsStore.activeSettingsPreset || !settingsStore.autoSave) return;
+
+    await $fetch<UserCustomPreset>(`/api/user/settings/v2/${ settingsStore.activeSettingsPreset }`, {
+        method: 'PUT',
+        body: {
+            json: settingsStore.settings,
+        },
+    });
 
     localStorage.setItem('settings', JSON.stringify(settingsStore.settings));
 }
@@ -237,7 +244,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         console.log(container);
 
         delete container[last];
-        return useSettingsStore().save(root, true);
+        return useSettingsStore().save(root, { overwrite: true });
     }
     else {
         for (let i = 0; i < parts.length - 1; i++) {

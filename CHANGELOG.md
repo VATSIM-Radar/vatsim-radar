@@ -1,16 +1,28 @@
 # Changelog
 
-# [2.0.0-alpha.10.0]
+# [2.0.0-beta.1]
 
 ## Alpha changes
 
 - Moved vIFF departure info to full line display
+
+## Features and improvements
+
+- Filters Favorite Lists will now show list name instead of ID after it has been selected
+- Filters are now responsive, applied instantly after you modify them. Auto-save is not enabled for filters
+- A separate Enable toggle (active by default) will now show in Filters to quickly disable them
+- Significantly improved filter apply speed
+- Added a clear indication that temporal filter is applied
 
 ## Redesign
 
 - Tables redesign
 - Redesigned friends status: you can now click on individual links instead of one big link
 - Redesigned VATGlasses slider for a consistent look in all browsers
+- Slightly improved filters design
+- Removed filter icon from Search: search settings can now be configured in Settings v2 instead
+- Changed icons in Presets Manage so they would better reflect the action they do
+- Combobox arrow will now disappear, if there is nothing to select
 
 # [2.0.0-alpha.9.3]
 

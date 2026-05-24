@@ -179,7 +179,7 @@ export const getFilteredAircraftSettings = (cid: number) => {
     const store = useStore();
     const dataStore = useDataStore();
 
-    if (hasActivePilotFilter() && typeof store.activeFilter.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
+    if (hasActivePilotFilter() && typeof store.activeFilter?.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
         const pilot = dataStore.vatsim.data.keyedPilots.value?.[cid];
         if (pilot?.filteredColor) return pilot.filteredColor;
         else return pilot?.filteredOpacity;

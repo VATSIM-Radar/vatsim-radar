@@ -281,6 +281,7 @@ import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
+import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
 
 defineProps({
     mode: {
@@ -792,28 +793,28 @@ watch(() => store.localSettings.distance?.ctrlClick, setMapInteractions);
 await setupDataFetch({
     async onMount() {
         if (typeof route.query.airline === 'string') {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 users: {
                     pilots: {
                         type: 'prefix',
                         value: [route.query.airline],
                     },
                 },
-            }, false);
+            });
         }
         else if (typeof route.query.aircraft === 'string') {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 flights: {
                     aircraft: [route.query.aircraft],
                 },
-            }, false);
+            });
         }
         else if (typeof route.query.route === 'string' && route.query.route.split('-').length === 2) {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 airports: {
                     routes: [route.query.route],
                 },
-            }, false);
+            });
         }
     },
     async onFetch() {
@@ -1017,8 +1018,7 @@ await setupDataFetch({
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {
             });
             if (filter) {
-                setUserActiveFilter(filter.json, false);
-                setUserFilter(filter.json);
+                setUserTemporaryFilter(filter.json);
                 store.getVATSIMData(true);
             }
         }

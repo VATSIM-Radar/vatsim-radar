@@ -328,7 +328,6 @@ const createPreset = async () => {
     }
     else {
         setUserFilter(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserFilter, 'filters', createPreset));
-        setUserActiveFilter(klona(store.filter));
     }
     store.presetImport.preset = null;
 

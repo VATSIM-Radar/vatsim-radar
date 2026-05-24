@@ -52,6 +52,14 @@ export function useFileDownload(options: FileDownloadParams): void {
     linkElement.remove();
 }
 
+export const backupSettingsV2 = () => {
+    useFileDownload({
+        fileName: `vatsim-radar-settings-${ Date.now() }.json`,
+        mime: 'application/json',
+        blob: new Blob([JSON.stringify(useSettingsStore().settings)], { type: 'application/json' }),
+    });
+};
+
 export const backupMapSettings = () => {
     useFileDownload({
         fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,

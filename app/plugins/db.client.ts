@@ -1,5 +1,4 @@
 import { initClientDB } from '~/composables/render/idb';
-
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { useSettingsStore } from '~/store/settings';
 
@@ -13,7 +12,6 @@ export default defineNuxtPlugin({
         await initClientDB();
         setUserLocalSettings();
         setUserFilter();
-        setUserActiveFilter();
         setUserMapSettings();
     },
 });

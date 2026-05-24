@@ -64,6 +64,13 @@ export interface LocalNotification {
     closable?: boolean;
 }
 
+export const isFilterActive = globalComputed(() => useCookie<boolean>('is-filter-active', {
+    maxAge: 60 * 60 * 24 * 365,
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+}));
+
 export const useStore = defineStore('index', {
     state: () => ({
         user: null as null | FullUser,
@@ -73,8 +80,11 @@ export const useStore = defineStore('index', {
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
+
         filter: {} as UserFilter,
-        activeFilter: {} as UserFilter,
+        tempFilter: null as UserFilter | null,
+        isFilterActive: true,
+
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
@@ -154,6 +164,13 @@ export const useStore = defineStore('index', {
         localNotifications: [] as LocalNotification[],
     }),
     getters: {
+        activeFilter(): UserFilter | null {
+            if (this.tempFilter) return this.tempFilter;
+
+            if (!this.isFilterActive || Object.keys(this.filter).length === 0) return null;
+
+            return this.filter;
+        },
         bookings(): VatsimBooking[] {
             const dataStore = useDataStore();
             return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
@@ -434,6 +451,10 @@ export const useStore = defineStore('index', {
                 text,
                 timeout,
             });
+        },
+        setActiveFilter(val: boolean) {
+            isFilterActive().value.value = val;
+            this.isFilterActive = val;
         },
     },
 });

@@ -4,35 +4,45 @@
             v-model="tab"
             :tabs="{
                 filter: {
-                    title: 'Filter',
+                    title: 'Active filter',
                 },
                 manage: {
-                    title: 'Manage',
+                    title: 'Save or share',
                 },
             }"
         />
 
         <template v-if="tab === 'filter'">
+            <ui-toggle
+                :disabled="!hasActiveFilter && store.isFilterActive"
+                :model-value="store.isFilterActive"
+                @update:modelValue="store.setActiveFilter($event)"
+            >
+                Filter enabled
+            </ui-toggle>
             <ui-notification
-                remember-message="FILTERS_INPUT"
+                v-if="store.tempFilter"
                 type="info"
             >
-                Press enter in search field to add your value to list
-            </ui-notification>
-            <ui-notification
-                v-if="hasActiveFilter"
-                type="info"
-            >
-                You have applied filter
+                You have applied temporal filter
 
                 <ui-button
                     link-color="red500"
                     type="link"
-                    @click="resetUserActiveFilter"
+                    @click="resetUserTemporaryFilter"
                 >
                     Reset
                 </ui-button>
             </ui-notification>
+            <ui-button
+                v-else
+                :disabled="Object.keys(store.filter).length === 0"
+                size="S"
+                type="secondary-black"
+                @click="filterReset = true"
+            >
+                Reset
+            </ui-button>
             <ui-block-title
                 v-model:collapsed="collapsedStates.users"
                 remove-margin
@@ -54,12 +64,11 @@
 
                         <div class="__grid-info-sections __grid-info-sections--vertical">
                             <div class="__grid-info-sections_title">
-                                Strategy (Pilots)
+                                Pilot callsigns to...
                             </div>
                             <ui-radio-group
                                 :items="[{ value: 'prefix', text: 'Start with' }, { value: 'include', text: 'Include' }]"
                                 :model-value="store.filter.users?.pilots?.type ?? 'prefix'"
-                                two-cols
                                 @update:modelValue="setUserFilter({ users: { pilots: { type: $event as any } } })"
                             />
                         </div>
@@ -75,12 +84,11 @@
 
                         <div class="__grid-info-sections __grid-info-sections--vertical">
                             <div class="__grid-info-sections_title">
-                                Strategy (ATC)
+                                ATC callsigns to...
                             </div>
                             <ui-radio-group
                                 :items="[{ value: 'prefix', text: 'Start with' }, { value: 'include', text: 'Include' }]"
                                 :model-value="store.filter.users?.atc?.type ?? 'prefix'"
-                                two-cols
                                 @update:modelValue="setUserFilter({ users: { atc: { type: $event as any } } })"
                             />
                         </div>
@@ -188,15 +196,15 @@
                 >
                     Routes
                 </ui-combo-box>
+                <ui-toggle v-model="routesBothDirection">
+                    Both directions
+                </ui-toggle>
                 <ui-notification
                     remember-message="FILTERS_ROUTES_FORMAT"
                     type="info"
                 >
                     Format: ICAO-ICAO
                 </ui-notification>
-                <ui-toggle v-model="routesBothDirection">
-                    Both directions
-                </ui-toggle>
                 <ui-select
                     v-if="getRouteEvents.length"
                     :items="getRouteEvents"
@@ -373,22 +381,6 @@
             >
                 Invert filtration
             </ui-toggle>
-            <ui-button-group class="filter__actions">
-                <ui-button
-                    :disabled="Object.keys(store.filter).length === 0"
-                    type="secondary"
-                    @click="filterReset = true"
-                >
-                    Reset
-                </ui-button>
-                <ui-button
-                    :disabled="areFiltersEqual"
-                    type="primary"
-                    @click="applyFilter"
-                >
-                    Apply
-                </ui-button>
-            </ui-button-group>
         </template>
         <map-filters-presets
             v-else
@@ -400,9 +392,13 @@
             :selected-preset="store.filter"
             type="filter"
             @create="createFilterPreset"
-            @reset="[resetUserFilter(), resetUserActiveFilter()]"
-            @save="[setUserFilter($event, true), setUserActiveFilter($event)]"
-        />
+            @reset="[resetUserFilter(), resetUserTemporaryFilter()]"
+            @save="[setUserFilter($event, true)]"
+        >
+            <template #title>
+                Save Filter
+            </template>
+        </map-filters-presets>
         <popup-fullscreen v-model="filterReset">
             <template #title>
                 Filters Reset
@@ -438,9 +434,8 @@
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import UiComboBox from '~/components/ui/inputs/UiComboBox.vue';
-import { useStore } from '~/store';
-import { klona } from 'klona/json';
-import { backupUserFilter, setUserActiveFilter, setUserFilter } from '~/composables/fetchers/filters';
+import { isFilterActive, useStore } from '~/store';
+import { backupUserFilter, resetUserTemporaryFilter, setUserFilter } from '~/composables/fetchers/filters';
 import type { SelectItem } from '~/types/components/select';
 import type { RadarDataAirline } from '~/utils/server/storage';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
@@ -452,13 +447,12 @@ import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import UiInputColor from '~/components/ui/inputs/UiInputColor.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
-import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import MapFiltersPresets from '~/components/map/settings/filters/MapFiltersPresets.vue';
 import type { UserFilter } from '~/utils/server/handlers/filters';
 import { sendUserPreset } from '~/composables/fetchers';
-import equal from 'deep-equal';
 import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import { updateControllersRender } from '~/composables/render/update';
 
 const store = useStore();
 const tab = ref('filter');
@@ -513,10 +507,6 @@ const getRouteEvents = computed<SelectItem[]>(() => {
     })) ?? [];
 });
 
-const areFiltersEqual = computed(() => {
-    return equal(store.filter, store.activeFilter);
-});
-
 const hasActiveFilter = computed(() => {
     return hasActivePilotFilter();
 });
@@ -547,11 +537,6 @@ const setEventRoutes = (id: number) => {
             ])),
         },
     });
-};
-
-const applyFilter = () => {
-    setUserActiveFilter(klona(store.filter));
-    store.getVATSIMData(true);
 };
 
 const pilotSuggestions = shallowRef<{ airline: SelectItem[]; aircraft: SelectItem[] }>({ airline: [], aircraft: [] });
@@ -602,8 +587,17 @@ watch(dataStore.vatsim.data.pilots, () => {
     immediate: true,
 });
 
+const storeFilter = computed(() => store.filter);
+
+watch([storeFilter, isFilterActive()], async () => {
+    store.getVATSIMData(true);
+    updateControllersRender();
+}, {
+    deep: true,
+});
+
 const airportsSuggestions = computed<SelectItem[]>(() => {
-    return Object.values(dataStore.vatspy.value!.data.keyAirports.realIcao).map(x => ({
+    return Object.values(dataStore.vatspy.value?.data.keyAirports.realIcao ?? {}).map(x => ({
         value: x.icao,
         text: x.name,
     }));
@@ -621,6 +615,8 @@ const setRoutes = (routes: string[]) => {
     }
 
     const addedRoute = routes[routes.length - 1];
+
+    if (!addedRoute) return;
 
     const splitted = addedRoute.split('-');
     if (splitted.length !== 2 || !splitted.every(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x as any])) {

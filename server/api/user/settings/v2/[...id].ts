@@ -1,3 +1,3 @@
-import { handleMapSettingsEvent } from '~/utils/server/handlers/map-settings';
+import { handleSettingsEvent } from '~/utils/server/handlers/settings-v2';
 
-export default defineEventHandler(handleMapSettingsEvent);
+export default defineEventHandler(handleSettingsEvent);

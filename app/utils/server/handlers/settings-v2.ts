@@ -109,15 +109,17 @@ export async function handleSettingsEvent(event: H3Event) {
 
             if (body.json) {
                 body.json = body.json as Record<string, any>;
+                const validation = validateSettings(body.json);
 
-                if (!validateSettings) {
+                if (!validation.success) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        // TODO: proper error from valibot here
-                        data: 'Preset validation failed',
+                        data: validation.error,
                     });
                 }
+
+                body.json = validation.output as Record<string, any>;
             }
 
             if (body.name) {
@@ -224,4 +226,3 @@ export async function handleSettingsEvent(event: H3Event) {
         }
     }
 }
-
