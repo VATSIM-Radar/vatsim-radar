@@ -38,6 +38,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     weather: {
         title: 'Weather layer',
         description: 'Shows selected weather overlay on the map',
+        searchKeywords: ['radar', 'rain', 'clouds', 'wind', 'precipitation'],
         type: 'select',
         items: [
             { value: null, text: 'Disabled' },
@@ -54,6 +55,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     layer: {
         title: 'Map layer',
         description: 'Changes base map layer',
+        searchKeywords: ['osm', 'satellite', 'basemap', 'background'],
         type: 'radio',
         items: [
             { value: 'protoData', text: 'Light' },
@@ -69,12 +71,14 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     layerLabels: {
         title: 'Show labels',
         description: 'Shows labels on supported map layers',
+        searchKeywords: ['map labels', 'basemap labels'],
         type: 'toggle',
         value: getSettingValue('map.layers.layerLabels'),
         onChange: value => setSettingByKey('map.layers.layerLabels', value),
     },
     relativeIndicator: {
         title: 'Relative distance unit',
+        searchKeywords: ['scale', 'distance', 'indicator', 'units'],
         type: 'select',
         items: distanceUnits,
         value: getSettingValue('map.layers.relativeIndicator'),
@@ -82,12 +86,14 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     },
     terminator: {
         title: 'Day/Night line',
+        searchKeywords: ['terminator', 'sun', 'night', 'daylight'],
         type: 'toggle',
         value: getSettingValue('map.layers.terminator'),
         onChange: value => setSettingByKey('map.layers.terminator', value),
     },
     heatmap: {
         title: 'Traffic Heatmap',
+        searchKeywords: ['traffic', 'density'],
         type: 'toggle',
         value: getSettingValue('map.layers.heatmap'),
         onChange: value => setSettingByKey('map.layers.heatmap', value),
@@ -133,6 +139,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     },
     natTrakEnabled: {
         title: 'NAT Tracks',
+        searchKeywords: ['north atlantic', 'oceanic', 'tracks'],
         type: 'toggle',
         value: getSettingValue('map.layers.natTrak.enabled'),
         onChange: value => setSettingByKey('map.layers.natTrak.enabled', value),
@@ -159,6 +166,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     },
     distanceEnabled: {
         title: 'Distance tool',
+        searchKeywords: ['ruler', 'measure', 'measurement'],
         type: 'toggle',
         value: getSettingValue('map.layers.distance.enabled'),
         onChange: value => setSettingByKey('map.layers.distance.enabled', value),
@@ -187,6 +195,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     vatglassesAutoEnable: {
         title: 'Auto-enable',
         description: 'Enables when you have active flight',
+        searchKeywords: ['vatglasses', 'sectors', 'airspace'],
         type: 'toggle',
         value: getSettingValue('map.vatglasses.autoEnable'),
         onChange: value => setSettingByKey('map.vatglasses.autoEnable', value),
@@ -194,6 +203,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     },
     vatglassesActive: {
         title: 'Toggle Active',
+        searchKeywords: ['vatglasses', 'sectors', 'airspace'],
         type: 'toggle',
         value: getSettingValue('map.vatglasses.active'),
         onChange: value => setSettingByKey('map.vatglasses.active', value),
@@ -201,6 +211,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     vatglassesCombined: {
         title: 'Combined Mode',
         description: 'All sectors at once. Slows down updates depending on your device.',
+        searchKeywords: ['vatglasses', 'sectors', 'airspace'],
         type: 'toggle',
         value: getSettingValue('map.vatglasses.combined'),
         onChange: value => setSettingByKey('map.vatglasses.combined', value),
@@ -209,6 +220,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     vatglassesAutoLevel: {
         title: 'Auto-Set Level',
         description: 'Based on your flight',
+        searchKeywords: ['vatglasses', 'altitude', 'level'],
         type: 'toggle',
         value: getSettingValue('map.vatglasses.autoLevel'),
         onChange: value => setSettingByKey('map.vatglasses.autoLevel', value),

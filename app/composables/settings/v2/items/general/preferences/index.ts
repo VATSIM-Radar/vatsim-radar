@@ -25,6 +25,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     eventsLocalTimezone: {
         title: 'Events Zulu time',
         description: 'Shows VATSIM Events in your local timezone instead of Zulu time',
+        searchKeywords: ['utc', 'timezone', 'local', 'zulu'],
         type: 'toggle',
         value: getSettingValue('appearance.eventsLocalTimezone'),
         onChange: value => setSettingByKey('appearance.eventsLocalTimezone', value),
@@ -32,6 +33,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     bookingsLocalTimezone: {
         title: 'Bookings local time',
         description: 'Shows ATC bookings in your local timezone instead of Zulu time',
+        searchKeywords: ['utc', 'timezone', 'local', 'zulu', 'atc'],
         type: 'toggle',
         value: getSettingValue('appearance.bookingsLocalTimezone'),
         onChange: value => setSettingByKey('appearance.bookingsLocalTimezone', value),
@@ -39,6 +41,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     notamsSortBy: {
         title: 'NOTAMs sort',
         description: 'Default sorting for airport NOTAMs',
+        searchKeywords: ['notam', 'sort', 'airport'],
         type: 'select',
         placeholder: 'Choose sort',
         items: [
@@ -53,6 +56,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     favoriteSort: {
         title: 'Favorite list sort',
         description: 'Changes default sorting for favorite lists',
+        searchKeywords: ['friends', 'list', 'sort'],
         placeholder: 'Choose sort',
         type: 'select',
         items: [
@@ -145,6 +149,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     enableQueryUpdate: {
         title: 'Enable query update',
         description: 'Enables browser URL update with center and zoom changes',
+        searchKeywords: ['url', 'link', 'share', 'browser'],
         type: 'toggle',
         value: getSettingValue('map.preferences.enableQueryUpdate'),
         onChange: value => setSettingByKey('map.preferences.enableQueryUpdate', value),

@@ -6,6 +6,7 @@ export const settingsItemNavigraphAirport = globalComputed(() => makeSettingsIte
     enabled: {
         title: 'Navigraph Airports Layouts',
         description: 'Airports Layouts are available to Navigraph Unlimited subscribers only',
+        searchKeywords: ['gates', 'taxiways', 'runway exits', 'airport layout'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.airport.enabled'),
         onChange: value => setSettingByKey('map.navigraph.airport.enabled', value),

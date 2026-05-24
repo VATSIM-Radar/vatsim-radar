@@ -29,6 +29,7 @@ export const settingsItemPreferencesAircraft = globalComputed(() => makeSettings
     },
     tracksMode: {
         title: 'Show Aircraft tracks for...',
+        searchKeywords: ['turns', 'trail', 'history', 'track'],
         type: 'select',
         items: [
             {

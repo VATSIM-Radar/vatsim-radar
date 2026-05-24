@@ -31,6 +31,7 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
     },
     declutter: {
         title: 'Aircraft Declutter',
+        searchKeywords: ['labels', 'overlap', 'hide'],
         type: 'select',
         items: [
             { text: 'Disabled', value: false },
@@ -43,6 +44,7 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
     highlightEmergency: {
         title: 'Highlight Emergencies',
         description: 'Emergencies are aircraft squawking 7700 and 7600',
+        searchKeywords: ['squawk', '7700', '7600', '7500'],
         type: 'toggle',
         value: getSettingValue('map.traffic.highlightEmergency'),
         onChange: value => setSettingByKey('map.traffic.highlightEmergency', value),

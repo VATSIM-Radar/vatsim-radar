@@ -4,6 +4,7 @@ export const settingsItemAppearance = globalComputed(() => makeSettingsItems(({ 
     overlaysPositions: {
         title: 'Minified Overlays positions',
         description: 'Changes position of minified Map Overlays',
+        searchKeywords: ['popup', 'overlay', 'pin', 'position'],
         type: 'radio',
         items: [
             { value: 'bottom-left', text: 'Bottom Left' },

@@ -24,12 +24,14 @@ export const settingsItemNavigraphLayers = globalComputed(() => makeSettingsItem
     },
     ndb: {
         title: 'NDB',
+        searchKeywords: ['navigraph', 'navaid'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.layers.ndb'),
         onChange: value => setSettingByKey('map.navigraph.layers.ndb', value),
     },
     vordme: {
         title: 'VORDME',
+        searchKeywords: ['vor', 'dme', 'navigraph', 'navaid'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.layers.vordme'),
         onChange: value => setSettingByKey('map.navigraph.layers.vordme', value),
@@ -63,6 +65,7 @@ export const settingsItemNavigraphLayers = globalComputed(() => makeSettingsItem
     ifrMode: {
         title: 'IFR level',
         description: 'Affects airways and holdings',
+        searchKeywords: ['ifr high', 'ifr low', 'airways', 'holdings'],
         type: 'radio',
         items: [
             { value: 'ifrHigh', text: 'IFR High' },

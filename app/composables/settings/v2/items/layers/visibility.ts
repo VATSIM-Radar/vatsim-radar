@@ -3,24 +3,28 @@ import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composabl
 export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     atcFirs: {
         title: 'FIRs',
+        searchKeywords: ['atc', 'artcc', 'center', 'uir', 'fss'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atc.firs'),
         onChange: value => setSettingByKey('map.visibility.atc.firs', value),
     },
     atcApproach: {
         title: 'Approach',
+        searchKeywords: ['atc', 'tracon', 'app'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atc.approach'),
         onChange: value => setSettingByKey('map.visibility.atc.approach', value),
     },
     atcGround: {
         title: 'Locals',
+        searchKeywords: ['atc', 'tower', 'ground', 'delivery', 'atis'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atc.ground'),
         onChange: value => setSettingByKey('map.visibility.atc.ground', value),
     },
     atcLabels: {
         title: 'ATC Labels',
+        searchKeywords: ['controllers', 'callsigns'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atcLabels'),
         onChange: value => setSettingByKey('map.visibility.atcLabels', value),
@@ -33,6 +37,7 @@ export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ 
     },
     pilots: {
         title: 'Aircraft',
+        searchKeywords: ['pilots', 'planes', 'traffic'],
         type: 'toggle',
         value: getSettingValue('map.visibility.pilots'),
         onChange: value => setSettingByKey('map.visibility.pilots', value),
@@ -51,12 +56,14 @@ export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ 
     },
     pilotsInfo: {
         title: 'Pilots info',
+        searchKeywords: ['privacy', 'names', 'personal info'],
         type: 'toggle',
         value: getSettingValue('map.visibility.pilotsInfo'),
         onChange: value => setSettingByKey('map.visibility.pilotsInfo', value),
     },
     atcInfo: {
         title: 'Controllers info',
+        searchKeywords: ['privacy', 'names', 'personal info'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atcInfo'),
         onChange: value => setSettingByKey('map.visibility.atcInfo', value),

@@ -5,6 +5,7 @@ const airportOverlayDisabled = computed(() => !getSettingValue('map.navigraph.ro
 export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems(() => ({
     enabled: {
         title: 'Enable route parsing',
+        searchKeywords: ['navigraph', 'flight plan', 'route'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.enabled'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.enabled', value),
@@ -18,6 +19,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayEnabled: {
         title: 'Airport Tracks',
+        searchKeywords: ['sid', 'star', 'procedure', 'route'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.enabled'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.enabled', value),

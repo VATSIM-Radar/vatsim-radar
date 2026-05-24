@@ -98,6 +98,7 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
     ATISAsUnstaffed: {
         title: 'Hide info when only ATIS',
         description: 'Hides ATIS icon when airport only has ATIS',
+        searchKeywords: ['atis', 'unstaffed', 'airport'],
         type: 'toggle',
         value: getSettingValue('map.preferences.airports.ATISAsUnstaffed'),
         onChange: value => setSettingByKey('map.preferences.airports.ATISAsUnstaffed', value),
@@ -117,6 +118,7 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
     groundTrafficExcludeMyLocation: {
         title: 'Apply to current',
         description: 'By default, we still show traffic for airport you are currently in',
+        searchKeywords: ['ground traffic', 'current airport', 'own aircraft'],
         type: 'toggle',
         value: getSettingValue('map.preferences.airports.groundTraffic.excludeMyLocation'),
         onChange: value => setSettingByKey('map.preferences.airports.groundTraffic.excludeMyLocation', value),
@@ -125,6 +127,7 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
     groundTrafficExcludeMyArrival: {
         title: 'Apply to arrival',
         description: 'By default, we still show traffic for airport you are flying to',
+        searchKeywords: ['ground traffic', 'arrival airport', 'destination'],
         type: 'toggle',
         value: getSettingValue('map.preferences.airports.groundTraffic.excludeMyArrival'),
         onChange: value => setSettingByKey('map.preferences.airports.groundTraffic.excludeMyArrival', value),
@@ -168,6 +171,7 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
     },
     countersHorizontalCounter: {
         title: 'Horizontal (prefiles)',
+        searchKeywords: ['prefile', 'counter', 'airport traffic'],
         type: 'select',
         items: horizontalCounterItems,
         value: getSettingValue('map.preferences.airports.counters.horizontalCounter'),

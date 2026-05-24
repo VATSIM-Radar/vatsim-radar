@@ -95,7 +95,7 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
-                    title: 'Preferences',
+                    title: 'Time & Sorting',
                     url: 'preferences',
                     items: [
                         {
@@ -112,12 +112,13 @@ export const getSettingsSections = () => {
             icon: DisplaySettingsIcon,
             sections: [
                 {
-                    title: 'Preferences',
+                    title: 'Map Behavior',
                     url: '',
                     items: [
                         {
-                            key: 'preferences',
-                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.appearance.overlaysPositions, items.preferences.airports.defaultZoomLevel, items.preferences.airports.departuresCountInOverlay],
+                            key: 'position',
+                            title: 'Position & URL',
+                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate],
                         },
                         {
                             key: 'favorite',
@@ -131,26 +132,52 @@ export const getSettingsSections = () => {
                         },
                         {
                             key: 'debug',
+                            title: 'Debug',
                             items: [items.preferences.debugMode],
                         },
                     ],
                 },
                 {
-                    title: 'Colors & Appearance',
+                    title: 'Appearance & Colors',
                     url: 'appearance',
                     items: [
                         {
-                            key: 'appearance',
+                            key: 'layout',
+                            title: 'Layout',
                             items: [items.appearance.overlaysPositions],
                         },
                         {
                             key: 'tracks',
+                            title: 'Track Colors',
                             items: [items.appearance.colors.turns, items.appearance.colors.turnsTransparency],
                         },
                         {
-                            key: 'colors',
-                            title: 'Colors',
-                            items: Object.entries(items.appearance.colors).filter(x => !x[0].startsWith('turns')).map(x => x[1]),
+                            key: 'airspace-colors',
+                            title: 'Airspace Colors',
+                            items: [
+                                items.appearance.colors.approach,
+                                items.appearance.colors.approachBookings,
+                                items.appearance.colors.firs,
+                                items.appearance.colors.centerBookings,
+                                items.appearance.colors.uirs,
+                                items.appearance.colors.centerText,
+                                items.appearance.colors.centerBg,
+                            ],
+                        },
+                        {
+                            key: 'airport-colors',
+                            title: 'Airport Colors',
+                            items: [
+                                items.appearance.colors.runways,
+                                items.appearance.colors.gates,
+                                items.appearance.colors.staffedAirport,
+                                items.appearance.colors.defaultAirport,
+                            ],
+                        },
+                        {
+                            key: 'aircraft-colors',
+                            title: 'Aircraft Colors',
+                            items: Object.entries(items.appearance.colors).filter(x => x[0].startsWith('aircraft')).map(x => x[1]),
                         },
                     ],
                 },
@@ -168,9 +195,9 @@ export const getSettingsSections = () => {
                             items: [items.preferences.aircraft.tracksMode, items.preferences.aircraft.tracksShowLimit, items.preferences.aircraft.showOutOfBounds],
                         },
                         {
-                            key: 'Overlays',
+                            key: 'overlays',
                             title: 'Overlays',
-                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.toggleAircraftOverlays, items.preferences.traffic.autoShowAirportTracks],
+                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.toggleAircraftOverlays],
                         },
                         {
                             key: 'traffic',
@@ -217,12 +244,12 @@ export const getSettingsSections = () => {
             icon: MapSettingsIcon,
             sections: [
                 {
-                    title: 'General',
+                    title: 'Map Display',
                     url: '',
                     items: [
                         {
                             key: '',
-                            title: 'Map layer',
+                            title: 'Map Layer',
                             items: [items.layers.layerLabels, items.layers.layer, items.layers.osmTransparency, items.layers.satelliteTransparency],
                         },
                         {
@@ -230,6 +257,17 @@ export const getSettingsSections = () => {
                             title: 'Weather',
                             items: [items.layers.weather, items.layers.weatherDarkTransparency, items.layers.weatherLightTransparency],
                         },
+                        {
+                            key: 'extras',
+                            title: 'Extra Layers',
+                            items: [items.layers.relativeIndicator, items.layers.terminator, items.layers.heatmap],
+                        },
+                    ],
+                },
+                {
+                    title: 'Traffic & Airspace',
+                    url: 'traffic',
+                    items: [
                         {
                             key: 'nat-tracks',
                             title: 'NAT Tracks',
@@ -252,18 +290,13 @@ export const getSettingsSections = () => {
                         },
                         {
                             key: 'sigmets',
-                            title: 'Sigmets',
+                            title: 'SIGMETs',
                             items: [items.layers.sigmets.showOnMap, items.layers.sigmets.disabled, items.layers.sigmets.showAirmets, items.layers.sigmets.raw, items.layers.sigmetsTransparency],
                         },
                         {
                             key: 'distance-tool',
                             title: 'Distance Tool',
                             items: [items.layers.distanceEnabled, items.layers.distanceUnits, items.layers.distanceInteraction],
-                        },
-                        {
-                            key: 'other',
-                            title: 'Other Layers',
-                            items: [items.layers.relativeIndicator, items.layers.terminator, items.layers.heatmap, items.layers.sigmetsTransparency],
                         },
                     ],
                 },
@@ -278,7 +311,7 @@ export const getSettingsSections = () => {
                         },
                         {
                             key: 'layers',
-                            title: 'Layers',
+                            title: 'Map Objects',
                             items: [items.layers.visibility.airports, items.layers.visibility.pilots, items.layers.visibility.gates, items.layers.visibility.runways, items.layers.visibility.pilotLabels],
                         },
                         {
@@ -297,7 +330,7 @@ export const getSettingsSections = () => {
                             items: [items.layers.navigraph.enabled],
                         },
                         {
-                            key: 'airport',
+                            key: 'route',
                             title: 'Route Parsing',
                             items: Object.values(items.layers.navigraph.route),
                         },

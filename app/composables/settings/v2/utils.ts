@@ -298,7 +298,7 @@ export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknow
 
         return {
             value: value === undefined ? defaultValue : value,
-            isSet: value !== undefined,
+            isSet: false,
         };
     });
 }
