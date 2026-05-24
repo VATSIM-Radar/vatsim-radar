@@ -2,6 +2,10 @@
 
 # [2.0.0-alpha.10.0]
 
+## Alpha changes
+
+- Moved vIFF departure info to full line display
+
 ## Redesign
 
 - Tables redesign

@@ -4,6 +4,7 @@
             <div
                 v-for="(section) in item.items.filter(x => x.hide === undefined || !toValue(x.hide))"
                 :key="section.key"
+                ref="section"
                 class="settings-page_section"
                 :data-section-id="section.key"
             >
@@ -109,19 +110,26 @@ definePageMeta({
 });
 
 const route = useRoute();
+const section = useTemplateRef('section');
+
+function scrollToHash() {
+    const item = document.querySelector(`[data-section-id="${ route.hash.slice(1) }"]`);
+    if (item) {
+        window.scrollBy({
+            behavior: 'smooth',
+            top: item.getBoundingClientRect().top - 56 - 16,
+        });
+    }
+}
 
 onMounted(() => {
-    watch(() => route.hash, val => {
-        const item = document.querySelector(`[data-section-id="${ val.slice(1) }"]`);
-        if (item) {
-            window.scrollBy({
-                behavior: 'smooth',
-                top: item.getBoundingClientRect().top - 56 - 16,
-            });
-        }
-    }, {
+    watch(() => route.hash, scrollToHash, {
         immediate: true,
     });
+});
+
+watch(section, scrollToHash, {
+    once: true,
 });
 
 useHead({

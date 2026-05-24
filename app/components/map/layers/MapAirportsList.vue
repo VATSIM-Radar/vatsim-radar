@@ -112,6 +112,7 @@ onMounted(() => {
     });
 
     const styles = airportLayoutStyles();
+    const zoomHiddenLayoutTypes = new Set<AmdbLayerName>(['taxiwayintersectionmarking', 'taxiwayguidanceline', 'deicingarea', 'finalapproachandtakeoffarea']);
 
     navigraphLayer = new VectorLayer<any>({
         source: navigraphSource,
@@ -124,8 +125,8 @@ onMounted(() => {
         },
         minZoom: 12,
         style: function(feature) {
-            const type = feature.getProperties().type as AmdbLayerName;
-            if ((type === 'taxiwayintersectionmarking' || type === 'taxiwayguidanceline' || type === 'deicingarea' || type === 'finalapproachandtakeoffarea') && mapStore.preciseZoom < 14.5) return;
+            const type = feature.get('type') as AmdbLayerName;
+            if (zoomHiddenLayoutTypes.has(type) && mapStore.preciseZoom < 14.5) return;
 
             const style = styles[type];
 

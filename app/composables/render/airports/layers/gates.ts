@@ -11,8 +11,6 @@ import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { createDefaultStyle } from 'ol/style/Style.js';
 
-const setAirports = new Set<string>();
-
 let styleFillCache: Record<string, Fill> = {};
 let styleStrokeCache: Record<string, Stroke> = {};
 let styleCache: Record<string, Style> = {};
@@ -187,19 +185,13 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             }
         }
 
-        setAirports.add(icao);
         newlySetAirports.add(icao);
     }
-    for (const airport of [...setAirports]) {
-        if (!newlySetAirports.has(airport)) {
-            source.forEachFeature(feature => {
-                if (feature.getProperties().airport === airport) {
-                    source.removeFeature(feature);
-                    feature.dispose();
-                }
-            });
 
-            setAirports.delete(airport);
+    source.forEachFeature(feature => {
+        if (!newlySetAirports.has(feature.getProperties().airport)) {
+            source.removeFeature(feature);
+            feature.dispose();
         }
-    }
+    });
 }

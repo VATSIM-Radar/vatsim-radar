@@ -4,8 +4,12 @@ import type { AirportListItem } from '~/composables/render/airports';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
+import type Feature from 'ol/Feature.js';
+import type Geometry from 'ol/geom/Geometry.js';
 
-const setAirports = new Set<string>();
+const setAirportsBySource = new WeakMap<VectorSource, Set<string>>();
+const featuresBySource = new WeakMap<VectorSource, Map<string, Feature<Geometry>[]>>();
+const settingsKeyBySource = new WeakMap<VectorSource, string>();
 
 export function setMapNavigraphLayout({ source, airports, navigraphData, layer }: {
     source: VectorSource;
@@ -14,20 +18,48 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
     navigraphData: AirportNavigraphData;
 }) {
     const store = useStore();
+    const setAirports = setAirportsBySource.get(source) ?? new Set<string>();
+    const airportFeatures = featuresBySource.get(source) ?? new Map<string, Feature<Geometry>[]>();
+
+    setAirportsBySource.set(source, setAirports);
+    featuresBySource.set(source, airportFeatures);
+
+    if (!source.getFeatures().length) {
+        for (const features of airportFeatures.values()) {
+            for (const feature of features) feature.dispose();
+        }
+
+        setAirports.clear();
+        airportFeatures.clear();
+    }
 
     const newlySetAirports = new Set<string>();
 
-    const supported = supportedNavigraphLayouts.slice(0);
+    const supported = new Set<AmdbLayerName>(supportedNavigraphLayouts);
 
     const disabledTaxiways = store.mapSettings.navigraphLayers?.hideTaxiways;
     const disabledGates = store.mapSettings.navigraphLayers?.hideGateGuidance;
     const disabledRunways = store.mapSettings.navigraphLayers?.hideRunwayExit;
     const disabledDeicing = store.mapSettings.navigraphLayers?.hideDeicing;
+    const settingsKey = [disabledTaxiways, disabledGates, disabledRunways, disabledDeicing].map(String).join(':');
 
-    if (!disabledTaxiways) supported.push('taxiwayelement', 'taxiwayholdingposition', 'taxiwayguidanceline', 'taxiwayintersectionmarking');
-    if (!disabledGates) supported.push('standguidanceline');
-    if (!disabledRunways) supported.push('runwayexitline');
-    if (!disabledDeicing) supported.push('deicingarea');
+    if (settingsKeyBySource.get(source) !== settingsKey) {
+        for (const features of airportFeatures.values()) {
+            for (const feature of features) {
+                source.removeFeature(feature);
+                feature.dispose();
+            }
+        }
+
+        setAirports.clear();
+        airportFeatures.clear();
+        settingsKeyBySource.set(source, settingsKey);
+    }
+
+    if (!disabledTaxiways) ['taxiwayelement', 'taxiwayholdingposition', 'taxiwayguidanceline', 'taxiwayintersectionmarking'].forEach(x => supported.add(x as AmdbLayerName));
+    if (!disabledGates) supported.add('standguidanceline');
+    if (!disabledRunways) supported.add('runwayexitline');
+    if (!disabledDeicing) supported.add('deicingarea');
 
     for (const icao in navigraphData) {
         const layout = navigraphData[icao]?.layout;
@@ -37,12 +69,12 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
         if (!setAirports.has(icao)) {
             for (const [_key, value] of Object.entries(layout)) {
                 const key = _key as AmdbLayerName;
-                if (!supported.includes(key)) continue;
+                if (!supported.has(key)) continue;
 
                 const features = geoJson.readFeatures(value, {
                     dataProjection: 'EPSG:4326',
                     featureProjection: 'EPSG:4326',
-                });
+                }) as Feature<Geometry>[];
 
                 for (const feature of features) {
                     feature.setProperties({
@@ -53,6 +85,10 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
 
                     source.addFeature(feature);
                 }
+
+                const existingFeatures = airportFeatures.get(icao);
+                if (existingFeatures) existingFeatures.push(...features);
+                else airportFeatures.set(icao, features);
             }
         }
 
@@ -62,13 +98,12 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
 
     for (const airport of [...setAirports]) {
         if (!newlySetAirports.has(airport)) {
-            source.forEachFeature(feature => {
-                if (feature.getProperties().airport === airport) {
-                    source.removeFeature(feature);
-                    feature.dispose();
-                }
-            });
+            for (const feature of airportFeatures.get(airport) ?? []) {
+                source.removeFeature(feature);
+                feature.dispose();
+            }
 
+            airportFeatures.delete(airport);
             setAirports.delete(airport);
         }
     }

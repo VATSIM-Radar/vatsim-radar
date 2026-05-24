@@ -245,6 +245,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
         }
 
         const visibleAirports: DataAirport[] = [];
+        const visibleNavigraphAirports = new Set<string>();
         const list: MapAirportRender[] = [];
 
         await Promise.all(Object.values(airports).map(async x => {
@@ -261,8 +262,13 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
                 visible: overlays.includes(x.icao) || visibleFeatures.has(x.icao) || (!coordinates || isPointInExtent(coordinates, extent)),
             };
 
-            if (result.visible) visibleAirports.push(result.airport);
-            else if (mapStore.zoom < 10) delete navigraphData.value[result.airport.icao];
+            if (result.visible) {
+                visibleAirports.push(result.airport);
+                visibleNavigraphAirports.add(result.airport.icao);
+            }
+            else {
+                delete navigraphData.value[result.airport.icao];
+            }
 
             list.push(result);
         }));
@@ -279,8 +285,12 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
                 navigraphData.value[airport.icao] = await $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`);
             }));
         }
-        else if (mapStore.zoom < 10) {
+        else {
             navigraphData.value = {};
+        }
+
+        for (const icao in navigraphData.value) {
+            if (!visibleNavigraphAirports.has(icao)) delete navigraphData.value[icao];
         }
 
         return {
