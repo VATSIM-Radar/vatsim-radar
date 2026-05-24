@@ -34,6 +34,7 @@
         </client-only>
         <layout-consent-popup/>
         <layout-notifications/>
+        <layout-distance-tutorial/>
     </div>
     <view-restricted-auth
         v-else
@@ -59,6 +60,7 @@ import LayoutNotifications from '~/components/features/layout/LayoutNotification
 import LayoutUpdatePopup from '~/components/features/layout/LayoutUpdatePopup.vue';
 import LayoutConsent from '~/components/features/layout/LayoutConsent.vue';
 import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.vue';
+import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceTutorial.vue';
 
 defineSlots<{ default: () => any }>();
 

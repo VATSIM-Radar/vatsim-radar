@@ -1,4 +1,9 @@
-import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
+import {
+    getSettingValue,
+    makeSettingsItems,
+    setSettingByKey,
+    settingsDefaultValues,
+} from '~/composables/settings/v2/utils';
 import type { SigmetType } from '~/types/map';
 
 export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
@@ -8,10 +13,11 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
         type: 'toggle',
         value: getSettingValue('sigmets.showOnMap'),
         onChange: value => setSettingByKey('sigmets.showOnMap', value),
+        searchKeywords: ['sigmet'],
     },
     disabled: {
         title: 'SIGMET types',
-        description: 'Selects which SIGMET and AIRMET hazard types are hidden',
+        description: 'Selects which SIGMET and AIRMET hazard types are shown',
         type: 'multi-select',
         items: [
             { value: 'CONV', text: 'CONV' },
@@ -26,9 +32,14 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
             { value: 'OBSC', text: 'OBSC' },
             { value: 'VA', text: 'VA' },
         ],
-        value: getSettingValue('sigmets.disabled'),
-        onChange: value => setSettingByKey('sigmets.disabled', value as SigmetType[]),
+        value: getSettingValue('sigmets.enabled'),
+        onChange: value => {
+            if (value && !value.length) value = settingsDefaultValues['sigmets.enabled'];
+
+            return setSettingByKey('sigmets.enabled', value as SigmetType[]);
+        },
         disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
+        searchKeywords: ['sigmet'],
     },
     showAirmets: {
         title: 'AIRMETs',
@@ -36,6 +47,7 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('sigmets.showAirmets'),
         onChange: value => setSettingByKey('sigmets.showAirmets', value),
         disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
+        searchKeywords: ['sigmet'],
     },
     raw: {
         title: 'Show raw SIGMET data only',
@@ -43,5 +55,6 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('sigmets.raw'),
         onChange: value => setSettingByKey('sigmets.raw', value),
         disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
+        searchKeywords: ['sigmet'],
     },
 })));

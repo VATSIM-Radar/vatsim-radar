@@ -158,11 +158,10 @@ export interface UserSettingsV2 {
 
             airport: {
                 enabled: boolean;
-                gatesFallback?: boolean;
-                hideTaxiways?: boolean;
-                hideGateGuidance?: boolean;
-                hideRunwayExit?: boolean;
-                hideDeicing?: boolean;
+                taxiways?: boolean;
+                gateGuidance?: boolean;
+                runwayExit?: boolean;
+                deicing?: boolean;
             };
         };
 
@@ -191,7 +190,7 @@ export interface UserSettingsV2 {
 
     sigmets: {
         showOnMap: boolean;
-        disabled: SigmetType[];
+        enabled: SigmetType[];
         showAirmets: boolean;
         raw: boolean;
     };

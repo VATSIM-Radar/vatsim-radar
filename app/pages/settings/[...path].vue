@@ -22,7 +22,7 @@
                     {{section.description}}
                 </ui-text>
                 <ui-setting-display
-                    v-for="(sectionItem, index) in section.items"
+                    v-for="(sectionItem, index) in section.items.filter(x => !x.hidden || !toValue(x.hidden))"
                     :key="section.key + index"
                     class="settings-page__item"
                     :class="[`settings-page__item--type-${ sectionItem.type }`]"
@@ -41,7 +41,7 @@
                         {{sectionItem.hint}}
                     </template>
                     <template
-                        v-if="'description' in sectionItem"
+                        v-if="'description' in sectionItem || 'value' in sectionItem"
                         #description
                     >
                         {{sectionItem.description}}
@@ -110,14 +110,18 @@ definePageMeta({
 
 const route = useRoute();
 
-watch(() => route.hash, val => {
-    const item = document.querySelector(`[data-section-id="${ val.slice(1) }"]`);
-    if (item) {
-        window.scrollBy({
-            behavior: 'smooth',
-            top: item.getBoundingClientRect().top - 56 - 16,
-        });
-    }
+onMounted(() => {
+    watch(() => route.hash, val => {
+        const item = document.querySelector(`[data-section-id="${ val.slice(1) }"]`);
+        if (item) {
+            window.scrollBy({
+                behavior: 'smooth',
+                top: item.getBoundingClientRect().top - 56 - 16,
+            });
+        }
+    }, {
+        immediate: true,
+    });
 });
 
 useHead({

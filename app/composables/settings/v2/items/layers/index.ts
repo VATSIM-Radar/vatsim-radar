@@ -3,6 +3,7 @@ import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composabl
 import type { MapLayoutLayerWithOptions, MapWeatherLayer } from '~/types/map';
 import type { UserSettingsV2 } from '~/utils/settings/types';
 import { isProductionMode } from '~/utils/shared';
+import SettingsDistanceTutorial from '~/components/features/settings/v2/misc/SettingsDistanceTutorial.vue';
 
 type NatTrakDirection = UserSettingsV2['map']['layers']['natTrak']['direction'];
 
@@ -94,7 +95,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     osmTransparency: {
         title: 'OSM transparency',
         type: 'select',
-        disabled: computed(() => getSettingValue('map.layers.layer').value.value !== 'OSM'),
+        hidden: computed(() => getSettingValue('map.layers.layer').value.value !== 'OSM'),
         items: transparencyOptions,
         value: getSettingValue('map.layers.transparency.osm'),
         onChange: value => setSettingByKey('map.layers.transparency.osm', value as number),
@@ -102,23 +103,25 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     satelliteTransparency: {
         title: 'Satellite transparency',
         type: 'select',
-        disabled: computed(() => !getSettingValue('map.layers.layer').value.value.includes('Satellite')),
+        hidden: computed(() => !getSettingValue('map.layers.layer').value.value.includes('Satellite')),
         items: transparencyOptions,
         value: getSettingValue('map.layers.transparency.satellite'),
         onChange: value => setSettingByKey('map.layers.transparency.satellite', value as number),
     },
     weatherDarkTransparency: {
-        title: 'Weather transparency (dark)',
+        title: 'Weather transparency',
         type: 'select',
         items: transparencyOptions,
-        value: getSettingValue(() => getSettingValue('map.layers.transparency.weatherDark').value.value ?? 0.4, 0.4),
+        hidden: computed(() => store.theme === 'light'),
+        value: getSettingValue('map.layers.transparency.weatherDark'),
         onChange: value => setSettingByKey('map.layers.transparency.weatherDark', value as number),
     },
     weatherLightTransparency: {
-        title: 'Weather transparency (light)',
+        title: 'Weather transparency',
         type: 'select',
         items: transparencyOptions,
-        value: getSettingValue(() => getSettingValue('map.layers.transparency.weatherLight').value.value ?? 0.6, 0.6),
+        hidden: computed(() => store.theme === 'default'),
+        value: getSettingValue('map.layers.transparency.weatherLight'),
         onChange: value => setSettingByKey('map.layers.transparency.weatherLight', value as number),
     },
     sigmetsTransparency: {
@@ -159,6 +162,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         type: 'toggle',
         value: getSettingValue('map.layers.distance.enabled'),
         onChange: value => setSettingByKey('map.layers.distance.enabled', value),
+        appendComponent: SettingsDistanceTutorial,
     },
     distanceUnits: {
         title: 'Distance unit',
@@ -171,7 +175,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     distanceInteraction: {
         title: 'Distance interaction',
         description: 'Use CTRL+Click instead of Double Click. Re-enables double-click-to-zoom',
-        type: 'select',
+        type: 'radio',
         items: [
             { value: 'dblclick', text: 'Double Click' },
             { value: 'ctrlclick', text: 'CTRL+Click' },
@@ -181,7 +185,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         disabled: computed(() => !getSettingValue('map.layers.distance.enabled').value.value),
     },
     vatglassesAutoEnable: {
-        title: 'VATGlasses Auto-enable',
+        title: 'Auto-enable',
         description: 'Enables when you have active flight',
         type: 'toggle',
         value: getSettingValue('map.vatglasses.autoEnable'),
@@ -189,13 +193,13 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         disabled: notLoggedIn,
     },
     vatglassesActive: {
-        title: 'VATGlasses Toggle Active',
+        title: 'Toggle Active',
         type: 'toggle',
         value: getSettingValue('map.vatglasses.active'),
         onChange: value => setSettingByKey('map.vatglasses.active', value),
     },
     vatglassesCombined: {
-        title: 'VATGlasses Combined Mode',
+        title: 'Combined Mode',
         description: 'All sectors at once. Slows down updates depending on your device.',
         type: 'toggle',
         value: getSettingValue('map.vatglasses.combined'),
@@ -203,7 +207,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         disabled: computed(() => !getSettingValue('map.vatglasses.active').value.value),
     },
     vatglassesAutoLevel: {
-        title: 'VATGlasses Auto-Set Level',
+        title: 'Auto-Set Level',
         description: 'Based on your flight',
         type: 'toggle',
         value: getSettingValue('map.vatglasses.autoLevel'),
@@ -211,7 +215,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         disabled: computed(() => !getSettingValue('map.vatglasses.active').value.value),
     },
     bookingsEnabled: {
-        title: 'Show Bookings',
+        title: 'Bookings on map',
         type: 'toggle',
         value: getSettingValue('map.bookings.enabled'),
         onChange: value => setSettingByKey('map.bookings.enabled', value),
@@ -231,7 +235,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         disabled: computed(() => !getSettingValue('map.bookings.enabled').value.value),
     },
     eventsEnabled: {
-        title: 'Show Events on Map',
+        title: 'Events on map',
         type: 'toggle',
         value: getSettingValue('map.events.enabled'),
         onChange: value => setSettingByKey('map.events.enabled', value),

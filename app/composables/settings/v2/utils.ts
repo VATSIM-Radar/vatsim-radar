@@ -178,11 +178,10 @@ const _settingsDefaultValues = {
     'map.navigraph.layers.airways.showWaypointsLabel': true,
 
     'map.navigraph.airport.enabled': true,
-    'map.navigraph.airport.gatesFallback': false,
-    'map.navigraph.airport.hideTaxiways': false,
-    'map.navigraph.airport.hideGateGuidance': false,
-    'map.navigraph.airport.hideRunwayExit': false,
-    'map.navigraph.airport.hideDeicing': false,
+    'map.navigraph.airport.taxiways': true,
+    'map.navigraph.airport.gateGuidance': true,
+    'map.navigraph.airport.runwayExit': true,
+    'map.navigraph.airport.deicing': true,
 
     'map.visibility.atc.firs': true,
     'map.visibility.atc.approach': true,
@@ -203,7 +202,7 @@ const _settingsDefaultValues = {
     'map.events.hours': 1,
 
     'sigmets.showOnMap': false,
-    'sigmets.disabled': [],
+    'sigmets.enabled': ['CONV', 'TS', 'ICE', 'FZLVL', 'TURB', 'MTW', 'WIND', 'WS', 'IFR', 'OBSC', 'VA'],
     'sigmets.showAirmets': false,
     'sigmets.raw': false,
 } satisfies SettingsDefaultValues;
@@ -234,6 +233,8 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         const last = parts[parts.length - 1];
         const container = result as Record<string, unknown>;
         if (!(last in container)) return;
+
+        console.log(container);
 
         delete container[last];
         return useSettingsStore().save(root, true);

@@ -152,6 +152,7 @@ const currentItem = computed(() => {
                         if ('title' in component && component.title.includes('Aircraft Display')) console.log(component);
 
                         if (component.disabled !== undefined && toValue(component.disabled)) continue;
+                        if (component.hidden !== undefined && toValue(component.hidden)) continue;
                         const match = {
                             item: component,
                             score: 0,

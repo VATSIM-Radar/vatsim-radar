@@ -8,6 +8,7 @@ import type { SettingValueType } from '~/composables/settings/v2/utils';
 export interface SettingsItemMandatory {
     searchKeywords?: string[];
     disabled?: MaybeRefOrGetter<boolean>;
+    hidden?: MaybeRefOrGetter<boolean>;
 
     /**
      * Used in search

@@ -117,7 +117,7 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: 'preferences',
-                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.appearance.overlaysPositions, items.preferences.airports.defaultZoomLevel],
+                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.appearance.overlaysPositions, items.preferences.airports.defaultZoomLevel, items.preferences.airports.departuresCountInOverlay],
                         },
                         {
                             key: 'favorite',
@@ -200,12 +200,12 @@ export const getSettingsSections = () => {
                         {
                             key: 'counters',
                             title: 'Traffic Counter',
-                            items: [items.preferences.airports.countersEnabled, items.preferences.airports.countersDeparturesMode, items.preferences.airports.countersSyncDeparturesArrivals, items.preferences.airports.countersArrivalsMode, items.preferences.airports.countersDisableTraining],
+                            items: [items.preferences.airports.countersEnabled, items.preferences.airports.countersDeparturesMode, items.preferences.airports.countersSyncDeparturesArrivals, items.preferences.airports.countersArrivalsMode, items.preferences.airports.countersHorizontalCounter, items.preferences.airports.countersDisableTraining],
                         },
                         {
                             key: 'overlays',
                             title: 'Overlay Settings',
-                            items: [items.preferences.traffic.autoShowAirportTracks],
+                            items: [items.preferences.airports.departuresCountInOverlay, items.preferences.traffic.autoShowAirportTracks],
                         },
                     ],
                 },
@@ -222,17 +222,95 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: '',
-                            items: [items.layers.layer, items.layers.layerLabels, items.layers.relativeIndicator, items.layers.terminator, items.layers.heatmap, items.layers.osmTransparency, items.layers.satelliteTransparency],
+                            title: 'Map layer',
+                            items: [items.layers.layerLabels, items.layers.layer, items.layers.osmTransparency, items.layers.satelliteTransparency],
                         },
                         {
-                            key: 'favorite',
-                            title: 'Featured and Favorite',
-                            items: [items.preferences.featuredDefaultBookmarks, items.preferences.skipBookmarkAnimation, items.preferences.showTotalDeparturesInFeaturedAirports],
+                            key: 'weather',
+                            title: 'Weather',
+                            items: [items.layers.weather, items.layers.weatherDarkTransparency, items.layers.weatherLightTransparency],
                         },
                         {
-                            key: 'search',
-                            title: 'Search',
-                            items: [items.preferences.searchBy, items.preferences.searchLimit],
+                            key: 'nat-tracks',
+                            title: 'NAT Tracks',
+                            items: [items.layers.natTrakEnabled, items.layers.natTrakConcorde, items.layers.natTrakDirection],
+                        },
+                        {
+                            key: 'vatglasses',
+                            title: 'VATGlasses',
+                            items: [items.layers.vatglassesAutoEnable, items.layers.vatglassesActive, items.layers.vatglassesCombined, items.layers.vatglassesAutoLevel],
+                        },
+                        {
+                            key: 'bookings',
+                            title: 'Bookings',
+                            items: [items.layers.bookingsEnabled, items.layers.bookingsHours],
+                        },
+                        {
+                            key: 'events',
+                            title: 'Events',
+                            items: [items.layers.eventsEnabled, items.layers.eventsHours],
+                        },
+                        {
+                            key: 'sigmets',
+                            title: 'Sigmets',
+                            items: [items.layers.sigmets.showOnMap, items.layers.sigmets.disabled, items.layers.sigmets.showAirmets, items.layers.sigmets.raw, items.layers.sigmetsTransparency],
+                        },
+                        {
+                            key: 'distance-tool',
+                            title: 'Distance Tool',
+                            items: [items.layers.distanceEnabled, items.layers.distanceUnits, items.layers.distanceInteraction],
+                        },
+                        {
+                            key: 'other',
+                            title: 'Other Layers',
+                            items: [items.layers.relativeIndicator, items.layers.terminator, items.layers.heatmap, items.layers.sigmetsTransparency],
+                        },
+                    ],
+                },
+                {
+                    title: 'Visibility',
+                    url: 'visibility',
+                    items: [
+                        {
+                            key: 'controllers',
+                            title: 'Controllers',
+                            items: [items.layers.visibility.atcFirs, items.layers.visibility.atcApproach, items.layers.visibility.atcGround, items.layers.visibility.atcLabels],
+                        },
+                        {
+                            key: 'layers',
+                            title: 'Layers',
+                            items: [items.layers.visibility.airports, items.layers.visibility.pilots, items.layers.visibility.gates, items.layers.visibility.runways, items.layers.visibility.pilotLabels],
+                        },
+                        {
+                            key: 'privacy',
+                            title: 'Private Information',
+                            items: [items.layers.visibility.pilotsInfo, items.layers.visibility.atcInfo],
+                        },
+                    ],
+                },
+                {
+                    title: 'Navigraph',
+                    url: 'navigraph',
+                    items: [
+                        {
+                            key: 'general',
+                            items: [items.layers.navigraph.enabled],
+                        },
+                        {
+                            key: 'airport',
+                            title: 'Route Parsing',
+                            items: Object.values(items.layers.navigraph.route),
+                        },
+                        {
+                            key: 'layers',
+                            title: 'Map Layers',
+                            items: Object.values(items.layers.navigraph.layers),
+                        },
+                        {
+                            key: 'airport',
+                            title: 'Airport Layout',
+                            hide: computed(() => !store.user?.hasCharts),
+                            items: Object.values(items.layers.navigraph.airports),
                         },
                     ],
                 },

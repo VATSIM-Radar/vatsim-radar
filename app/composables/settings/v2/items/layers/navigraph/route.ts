@@ -1,6 +1,6 @@
 import { getSettingValue, makeSettingsItems, setSettingByKey } from '~/composables/settings/v2/utils';
 
-const airportOverlayDisabled = computed(() => !getSettingValue('map.navigraph.routeParsing.airportOverlay.enabled').value.value);
+const airportOverlayDisabled = computed(() => !getSettingValue('map.navigraph.routeParsing.enabled').value.value || !getSettingValue('map.navigraph.routeParsing.airportOverlay.enabled').value.value);
 
 export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems(() => ({
     enabled: {
