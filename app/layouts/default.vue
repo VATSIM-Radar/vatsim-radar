@@ -188,7 +188,6 @@ const store = useStore();
 const route = useRoute();
 const updateRequired = ref(true);
 const consentChoose = ref(false);
-const { $pwa } = useNuxtApp();
 
 const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/ViewUpdatePopup.vue'));
 const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
