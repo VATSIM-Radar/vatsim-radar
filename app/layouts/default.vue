@@ -194,7 +194,7 @@ const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/Vi
 const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
 
 const reload = () => {
-        location.reload();
+    location.reload();
 };
 
 const theme = useCookie<ThemesList>('theme', {
