@@ -208,7 +208,7 @@ export default defineNuxtConfig({
         selfDestroying: isDebug(),
         workbox: {
             globPatterns: [
-                '**/*.{js,css,woff,woff2,ttf,otf,ico,png,svg,webp,avif,webmanifest}',
+                '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
             ],
             navigateFallback: null,
             runtimeCaching: [
