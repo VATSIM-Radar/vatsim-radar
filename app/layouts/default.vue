@@ -194,12 +194,7 @@ const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/Vi
 const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
 
 const reload = () => {
-    if ($pwa?.needRefresh) {
-        $pwa.updateServiceWorker();
-    }
-    else {
         location.reload();
-    }
 };
 
 const theme = useCookie<ThemesList>('theme', {
