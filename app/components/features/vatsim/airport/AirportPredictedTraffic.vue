@@ -85,8 +85,17 @@
                 v-else
                 class="predicted-traffic_chart_empty"
             >
-                No arrivals with ETA in the next {{ windowMinutes }} minutes.
+                No airborne arrivals expected in the next {{ windowMinutes }} minutes.
             </div>
+        </div>
+        <div class="predicted-traffic_footer">
+            <span class="predicted-traffic_footer_window">{{ windowRangeLabel }}</span>
+            <span
+                v-if="peakBin"
+                class="predicted-traffic_footer_peak"
+            >
+                Peak: <strong>{{ peakBin.count }}</strong> @ {{ peakBin.label }}z
+            </span>
         </div>
     </div>
 </template>
@@ -176,19 +185,44 @@ const timeFormatter = new Intl.DateTimeFormat('en-GB', {
 
 const dataStore = useDataStore();
 
+const binSizeMs = computed(() => Math.max(1, binSize.value) * 60_000);
+
+const firstBinStart = computed(() => {
+    const now = dataStore.time.value || Date.now();
+    return Math.floor(now / binSizeMs.value) * binSizeMs.value;
+});
+
+const airportAltitudeFt = computed(() => {
+    return airportData.value?.airport?.vatInfo?.altitude_ft ?? 0;
+});
+
+function isStillAirborne(arrival: { altitude?: number; groundspeed?: number; distance?: number }) {
+    const alt = arrival.altitude ?? 0;
+    const gs = arrival.groundspeed ?? 0;
+    const dist = arrival.distance ?? 0;
+
+    const aboveAirport = alt > airportAltitudeFt.value + 1000;
+    if (aboveAirport) return true;
+
+    return gs > 80 && dist > 3;
+}
+
+const airborneArrivals = computed(() => {
+    return aircraft.value?.arrivals?.filter(isStillAirborne) ?? [];
+});
+
 const arrivalBins = computed(() => {
     const bins: number[] = Array(binCount.value).fill(0);
-    const arrivals = aircraft.value?.arrivals;
-    if (!arrivals?.length) return bins;
+    if (!airborneArrivals.value.length) return bins;
 
-    const now = dataStore.time.value || Date.now();
-    const size = Math.max(1, binSize.value);
+    const startMs = firstBinStart.value;
+    const sizeMs = binSizeMs.value;
 
-    for (const arrival of arrivals) {
+    for (const arrival of airborneArrivals.value) {
         if (!arrival.eta) continue;
-        const diffMinutes = (arrival.eta.getTime() - now) / 60_000;
-        if (diffMinutes < 0) continue;
-        const idx = Math.floor(diffMinutes / size);
+        const offsetMs = arrival.eta.getTime() - startMs;
+        if (offsetMs < 0) continue;
+        const idx = Math.floor(offsetMs / sizeMs);
         if (idx >= bins.length) continue;
         bins[idx] += 1;
     }
@@ -196,9 +230,8 @@ const arrivalBins = computed(() => {
 });
 
 const labels = computed(() => {
-    const now = dataStore.time.value || Date.now();
     return Array.from({ length: binCount.value }, (_, i) => {
-        const start = new Date(now + (i * binSize.value * 60_000));
+        const start = new Date(firstBinStart.value + (i * binSizeMs.value));
         return timeFormatter.format(start);
     });
 });
@@ -206,6 +239,25 @@ const labels = computed(() => {
 const counts = computed(() => arrivalBins.value);
 
 const totalArrivals = computed(() => counts.value.reduce((acc, n) => acc + n, 0));
+
+const peakBin = computed(() => {
+    let maxIdx = -1;
+    let maxVal = 0;
+    counts.value.forEach((v, i) => {
+        if (v > maxVal) {
+            maxVal = v;
+            maxIdx = i;
+        }
+    });
+    if (maxIdx < 0) return null;
+    return { count: maxVal, label: labels.value[maxIdx] };
+});
+
+const windowRangeLabel = computed(() => {
+    const start = new Date(firstBinStart.value);
+    const end = new Date(firstBinStart.value + (binCount.value * binSizeMs.value));
+    return `${ timeFormatter.format(start) }z – ${ timeFormatter.format(end) }z`;
+});
 
 function getBarColor(count: number): string {
     if (count >= alertThreshold.value) return getCurrentThemeHexColor('error500');
@@ -238,6 +290,10 @@ const chartOptions = computed<Record<string, any>>(() => {
         ? yMaxOverride.value
         : Math.max(maxCount, alertThreshold.value);
 
+    const size = binSize.value;
+    const startMs = firstBinStart.value;
+    const sizeMs = binSizeMs.value;
+
     return {
         responsive: true,
         maintainAspectRatio: false,
@@ -246,7 +302,12 @@ const chartOptions = computed<Record<string, any>>(() => {
             legend: { display: false },
             tooltip: {
                 callbacks: {
-                    title: (items: Array<{ label: string }>) => `From ${ items[0]?.label }z`,
+                    title: (items: Array<{ dataIndex: number }>) => {
+                        const i = items[0]?.dataIndex ?? 0;
+                        const from = timeFormatter.format(new Date(startMs + (i * sizeMs)));
+                        const to = timeFormatter.format(new Date(startMs + ((i + 1) * sizeMs)));
+                        return `${ from }z – ${ to }z (${ size } min)`;
+                    },
                     label: (item: { parsed: { y: number } }) => `Arrivals: ${ item.parsed.y }`,
                 },
             },
@@ -354,6 +415,24 @@ const chartOptions = computed<Record<string, any>>(() => {
             text-align: center;
 
             opacity: 0.7;
+        }
+    }
+
+    &_footer {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+
+        font-size: 11px;
+        color: $lightGray600;
+
+        &_window {
+            opacity: 0.8;
+        }
+
+        &_peak {
+            color: $lightGray500;
         }
     }
 }
