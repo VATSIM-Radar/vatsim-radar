@@ -9,10 +9,28 @@
         </ui-setting-display>
         <ui-setting-display>
             <template #title>
+                Import Preset
+            </template>
+            <ui-button
+                size="S"
+                type="secondary"
+                @click="presetImport?.click()"
+            >
+                Import from File
+            </ui-button>
+            <input
+                v-show="false"
+                ref="presetImport"
+                accept="application/json"
+                type="file"
+                @input="importPreset()"
+            >
+        </ui-setting-display>
+        <ui-setting-display>
+            <template #title>
                 Presets Management
             </template>
             <map-filters-presets
-                :disable-actions="settingsStore.autoSave"
                 endpoint-suffix="settings/v2"
                 :max-presets="MAX_SETTINGS_PRESETS"
                 :presets="settingsStore.settingsPresets"
@@ -68,11 +86,12 @@ import type { UserSettingsV2Partial } from '~/utils/settings/types';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { backupSettingsV2 } from '~/composables/settings';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import { useRadarError } from '~/composables/errors';
 
-defineProps({});
-
+const store = useStore();
 const settingsStore = useSettingsStore();
 const resetActive = ref(false);
+const presetImport = useTemplateRef('presetImport');
 
 const createSettingsPreset = async (name: string, json: UserSettingsV2Partial) => {
     const preset = await sendUserPreset(name, json, 'settings/v2', () => createSettingsPreset(name, json));
@@ -81,8 +100,48 @@ const createSettingsPreset = async (name: string, json: UserSettingsV2Partial) =
     await settingsStore.save(preset, { overwrite: true });
 };
 
+const createImportedPreset = async () => {
+    await createSettingsPreset(store.presetImport.name!, store.presetImport.preset as UserSettingsV2Partial);
+    store.presetImport.preset = null;
+    refresh();
+};
+
 const { refresh } = useLazyAsyncData('map-presets', async () => {
     await settingsStore.fetchPresets();
     return true;
 });
+
+const importPreset = async () => {
+    const file = presetImport.value?.files?.[0];
+    if (!file) return;
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.addEventListener('load', async () => {
+                try {
+                    await store.initPresetImport({
+                        file: reader.result as string,
+                        prefix: 'settings/v2',
+                        save: createImportedPreset,
+                    });
+                    resolve();
+                }
+                catch (e) {
+                    reject(e);
+                }
+            });
+
+            reader.addEventListener('error', e => {
+                reject(e);
+            });
+
+            reader.readAsText(file);
+        });
+    }
+    catch (e) {
+        useRadarError(e);
+    }
+};
 </script>

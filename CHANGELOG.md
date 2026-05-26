@@ -15,6 +15,10 @@
 - Significantly improved filter apply speed
 - Added a clear indication that temporal filter is applied
 
+## Bug Fixes
+
+- Fixed NOTAM overlapping with open overlay on PC
+
 ## Redesign
 
 - Tables redesign

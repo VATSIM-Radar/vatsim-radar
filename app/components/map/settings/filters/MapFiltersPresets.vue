@@ -93,79 +93,72 @@
                         </ui-block-title>
 
                         <template v-if="activePreset?.id === preset.id">
-                            <div
-                                class="__grid-info-sections"
-                                :class="{ '__grid-info-sections--large-title': isMobile }"
-                            >
-                                <div class="__grid-info-sections_title">
-                                    Preset
-                                </div>
-                                <div class="presets__row">
-                                    <ui-input-text
-                                        v-model="activePreset!.name"
-                                        @change="renamePreset()"
-                                    />
-                                    <div v-if="!disableActions" class="presets__row_divider"/>
-                                    <ui-tooltip
-                                        v-if="!disableActions"
-                                        location="bottom"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                size="S"
-                                                type="secondary"
-                                                @click="exportPreset(activePreset!)"
-                                            >
-                                                <template #icon>
-                                                    <export-icon/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                            <div class="presets__row">
+                                <ui-input-text
+                                    v-model="activePreset!.name"
+                                    width="100%"
+                                    @change="renamePreset()"
+                                />
+                                <div v-if="!disableActions" class="presets__row_divider"/>
+                                <ui-tooltip
+                                    v-if="!disableActions"
+                                    location="bottom"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            size="S"
+                                            type="secondary"
+                                            @click="exportPreset(activePreset!)"
+                                        >
+                                            <template #icon>
+                                                <export-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Export
-                                    </ui-tooltip>
-                                    <ui-tooltip
-                                        v-if="shareUrl"
-                                        location="bottom"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                size="S"
-                                                type="secondary"
-                                                @click="share.copy(shareUrl)"
-                                            >
-                                                <template #icon>
-                                                    <check-icon v-if="share.copyState.value"/>
-                                                    <share-icon v-else/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                                    Export
+                                </ui-tooltip>
+                                <ui-tooltip
+                                    v-if="shareUrl"
+                                    location="bottom"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            size="S"
+                                            type="secondary"
+                                            @click="share.copy(shareUrl)"
+                                        >
+                                            <template #icon>
+                                                <check-icon v-if="share.copyState.value"/>
+                                                <share-icon v-else/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Copy Link
-                                    </ui-tooltip>
-                                    <ui-tooltip
-                                        v-if="!disableActions"
-                                        location="left"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                :disabled="isCurrentPreset(activePreset!)"
-                                                size="S"
-                                                type="secondary"
-                                                @click="states.overwrite = true"
-                                            >
-                                                <template #icon>
-                                                    <save-icon/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                                    Copy Link
+                                </ui-tooltip>
+                                <ui-tooltip
+                                    v-if="!disableActions"
+                                    location="left"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            :disabled="isCurrentPreset(activePreset!)"
+                                            size="S"
+                                            type="secondary"
+                                            @click="states.overwrite = true"
+                                        >
+                                            <template #icon>
+                                                <save-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Save
-                                    </ui-tooltip>
-                                </div>
+                                    Save
+                                </ui-tooltip>
                             </div>
 
                             <slot

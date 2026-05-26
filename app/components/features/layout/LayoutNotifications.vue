@@ -5,7 +5,7 @@
                 v-for="notification in store.localNotifications.slice(0,3)"
                 :key="notification.id!"
                 class="notifications_notification"
-                :model-value="!!notification.closable"
+                :model-value="notification.closable ? true : undefined"
                 :type="notification.type"
                 @update:modelValue="store.localNotifications = store.localNotifications.filter(x => x.id !== notification.id)"
             >
@@ -24,8 +24,9 @@ const store = useStore();
 <style lang="scss" scoped>
 .notifications {
     position: fixed;
-    top: 56px;
-    right: 12px;
+    z-index: 1000;
+    top: 64px;
+    right: 16px;
 
     display: flex;
     flex-direction: column;
@@ -35,6 +36,7 @@ const store = useStore();
         position: relative;
         top: 0;
         overflow: hidden;
+        background: $darkGray800;
 
         &--appear {
             &-enter-active,

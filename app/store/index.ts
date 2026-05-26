@@ -406,26 +406,16 @@ export const useStore = defineStore('index', {
                 }
             };
 
-            try {
-                const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
-                    method: 'POST',
-                    body: 'id' in json
-                        ? json
-                        : {
-                            json,
-                        },
-                });
+            const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
+                method: 'POST',
+                body: 'id' in json
+                    ? json
+                    : {
+                        json,
+                    },
+            });
 
-                if (validation.status === 'ok') saveResult();
-            }
-            catch (e) {
-                if (!isFetchError(e) || e.statusCode !== 409) {
-                    throw e;
-                }
-                else {
-                    saveResult();
-                }
-            }
+            if (validation.status === 'ok') saveResult();
         },
         async fetchMapPresets() {
             this.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
@@ -444,13 +434,15 @@ export const useStore = defineStore('index', {
             setTimeout(() => {
                 this.localNotifications = this.localNotifications.filter(x => x.id !== notification.id);
             }, notification.timeout);
+
+            return notification;
         },
         addError(text: string, timeout = 5000) {
-            this.addNotification({
+            console.log(this.addNotification({
                 type: 'error',
                 text,
                 timeout,
-            });
+            }));
         },
         setActiveFilter(val: boolean) {
             isFilterActive().value.value = val;

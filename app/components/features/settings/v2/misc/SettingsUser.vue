@@ -1,6 +1,13 @@
 <template>
     <div class="settings-user __vertical-group-16">
         <ui-text type="1b">VATSIM ID: <strong>{{store.user?.cid ?? 'Not logged in'}}</strong></ui-text>
+        <ui-button
+            v-if="store.user && !store.user.cid"
+            href="/api/auth/vatsim/redirect"
+            size="S"
+        >
+            Login with VATSIM
+        </ui-button>
         <ui-button-group v-if="store.user">
             <ui-button
                 :disabled="!store.user?.cid"

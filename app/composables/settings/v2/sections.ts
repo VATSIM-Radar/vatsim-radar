@@ -6,7 +6,7 @@ import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
 import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
 import { settingsItemPreferencesAircraft } from '~/composables/settings/v2/items/general/preferences/aircraft';
-import { settingsDefaultValues } from '~/composables/settings/v2/utils';
+import { getSettingValue, setSettingByKey, settingsDefaultValues } from '~/composables/settings/v2/utils';
 import { settingsItemAppearanceColors } from '~/composables/settings/v2/items/general/appearance/colors';
 import { settingsItemLayers } from '~/composables/settings/v2/items/layers';
 import { settingsItemSigmets } from '~/composables/settings/v2/items/layers/sigmets';
@@ -20,6 +20,7 @@ import { settingsItemTraffic } from '~/composables/settings/v2/items/general/pre
 import { aircraftStatusColors } from '~/composables/vatsim/pilots';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import SettingsManagement from '~/components/features/settings/v2/misc/SettingsManagement.vue';
+import SettingsRecommendedPerformance from '~/components/features/settings/v2/misc/SettingsRecommendedPerformance.vue';
 
 export const getSettingsItems = globalComputed(() => {
     return {
@@ -364,12 +365,72 @@ export const getSettingsSections = () => {
             icon: SaveIcon,
             sections: [
                 {
-                    title: 'Presets & Save',
-                    url: 'save',
+                    title: 'Save or Load',
+                    url: '',
                     items: [
                         {
                             key: 'save',
                             items: [{ type: 'component', component: SettingsManagement }],
+                        },
+                    ],
+                },
+                {
+                    title: 'Performance preset',
+                    url: 'performance',
+                    items: [
+                        {
+                            key: 'performance',
+                            title: 'Performance Settings',
+                            description: 'Here, you can manage performance-related settings, and learn how they affect VATSIM Radar performance',
+                            items: [
+                                {
+                                    type: 'inline-component',
+                                    title: 'Apply recommended',
+                                    component: SettingsRecommendedPerformance,
+                                },
+                            ],
+                        },
+                        {
+                            key: 'aircraft',
+                            title: 'Aircraft',
+                            items: [
+                                {
+                                    ...items.preferences.traffic.declutter,
+                                    description: 'Aircraft are hidden when displayed close to each other, resulting in less elements to render for your CPU',
+                                } as typeof items.preferences.traffic.declutter,
+                                {
+                                    ...items.preferences.aircraft.showLimit,
+                                    description: 'Less labels and tracks to render for your CPU - the lower, the better',
+                                } as typeof items.preferences.aircraft.showLimit,
+                                items.preferences.aircraft.tracksShowLimit,
+                            ],
+                        },
+                        {
+                            key: 'airports',
+                            title: 'Airports',
+                            items: [
+                                {
+                                    ...items.preferences.airports.showMode,
+                                    description: 'Set this setting to render less airports',
+                                } as typeof items.preferences.airports.showMode,
+                                {
+                                    ...items.preferences.airports.showLimit,
+                                    description: 'The lower, the better',
+                                } as typeof items.preferences.airports.showLimit,
+                            ],
+                        },
+                        {
+                            key: 'layers',
+                            title: 'Layers',
+                            items: [
+                                {
+                                    type: 'toggle',
+                                    title: 'Basic Layer',
+                                    description: 'Sets map layer to Basic to significantly improve zooming performance',
+                                    value: getSettingValue(() => getKeyedValueFromSettings('map.layers.layer') === 'basic', false),
+                                    onChange: value => setSettingByKey('map.layers.layer', value === true ? 'basic' : undefined),
+                                },
+                            ],
                         },
                     ],
                 },

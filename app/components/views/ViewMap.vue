@@ -10,7 +10,7 @@
                 v-if="notam"
                 ref="notam"
                 class="map_notam"
-                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissable': notam.dismissable }]"
+                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissable': notam.dismissable, 'map_notam--with-popups': !store.config.hideOverlays && !isMobile && visibleOverlays.length }]"
             >
                 <div class="map_notam_icon">
                     <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
@@ -1156,11 +1156,21 @@ onBeforeUnmount(() => {
         line-height: 100%;
         color: $lightGray400Orig;
 
+        transition: 0.3s;
+
         &--dismissable {
             cursor: grab;
 
             &:active {
                 cursor: grabbing;
+            }
+        }
+
+        &--with-popups {
+            width: calc(100vw - 16px - 40px - 16px - 16px - 24px - 360px - 32px);
+
+            @media all and (min-width: 1600px) {
+                width: calc(100vw - 16px - 40px - 16px - 16px - 24px - 400px - 32px);
             }
         }
 
