@@ -19,6 +19,7 @@ export const useSettingsStore = defineStore('settings', {
     }),
     actions: {
         async fetchPresets() {
+            if (!useStore().user) return;
             this.settingsPresets = await $fetch<UserMapPreset[]>('/api/user/settings/v2');
         },
         async save(settings: UserSettingsV2Partial, { overwrite, onSave, autoSave = true }: {

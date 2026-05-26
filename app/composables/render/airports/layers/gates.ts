@@ -10,6 +10,7 @@ import { getSelectedColorFromSettings } from '~/composables/settings/colors';
 import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { createDefaultStyle } from 'ol/style/Style.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleStrokeCache: Record<string, Stroke> = {};
@@ -17,7 +18,7 @@ let styleCache: Record<string, Style> = {};
 
 export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     source: VectorSource;
-    layer: VectorLayer;
+    layer: VectorLayer | VectorImageLayer;
     airports: DataAirport[];
     navigraphData: AirportNavigraphData;
 }) {

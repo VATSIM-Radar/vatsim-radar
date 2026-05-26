@@ -115,10 +115,14 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         height: 100%;
         padding: 8px 16px;
+        border: none;
 
         line-height: 100%;
         color: $typographySecondary;
         text-align: center;
+
+        outline: none;
+        box-shadow:  0 0 0 0 transparent;
 
         &::after {
             content: '';

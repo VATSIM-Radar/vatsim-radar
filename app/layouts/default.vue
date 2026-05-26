@@ -65,6 +65,7 @@ import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceT
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
+const settingsStore = useSettingsStore();
 const route = useRoute();
 
 const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/ViewUpdatePopup.vue'));
@@ -77,7 +78,7 @@ const theme = useCookie<ThemesList>('theme', {
     maxAge: 60 * 60 * 24 * 360,
 });
 
-store.theme = theme.value ?? 'default';
+store.theme = theme.value ?? settingsStore?.settings.appearance?.theme ?? 'default';
 
 checkAndSetMapPreset();
 
@@ -104,11 +105,16 @@ onMounted(() => {
     });
 
     if (!theme.value && !route.query.preset) {
-        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
-            theme.value = 'light';
+        if (settingsStore.settings?.appearance?.theme) {
+            theme.value = settingsStore.settings?.appearance.theme;
         }
+        else {
+            if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+                theme.value = 'light';
+            }
 
-        store.theme = theme.value ?? 'default';
+            store.theme = theme.value ?? 'default';
+        }
     }
 
     if (store.user?.isSup) {
@@ -299,6 +305,12 @@ await useAsyncData('default-init', async () => {
     }
 
     return true;
+});
+
+await useAsyncData('map-presets', async () => {
+    await settingsStore.fetchPresets();
+}, {
+    server: false,
 });
 </script>
 

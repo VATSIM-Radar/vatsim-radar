@@ -5,6 +5,7 @@
 ## Alpha changes
 
 - Moved vIFF departure info to full line display
+- Fixed significant performance drop for airports layouts
 
 ## Features and improvements
 

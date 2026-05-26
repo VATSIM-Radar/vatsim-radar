@@ -15,6 +15,7 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
 import { isHideMapObject } from '~/composables/settings';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 
 defineOptions({
     render: () => null,
@@ -30,10 +31,10 @@ const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
 let airportsLayer: VectorLayer<any>;
 let airportsSource: VectorSource;
 
-let navigraphLayer: VectorLayer<any>;
+let navigraphLayer: VectorImageLayer<any>;
 let navigraphSource: VectorSource;
 
-let gatesLayer: VectorLayer<any>;
+let gatesLayer: VectorImageLayer<any>;
 let gatesSource: VectorSource;
 
 const now = new Date();
@@ -112,17 +113,17 @@ onMounted(() => {
     });
 
     const styles = airportLayoutStyles();
+    const touch = useIsTouch();
     const zoomHiddenLayoutTypes = new Set<AmdbLayerName>(['taxiwayintersectionmarking', 'taxiwayguidanceline', 'deicingarea', 'finalapproachandtakeoffarea']);
 
-    navigraphLayer = new VectorLayer<any>({
+    navigraphLayer = new VectorImageLayer<any>({
         source: navigraphSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_NAVIGRAPH,
-        declutter: true,
-        updateWhileAnimating: false,
-        updateWhileInteracting: false,
+        declutter: 'airports-navigraph',
         properties: {
             type: 'airports-navigraph',
         },
+        imageRatio: touch.value ? 1 : 1.5,
         minZoom: 12,
         style: function(feature) {
             const type = feature.get('type') as AmdbLayerName;
@@ -136,13 +137,12 @@ onMounted(() => {
         },
     });
 
-    gatesLayer = new VectorLayer<any>({
+    gatesLayer = new VectorImageLayer<any>({
         source: gatesSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
         minZoom: 15,
         declutter: 'gates',
-        updateWhileAnimating: false,
-        updateWhileInteracting: false,
+        imageRatio: touch.value ? 1 : 1.5,
         properties: {
             type: 'airports-gates',
         },

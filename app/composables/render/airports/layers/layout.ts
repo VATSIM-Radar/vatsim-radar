@@ -6,6 +6,7 @@ import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import type Feature from 'ol/Feature.js';
 import type Geometry from 'ol/geom/Geometry.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 const setAirports = new Set<string>();
 const airportFeatures = new Map<string, Feature<Geometry>[]>();
@@ -13,7 +14,7 @@ let currentSettingsKey: string | undefined;
 
 export function setMapNavigraphLayout({ source, airports, navigraphData, layer }: {
     source: VectorSource;
-    layer: VectorLayer;
+    layer: VectorLayer | VectorImageLayer;
     airports: AirportListItem[];
     navigraphData: AirportNavigraphData;
 }) {

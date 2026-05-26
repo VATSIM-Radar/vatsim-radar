@@ -16,6 +16,7 @@ import type { RecursivePartial } from '~/types';
 
 export interface UserSettingsV2 {
     appearance: {
+        theme?: 'light' | 'default' | null;
         headerName: string;
         timeFormat: '24h' | '12h';
         eventsLocalTimezone: boolean;

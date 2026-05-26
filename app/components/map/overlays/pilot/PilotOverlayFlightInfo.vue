@@ -255,7 +255,7 @@
                 ]"
             />
             <ui-data-list
-                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : pilot.vertical_speed ? 4 : 3"
+                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : 3"
                 :items="[
                     { key: 'squawk', title: 'Squawk' },
                     { key: 'ctaf', title: ctaf && !pilot.frequencies.some(x => x === ctaf) ? 'CTAF' : undefined },

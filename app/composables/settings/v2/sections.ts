@@ -334,7 +334,14 @@ export const getSettingsSections = () => {
                         {
                             key: 'route',
                             title: 'Route Parsing',
-                            items: Object.values(items.layers.navigraph.route),
+                            description: 'General settings',
+                            items: [items.layers.navigraph.route.enabled, items.layers.navigraph.route.enabledOnHover],
+                        },
+                        {
+                            key: 'route',
+                            title: 'Airport Traffic Route Parsing',
+                            description: 'Settings for Airport Tracks or Dashboard',
+                            items: [items.layers.navigraph.route.airportOverlayEnabled, items.layers.navigraph.route.airportOverlaySid, items.layers.navigraph.route.airportOverlayStar, items.layers.navigraph.route.airportOverlayHolds, items.layers.navigraph.route.airportOverlayLabels, items.layers.navigraph.route.airportOverlayWaypoints],
                         },
                         {
                             key: 'layers',

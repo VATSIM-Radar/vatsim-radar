@@ -7,6 +7,7 @@ import type {
     UserSettingsV2Partial,
 } from '~/utils/settings/types';
 import type { UserCustomPreset } from '~/components/map/settings/filters/MapFiltersPresets.vue';
+import { setCustomDefuMergeAsIs } from '~/composables';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
@@ -16,6 +17,8 @@ type SettingChangeValue<T> =
 export async function onSettingChange() {
     const settingsStore = useSettingsStore();
 
+    localStorage.setItem('settings', JSON.stringify(settingsStore.settings));
+
     if (!settingsStore.activeSettingsPreset || !settingsStore.autoSave) return;
 
     await $fetch<UserCustomPreset>(`/api/user/settings/v2/${ settingsStore.activeSettingsPreset }`, {
@@ -24,8 +27,6 @@ export async function onSettingChange() {
             json: settingsStore.settings,
         },
     });
-
-    localStorage.setItem('settings', JSON.stringify(settingsStore.settings));
 }
 
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {
@@ -59,6 +60,7 @@ type SettingsDefaultValues<T extends UserSettingsV2 = UserSettingsV2> = {
 };
 
 const _settingsDefaultValues = {
+    'appearance.theme': null,
     'appearance.headerName': '',
     'appearance.timeFormat': '24h',
     'appearance.eventsLocalTimezone': false,
@@ -241,8 +243,6 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         const container = result as Record<string, unknown>;
         if (!(last in container)) return;
 
-        console.log(container);
-
         delete container[last];
         return useSettingsStore().save(root, { overwrite: true });
     }
@@ -256,6 +256,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         const last = parts[parts.length - 1];
         result[last] = value as unknown;
 
+        if (value === null) setCustomDefuMergeAsIs();
         return useSettingsStore().save(root);
     }
 }
@@ -310,15 +311,20 @@ export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknow
     });
 }
 
-export function getSettingValueFromFunc<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V;
-export function getSettingValueFromFunc<T>(setting: (() => T | undefined), defaultValue: T): T;
-export function getSettingValueFromFunc(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown) {
+export function useSettingValueFromFunc<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): ComputedRef<V>;
+export function useSettingValueFromFunc<T>(setting: (() => T | undefined), defaultValue: T): ComputedRef<T>;
+export function useSettingValueFromFunc(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown): ComputedRef<DeepValueOfSetting<UserSettingsV2, any>> {
     // Otherwise TS curses me
     const settingValue = typeof setting === 'function'
         ? getSettingValue(setting, defaultValue as any)
         : getSettingValue(setting);
 
     return computed(() => settingValue.value.value);
+}
+
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V {
+    const settingValue = getSettingByKey(settingsStore.settings, setting);
+    return (settingValue === undefined ? settingsDefaultValues[setting] : settingValue);
 }
 
 let store: ReturnType<typeof useStore>;

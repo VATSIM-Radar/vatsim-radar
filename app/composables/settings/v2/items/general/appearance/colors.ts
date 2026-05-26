@@ -26,7 +26,7 @@ function transparencyDefault(path: SettingsKeysWithDefault) {
 export const settingsItemAppearanceColors = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     turns: {
         type: 'select',
-        title: 'Turns theme',
+        title: 'Track theme',
         items: [
             { value: 'magma' },
             { value: 'inferno' },
@@ -38,7 +38,7 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
     },
     turnsTransparency: {
         type: 'color',
-        title: 'Turns transparency',
+        title: 'Track transparency',
         mode: 'transparency',
         defaultColor: transparencyDefault('map.preferences.colors.turnsTransparency'),
         value: getSettingValue(() => ({ transparency: getSettingValue('map.preferences.colors.turnsTransparency').value.value }), { transparency: 1 }),
@@ -53,14 +53,14 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
     },
     approachBookings: {
         type: 'color',
-        title: 'Booked approach',
+        title: 'Booked approach tracon/circle',
         defaultColor: colorDefault('map.preferences.colors.default.approachBookings'),
         value: colorValue('map.preferences.colors.default.approachBookings'),
         onChange: value => setColorByKey('map.preferences.colors.default.approachBookings', value as UserMapSettingsColor),
     },
     firs: {
         type: 'color',
-        title: 'FIR (ARTCC) color',
+        title: 'FIR (ARTCC)',
         defaultColor: colorDefault('map.preferences.colors.default.firs'),
         value: colorValue('map.preferences.colors.default.firs'),
         onChange: value => setColorByKey('map.preferences.colors.default.firs', value as UserMapSettingsColor),
@@ -74,7 +74,7 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
     },
     uirs: {
         type: 'color',
-        title: 'UIR (FSS)',
+        title: 'UIR/FSS',
         defaultColor: colorDefault('map.preferences.colors.default.uirs'),
         value: colorValue('map.preferences.colors.default.uirs'),
         onChange: value => setColorByKey('map.preferences.colors.default.uirs', value as UserMapSettingsColor),

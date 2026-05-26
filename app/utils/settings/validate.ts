@@ -125,6 +125,7 @@ const themeColorsSchema = partialObject({
 const settingsSchema = partialObject({
     appearance: partialObject({
         headerName: v.pipe(v.string('must be a string'), v.maxLength(30, 'must be 30 characters or shorter')),
+        theme: v.nullable(list(['default', 'light'], 'must be either default, light or null')),
         timeFormat: list(['24h', '12h'], 'must be either 24h or 12h'),
         eventsLocalTimezone: booleanSchema,
         bookingsLocalTimezone: booleanSchema,

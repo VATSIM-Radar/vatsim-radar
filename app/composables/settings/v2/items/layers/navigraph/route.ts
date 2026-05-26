@@ -19,6 +19,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayEnabled: {
         title: 'Airport Tracks',
+        description: 'Allows to turn on or off airport traffic tracks parsing. It will only be parsed on hover or click',
         searchKeywords: ['sid', 'star', 'procedure', 'route'],
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.enabled'),
@@ -27,6 +28,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlaySid: {
         title: 'Auto-SID parsing',
+        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.sid'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.sid', value),
@@ -34,6 +36,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayStar: {
         title: 'Auto-STAR parsing',
+        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.star'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.star', value),
@@ -41,6 +44,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayHolds: {
         title: 'Holdings',
+        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.holds'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.holds', value),
@@ -48,6 +52,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayLabels: {
         title: 'Labels',
+        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.labels'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.labels', value),
@@ -55,6 +60,7 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayWaypoints: {
         title: 'Waypoints',
+        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.waypoints'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.waypoints', value),

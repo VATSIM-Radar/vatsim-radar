@@ -36,10 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { getSettingValueFromFunc } from '~/composables/settings/v2/utils';
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils';
 import UiText from '~/components/ui/text/UiText.vue';
 
-const value = getSettingValueFromFunc('map.preferences.aircraft.scale');
+const value = useSettingValueFromFunc('map.preferences.aircraft.scale');
 
 const icons = [
     { icon: radarIcons.c172, svg: await fetchAircraftSvgIcon('c172') },

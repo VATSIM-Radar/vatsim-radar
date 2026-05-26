@@ -2,8 +2,8 @@
     <div class="theme __horizontal-group-4">
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': theme === 'default' }"
-            @click="theme = 'default'"
+            :class="{ 'theme_item--selected': value === 'default' }"
+            @click="value = 'default'"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeDark })` }"/>
@@ -15,14 +15,14 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="theme === 'default'"
+                :model-value="value === 'default'"
                 value="default"
             />
         </div>
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': !theme }"
-            @click="theme = null"
+            :class="{ 'theme_item--selected': !value }"
+            @click="value = null"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeSystem })` }"/>
@@ -34,14 +34,14 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="!theme"
+                :model-value="!value"
                 value="null"
             />
         </div>
         <div
             class="theme_item"
-            :class="{ 'theme_item--selected': theme === 'light' }"
-            @click="theme = 'light'"
+            :class="{ 'theme_item--selected': value === 'light' }"
+            @click="value = 'light'"
         >
             <div class="theme_item_image">
                 <div class="theme_item_image_item" :style="{ backgroundImage: `url(${ ThemeLight })` }"/>
@@ -53,7 +53,7 @@
             <ui-radio
                 class="theme_item_radio"
                 hide-text
-                :model-value="theme === 'light'"
+                :model-value="value === 'light'"
                 value="light"
             />
         </div>
@@ -67,6 +67,7 @@ import ThemeLight from '~/assets/images/theme-light.png';
 import ThemeSystem from '~/assets/images/theme-system.png';
 import UiRadio from '~/components/ui/inputs/UiRadio.vue';
 import SettingsThemeBg from '~/assets/icons/basic/settings-theme-bg.svg?component';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 const store = useStore();
 
@@ -77,12 +78,20 @@ const theme = useCookie<ThemesList | null>('theme', {
     maxAge: 60 * 60 * 24 * 360,
 });
 
-watch(theme, val => {
+const value = computed({
+    get() {
+        return getKeyedValueFromSettings('appearance.theme');
+    },
+    set(value) {
+        setSettingByKey('appearance.theme', value);
+    },
+});
+
+watch(value, val => {
     if (!val) {
-        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
-            theme.value = 'light';
-        }
+        theme.value = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'default';
     }
+    else theme.value = val;
 
     store.theme = theme.value ?? 'default';
 });
