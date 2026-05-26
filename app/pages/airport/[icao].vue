@@ -216,6 +216,14 @@
                 </div>
             </div>
             <div
+                v-if="ready"
+                class="airport_column"
+            >
+                <div class="airport_column_data">
+                    <airport-predicted-traffic/>
+                </div>
+            </div>
+            <div
                 v-if="!ready || (aircraft && Object.values(aircraft).some(x => x.length))"
                 class="airport_column airport_column--aircraft"
             >
@@ -275,6 +283,14 @@
                     />
                 </div>
             </div>
+            <div
+                v-if="ready"
+                class="airport_column airport_column--predicted-traffic"
+            >
+                <div class="airport_column_data">
+                    <airport-predicted-traffic/>
+                </div>
+            </div>
         </div>
         <div
             v-if="mapLayouts[mapMode ?? 'default'].map !== '0'"
@@ -326,6 +342,7 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { Ref } from 'vue';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
+import AirportPredictedTraffic from '~/components/features/vatsim/airport/AirportPredictedTraffic.vue';
 import { useStore } from '~/store';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import type { SelectItem } from '~/types/components/select';
