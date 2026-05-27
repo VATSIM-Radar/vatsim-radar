@@ -55,7 +55,6 @@
       "matchPackageNames": [
         "vue"
       ],
-      "rangeStrategy": "bump",
       "groupName": "Vue",
       "separateMultipleMinor": true,
       "separateMinorPatch": true
@@ -65,7 +64,6 @@
         "@vue/language-server",
         "vue-tsc"
       ],
-      "rangeStrategy": "pin",
       "groupName": "Volar"
     },
     {
@@ -73,7 +71,6 @@
         "nuxt",
         "@nuxt/kit"
       ],
-      "rangeStrategy": "bump",
       "groupName": "Nuxt",
       "separateMultipleMinor": true,
       "separateMinorPatch": true
@@ -102,12 +99,13 @@
     ":dependencyDashboard",
     "group:recommended"
   ],
-  "rangeStrategy": "bump",
+  "rangeStrategy": "pin",
   "npm": {
     "commitMessageTopic": "{{prettyDepType}} {{depName}}"
   },
   "constraints": {
-    "node": "^22 || ^24"
+    "node": "^24.16.0"
   },
+  "minimumReleaseAge": "1 day",
   "updateLockFiles": true
 }
