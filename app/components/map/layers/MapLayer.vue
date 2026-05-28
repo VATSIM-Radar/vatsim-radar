@@ -9,7 +9,6 @@ import { XYZ } from 'ol/source.js';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
@@ -90,17 +89,6 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
     let layer = getKeyedValueFromSettings('map.layers.layer');
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
-
-    if (layer === 'SatelliteEsri' && isProductionMode()) {
-        layer = 'protoData';
-        setUserLocalSettings({
-            filters: {
-                layers: {
-                    layer: 'protoData',
-                },
-            },
-        });
-    }
 
     if (layer === 'basic') {
         return {

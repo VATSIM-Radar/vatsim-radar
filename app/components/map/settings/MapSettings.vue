@@ -94,12 +94,8 @@
                                     src="../../../assets/images/openweather.png"
                                 >
                             </a>
-                            <settings-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
-                            <ui-radio-group
-                                :items="weatherLayers"
-                                :model-value="weatherLayer || 'false'"
-                                @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
-                            />
+                            <ui-setting-item :item="getSettingByItem(settingsItems.layers[store.theme === 'light' ? 'weatherLightTransparency' : 'weatherDarkTransparency'], { title: '', description: undefined })"/>
+                            <ui-setting-item :item="getSettingByItem(settingsItems.layers.weather, { title: '', description: undefined })"/>
                         </div>
                     </popup-aside>
                 </div>
@@ -291,6 +287,8 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import { observerFlight, ownFlight, skipObserver } from '~/composables/vatsim/pilots';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import { getSettingByItem, getSettingsItems } from '~/composables/settings/v2/sections';
 
 const MapFiltersLayers = defineAsyncComponent(() => import('~/components/map/settings/filters/MapFiltersLayers.vue'));
 const MapFiltersTraffic = defineAsyncComponent(() => import('~/components/map/settings/filters/MapFiltersTraffic.vue'));
@@ -298,7 +296,6 @@ const MapSettings = defineAsyncComponent(() => import('~/components/map/settings
 
 const store = useStore();
 const mapStore = useMapStore();
-const weatherLayer = useSettingValueFromFunc('map.layers.weather');
 
 const isOpened = useLocalStorage('map-filters-opened', true);
 const selectedFilter = ref<string | null>(null);
@@ -317,6 +314,7 @@ const importedPresetName = ref('');
 const isMobile = useIsMobile();
 const isPC = useIsPC();
 const debug = useIsDebug();
+const settingsItems = getSettingsItems().value;
 
 const isDebug = computed(() => {
     return debug || !!getKeyedValueFromSettings('map.preferences.debugMode');
@@ -385,39 +383,6 @@ const importPreset = async () => {
         importedPreset.value = false;
     }
 };
-
-const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
-    {
-        value: 'false',
-        text: 'None',
-    },
-    {
-        value: 'CL',
-        text: 'Clouds',
-    },
-    {
-        value: 'PR0',
-        text: 'Precipitation Radar',
-    },
-    {
-        value: 'RE',
-        text: 'Ground elevation',
-    },
-    {
-        value: 'PR0C',
-        text: 'Precipitation Intensity',
-    },
-    {
-        value: 'rainViewer',
-        text: 'Precipitation (RainViewer)',
-        hint: 'RainViewer has less coverage, but you can use it if you want!',
-        hintLocation: 'right',
-    },
-    {
-        value: 'WND',
-        text: 'Wind (w/direction arrows)',
-    },
-];
 </script>
 
 <style scoped lang="scss">

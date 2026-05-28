@@ -61,6 +61,7 @@ import LayoutUpdatePopup from '~/components/features/layout/LayoutUpdatePopup.vu
 import LayoutConsent from '~/components/features/layout/LayoutConsent.vue';
 import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.vue';
 import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceTutorial.vue';
+import { setAircraftDefaultColors } from '~/composables/settings/v2/utils';
 
 defineSlots<{ default: () => any }>();
 
@@ -210,7 +211,7 @@ useHead(() => {
         ],
         htmlAttrs: {
             lang: 'en',
-            class: [`theme-${ store.theme ?? 'default' }`, store.config.hideHeader ? `iframe` : ''],
+            class: [`theme-${ store.theme ?? 'default' }`, store.config.hideHeader ? `iframe` : '', store.config.hidePaddings ? 'hide-paddings' : ''],
         },
         style: [{
             key: 'radarStyles',
@@ -308,6 +309,7 @@ await useAsyncData('default-init', async () => {
 });
 
 await useAsyncData('map-presets', async () => {
+    setAircraftDefaultColors();
     await settingsStore.fetchPresets();
 }, {
     server: false,
@@ -360,6 +362,10 @@ html, body {
     background: $black;
 
     -webkit-tap-highlight-color: transparent;
+
+    &.hide-paddings .app_content {
+        padding: 0;
+    }
 
     &:not(.iframe) {
         scrollbar-gutter: stable;

@@ -350,13 +350,14 @@ const transparencyOptions = computed<SelectItem[]>(() => {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            justify-content: space-evenly;
         }
 
         &_item {
             cursor: pointer;
 
+            aspect-ratio: 1.2/1;
             width: calc(11cqw - 8px * 11 / 12);
-            height: 32px;
             border: 1px solid $darkGray400;
             border-radius: 4px;
 
@@ -366,6 +367,10 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
             @container (width > 700px) {
                 width: calc(6cqw - 8px * 6 / 5);
+            }
+
+            @container (width < 300px) {
+                width: calc(14cqw - 8px * 14 / 15);
             }
 
             @include mobileOnly {

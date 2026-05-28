@@ -8,18 +8,19 @@ import type {
 } from '~/utils/settings/types';
 import type { UserCustomPreset } from '~/components/map/settings/filters/MapFiltersPresets.vue';
 import { setCustomDefuMergeAsIs } from '~/composables';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
         ? V
         : never;
 
-export async function onSettingChange() {
+export async function onSettingChange(autoSave = true) {
     const settingsStore = useSettingsStore();
 
     localStorage.setItem('settings', JSON.stringify(settingsStore.settings));
 
-    if (!settingsStore.activeSettingsPreset || !settingsStore.autoSave) return;
+    if (!settingsStore.activeSettingsPreset || !settingsStore.autoSave || !autoSave) return;
 
     await $fetch<UserCustomPreset>(`/api/user/settings/v2/${ settingsStore.activeSettingsPreset }`, {
         method: 'PUT',
@@ -79,7 +80,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.defaultZoomLevel': 14,
 
     'map.preferences.airports.shortView': false,
-    'map.preferences.airports.showMode': 'all',
+    'map.preferences.airports.showMode': 'staffedAndGroundTraffic',
     'map.preferences.airports.declutterIf': 'unstaffed',
     'map.preferences.airports.ATISAsUnstaffed': false,
 
@@ -101,7 +102,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
-    'map.preferences.colors.default.approach': { color: 'red300' },
+    'map.preferences.colors.default.approach': { color: 'citrus600' },
     'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
     'map.preferences.colors.default.centerBookings': { color: 'lightGray400', transparency: 0.07 },
     'map.preferences.colors.default.staffedAirport': 1,
@@ -136,7 +137,7 @@ const _settingsDefaultValues = {
     'map.layers.layerLabels': true,
     'map.layers.relativeIndicator': 'metric',
     'map.layers.terminator': false,
-    'map.layers.heatmap': true,
+    'map.layers.heatmap': false,
 
     'map.layers.transparency.osm': 0.5,
     'map.layers.transparency.satellite': 0.3,
@@ -220,44 +221,62 @@ export const settingsDefaultValues = _settingsDefaultValues as {
     [K in keyof typeof _settingsDefaultValues]: DeepValueOfSetting<UserSettingsV2, K>
 };
 
+export function setAircraftDefaultColors() {
+    const aircraftColors = aircraftStatusColors;
+
+    const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing'] satisfies MapAircraftStatus[];
+
+    for (const option of aircraftOptions) {
+        settingsDefaultValues[`map.preferences.colors.default.aircraft.${ option }`] = { color: aircraftColors[option] };
+    }
+}
+
 export type SettingsKeysWithDefault = keyof typeof settingsDefaultValues;
 
 export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
-    const parts = path.split('.');
-    let root: UserSettingsV2Partial = {};
-    let result: Record<string, unknown> = root;
+    try {
+        const settingsStore = useSettingsStore();
 
-    if (value === undefined) {
-        root = settingsStore.settings;
-        result = root;
+        const parts = path.split('.');
+        let root: UserSettingsV2Partial = {};
+        let result: Record<string, unknown> = root;
 
-        for (let i = 0; i < parts.length - 1; i++) {
-            const part = parts[i];
+        if (value === undefined) {
+            root = settingsStore.settings;
+            result = root;
 
-            if (!(part in (result as Record<string, unknown>))) return;
-            result = result[part] as Record<string, unknown>;
-            if (result === null || typeof result !== 'object') return;
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+
+                if (!(part in (result as Record<string, unknown>))) return;
+                result = result[part] as Record<string, unknown>;
+                if (result === null || typeof result !== 'object') return;
+            }
+
+            const last = parts[parts.length - 1];
+            const container = result as Record<string, unknown>;
+            if (!(last in container)) return;
+
+            delete container[last];
+            return settingsStore.save(root, { overwrite: true });
         }
+        else {
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                result[part] = {};
+                result = result[part] as Record<string, unknown>;
+            }
 
-        const last = parts[parts.length - 1];
-        const container = result as Record<string, unknown>;
-        if (!(last in container)) return;
+            const last = parts[parts.length - 1];
+            result[last] = value as unknown;
 
-        delete container[last];
-        return useSettingsStore().save(root, { overwrite: true });
+            if (value === null) setCustomDefuMergeAsIs();
+            return useSettingsStore().save(root);
+        }
     }
-    else {
-        for (let i = 0; i < parts.length - 1; i++) {
-            const part = parts[i];
-            result[part] = {};
-            result = result[part] as Record<string, unknown>;
-        }
-
-        const last = parts[parts.length - 1];
-        result[last] = value as unknown;
-
-        if (value === null) setCustomDefuMergeAsIs();
-        return useSettingsStore().save(root);
+    catch (e) {
+        console.log(path ?? 'no path', value);
+        throw e;
     }
 }
 
@@ -279,6 +298,7 @@ function changeColorPath<T extends string>(path: T) {
 
 export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
     const colorPath = changeColorPath(path);
+    const settingsStore = useSettingsStore();
 
     return getSettingValue(
         () => getSettingByKey(settingsStore.settings, colorPath) ?? getSettingByKey(settingsStore.settings, path),
@@ -299,6 +319,8 @@ export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepV
 export function getSettingValue<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): SettingValueType<V>;
 export function getSettingValue<T>(setting: (() => T | undefined), defaultValue: T): SettingValueType<T>;
 export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknown | undefined), defaultValue?: unknown): SettingValueType<unknown> {
+    const settingsStore = useSettingsStore();
+
     return computed(() => {
         if (typeof setting === 'string') {
             const val = getSettingByKey(settingsStore.settings, setting);
@@ -329,7 +351,7 @@ export function useSettingValueFromFunc(setting: SettingsKeysWithDefault | (() =
 }
 
 export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V {
-    const settingValue = getSettingByKey(settingsStore.settings, setting);
+    const settingValue = getSettingByKey(useSettingsStore().settings, setting);
     return (settingValue === undefined ? settingsDefaultValues[setting] : settingValue);
 }
 

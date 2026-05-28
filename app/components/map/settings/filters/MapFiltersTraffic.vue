@@ -10,9 +10,6 @@
                 bookmarks: {
                     title: 'Bookmarks',
                 },
-                traffic: {
-                    title: 'Traffic',
-                },
                 share: {
                     title: 'Share',
                 },
@@ -55,17 +52,6 @@
                     />
                 </template>
             </map-filters-presets>
-        </template>
-        <template v-else-if="tab === 'traffic'">
-            <ui-toggle
-                :model-value="!!disableFastUpdate"
-                @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
-            >
-                Disable fast update
-                <template #description>
-                    Sets update to once per 15 seconds. Expected delay from 15 to 30 seconds, but it will consume much less traffic
-                </template>
-            </ui-toggle>
         </template>
         <template v-else-if="tab === 'share'">
             <ui-button

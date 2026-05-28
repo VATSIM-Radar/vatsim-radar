@@ -4,6 +4,7 @@
         :class="{
             'setting--has-left': $slots.title || $slots.description ,
             'setting--disabled': disabled,
+            'setting--left-grow': leftGrow,
         }"
     >
         <div
@@ -58,6 +59,12 @@ defineProps({
 
 defineSlots<{ default?(): any; title?(): any; description?(): any; hint?(): any; leftAppend?(): any }>();
 
+const route = useRoute();
+
+const leftGrow = computed(() => {
+    return !route.path?.startsWith('/settings');
+});
+
 function labelClick(event: MouseEvent) {
     const setting = (event.target as HTMLDivElement).closest('.setting');
 
@@ -105,6 +112,24 @@ function labelClick(event: MouseEvent) {
     &--disabled .setting_component {
         pointer-events: none;
         opacity: 0.5;
+    }
+
+    &--left-grow {
+        display: flex;
+        gap: 24px;
+        justify-content: space-between;
+
+        .setting_component {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        @at-root .setting:not(.setting--has-left) .setting_component {
+            align-items: flex-start;
+        }
     }
 }
 </style>

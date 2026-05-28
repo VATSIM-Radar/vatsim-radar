@@ -1,5 +1,5 @@
 import type {
-    NavigraphSettingsLevel,
+    NavigraphSettingsLevel, UserMapSettings,
     UserMapSettingsColors, UserMapSettingsTurns,
     UserMapSettingsVisibilityATC,
 } from '~/utils/server/handlers/map-settings';
@@ -13,6 +13,7 @@ import type {
 import type { VatsimNattrak } from '~/types/data/vatsim';
 import type { Units } from 'ol/control/ScaleLine.js';
 import type { RecursivePartial } from '~/types';
+import type { UserPreset } from '#prisma';
 
 export interface UserSettingsV2 {
     appearance: {
@@ -198,6 +199,10 @@ export interface UserSettingsV2 {
 }
 
 export type UserSettingsV2Partial = RecursivePartial<UserSettingsV2>;
+
+export type UserSettingsPreset = UserPreset & {
+    json: UserSettingsV2Partial;
+};
 
 type Primitive = string | number | boolean | null | undefined | symbol | bigint | Date;
 

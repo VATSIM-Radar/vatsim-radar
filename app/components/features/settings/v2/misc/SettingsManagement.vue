@@ -39,7 +39,7 @@
                 type="settings"
                 @create="createSettingsPreset"
                 @reset="settingsStore.autoSave ? undefined : [settingsStore.activeSettingsPreset = null, settingsStore.save({}, { overwrite: true })]"
-                @save="(event, id) => [settingsStore.activeSettingsPreset = id, settingsStore.save(event, { overwrite: true })]"
+                @save="(event, id) => [settingsStore.setPreset(id), settingsStore.save(event, { overwrite: true, autoSave: false })]"
             />
         </ui-setting-display>
         <ui-button type="destructive" @click="resetActive = true">

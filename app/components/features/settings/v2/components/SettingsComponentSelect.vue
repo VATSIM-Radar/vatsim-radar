@@ -5,6 +5,7 @@
         :multiple
         :placeholder="item.placeholder"
         :show-placeholder="toValue(item.showPlaceholder )"
+        width="100%"
         @update:modelValue="handleSettingChange(item, $event)"
     />
 </template>

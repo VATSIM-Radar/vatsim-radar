@@ -35,6 +35,7 @@ export interface SiteConfig {
     hideHeader?: boolean;
     hideFooter?: boolean;
     hideBookings?: boolean;
+    hidePaddings?: boolean;
 
     theme?: ThemesList;
     allAircraftGreen?: boolean;

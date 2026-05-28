@@ -73,7 +73,7 @@
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
-                        :key="String(mapLayer)"
+                        :key="String(mapLayerSetting)"
                     />
                     <map-distance v-if="distanceEnabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
@@ -281,6 +281,7 @@ import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
+import MapLayer from '~/components/map/layers/MapLayer.vue';
 
 defineProps({
     mode: {
@@ -312,7 +313,7 @@ const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const config = useRuntimeConfig();
-const mapLayer = useSettingValueFromFunc('map.layers.layer');
+const mapLayerSetting = useSettingValueFromFunc('map.layers.layer');
 const distanceEnabled = useSettingValueFromFunc('map.layers.distance.enabled');
 const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
 const terminatorEnabled = useSettingValueFromFunc('map.layers.terminator');
@@ -950,6 +951,12 @@ await setupDataFetch({
         map.value.on('pointerdrag', function() {
             map.value!.getTargetElement().style.cursor = 'grabbing';
         });
+
+        const saveData = useThrottleFn((airports: Set<string>, aircraft: Set<number>) => {
+            mapStore.renderedAirports = Array.from(airports);
+            mapStore.renderedPilots = Array.from(aircraft);
+        }, 250, true);
+
         map.value.on('postrender', event => {
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
@@ -968,8 +975,7 @@ await setupDataFetch({
                 if (isMapFeature('aircraft', properties)) aircraft.add(properties.id);
             }
 
-            mapStore.renderedAirports = Array.from(airports);
-            mapStore.renderedPilots = Array.from(aircraft);
+            saveData(airports, aircraft);
         });
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());

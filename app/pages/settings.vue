@@ -7,19 +7,24 @@
             Manage your experience here
         </template>
         <template #append>
-            <ui-input-text
-                v-model="search"
-                placeholder="Search"
-                width="448px"
-                @appendClick="$event.input?.focus()"
-            >
-                <template #append>
-                    <search-icon width="16"/>
-                </template>
-            </ui-input-text>
+            <div class="__horizontal-group-16">
+                <ui-button :type="mapPreview ? 'primary' : 'secondary-black'" @click="mapPreview = !mapPreview">
+                    Preview on Map
+                </ui-button>
+                <ui-input-text
+                    v-model="search"
+                    placeholder="Search"
+                    width="448px"
+                    @appendClick="$event.input?.focus()"
+                >
+                    <template #append>
+                        <search-icon width="16"/>
+                    </template>
+                </ui-input-text>
+            </div>
         </template>
 
-        <div class="settings">
+        <div class="settings" :class="{ 'settings--preview': mapPreview }">
             <div class="settings_menu settings_menu--nav">
                 <div
                     v-for="root in settingsSections"
@@ -101,6 +106,13 @@
                     </div>
                 </div>
             </div>
+
+            <iframe
+                v-if="mapPreview"
+                ref="iframe"
+                class="settings_iframe"
+                src="/?preset=settings"
+            />
         </div>
     </ui-page-container>
 </template>
@@ -115,9 +127,11 @@ import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import SearchIcon from '@/assets/icons/kit/search.svg?component';
 import type { SettingsItem, SettingsSectionBlock } from '~/composables/settings/v2/types';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 const search = ref('');
 const route = useRoute();
+const iframe = useTemplateRef('iframe');
 
 const rootPath = computed(() => route.params.path?.[0] ?? null);
 const childrenPath = computed(() => route.params.path?.[1] ?? null);
@@ -125,6 +139,7 @@ const childrenPath = computed(() => route.params.path?.[1] ?? null);
 const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: () => ([]) });
 
 const settingsSections = getSettingsSections();
+const mapPreview = ref(false);
 
 const currentItem = computed(() => {
     if (search.value) {
@@ -230,6 +245,26 @@ if (!currentItem.value) {
     grid-template-columns: (220px + 24px) calc(100% - 48px - 440px) 220px;
     flex-grow: 1;
     justify-content: space-between;
+
+    &--preview {
+        grid-template-columns: (220px + 24px) calc(65% - 48px - 440px) 220px 35%;
+
+        :deep(.setting--has-left) {
+            grid-template-columns: 50% calc(100% - 50% - 24px);
+        }
+    }
+
+    &_iframe {
+        position: sticky;
+        top: 64px;
+
+        overflow: hidden;
+
+        width: 100%;
+        height: calc(100dvh - 72px);
+        border: none;
+        border-radius: 12px;
+    }
 
     &_menu {
         position: sticky;

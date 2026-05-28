@@ -1,4 +1,4 @@
-import type { SettingsMenuGroup } from './types';
+import type { SettingsItemDefault, SettingsMenuGroup } from './types';
 import PersonIcon from '~/assets/icons/kit/person.svg?component';
 import DisplaySettingsIcon from '~/assets/icons/kit/display-settings.svg?component';
 import MapSettingsIcon from '~/assets/icons/kit/map-settings.svg?component';
@@ -6,7 +6,7 @@ import { settingsItemAccount } from '~/composables/settings/v2/items/account';
 import { settingsItemPreferences } from '~/composables/settings/v2/items/general/preferences';
 import { settingsItemAppearance } from '~/composables/settings/v2/items/general/appearance';
 import { settingsItemPreferencesAircraft } from '~/composables/settings/v2/items/general/preferences/aircraft';
-import { getSettingValue, setSettingByKey, settingsDefaultValues } from '~/composables/settings/v2/utils';
+import { getSettingValue, setSettingByKey } from '~/composables/settings/v2/utils';
 import { settingsItemAppearanceColors } from '~/composables/settings/v2/items/general/appearance/colors';
 import { settingsItemLayers } from '~/composables/settings/v2/items/layers';
 import { settingsItemSigmets } from '~/composables/settings/v2/items/layers/sigmets';
@@ -17,7 +17,6 @@ import { settingsItemNavigraphLayers } from '~/composables/settings/v2/items/lay
 import { settingsItemNavigraphRoute } from '~/composables/settings/v2/items/layers/navigraph/route';
 import { settingsItemPreferencesAirports } from '~/composables/settings/v2/items/general/preferences/airports';
 import { settingsItemTraffic } from '~/composables/settings/v2/items/general/preferences/traffic';
-import { aircraftStatusColors } from '~/composables/vatsim/pilots';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import SettingsManagement from '~/components/features/settings/v2/misc/SettingsManagement.vue';
 import SettingsRecommendedPerformance from '~/components/features/settings/v2/misc/SettingsRecommendedPerformance.vue';
@@ -52,14 +51,6 @@ export const getSettingsItems = globalComputed(() => {
 export const getSettingsSections = () => {
     const store = useStore();
     const notLoggedIn = computed(() => !store.user);
-
-    const aircraftColors = aircraftStatusColors;
-
-    const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing'] satisfies MapAircraftStatus[];
-
-    for (const option of aircraftOptions) {
-        settingsDefaultValues[`map.preferences.colors.default.aircraft.${ option }`] = { color: aircraftColors[option] };
-    }
 
     const items = getSettingsItems().value;
 
@@ -438,3 +429,10 @@ export const getSettingsSections = () => {
         },
     ] satisfies SettingsMenuGroup[] as SettingsMenuGroup[];
 };
+
+export function getSettingByItem(item: SettingsItem, settings: Partial<SettingsItemDefault>) {
+    return {
+        ...(item as any),
+        ...settings,
+    };
+}

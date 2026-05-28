@@ -55,14 +55,14 @@ export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ 
         onChange: value => setSettingByKey('map.visibility.runways', value),
     },
     pilotsInfo: {
-        title: 'Pilots info',
+        title: 'Show pilots info',
         searchKeywords: ['privacy', 'names', 'personal info'],
         type: 'toggle',
         value: getSettingValue('map.visibility.pilotsInfo'),
         onChange: value => setSettingByKey('map.visibility.pilotsInfo', value),
     },
     atcInfo: {
-        title: 'Controllers info',
+        title: 'Show controllers info',
         searchKeywords: ['privacy', 'names', 'personal info'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atcInfo'),

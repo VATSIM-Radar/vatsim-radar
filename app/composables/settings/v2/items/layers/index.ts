@@ -37,9 +37,9 @@ const sigmetsTransparencyOptions = transparencyOptions.filter(item => item.value
 export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ store, notLoggedIn }) => ({
     weather: {
         title: 'Weather layer',
-        description: 'Shows selected weather overlay on the map',
+        description: 'Shows selected weather overlay on the map. Provided by OpenWeather',
         searchKeywords: ['radar', 'rain', 'clouds', 'wind', 'precipitation'],
-        type: 'select',
+        type: 'radio',
         items: [
             { value: null, text: 'Disabled' },
             { value: 'PR0', text: 'Precipitation Radar' },
@@ -175,7 +175,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
     distanceUnits: {
         title: 'Distance unit',
         type: 'select',
-        items: distanceUnits.filter(item => item.value !== 'degrees'),
+        items: distanceUnits.filter(item => item.value !== 'degrees' && item.value),
         value: getSettingValue('map.layers.distance.units'),
         onChange: value => setSettingByKey('map.layers.distance.units', value as Units),
         disabled: computed(() => !getSettingValue('map.layers.distance.enabled').value.value),
