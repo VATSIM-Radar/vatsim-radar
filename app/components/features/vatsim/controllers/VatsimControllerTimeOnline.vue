@@ -12,7 +12,7 @@
                 Booked until:
             </div>
             <ui-chip class="atc-time_info">
-                {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}z
+                {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}z
             </ui-chip>
         </div>
         <div class="atc-time_section">
@@ -44,7 +44,7 @@ defineProps({
     },
 });
 
-const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 </script>
 
 <style scoped lang="scss">

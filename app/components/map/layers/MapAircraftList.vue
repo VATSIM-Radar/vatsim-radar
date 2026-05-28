@@ -60,7 +60,7 @@ function receiveMessage(event: MessageEvent) {
 const showTracks = shallowRef<Record<string, TrackData>>({});
 
 const getShownPilots = computed(() => {
-    const groundTrafficHide = store.mapSettings.groundTraffic?.hide ?? 'lowZoom';
+    const groundTrafficHide = getKeyedValueFromSettings('map.preferences.airports.groundTraffic.hide');
     if (groundTrafficHide === 'never') return dataStore.visiblePilots.value;
     if (groundTrafficHide === 'lowZoom' && mapStore.zoom > 11) return dataStore.visiblePilots.value;
     if (groundTrafficHide !== 'always' && groundTrafficHide !== 'lowZoom') return dataStore.visiblePilots.value;
@@ -70,7 +70,7 @@ const getShownPilots = computed(() => {
 
     let arrivalAirport = '';
 
-    if (me?.arrival && !store.mapSettings.groundTraffic?.excludeMyArrival) {
+    if (me?.arrival && !getKeyedValueFromSettings('map.preferences.airports.groundTraffic.excludeMyArrival')) {
         arrivalAirport = me.arrival;
     }
 
@@ -80,7 +80,7 @@ const getShownPilots = computed(() => {
         const airport = dataStore.airportsList.value[icao];
         if (!airport || airport.icao === arrivalAirport) continue;
 
-        if (me && !store.mapSettings.groundTraffic?.excludeMyLocation) {
+        if (me && !getKeyedValueFromSettings('map.preferences.airports.groundTraffic.excludeMyLocation')) {
             const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);
             if (check) continue;
         }
@@ -101,10 +101,8 @@ function setVisiblePilots() {
     if (!map.value) return;
     const tracks: Record<string, TrackData> = {};
 
-    const {
-        mode: tracksMode = 'arrivalsOnly',
-        limit: tracksLimit = 50,
-    } = store.mapSettings.tracks ?? {};
+    const tracksMode = getKeyedValueFromSettings('map.preferences.aircraft.tracks.mode');
+    const tracksLimit = getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit');
 
     const extent = mapStore.extent.slice();
     extent[0] -= 0.9;
@@ -287,7 +285,7 @@ function setVisiblePilots() {
 }
 
 function initHeatmap() {
-    if (store.mapSettings.heatmapLayer) {
+    if (getKeyedValueFromSettings('map.layers.heatmap')) {
         if (!vectorSource || heatmap) return;
 
         heatmap = new Heatmap({
@@ -304,12 +302,16 @@ function initHeatmap() {
     }
 }
 
-watch(() => store.mapSettings.heatmapLayer, async () => {
+watch(() => getKeyedValueFromSettings('map.layers.heatmap'), async () => {
     await nextTick();
     initHeatmap();
 });
 
-const updateRelatedSettings = computed(() => JSON.stringify(store.mapSettings.tracks ?? {}) + String(mapStore.hoveredPilot));
+const updateRelatedSettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.mode'),
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit'),
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.showOutOfBounds'),
+]) + String(mapStore.hoveredPilot));
 
 let init = false;
 

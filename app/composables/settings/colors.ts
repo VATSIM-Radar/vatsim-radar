@@ -1,6 +1,6 @@
 import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/server/handlers/map-settings';
 import { getCurrentThemeRgbColor } from '~/composables';
-import { useStore } from '~/store';
+import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 export function shortHexToLong(hex: string) {
     return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
@@ -73,19 +73,13 @@ export function getStringColorFromSettings(setting: string | null | undefined, r
 export type SettingsColorType = Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>;
 
 export function getSelectedColorTransparencyFromSettings(color: SettingsColorType) {
-    const store = useStore();
-    const themeKey = store.getCurrentTheme;
-
-    const setting = store.mapSettings.colors?.[themeKey]?.[color];
+    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any) as UserMapSettingsColor | null;
 
     return setting ? setting.transparency : null;
 }
 
 export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean) {
-    const store = useStore();
-    const themeKey = store.getCurrentTheme;
-
-    const setting = store.mapSettings.colors?.[themeKey]?.[color];
+    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any) as UserMapSettingsColor | null;
 
     return setting ? getColorFromSettings(setting, raw) : null;
 }

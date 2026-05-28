@@ -70,7 +70,7 @@
                             </ui-button>
                             <ui-toggle
                                 v-if="store.bookmarks.length"
-                                :model-value="!!store.localSettings.featuredDefaultBookmarks"
+                                :model-value="!!featuredDefaultBookmarks"
                                 @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
                             >
                                 Default to bookmarks
@@ -179,8 +179,8 @@
                         <div class="map-footer__booking-title-row">
                             <span>Bookings</span>
                             <ui-toggle
-                                v-model="store.mapSettings.bookingsLocalTimezone"
                                 class="picker-localtime"
+                                :model-value="bookingsLocalTimezone"
                                 @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
                             >
                                 local time
@@ -299,6 +299,8 @@ import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 
 const store = useStore();
+const featuredDefaultBookmarks = useSettingValueFromFunc('map.preferences.featuredDefaultBookmarks');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 

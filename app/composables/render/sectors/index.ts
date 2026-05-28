@@ -109,17 +109,17 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             vgMap[properties.vgSectorId].push(feature);
         }
 
-        const lastLevelOrCombined = store.mapSettings.vatglasses?.combined ? true : store.localSettings.vatglassesLevel ?? 999;
+        const lastLevelOrCombined = getKeyedValueFromSettings('map.vatglasses.combined') ? true : store.localSettings.vatglassesLevel ?? 999;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
             for (const positionId in countryEntries) {
                 const position = countryEntries[positionId];
-                const id: any = 'sector-' + String(countryId) + String(positionId) + String(store.mapSettings.vatglasses?.combined);
+                const id: any = 'sector-' + String(countryId) + String(positionId) + String(getKeyedValueFromSettings('map.vatglasses.combined'));
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                const vgFeatures = store.mapSettings.vatglasses?.combined
+                const vgFeatures = getKeyedValueFromSettings('map.vatglasses.combined')
                     ? position.sectorsCombined
                     : position.sectors?.filter(
                         x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),

@@ -72,7 +72,7 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
 export function getResolvedScale({ scale, width, height, onGround }: {
     scale?: number | null; width: number; height: number; onGround?: boolean;
 }): [width: number, height: number, scale: number] {
-    let resolvedScale = typeof scale === 'number' ? scale : (useStore().mapSettings.aircraftScale ?? 1);
+    let resolvedScale = typeof scale === 'number' ? scale : getKeyedValueFromSettings('map.preferences.aircraft.scale');
 
     if (resolvedScale > 10) resolvedScale = 10;
 

@@ -6,7 +6,7 @@
         <div class="filters_top">
             <ui-button
                 class="filters_toggle"
-                @click="setUserLocalSettings({ filters: { opened: !isOpened } })"
+                @click="isOpened = !isOpened"
             >
                 <template #icon>
                     <filter-icon/>
@@ -97,7 +97,7 @@
                             <settings-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
                             <ui-radio-group
                                 :items="weatherLayers"
-                                :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
+                                :model-value="weatherLayer || 'false'"
                                 @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
                             />
                         </div>
@@ -286,7 +286,6 @@ import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';
 import type { IUserFilter } from '~/utils/server/handlers/filters';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';
-import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
@@ -299,8 +298,9 @@ const MapSettings = defineAsyncComponent(() => import('~/components/map/settings
 
 const store = useStore();
 const mapStore = useMapStore();
+const weatherLayer = useSettingValueFromFunc('map.layers.weather');
 
-const isOpened = computed(() => store.localSettings.filters?.opened !== false);
+const isOpened = useLocalStorage('map-filters-opened', true);
 const selectedFilter = ref<string | null>(null);
 
 const selectFilter = (filter: string) => {
@@ -319,7 +319,7 @@ const isPC = useIsPC();
 const debug = useIsDebug();
 
 const isDebug = computed(() => {
-    return debug || !!store.localSettings.debugMode;
+    return debug || !!getKeyedValueFromSettings('map.preferences.debugMode');
 });
 
 const createPreset = async () => {

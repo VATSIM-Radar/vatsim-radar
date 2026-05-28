@@ -279,8 +279,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
 
                 const params = new URLSearchParams();
                 params.set('v', store.version);
-                params.set('layout', (store.user?.hasCharts && store.user?.hasFms && !store.mapSettings.navigraphLayers?.disable) ? '1' : '0');
-                params.set('originalData', store.mapSettings.navigraphLayers?.gatesFallback ? '1' : '0');
+                params.set('layout', (store.user?.hasCharts && store.user?.hasFms && getKeyedValueFromSettings('map.navigraph.airport.enabled')) ? '1' : '0');
 
                 navigraphData.value[airport.icao] = await $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`);
             }));

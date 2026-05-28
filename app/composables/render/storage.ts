@@ -521,11 +521,11 @@ function initBookings() {
 
     function updateEnd() {
         const d = new Date();
-        d.setTime(Date.now() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+        d.setTime(Date.now() + ((((getKeyedValueFromSettings('map.bookings.hours')) * 60) * 60) * 1000));
         end.value = d.getTime();
     }
 
-    const bookingHours = computed(() => store.mapSettings.bookingHours);
+    const bookingHours = computed(() => getKeyedValueFromSettings('map.bookings.hours'));
     // Every 15 minutes
     const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 5);
 
@@ -560,11 +560,11 @@ function initEvents() {
 
     function updateStart() {
         const d = new Date();
-        d.setTime(Date.now() + ((((store.mapSettings.eventsHours ?? 2) * 60) * 60) * 1000));
+        d.setTime(Date.now() + (((getKeyedValueFromSettings('map.events.hours') * 60) * 60) * 1000));
         start.value = d.getTime();
     }
 
-    const eventsHours = computed(() => store.mapSettings.eventsHours);
+    const eventsHours = computed(() => getKeyedValueFromSettings('map.events.hours'));
     // Every 30 minutes
     const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 30);
 
@@ -609,7 +609,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         }
     }
 
-    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
+    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate');
 
     function startIntervalChecks() {
         vgInterval = setInterval(async () => {
@@ -668,7 +668,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         document.addEventListener('visibilitychange', setVisibilityState);
         window.addEventListener('message', receiveMessage);
 
-        watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+        watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
             watcher?.();
             if (val !== true) {
@@ -796,11 +796,11 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }
 
 export function checkFlightLevel(level: NavDataFlightLevel) {
-    const store = useStore();
+    const ifrMode = getKeyedValueFromSettings('map.navigraph.layers.ifrMode');
 
-    if (level === 'B' || level === null || !store.mapSettings.navigraphData?.mode || store.mapSettings.navigraphData.mode === 'both') return true;
+    if (level === 'B' || level === null || !ifrMode || ifrMode === 'both') return true;
 
-    if (store.mapSettings.navigraphData?.mode && store.mapSettings.navigraphData?.mode !== 'ifrHigh') {
+    if (ifrMode !== 'ifrHigh') {
         return level === 'L';
     }
     else return level === 'H';

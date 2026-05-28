@@ -284,7 +284,6 @@
 
 <script setup lang="ts">
 import type { UserListLive, UserListLiveUser, UserListUser } from '~/utils/server/handlers/lists';
-import type { UserSettingsV2 } from '~/utils/settings/types';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiInputColor from '~/components/ui/inputs/UiInputColor.vue';
@@ -420,7 +419,6 @@ const localList = ref<UserListLive>({
 if (props.list) Object.assign(localList.value, props.list);
 
 const router = useRouter();
-const settingsStore = useSettingsStore();
 const isNew = computed(() => localList.value.id === -1);
 const loading = ref(false);
 const deleteActive = ref(false);

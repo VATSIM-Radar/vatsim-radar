@@ -11,27 +11,23 @@
                 class="sigmets-settings_btn"
                 :class="{
                     'sigmets-settings_btn--dark': button.color.startsWith('lightGray'),
-                    'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key),
+                    'sigmets-settings_btn--active': enabledSigmets.includes(key as SigmetType),
                 }"
                 :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"
-                @click="setUserLocalSettings({ filters: { layers: { sigmets: {
-                    disabled: store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key)
-                        ? store.localSettings?.filters?.layers?.sigmets?.disabled.filter(x => x !== key)
-                        : [...store.localSettings?.filters?.layers?.sigmets?.disabled ?? [], key],
-                } } } })"
+                @click="toggleSigmet(key as SigmetType)"
             >
                 {{ button.text }}
             </div>
         </client-only>
         <ui-toggle
-            :model-value="store.localSettings?.filters?.layers?.sigmets?.showAirmets !== false"
-            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { showAirmets: $event } } } })"
+            :model-value="showAirmets"
+            @update:modelValue="setSettingByKey('sigmets.showAirmets', $event)"
         >
             AIRMETs
         </ui-toggle>
         <ui-toggle
-            :model-value="!!store.localSettings?.filters?.layers?.sigmets?.raw"
-            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { raw: $event } } } })"
+            :model-value="rawSigmets"
+            @update:modelValue="setSettingByKey('sigmets.raw', $event)"
         >
             Show raw SIGMET data only
         </ui-toggle>
@@ -39,13 +35,21 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from '~/store';
 import type { ColorsListRgb } from '~/utils/colors';
 import type { SigmetType } from '~/types/map';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';
 
-const store = useStore();
+const enabledSigmets = useSettingValueFromFunc('sigmets.enabled');
+const showAirmets = useSettingValueFromFunc('sigmets.showAirmets');
+const rawSigmets = useSettingValueFromFunc('sigmets.raw');
+
+function toggleSigmet(key: SigmetType) {
+    const current = enabledSigmets.value;
+    setSettingByKey('sigmets.enabled', current.includes(key)
+        ? current.filter((x: SigmetType) => x !== key)
+        : [...current, key]);
+}
 
 interface Button {
     text: string;

@@ -22,7 +22,7 @@
         <map-filters v-if="tab === 'filters'"/>
         <template v-else-if="tab === 'bookmarks'">
             <ui-toggle
-                :model-value="!!store.localSettings.skipBookmarkAnimation"
+                :model-value="!!skipBookmarkAnimation"
                 @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
             >
                 Disable animation
@@ -58,7 +58,7 @@
         </template>
         <template v-else-if="tab === 'traffic'">
             <ui-toggle
-                :model-value="!!store.localSettings.traffic?.disableFastUpdate"
+                :model-value="!!disableFastUpdate"
                 @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
             >
                 Disable fast update
@@ -109,6 +109,8 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 
 const store = useStore();
+const skipBookmarkAnimation = useSettingValueFromFunc('map.preferences.skipBookmarkAnimation');
+const disableFastUpdate = useSettingValueFromFunc('map.traffic.disableFastUpdate');
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 

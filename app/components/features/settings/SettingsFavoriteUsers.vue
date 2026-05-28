@@ -14,7 +14,7 @@
         </ui-button>
         <ui-toggle
             v-if="!list && isMobile && store.bookmarks.length"
-            :model-value="!!store.localSettings.featuredDefaultBookmarks"
+            :model-value="!!featuredDefaultBookmarks"
             @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
         >
             Default to bookmarks
@@ -134,9 +134,6 @@ import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import type { UserListLive, UserListLiveUser } from '~/utils/server/handlers/lists';
 import { useStore } from '~/store';
-import { useMapStore } from '~/store/map';
-import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
@@ -152,6 +149,7 @@ const props = defineProps({
 });
 
 const store = useStore();
+const featuredDefaultBookmarks = useSettingValueFromFunc('map.preferences.featuredDefaultBookmarks');
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 const sortedUsers = shallowRef<UserListLiveUser[]>([]);

@@ -20,7 +20,7 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 const store = useStore();
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',

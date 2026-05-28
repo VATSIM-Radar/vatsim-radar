@@ -115,7 +115,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             }));
         }
 
-        if (!labelType && !label && useStore().localSettings.filters?.layers?.layer === 'basic') {
+        if (!labelType && !label && getKeyedValueFromSettings('map.layers.layer') === 'basic') {
             cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.03)`);
         }
 

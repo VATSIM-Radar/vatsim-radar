@@ -101,13 +101,12 @@ defineSlots<{
     append: () => any;
 }>();
 
-const store = useStore();
 const dataStore = useDataStore();
 
 const model = defineModel({ type: Boolean });
 
 const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',

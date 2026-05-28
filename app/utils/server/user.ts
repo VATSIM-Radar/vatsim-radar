@@ -63,7 +63,7 @@ export interface FullUser {
     hasCharts: boolean | null;
     cid?: string;
     fullName?: string;
-    settings: UserSettings;
+    settings: Pick<UserSettings, 'seenVersion'>;
     discordId: string | null;
     lists: UserList[];
     messages: UserMessage[];

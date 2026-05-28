@@ -5,7 +5,7 @@
     >
         <ui-select
             :items="sortOptions"
-            :model-value="store.localSettings.filters?.notamsSortBy ?? null"
+            :model-value="notamsSortBy"
             placeholder="Sort By"
             width="100%"
             @update:modelValue="setUserLocalSettings({ filters: { notamsSortBy: $event as any } })"
@@ -84,15 +84,15 @@ import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import type { NotamsSortBy } from '~/types/map';
 import type { SelectItem } from '~/types/components/select';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
-import { useStore } from '~/store';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 const data = injectAirport();
+const notamsSortBy = useSettingValueFromFunc('appearance.notamsSortBy');
 const notamsList = computed(() => {
     const list = data.value.notams ?? [];
-    const sortBy = store.localSettings.filters?.notamsSortBy ?? null;
+    const sortBy = notamsSortBy.value;
 
     if (sortBy) {
         return list.slice(0).sort((a, b) => {
@@ -149,8 +149,6 @@ const notams = computed(() => {
 
     return groups;
 });
-const store = useStore();
-
 const getNotamType = (type: VatsimAirportDataNotam['type']) => {
     switch (type) {
         case 'C':

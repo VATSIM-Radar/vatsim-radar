@@ -143,7 +143,6 @@ export async function findAtcAirport(atc: VatsimShortenedController): Promise<Va
 
 export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number, animate = true) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
-    const store = useStore();
     const mapStore = useMapStore();
     const view = map?.getView();
     if (!airport) return;
@@ -151,12 +150,12 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
     await nextTick();
 
-    zoom = zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14;
+    zoom = zoom ?? getKeyedValueFromSettings('map.preferences.airports.defaultZoomLevel')!;
 
     if (animate) {
         view?.animate({
             center: [airport.lon, airport.lat],
-            zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
+            zoom: zoom ?? getKeyedValueFromSettings('map.preferences.airports.defaultZoomLevel')!,
         });
     }
     else {

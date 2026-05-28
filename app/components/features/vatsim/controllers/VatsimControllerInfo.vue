@@ -125,8 +125,8 @@
             </template>
             <template v-else-if="controller.booking">
                 Booked from
-                {{ makeBookingTime(controller.booking?.start, store.mapSettings.bookingsLocalTimezone) }} to {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}
-                <template v-if="!store.mapSettings.bookingsLocalTimezone">
+                {{ makeBookingTime(controller.booking?.start, bookingsLocalTimezone) }} to {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}
+                <template v-if="!bookingsLocalTimezone">
                     Z
                 </template>
             </template>
@@ -142,7 +142,6 @@ import { useMapStore } from '~/store/map';
 import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers/VatsimControllerTimeOnline.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import { getStringColorFromSettings } from '~/composables/settings/colors';
-import { useStore } from '~/store';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import UiChip from '~/components/ui/text/UiChip.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
@@ -188,7 +187,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
-const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 
 const additionalFrequencies = computed(() => {
     return props.controller.frequencies?.filter(x => {

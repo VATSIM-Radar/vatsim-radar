@@ -18,7 +18,7 @@
                     </div>
                     <ui-date-picker
                         v-model="dateRange"
-                        :use-local="store.mapSettings.bookingsLocalTimezone"
+                        :use-local="bookingsLocalTimezone"
                         @change="currentDateRange = 'custom'"
                     />
                 </div>
@@ -123,6 +123,7 @@ initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
 const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 
 const timelineUtc = ref(false);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
@@ -178,7 +179,7 @@ watch(dateRange, async () => {
 });
 
 onMounted(() => {
-    timelineUtc.value = store.mapSettings.bookingsLocalTimezone ?? false;
+    timelineUtc.value = getKeyedValueFromSettings('appearance.bookingsLocalTimezone');
     refresh();
 });
 

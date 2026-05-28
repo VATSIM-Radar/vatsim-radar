@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useStore } from '~/store';
 import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
@@ -17,11 +16,10 @@ defineOptions({
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
-const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings);
+const isEnabled = computed(() => getKeyedValueFromSettings('map.navigraph.layers.holdings'));
 
 // Dark magic from ChatGPT
 // Compute a destination point given start (lat,lon), distance (m), and bearing (° from north)
@@ -139,7 +137,7 @@ function generateHoldingPatternGeoJSON(
 }
 
 const extent = computed(() => mapStore.extent);
-const level = computed(() => store.mapSettings.navigraphData?.mode);
+const level = computed(() => getKeyedValueFromSettings('map.navigraph.layers.ifrMode'));
 
 const starWaypoints = shallowRef<Record<string, Coordinate>>({});
 const aircraftWaypoints = shallowRef<Record<string, Coordinate>>({});

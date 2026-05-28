@@ -15,9 +15,8 @@ import { getAirportCounters } from '~/composables/vatsim/airport';
 import { setAirportStyle } from '~/composables/render/airports/layers/airport-style';
 
 function colorForAirport(airport: AirportListItem) {
-    const store = useStore();
     const mapStore = useMapStore();
-    const opacity = store.mapSettings.colors?.[store.getCurrentTheme]?.defaultAirport;
+    const opacity = getKeyedValueFromSettings('map.preferences.colors.default.defaultAirport');
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === airport.icao || x.data.pilot.flight_plan?.departure === airport.icao || x.data.pilot.flight_plan?.arrival === airport.icao));
 
     if (!hasOverlay) {
@@ -46,7 +45,6 @@ export function setMapAirports({ source, airports, layer }: {
     layer: VectorLayer;
     airports: DataAirport[];
 }) {
-    const store = useStore();
     const mapStore = useMapStore();
     const dataStore = useDataStore();
     const facilitiesIds = useFacilitiesIds();
@@ -69,7 +67,7 @@ export function setMapAirports({ source, airports, layer }: {
             const facilityId = local.isATIS ? -1 : local.facility;
             let facility = facilitiesMap.get(facilityId);
 
-            if (local.isATIS && store.mapSettings.hideATISOnly && !locals.some(x => !x.isATIS)) {
+            if (local.isATIS && getKeyedValueFromSettings('map.preferences.airports.ATISAsUnstaffed') && !locals.some(x => !x.isATIS)) {
                 let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.icao }--1`);
 
                 if (existingFacility) {

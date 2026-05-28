@@ -45,7 +45,7 @@ export interface AircraftRenderState {
 }
 
 function getAircraftScale(pilot: VatsimShortenedAircraft | undefined, coordinates: Coordinate, icon: string) {
-    const baseScale = useStore().mapSettings.aircraftScale ?? 1;
+    const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
     if (!isDynamicAircraftScale.value || !pilot) return baseScale;
 
     const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
@@ -61,7 +61,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
 
     if (selfFlight || store.config.allAircraftGreen) return 'green';
 
-    const isEmergency = store.mapSettings.highlightEmergency && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
+    const isEmergency = getKeyedValueFromSettings('map.traffic.highlightEmergency') && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
 
     if (isEmergency) {
         return 'landed';

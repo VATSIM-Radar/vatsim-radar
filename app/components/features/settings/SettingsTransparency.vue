@@ -11,7 +11,6 @@ import type { PropType } from 'vue';
 import type { UserLayersTransparencySettings } from '~/types/map';
 import type { SelectItem } from '~/types/components/select';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
-import { useStore } from '~/store';
 
 const props = defineProps({
     setting: {
@@ -32,11 +31,14 @@ const props = defineProps({
     },
 });
 
-const store = useStore();
-
 const setting = computed({
     get() {
-        return store.localSettings.filters?.layers?.transparencySettings?.[props.setting] ?? null;
+        if (props.setting === 'osm') return getKeyedValueFromSettings('map.layers.transparency.osm');
+        if (props.setting === 'satellite') return getKeyedValueFromSettings('map.layers.transparency.satellite');
+        if (props.setting === 'weatherDark') return getKeyedValueFromSettings('map.layers.transparency.weatherDark');
+        if (props.setting === 'weatherLight') return getKeyedValueFromSettings('map.layers.transparency.weatherLight');
+        if (props.setting === 'sigmets') return getKeyedValueFromSettings('map.layers.transparency.sigmets');
+        return null;
     },
     set(value: number | null) {
         setUserLocalSettings({

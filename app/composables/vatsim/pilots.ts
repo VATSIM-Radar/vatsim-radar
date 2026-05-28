@@ -13,6 +13,7 @@ import { useRadarError } from '~/composables/errors';
 import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay } from '~/composables';
+import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -187,8 +188,6 @@ export const getFilteredAircraftSettings = (cid: number) => {
 };
 
 export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
-    const store = useStore();
-
     const list = cid && getUserList(cid);
     if (list) {
         return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
@@ -203,8 +202,8 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
     }
 
     let color = aircraftSvgColors()[status];
-    let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
-    if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+    let settingColor = getColorByKey(`map.preferences.colors.default.aircraft.${ status === 'default' ? 'main' : status }` as any).value.value;
+    if (status === 'ground' && !settingColor) settingColor = getColorByKey('map.preferences.colors.default.aircraft.main').value.value;
     if (settingColor) color = getColorFromSettings(settingColor);
 
     if (typeof filteredColor === 'number') {
@@ -307,7 +306,7 @@ export const useShowPilotStats = () => {
 export function getFlightRowColor(index: number | null | undefined, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.green600Hex;
 
-    const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
+    const turnsTheme = getKeyedValueFromSettings('map.preferences.colors.turns') as UserMapSettingsTurns;
 
     switch (theme) {
         case 'default':

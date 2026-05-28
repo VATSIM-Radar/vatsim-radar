@@ -6,7 +6,7 @@
             <ui-toggle
                 v-if="offset"
                 align-left
-                :model-value="!!store.localSettings.eventsLocalTimezone"
+                :model-value="!eventsLocalTimezone"
                 @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
             >
                 Use Zulu time instead of  {{ timezone.format(new Date()).slice(4, 100) }}
@@ -14,7 +14,7 @@
 
             <template
                 v-for="(events, day) in groupedEventData"
-                :key="day+String(store.localSettings.eventsLocalTimezone)"
+                :key="day+String(!eventsLocalTimezone)"
             >
                 <h2 class="common-event__title">{{ getDate(events![0].start_time) }}</h2>
 
@@ -35,15 +35,14 @@ import EventCard from '~/components/features/events/EventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import { useStore } from '~/store';
 
 const { data, refresh } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
-const store = useStore();
+const eventsLocalTimezone = useSettingValueFromFunc('appearance.eventsLocalTimezone');
 
-const timeZone = computed(() => store.localSettings.eventsLocalTimezone ? 'UTC' : undefined);
+const timeZone = computed(() => !eventsLocalTimezone.value ? 'UTC' : undefined);
 const offset = new Date().getTimezoneOffset();
 
 const datetime = computed(() => new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
@@ -96,7 +95,7 @@ const groupedEventData = computed(() => {
     data.value?.events.forEach(event => {
         if (new Date(event.end_time).getTime() < currentDate.value) return;
         const date = new Date(event.start_time);
-        const key = store.localSettings.eventsLocalTimezone
+        const key = !eventsLocalTimezone.value
             ? parseInt(date.getUTCFullYear().toString() + `0${ date.getUTCMonth() }`.slice(-2) + `0${ date.getUTCDate() }`.slice(-2))
             : parseInt(date.getFullYear().toString() + `0${ date.getMonth() }`.slice(-2) + `0${ date.getDate() }`.slice(-2));
 

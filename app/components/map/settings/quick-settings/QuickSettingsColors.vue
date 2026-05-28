@@ -6,7 +6,7 @@
             </div>
             <div class="colors__button">
                 <ui-button
-                    v-if="!!store.mapSettings.colors?.[isLightTheme ? 'light' : 'default']"
+                    v-if="hasThemeColors"
                     size="S"
                     type="link"
                     @click="themeSyncActive = true"
@@ -21,14 +21,14 @@
             </div>
             <ui-select
                 :items="[{ value: 'magma' }, { value: 'inferno' }, { value: 'rainbow' }, { value: 'viridis' }]"
-                :model-value="store.mapSettings.colors?.turns ?? null"
+                :model-value="turnsColor"
                 placeholder="Magma"
                 @update:modelValue="setUserMapSettings({ colors: { turns: $event as any } })"
             />
         </div>
         <ui-input-color
             :default-color="{ transparency: 1 }"
-            :model-value="store.mapSettings.colors?.turnsTransparency ? { transparency: store.mapSettings.colors?.turnsTransparency ?? 1 } : undefined"
+            :model-value="turnsTransparency ? { transparency: turnsTransparency } : undefined"
             transparency-only
             @update:modelValue="setUserMapSettings({ colors: { turnsTransparency: $event ? $event.transparency : undefined } })"
         >
@@ -36,63 +36,63 @@
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'red300' }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.approach"
+            :model-value="getColor('approach')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approach: $event } } })"
         >
             Approach tracon/circle
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'purple300', transparency: 0.7 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.approachBookings"
+            :model-value="getColor('approachBookings')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approachBookings: $event } } })"
         >
             Booked approach
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'green500', transparency: 0.1 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.firs"
+            :model-value="getColor('firs')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
             FIR (ARTCC)
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'lightGray400', transparency: 0.07 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.centerBookings"
+            :model-value="getColor('centerBookings')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBookings: $event } } })"
         >
             Booked FIR (ARTCC)
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'purple400', transparency: 0.1 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.uirs"
+            :model-value="getColor('uirs')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { uirs: $event } } })"
         >
             UIR (FSS)
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'lightGray500' }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.centerText"
+            :model-value="getColor('centerText')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerText: $event } } })"
         >
             FIR label (text)
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'darkGray500' }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.centerBg"
+            :model-value="getColor('centerBg')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBg: $event } } })"
         >
             FIR label (background)
         </ui-input-color>
         <ui-input-color
             :default-color="{ color: 'red300', transparency: 0.7 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.runways"
+            :model-value="getColor('runways')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { runways: $event } } })"
         >
             Runways
         </ui-input-color>
         <ui-input-color
             :default-color="{ transparency: 1 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.gates ? { transparency: store.mapSettings.colors?.[themeKey]?.gates ?? 1 } : undefined"
+            :model-value="getColor('gates') ? { transparency: getColor('gates') ?? 1 } : undefined"
             transparency-only
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { gates: $event ? $event.transparency : undefined } } })"
         >
@@ -100,7 +100,7 @@
         </ui-input-color>
         <ui-input-color
             :default-color="{ transparency: 1 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.staffedAirport ? { transparency: store.mapSettings.colors?.[themeKey]?.staffedAirport ?? 1 } : undefined"
+            :model-value="getColor('staffedAirport') ? { transparency: getColor('staffedAirport') ?? 1 } : undefined"
             transparency-only
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { staffedAirport: $event ? $event.transparency : undefined } } })"
         >
@@ -108,7 +108,7 @@
         </ui-input-color>
         <ui-input-color
             :default-color="{ transparency: 1 }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.defaultAirport ? { transparency: store.mapSettings.colors?.[themeKey]?.defaultAirport ?? 1 } : undefined"
+            :model-value="getColor('defaultAirport') ? { transparency: getColor('defaultAirport') ?? 1 } : undefined"
             transparency-only
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { defaultAirport: $event ? $event.transparency : undefined } } })"
         >
@@ -121,7 +121,7 @@
 
         <ui-input-color
             :default-color="{ color: 'blue500' }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.main"
+            :model-value="getAircraftColor('main')"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { main: $event } } } })"
         >
             Default
@@ -133,7 +133,7 @@
             v-for="(title, key) in aircraftOptions"
             :key
             :default-color="{ color: hexToRgb(aircraftColors[key as MapAircraftStatus]) }"
-            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.[key]"
+            :model-value="getAircraftColor(key as MapAircraftStatus)"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { [key]: $event } } } })"
         >
             <span v-html="title"/>
@@ -199,6 +199,7 @@ import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import { backupMapSettings } from '~/composables/settings';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import type { UserMapSettingsColors } from '~/utils/server/handlers/map-settings';
 
 const store = useStore();
 
@@ -220,11 +221,32 @@ const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
 const themeSyncActive = ref(false);
 const themeSyncComplete = ref(false);
 const isLightTheme = computed(() => store.getCurrentTheme === 'light');
+const turnsColor = useSettingValueFromFunc('map.preferences.colors.turns');
+const turnsTransparency = useSettingValueFromFunc('map.preferences.colors.turnsTransparency');
+const hasThemeColors = computed(() => !!getColorByKey('map.preferences.colors.default.approach').value.value);
+
+const getColor = (key: keyof UserMapSettingsColors) => getColorByKey(`map.preferences.colors.default.${ key }` as any).value.value;
+const getAircraftColor = (key: MapAircraftStatus | 'main') => getColorByKey(`map.preferences.colors.default.aircraft.${ key }` as any).value.value;
 
 const syncThemes = () => {
+    const source = {
+        approach: getColor('approach'),
+        approachBookings: getColor('approachBookings'),
+        firs: getColor('firs'),
+        centerBookings: getColor('centerBookings'),
+        uirs: getColor('uirs'),
+        centerText: getColor('centerText'),
+        centerBg: getColor('centerBg'),
+        runways: getColor('runways'),
+        gates: getColor('gates'),
+        staffedAirport: getColor('staffedAirport'),
+        defaultAirport: getColor('defaultAirport'),
+        aircraft: Object.fromEntries(Object.keys(aircraftOptions).concat('main').map(key => [key, getAircraftColor(key as MapAircraftStatus | 'main')])),
+    };
+
     setUserMapSettings({
         colors: {
-            [isLightTheme.value ? 'default' : 'light']: store.mapSettings.colors![isLightTheme.value ? 'light' : 'default'],
+            [isLightTheme.value ? 'default' : 'light']: source,
         },
     });
 

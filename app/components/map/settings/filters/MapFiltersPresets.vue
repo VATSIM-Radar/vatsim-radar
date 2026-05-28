@@ -361,7 +361,6 @@ const newPresetName = ref('');
 const activePreset = shallowRef<UserCustomPreset | null>(null);
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const activeCreatePreset = ref<boolean | null>(!!props.presets.length);
-const isMobile = useIsMobile();
 
 const currentPreset = computed(() => {
     return props.presets.find(x => equal(x.json, props.selectedPreset))?.id ?? null;

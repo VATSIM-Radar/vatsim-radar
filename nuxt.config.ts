@@ -69,6 +69,16 @@ export default defineNuxtConfig({
 
     imports: {
         dirs: ['composables/**'],
+        presets: [
+            {
+                from: '#build/radar/colors',
+                imports: ['radarColors', 'radarThemes'],
+            },
+            {
+                from: '#build/radar/icons',
+                imports: ['radarIcons'],
+            },
+        ],
     },
 
     sourcemap: {

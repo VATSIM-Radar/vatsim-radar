@@ -20,7 +20,6 @@ import type {
 } from '~/utils/server/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
-import { isFetchError } from '~/utils/shared';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
@@ -76,8 +75,7 @@ export const useStore = defineStore('index', {
         user: null as null | FullUser,
         version: '',
         theme: 'default' as ThemesList,
-        localSettings: {} as UserLocalSettings,
-        mapSettings: {} as UserMapSettings,
+        localSettings: {} as Pick<UserLocalSettings, 'location' | 'zoom' | 'vatglassesLevel' | 'sigmetsDate'>,
         mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
 
@@ -358,7 +356,7 @@ export const useStore = defineStore('index', {
                     await setVatsimDataStore(data);
                     dataStore.vatsim.shortUpdateTime.value = Date.now();
 
-                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
+                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate') || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });

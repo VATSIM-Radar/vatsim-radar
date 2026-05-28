@@ -18,8 +18,6 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
     airports: AirportListItem[];
     navigraphData: AirportNavigraphData;
 }) {
-    const store = useStore();
-
     if (!source.getFeatures().length) {
         for (const features of airportFeatures.values()) {
             for (const feature of features) feature.dispose();
@@ -33,10 +31,10 @@ export function setMapNavigraphLayout({ source, airports, navigraphData, layer }
 
     const supported = new Set<AmdbLayerName>(supportedNavigraphLayouts);
 
-    const disabledTaxiways = store.mapSettings.navigraphLayers?.hideTaxiways;
-    const disabledGates = store.mapSettings.navigraphLayers?.hideGateGuidance;
-    const disabledRunways = store.mapSettings.navigraphLayers?.hideRunwayExit;
-    const disabledDeicing = store.mapSettings.navigraphLayers?.hideDeicing;
+    const disabledTaxiways = !getKeyedValueFromSettings('map.navigraph.airport.taxiways');
+    const disabledGates = !getKeyedValueFromSettings('map.navigraph.airport.gateGuidance');
+    const disabledRunways = !getKeyedValueFromSettings('map.navigraph.airport.runwayExit');
+    const disabledDeicing = !getKeyedValueFromSettings('map.navigraph.airport.deicing');
     const settingsKey = [disabledTaxiways, disabledGates, disabledRunways, disabledDeicing].map(String).join(':');
 
     if (currentSettingsKey !== settingsKey) {

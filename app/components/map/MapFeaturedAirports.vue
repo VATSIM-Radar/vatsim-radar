@@ -28,7 +28,7 @@
 
         <div class="featured-airports_footer">
             <ui-toggle
-                :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
+                :model-value="showTotalDeparturesInFeaturedAirports"
                 @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
             >
                 Show total departures
@@ -57,6 +57,7 @@ const featuredTab = ref('popular');
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const showTotalDeparturesInFeaturedAirports = useSettingValueFromFunc('map.preferences.showTotalDeparturesInFeaturedAirports');
 
 const popularAirports = computed(() => {
     return dataStore.vatsim.parsedAirportsList.value.filter(x => x.airport && x.aircraftCount).slice().sort((a, b) => b.aircraftCount - a.aircraftCount).slice(0, store.featuredVisibleOnly ? 10 : 25);
@@ -132,5 +133,4 @@ div.featured-airports {
     }
 }
 </style>
-
 

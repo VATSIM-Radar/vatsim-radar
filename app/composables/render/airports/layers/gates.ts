@@ -11,6 +11,7 @@ import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
+import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleStrokeCache: Record<string, Stroke> = {};
@@ -23,7 +24,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     navigraphData: AirportNavigraphData;
 }) {
     const dataStore = useDataStore();
-    const store = useStore();
     styleFillCache = {};
     styleStrokeCache = {};
     styleCache = {};
@@ -125,7 +125,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         for (const gate of resolvedGates) {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
-            const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
+            const opacitySetting = getColorValueByKey('map.preferences.colors.default.gates');
 
             const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('red700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('green700').join(',') }, ${ opacitySetting ?? 1 })`;
 

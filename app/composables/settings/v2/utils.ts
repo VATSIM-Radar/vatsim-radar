@@ -281,9 +281,15 @@ export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
     const colorPath = changeColorPath(path);
 
     return getSettingValue(
-        () => getSettingByKey(settingsStore.settings, colorPath),
+        () => getSettingByKey(settingsStore.settings, colorPath) ?? getSettingByKey(settingsStore.settings, path),
         settingsDefaultValues[path],
     );
+}
+
+export function getColorValueByKey<K extends SettingsKeysWithDefault>(path: K) {
+    const colorPath = changeColorPath(path);
+
+    return getKeyedValueFromSettings(colorPath) ?? getKeyedValueFromSettings(path) ?? settingsDefaultValues[path];
 }
 
 export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {

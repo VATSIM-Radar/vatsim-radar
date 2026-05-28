@@ -43,8 +43,8 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         opacity: 0.6,
     });
 
-    const showAirwaysLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
-    const showWaypointsLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
+    const showAirwaysLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showAirwaysLabel');
+    const showWaypointsLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showWaypointsLabel');
 
     const waypointsTypes = {
         default: new Style({

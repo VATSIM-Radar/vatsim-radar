@@ -59,6 +59,7 @@ interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
     vatglassesLevel: number;
+    sigmetsDate: string;
 
     debugMode: boolean;
     featuredDefaultBookmarks: boolean;

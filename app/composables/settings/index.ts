@@ -1,26 +1,18 @@
-import { useStore } from '~/store';
 import type { IUserMapSettings, UserMapSettings, UserMapSettingsVisibilityATC } from '~/utils/server/handlers/map-settings';
 import { useMapStore } from '~/store/map';
 
 export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean => {
-    const store = useStore();
+    if (getKeyedValueFromSettings('map.layers.heatmap')) return true;
 
-    if (store.mapSettings.heatmapLayer) return true;
-
-    if (typeof store.mapSettings.visibility?.atc === 'object') {
-        return !!store.mapSettings.visibility.atc[key];
-    }
-
-    return store.mapSettings.visibility?.atc === false;
+    return !getKeyedValueFromSettings(`map.visibility.atc.${ key }` as any);
 };
 
 export const isHideMapObject = (key: keyof IUserMapSettings['visibility']): boolean => {
-    const store = useStore();
     const mapStore = useMapStore();
 
-    if (store.mapSettings.heatmapLayer && key !== 'pilots' && (key !== 'airports' || mapStore.zoom < 6)) return true;
+    if (getKeyedValueFromSettings('map.layers.heatmap') && key !== 'pilots' && (key !== 'airports' || mapStore.zoom < 6)) return true;
 
-    return !!store.mapSettings.visibility?.[key];
+    return !getKeyedValueFromSettings(`map.visibility.${ key }` as any);
 };
 
 export interface FileDownloadParams {
@@ -64,7 +56,7 @@ export const backupMapSettings = () => {
     useFileDownload({
         fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,
         mime: 'application/json',
-        blob: new Blob([JSON.stringify(useStore().mapSettings)], { type: 'application/json' }),
+        blob: new Blob([JSON.stringify(useSettingsStore().settings)], { type: 'application/json' }),
     });
 };
 
@@ -75,6 +67,5 @@ export const saveMapSettings = async (preset: UserMapSettings) => {
 };
 
 export const isDynamicAircraftScale = computed(() => {
-    const store = useStore();
-    return store.mapSettings.dynamicAircraftScale !== false;
+    return getKeyedValueFromSettings('map.preferences.aircraft.dynamicScale');
 });

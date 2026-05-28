@@ -42,7 +42,7 @@
                             Locals
                         </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
-                            {{ !store.mapSettings.airportsCounters?.horizontalCounter || store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
+                            {{ horizontalCounter=== 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
                         </template>
                     </div>
                 </template>
@@ -136,12 +136,14 @@ const store = useStore();
 const mapStore = useMapStore();
 const aircraftHoveredType = ref<AircraftType | null>(null);
 
+const horizontalCounter = useSettingValueFromFunc('map.preferences.airports.counters.horizontalCounter');
+
 const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortenedPrefile[]>>(() => {
     const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
 
-    const departuresMode = store.mapSettings.airportsCounters?.departuresMode ?? 'ground';
-    const arrivalsMode = store.mapSettings.airportsCounters?.syncDeparturesArrivals ? departuresMode : store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground';
-    const prefilesMode = store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles';
+    const departuresMode = getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode');
+    const arrivalsMode = getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals') ? departuresMode : getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode');
+    const prefilesMode = getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter');
 
     let departures: VatsimShortenedAircraft[] = [];
     let arrivals: VatsimShortenedAircraft[] = [];
@@ -150,7 +152,7 @@ const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortened
 
     let groundDep = props.aircraft.groundDep;
 
-    if (!store.mapSettings.airportsCounters?.disableTraining) {
+    if (!getKeyedValueFromSettings('map.preferences.airports.counters.disableTraining')) {
         training = props.aircraft?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
         if (groundDep) groundDep = groundDep.filter(x => !training.some(y => y.cid === x.cid));
     }

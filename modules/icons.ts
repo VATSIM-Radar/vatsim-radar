@@ -9,6 +9,8 @@ import { optimize } from 'svgo';
 import { colorsList } from '~/utils/colors';
 
 export default defineNuxtModule(async (_, nuxt) => {
+    if (process.argv.includes('typecheck')) return;
+
     const resolver = createResolver(import.meta.url);
 
     const aircraftIconsPath = resolver.resolve('../app/assets/icons/aircraft');

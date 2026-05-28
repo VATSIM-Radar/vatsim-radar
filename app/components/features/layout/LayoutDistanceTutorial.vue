@@ -29,7 +29,7 @@
                 CTRL+Click!
 
                 <ui-toggle
-                    :model-value="!!store.localSettings.distance?.ctrlClick"
+                    :model-value="distanceInteraction === 'ctrlclick'"
                     @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
                 >
                     CTRL+Click instead of double click
@@ -47,6 +47,6 @@
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 
-const store = useStore();
 const mapStore = useMapStore();
+const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
 </script>

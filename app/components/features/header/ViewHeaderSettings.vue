@@ -169,7 +169,7 @@
                     { text: 'CID (ASC)', value: 'cidAsc' },
                     { text: 'CID (DESC)', value: 'cidDesc' },
                 ]"
-                :model-value="store.user!.settings.favoriteSort ?? null"
+                :model-value="favoriteSort"
                 placeholder="Sort"
                 width="100%"
                 @update:modelValue="saveSort"
@@ -253,6 +253,7 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();
+const favoriteSort = useSettingValueFromFunc('appearance.favoriteSort');
 
 const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.settings ?? {}, {
     autoFollow: false,
@@ -295,7 +296,7 @@ watch(settings, () => {
 });
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
@@ -366,15 +367,7 @@ async function setPrivateMode(expiration: '1h' | '3h' | '6h' | '12h' | '24h' | '
 }
 
 const saveSort = async (sort: any) => {
-    await $fetch('/api/user/settings', {
-        method: 'POST',
-        body: {
-            ...store.user!.settings,
-            favoriteSort: sort,
-        },
-    });
-
-    store.user!.settings.favoriteSort = sort as UserSettings['favoriteSort'];
+    setSettingByKey('appearance.favoriteSort', sort as UserSettings['favoriteSort']);
 };
 
 async function addList() {

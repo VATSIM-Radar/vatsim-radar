@@ -1,7 +1,7 @@
 <template>
     <div class="__info-sections">
         <ui-button
-            v-if="Object.keys(store.mapSettings).length"
+            v-if="Object.keys(settingsStore.settings).length"
             size="S"
             type="secondary"
             @click="resetActive = true"
@@ -15,7 +15,7 @@
         <div class="__section-group __section-group--even">
             <ui-toggle
                 v-if="store.user"
-                :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
+                :model-value="vatglassesAutoEnable !== false"
                 @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
             >
                 Auto-enable
@@ -25,7 +25,7 @@
                 </template>
             </ui-toggle>
             <ui-toggle
-                :model-value="!!store.mapSettings.vatglasses?.active"
+                :model-value="!!vatglassesActiveSetting"
                 @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
             >
                 Toggle Active
@@ -33,7 +33,7 @@
             <div class="flex-container">
                 <ui-toggle
                     :disabled="!vatglassesActive"
-                    :model-value="store.mapSettings.vatglasses?.combined"
+                    :model-value="vatglassesCombined"
                     @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
                 >
                     Combined Mode
@@ -51,7 +51,7 @@
             </div>
             <ui-toggle
                 v-if="vatglassesActive"
-                :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
+                :model-value="vatglassesAutoLevel !== false"
                 @update:modelValue="setUserMapSettings({ vatglasses: { autoLevel: $event } })"
             >
                 Auto-Set Level
@@ -68,7 +68,7 @@
         <ui-columns-display>
             <template #col1>
                 <ui-toggle
-                    :model-value="!!store.mapSettings.highlightEmergency"
+                    :model-value="!!highlightEmergency"
                     @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
                 >
                     Highlight Emergencies
@@ -76,7 +76,7 @@
             </template>
             <template #col2>
                 <ui-toggle
-                    :model-value="!!store.mapSettings.heatmapLayer"
+                    :model-value="!!heatmapLayer"
                     @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
                 >
                     Traffic Heatmap
@@ -86,7 +86,7 @@
         <ui-columns-display>
             <template #col1>
                 <ui-toggle
-                    :model-value="!!store.mapSettings.shortAircraftView"
+                    :model-value="!!aircraftShortView"
                     @update:modelValue="setUserMapSettings({ shortAircraftView: $event })"
                 >
                     Compact aircraft view
@@ -98,7 +98,7 @@
             </template>
             <template #col2>
                 <ui-toggle
-                    :model-value="!!store.mapSettings.disableQueryUpdate"
+                    :model-value="!queryUpdateEnabled"
                     @update:modelValue="setUserMapSettings({ disableQueryUpdate: $event })"
                 >
                     Disable query update
@@ -112,7 +112,7 @@
         <ui-columns-display>
             <template #col1>
                 <ui-toggle
-                    :model-value="!!store.mapSettings.shortAirportView"
+                    :model-value="shortAirportView"
                     @update:modelValue="setUserMapSettings({ shortAirportView: $event })"
                 >
                     Short airports view
@@ -125,7 +125,7 @@
             <template #col2>
                 <ui-select
                     :items="[{ text: 'Disabled', value: false }, { text: 'Enabled (when many)', value: true }, { text: 'Enabled (always)', value: 'always' }]"
-                    :model-value="store.mapSettings.aircraftDeclutter ?? false"
+                    :model-value="trafficDeclutter"
                     @update:modelValue="setUserMapSettings({ aircraftDeclutter: $event as any })"
                 >
                     Aircraft Declutter
@@ -135,7 +135,7 @@
         <ui-select
             v-if="!isMobile"
             :items="[{ value: 'bottom-left', text: 'Bottom Left' }, { value: 'top-left', text: 'Top Left' }]"
-            :model-value="store.mapSettings.overlaysPositions ?? 'bottom-left'"
+            :model-value="overlaysPositions"
             @update:modelValue="setUserMapSettings({ overlaysPositions: $event as any })"
         >
             Minified Overlays position
@@ -153,7 +153,7 @@
             <ui-select
                 :items="scaleOptions"
                 max-dropdown-height="200px"
-                :model-value="store.mapSettings.aircraftScale ?? null"
+                :model-value="aircraftScale"
                 placeholder="Choose Scale"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
@@ -161,7 +161,7 @@
         </div>
         <ui-toggle
             class="__grid-info-sections_toggle"
-            :model-value="store.mapSettings.dynamicAircraftScale !== false"
+            :model-value="aircraftDynamicScale !== false"
             width="100%"
             @update:modelValue="setUserMapSettings({ dynamicAircraftScale: $event })"
         >
@@ -178,7 +178,7 @@
             <ui-select
                 :items="zoomOptions"
                 max-dropdown-height="200px"
-                :model-value="store.mapSettings.defaultAirportZoomLevel ?? 14"
+                :model-value="airportDefaultZoomLevel"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
             />
@@ -189,7 +189,7 @@
         </ui-block-title>
 
         <ui-toggle
-            :model-value="store.mapSettings.airportsCounters?.showCounters ?? true"
+            :model-value="airportCountersEnabled"
             @update:modelValue="setUserMapSettings({ airportsCounters: { showCounters: $event } })"
         >
             Show Airports Counters
@@ -200,11 +200,11 @@
                 Max Counters to Show
             </div>
             <ui-select
-                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
+                :disabled="airportCountersEnabled === false"
                 :items="[{ value: 10 }, { value: 25 }, { value: 50 }, { value: 75 }, { value: 100 },
                          { value: 150 }, { value: 200 }, { value: 300 }, { value: 400 }, { value: 500 }, { value: 1000 }]"
                 max-dropdown-height="200px"
-                :model-value="store.mapSettings.airportCounterLimit ?? 100"
+                :model-value="airportShowLimit"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportCounterLimit: $event as number })"
             />
@@ -215,17 +215,17 @@
                 Departures Mode
             </div>
             <ui-select
-                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
+                :disabled="airportCountersEnabled === false"
                 :items="countersSelectOptions"
                 max-dropdown-height="200px"
-                :model-value="store.mapSettings.airportsCounters?.departuresMode ?? 'ground'"
+                :model-value="airportCountersDeparturesMode"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { departuresMode: $event as any } })"
             />
         </div>
         <ui-toggle
-            :disabled="store.mapSettings.airportsCounters?.showCounters === false"
-            :model-value="store.mapSettings.airportsCounters?.syncDeparturesArrivals"
+            :disabled="airportCountersEnabled === false"
+            :model-value="airportCountersSyncDeparturesArrivals"
             @update:modelValue="setUserMapSettings({ airportsCounters: { syncDeparturesArrivals: $event } })"
         >
             Sync arrivals mode with departures
@@ -235,10 +235,10 @@
                 Arrivals Mode
             </div>
             <ui-select
-                :disabled="!!store.mapSettings.airportsCounters?.syncDeparturesArrivals || store.mapSettings.airportsCounters?.showCounters === false"
+                :disabled="!!airportCountersSyncDeparturesArrivals || airportCountersEnabled === false"
                 :items="countersArrivalSelectOptions"
                 max-dropdown-height="115px"
-                :model-value="store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground'"
+                :model-value="airportCountersArrivalsMode"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { arrivalsMode: $event as any } })"
             />
@@ -248,17 +248,17 @@
                 Horizontal (prefiles)
             </div>
             <ui-select
-                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
+                :disabled="airportCountersEnabled === false"
                 :items="horizontalSelectOptions"
                 max-dropdown-height="85px"
-                :model-value="store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles'"
+                :model-value="airportCountersHorizontalCounter"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { horizontalCounter: $event as any } })"
             />
         </div>
         <ui-toggle
-            :disabled="store.mapSettings.airportsCounters?.showCounters === false"
-            :model-value="!store.mapSettings.airportsCounters?.disableTraining"
+            :disabled="airportCountersEnabled === false"
+            :model-value="!airportCountersDisableTraining"
             @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: !$event } })"
         >
             Locals counter
@@ -268,7 +268,7 @@
             </template>
         </ui-toggle>
         <ui-toggle
-            :model-value="!!store.localSettings.debugMode"
+            :model-value="debugMode"
             @update:modelValue="setUserLocalSettings({ debugMode: $event })"
         >
             Debug mode
@@ -327,10 +327,33 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
+const settingsStore = useSettingsStore();
 
 const resetActive = ref(false);
 const vatglassesActive = isVatGlassesActive;
 const isMobile = useIsMobile();
+const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
+const vatglassesAutoEnable = useSettingValueFromFunc('map.vatglasses.autoEnable');
+const vatglassesActiveSetting = useSettingValueFromFunc('map.vatglasses.active');
+const vatglassesCombined = useSettingValueFromFunc('map.vatglasses.combined');
+const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
+const shortAirportView = useSettingValueFromFunc('map.preferences.airports.shortView');
+const aircraftShortView = useSettingValueFromFunc('map.preferences.aircraft.shortView');
+const highlightEmergency = useSettingValueFromFunc('map.traffic.highlightEmergency');
+const heatmapLayer = useSettingValueFromFunc('map.layers.heatmap');
+const trafficDeclutter = useSettingValueFromFunc('map.traffic.declutter');
+const overlaysPositions = useSettingValueFromFunc('map.preferences.overlaysPositions');
+const aircraftScale = useSettingValueFromFunc('map.preferences.aircraft.scale');
+const airportDefaultZoomLevel = useSettingValueFromFunc('map.preferences.airports.defaultZoomLevel');
+const airportCountersEnabled = useSettingValueFromFunc('map.preferences.airports.counters.enabled');
+const airportShowLimit = useSettingValueFromFunc('map.preferences.airports.showLimit');
+const airportCountersDeparturesMode = useSettingValueFromFunc('map.preferences.airports.counters.departuresMode');
+const airportCountersArrivalsMode = useSettingValueFromFunc('map.preferences.airports.counters.arrivalsMode');
+const airportCountersHorizontalCounter = useSettingValueFromFunc('map.preferences.airports.counters.horizontalCounter');
+const aircraftDynamicScale = useSettingValueFromFunc('map.preferences.aircraft.dynamicScale');
+const airportCountersSyncDeparturesArrivals = useSettingValueFromFunc('map.preferences.airports.counters.syncDeparturesArrivals');
+const airportCountersDisableTraining = useSettingValueFromFunc('map.preferences.airports.counters.disableTraining');
+const debugMode = useSettingValueFromFunc('map.preferences.debugMode');
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

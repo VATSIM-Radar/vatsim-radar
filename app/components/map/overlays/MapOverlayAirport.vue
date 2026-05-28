@@ -43,9 +43,9 @@
             >
                 <ui-tooltip
                     location="bottom"
-                    :open-method="(overlay.collapsed || store.localSettings.tutorial?.mapAirportPopupDepartureCount) ? 'disabled' : 'mouseOver'"
+                    :open-method="(overlay.collapsed || departureCountTooltipSeen) ? 'disabled' : 'mouseOver'"
                     width="120px"
-                    @click="setUserLocalSettings({ tutorial: { mapAirportPopupDepartureCount: true } })"
+                    @click="departureCountTooltipSeen = true"
                 >
                     <template #activator>
                         <div
@@ -339,6 +339,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const copy = useCopyText();
 const config = useRuntimeConfig();
+const departureCountTooltipSeen = useLocalStorage('map-airport-popup-departure-count-seen', false);
 
 const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.overlay.data.icao]);
 const dataAirport = computed(() => dataStore.airportsList.value[props.overlay.data.icao]);

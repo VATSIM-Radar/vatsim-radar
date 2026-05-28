@@ -20,8 +20,8 @@
                     <div class="__info-sections">
                         <ui-radio-group
                             :items="sigmetDatesList"
-                            :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
+                            :model-value="sigmetsActiveDate"
+                            @update:modelValue="sigmetsActiveDate = $event as string"
                         >
                             Active date
                         </ui-radio-group>
@@ -53,10 +53,10 @@
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
-import { useStore } from '~/store';
 import SettingsSigmets from '~/components/features/settings/SettingsSigmets.vue';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { MapEvent } from '~/app.vue';
+import { useStore } from '~/store';
 
 defineEmits({
     map(data: MapEvent) {
@@ -67,6 +67,10 @@ const config = useRuntimeConfig();
 const store = useStore();
 const sigmetDatesList = sigmetDates();
 const collapsed = ref(useIsMobile().value);
+const sigmetsActiveDate = computed({
+    get: () => store.localSettings.sigmetsDate ?? 'current',
+    set: (value: string) => setUserLocalSettings({ sigmetsDate: value }),
+});
 
 useHead(() => ({
     title: 'SIGMETs',

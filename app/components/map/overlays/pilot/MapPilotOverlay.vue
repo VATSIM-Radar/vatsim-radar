@@ -141,7 +141,7 @@
             #procedures
         >
             <ui-notification
-                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
+                v-if="overlay.data.fullRoute && store.user && !showFullRoute"
                 remember-message="FULL_ROUTE_TIP"
                 type="info"
             >
@@ -152,7 +152,7 @@
                 >settings</a>.
             </ui-notification>
             <ui-toggle
-                v-if="!store.localSettings.disableNavigraphRoute"
+                v-if="routeParsingEnabled"
                 v-model="overlay.data.fullRoute"
             >
                 Show full route
@@ -343,6 +343,8 @@ const collapsedPhoto = useCookie<boolean>('collapsedPhoto', {
 const copy = useCopyText();
 
 const store = useStore();
+const showFullRoute = useSettingValueFromFunc('map.traffic.showFullRoute');
+const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();

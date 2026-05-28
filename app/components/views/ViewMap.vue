@@ -66,16 +66,16 @@
             </div>
 
             <map-controls v-if="!store.config.hideAllExternal"/>
-            <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
+            <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
                     <map-minified-overlays/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
-                        :key="String(store.localSettings.filters?.layers?.layer)"
+                        :key="String(mapLayer)"
                     />
-                    <map-distance v-if="store.localSettings.distance?.enabled"/>
+                    <map-distance v-if="distanceEnabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
@@ -92,10 +92,10 @@
             <client-only v-if="ready">
                 <map-layer :key="(store.theme ?? 'default')"/>
                 <map-terminator
-                    v-if="store.localSettings.filters?.layers?.terminator"
+                    v-if="terminatorEnabled"
                     :key="(store.theme ?? 'default') + 'terminator'"
                 />
-                <map-sigmets v-if="store.localSettings.filters?.layers?.sigmets?.enabled"/>
+                <map-sigmets v-if="sigmetsShowOnMap"/>
                 <map-settings v-if="!store.config.hideHeader"/>
             </client-only>
             <popup-fullscreen
@@ -216,7 +216,7 @@
         </client-only>
         <map-layer v-else/>
         <client-only>
-            <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+            <map-scale v-if="!store.isMobile && relativeIndicator !== false"/>
             <map-select v-if="ready"/>
         </client-only>
         <slot/>
@@ -266,7 +266,6 @@ import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import MapTerminator from '~/components/map/layers/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
-import MapLayer from '~/components/map/layers/MapLayer.vue';
 import MapSigmets from '~/components/map/layers/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
@@ -313,6 +312,26 @@ const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const config = useRuntimeConfig();
+const mapLayer = useSettingValueFromFunc('map.layers.layer');
+const distanceEnabled = useSettingValueFromFunc('map.layers.distance.enabled');
+const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
+const terminatorEnabled = useSettingValueFromFunc('map.layers.terminator');
+const sigmetsShowOnMap = useSettingValueFromFunc('sigmets.showOnMap');
+const relativeIndicator = useSettingValueFromFunc('map.layers.relativeIndicator');
+const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
+const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
+const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
+const ifrAuto = useSettingValueFromFunc('map.navigraph.layers.ifrAuto');
+const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
+const mapColorsKey = computed(() => JSON.stringify([
+    store.theme,
+    getColorByKey('map.preferences.colors.default.aircraft.main').value.value,
+    getColorByKey('map.preferences.colors.default.aircraft.ground').value.value,
+    getColorByKey('map.preferences.colors.default.approach').value.value,
+    getColorByKey('map.preferences.colors.default.firs').value.value,
+    getColorByKey('map.preferences.colors.default.gates').value.value,
+    getColorByKey('map.preferences.colors.default.runways').value.value,
+]));
 
 usePointerSwipe(notamRef, {
     threshold: 20,
@@ -381,7 +400,7 @@ if (route.query.start !== undefined && route.query.end !== undefined) {
 }
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
+    if (!autoFollow.value || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
         initialOwnCheck = true;
         return;
     }
@@ -412,7 +431,7 @@ async function checkAndAddOwnAircraft() {
     initialSpawn = true;
     initialOwnCheck = true;
 
-    if (shouldTrack && overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !allArrivedPilots.has(aircraft.cid)) {
+    if (shouldTrack && overlay && overlay.type === 'pilot' && autoZoom.value && !allArrivedPilots.has(aircraft.cid)) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }
@@ -561,7 +580,7 @@ const restoreOverlays = async () => {
     }
 };
 
-watch(() => store.localSettings.distance?.enabled, val => {
+watch(distanceEnabled, val => {
     if (!val) return;
 
     if (!localStorage.getItem('distance-tool-tutorial-seen')) {
@@ -571,7 +590,7 @@ watch(() => store.localSettings.distance?.enabled, val => {
 });
 
 useUpdateInterval(() => {
-    if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
+    if (vatglassesAutoLevel.value === false || !store.user) return;
 
     const user = ownFlight.value;
     if (!user) return;
@@ -580,7 +599,7 @@ useUpdateInterval(() => {
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 
-    if (store.mapSettings.navigraphData?.isModeAuto !== false) {
+    if (ifrAuto.value !== false) {
         setUserMapSettings({
             navigraphData: {
                 mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
@@ -681,7 +700,7 @@ async function handleMoveEnd() {
         zoom: mapStore.zoom.toFixed(2),
     };
 
-    if (initialOwnCheck && !store.mapSettings.disableQueryUpdate) {
+    if (initialOwnCheck && queryUpdateEnabled.value) {
         router.replace({
             query,
         });
@@ -721,7 +740,7 @@ function handleDownEvent(event: MapBrowserEvent) {
     if (mapStore.distance.pixel) return false;
     const now = Date.now();
 
-    if (store.localSettings.distance?.ctrlClick) {
+    if (distanceInteraction.value === 'ctrlclick') {
         overlaysCache = mapStore.overlays.slice(0);
         if (event.originalEvent.ctrlKey || event.originalEvent.metaKey) {
             initDistance(event).then(async () => {
@@ -765,8 +784,8 @@ const doubleClick = new DoubleClick();
 
 function setMapInteractions() {
     if (!map.value) return;
-    const withDistance = store.localSettings.distance?.enabled;
-    const ctrl = store.localSettings.distance?.ctrlClick;
+    const withDistance = distanceEnabled.value;
+    const ctrl = distanceInteraction.value === 'ctrlclick';
 
     map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
     map.value.getInteractions().clear();
@@ -787,8 +806,8 @@ function setMapInteractions() {
     }
 }
 
-watch(() => store.localSettings.distance?.enabled, setMapInteractions);
-watch(() => store.localSettings.distance?.ctrlClick, setMapInteractions);
+watch(distanceEnabled, setMapInteractions);
+watch(() => distanceInteraction.value === 'ctrlclick', setMapInteractions);
 
 await setupDataFetch({
     async onMount() {

@@ -7,21 +7,27 @@ import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { ColorsListRgb } from '~/utils/colors';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
-import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
+import type { SigmetType } from '~/types/map';
 
 defineOptions({
     render: () => null,
 });
 
-const store = useStore();
 const dataStore = useDataStore();
+const store = useStore();
 let initialCall = false;
+const sigmetsActiveDate = computed({
+    get: () => store.localSettings.sigmetsDate ?? 'current',
+    set: (value: string) => setUserLocalSettings({ sigmetsDate: value }),
+});
+const enabledSigmets = useSettingValueFromFunc('sigmets.enabled');
+const showAirmets = useSettingValueFromFunc('sigmets.showAirmets');
 
 const { refresh, data } = await useAsyncData<Sigmets>('sigmets', () => {
     try {
         let url = '/api/data/sigmets';
-        const activeDate = store.localSettings.filters?.layers?.sigmets?.activeDate;
+        const activeDate = sigmetsActiveDate.value;
 
         const lastDate = initialCall && data.value?.validUntil;
         initialCall = true;
@@ -49,26 +55,22 @@ watchEffect(() => {
 });
 
 const shouldSetCurrent = computed(() => {
-    return store.localSettings.filters?.layers?.sigmets?.activeDate && store.localSettings.filters?.layers?.sigmets?.activeDate !== 'current' && new Date(store.localSettings.filters?.layers?.sigmets?.activeDate).getTime() < dataStore.time.value;
+    return sigmetsActiveDate.value && sigmetsActiveDate.value !== 'current' && new Date(sigmetsActiveDate.value).getTime() < dataStore.time.value;
 });
 
-watch(() => store.localSettings.filters?.layers?.sigmets?.activeDate, () => refresh());
+watch(sigmetsActiveDate, () => refresh());
 
 watch([isExpired, shouldSetCurrent], arr => {
     if (!arr.some(x => x)) return;
 
-    setUserLocalSettings({
-        filters: { layers: { sigmets: { activeDate: 'current' } } },
-    });
+    sigmetsActiveDate.value = 'current';
 
     refresh();
 });
 
 watch(dataStore.vatsim.updateTimestamp, () => {
     if (isExpired.value) {
-        setUserLocalSettings({
-            filters: { layers: { sigmets: { activeDate: 'current' } } },
-        });
+        sigmetsActiveDate.value = 'current';
 
         refresh();
     }
@@ -82,14 +84,14 @@ let source: VectorSource;
 const types = ref(new Set<string | null | undefined>());
 
 const isMobile = useIsMobile();
-const localDisabled = computed(() => store.localSettings.filters?.layers?.sigmets?.disabled);
-
 const jsonFeatures = computed(() => {
     if (!data.value) return [];
 
     const geoData: Sigmets = { ...data.value };
 
-    geoData.features = geoData.features.filter(x => x.properties.hazard && (store.localSettings.filters?.layers?.sigmets?.showAirmets !== false || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
+    geoData.features = geoData.features.filter(x => x.properties.hazard &&
+        (showAirmets.value || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) &&
+        enabledSigmets.value.some((y: SigmetType) => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
 
     const features = geoJson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',
@@ -106,7 +108,7 @@ const jsonFeatures = computed(() => {
 function buildStyle(color: ColorsListRgb, type: string) {
     return new Style({
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ store.localSettings.filters?.layers?.transparencySettings?.sigmets || '0.15' })`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ getKeyedValueFromSettings('map.layers.transparency.sigmets') || '0.15' })`,
         }),
         stroke: new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.4)`,
@@ -136,7 +138,7 @@ let styles = {
     VA: buildStyle('lightGray400', 'VA'),
 };
 
-watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
+watch(() => getKeyedValueFromSettings('map.layers.transparency.sigmets'), () => {
     styles = {
         default: buildStyle('lightGray400', 'SIGMET'),
         WIND: buildStyle('lightGray600', 'WIND'),
@@ -150,7 +152,7 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
     };
 });
 
-watch([jsonFeatures, map, localDisabled], () => {
+watch([jsonFeatures, map, enabledSigmets], () => {
     if (!map.value) return;
 
     if (!source) {

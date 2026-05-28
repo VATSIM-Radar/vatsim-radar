@@ -23,7 +23,6 @@ defineOptions({
 
 export type AirportNavigraphData = Record<string, NavigraphAirportData>;
 
-const store = useStore();
 const mapStore = useMapStore();
 const map = injectMap();
 const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
@@ -39,7 +38,7 @@ let gatesSource: VectorSource;
 
 const now = new Date();
 const end = ref(new Date());
-const mapSettings = computed(() => store.mapSettings);
+const mapSettings = computed(() => getKeyedValueFromSettings('map.bookings.hours'));
 
 const dataStore = useDataStore();
 const airportsList = shallowRef<MapAirportRender[]>([]);
@@ -48,7 +47,7 @@ const airports = shallowRef<AirportListItem[]>([]);
 
 watch(mapSettings, val => {
     const currentDate = new Date();
-    currentDate.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    currentDate.setTime(now.getTime() + (((val * 60) * 60) * 1000));
     end.value = currentDate;
 }, {
     immediate: true,
@@ -59,7 +58,7 @@ const getShownAirports = computed(() => {
 
     let list = airports.value.filter(x => airportsListSet.has(x.icao));
 
-    switch (store.mapSettings.airportsMode) {
+    switch (getKeyedValueFromSettings('map.preferences.airports.showMode')) {
         case 'staffedOnly':
             list = list.filter(x => {
                 const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
@@ -79,7 +78,7 @@ const getShownAirports = computed(() => {
     return list;
 });
 
-const updateRelatedSettings = computed(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback) + String(store.mapSettings.airportsMode));
+const updateRelatedSettings = computed(() => String(getKeyedValueFromSettings('map.navigraph.airport.enabled')) + String(getKeyedValueFromSettings('map.preferences.airports.showMode')));
 
 onMounted(() => {
     if (!map.value) throw new Error('Map is not initialized');
@@ -167,7 +166,11 @@ onMounted(() => {
         immediate: true,
     });
 
-    const mapSettings = computed(() => store.mapSettings);
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.bookings.hours'),
+        getKeyedValueFromSettings('map.preferences.airports.showMode'),
+        getKeyedValueFromSettings('map.navigraph.airport.enabled'),
+    ]));
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 
     const renderAirports = useThrottleFn(async () => {

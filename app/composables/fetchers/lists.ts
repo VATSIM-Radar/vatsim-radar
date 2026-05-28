@@ -64,9 +64,7 @@ export function getUserList(cid: number): UserList | null {
 }
 
 export function sortList(users: UserListLiveUser[]) {
-    const store = useStore();
-
-    const sort = store.user!.settings.favoriteSort ?? 'newest';
+    const sort = getKeyedValueFromSettings('appearance.favoriteSort');
 
     if (sort === 'oldest') {
         return users.slice(0).reverse().sort((a, b) => {
@@ -154,4 +152,3 @@ export async function setPrivateMode(expiration: '1h' | '3h' | '6h' | '12h' | '2
     store.user!.privateMode = true;
     store.user!.privateUntil = date !== null ? new Date(date).toISOString() : date;
 }
-

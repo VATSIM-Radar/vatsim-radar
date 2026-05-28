@@ -178,9 +178,12 @@ const isOpened = computed(() => {
     return opened.value && (history.value.length || Object.values(searchResults.value).some(x => x.length));
 });
 
-const filterBy = computed<SearchFilter[]>(() => store.localSettings.traffic?.searchBy?.length ? store.localSettings.traffic?.searchBy : ['atc', 'flights', 'airports']);
+const filterBy = computed<SearchFilter[]>(() => {
+    const searchBy = getKeyedValueFromSettings('map.preferences.searchBy');
+    return searchBy?.length ? searchBy : ['atc', 'flights', 'airports'];
+});
 const filtersCount = computed(() => (filterBy.value.length === 0 || filterBy.value.length === 3) ? 0 : filterBy.value.length);
-const searchLimit = computed(() => store.localSettings.traffic?.searchLimit ?? 10);
+const searchLimit = useSettingValueFromFunc('map.preferences.searchLimit');
 const history = useLocalStorage<string[]>('search-history', [], {
     shallow: true,
 });

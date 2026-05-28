@@ -36,7 +36,7 @@
             :max-presets="MAX_MAP_PRESETS"
             :presets="store.mapPresets"
             :refresh
-            :selected-preset="store.mapSettings"
+            :selected-preset="settingsStore.settings"
             type="settings"
             @create="createMapPreset"
             @reset="resetUserMapSettings"
@@ -58,6 +58,7 @@ import MapFiltersPresets from '~/components/map/settings/filters/MapFiltersPrese
 import { sendUserPreset } from '~/composables/fetchers';
 
 const store = useStore();
+const settingsStore = useSettingsStore();
 
 const tab = ref('layers');
 

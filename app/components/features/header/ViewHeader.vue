@@ -152,7 +152,7 @@
                     v-else-if="store.user"
                     class="header__user"
                 >
-                    {{ store.user.settings.headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In' }}
+                    {{ headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In' }}
                 </div>
             </div>
             <div
@@ -301,6 +301,7 @@ const headerMenu = useHeaderMenu();
 
 const route = useRoute();
 const store = useStore();
+const headerName = useSettingValueFromFunc('appearance.headerName');
 const config = useRuntimeConfig();
 
 const app = useNuxtApp();

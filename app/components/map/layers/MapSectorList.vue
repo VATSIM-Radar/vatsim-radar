@@ -81,7 +81,10 @@ onMounted(async () => {
     map.value.addLayer(vectorImageLayer);
     map.value.addLayer(labelsLayer);
 
-    const mapSettings = computed(() => store.mapSettings);
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.vatglasses.active'),
+        getKeyedValueFromSettings('map.vatglasses.combined'),
+    ]));
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
 
     const debouncedUpdate = useThrottleFn(async () => {
