@@ -60,12 +60,16 @@ export default defineConfig({
                         link: '/introduction/about',
                         items: [
                             {
-                                text: 'State of Radar 2025',
-                                link: '/blog/state-of-radar-2025',
+                                text: 'V2 Closed Beta',
+                                link: '/blog/v2-closed-beta',
                             },
                             {
                                 text: 'Year 2 of VATSIM Radar',
                                 link: '/blog/year-2-of-radar',
+                            },
+                            {
+                                text: 'State of Radar 2025',
+                                link: '/blog/state-of-radar-2025',
                             },
                         ],
                     },
