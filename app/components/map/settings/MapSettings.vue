@@ -94,7 +94,7 @@
                                     src="../../../assets/images/openweather.png"
                                 >
                             </a>
-                            <ui-setting-item :item="getSettingByItem(settingsItems.layers[store.theme === 'light' ? 'weatherLightTransparency' : 'weatherDarkTransparency'], { title: '', description: undefined })"/>
+                            <ui-setting-item :item="getSettingByItem(settingsItems.layers[store.theme === 'light' ? 'weatherLightTransparency' : 'weatherDarkTransparency'], { description: undefined })" vertical/>
                             <ui-setting-item :item="getSettingByItem(settingsItems.layers.weather, { title: '', description: undefined })"/>
                         </div>
                     </popup-aside>

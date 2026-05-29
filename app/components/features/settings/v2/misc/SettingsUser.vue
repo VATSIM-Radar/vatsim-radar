@@ -24,6 +24,13 @@
                 Logout
             </ui-button>
         </ui-button-group>
+        <ui-button
+            class="settings__logout"
+            type="destructive"
+            @click="store.deleteAccountPopup = true"
+        >
+            Delete Account
+        </ui-button>
     </div>
 </template>
 
