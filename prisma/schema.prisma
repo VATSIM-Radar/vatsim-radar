@@ -26,6 +26,7 @@ model User {
   tokens               UserToken[]
   settings             Json?                      @default("{}")
   presets              UserPreset[]
+  dashboards           Dashboard[]
   requests             UserRequest[]
   lists                UserTrackingList[]
   messages             UserAcknowledgedMessages[]
@@ -109,6 +110,16 @@ model UserTrackingList {
   userId     Int
   user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
   presets    UserPresetList[]
+}
+
+model Dashboard {
+  id        Int      @id @default(autoincrement())
+  name      String
+  public    Boolean  @default(false)
+  json      Json
+  userId    Int
+  user      User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 enum AuthType {
