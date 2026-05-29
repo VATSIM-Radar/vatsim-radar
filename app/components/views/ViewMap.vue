@@ -322,7 +322,6 @@ const relativeIndicator = useSettingValueFromFunc('map.layers.relativeIndicator'
 const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
 const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
 const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
-const ifrAuto = useSettingValueFromFunc('map.navigraph.layers.ifrAuto');
 const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
 const mapColorsKey = computed(() => JSON.stringify([
     store.theme,

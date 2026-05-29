@@ -51,7 +51,7 @@
                         <div
                             class="airport__counts_counter"
                             :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
-                            @click="listGroundDepartures = !listGroundDepartures"
+                            @click="setSettingByKey('map.preferences.airports.departuresCountInOverlay', !listGroundDepartures)"
                         >
                             <template v-if="!listGroundDepartures">
                                 <departing-icon
@@ -320,6 +320,7 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
+import { getSettingValue, useSettingValueFromFunc } from '~/composables/settings/v2/utils';
 
 const props = defineProps({
     overlay: {
@@ -345,7 +346,7 @@ const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao
 const dataAirport = computed(() => dataStore.airportsList.value[props.overlay.data.icao]);
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
-const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
+const listGroundDepartures = useSettingValueFromFunc('map.preferences.airports.departuresCountInOverlay');
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss

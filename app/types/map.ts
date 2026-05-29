@@ -131,4 +131,4 @@ interface IUserLegacyLocalSettings {
     };
 }
 
-export type UserLegacyLocalSettings = Partial<IUserLocalSettings>;
+export type UserLegacyLocalSettings = Partial<IUserLegacyLocalSettings>;

@@ -86,6 +86,7 @@ function setVisiblePilots() {
 
     const tracksMode = getKeyedValueFromSettings('map.preferences.aircraft.tracks.mode');
     const tracksLimit = getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit');
+    const showOutOfBounds = getKeyedValueFromSettings('map.preferences.aircraft.tracks.showOutOfBounds');
 
     const extent = mapStore.extent.slice();
     extent[0] -= 0.9;
@@ -125,7 +126,7 @@ function setVisiblePilots() {
             return;
         }
 
-        if (!pilot || !isShown) return;
+        if (!pilot || (!isShown && !showOutOfBounds)) return;
 
         let canShowForDepartures = false;
         let canShowForArrivals = false;

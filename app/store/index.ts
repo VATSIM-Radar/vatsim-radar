@@ -415,10 +415,6 @@ export const useStore = defineStore('index', {
 
             if (validation.status === 'ok') saveResult();
         },
-        async fetchMapPresets() {
-            this.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
-            this.mapPresetsFetched = true;
-        },
         async fetchFiltersPresets() {
             this.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
         },

@@ -8,6 +8,7 @@
 - Fixed significant performance drop for airports layouts
 - Fixed aircraft/airports flickering on first load
 - Fixed visible only setting doing nothing
+- Restored show when out of bounds functionality
 
 ## Features and improvements
 

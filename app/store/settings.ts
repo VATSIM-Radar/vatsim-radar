@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import type { UserSettingsPreset, UserSettingsV2Partial } from '~/utils/settings/types';
 import { onSettingChange } from '~/composables/settings/v2/utils';
 import type { UserMapPreset } from '~/utils/server/handlers/map-settings';
+import { sendUserPreset } from '~/composables/fetchers';
 
 export const isSettingsAutoSave = globalComputed(() => useCookie<boolean>('is-settings-auto-save', {
     maxAge: 60 * 60 * 24 * 365,
@@ -59,6 +60,11 @@ export const useSettingsStore = defineStore('settings', {
 
                 if (this.autoSave && !this.activeSettingsPreset && this.settingsPresets.length) {
                     this.activeSettingsPreset = this.settingsPresets[0].id;
+                }
+                else if (!this.settingsPresets.length && useStore().user) {
+                    await sendUserPreset('Default', {}, 'settings/v2', () => new Promise<void>(resolve => resolve));
+                    await this.fetchPresets();
+                    this.activeSettingsPreset = this.settingsPresets[0]?.id ?? null;
                 }
             }
 
