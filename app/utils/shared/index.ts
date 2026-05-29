@@ -17,6 +17,7 @@ export const MAX_USER_LISTS = 5;
 export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 5;
 export const MAX_BOOKMARKS = 20;
+export const MAX_DASHBOARDS = 10;
 export const MAX_FILTER_ARRAY_VALUE = 30;
 export const MAX_MAP_ZOOM = 20;
 
@@ -26,12 +27,6 @@ export function isFetchError<T>(error: unknown): error is FetchError<T> {
 
 export function isProductionMode() {
     return typeof process !== 'undefined' ? process.env.DOMAIN === 'https://vatsim-radar.com' : useRuntimeConfig().public.DOMAIN === 'https://vatsim-radar.com';
-}
-
-export function isRunwayEast(runway: string | number) {
-    if (typeof runway === 'string') runway = parseInt(runway, 10);
-
-    return runway > 16;
 }
 
 export interface FilterAltitudeConfig {
