@@ -23,6 +23,7 @@ import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
+import type { UserDashboard } from '~/utils/server/handlers/dashboards';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
@@ -68,6 +69,7 @@ export const useStore = defineStore('index', {
         activeFilter: {} as UserFilter,
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
+        dashboards: [] as UserDashboard[],
         config: {} as SiteConfig,
 
         events: [] as VatsimActiveEvent[],
@@ -409,6 +411,9 @@ export const useStore = defineStore('index', {
         },
         async fetchBookmarks() {
             this.bookmarks = await $fetch<UserFilterPreset[]>('/api/user/bookmarks');
+        },
+        async fetchDashboards() {
+            this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
         },
     },
 });
