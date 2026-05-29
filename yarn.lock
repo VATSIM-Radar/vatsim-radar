@@ -12,7 +12,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"7zip-min@npm:^3.0.1":
+"7zip-min@npm:3.0.1":
   version: 3.0.1
   resolution: "7zip-min@npm:3.0.1"
   dependencies:
@@ -2721,7 +2721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@influxdata/influxdb-client-apis@npm:^1.35.0":
+"@influxdata/influxdb-client-apis@npm:1.35.0":
   version: 1.35.0
   resolution: "@influxdata/influxdb-client-apis@npm:1.35.0"
   peerDependencies:
@@ -2730,7 +2730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@influxdata/influxdb-client@npm:^1.35.0":
+"@influxdata/influxdb-client@npm:1.35.0":
   version: 1.35.0
   resolution: "@influxdata/influxdb-client@npm:1.35.0"
   checksum: 10c0/7b55f1e884a307d648d39e0e66059c5b6d2c4a7ede3dade07bd98231db28732069ac40282e4fd4144f593a559b703d938375adf31b518381c305929127c522a3
@@ -2965,7 +2965,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@navigraph/amdb@npm:^1.1.0":
+"@navigraph/amdb@npm:1.1.0":
   version: 1.1.0
   resolution: "@navigraph/amdb@npm:1.1.0"
   dependencies:
@@ -3203,7 +3203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/eslint@npm:^1.15.2":
+"@nuxt/eslint@npm:1.15.2":
   version: 1.15.2
   resolution: "@nuxt/eslint@npm:1.15.2"
   dependencies:
@@ -4062,7 +4062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.11.3":
+"@pinia/nuxt@npm:0.11.3":
   version: 0.11.3
   resolution: "@pinia/nuxt@npm:0.11.3"
   dependencies:
@@ -4114,7 +4114,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/adapter-mariadb@npm:^7.8.0":
+"@prisma/adapter-mariadb@npm:7.8.0":
   version: 7.8.0
   resolution: "@prisma/adapter-mariadb@npm:7.8.0"
   dependencies:
@@ -4131,7 +4131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^7.8.0":
+"@prisma/client@npm:7.8.0":
   version: 7.8.0
   resolution: "@prisma/client@npm:7.8.0"
   dependencies:
@@ -4289,7 +4289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protomaps/basemaps@npm:^5.7.2":
+"@protomaps/basemaps@npm:5.7.2":
   version: 5.7.2
   resolution: "@protomaps/basemaps@npm:5.7.2"
   bin:
@@ -4921,7 +4921,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:^5.10.0, @stylistic/eslint-plugin@npm:^5.9.0":
+"@stylistic/eslint-plugin@npm:5.10.0, @stylistic/eslint-plugin@npm:^5.9.0":
   version: 5.10.0
   resolution: "@stylistic/eslint-plugin@npm:5.10.0"
   dependencies:
@@ -4937,7 +4937,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/stylelint-plugin@npm:^5.2.0":
+"@stylistic/stylelint-plugin@npm:5.2.0":
   version: 5.2.0
   resolution: "@stylistic/stylelint-plugin@npm:5.2.0"
   dependencies:
@@ -4966,7 +4966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/bearing@npm:^7.3.5":
+"@turf/bearing@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/bearing@npm:7.3.5"
   dependencies:
@@ -4978,7 +4978,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/difference@npm:^7.3.5":
+"@turf/difference@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/difference@npm:7.3.5"
   dependencies:
@@ -4991,7 +4991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/distance@npm:7.3.5, @turf/distance@npm:^7.3.5":
+"@turf/distance@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/distance@npm:7.3.5"
   dependencies:
@@ -5003,7 +5003,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/great-circle@npm:^7.3.5":
+"@turf/great-circle@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/great-circle@npm:7.3.5"
   dependencies:
@@ -5016,7 +5016,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/helpers@npm:7.3.5, @turf/helpers@npm:^7.3.5":
+"@turf/helpers@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/helpers@npm:7.3.5"
   dependencies:
@@ -5026,7 +5026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/intersect@npm:^7.3.5":
+"@turf/intersect@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/intersect@npm:7.3.5"
   dependencies:
@@ -5050,7 +5050,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/kinks@npm:^7.3.5":
+"@turf/kinks@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/kinks@npm:7.3.5"
   dependencies:
@@ -5061,7 +5061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/line-intersect@npm:^7.3.5":
+"@turf/line-intersect@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/line-intersect@npm:7.3.5"
   dependencies:
@@ -5073,7 +5073,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/meta@npm:7.3.5, @turf/meta@npm:^7.3.5":
+"@turf/meta@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/meta@npm:7.3.5"
   dependencies:
@@ -5084,7 +5084,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/nearest-point-on-line@npm:^7.3.5":
+"@turf/nearest-point-on-line@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/nearest-point-on-line@npm:7.3.5"
   dependencies:
@@ -5098,7 +5098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/union@npm:^7.3.5":
+"@turf/union@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/union@npm:7.3.5"
   dependencies:
@@ -5120,7 +5120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/adm-zip@npm:^0.5.8":
+"@types/adm-zip@npm:0.5.8":
   version: 0.5.8
   resolution: "@types/adm-zip@npm:0.5.8"
   dependencies:
@@ -5129,7 +5129,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/better-sqlite3@npm:^7.6.13":
+"@types/better-sqlite3@npm:7.6.13":
   version: 7.6.13
   resolution: "@types/better-sqlite3@npm:7.6.13"
   dependencies:
@@ -5138,7 +5138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/deep-equal@npm:^1.0.4":
+"@types/deep-equal@npm:1.0.4":
   version: 1.0.4
   resolution: "@types/deep-equal@npm:1.0.4"
   checksum: 10c0/583d41df5d7655b0bd5fdd4b173b045396108fad2191e1bd3b1bfc188f98d24fafff34a8a09c04f9c650c87d82e9f25a8119d269044522da0770a05075fbf74d
@@ -5166,7 +5166,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/geojson@npm:^7946.0.10, @types/geojson@npm:^7946.0.16":
+"@types/geojson@npm:7946.0.16, @types/geojson@npm:^7946.0.10, @types/geojson@npm:^7946.0.16":
   version: 7946.0.16
   resolution: "@types/geojson@npm:7946.0.16"
   checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
@@ -5214,7 +5214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^9.0.10, @types/jsonwebtoken@npm:^9.0.4":
+"@types/jsonwebtoken@npm:9.0.10, @types/jsonwebtoken@npm:^9.0.4":
   version: 9.0.10
   resolution: "@types/jsonwebtoken@npm:9.0.10"
   dependencies:
@@ -5257,7 +5257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/merge-ranges@npm:^1.0.2":
+"@types/merge-ranges@npm:1.0.2":
   version: 1.0.2
   resolution: "@types/merge-ranges@npm:1.0.2"
   checksum: 10c0/ae92d920fa5d6f808651674ac764ec561115883053a417017cbea2527fd4b7425f8dfe94017305e34fd0894c176ba3fb96575bf2e3bda35a2c748bc509a731f8
@@ -5280,21 +5280,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:25.9.1":
+  version: 25.9.1
+  resolution: "@types/node@npm:25.9.1"
+  dependencies:
+    undici-types: "npm:>=7.24.0 <7.24.7"
+  checksum: 10c0/9a04682842bebbcf21a1779dfeab9aa733d7bd7bbc0a0edb641ab3a9a3d43eac543225acf669c334f458f1956443ebc072bc3c72840c543b8b356cab5c82d456
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^24.0.13":
   version: 24.12.3
   resolution: "@types/node@npm:24.12.3"
   dependencies:
     undici-types: "npm:~7.16.0"
   checksum: 10c0/e9db4194a0043c07e8c84c9e3ad19e4a216c708818de75ecfca858edb30d4f9f7ef1cb854959af552896eaf69ff79ea3d6e63157a6d37b0e1b809fac1c538e55
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^25.9.1":
-  version: 25.9.1
-  resolution: "@types/node@npm:25.9.1"
-  dependencies:
-    undici-types: "npm:>=7.24.0 <7.24.7"
-  checksum: 10c0/9a04682842bebbcf21a1779dfeab9aa733d7bd7bbc0a0edb641ab3a9a3d43eac543225acf669c334f458f1956443ebc072bc3c72840c543b8b356cab5c82d456
   languageName: node
   linkType: hard
 
@@ -5352,7 +5352,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^8.18.1, @types/ws@npm:^8.5.10":
+"@types/ws@npm:8.18.1, @types/ws@npm:^8.5.10":
   version: 8.18.1
   resolution: "@types/ws@npm:8.18.1"
   dependencies:
@@ -5688,7 +5688,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:^1.1.1":
+"@vite-pwa/nuxt@npm:1.1.1":
   version: 1.1.1
   resolution: "@vite-pwa/nuxt@npm:1.1.1"
   dependencies:
@@ -6027,7 +6027,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/components@npm:^14.3.0":
+"@vueuse/components@npm:14.3.0":
   version: 14.3.0
   resolution: "@vueuse/components@npm:14.3.0"
   dependencies:
@@ -6051,7 +6051,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/core@npm:14.3.0, @vueuse/core@npm:^14.3.0":
+"@vueuse/core@npm:14.3.0":
   version: 14.3.0
   resolution: "@vueuse/core@npm:14.3.0"
   dependencies:
@@ -6127,7 +6127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/nuxt@npm:^14.3.0":
+"@vueuse/nuxt@npm:14.3.0":
   version: 14.3.0
   resolution: "@vueuse/nuxt@npm:14.3.0"
   dependencies:
@@ -6220,7 +6220,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"adm-zip@npm:^0.5.17":
+"adm-zip@npm:0.5.17":
   version: 0.5.17
   resolution: "adm-zip@npm:0.5.17"
   checksum: 10c0/29b8f2a1070fc540ad9a45b13d0ceffd141d78e5a4501f102e978f0256f8290326009ccd3411213e90f3a810c830b39453548638879b3295ddc3814c20a8307b
@@ -6716,7 +6716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^12.10.0":
+"better-sqlite3@npm:12.10.0":
   version: 12.10.0
   resolution: "better-sqlite3@npm:12.10.0"
   dependencies:
@@ -7051,19 +7051,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chardet@npm:^2.1.1":
+"chardet@npm:2.1.1":
   version: 2.1.1
   resolution: "chardet@npm:2.1.1"
   checksum: 10c0/d8391dd412338442b3de0d3a488aa9327f8bcf74b62b8723d6bd0b85c4084d50b731320e0a7c710edb1d44de75969995d2784b80e4c13b004a6c7a0db4c6e793
   languageName: node
   linkType: hard
 
-"chart.js@npm:4.5.1, chart.js@npm:^4.5.1":
+"chart.js@npm:4.5.1":
   version: 4.5.1
   resolution: "chart.js@npm:4.5.1"
   dependencies:
     "@kurkle/color": "npm:^0.3.0"
   checksum: 10c0/3f2a11dcaae9079e8e6b8ad077e2ae311f04996f9da14815730891e66215ee8b5f2c0eb70b5a156e5bde0f89a41bae13506dc6153e50fd22dcb282b21eec706f
+  languageName: node
+  linkType: hard
+
+"chokidar@npm:5.0.0, chokidar@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "chokidar@npm:5.0.0"
+  dependencies:
+    readdirp: "npm:^5.0.0"
+  checksum: 10c0/42fc907cb2a7ff5c9e220f84dae75380a77997f851c2a5e7865a2cf9ae45dd407a23557208cdcdbf3ac8c93341135a1748e4c48c31855f3bfa095e5159b6bdec
   languageName: node
   linkType: hard
 
@@ -7092,15 +7101,6 @@ __metadata:
   dependencies:
     readdirp: "npm:^4.0.1"
   checksum: 10c0/a58b9df05bb452f7d105d9e7229ac82fa873741c0c40ddcc7bb82f8a909fbe3f7814c9ebe9bc9a2bef9b737c0ec6e2d699d179048ef06ad3ec46315df0ebe6ad
-  languageName: node
-  linkType: hard
-
-"chokidar@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "chokidar@npm:5.0.0"
-  dependencies:
-    readdirp: "npm:^5.0.0"
-  checksum: 10c0/42fc907cb2a7ff5c9e220f84dae75380a77997f851c2a5e7865a2cf9ae45dd407a23557208cdcdbf3ac8c93341135a1748e4c48c31855f3bfa095e5159b6bdec
   languageName: node
   linkType: hard
 
@@ -7384,7 +7384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"croner@npm:^10.0.1":
+"croner@npm:10.0.1, croner@npm:^10.0.1":
   version: 10.0.1
   resolution: "croner@npm:10.0.1"
   checksum: 10c0/b1a022f8c786b19799e662e0f11686937e97133e386efa2859e316ba64b7a9c2ecd0d1500cdbe3157625ff7e9af8584c7d6e41c9a17db892c731f83be464bc92
@@ -7670,7 +7670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deep-equal@npm:^2.2.3":
+"deep-equal@npm:2.2.3":
   version: 2.2.3
   resolution: "deep-equal@npm:2.2.3"
   dependencies:
@@ -7835,7 +7835,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dexie@npm:^4.4.2":
+"dexie@npm:4.4.2":
   version: 4.4.2
   resolution: "dexie@npm:4.4.2"
   checksum: 10c0/b6171347e8d7579600cc4b2ab4b1e3422991451f8f69c926caa15bdf223be9ca8ae86da87e141a2f626fa5d4647c6a9b917ffaa3f878be17c37c4c7533d5eaa6
@@ -7865,7 +7865,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:^14.26.4":
+"discord.js@npm:14.26.4":
   version: 14.26.4
   resolution: "discord.js@npm:14.26.4"
   dependencies:
@@ -8770,7 +8770,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^10.4.0":
+"eslint@npm:10.4.0":
   version: 10.4.0
   resolution: "eslint@npm:10.4.0"
   dependencies:
@@ -9068,7 +9068,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.8.0":
+"fast-xml-parser@npm:5.8.0":
   version: 5.8.0
   resolution: "fast-xml-parser@npm:5.8.0"
   dependencies:
@@ -10045,7 +10045,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^5.10.1":
+"ioredis@npm:5.10.1, ioredis@npm:^5.10.1":
   version: 5.10.1
   resolution: "ioredis@npm:5.10.1"
   dependencies:
@@ -10729,7 +10729,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonwebtoken@npm:^9.0.3":
+"jsonwebtoken@npm:9.0.3":
   version: 9.0.3
   resolution: "jsonwebtoken@npm:9.0.3"
   dependencies:
@@ -10758,7 +10758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:^4.0.1":
+"jwks-rsa@npm:4.0.1":
   version: 4.0.1
   resolution: "jwks-rsa@npm:4.0.1"
   dependencies:
@@ -10781,7 +10781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kafkajs@npm:^2.2.4":
+"kafkajs@npm:2.2.4":
   version: 2.2.4
   resolution: "kafkajs@npm:2.2.4"
   checksum: 10c0/6eece1f682a257955f647b6142430e87681d11bf01e9ebe0a73b4bc0653b8f970c48ba72a3b25fdbb4205cfbb36e5ef93d954b8f8c5f7767ae2b4693bdec9d88
@@ -10820,7 +10820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"klona@npm:^2.0.6":
+"klona@npm:2.0.6, klona@npm:^2.0.6":
   version: 2.0.6
   resolution: "klona@npm:2.0.6"
   checksum: 10c0/94eed2c6c2ce99f409df9186a96340558897b3e62a85afdc1ee39103954d2ebe1c1c4e9fe2b0952771771fa96d70055ede8b27962a7021406374fdb695fd4d01
@@ -11187,7 +11187,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magvar@npm:^2.0.1":
+"magvar@npm:2.0.1":
   version: 2.0.1
   resolution: "magvar@npm:2.0.1"
   checksum: 10c0/f5631fa28077a3af20d695df30e0a6709a01e2785c3d4f218f6074924ed2546ee0fea4f99dea05d5411b254fbc38a86c3c7b50d085f29b1bf4b782c504ef14cc
@@ -11221,7 +11221,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^18.0.4":
+"marked@npm:18.0.4":
   version: 18.0.4
   resolution: "marked@npm:18.0.4"
   bin:
@@ -11289,7 +11289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"merge-ranges@npm:^1.0.2":
+"merge-ranges@npm:1.0.2":
   version: 1.0.2
   resolution: "merge-ranges@npm:1.0.2"
   checksum: 10c0/f9380d4fecd0b3941e96417ea84ce0e4c3b1dcf556d165e83a3e79c98178003fc97b8d950b6e7ed12c4ec2aa2cffd7170c9df5e38ba91c4e125d3d06b6f8f2b7
@@ -11310,7 +11310,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"metar-taf-parser@npm:^9.1.3":
+"metar-taf-parser@npm:9.1.3":
   version: 9.1.3
   resolution: "metar-taf-parser@npm:9.1.3"
   checksum: 10c0/ddc2338c980d08419d4e602acb007def7e8495edbae63d4b1b852bc9198b0f3002781ce02681ea0d8d56c15e175a57bbd3682568d7b5a65954bd3306f84f833b
@@ -11998,7 +11998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-ext@npm:^4.0.38":
+"ol-ext@npm:4.0.38":
   version: 4.0.38
   resolution: "ol-ext@npm:4.0.38"
   peerDependencies:
@@ -12007,7 +12007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:^13.4.1":
+"ol-mapbox-style@npm:13.4.1":
   version: 13.4.1
   resolution: "ol-mapbox-style@npm:13.4.1"
   dependencies:
@@ -12585,7 +12585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pinia@npm:^3.0.4":
+"pinia@npm:3.0.4":
   version: 3.0.4
   resolution: "pinia@npm:3.0.4"
   dependencies:
@@ -12722,7 +12722,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-html@npm:^1.8.1":
+"postcss-html@npm:1.8.1":
   version: 1.8.1
   resolution: "postcss-html@npm:1.8.1"
   dependencies:
@@ -13034,6 +13034,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:8.5.15":
+  version: 8.5.15
+  resolution: "postcss@npm:8.5.15"
+  dependencies:
+    nanoid: "npm:^3.3.12"
+    picocolors: "npm:^1.1.1"
+    source-map-js: "npm:^1.2.1"
+  checksum: 10c0/7f2e63ae22fbe43aace1bf652bd99da4e90737c64194d49e51ddc9cd0f9e51ff2861a7d734379b494deffa03a880a5c65eec70bc29ee9ebaa7136dde3eee8f31
+  languageName: node
+  linkType: hard
+
 "postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.14, postcss@npm:^8.5.6, postcss@npm:^8.5.8":
   version: 8.5.14
   resolution: "postcss@npm:8.5.14"
@@ -13042,17 +13053,6 @@ __metadata:
     picocolors: "npm:^1.1.1"
     source-map-js: "npm:^1.2.1"
   checksum: 10c0/48138207cf5ef5581be1bfe2cb65ccfe0ac75e43888ba045afc8ed6043d7b56aeb3b9a9fe5b353ff554be943cd0cc15d826ccb991525159175971e5ee8ab0237
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.5.15":
-  version: 8.5.15
-  resolution: "postcss@npm:8.5.15"
-  dependencies:
-    nanoid: "npm:^3.3.12"
-    picocolors: "npm:^1.1.1"
-    source-map-js: "npm:^1.2.1"
-  checksum: 10c0/7f2e63ae22fbe43aace1bf652bd99da4e90737c64194d49e51ddc9cd0f9e51ff2861a7d734379b494deffa03a880a5c65eec70bc29ee9ebaa7136dde3eee8f31
   languageName: node
   linkType: hard
 
@@ -13127,7 +13127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:^7.8.0":
+"prisma@npm:7.8.0":
   version: 7.8.0
   resolution: "prisma@npm:7.8.0"
   dependencies:
@@ -13756,7 +13756,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rou3@npm:^0.8.1":
+"rou3@npm:0.8.1, rou3@npm:^0.8.1":
   version: 0.8.1
   resolution: "rou3@npm:0.8.1"
   checksum: 10c0/c8728cf3c41833db0e20cbadba07b3c678b8b9fb12db1d8803f275a7a6cce02d0be9bee79367575883f65659c9c0ed1001e6527146ed27772e439e5d6c68d264
@@ -13973,7 +13973,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.100.0":
+"sass-embedded@npm:1.100.0":
   version: 1.100.0
   resolution: "sass-embedded@npm:1.100.0"
   dependencies:
@@ -14229,7 +14229,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.34.3, sharp@npm:^0.34.5":
+"sharp@npm:0.34.5, sharp@npm:^0.34.3":
   version: 0.34.5
   resolution: "sharp@npm:0.34.5"
   dependencies:
@@ -14587,21 +14587,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"srvx@npm:0.11.16":
+  version: 0.11.16
+  resolution: "srvx@npm:0.11.16"
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/cd3ed12c12481e2852409a7dfaa8c1ae0a7264769e9239e4a34da48033029c2ce4b2bccfd648a49f9bb10d13c4be91fcdbdb50feb08bf3de19bc8cfe71efa0a2
+  languageName: node
+  linkType: hard
+
 "srvx@npm:^0.11.15":
   version: 0.11.15
   resolution: "srvx@npm:0.11.15"
   bin:
     srvx: bin/srvx.mjs
   checksum: 10c0/3f72be7bfb321ad21ae7698a721f1a16b855313d1fa8498a0d68adbec65f8f2d2c5a83cf37849f6489c7403870535a70958976636df3d5274cd785b61b7aa635
-  languageName: node
-  linkType: hard
-
-"srvx@npm:^0.11.16":
-  version: 0.11.16
-  resolution: "srvx@npm:0.11.16"
-  bin:
-    srvx: bin/srvx.mjs
-  checksum: 10c0/cd3ed12c12481e2852409a7dfaa8c1ae0a7264769e9239e4a34da48033029c2ce4b2bccfd648a49f9bb10d13c4be91fcdbdb50feb08bf3de19bc8cfe71efa0a2
   languageName: node
   linkType: hard
 
@@ -14890,7 +14890,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-clean-order@npm:^8.0.2":
+"stylelint-config-clean-order@npm:8.0.2":
   version: 8.0.2
   resolution: "stylelint-config-clean-order@npm:8.0.2"
   peerDependencies:
@@ -14910,7 +14910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended-scss@npm:^17.0.1":
+"stylelint-config-recommended-scss@npm:17.0.1":
   version: 17.0.1
   resolution: "stylelint-config-recommended-scss@npm:17.0.1"
   dependencies:
@@ -14927,7 +14927,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended-vue@npm:^1.6.1":
+"stylelint-config-recommended-vue@npm:1.6.1":
   version: 1.6.1
   resolution: "stylelint-config-recommended-vue@npm:1.6.1"
   dependencies:
@@ -14950,7 +14950,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-standard@npm:^40.0.0":
+"stylelint-config-standard@npm:40.0.0":
   version: 40.0.0
   resolution: "stylelint-config-standard@npm:40.0.0"
   dependencies:
@@ -14961,7 +14961,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-order@npm:^8.1.1":
+"stylelint-order@npm:8.1.1":
   version: 8.1.1
   resolution: "stylelint-order@npm:8.1.1"
   dependencies:
@@ -15010,7 +15010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.12.0":
+"stylelint@npm:17.12.0":
   version: 17.12.0
   resolution: "stylelint@npm:17.12.0"
   dependencies:
@@ -15113,6 +15113,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svgo@npm:4.0.1, svgo@npm:^4.0.0, svgo@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "svgo@npm:4.0.1"
+  dependencies:
+    commander: "npm:^11.1.0"
+    css-select: "npm:^5.1.0"
+    css-tree: "npm:^3.0.1"
+    css-what: "npm:^6.1.0"
+    csso: "npm:^5.0.5"
+    picocolors: "npm:^1.1.1"
+    sax: "npm:^1.5.0"
+  bin:
+    svgo: ./bin/svgo.js
+  checksum: 10c0/f61f9957b42e0c97593b49a01f3b93cb239b2e818efccb056fcc866d622704d9021c4ef8bd0287264c3e4f33da60e4af14d841b4a624b87ff8888e3b896d13d5
+  languageName: node
+  linkType: hard
+
 "svgo@npm:^3.3.3":
   version: 3.3.3
   resolution: "svgo@npm:3.3.3"
@@ -15127,23 +15144,6 @@ __metadata:
   bin:
     svgo: ./bin/svgo
   checksum: 10c0/06568c6b0430f96748c557f0b17dc7de79b19fa16d13d7523527ede0ec727fc6d8e6a10e13ff106dc4372d2e6063a1dca7c455c495efb1b83857480425f9b965
-  languageName: node
-  linkType: hard
-
-"svgo@npm:^4.0.0, svgo@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "svgo@npm:4.0.1"
-  dependencies:
-    commander: "npm:^11.1.0"
-    css-select: "npm:^5.1.0"
-    css-tree: "npm:^3.0.1"
-    css-what: "npm:^6.1.0"
-    csso: "npm:^5.0.5"
-    picocolors: "npm:^1.1.1"
-    sax: "npm:^1.5.0"
-  bin:
-    svgo: ./bin/svgo.js
-  checksum: 10c0/f61f9957b42e0c97593b49a01f3b93cb239b2e818efccb056fcc866d622704d9021c4ef8bd0287264c3e4f33da60e4af14d841b4a624b87ff8888e3b896d13d5
   languageName: node
   linkType: hard
 
@@ -16162,95 +16162,95 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vatsim-radar@workspace:."
   dependencies:
-    7zip-min: "npm:^3.0.1"
-    "@influxdata/influxdb-client": "npm:^1.35.0"
-    "@influxdata/influxdb-client-apis": "npm:^1.35.0"
-    "@navigraph/amdb": "npm:^1.1.0"
-    "@nuxt/eslint": "npm:^1.15.2"
+    7zip-min: "npm:3.0.1"
+    "@influxdata/influxdb-client": "npm:1.35.0"
+    "@influxdata/influxdb-client-apis": "npm:1.35.0"
+    "@navigraph/amdb": "npm:1.1.0"
+    "@nuxt/eslint": "npm:1.15.2"
     "@nuxt/image": "npm:2.0.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
-    "@pinia/nuxt": "npm:^0.11.3"
-    "@prisma/adapter-mariadb": "npm:^7.8.0"
-    "@prisma/client": "npm:^7.8.0"
-    "@protomaps/basemaps": "npm:^5.7.2"
-    "@stylistic/eslint-plugin": "npm:^5.10.0"
-    "@stylistic/stylelint-plugin": "npm:^5.2.0"
-    "@turf/bearing": "npm:^7.3.5"
-    "@turf/difference": "npm:^7.3.5"
-    "@turf/distance": "npm:^7.3.5"
-    "@turf/great-circle": "npm:^7.3.5"
-    "@turf/helpers": "npm:^7.3.5"
-    "@turf/intersect": "npm:^7.3.5"
-    "@turf/kinks": "npm:^7.3.5"
-    "@turf/line-intersect": "npm:^7.3.5"
-    "@turf/meta": "npm:^7.3.5"
-    "@turf/nearest-point-on-line": "npm:^7.3.5"
-    "@turf/union": "npm:^7.3.5"
-    "@types/adm-zip": "npm:^0.5.8"
-    "@types/better-sqlite3": "npm:^7.6.13"
-    "@types/deep-equal": "npm:^1.0.4"
-    "@types/geojson": "npm:^7946.0.16"
-    "@types/jsonwebtoken": "npm:^9.0.10"
-    "@types/merge-ranges": "npm:^1.0.2"
-    "@types/node": "npm:^25.9.1"
+    "@pinia/nuxt": "npm:0.11.3"
+    "@prisma/adapter-mariadb": "npm:7.8.0"
+    "@prisma/client": "npm:7.8.0"
+    "@protomaps/basemaps": "npm:5.7.2"
+    "@stylistic/eslint-plugin": "npm:5.10.0"
+    "@stylistic/stylelint-plugin": "npm:5.2.0"
+    "@turf/bearing": "npm:7.3.5"
+    "@turf/difference": "npm:7.3.5"
+    "@turf/distance": "npm:7.3.5"
+    "@turf/great-circle": "npm:7.3.5"
+    "@turf/helpers": "npm:7.3.5"
+    "@turf/intersect": "npm:7.3.5"
+    "@turf/kinks": "npm:7.3.5"
+    "@turf/line-intersect": "npm:7.3.5"
+    "@turf/meta": "npm:7.3.5"
+    "@turf/nearest-point-on-line": "npm:7.3.5"
+    "@turf/union": "npm:7.3.5"
+    "@types/adm-zip": "npm:0.5.8"
+    "@types/better-sqlite3": "npm:7.6.13"
+    "@types/deep-equal": "npm:1.0.4"
+    "@types/geojson": "npm:7946.0.16"
+    "@types/jsonwebtoken": "npm:9.0.10"
+    "@types/merge-ranges": "npm:1.0.2"
+    "@types/node": "npm:25.9.1"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
-    "@types/ws": "npm:^8.18.1"
-    "@vite-pwa/nuxt": "npm:^1.1.1"
-    "@vueuse/components": "npm:^14.3.0"
-    "@vueuse/core": "npm:^14.3.0"
-    "@vueuse/nuxt": "npm:^14.3.0"
-    adm-zip: "npm:^0.5.17"
+    "@types/ws": "npm:8.18.1"
+    "@vite-pwa/nuxt": "npm:1.1.1"
+    "@vueuse/components": "npm:14.3.0"
+    "@vueuse/core": "npm:14.3.0"
+    "@vueuse/nuxt": "npm:14.3.0"
+    adm-zip: "npm:0.5.17"
     aws-sdk: "npm:^2.1693.0"
-    better-sqlite3: "npm:^12.10.0"
-    chardet: "npm:^2.1.1"
-    chart.js: "npm:^4.5.1"
-    chokidar: "npm:^5.0.0"
-    croner: "npm:^10.0.1"
-    deep-equal: "npm:^2.2.3"
-    dexie: "npm:^4.4.2"
-    discord.js: "npm:^14.26.4"
-    eslint: "npm:^10.4.0"
-    fast-xml-parser: "npm:^5.8.0"
-    ioredis: "npm:^5.10.1"
-    jsonwebtoken: "npm:^9.0.3"
-    jwks-rsa: "npm:^4.0.1"
-    kafkajs: "npm:^2.2.4"
-    klona: "npm:^2.0.6"
-    magvar: "npm:^2.0.1"
-    marked: "npm:^18.0.4"
-    merge-ranges: "npm:^1.0.2"
-    metar-taf-parser: "npm:^9.1.3"
+    better-sqlite3: "npm:12.10.0"
+    chardet: "npm:2.1.1"
+    chart.js: "npm:4.5.1"
+    chokidar: "npm:5.0.0"
+    croner: "npm:10.0.1"
+    deep-equal: "npm:2.2.3"
+    dexie: "npm:4.4.2"
+    discord.js: "npm:14.26.4"
+    eslint: "npm:10.4.0"
+    fast-xml-parser: "npm:5.8.0"
+    ioredis: "npm:5.10.1"
+    jsonwebtoken: "npm:9.0.3"
+    jwks-rsa: "npm:4.0.1"
+    kafkajs: "npm:2.2.4"
+    klona: "npm:2.0.6"
+    magvar: "npm:2.0.1"
+    marked: "npm:18.0.4"
+    merge-ranges: "npm:1.0.2"
+    metar-taf-parser: "npm:9.1.3"
     nuxt: "npm:^4.4.5"
     ol: "npm:10.9.0"
-    ol-ext: "npm:^4.0.38"
-    ol-mapbox-style: "npm:^13.4.1"
-    pinia: "npm:^3.0.4"
-    postcss: "npm:^8.5.15"
-    postcss-html: "npm:^1.8.1"
-    prisma: "npm:^7.8.0"
-    rou3: "npm:^0.8.1"
-    sass-embedded: "npm:^1.100.0"
-    sharp: "npm:^0.34.5"
-    srvx: "npm:^0.11.16"
-    stylelint: "npm:^17.12.0"
-    stylelint-config-clean-order: "npm:^8.0.2"
-    stylelint-config-recommended-scss: "npm:^17.0.1"
-    stylelint-config-recommended-vue: "npm:^1.6.1"
-    stylelint-config-standard: "npm:^40.0.0"
-    stylelint-order: "npm:^8.1.1"
-    svgo: "npm:^4.0.1"
+    ol-ext: "npm:4.0.38"
+    ol-mapbox-style: "npm:13.4.1"
+    pinia: "npm:3.0.4"
+    postcss: "npm:8.5.15"
+    postcss-html: "npm:1.8.1"
+    prisma: "npm:7.8.0"
+    rou3: "npm:0.8.1"
+    sass-embedded: "npm:1.100.0"
+    sharp: "npm:0.34.5"
+    srvx: "npm:0.11.16"
+    stylelint: "npm:17.12.0"
+    stylelint-config-clean-order: "npm:8.0.2"
+    stylelint-config-recommended-scss: "npm:17.0.1"
+    stylelint-config-recommended-vue: "npm:1.6.1"
+    stylelint-config-standard: "npm:40.0.0"
+    stylelint-order: "npm:8.1.1"
+    svgo: "npm:4.0.1"
     tsx: "npm:4.22.3"
     typescript: "npm:6.0.3"
     ua-parser-js: "npm:2.0.10"
-    vite-plugin-eslint2: "npm:^5.1.0"
-    vite-plugin-pwa: "npm:^1.3.0"
-    vite-svg-loader: "npm:^5.1.1"
-    vitepress: "npm:^1.6.4"
+    vite-plugin-eslint2: "npm:5.1.0"
+    vite-plugin-pwa: "npm:1.3.0"
+    vite-svg-loader: "npm:5.1.1"
+    vitepress: "npm:1.6.4"
     vue: "npm:^3.5.34"
-    vue-chartjs: "npm:^5.3.3"
-    vue-draggable-plus: "npm:^0.6.1"
+    vue-chartjs: "npm:5.3.3"
+    vue-draggable-plus: "npm:0.6.1"
     vue-tsc: "npm:3.2.8"
-    ws: "npm:^8.20.0"
+    ws: "npm:8.20.1"
   languageName: unknown
   linkType: soft
 
@@ -16360,7 +16360,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-eslint2@npm:^5.1.0":
+"vite-plugin-eslint2@npm:5.1.0":
   version: 5.1.0
   resolution: "vite-plugin-eslint2@npm:5.1.0"
   dependencies:
@@ -16405,7 +16405,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-pwa@npm:^1.2.0, vite-plugin-pwa@npm:^1.3.0":
+"vite-plugin-pwa@npm:1.3.0, vite-plugin-pwa@npm:^1.2.0":
   version: 1.3.0
   resolution: "vite-plugin-pwa@npm:1.3.0"
   dependencies:
@@ -16466,7 +16466,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-svg-loader@npm:^5.1.1":
+"vite-svg-loader@npm:5.1.1":
   version: 5.1.1
   resolution: "vite-svg-loader@npm:5.1.1"
   dependencies:
@@ -16576,7 +16576,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitepress@npm:^1.6.4":
+"vitepress@npm:1.6.4":
   version: 1.6.4
   resolution: "vitepress@npm:1.6.4"
   dependencies:
@@ -16628,7 +16628,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-chartjs@npm:^5.3.3":
+"vue-chartjs@npm:5.3.3":
   version: 5.3.3
   resolution: "vue-chartjs@npm:5.3.3"
   peerDependencies:
@@ -16645,7 +16645,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-draggable-plus@npm:^0.6.1":
+"vue-draggable-plus@npm:0.6.1":
   version: 0.6.1
   resolution: "vue-draggable-plus@npm:0.6.1"
   dependencies:
@@ -17133,7 +17133,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.17.0, ws@npm:^8.19.0, ws@npm:^8.20.0":
+"ws@npm:8.20.1, ws@npm:^8.17.0, ws@npm:^8.19.0":
   version: 8.20.1
   resolution: "ws@npm:8.20.1"
   peerDependencies:
