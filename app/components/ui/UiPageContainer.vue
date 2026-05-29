@@ -79,6 +79,10 @@ defineSlots<{ default?: () => any; title?: () => any; description?: () => any; a
 
         margin-bottom: 32px;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+        }
+
         &_left {
             display: flex;
             flex-direction: column;

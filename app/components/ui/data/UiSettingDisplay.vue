@@ -107,6 +107,12 @@ function labelClick(event: MouseEvent) {
         display: grid;
         grid-template-columns: 31% calc(100% - 31% - 24px);
         justify-content: space-between;
+
+        @include mobileOnly {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
     }
 
     &--disabled .setting_component {

@@ -228,10 +228,9 @@
                     </div>
                 </ui-tooltip>
                 <ui-button
-                    v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
-                    :type="!store.settingsPopup ? 'secondary' : 'primary'"
-                    @click="!store.user ? store.loginPopup = true : store.settingsPopup = !store.settingsPopup"
+                    to="/settings"
+                    :type="route.path.startsWith('/settings') ? 'primary' : 'secondary'"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -253,8 +252,6 @@
                 </ui-button>
                 <view-header-mobile-menu v-model="mobileMenuOpened"/>
             </div>
-
-            <view-header-settings v-model="store.settingsPopup"/>
         </div>
         <view-header-popups/>
         <transition name="header--mobile-search">
@@ -274,7 +271,6 @@ import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import SearchIcon from 'assets/icons/kit/search.svg?component';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import ViewHeaderSearch from '~/components/features/header/ViewHeaderSearch.vue';
-import ViewHeaderSettings from '~/components/features/header/ViewHeaderSettings.vue';
 import ViewHeaderPopups from '~/components/features/header/ViewHeaderPopups.vue';
 import { useHeaderMenu } from '~/composables/map';
 import ViewHeaderMobileMenu from '~/components/features/header/ViewHeaderMobileMenu.vue';
@@ -297,7 +293,6 @@ const headerName = useSettingValueFromFunc('appearance.headerName');
 const config = useRuntimeConfig();
 
 const app = useNuxtApp();
-
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
 

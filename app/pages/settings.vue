@@ -14,7 +14,7 @@
                 <ui-input-text
                     v-model="search"
                     placeholder="Search"
-                    width="448px"
+                    :width="isMobile ? '100%' : '448px'"
                     @appendClick="$event.input?.focus()"
                 >
                     <template #append>
@@ -24,8 +24,42 @@
             </div>
         </template>
 
+        <div v-if="isHideMenu" class="settings-nav">
+            <div class="settings-nav_menu">
+                <ui-button
+                    class="settings_contents-burger"
+                    icon-width="12px"
+                    size="S"
+                    type="secondary"
+                    @click="menuActive = !menuActive"
+                >
+                    <template #icon>
+                        <ui-burger v-model="menuActive"/>
+                    </template>
+
+                    Menu
+                </ui-button>
+            </div>
+            <div v-if="currentItem?.items.filter(x => x.title).length && !search" class="settings-nav_contents">
+                <ui-button
+                    class="settings_contents-burger"
+                    icon-width="12px"
+                    size="S"
+                    type="secondary"
+                    @click="contentsActive = !contentsActive"
+                >
+                    Contents
+                </ui-button>
+            </div>
+        </div>
+
         <div class="settings" :class="{ 'settings--preview': mapPreview }">
-            <div class="settings_menu settings_menu--nav">
+            <div
+                class="settings_menu settings_menu--nav"
+                :class="{
+                    'settings_menu--nav--hide': isHideMenu, 'settings_menu--nav--hidden': isHideMenu && !menuActive,
+                }"
+            >
                 <div
                     v-for="root in settingsSections"
                     :key="root.url"
@@ -39,6 +73,7 @@
                         class="settings_menu_item_header"
                         :to="`/settings/${ root.url }`"
                         type="h5"
+                        @click="menuActive = false"
                     >
                         <ui-icon
                             v-if="root.icon"
@@ -70,6 +105,7 @@
                             :model-value="String(rootPath) + (childrenPath ?? '')"
                             :tabs="Object.fromEntries(root.sections.map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
                             vertical
+                            @update:modelValue="menuActive = false"
                         />
                     </div>
                 </div>
@@ -82,21 +118,8 @@
                 />
             </div>
 
-            <ui-button
-                v-if="isHideContents && isMobile"
-                class="settings_contents-burger"
-                icon-width="12px"
-                size="S"
-                type="secondary-black"
-                @click="contentsActive = !contentsActive"
-            >
-                <template #icon>
-                    <ui-burger v-model="contentsActive"/>
-                </template>
-            </ui-button>
-
             <div
-                v-if="!isHideContents || isMobile"
+                v-if="!isHideContents || isMobileOrTablet"
                 class="settings_contents settings_menu"
                 :class="{ 'settings_contents--hide': isHideContents, 'settings_contents--hidden': isHideContents && !contentsActive }"
             >
@@ -119,6 +142,7 @@
                             :model-value="route.hash"
                             :tabs="Object.fromEntries(currentItem.items.filter(x => x.title).map(x => ([x.key, ({ title: x.title!, to: `#${ x.key }` })])))"
                             vertical
+                            @update:modelValue="contentsActive = false"
                         />
                     </div>
                 </div>
@@ -130,6 +154,13 @@
                 class="settings_iframe"
                 src="/?preset=settings"
             />
+            <div
+                v-if="mapPreview && isMobileOrTablet"
+                class="settings_iframe_close"
+                @click="mapPreview = false"
+            >
+                <close-icon/>
+            </div>
         </div>
     </ui-page-container>
 </template>
@@ -146,6 +177,7 @@ import SearchIcon from '@/assets/icons/kit/search.svg?component';
 import type { SettingsItem, SettingsSectionBlock } from '~/composables/settings/v2/types';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
+import CloseIcon from 'assets/icons/basic/close.svg?component';
 
 const store = useStore();
 const search = ref('');
@@ -153,15 +185,16 @@ const route = useRoute();
 const iframe = useTemplateRef('iframe');
 
 const isMobile = useIsMobile();
-
-const contentsActive = ref(false);
-const isHideContents = computed(() => {
-    return store.viewport.width < 1200 || (mapPreview.value && store.viewport.width < 2000);
-});
+const isMobileOrTablet = useIsMobileOrTablet();
 
 const menuActive = ref(false);
 const isHideMenu = computed(() => {
-    return store.viewport.width < 800;
+    return store.viewport.width < 1280;
+});
+
+const contentsActive = ref(false);
+const isHideContents = computed(() => {
+    return isHideMenu.value || (mapPreview.value && store.viewport.width < 2000);
 });
 
 const rootPath = computed(() => route.params.path?.[0] ?? null);
@@ -175,15 +208,6 @@ const mapPreview = useCookie<boolean>('map-preview', {
     secure: true,
 });
 const settingsStore = useSettingsStore();
-
-watch(() => settingsStore.settings, () => {
-    iframe.value?.contentWindow?.postMessage({
-        type: 'settings',
-        settings: toRaw(settingsStore.settings),
-    });
-}, {
-    deep: true,
-});
 
 const currentItem = computed(() => {
     if (search.value) {
@@ -294,6 +318,10 @@ if (!currentItem.value) {
     gap: 8px;
     justify-content: space-between;
 
+    @include mobile {
+        --max-height: calc(100dvh - 56px - 32px - var(--container-vertical-padding) * 2 - 2px);
+    }
+
     &_iframe {
         overflow: hidden;
 
@@ -302,6 +330,26 @@ if (!currentItem.value) {
         height: var(--max-height);
         border: none;
         border-radius: 16px;
+
+        @include mobile {
+            position: fixed;
+            z-index: 10;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+        }
+
+        &_close {
+            position: fixed;
+            z-index: 11;
+            top: 16px;
+            right: 16px;
+
+            svg {
+                width: 16px;
+            }
+        }
     }
 
     &_menu {
@@ -319,6 +367,37 @@ if (!currentItem.value) {
         &--nav {
             padding-right: 24px;
             border-right: 1px solid $whiteAlpha12;
+
+            &--hide {
+                position: absolute;
+                z-index: 4;
+                top: 0;
+                left: 0;
+
+                overflow: auto;
+
+                width: 100%;
+                min-width: unset;
+                max-width: 220px;
+                height: 100%;
+                padding: 48px 8px 0;
+                padding-top: 0;
+                border-right: 1px solid $strokeDefault;
+
+                white-space: nowrap;
+
+                background: $darkGray900;
+
+                &:not(.settings_menu--nav--hidden) {
+                    transition: 0.3s;
+                    transition-property: opacity, visibility;
+                }
+            }
+
+            &--hidden {
+                visibility: hidden;
+                opacity: 0;
+            }
         }
 
         &_item {
@@ -388,7 +467,7 @@ if (!currentItem.value) {
     &_content {
         overflow: auto;
         flex-grow: 1;
-        max-width: 800px;
+        max-width: 820px;
         max-height: var(--max-height);
     }
 
@@ -396,22 +475,15 @@ if (!currentItem.value) {
         width: 220px;
         min-width: 220px;
 
-        &-burger {
-            position: relative;
-            z-index: 2;
-            align-self: flex-start;
-            min-width: 32px;
-        }
-
         &--hide {
             position: absolute;
-            z-index: 1;
+            z-index: 2;
             top: 0;
-            right: 35%;
+            right: 0;
 
             overflow: hidden;
 
-            width: auto;
+            width: 100%;
             min-width: unset;
             max-width: 220px;
             height: 100%;
@@ -426,12 +498,36 @@ if (!currentItem.value) {
                 transition: 0.3s;
                 transition-property: opacity, visibility;
             }
+
+            @include mobileOnly {
+                max-width: unset;
+                padding-top: 0;
+                border-left: 0;
+            }
         }
 
         &--hidden {
             visibility: hidden;
             opacity: 0;
         }
+    }
+
+    &-nav {
+        position: sticky;
+        z-index: 5;
+        top: 56px;
+
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+
+        margin: 0 calc(var(--container-horizontal-padding) * -1) 16px;
+        padding: 8px 16px;
+        border-bottom: 1px solid $strokeDefault;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+
+        background: $darkGray900;
     }
 }
 </style>

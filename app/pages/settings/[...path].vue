@@ -39,9 +39,6 @@
 
 <script setup lang="ts">
 import UiText from '~/components/ui/text/UiText.vue';
-import SettingsComponent from '~/components/features/settings/v2/components/SettingsComponent.vue';
-import UiButton from '~/components/ui/buttons/UiButton.vue';
-import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const props = defineProps({
@@ -64,21 +61,52 @@ definePageMeta({
 });
 
 const route = useRoute();
-const sectionRef = useTemplateRef('sectionRef');
+const sectionRef = useTemplateRef<HTMLDivElement[]>('sectionRef');
+const isMobile = useIsMobileOrTablet();
 
 function scrollToHash() {
-    const item = document.querySelector(`[data-section-id="${ route.hash.slice(1) }"]`);
+    const scrollContainer = root.value?.parentElement;
+    if (!scrollContainer) return;
+
+    const hash = route.hash.slice(1);
+    const item = hash ? sectionRef.value?.find(section => section.dataset.sectionId === hash) : null;
+
     if (item) {
-        root.value?.parentElement!.scrollBy({
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+
+        scrollContainer.scrollTo({
             behavior: 'smooth',
-            top: item.getBoundingClientRect().top - 56 - 16,
+            top: scrollContainer.scrollTop + itemRect.top - containerRect.top - 16,
         });
     }
+    else {
+        scrollContainer.scrollTo({
+            top: 0,
+        });
+    }
+}
+
+function scrollPageToRoot() {
+    if (!root.value || !isMobile.value) return;
+
+    window.scrollTo({
+        behavior: 'smooth',
+        top: window.scrollY + root.value.getBoundingClientRect().top - 56 - 52 - 16,
+    });
 }
 
 onMounted(() => {
     watch(() => route.hash, scrollToHash, {
         immediate: true,
+    });
+
+    watch(() => route.path, async () => {
+        await nextTick();
+        requestAnimationFrame(scrollPageToRoot);
+    }, {
+        immediate: true,
+        flush: 'post',
     });
 });
 

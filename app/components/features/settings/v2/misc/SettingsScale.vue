@@ -12,7 +12,7 @@
                     v-for="icon in icons"
                     :key="icon.icon.icon"
                     :style="{ '--width': `${ icon.icon.width }px` }"
-                    v-html="icon.svg"
+                    v-html="reColorSvg(icon.svg, 'neutral')"
                 />
             </div>
         </div>
@@ -28,7 +28,7 @@
                         '--width': `${ icon.icon.width * (value ?? 1) }px`,
                         '--height': `${ icon.icon.height * (value ?? 1) }px`,
                     }"
-                    v-html="icon.svg"
+                    v-html="reColorSvg(icon.svg, 'neutral')"
                 />
             </div>
         </div>
@@ -46,6 +46,8 @@ const icons = [
     { icon: radarIcons.a320, svg: await fetchAircraftSvgIcon('a320') },
     { icon: radarIcons.a388, svg: await fetchAircraftSvgIcon('a388') },
 ];
+
+const store = useStore();
 </script>
 
 <style scoped lang="scss">
