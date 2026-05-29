@@ -208,13 +208,47 @@ export default defineNuxtConfig({
     },
 
     pwa: {
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
+        includeAssets: [
+            'favicon.ico',
+            'favicon.svg',
+            'favicon-*.png',
+            'apple-touch-icon.png',
+            'web-app-manifest-*.png',
+            'icons/**/*',
+        ],
         client: {
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
         },
         injectRegister: isDebug() ? false : 'auto',
         selfDestroying: isDebug(),
+        workbox: {
+            globPatterns: [
+                '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
+            ],
+            navigateFallback: null,
+            runtimeCaching: [
+                {
+                    urlPattern: ({ request, url }) => {
+                        return request.method === 'GET' &&
+                            url.origin === self.location.origin &&
+                            /\.(?:js|css|woff2?|ttf|otf|ico|png|svg|webp|avif)$/i.test(url.pathname);
+                    },
+                    handler: 'CacheFirst',
+                    options: {
+                        cacheName: 'static-assets',
+                        expiration: {
+                            maxEntries: 500,
+                            maxAgeSeconds: 60 * 60 * 24 * 30,
+                        },
+                        cacheableResponse: {
+                            statuses: [200],
+                        },
+                    },
+                },
+            ],
+        },
         manifest: {
             name: appName,
             short_name: appName,

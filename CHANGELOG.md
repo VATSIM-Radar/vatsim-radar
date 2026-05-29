@@ -30,6 +30,16 @@
 - Changed icons in Presets Manage so they would better reflect the action they do
 - Combobox arrow will now disappear, if there is nothing to select
 
+# [2.0.0-alpha.9.4]
+
+## Features and improvements
+
+- Speed up website loading on second load by utilizing PWA cache
+
+## Bug Fixes
+
+- Fix website reloading multiple times after update
+
 # [2.0.0-alpha.9.3]
 
 ## Production changes
