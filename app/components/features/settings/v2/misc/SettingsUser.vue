@@ -3,8 +3,8 @@
         <ui-text type="1b">VATSIM ID: <strong>{{store.user?.cid ?? 'Not logged in'}}</strong></ui-text>
         <ui-button
             v-if="store.user && !store.user.cid"
-            href="/api/auth/vatsim/redirect"
             size="S"
+            @click="vatsimAuth"
         >
             Login with VATSIM
         </ui-button>
@@ -18,8 +18,8 @@
             </ui-button>
             <ui-button
                 class="settings__logout"
-                href="/api/user/logout"
                 type="destructive"
+                @click="logout"
             >
                 Logout
             </ui-button>
@@ -31,6 +31,7 @@
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiText from '~/components/ui/text/UiText.vue';
+import { logout, vatsimAuth } from '../../../../../composables/vatsim/auth';
 
 const store = useStore();
 </script>

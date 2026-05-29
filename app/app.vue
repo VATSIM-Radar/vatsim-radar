@@ -8,6 +8,7 @@
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
 import type LayerGroup from 'ol/layer/Group.js';
+import { logout } from '~/composables/vatsim/auth';
 
 const route = useRoute();
 
@@ -57,7 +58,7 @@ async function receiveMessage(event: MessageEvent) {
 
     if (data && 'action' in data) {
         if (data.action === 'logout') {
-            document.location.href = '/api/user/logout';
+            logout();
         }
     }
 }

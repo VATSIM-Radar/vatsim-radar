@@ -97,7 +97,7 @@
                     </ui-button>
                     <ui-button
                         class="settings__logout"
-                        href="/api/user/logout"
+                        @click="logout"
                     >
                         Logout
                     </ui-button>
@@ -195,7 +195,7 @@
             <div class="settings__block settings__block--long-gap">
                 <ui-button
                     v-if="!store.user || store.user?.hasFms === null"
-                    href="/api/auth/navigraph/redirect"
+                    @click="navigraphAuth"
                 >
                     Link Navigraph
                 </ui-button>
@@ -250,6 +250,7 @@ import type { UserListLive } from '~/utils/server/handlers/lists';
 import { MAX_USER_LISTS } from '~/utils/shared';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
+import { logout, navigraphAuth } from '~/composables/vatsim/auth';
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();

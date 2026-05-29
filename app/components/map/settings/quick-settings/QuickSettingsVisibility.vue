@@ -330,7 +330,7 @@
                 <template v-if="store.user">
                     <a
                         class="__link"
-                        href="/api/auth/navigraph/redirect"
+                        @click="navigraphAuth"
                     >Link your account</a> or view
                 </template>
                 <template v-else>
@@ -403,6 +403,7 @@ import type { SelectItem } from '~/types/components/select';
 import type { IUserMapSettings } from '~/utils/server/handlers/map-settings';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiColumnsDisplay from '~/components/ui/data/UiColumnsDisplay.vue';
+import { navigraphAuth } from '~/composables/vatsim/auth';
 
 const store = useStore();
 const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');

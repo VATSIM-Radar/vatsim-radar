@@ -138,8 +138,8 @@
             >
                 <ui-button
                     v-if="!store.user && !isIframe"
-                    href="/api/auth/vatsim/redirect"
                     size="S"
+                    @click="vatsimAuth"
                 >
                     <template v-if="isMobile">
                         Login
@@ -296,6 +296,7 @@ import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
+import { vatsimAuth } from '../../../composables/vatsim/auth';
 
 const headerMenu = useHeaderMenu();
 

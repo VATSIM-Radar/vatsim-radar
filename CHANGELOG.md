@@ -15,6 +15,7 @@
 - A separate Enable toggle (active by default) will now show in Filters to quickly disable them
 - Significantly improved filter apply speed
 - Added a clear indication that temporal filter is applied
+- Login flow to VATSIM, Navigraph, as well as Logout has been improved, placing you to the same page you have left when pressed login/logout
 
 ## Bug Fixes
 

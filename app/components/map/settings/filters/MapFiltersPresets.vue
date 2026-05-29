@@ -186,7 +186,7 @@
         </div>
         <ui-button
             v-else
-            href="/api/auth/vatsim/redirect"
+            @click="vatsimAuth"
         >
             Authorize to manage presets
         </ui-button>
@@ -278,6 +278,7 @@ import equal from 'deep-equal';
 import { VueDraggable } from 'vue-draggable-plus';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
+import { vatsimAuth } from '../../../../composables/vatsim/auth';
 
 const props = defineProps({
     presets: {

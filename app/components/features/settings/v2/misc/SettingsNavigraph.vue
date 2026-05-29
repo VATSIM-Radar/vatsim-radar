@@ -16,8 +16,8 @@
         </ui-chip>
         <ui-button
             v-if="store.user?.hasFms === null"
-            href="/api/auth/navigraph/redirect"
             type="link"
+            @click="navigraphAuth"
         >
             Connect Navigraph
         </ui-button>
@@ -38,8 +38,8 @@
         </ui-button>
         <ui-button
             v-else-if="!store.user"
-            href="/api/auth/vatsim/redirect"
             type="link"
+            @click="vatsimAuth"
         >
             Login
         </ui-button>
@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import UiChip from '~/components/ui/text/UiChip.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import { navigraphAuth, vatsimAuth } from '../../../../../composables/vatsim/auth';
 
 const store = useStore();
 </script>

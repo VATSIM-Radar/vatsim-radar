@@ -11,7 +11,7 @@
             >
                 Stand by
             </ui-button>
-            <ui-button href="/api/auth/vatsim/redirect">
+            <ui-button @click="vatsimAuth">
                 Wilco
             </ui-button>
         </template>
@@ -59,6 +59,7 @@
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
+import { vatsimAuth } from '../../../composables/vatsim/auth';
 
 const store = useStore();
 

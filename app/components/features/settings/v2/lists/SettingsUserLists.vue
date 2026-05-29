@@ -90,7 +90,7 @@
                     <ui-text type="h5">
                         Only logged in users can save user lists and add friends.
                     </ui-text>
-                    <ui-button href="/api/auth/vatsim/redirect">
+                    <ui-button @click="vatsimAuth">
                         Login
                     </ui-button>
                 </template>
@@ -109,6 +109,7 @@ import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import type { UserSettingsV2 } from '~/utils/settings/types';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
+import { vatsimAuth } from '../../../../../composables/vatsim/auth';
 
 const store = useStore();
 const settingsStore = useSettingsStore();

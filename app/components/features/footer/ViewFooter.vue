@@ -260,7 +260,7 @@
             </ui-button>
             <ui-button
                 v-if="!store.user || store.user?.hasFms === null"
-                href="/api/auth/navigraph/redirect"
+                @click="navigraphAuth"
             >
                 Connect Navigraph
             </ui-button>
@@ -297,6 +297,7 @@ import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import { navigraphAuth } from '~/composables/vatsim/auth';
 
 const store = useStore();
 const featuredDefaultBookmarks = useSettingValueFromFunc('map.preferences.featuredDefaultBookmarks');
