@@ -4,15 +4,6 @@
         class="users"
         :class="{ 'users--no-list': !list }"
     >
-        <ui-button
-            v-if="!list && isMobile"
-            size="S"
-            type="secondary"
-            @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
-        >
-            Management
-        </ui-button>
-
         <div
             v-for="user in sortedUsers"
             :key="user.cid"

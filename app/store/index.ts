@@ -117,8 +117,6 @@ export const useStore = defineStore('index', {
         loginPopup: false,
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
-        settingsPopup: false,
-        settingsPopupTab: 'main' as 'main' | 'favorite',
         airacPopup: false,
         searchActive: false,
         metarRequest: false as boolean | string[],

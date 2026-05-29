@@ -140,17 +140,6 @@
             v-if="depAirport"
             #procedures
         >
-            <ui-notification
-                v-if="overlay.data.fullRoute && store.user && !showFullRoute"
-                remember-message="FULL_ROUTE_TIP"
-                type="info"
-            >
-                Want to always show full route? Visit <a
-                    class="__link"
-                    href="#"
-                    @click.prevent="store.settingsPopup = true"
-                >settings</a>.
-            </ui-notification>
             <ui-toggle
                 v-if="routeParsingEnabled"
                 v-model="overlay.data.fullRoute"

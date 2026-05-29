@@ -106,19 +106,21 @@ div.featured-airports {
 
         background: $darkGray800;
 
-        &::before {
-            content: '';
+        @include pc {
+            &::before {
+                content: '';
 
-            position: absolute;
-            left: calc(50% - 6px);
+                position: absolute;
+                left: calc(50% - 6px);
 
-            display: block;
-            align-self: center;
+                display: block;
+                align-self: center;
 
-            width: 1px;
-            height: 24px;
+                width: 1px;
+                height: 24px;
 
-            background: varToRgba('lightGray500', 0.15);
+                background: varToRgba('lightGray500', 0.15);
+            }
         }
 
         >* {
