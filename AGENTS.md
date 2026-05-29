@@ -26,3 +26,4 @@ You are working in a complicated project. Keep this in mind while making signifi
 
 1. Look into `docs/ai/structure.md`, it will help you navigate. Still had to navigate yourself? Update this file, so you can help yourself and other agents in future
 2. User gave specific instruction about code? You have found code restriction that user told you to comply? You have made a code style decision based on request or on your own? Update `docs/ai/decisions.md` so it will preserve in future
+3. Writting a complicated function? Always write comments on English to it
