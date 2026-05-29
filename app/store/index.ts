@@ -12,7 +12,7 @@ import type {
 } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { UserMapPreset, UserMapSettings } from '~/utils/server/handlers/map-settings';
+import type { UserMapPreset } from '~/utils/server/handlers/map-settings';
 import type {
     UserListLive,
     UserListLiveUser,
@@ -26,6 +26,7 @@ import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
 import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
+import type { UserSettingsV2Partial } from '~/utils/settings/types';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -95,7 +96,7 @@ export const useStore = defineStore('index', {
         bookingOverride: false,
 
         presetImport: {
-            preset: null as UserMapSettings | false | null,
+            preset: null as UserSettingsV2Partial | false | null,
             name: '',
             save: null as (() => any) | null,
             error: false as false | (() => Promise<any>),

@@ -1,5 +1,5 @@
 import type {
-    NavigraphSettingsLevel, UserMapSettings,
+    NavigraphSettingsLevel,
     UserMapSettingsColors, UserMapSettingsTurns,
     UserMapSettingsVisibilityATC,
 } from '~/utils/server/handlers/map-settings';

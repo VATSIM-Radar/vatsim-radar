@@ -61,7 +61,7 @@
                 </ui-button>
                 <ui-button
                     type="secondary"
-                    @click="backupSettingsV2()"
+                    @click="backupSettings()"
                 >
                     Backup data
                 </ui-button>
@@ -84,7 +84,7 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import { backupSettingsV2 } from '~/composables/settings';
+import { backupSettings } from '~/composables/settings';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import { useRadarError } from '~/composables/errors';
 

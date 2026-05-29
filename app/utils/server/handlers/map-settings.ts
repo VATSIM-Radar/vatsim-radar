@@ -14,13 +14,13 @@ import {
 } from '~/utils/server/handlers/index';
 
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
-const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
-const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
-const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'totalLanded', 'ground', 'groundMoving', 'airborne', 'hide'];
-const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
-const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
-const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
-const navigraphKeys: Array<keyof IUserMapSettings['navigraphLayers']> = ['disable', 'gatesFallback', 'hideTaxiways', 'hideGateGuidance', 'hideRunwayExit', 'hideDeicing'];
+const groundHideKeys: Array<IUserLegacyMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
+const airportsModeKeys: Array<IUserLegacyMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
+const counterModeKeys: Array<IUserLegacyMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'totalLanded', 'ground', 'groundMoving', 'airborne', 'hide'];
+const prefilesModeKeys: Array<IUserLegacyMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
+const turnsKeys: Array<IUserLegacyMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
+const tracksKeys: Array<IUserLegacyMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
+const navigraphKeys: Array<keyof IUserLegacyMapSettings['navigraphLayers']> = ['disable', 'gatesFallback', 'hideTaxiways', 'hideGateGuidance', 'hideRunwayExit', 'hideDeicing'];
 
 const statuses = Object.keys({
     default: true,
@@ -74,7 +74,7 @@ function validateTheme(val: unknown): boolean {
     return true;
 }
 
-const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
+const validators: Record<keyof IUserLegacyMapSettings, (val: unknown) => boolean> = {
     visibility: val => {
         if (!isObject(val)) return false;
 
@@ -293,7 +293,7 @@ export interface UserMapSettingsVisibilityATC {
 export type UserMapSettingsTurns = 'magma' | 'inferno' | 'rainbow' | 'viridis';
 export type NavigraphSettingsLevel = 'ifrHigh' | 'ifrLow' | 'vfr' | 'both';
 
-export interface IUserMapSettings {
+export interface IUserLegacyMapSettings {
     visibility: {
         atc?: Partial<UserMapSettingsVisibilityATC> | boolean;
         atcLabels?: boolean;
@@ -366,7 +366,7 @@ export interface IUserMapSettings {
         showCounters?: boolean;
         syncDeparturesArrivals?: boolean;
         departuresMode?: 'total' | 'totalMoving' | 'totalLanded' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
-        arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
+        arrivalsMode?: IUserLegacyMapSettings['airportsCounters']['departuresMode'];
         horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
         disableTraining?: boolean;
         syncWithOverlay?: boolean;
@@ -381,7 +381,7 @@ export interface IUserMapSettings {
     airportCounterLimit: number;
 }
 
-export type UserMapSettings = Partial<IUserMapSettings>;
+export type UserMapLegacySettings = Partial<IUserLegacyMapSettings>;
 
 export async function handleMapSettingsEvent(event: H3Event) {
     let userId: number | undefined;
@@ -486,7 +486,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
             if (body.json) {
                 body.json = body.json as Record<string, any>;
 
-                for (const [key, value] of Object.entries(body.json) as [keyof IUserMapSettings, unknown][]) {
+                for (const [key, value] of Object.entries(body.json) as [keyof IUserLegacyMapSettings, unknown][]) {
                     if (!(key in validators)) {
                         delete body.json[key];
 
@@ -609,5 +609,5 @@ export async function handleMapSettingsEvent(event: H3Event) {
 }
 
 export type UserMapPreset = UserPreset & {
-    json: UserMapSettings;
+    json: IUserLegacyMapSettings;
 };

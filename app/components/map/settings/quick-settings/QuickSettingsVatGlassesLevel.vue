@@ -34,7 +34,7 @@
                 <input
                     :checked="vatglassesAutoLevel !== false"
                     type="checkbox"
-                    @input="setUserMapSettings({ vatglasses: { autoLevel: !vatglassesAutoLevel } })"
+                    @update:modelValue="setSettingByKey('map.vatglasses.autoLevel', $event)"
                 >
                 A
             </label>
@@ -42,12 +42,12 @@
         <ui-toggle
             v-if="showAuto && !vatglassesActiveSetting && store.user && ownFlight"
             :model-value="vatglassesAutoEnable !== false"
-            @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+            @update:modelValue="setSettingByKey('map.vatglasses.autoEnable', $event)"
         />
         <ui-toggle
             v-else-if="showAuto"
             :model-value="!!vatglassesActiveSetting"
-            @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            @update:modelValue="setSettingByKey('map.vatglasses.active', $event)"
         />
     </div>
 </template>
@@ -84,7 +84,7 @@ const vatglassesLevel = computed({
     set(value) {
         if (value !== undefined) {
             setUserLocalSettings({ vatglassesLevel: Number(value) });
-            setUserMapSettings({ vatglasses: { autoLevel: false } });
+            setSettingByKey('map.vatglasses.autoLevel', false);
         }
     },
 });

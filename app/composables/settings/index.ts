@@ -1,5 +1,6 @@
-import type { IUserMapSettings, UserMapSettings, UserMapSettingsVisibilityATC } from '~/utils/server/handlers/map-settings';
+import type { UserMapSettingsVisibilityATC } from '~/utils/server/handlers/map-settings';
 import { useMapStore } from '~/store/map';
+import type { UserSettingsV2 } from '~/utils/settings/types';
 
 export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean => {
     if (getKeyedValueFromSettings('map.layers.heatmap')) return true;
@@ -7,7 +8,7 @@ export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean 
     return !getKeyedValueFromSettings(`map.visibility.atc.${ key }` as any);
 };
 
-export const isHideMapObject = (key: keyof IUserMapSettings['visibility']): boolean => {
+export const isHideMapObject = (key: keyof UserSettingsV2['map']['visibility']): boolean => {
     const mapStore = useMapStore();
 
     if (getKeyedValueFromSettings('map.layers.heatmap') && key !== 'pilots' && (key !== 'airports' || mapStore.zoom < 6)) return true;
@@ -44,26 +45,12 @@ export function useFileDownload(options: FileDownloadParams): void {
     linkElement.remove();
 }
 
-export const backupSettingsV2 = () => {
+export const backupSettings = () => {
     useFileDownload({
         fileName: `vatsim-radar-settings-${ Date.now() }.json`,
         mime: 'application/json',
         blob: new Blob([JSON.stringify(useSettingsStore().settings)], { type: 'application/json' }),
     });
-};
-
-export const backupMapSettings = () => {
-    useFileDownload({
-        fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,
-        mime: 'application/json',
-        blob: new Blob([JSON.stringify(useSettingsStore().settings)], { type: 'application/json' }),
-    });
-};
-
-export const saveMapSettings = async (preset: UserMapSettings) => {
-    await resetUserMapSettings();
-    await nextTick();
-    setUserMapSettings(preset);
 };
 
 export const isDynamicAircraftScale = computed(() => {

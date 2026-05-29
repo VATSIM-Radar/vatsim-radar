@@ -179,39 +179,7 @@
                             Map Settings
                         </template>
 
-                        <template
-                            v-if="store.mapPresets.length < MAX_MAP_PRESETS"
-                            #closeActions
-                        >
-                            <ui-tooltip
-                                location="left"
-                                open-method="mouseOver"
-                                width="110px"
-                            >
-                                <template #activator>
-                                    <div class="filters__import">
-                                        <import-icon
-                                            width="18"
-                                            @click="filtersImport?.click()"
-                                        />
-                                        <input
-                                            v-show="false"
-                                            ref="filtersImport"
-                                            accept="application/json"
-                                            type="file"
-                                            @input="[filtersImportMode = 'settings', importPreset()]"
-                                        >
-                                    </div>
-                                </template>
-
-                                Import Preset
-                            </ui-tooltip>
-                        </template>
-
-                        <map-settings
-                            v-model:imported-preset="importedPreset"
-                            v-model:imported-preset-name="importedPresetName"
-                        />
+                        <map-settings/>
                     </popup-aside>
                 </div>
                 <div
@@ -268,10 +236,8 @@ import DebugIcon from '~/assets/icons/kit/debug.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 import PopupAside from '~/components/popups/PopupAside.vue';
-import type { IUserMapSettings, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import { saveMapSettings } from '~/composables/settings';
 import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';
 import type { IUserFilter } from '~/utils/server/handlers/filters';
@@ -303,8 +269,6 @@ const filtersImport = useTemplateRef('filtersImport');
 
 const MapFiltersDebug = defineAsyncComponent(() => import('./filters/MapFiltersDebug.vue'));
 
-const importedPreset = shallowRef<UserMapSettings | false | null>(null);
-const importedPresetName = ref('');
 const isMobile = useIsMobile();
 const isPC = useIsPC();
 const debug = useIsDebug();
@@ -315,21 +279,11 @@ const isDebug = computed(() => {
 });
 
 const createPreset = async () => {
-    if (filtersImportMode.value === 'settings') {
-        await saveMapSettings(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserMapSettings, 'settings/map', createPreset));
-    }
-    else {
-        setUserFilter(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserFilter, 'filters', createPreset));
-    }
+    setUserFilter(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserFilter, 'filters', createPreset));
     store.presetImport.preset = null;
 
-    if (filtersImportMode.value === 'settings') {
-        store.fetchMapPresets();
-    }
-    else {
-        store.fetchFiltersPresets();
-        store.getVATSIMData(true);
-    }
+    store.fetchFiltersPresets();
+    store.getVATSIMData(true);
 };
 
 const myOverlay = computed(() => {
@@ -359,7 +313,7 @@ const importPreset = async () => {
             reader.addEventListener('load', async () => {
                 store.initPresetImport({
                     file: reader.result as string,
-                    prefix: filtersImportMode.value === 'settings' ? 'settings/map' : 'filters',
+                    prefix: 'filters',
                     save: createPreset,
                 });
                 resolve();
@@ -374,7 +328,6 @@ const importPreset = async () => {
     }
     catch (e) {
         useRadarError(e);
-        importedPreset.value = false;
     }
 };
 </script>

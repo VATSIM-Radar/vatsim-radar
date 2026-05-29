@@ -12,6 +12,5 @@ export default defineNuxtPlugin({
         await initClientDB();
         setUserLocalSettings();
         setUserFilter();
-        setUserMapSettings();
     },
 });

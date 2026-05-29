@@ -47,11 +47,13 @@ import {
 import type { PartialRecord } from '~/types';
 import type { UserList } from '~/utils/server/handlers/lists';
 
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Feature, MultiPolygon } from 'geojson';
 import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 import { initControllersUpdate } from '~/composables/render/update';
+import { ownFlight } from '~/composables/vatsim/pilots';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -782,9 +784,14 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }
 
 export function checkFlightLevel(level: NavDataFlightLevel) {
-    const ifrMode = getKeyedValueFromSettings('map.navigraph.layers.ifrMode');
+    let ifrMode = getKeyedValueFromSettings('map.navigraph.layers.ifrMode');
+    const autoIfr = getKeyedValueFromSettings('map.navigraph.layers.ifrAuto');
 
     if (level === 'B' || level === null || !ifrMode || ifrMode === 'both') return true;
+
+    if (autoIfr && ownFlight.value) {
+        ifrMode = getPilotTrueAltitude(ownFlight.value) >= 18000 ? 'ifrHigh' : 'ifrLow';
+    }
 
     if (ifrMode !== 'ifrHigh') {
         return level === 'L';

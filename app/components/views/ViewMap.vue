@@ -599,14 +599,6 @@ useUpdateInterval(() => {
     setUserLocalSettings({
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
-
-    if (ifrAuto.value !== false) {
-        setUserMapSettings({
-            navigraphData: {
-                mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
-            },
-        });
-    }
 });
 
 const overlaysGap = 8;
@@ -1106,11 +1098,7 @@ function handleKeys(event: KeyboardEvent) {
 
 onMounted(() => {
     if (route.query.vg === '1' || route.query.vg === '0') {
-        setUserMapSettings({
-            vatglasses: {
-                active: route.query.vg === '1',
-            },
-        });
+        setSettingByKey('map.vatglasses.active', route.query.vg === '1');
     }
 
     document.addEventListener('keydown', handleKeys, {
