@@ -183,9 +183,11 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
         backupFeatures.forEach(([controller, sector]) => addFeatureToAirport(sector, airport, controller));
     }
 
+    const visibleMap = Object.fromEntries(visibleAirports.map(x => [x.icao, x]));
+
     const overlays = airportOverlays().value;
     airportsArr = airportsArr.filter(x => x.atc.length || x.aircraftCount || overlays.includes(x.icao));
-    dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, x]));
+    dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, Object.assign(x, { visible: !!visibleMap[x.icao] })]));
 
     for (const key in simawareCache) {
         if (!cached.has(key)) delete simawareCache[key];

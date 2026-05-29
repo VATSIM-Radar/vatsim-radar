@@ -27,21 +27,9 @@
         </div>
 
         <div class="featured-airports_footer">
-            <ui-toggle
-                :model-value="showTotalDeparturesInFeaturedAirports"
-                @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
-            >
-                Show total departures
-                <template #description>
-                    Including airborne
-                </template>
-            </ui-toggle>
-            <ui-toggle v-model="store.featuredVisibleOnly">
-                Visible only
-                <template #description>
-                    Filter by current map area
-                </template>
-            </ui-toggle>
+            <ui-setting-item :item="getSettingByItem(settingsItems.preferences.showTotalDeparturesInFeaturedAirports, { title: 'Total departures', description: '' })"/>
+            <!-- @vue-ignore -->
+            <ui-setting-item :item="{ type: 'toggle', title: 'Visible only', value: featuredVisibleOnly, onChange: (val) => store.featuredVisibleOnly = !!val }"/>
         </div>
     </div>
 </template>
@@ -49,25 +37,31 @@
 <script setup lang="ts">
 import NavigationFeaturedAirport from '~/components/features/navigation/NavigationFeaturedAirport.vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { useStore } from '~/store';
 import distance from '@turf/distance';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import type { SettingValueType } from '~/composables/settings/v2/utils';
 
 const featuredTab = ref('popular');
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const showTotalDeparturesInFeaturedAirports = useSettingValueFromFunc('map.preferences.showTotalDeparturesInFeaturedAirports');
+const settingsItems = getSettingsItems().value;
+const featuredVisibleOnly: SettingValueType<boolean> = computed(() => ({
+    value: store.featuredVisibleOnly,
+    isSet: false,
+}));
 
 const popularAirports = computed(() => {
-    return dataStore.vatsim.parsedAirportsList.value.filter(x => x.airport && x.aircraftCount).slice().sort((a, b) => b.aircraftCount - a.aircraftCount).slice(0, store.featuredVisibleOnly ? 10 : 25);
+    return dataStore.vatsim.parsedAirportsList.value.filter(x => x.airport && x.aircraftCount && (!store.featuredVisibleOnly || x.visible)).slice().sort((a, b) => b.aircraftCount - a.aircraftCount).slice(0, store.featuredVisibleOnly ? 10 : 25);
 });
 
 const quietAirports = computed(() => {
     const facilities = useFacilitiesIds();
 
     return dataStore.vatsim.parsedAirportsList.value
-        .filter(x => x.airport && (!x.airport.isPseudo || x.aircraftCount) && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
+        .filter(x => x.airport && (!x.airport.isPseudo || x.aircraftCount) && (!store.featuredVisibleOnly || x.visible) && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
         .slice()
         .sort((a, b) => {
             const aArrivals = (a.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);

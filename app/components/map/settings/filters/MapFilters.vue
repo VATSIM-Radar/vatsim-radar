@@ -640,6 +640,8 @@ const createFilterPreset = async (name: string, json: UserFilter) => {
 
 <style lang="scss" scoped>
 .filter {
+    margin-top: -16px;
+
     &__actions {
         position: sticky;
         z-index: 5;

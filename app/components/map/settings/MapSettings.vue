@@ -268,12 +268,6 @@ import DebugIcon from '~/assets/icons/kit/debug.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 import PopupAside from '~/components/popups/PopupAside.vue';
-import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
-import type { RadioItemGroup } from '~/components/ui/inputs/UiRadioGroup.vue';
-import type {
-    MapWeatherLayer,
-} from '~/types/map';
-import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';
 import type { IUserMapSettings, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';

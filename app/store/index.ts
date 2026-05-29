@@ -76,7 +76,7 @@ export const useStore = defineStore('index', {
         user: null as null | FullUser,
         version: '',
         theme: 'default' as ThemesList,
-        localSettings: {} as Pick<UserLocalSettings, 'location' | 'zoom' | 'vatglassesLevel' | 'sigmetsDate'>,
+        localSettings: {} as UserLocalSettings,
         mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
 

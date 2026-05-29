@@ -58,24 +58,7 @@
                     width="480px"
                 >
                     <template #title>
-                        <div class="map-footer__favorite">
-                            <span>Favorite</span>
-
-                            <ui-button
-                                size="S"
-                                type="secondary"
-                                @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
-                            >
-                                Manage friends
-                            </ui-button>
-                            <ui-toggle
-                                v-if="store.bookmarks.length"
-                                :model-value="!!featuredDefaultBookmarks"
-                                @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
-                            >
-                                Default to bookmarks
-                            </ui-toggle>
-                        </div>
+                        Favorite
                     </template>
 
                     <navigation-favorite/>
@@ -176,16 +159,7 @@
                     width="700px"
                 >
                     <template #title>
-                        <div class="map-footer__booking-title-row">
-                            <span>Bookings</span>
-                            <ui-toggle
-                                class="picker-localtime"
-                                :model-value="bookingsLocalTimezone"
-                                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
-                            >
-                                local time
-                            </ui-toggle>
-                        </div>
+                        Bookings
                     </template>
                     <map-popup-footer-booking/>
                 </popup-aside>
@@ -300,7 +274,6 @@ import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import { navigraphAuth } from '~/composables/vatsim/auth';
 
 const store = useStore();
-const featuredDefaultBookmarks = useSettingValueFromFunc('map.preferences.featuredDefaultBookmarks');
 const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const dataStore = useDataStore();
 const mapStore = useMapStore();

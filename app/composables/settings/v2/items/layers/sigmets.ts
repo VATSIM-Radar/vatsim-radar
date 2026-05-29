@@ -38,7 +38,6 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
 
             return setSettingByKey('sigmets.enabled', value as SigmetType[]);
         },
-        disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
         searchKeywords: ['sigmet'],
     },
     showAirmets: {
@@ -46,7 +45,6 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
         type: 'toggle',
         value: getSettingValue('sigmets.showAirmets'),
         onChange: value => setSettingByKey('sigmets.showAirmets', value),
-        disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
         searchKeywords: ['sigmet'],
     },
     raw: {
@@ -54,7 +52,6 @@ export const settingsItemSigmets = globalComputed(() => makeSettingsItems(({ not
         type: 'toggle',
         value: getSettingValue('sigmets.raw'),
         onChange: value => setSettingByKey('sigmets.raw', value),
-        disabled: computed(() => !getSettingValue('sigmets.showOnMap').value.value),
         searchKeywords: ['sigmet'],
     },
 })));

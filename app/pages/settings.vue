@@ -82,7 +82,24 @@
                 />
             </div>
 
-            <div class="settings_contents settings_menu">
+            <ui-button
+                v-if="isHideContents && isMobile"
+                class="settings_contents-burger"
+                icon-width="12px"
+                size="S"
+                type="secondary-black"
+                @click="contentsActive = !contentsActive"
+            >
+                <template #icon>
+                    <ui-burger v-model="contentsActive"/>
+                </template>
+            </ui-button>
+
+            <div
+                v-if="!isHideContents || isMobile"
+                class="settings_contents settings_menu"
+                :class="{ 'settings_contents--hide': isHideContents, 'settings_contents--hidden': isHideContents && !contentsActive }"
+            >
                 <div
                     v-if="currentItem?.items.filter(x => x.title).length && !search"
                     class="settings_menu_item settings_menu_item--root"
@@ -128,10 +145,24 @@ import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import SearchIcon from '@/assets/icons/kit/search.svg?component';
 import type { SettingsItem, SettingsSectionBlock } from '~/composables/settings/v2/types';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 
+const store = useStore();
 const search = ref('');
 const route = useRoute();
 const iframe = useTemplateRef('iframe');
+
+const isMobile = useIsMobile();
+
+const contentsActive = ref(false);
+const isHideContents = computed(() => {
+    return store.viewport.width < 1200 || (mapPreview.value && store.viewport.width < 2000);
+});
+
+const menuActive = ref(false);
+const isHideMenu = computed(() => {
+    return store.viewport.width < 800;
+});
 
 const rootPath = computed(() => route.params.path?.[0] ?? null);
 const childrenPath = computed(() => route.params.path?.[1] ?? null);
@@ -139,7 +170,20 @@ const childrenPath = computed(() => route.params.path?.[1] ?? null);
 const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: () => ([]) });
 
 const settingsSections = getSettingsSections();
-const mapPreview = ref(false);
+const mapPreview = useCookie<boolean>('map-preview', {
+    sameSite: 'none',
+    secure: true,
+});
+const settingsStore = useSettingsStore();
+
+watch(() => settingsStore.settings, () => {
+    iframe.value?.contentWindow?.postMessage({
+        type: 'settings',
+        settings: toRaw(settingsStore.settings),
+    });
+}, {
+    deep: true,
+});
 
 const currentItem = computed(() => {
     if (search.value) {
@@ -241,43 +285,35 @@ if (!currentItem.value) {
 
 <style scoped lang="scss">
 .settings {
-    display: grid;
-    grid-template-columns: (220px + 24px) calc(100% - 48px - 440px) 220px;
+    /* header footer page-block-header gap */
+    --max-height: calc(100dvh - 56px - 32px - 52px - 32px - var(--container-vertical-padding) * 2 - 2px);
+    position: relative;
+
+    display: flex;
     flex-grow: 1;
+    gap: 8px;
     justify-content: space-between;
 
-    &--preview {
-        grid-template-columns: (220px + 24px) calc(65% - 48px - 440px) 220px 35%;
-
-        :deep(.setting--has-left) {
-            grid-template-columns: 50% calc(100% - 50% - 24px);
-        }
-    }
-
     &_iframe {
-        position: sticky;
-        top: 64px;
-
         overflow: hidden;
 
-        width: 100%;
-        height: calc(100dvh - 72px);
+        width: 35%;
+        min-width: 35%;
+        height: var(--max-height);
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
     }
 
     &_menu {
-        position: sticky;
-        top: 56px;
-
         overflow: auto;
         display: flex;
         flex-direction: column;
         gap: 24px;
         align-self: stretch;
 
-        width: calc(100%);
-        max-height: calc(100dvh - 56px);
+        width: 220px;
+        min-width: calc(220px + 24px);
+        max-height: var(--max-height);
         padding: 16px 0;
 
         &--nav {
@@ -346,6 +382,55 @@ if (!currentItem.value) {
             &_children {
                 margin-top: 8px;
             }
+        }
+    }
+
+    &_content {
+        overflow: auto;
+        flex-grow: 1;
+        max-width: 800px;
+        max-height: var(--max-height);
+    }
+
+    &_contents {
+        width: 220px;
+        min-width: 220px;
+
+        &-burger {
+            position: relative;
+            z-index: 2;
+            align-self: flex-start;
+            min-width: 32px;
+        }
+
+        &--hide {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            right: 35%;
+
+            overflow: hidden;
+
+            width: auto;
+            min-width: unset;
+            max-width: 220px;
+            height: 100%;
+            padding: 48px 8px 0;
+            border-left: 1px solid $strokeDefault;
+
+            white-space: nowrap;
+
+            background: $darkGray900;
+
+            &:not(.settings_contents--hidden) {
+                transition: 0.3s;
+                transition-property: opacity, visibility;
+            }
+        }
+
+        &--hidden {
+            visibility: hidden;
+            opacity: 0;
         }
     }
 }

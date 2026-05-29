@@ -172,6 +172,7 @@ export interface DataAirport {
         arrivals: number[];
     }>;
     aircraftCount: number;
+    visible?: boolean;
     departureCall?: string;
     departureCallPosition?: string;
     vgRunways?: string[];
@@ -596,19 +597,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
-    function receiveMessage(event: MessageEvent) {
-        if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
-            return;
-        }
-
-        if (event.source === window) return; // the message is from the same window, so we ignore it
-
-        if (event.data && 'type' in event.data && event.data.type === 'efbX') {
-            store.isTabVisible = event.data.action === 'resume';
-            if (store.isTabVisible) store.getVATSIMData(true);
-        }
-    }
-
     const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate');
 
     function startIntervalChecks() {
@@ -666,7 +654,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
-        window.addEventListener('message', receiveMessage);
 
         watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
@@ -735,7 +722,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
     onBeforeUnmount(() => {
         document.removeEventListener('visibilitychange', setVisibilityState);
-        window.removeEventListener('message', receiveMessage);
         isMounted.value = false;
         ws?.();
         if (interval) clearInterval(interval);

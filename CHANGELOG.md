@@ -7,6 +7,7 @@
 - Moved vIFF departure info to full line display
 - Fixed significant performance drop for airports layouts
 - Fixed aircraft/airports flickering on first load
+- Fixed visible only setting doing nothing
 
 ## Features and improvements
 

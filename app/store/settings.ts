@@ -48,10 +48,11 @@ export const useSettingsStore = defineStore('settings', {
                 await this.save(this.settingsPresets[0].json, { overwrite: true, autoSave: false });
             }
         },
-        async save(settings: UserSettingsV2Partial, { overwrite, onSave, autoSave = true }: {
+        async save(settings: UserSettingsV2Partial, { overwrite, onSave, autoSave = true, dontSave }: {
             overwrite?: boolean;
             onSave?: () => void;
             autoSave?: boolean;
+            dontSave?: boolean;
         } = {}) {
             if (autoSave) {
                 this.autoSave = isSettingsAutoSave().value.value ?? true;
@@ -63,7 +64,9 @@ export const useSettingsStore = defineStore('settings', {
 
             this.settings = overwrite ? settings : customDefu(settings, JSON.parse(localStorage.getItem('settings') ?? '{}'));
             onSave?.();
-            await onSettingChange(autoSave);
+            if (!dontSave) {
+                await onSettingChange(autoSave);
+            }
         },
         setAutoSave(val: boolean) {
             isSettingsAutoSave().value.value = val;

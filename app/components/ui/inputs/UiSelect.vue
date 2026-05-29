@@ -194,6 +194,8 @@ function updateModel(value: SelectItemValueType, add: boolean) {
 
 <style scoped lang="scss">
 .select {
+    user-select: none;
+
     &_input {
         cursor: pointer;
 

@@ -18,12 +18,6 @@
 
         <map-filters v-if="tab === 'filters'"/>
         <template v-else-if="tab === 'bookmarks'">
-            <ui-toggle
-                :model-value="!!skipBookmarkAnimation"
-                @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
-            >
-                Disable animation
-            </ui-toggle>
             <map-filters-presets
                 :key="String(bookmarkSaveTick)"
                 create-collapse

@@ -28,12 +28,7 @@
                 This tool disables double click to zoom. Need to use both Distance Tool and click to zoom? Enable
                 CTRL+Click!
 
-                <ui-toggle
-                    :model-value="distanceInteraction === 'ctrlclick'"
-                    @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
-                >
-                    CTRL+Click instead of double click
-                </ui-toggle>
+                <ui-setting-item :item="settingsItems.layers.distanceInteraction"/>
             </li>
             <li>
                 You can change CTRL+Click action and displayed units in Map layer settings (second icon on left filters
@@ -46,7 +41,10 @@
 <script setup lang="ts">
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const mapStore = useMapStore();
+const settingsItems = getSettingsItems().value;
 const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
 </script>

@@ -395,7 +395,7 @@ img {
 *,
 *::before,
 *::after {
-    scrollbar-color: $darkGray200 var(--bg-color, $black);
+    scrollbar-color: $darkGray200 var(--bg-color, $darkGray900);
     scrollbar-width: thin;
     box-sizing: border-box;
 }
@@ -408,13 +408,13 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        border: 3px solid var(--bg-color, $black);
+        border: 3px solid var(--bg-color, $darkGray900);
         border-radius: 10px;
         background: $darkGray200;
     }
 
     &::-webkit-scrollbar-track {
-        background: var(--bg-color, $black);
+        background: var(--bg-color, $darkGray900);
     }
 }
 

@@ -1,7 +1,7 @@
 <template>
     <ui-setting-display
         class="settings-item"
-        :class="[`settings-item--type-${ item.type }`]"
+        :class="[`settings-item--type-${ item.type }`, { 'settings-item--align-left': alignLeft, 'settings-item--vertical': vertical }]"
         :disabled="toValue(item.disabled)"
     >
         <template
@@ -70,6 +70,14 @@ defineProps({
         type: Object as PropType<SettingsItem>,
         required: true,
     },
+    alignLeft: {
+        type: Boolean,
+        default: false,
+    },
+    vertical: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -87,6 +95,14 @@ const hideReset = computed(() => {
 
 <style scoped lang="scss">
 .settings-item {
+    &--align-left {
+        justify-content: flex-start !important;
+
+        > :deep(.setting_component) {
+            flex-grow: 0;
+        }
+    }
+
     &__reset {
         transition: 0.3s;
 
@@ -103,6 +119,16 @@ const hideReset = computed(() => {
             :deep(>.select) {
                 width: 100%;
             }
+        }
+    }
+
+    &--vertical {
+        flex-direction: column;
+        gap: 8px !important;
+        align-items: stretch !important;
+
+        :deep(.setting_component) {
+            align-items: stretch !important;
         }
     }
 }

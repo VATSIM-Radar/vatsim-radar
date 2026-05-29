@@ -3,13 +3,6 @@
         v-if="notamsList.length"
         class="__info-sections notams"
     >
-        <ui-select
-            :items="sortOptions"
-            :model-value="notamsSortBy"
-            placeholder="Sort By"
-            width="100%"
-            @update:modelValue="setUserLocalSettings({ filters: { notamsSortBy: $event as any } })"
-        />
         <ui-copy-info :text="notamsList.map(x => x.formattedText ?? x.text).join('\n\n')"/>
         <div
             v-for="({ title, items }) in notams"

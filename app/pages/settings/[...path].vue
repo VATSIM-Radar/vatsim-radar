@@ -1,5 +1,9 @@
 <template>
-    <div v-if="item" class="settings-page">
+    <div
+        v-if="item"
+        ref="root"
+        class="settings-page"
+    >
         <client-only>
             <div
                 v-for="(section) in item.items.filter(x => x.hide === undefined || !toValue(x.hide))"
@@ -53,6 +57,8 @@ const emit = defineEmits({
     },
 });
 
+const root = useTemplateRef<HTMLDivElement>('root');
+
 definePageMeta({
     pageTransition: { name: 'page', mode: 'out-in' },
 });
@@ -63,7 +69,7 @@ const sectionRef = useTemplateRef('sectionRef');
 function scrollToHash() {
     const item = document.querySelector(`[data-section-id="${ route.hash.slice(1) }"]`);
     if (item) {
-        window.scrollBy({
+        root.value?.parentElement!.scrollBy({
             behavior: 'smooth',
             top: item.getBoundingClientRect().top - 56 - 16,
         });
@@ -90,7 +96,7 @@ useHead({
     display: flex;
     flex-direction: column;
     gap: 40px;
-    padding: 0 40px;
+    padding: 0 24px;
 
     &_section {
         display: flex;

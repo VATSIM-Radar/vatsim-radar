@@ -248,17 +248,7 @@
                     @click="mobileMenuOpened = !mobileMenuOpened"
                 >
                     <template #icon>
-                        <div
-                            class="header__burger"
-                            :class="{ 'header__burger--active': mobileMenuOpened }"
-                        >
-                            <div
-                                v-for="i in 3"
-                                :key="i"
-                                class="header__burger_item"
-                                :class="[`header__burger_item--${ i }`]"
-                            />
-                        </div>
+                        <ui-burger v-model="mobileMenuOpened"/>
                     </template>
                 </ui-button>
                 <view-header-mobile-menu v-model="mobileMenuOpened"/>
@@ -297,6 +287,7 @@ import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '../../../composables/vatsim/auth';
+import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 
 const headerMenu = useHeaderMenu();
 
@@ -545,41 +536,6 @@ const mobileMenuOpened = ref(false);
                     background: $black;
 
                     transition: 0.3s;
-                }
-            }
-        }
-    }
-
-    &__burger {
-        position: relative;
-
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        align-items: center;
-
-        &_item {
-            width: 12px;
-            height: 2px;
-            border-radius: 4px;
-
-            background: $lightGray300;
-
-            transition: 0.3s;
-        }
-
-        &--active {
-            .header__burger_item-- {
-                &1 {
-                    transform: translateY(4px) rotate(45deg);
-                }
-
-                &2 {
-                    width: 0;
-                }
-
-                &3 {
-                    transform: translateY(-4px) rotate(-45deg);
                 }
             }
         }

@@ -9,7 +9,7 @@
                 class="controls_item"
                 size="S"
                 :type="distance ? 'primary' : 'secondary-black'"
-                @click="setUserLocalSettings({ distance: { enabled: !distanceEnabled } })"
+                @click="setSettingByKey('map.layers.distance.enabled', !distance)"
             >
                 <template #icon>
                     <ruler-icon/>

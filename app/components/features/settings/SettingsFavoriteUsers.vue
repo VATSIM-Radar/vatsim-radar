@@ -12,13 +12,6 @@
         >
             Management
         </ui-button>
-        <ui-toggle
-            v-if="!list && isMobile && store.bookmarks.length"
-            :model-value="!!featuredDefaultBookmarks"
-            @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
-        >
-            Default to bookmarks
-        </ui-toggle>
 
         <div
             v-for="user in sortedUsers"

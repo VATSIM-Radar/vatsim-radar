@@ -2,16 +2,9 @@
     <ui-page-container>
         <template #title>VATSIM Events</template>
 
-        <client-only>
-            <ui-toggle
-                v-if="offset"
-                align-left
-                :model-value="!eventsLocalTimezone"
-                @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
-            >
-                Use Zulu time instead of  {{ timezone.format(new Date()).slice(4, 100) }}
-            </ui-toggle>
+        <ui-setting-item align-left :item="settingsItems.preferences.eventsLocalTimezone"/>
 
+        <client-only>
             <template
                 v-for="(events, day) in groupedEventData"
                 :key="day+String(!eventsLocalTimezone)"
@@ -35,15 +28,16 @@ import EventCard from '~/components/features/events/EventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const { data, refresh } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
 const eventsLocalTimezone = useSettingValueFromFunc('appearance.eventsLocalTimezone');
-
+const settingsItems = getSettingsItems().value;
 const timeZone = computed(() => !eventsLocalTimezone.value ? 'UTC' : undefined);
-const offset = new Date().getTimezoneOffset();
 
 const datetime = computed(() => new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
     localeMatcher: 'best fit',

@@ -55,6 +55,15 @@ export type SearchFilter = keyof SearchResults;
 export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC' | 'CONV';
 
 interface IUserLocalSettings {
+    location: Coordinate;
+    zoom: number;
+    vatglassesLevel: number;
+    sigmetsDate: string;
+}
+
+export type UserLocalSettings = Partial<IUserLocalSettings>;
+
+interface IUserLegacyLocalSettings {
     // Keep
     location: Coordinate;
     zoom: number;
@@ -122,4 +131,4 @@ interface IUserLocalSettings {
     };
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>;
+export type UserLegacyLocalSettings = Partial<IUserLocalSettings>;

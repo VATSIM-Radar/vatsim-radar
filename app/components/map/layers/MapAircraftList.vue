@@ -40,23 +40,6 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const config = useRuntimeConfig();
 
-function receiveMessage(event: MessageEvent) {
-    if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
-        return;
-    }
-
-    if (event.source === window) return; // the message is from the same window, so we ignore it
-
-    if (event.data && 'selectedPilot' in event.data) {
-        if (event.data.selectedPilot === null) {
-            mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot');
-        }
-        else {
-            mapStore.addPilotOverlay(event.data.selectedPilot.toString());
-        }
-    }
-}
-
 const showTracks = shallowRef<Record<string, TrackData>>({});
 
 const getShownPilots = computed(() => {
@@ -405,10 +388,6 @@ watch(map, val => {
     immediate: true,
 });
 
-onMounted(() => {
-    window.addEventListener('message', receiveMessage);
-});
-
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     vectorLayer?.dispose();
@@ -416,7 +395,6 @@ onBeforeUnmount(() => {
     linesLayer?.dispose();
     vectorSource?.clear();
     linesSource?.clear();
-    window.removeEventListener('message', receiveMessage);
     if (heatmap) {
         map.value?.removeLayer(heatmap);
     }

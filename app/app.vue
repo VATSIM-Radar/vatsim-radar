@@ -9,6 +9,7 @@ import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
 import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
+import { updateCachedProcedures } from '~/composables/navigraph';
 
 const route = useRoute();
 
@@ -45,6 +46,7 @@ if (import.meta.server) {
 
 async function receiveMessage(event: MessageEvent) {
     const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if (!data || typeof data !== 'object' || Array.isArray(event.data)) return;
 
     if (data && 'vatsimToken' in data) {
         await $fetch('/api/auth/vatsim/token', {
@@ -60,6 +62,39 @@ async function receiveMessage(event: MessageEvent) {
         if (data.action === 'logout') {
             logout();
         }
+    }
+
+    if (event.source === window || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
+
+    const settingsStore = useSettingsStore();
+    const mapStore = useMapStore();
+    const store = useStore();
+
+    if ('selectedPilot' in data) {
+        if (data.selectedPilot === null) {
+            mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot');
+        }
+        else {
+            mapStore.addPilotOverlay(data.selectedPilot.toString());
+        }
+
+        return;
+    }
+
+    if ('proceduresUpdate' in data) {
+        updateCachedProcedures();
+
+        return;
+    }
+
+    if (data.type === 'efbX') {
+        store.isTabVisible = event.data.action === 'resume';
+        if (store.isTabVisible) store.getVATSIMData(true);
+        return;
+    }
+
+    if (data.type === 'settings') {
+        settingsStore.save(data.settings, { autoSave: false, overwrite: true, dontSave: true });
     }
 }
 
