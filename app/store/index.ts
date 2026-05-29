@@ -24,6 +24,7 @@ import { isFetchError } from '~/utils/shared';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import type { UserDashboard } from '~/utils/server/handlers/dashboards';
+import type { DashboardSettings } from '~/utils/shared/dashboard';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
@@ -70,6 +71,7 @@ export const useStore = defineStore('index', {
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
         dashboards: [] as UserDashboard[],
+        activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
 
         events: [] as VatsimActiveEvent[],

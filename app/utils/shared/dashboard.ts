@@ -6,6 +6,15 @@ export const MAX_DASHBOARD_AIRPORTS = 20;
 export const dashboardColumns = ['prefiles', 'departing', 'enroute', 'departed', 'arriving', 'landed'] as const;
 export type DashboardColumn = typeof dashboardColumns[number];
 
+export const dashboardColumnLabels: Record<DashboardColumn, string> = {
+    prefiles: 'Prefiles',
+    departing: 'Departing',
+    enroute: 'Enroute',
+    departed: 'Departed',
+    arriving: 'Arriving',
+    landed: 'Landed',
+};
+
 export const dashboardMapLocations = ['right', 'left', 'above', 'below'] as const;
 export type DashboardMapLocation = typeof dashboardMapLocations[number];
 
