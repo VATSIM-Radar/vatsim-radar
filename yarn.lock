@@ -14919,13 +14919,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-clean-order@npm:8.0.2":
-  version: 8.0.2
-  resolution: "stylelint-config-clean-order@npm:8.0.2"
+"stylelint-config-clean-order@npm:9.0.0":
+  version: 9.0.0
+  resolution: "stylelint-config-clean-order@npm:9.0.0"
   peerDependencies:
     stylelint: ">=16"
     stylelint-order: ">=6"
-  checksum: 10c0/266d1f2ad15bf0a9567dcee1c5afbd3393cede9335d0572815318333a5c54f529c68d9198198e5b88943d4a69687e682eeaff044bd38c2e7d4935426e1fd695f
+  checksum: 10c0/bca261afe74f7ad7c02a6755f36e5832f3619c5e67741d8c505524df08a6dc79216a30671671ac7787e2fcc571b4ff11e04b36f2309968c96788eb4b16e13e79
   languageName: node
   linkType: hard
 
@@ -16262,7 +16262,7 @@ __metadata:
     sharp: "npm:0.34.5"
     srvx: "npm:0.11.16"
     stylelint: "npm:17.12.0"
-    stylelint-config-clean-order: "npm:8.0.2"
+    stylelint-config-clean-order: "npm:9.0.0"
     stylelint-config-recommended-scss: "npm:17.0.1"
     stylelint-config-recommended-vue: "npm:1.6.1"
     stylelint-config-standard: "npm:40.0.0"

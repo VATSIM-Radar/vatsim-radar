@@ -108,7 +108,7 @@
     "postcss-html": "1.8.1",
     "sass-embedded": "1.100.0",
     "stylelint": "17.12.0",
-    "stylelint-config-clean-order": "8.0.2",
+    "stylelint-config-clean-order": "9.0.0",
     "stylelint-config-recommended-scss": "17.0.1",
     "stylelint-config-recommended-vue": "1.6.1",
     "stylelint-config-standard": "40.0.0",
