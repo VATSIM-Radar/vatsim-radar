@@ -8,7 +8,6 @@ import type {
 } from '~/utils/settings/types';
 import type { UserCustomPreset } from '~/components/map/settings/filters/MapFiltersPresets.vue';
 import { setCustomDefuMergeAsIs } from '~/composables';
-import { getSettingsItems } from '~/composables/settings/v2/sections';
 
 type SettingChangeValue<T> =
     T extends { onChange: (value: infer V) => unknown }
