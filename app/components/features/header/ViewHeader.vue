@@ -152,7 +152,7 @@
                     v-else-if="store.user"
                     class="header__user"
                 >
-                    {{ headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In' }}
+                    {{ store.mounted ? (headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In') : 'Logged in' }}
                 </div>
             </div>
             <div
@@ -339,7 +339,7 @@ const mobileMenuOpened = ref(false);
     &__user {
         font-size: 14px;
         font-weight: 700;
-        color: $primary500;
+        color: $blue500;
     }
 
     &__sections {

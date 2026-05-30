@@ -406,7 +406,7 @@ onMounted(() => {
             font-weight: 600;
             line-height: 100%;
 
-            background: $primary500;
+            background: $blue500;
         }
     }
 

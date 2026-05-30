@@ -5,7 +5,7 @@ import type { UserSettingsV2Partial } from '~/utils/settings/types';
 import type { colorsList, legacyColorsList } from '~/utils/colors';
 
 const sigmetTypes = ['TS', 'VA', 'FZLVL', 'WS', 'WIND', 'ICE', 'TURB', 'MTW', 'IFR', 'OBSC', 'CONV'] satisfies SigmetType[];
-const legacyColorToV2Color = {
+export const legacyColorToV2Color = {
     mapSectorBorder: 'darkGray500',
     divertedBackground: 'red500',
     divertedTextColor: 'lightGray900',
@@ -78,7 +78,7 @@ function setInvertedBoolean(settings: UserSettingsV2Partial, path: string, value
     if (typeof value === 'boolean') setValue(settings, path, !value);
 }
 
-function migrateLegacyColor(color: string): string {
+export function migrateLegacyColor(color: string): string {
     return legacyColorToV2Color[color as keyof typeof legacyColorToV2Color] ?? color;
 }
 

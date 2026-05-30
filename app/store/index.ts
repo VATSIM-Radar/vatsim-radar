@@ -75,6 +75,7 @@ export const useStore = defineStore('index', {
     state: () => ({
         user: null as null | FullUser,
         version: '',
+        mounted: false,
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
         mapPresetsFetched: false,
