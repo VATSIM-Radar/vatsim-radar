@@ -203,6 +203,7 @@ export default defineNuxtConfig({
         tsConfig: {
             compilerOptions: {
                 noUncheckedIndexedAccess: false,
+                types: ['vite-svg-loader'],
             },
         },
     },

@@ -28,7 +28,7 @@
                 disabled: !atcSections.length,
             },
         }"
-        @collapsedSection="(event) => event.key === 'achievements' ? (collapsedAchievements = event.value) : event.key === 'ipfs' ? (collapsedViff = event.value) : event.key === 'photo' ? (collapsedPhoto = event.value) : undefined"
+        @collapsedSection="$event.key === 'achievements' ? (collapsedAchievements = $event.value) : $event.key === 'ipfs' ? (collapsedViff = $event.value) : $event.key === 'photo' ? (collapsedPhoto = $event.value) : undefined"
         @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
