@@ -71,4 +71,4 @@ Adopters for the development of v2.1.
 
 ## Preliminary Release Notes
 
-Available on [separate page](/changelog).
+Available on [separate page](/changelog-v2).
