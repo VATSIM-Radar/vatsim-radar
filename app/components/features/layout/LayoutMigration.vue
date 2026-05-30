@@ -174,9 +174,3 @@ async function migrate() {
     migrating.value = false;
 }
 </script>
-
-<style scoped lang="scss">
-.migration {
-
-}
-</style>
