@@ -116,11 +116,27 @@
                         </label>
                     </div>
                 </div>
+                <ui-button
+                    size="S"
+                    type="secondary"
+                    @click="openWeatherRequest"
+                >
+                    <template #icon>
+                        <weather-icon/>
+                    </template>
+                    Weather Request
+                </ui-button>
             </div>
             <div class="dashboard-view_header_aside">
                 <div class="dashboard-view_header_clock">
                     {{ utcTime }}<span class="dashboard-view_header_clock_z">z</span>
                 </div>
+            </div>
+            <div class="dashboard-view_header_weather">
+                <dashboard-weather
+                    :can-edit="dashboard.owner"
+                    @addAirport="openEditor"
+                />
             </div>
         </div>
 
@@ -133,14 +149,6 @@
                 v-if="showPanel"
                 class="dashboard-view_panel"
             >
-
-                <div class="dashboard-view_section">
-                    <div class="dashboard-view_section_title">
-                        Airports
-                    </div>
-                    <dashboard-weather/>
-                </div>
-
                 <div class="dashboard-view_section">
                     <div class="dashboard-view_section_title">
                         Aircraft
@@ -150,7 +158,6 @@
                         v-model:selected="selectedPilot"
                     />
                 </div>
-
 
                 <div class="dashboard-view_section">
                     <dashboard-prediction v-if="ready"/>
@@ -198,6 +205,7 @@ import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import CopyIcon from '@/assets/icons/kit/copy.svg?component';
+import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
 
 const route = useRoute();
 const router = useRouter();
@@ -367,6 +375,10 @@ function openEditor() {
     editorOpen.value = true;
 }
 
+function openWeatherRequest() {
+    store.metarRequest = [...airportIcaos.value];
+}
+
 function shareLink() {
     return copy(`${ config.public.DOMAIN }/dashboard/${ id.value }`);
 }
@@ -477,7 +489,7 @@ if (toValue(dashboard)) {
     &_header {
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 8px 16px;
         align-items: center;
         justify-content: space-between;
 
@@ -512,6 +524,10 @@ if (toValue(dashboard)) {
             &_z {
                 color: $lightGray500;
             }
+        }
+
+        &_weather {
+            width: 100%;
         }
     }
 
@@ -617,21 +633,21 @@ if (toValue(dashboard)) {
         display: flex;
         flex: 1 1 0;
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
 
         min-width: 0;
         min-height: 0;
     }
 
     &_section {
-        padding: 16px;
+        padding: 12px;
         border: 1px solid $darkGray800;
         border-radius: 8px;
         background: $black;
 
         &_title {
-            margin-bottom: 12px;
-            font-size: 17px;
+            margin-bottom: 8px;
+            font-size: 14px;
             font-weight: 700;
             color: $lightGray500;
         }

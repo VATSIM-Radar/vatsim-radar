@@ -1,130 +1,63 @@
 <template>
     <div class="dashboard-weather">
-        <template v-if="expanded && expandedData">
-            <div class="dashboard-weather_detail">
-                <div class="dashboard-weather_detail_head">
-                    <ui-button
-                        size="S"
-                        type="link"
-                        @click="expanded = null"
-                    >
-                        <template #icon>
-                            <arrow-top-icon class="dashboard-weather_detail_head_back"/>
-                        </template>
-                        {{ expanded }}
-                    </ui-button>
-
-                    <div class="dashboard-weather_detail_head_tabs">
-                        <div
-                            v-for="tab in detailTabs"
-                            :key="tab.key"
-                            class="dashboard-weather_chip"
-                            :class="{ 'dashboard-weather_chip--active': detailTab === tab.key }"
-                            @click="detailTab = tab.key"
-                        >
-                            {{ tab.title }}
-                        </div>
-                    </div>
-                </div>
-
-                <dashboard-airport-provider :data="expandedData">
-                    <template v-if="detailTab === 'metar'">
-                        <airport-metar v-if="expandedData.airport?.metar"/>
-                        <div
-                            v-else
-                            class="dashboard-weather_detail_empty"
-                        >
-                            No METAR available.
-                        </div>
-                    </template>
-                    <template v-else-if="detailTab === 'taf'">
-                        <airport-taf v-if="expandedData.airport?.taf"/>
-                        <div
-                            v-else
-                            class="dashboard-weather_detail_empty"
-                        >
-                            No TAF available.
-                        </div>
-                    </template>
-                    <template v-else-if="detailTab === 'notams'">
-                        <airport-notams v-if="expandedData.notams?.length"/>
-                        <div
-                            v-else
-                            class="dashboard-weather_detail_empty"
-                        >
-                            No NOTAMs available.
-                        </div>
-                    </template>
-                    <ui-copy-info
-                        v-else-if="detailTab === 'prev' && previousMetar[expanded]"
-                        auto-expand
-                        :text="previousMetar[expanded]"
+        <div class="dashboard-weather_strip">
+            <div
+                v-for="entry in entries"
+                :key="entry.icao"
+                class="dashboard-weather_card"
+                :class="{
+                    'dashboard-weather_card--changed': changedQnh.has(entry.icao),
+                    'dashboard-weather_card--active': expandedMetars.has(entry.icao),
+                }"
+                @click="onCardClick(entry.icao)"
+            >
+                <div class="dashboard-weather_card_head">
+                    <span
+                        v-if="getAirportAircraftColor(entry.icao)"
+                        class="dashboard-weather_card_color"
+                        :style="{ background: getAirportAircraftColor(entry.icao) ?? undefined }"
                     />
-                </dashboard-airport-provider>
-            </div>
-        </template>
-        <template v-else>
-            <div class="dashboard-weather_strip">
+                    <span class="dashboard-weather_card_icao">{{ entry.icao }}</span>
+                    <span
+                        v-if="entry.atis"
+                        class="dashboard-weather_card_atis"
+                        title="Current ATIS information letter"
+                    >
+                        {{ entry.atis }}
+                    </span>
+                </div>
+                <code
+                    v-if="expandedMetars.has(entry.icao)"
+                    class="dashboard-weather_card_metar"
+                    :class="{ 'dashboard-weather_card_metar--empty': !entry.metar }"
+                >{{ entry.metar ?? 'No METAR' }}</code>
                 <div
-                    v-for="entry in entries"
-                    :key="entry.icao"
-                    class="dashboard-weather_card"
-                    :class="{ 'dashboard-weather_card--changed': changedQnh.has(entry.icao) }"
-                    @click="onCardClick(entry.icao)"
+                    v-else
+                    class="dashboard-weather_card_meta"
                 >
-                    <div class="dashboard-weather_card_head">
-                        <span
-                            v-if="getAirportAircraftColor(entry.icao)"
-                            class="dashboard-weather_card_color"
-                            :style="{ background: getAirportAircraftColor(entry.icao) ?? undefined }"
-                        />
-                        <span class="dashboard-weather_card_icao">{{ entry.icao }}</span>
-                        <span
-                            v-if="entry.atis"
-                            class="dashboard-weather_card_atis"
-                            title="Current ATIS information letter"
-                        >
-                            {{ entry.atis }}
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="entry.qnh"
+                    <span
                         class="dashboard-weather_card_qnh"
+                        :class="{ 'dashboard-weather_card_qnh--empty': !entry.qnh }"
                     >
-                        {{ entry.qnh }}
-                    </div>
-                    <div
-                        v-else
-                        class="dashboard-weather_card_qnh dashboard-weather_card_qnh--empty"
-                    >
-                        No METAR
-                    </div>
-
-                    <div
+                        {{ entry.qnh ?? 'No METAR' }}
+                    </span>
+                    <span
                         v-if="entry.wind"
                         class="dashboard-weather_card_wind"
                     >
                         {{ entry.wind }}
-                    </div>
-
-                    <div class="dashboard-weather_card_actions">
-                        <div
-                            class="dashboard-weather_chip"
-                            @click.stop="openDetail(entry.icao, 'taf')"
-                        >
-                            TAF
-                        </div>
-                        <div
-                            class="dashboard-weather_chip"
-                            @click.stop="openDetail(entry.icao, 'notams')"
-                        >
-                            NOTAM
-                        </div>
-                    </div>
+                    </span>
                 </div>
             </div>
-        </template>
+            <div
+                v-if="canEdit"
+                class="dashboard-weather_add"
+                @click="$emit('addAirport')"
+            >
+                <span class="dashboard-weather_add_label">Add airport</span>
+                <plus-icon class="dashboard-weather_add_icon"/>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -133,15 +66,16 @@ import type { Ref } from 'vue';
 import { parseMetar, AltimeterUnit } from 'metar-taf-parser';
 import type { StoreOverlayAirport } from '~/store/map';
 import { useDashboard } from '~/composables/dashboard';
-import DashboardAirportProvider from '~/components/features/dashboard/DashboardAirportProvider.vue';
-import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
-import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
-import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
-import UiButton from '~/components/ui/buttons/UiButton.vue';
-import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
-import ArrowTopIcon from '@/assets/icons/kit/arrow-top.svg?component';
+import PlusIcon from '@/assets/icons/kit/plus.svg?component';
 
-type DetailTab = 'metar' | 'taf' | 'notams' | 'prev';
+defineProps({
+    canEdit: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+defineEmits<{ addAirport: [] }>();
 
 const airportsData = inject<Ref<Record<string, StoreOverlayAirport['data']>>>('dashboard-airports-data')!;
 const { activeDashboard, sortByPriorityAirports, getAirportAircraftColor } = useDashboard();
@@ -162,19 +96,7 @@ function getAtisLetter(icao: string): string | null {
     return parts.length ? parts.join(' / ') : null;
 }
 
-const expanded = ref<string | null>(null);
-const detailTab = ref<DetailTab>('metar');
-const expandedData = computed(() => (expanded.value ? airportsData.value[expanded.value] ?? null : null));
-
-const detailTabs = computed(() => {
-    const tabs: { key: DetailTab; title: string }[] = [
-        { key: 'metar', title: 'METAR' },
-        { key: 'taf', title: 'TAF' },
-        { key: 'notams', title: 'NOTAMs' },
-    ];
-    if (expanded.value && previousMetar.value[expanded.value]) tabs.push({ key: 'prev', title: 'Previous' });
-    return tabs;
-});
+const expandedMetars = ref<Set<string>>(new Set());
 
 function parseQnh(metar: string): string | null {
     try {
@@ -205,6 +127,7 @@ const entries = computed(() => {
         const metar = airportsData.value[airport.icao]?.airport?.metar ?? null;
         return {
             icao: airport.icao,
+            metar,
             qnh: metar ? parseQnh(metar) : null,
             wind: metar ? parseWind(metar) : null,
             atis: getAtisLetter(airport.icao),
@@ -215,8 +138,6 @@ const entries = computed(() => {
 const QNH_STORAGE_KEY = 'vatsim-radar-dashboard-qnh';
 const storedQnh = ref<Record<string, string>>({});
 const changedQnh = ref<Set<string>>(new Set());
-const previousMetar = ref<Record<string, string>>({});
-const lastMetar: Record<string, string> = {};
 
 function persistQnh() {
     try {
@@ -234,15 +155,12 @@ function acknowledgeQnh(icao: string) {
     return true;
 }
 
-function openDetail(icao: string, tab: DetailTab) {
-    acknowledgeQnh(icao);
-    expanded.value = icao;
-    detailTab.value = tab;
-}
-
 function onCardClick(icao: string) {
     if (acknowledgeQnh(icao)) return;
-    openDetail(icao, 'metar');
+    const next = new Set(expandedMetars.value);
+    if (next.has(icao)) next.delete(icao);
+    else next.add(icao);
+    expandedMetars.value = next;
 }
 
 onMounted(() => {
@@ -264,35 +182,32 @@ onMounted(() => {
         changedQnh.value = next;
         persistQnh();
     }, { immediate: true, deep: true });
-
-    watch(() => Object.fromEntries(Object.entries(airportsData.value).map(([icao, data]) => [icao, data?.airport?.metar ?? ''])), texts => {
-        for (const [icao, text] of Object.entries(texts)) {
-            if (!text) continue;
-            if (lastMetar[icao] && lastMetar[icao] !== text) previousMetar.value[icao] = lastMetar[icao];
-            lastMetar[icao] = text;
-        }
-    }, { immediate: true, deep: true });
 });
 </script>
 
 <style scoped lang="scss">
 .dashboard-weather {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
     &_strip {
         overflow-x: auto;
         display: flex;
         gap: 8px;
-        padding-bottom: 4px;
+        padding-bottom: 2px;
     }
 
     &_card {
         cursor: pointer;
 
         display: flex;
+        flex: 0 0 auto;
         flex-direction: column;
-        gap: 6px;
+        gap: 4px;
 
-        min-width: 150px;
-        padding: 10px 12px;
+        min-width: 160px;
+        padding: 6px 10px;
         border: 1px solid $darkGray800;
         border-radius: 8px;
 
@@ -311,20 +226,24 @@ onMounted(() => {
             background: varToRgba('warning500', 0.12);
         }
 
+        &--active {
+            border-color: $primary500;
+        }
+
         &_head {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
         &_color {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
         }
 
         &_icao {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             color: $lightGray200;
         }
@@ -334,15 +253,24 @@ onMounted(() => {
             padding: 1px 6px;
             border-radius: 4px;
 
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: $primary500;
 
             background: varToRgba('primary500', 0.15);
         }
 
+        // The QNH/wind row and the METAR row share the same min-height so toggling between them never
+        // changes the card height (min-height, so nothing is clipped if content is ever taller).
+        &_meta {
+            display: flex;
+            gap: 4px 8px;
+            align-items: center;
+            min-height: 26px;
+        }
+
         &_qnh {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
             color: $lightGray200;
 
@@ -353,69 +281,70 @@ onMounted(() => {
         }
 
         &_wind {
-            font-size: 13px;
+            font-size: 12px;
             color: $lightGray500;
         }
 
-        &_actions {
+        &_metar {
             display: flex;
-            gap: 6px;
-            margin-top: 2px;
+            align-items: center;
+
+            min-height: 26px;
+            padding: 0 8px;
+            border-radius: 4px;
+
+            font-family: $robotoFont;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: $lightGray100;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+
+            background: $darkGray600;
+
+            &--empty {
+                font-weight: 400;
+                color: $lightGray500;
+                letter-spacing: normal;
+                background: transparent;
+            }
         }
     }
 
-    &_chip {
+    &_add {
         cursor: pointer;
 
-        padding: 2px 8px;
-        border: 1px solid $darkGray700;
-        border-radius: 4px;
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
 
-        font-size: 12px;
-        font-weight: 600;
-        color: $lightGray200;
+        min-width: 160px;
+        padding: 6px 10px;
+        border: 1px dashed $primary500;
+        border-radius: 8px;
+
+        color: $primary500;
 
         transition: 0.3s;
 
         @include hover {
             &:hover {
-                border-color: $primary500;
-                color: $primary500;
+                background: varToRgba('primary500', 0.08);
             }
         }
 
-        &--active {
-            border-color: $primary500;
-            color: $primary500;
-        }
-    }
-
-    &_detail {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        &_head {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
-
-            &_back {
-                transform: rotate(-90deg);
-            }
-
-            &_tabs {
-                display: flex;
-                gap: 6px;
-            }
+        &_icon {
+            width: 18px;
+            min-width: 18px;
         }
 
-        &_empty {
-            padding: 8px;
-            font-size: 13px;
-            color: $lightGray500;
+        &_label {
+            font-size: 12px;
+            font-weight: 600;
         }
     }
 }
