@@ -14,6 +14,7 @@
             <nuxt-loading-indicator color="rgb(var(--blue500))"/>
             <slot/>
         </div>
+        <layout-migration/>
         <layout-update-popup/>
         <layout-preset-import/>
         <div
@@ -64,6 +65,7 @@ import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.
 import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceTutorial.vue';
 import { setAircraftDefaultColors } from '~/composables/settings/v2/utils';
 import LayoutPresetImport from '~/components/features/layout/LayoutPresetImport.vue';
+import LayoutMigration from '~/components/features/layout/LayoutMigration.vue';
 
 defineSlots<{ default: () => any }>();
 

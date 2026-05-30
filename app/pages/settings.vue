@@ -189,7 +189,7 @@ const isMobileOrTablet = useIsMobileOrTablet();
 
 const menuActive = ref(false);
 const isHideMenu = computed(() => {
-    return store.viewport.width < 1280;
+    return store.viewport.width ? store.viewport.width < 1280 : isMobileOrTablet.value;
 });
 
 const contentsActive = ref(false);
@@ -202,10 +202,18 @@ const childrenPath = computed(() => route.params.path?.[1] ?? null);
 
 const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: () => ([]) });
 
+const settingsStore = useSettingsStore();
 const settingsSections = getSettingsSections();
 const mapPreview = useCookie<boolean>('map-preview', {
     sameSite: 'none',
     secure: true,
+});
+
+watch(() => settingsStore.settings, val => {
+    iframe.value?.contentWindow?.postMessage({
+        type: 'settings',
+        settings: toRaw(val),
+    });
 });
 
 const currentItem = computed(() => {

@@ -3,6 +3,7 @@
         v-if="navigraphSource"
         class="layers"
     >
+        {{ndbEnabled}}
         <template v-if="mapStore.zoom > 5 && navigraphEnabled !== false">
             <navigraph-ndb v-if="ndbEnabled || vordmeEnabled"/>
             <navigraph-airways v-if="airwaysEnabled"/>

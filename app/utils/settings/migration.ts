@@ -244,5 +244,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.events.enabled', mapSettings.visibility?.events);
     setValue(settings, 'map.events.hours', mapSettings.eventsHours);
 
+    settings.version = '2.0';
+
     return settings;
 }
