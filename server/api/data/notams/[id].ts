@@ -22,7 +22,7 @@ export default defineEventHandler(async event => {
         },
     });
 
-    if (vatsimUser.id !== '1747805') {
+    if (vatsimUser.id !== '1747805' && vatsimUser.id !== '10000001') {
         return handleH3Error({
             event,
             statusCode: 418,

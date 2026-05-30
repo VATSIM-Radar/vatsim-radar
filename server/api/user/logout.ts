@@ -1,4 +1,5 @@
 import { setCookie } from 'h3';
+import { getRedirectURL } from '~/utils/server';
 
 export default defineEventHandler(event => {
     setCookie(event, 'access-token', '', {
@@ -9,5 +10,5 @@ export default defineEventHandler(event => {
         path: '/',
     });
 
-    return sendRedirect(event, useRuntimeConfig().public.DOMAIN);
+    return sendRedirect(event, getRedirectURL(event));
 });

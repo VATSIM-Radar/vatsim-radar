@@ -1,6 +1,6 @@
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { isMapFeature } from '~/utils/map/entities';
-import type { DeclutterMode } from 'ol/style/Style';
+import type { DeclutterMode } from 'ol/style/Style.js';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { getSelectedColorFromSettings, getSelectedColorTransparencyFromSettings } from '~/composables/settings/colors';
 import { getCurrentThemeHexColor } from '~/composables';
@@ -31,11 +31,11 @@ function calculateZIndex({ aircraft, atc }: { aircraft: MapAircraftList; atc: nu
 
 function getDeclutterMode(atcLength: number) {
     let declutterMode: DeclutterMode = atcLength ? 'obstacle' : 'declutter';
-    const store = useStore();
+    const declutterIf = getKeyedValueFromSettings('map.preferences.airports.declutterIf');
 
-    if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
-    else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = atcLength ? 'obstacle' : 'declutter';
-    else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
+    if (declutterIf === 'all') declutterMode = 'declutter';
+    else if (declutterIf === 'unstaffed') declutterMode = atcLength ? 'obstacle' : 'declutter';
+    else if (declutterIf === 'none') declutterMode = 'obstacle';
 
     return declutterMode;
 }
@@ -142,7 +142,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 return styleCache[key];
             }
 
-            if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
+            if (getKeyedValueFromSettings('map.visibility.atcLabels') && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
                 const declutterMode = getDeclutterMode(0);
                 const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
                 const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
@@ -250,7 +250,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 return styleCache[styleCacheKey];
             }
 
-            if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && store.mapSettings.airportsCounters?.showCounters !== false && showAirportDetails) {
+            if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && getKeyedValueFromSettings('map.preferences.airports.counters.enabled') !== false && showAirportDetails) {
                 const height = 12;
                 let offsetX = 30;
                 if (properties.localsLength > 3) offsetX = 35;

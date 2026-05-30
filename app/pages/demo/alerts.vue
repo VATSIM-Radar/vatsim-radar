@@ -16,12 +16,35 @@
         >
             Please disable VATGlasses if you don't like realistic boundaries
         </ui-snackbar>
+        <ui-input-text v-model="snackbarText">
+            Snackbar text
+        </ui-input-text>
+        <ui-select
+            :items="[{ value: 'error' }, { value: 'warning' }, { value: 'info' }, { value: 'success' }]"
+            :model-value="snackbarType"
+            @update:modelValue="snackbarType = $event as SnackbarType"
+        >
+            Snackbar type
+        </ui-select>
+        <ui-button
+            :disabled="!snackbarType || !snackbarText"
+            @click="[store.addNotification({ type: snackbarType!, text: snackbarText, timeout: 10000, closable: true })]"
+        >
+            Add notification
+        </ui-button>
     </div>
 </template>
 
 <script setup lang="ts">
 import UiSnackbar from '~/components/ui/data/UiSnackbar.vue';
 import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiSelect from '~/components/ui/inputs/UiSelect.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+
+const snackbarType = ref<SnackbarType | null>(null);
+const snackbarText = ref('');
+const store = useStore();
 </script>
 
 <style lang="scss" scoped>

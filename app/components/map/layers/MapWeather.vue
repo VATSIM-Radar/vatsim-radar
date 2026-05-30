@@ -15,7 +15,7 @@ defineOptions({
 const store = useStore();
 
 const weather = computed(() => {
-    const item = store.localSettings.filters?.layers?.weather2;
+    const item = getKeyedValueFromSettings('map.layers.weather');
     if (!item || String(item) === 'false') return null;
 
     return item;
@@ -107,7 +107,9 @@ async function initLayer() {
 
     if (weather.value) {
         let opacity = weather.value === 'CL' ? 0.3 : store.theme === 'light' ? weather.value === 'rainViewer' ? 0.5 : 0.6 : 0.4;
-        const transparency = store.localSettings.filters?.layers?.transparencySettings?.[store.theme === 'light' ? 'weatherLight' : 'weatherDark'];
+        const transparency = store.theme === 'light'
+            ? getKeyedValueFromSettings('map.layers.transparency.weatherLight')
+            : getKeyedValueFromSettings('map.layers.transparency.weatherDark');
         if (typeof transparency === 'number') opacity = transparency;
 
         tileLayer = new TileLayer({
@@ -142,7 +144,10 @@ watch(map, val => {
 });
 
 watch(weather, initLayer);
-const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
+const transparencySettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.layers.transparency.weatherDark'),
+    getKeyedValueFromSettings('map.layers.transparency.weatherLight'),
+]));
 watch(transparencySettings, initLayer);
 
 let interval: NodeJS.Timeout | undefined;

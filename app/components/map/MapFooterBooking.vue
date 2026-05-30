@@ -2,7 +2,7 @@
     <div class="footer-time-popup__content">
         <ui-date-picker
             :model-value="bookingRange"
-            :use-local="store.mapSettings.bookingsLocalTimezone"
+            :use-local="bookingsLocalTimezone"
         />
         <div class="footer-time-popup__arrows">
             <ui-button
@@ -70,6 +70,7 @@ import UiDatePicker from '~/components/ui/inputs/UiDatePicker.vue';
 
 
 const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const route = useRoute();
 const bookingRange = reactive({
     from: store.bookingsStartTime && !isNaN(Number(store.bookingsStartTime))
@@ -98,8 +99,9 @@ onMounted(() => {
     // Otherwise, set to now and now + bookingHours (or 30 min)
     const now = new Date();
     let addMs = 30 * 60 * 1000; // default 30 min
-    if (store.mapSettings.bookingHours) {
-        addMs = Number(store.mapSettings.bookingHours) * 60 * 60 * 1000;
+    const bookingHours = getKeyedValueFromSettings('map.bookings.hours');
+    if (bookingHours) {
+        addMs = Number(bookingHours) * 60 * 60 * 1000;
         if (isNaN(addMs) || addMs <= 0) addMs = 30 * 60 * 1000;
     }
     store.bookingsStartTime = new Date(now);

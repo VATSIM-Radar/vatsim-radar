@@ -1,11 +1,11 @@
-import { useStore } from '~/store';
+import { useStore, isFilterActive } from '~/store';
 import type { UserFilter } from '~/utils/server/handlers/filters';
 import { useFileDownload } from '~/composables/settings';
 import { customDefu } from '~/composables';
 
-
 export function setUserFilter(settings?: UserFilter, force = false) {
     const store = useStore();
+    store.isFilterActive = isFilterActive().value.value ?? true;
 
     const settingsText = localStorage.getItem('filters') ?? '{}';
     if (!settings && JSON.stringify(store.filter) === settingsText) return;
@@ -23,21 +23,15 @@ export async function resetUserFilter() {
     localStorage.removeItem('filters');
 }
 
-export function setUserActiveFilter(settings?: UserFilter, updateLocalStorage = true) {
+export function setUserTemporaryFilter(settings: UserFilter) {
     const store = useStore();
 
-    const settingsText = localStorage.getItem('active-filters') ?? '{}';
-
-    store.activeFilter = settings ?? JSON.parse(settingsText);
-    if (settings && updateLocalStorage) {
-        localStorage.setItem('active-filters', JSON.stringify(settings));
-    }
+    store.tempFilter = settings;
 }
 
-export async function resetUserActiveFilter() {
+export async function resetUserTemporaryFilter() {
     const store = useStore();
-    store.activeFilter = {};
-    localStorage.removeItem('active-filters');
+    store.tempFilter = null;
     store.getVATSIMData();
 }
 

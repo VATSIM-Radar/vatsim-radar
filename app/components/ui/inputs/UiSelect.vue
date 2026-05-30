@@ -2,13 +2,14 @@
     <div
         ref="select"
         class="select"
+        @click.stop="opened = !opened"
     >
         <ui-input-text
             class="select_input"
             :disabled
             :focused="opened"
+            :width
             @appendClick="emit('appendClick', $event)"
-            @click="opened = !opened"
             @prependClick="emit('prependClick', $event)"
         >
             <template
@@ -85,7 +86,6 @@ import UiText from '~/components/ui/text/UiText.vue';
 const props = defineProps({
     width: {
         type: String,
-        default: '240px',
     },
     items: {
         type: Array as PropType<SelectItem[]>,
@@ -146,6 +146,7 @@ useClickOutside({
     element: select,
     callback: () => opened.value = false,
     strict: true,
+    ignoreElements: ['.settings-page__item_left_title'],
 });
 
 const activeItems = computed<Array<SelectItemValueType>>(() => {
@@ -193,6 +194,8 @@ function updateModel(value: SelectItemValueType, add: boolean) {
 
 <style scoped lang="scss">
 .select {
+    user-select: none;
+
     &_input {
         cursor: pointer;
 

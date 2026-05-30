@@ -12,7 +12,6 @@ import type {
 } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { UserMapPreset, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import type {
     UserListLive,
     UserListLiveUser,
@@ -20,12 +19,13 @@ import type {
 } from '~/utils/server/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
-import { isFetchError } from '~/utils/shared';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
+import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
+import type { UserSettingsV2Partial } from '~/utils/settings/types';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -35,6 +35,7 @@ export interface SiteConfig {
     hideHeader?: boolean;
     hideFooter?: boolean;
     hideBookings?: boolean;
+    hidePaddings?: boolean;
 
     theme?: ThemesList;
     allAircraftGreen?: boolean;
@@ -55,17 +56,34 @@ export interface SiteConfig {
 export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
 export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
 
+export interface LocalNotification {
+    id?: number;
+    type: SnackbarType;
+    text: string;
+    timeout: number;
+    closable?: boolean;
+}
+
+export const isFilterActive = globalComputed(() => useCookie<boolean>('is-filter-active', {
+    maxAge: 60 * 60 * 24 * 365,
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+}));
+
 export const useStore = defineStore('index', {
     state: () => ({
         user: null as null | FullUser,
         version: '',
+        mounted: false,
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
-        mapSettings: {} as UserMapSettings,
-        mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
+
         filter: {} as UserFilter,
-        activeFilter: {} as UserFilter,
+        tempFilter: null as UserFilter | null,
+        isFilterActive: true,
+
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
@@ -77,7 +95,7 @@ export const useStore = defineStore('index', {
         bookingOverride: false,
 
         presetImport: {
-            preset: null as UserMapSettings | false | null,
+            preset: null as UserSettingsV2Partial | false | null,
             name: '',
             save: null as (() => any) | null,
             error: false as false | (() => Promise<any>),
@@ -94,13 +112,11 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
-        cookieCustomize: false,
+        cookieCustomize: false as boolean | 'init',
 
         loginPopup: false,
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
-        settingsPopup: false,
-        settingsPopupTab: 'main' as 'main' | 'favorite',
         airacPopup: false,
         searchActive: false,
         metarRequest: false as boolean | string[],
@@ -142,8 +158,16 @@ export const useStore = defineStore('index', {
 
         wsOpen: false,
         wsCallsign: '',
+        localNotifications: [] as LocalNotification[],
     }),
     getters: {
+        activeFilter(): UserFilter | null {
+            if (this.tempFilter) return this.tempFilter;
+
+            if (!this.isFilterActive || Object.keys(this.filter).length === 0) return null;
+
+            return this.filter;
+        },
         bookings(): VatsimBooking[] {
             const dataStore = useDataStore();
             return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
@@ -331,7 +355,7 @@ export const useStore = defineStore('index', {
                     await setVatsimDataStore(data);
                     dataStore.vatsim.shortUpdateTime.value = Date.now();
 
-                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
+                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate') || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });
@@ -379,36 +403,43 @@ export const useStore = defineStore('index', {
                 }
             };
 
-            try {
-                const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
-                    method: 'POST',
-                    body: 'id' in json
-                        ? json
-                        : {
-                            json,
-                        },
-                });
+            const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
+                method: 'POST',
+                body: 'id' in json
+                    ? json
+                    : {
+                        json,
+                    },
+            });
 
-                if (validation.status === 'ok') saveResult();
-            }
-            catch (e) {
-                if (!isFetchError(e) || e.statusCode !== 409) {
-                    throw e;
-                }
-                else {
-                    saveResult();
-                }
-            }
-        },
-        async fetchMapPresets() {
-            this.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
-            this.mapPresetsFetched = true;
+            if (validation.status === 'ok') saveResult();
         },
         async fetchFiltersPresets() {
             this.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
         },
         async fetchBookmarks() {
             this.bookmarks = await $fetch<UserFilterPreset[]>('/api/user/bookmarks');
+        },
+        addNotification(notification: LocalNotification) {
+            notification.id = Date.now();
+            this.localNotifications.push(notification);
+
+            setTimeout(() => {
+                this.localNotifications = this.localNotifications.filter(x => x.id !== notification.id);
+            }, notification.timeout);
+
+            return notification;
+        },
+        addError(text: string, timeout = 5000) {
+            console.log(this.addNotification({
+                type: 'error',
+                text,
+                timeout,
+            }));
+        },
+        setActiveFilter(val: boolean) {
+            isFilterActive().value.value = val;
+            this.isFilterActive = val;
         },
     },
 });

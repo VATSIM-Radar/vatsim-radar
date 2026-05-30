@@ -35,7 +35,7 @@
                         Locals
                     </template>
                     <template v-else-if="properties.counterType === 'prefiles'">
-                        {{ !store.mapSettings.airportsCounters?.horizontalCounter || store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
+                        {{ horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
                     </template>
                 </div>
             </template>
@@ -114,7 +114,7 @@ const emit = defineEmits({
     },
 });
 
-const store = useStore();
+const horizontalCounter = useSettingValueFromFunc('map.preferences.airports.counters.horizontalCounter');
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const properties = computed(() => props.payload.feature.getProperties());
@@ -171,4 +171,3 @@ const getOffsetX = computed(() => {
     }
 }
 </style>
-

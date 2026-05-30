@@ -6,7 +6,7 @@ import type { IUserFilterOthers } from '~/utils/server/handlers/filters';
 
 export function hasActivePilotFilter() {
     const store = useStore();
-    if (Object.keys(store.config).length) return false;
+    if (Object.keys(store.config).length || !store.activeFilter) return false;
 
     if (!store.activeFilter.users?.pilots?.value?.length &&
         !store.activeFilter.users?.lists?.length &&
@@ -27,6 +27,8 @@ function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort
     const field = 'frequency' in user ? 'atc' : 'pilots';
     const store = useStore();
 
+    if (!store.activeFilter) return true;
+
     let callsignFiltered: boolean | null = null;
     let cidFiltered: boolean | null = null;
     const strategy = store.activeFilter.users?.strategy ?? 'or';
@@ -39,7 +41,7 @@ function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort
     }
 
     if (store.activeFilter.users?.lists?.length && (!callsignFiltered || strategy === 'or')) {
-        const lists = store.lists.filter(x => store.activeFilter.users!.lists!.includes(x.id));
+        const lists = store.lists.filter(x => store.activeFilter!.users!.lists!.includes(x.id));
 
         cidFiltered = !lists.some(x => x.users.some(x => x.cid === user.cid));
     }
@@ -64,12 +66,14 @@ function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort
 export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | VatsimLiveDataShort['prefiles']>(pilots: T): T {
     const store = useStore();
 
-    if (!hasActivePilotFilter()) return pilots;
+    if (!hasActivePilotFilter() || !store.activeFilter) return pilots;
 
     const routes = store.activeFilter.airports?.routes?.map(x => x.split('-'));
     const altitude = store.activeFilter.flights?.altitude?.map(x => parseFilterAltitude(x));
 
     let filteredPilots = pilots.filter((pilot, index) => {
+        if (!store.activeFilter) return true;
+
         if (store.activeFilter.flights?.excludeNoFlightPlan && !pilot.departure) return false;
 
         if (store.activeFilter.flights?.diverted && (!('diverted' in pilot) || !pilot.diverted)) return false;
@@ -199,6 +203,8 @@ export function hasActiveATCFilter() {
 
     if (Object.keys(store.config).length) return false;
 
+    if (!store.activeFilter) return false;
+
     if (!store.activeFilter.users?.atc?.value?.length &&
         !store.activeFilter.users?.lists?.length &&
         !store.activeFilter.users?.cids?.length &&
@@ -210,6 +216,7 @@ export function hasActiveATCFilter() {
 
 function filterController(atc: VatsimShortenedController): boolean {
     const store = useStore();
+    if (!store.activeFilter) return true;
 
     if (!filterUser(atc)) return false;
     if (store.activeFilter.atc?.notTunedUp && (atc.frequencies?.some(x => x === atc.frequency) || atc.isATIS)) return false;
@@ -225,7 +232,7 @@ export function filterVatsimControllers(controllers: VatsimLiveDataShort['contro
 } {
     const store = useStore();
 
-    if (!hasActiveATCFilter()) return { controllers, atis };
+    if (!hasActiveATCFilter() || !store.activeFilter) return { controllers, atis };
 
     let filteredControllers = controllers.filter(local => filterController(local));
     let filteredAtis = atis.filter(local => filterController(local));

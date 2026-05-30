@@ -174,7 +174,6 @@ export const vgCountriesCache: VatglassesData = {};
 export async function updateVATGlasses(context: DataUpdateContext) {
     if (!isVatGlassesActive.value) return;
 
-    const store = useStore();
     const dataStore = useDataStore();
     const positionsPrefixes = new Set<string>();
 
@@ -454,7 +453,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
 
     dataStore.vatglassesActivePositions.value = finalPositions;
 
-    if (!firstRun && store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !dataStore.vatglassesCombiningInProgress.value) {
+    if (!firstRun && getKeyedValueFromSettings('map.vatglasses.active') && getKeyedValueFromSettings('map.vatglasses.combined') && !dataStore.vatglassesCombiningInProgress.value) {
         dataStore.vatglassesCombiningInProgress.value = true;
         await combineAllVatglassesActiveSectors(finalPositions).catch(e => console.error(e));
         dataStore.vatglassesCombiningInProgress.value = false;

@@ -3,17 +3,18 @@
         v-if="navigraphSource"
         class="layers"
     >
-        <template v-if="mapStore.zoom > 5 && !store.localSettings.disableNavigraph">
-            <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
-            <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
-            <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
+        {{ndbEnabled}}
+        <template v-if="mapStore.zoom > 5 && navigraphEnabled !== false">
+            <navigraph-ndb v-if="ndbEnabled || vordmeEnabled"/>
+            <navigraph-airways v-if="airwaysEnabled"/>
+            <navigraph-waypoints v-if="waypointsEnabled"/>
             <navigraph-holdings/>
         </template>
         <navigraph-procedures/>
-        <navigraph-route v-if="!store.localSettings.disableNavigraphRoute"/>
+        <navigraph-route v-if="routeParsingEnabled !== false"/>
         <navigraph-nat
-            v-if="store.localSettings.natTrak?.enabled"
-            :key="JSON.stringify(store.localSettings.natTrak)"
+            v-if="natTrakEnabled"
+            :key="JSON.stringify(natTrakSettings)"
         />
         <map-html-overlay
             v-if="activeFeature"
@@ -209,9 +210,8 @@ import type { Map, MapBrowserEvent } from 'ol';
 import VectorSource from 'ol/source/Vector.js';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate.js';
-import { useStore } from '~/store';
 import NavigraphAirways from '~/components/map/navigraph/NavigraphAirways.vue';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/server/navigraph/navdata/types';
@@ -232,7 +232,15 @@ let navigraphLayer: VectorImageLayer<any> | undefined;
 const navigraphVectorSource = shallowRef<VectorSource | null>(null);
 let navigraphVectorLayer: VectorLayer<any> | undefined;
 
-const store = useStore();
+const settingsStore = useSettingsStore();
+const natTrakSettings = computed(() => settingsStore.settings.map?.layers?.natTrak ?? {});
+const navigraphEnabled = useSettingValueFromFunc('map.navigraph.enabled');
+const ndbEnabled = useSettingValueFromFunc('map.navigraph.layers.ndb');
+const vordmeEnabled = useSettingValueFromFunc('map.navigraph.layers.vordme');
+const airwaysEnabled = useSettingValueFromFunc('map.navigraph.layers.airways.enabled');
+const waypointsEnabled = useSettingValueFromFunc('map.navigraph.layers.waypoints');
+const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
+const natTrakEnabled = useSettingValueFromFunc('map.layers.natTrak.enabled');
 
 provide('navigraph-source', navigraphSource);
 provide('navigraph-vector-source', navigraphVectorSource);
@@ -249,7 +257,7 @@ type ActiveFeature<T extends keyof NavigraphNavData> = {
 };
 
 const datetime = new Intl.DateTimeFormat(['ru-RU'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     day: '2-digit',
     year: 'numeric',
     month: '2-digit',
@@ -288,8 +296,8 @@ function isNat(activeFeature: ActiveFeature<any>): activeFeature is NatFeature {
     return activeFeature.type === 'nat';
 }
 
-const showAirwaysLabels = computed(() => store.mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
-const showWaypointsLabels = computed(() => store.mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
+const showAirwaysLabels = computed(() => getKeyedValueFromSettings('map.navigraph.layers.airways.showAirwaysLabel') !== false);
+const showWaypointsLabels = computed(() => getKeyedValueFromSettings('map.navigraph.layers.airways.showWaypointsLabel') !== false);
 
 watch([showAirwaysLabels, showWaypointsLabels], () => navigraphSource.value?.changed());
 

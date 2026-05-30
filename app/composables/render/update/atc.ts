@@ -244,11 +244,11 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    let bookings = (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
+    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
         const now = new Date();
-        const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
+        const timeInHours = new Date(now.getTime() + (getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000));
 
         bookings = bookings.filter(x => {
             const start = new Date(x.start);

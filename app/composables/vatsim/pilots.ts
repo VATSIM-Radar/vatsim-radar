@@ -13,6 +13,7 @@ import { useRadarError } from '~/composables/errors';
 import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay } from '~/composables';
+import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -158,26 +159,28 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
     }
 }
 
-export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
-    return {
-        active: getCurrentThemeHexColor('orange600'),
-        default: getCurrentThemeHexColor('blue500'),
-        ground: getCurrentThemeHexColor('blue500'),
-        green: getCurrentThemeHexColor('green600'),
-        hover: getCurrentThemeHexColor('orange500'),
-        neutral: getCurrentThemeHexColor('lightGray500'),
+export const aircraftStatusColors: Record<MapAircraftStatus, ColorsList> = {
+    active: 'orange600',
+    default: 'blue500',
+    ground: 'blue500',
+    green: 'green600',
+    hover: 'orange500',
+    neutral: 'lightGray500',
 
-        departing: getCurrentThemeHexColor('green500'),
-        arriving: getCurrentThemeHexColor('orange400'),
-        landed: getCurrentThemeHexColor('red300'),
-    };
+    departing: 'green500',
+    arriving: 'orange400',
+    landed: 'red300',
+};
+
+export const aircraftSvgColors = () => {
+    return Object.fromEntries(Object.entries(aircraftStatusColors).map(([key, value]) => [key, getCurrentThemeHexColor(value)])) as Record<MapAircraftStatus, string>;
 };
 
 export const getFilteredAircraftSettings = (cid: number) => {
     const store = useStore();
     const dataStore = useDataStore();
 
-    if (hasActivePilotFilter() && typeof store.activeFilter.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
+    if (hasActivePilotFilter() && typeof store.activeFilter?.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
         const pilot = dataStore.vatsim.data.keyedPilots.value?.[cid];
         if (pilot?.filteredColor) return pilot.filteredColor;
         else return pilot?.filteredOpacity;
@@ -185,8 +188,6 @@ export const getFilteredAircraftSettings = (cid: number) => {
 };
 
 export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
-    const store = useStore();
-
     const list = cid && getUserList(cid);
     if (list) {
         return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
@@ -201,8 +202,8 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
     }
 
     let color = aircraftSvgColors()[status];
-    let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
-    if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+    let settingColor = getColorByKey(`map.preferences.colors.default.aircraft.${ status === 'default' ? 'main' : status }` as any).value.value;
+    if (status === 'ground' && !settingColor) settingColor = getColorByKey('map.preferences.colors.default.aircraft.main').value.value;
     if (settingColor) color = getColorFromSettings(settingColor);
 
     if (typeof filteredColor === 'number') {
@@ -305,7 +306,7 @@ export const useShowPilotStats = () => {
 export function getFlightRowColor(index: number | null | undefined, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.green600Hex;
 
-    const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
+    const turnsTheme = getKeyedValueFromSettings('map.preferences.colors.turns') as UserMapSettingsTurns;
 
     switch (theme) {
         case 'default':

@@ -83,6 +83,12 @@ const dashboardPreset: SiteConfig = {
     hideBookings: true,
 };
 
+const settingsPreset: SiteConfig = {
+    hideHeader: true,
+    hideFooter: true,
+    hidePaddings: true,
+};
+
 const myulllSmallPreset: SiteConfig = {
     theme: 'light',
     hideHeader: true,
@@ -133,6 +139,9 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;
+    }
+    else if (query.preset === 'settings') {
+        preset = settingsPreset;
     }
     else if (query.preset === 'vatsup') {
         preset = vatsupPreset;

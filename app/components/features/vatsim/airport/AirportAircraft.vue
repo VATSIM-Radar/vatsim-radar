@@ -477,10 +477,10 @@ defineExpose({
         }
 
         &--selected {
-            border-color: $primary600;
+            border-color: $blue600;
 
             .aircraft__pilot_header_title {
-                color: $primary500
+                color: $blue500;
             }
         }
     }

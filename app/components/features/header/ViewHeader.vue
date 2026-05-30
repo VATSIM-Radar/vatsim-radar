@@ -138,8 +138,8 @@
             >
                 <ui-button
                     v-if="!store.user && !isIframe"
-                    href="/api/auth/vatsim/redirect"
                     size="S"
+                    @click="vatsimAuth"
                 >
                     <template v-if="isMobile">
                         Login
@@ -152,7 +152,7 @@
                     v-else-if="store.user"
                     class="header__user"
                 >
-                    {{ store.user.settings.headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In' }}
+                    {{ store.mounted ? (headerName || store.user.fullName?.split(' ')?.[0] || 'Logged In') : 'Logged in' }}
                 </div>
             </div>
             <div
@@ -228,10 +228,9 @@
                     </div>
                 </ui-tooltip>
                 <ui-button
-                    v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
-                    :type="!store.settingsPopup ? 'secondary' : 'primary'"
-                    @click="!store.user ? store.loginPopup = true : store.settingsPopup = !store.settingsPopup"
+                    to="/settings"
+                    :type="route.path.startsWith('/settings') ? 'primary' : 'secondary'"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -248,23 +247,11 @@
                     @click="mobileMenuOpened = !mobileMenuOpened"
                 >
                     <template #icon>
-                        <div
-                            class="header__burger"
-                            :class="{ 'header__burger--active': mobileMenuOpened }"
-                        >
-                            <div
-                                v-for="i in 3"
-                                :key="i"
-                                class="header__burger_item"
-                                :class="[`header__burger_item--${ i }`]"
-                            />
-                        </div>
+                        <ui-burger v-model="mobileMenuOpened"/>
                     </template>
                 </ui-button>
                 <view-header-mobile-menu v-model="mobileMenuOpened"/>
             </div>
-
-            <view-header-settings v-model="store.settingsPopup"/>
         </div>
         <view-header-popups/>
         <transition name="header--mobile-search">
@@ -284,7 +271,6 @@ import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import SearchIcon from 'assets/icons/kit/search.svg?component';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import ViewHeaderSearch from '~/components/features/header/ViewHeaderSearch.vue';
-import ViewHeaderSettings from '~/components/features/header/ViewHeaderSettings.vue';
 import ViewHeaderPopups from '~/components/features/header/ViewHeaderPopups.vue';
 import { useHeaderMenu } from '~/composables/map';
 import ViewHeaderMobileMenu from '~/components/features/header/ViewHeaderMobileMenu.vue';
@@ -296,15 +282,17 @@ import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
+import { vatsimAuth } from '../../../composables/vatsim/auth';
+import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 
 const headerMenu = useHeaderMenu();
 
 const route = useRoute();
 const store = useStore();
+const headerName = useSettingValueFromFunc('appearance.headerName');
 const config = useRuntimeConfig();
 
 const app = useNuxtApp();
-
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
 
@@ -351,7 +339,7 @@ const mobileMenuOpened = ref(false);
     &__user {
         font-size: 14px;
         font-weight: 700;
-        color: $primary500;
+        color: $blue500;
     }
 
     &__sections {
@@ -543,41 +531,6 @@ const mobileMenuOpened = ref(false);
                     background: $black;
 
                     transition: 0.3s;
-                }
-            }
-        }
-    }
-
-    &__burger {
-        position: relative;
-
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        align-items: center;
-
-        &_item {
-            width: 12px;
-            height: 2px;
-            border-radius: 4px;
-
-            background: $lightGray300;
-
-            transition: 0.3s;
-        }
-
-        &--active {
-            .header__burger_item-- {
-                &1 {
-                    transform: translateY(4px) rotate(45deg);
-                }
-
-                &2 {
-                    width: 0;
-                }
-
-                &3 {
-                    transform: translateY(-4px) rotate(-45deg);
                 }
             }
         }

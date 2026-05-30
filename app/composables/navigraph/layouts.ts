@@ -2,7 +2,7 @@ import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { PartialRecord } from '~/types';
 import { toRadians } from 'ol/math.js';
 import { useStore } from '~/store';
-import type { Options as StyleOptions } from 'ol/style/Style';
+import type { Options as StyleOptions } from 'ol/style/Style.js';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import type { FeatureAirportNavigraph } from '~/utils/map/entities';
 

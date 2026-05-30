@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
+        v-if="!vatglassesCombined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
         class="vg-level"
     >
         <div
@@ -18,60 +18,48 @@
             v-if="vatglassesActive"
             class="vg-level_content"
         >
-            <input
-                v-if="(!disabledLevel || showAuto) && store.viewport.width > 1500"
-                v-model="vatglassesLevel"
+            <ui-range
                 class="range"
                 :class="{ 'range--wide': hideIfDisabled }"
                 :disabled="disabledLevel && !showAuto"
-                max="430"
-                min="0"
-                step="5"
-                type="range"
-                @wheel.prevent="handleWheel"
-            >
-            <ui-input-text
-                v-model="vatglassesLevel"
-                class="vatglassesLevel-input"
-                height="32px"
-                :input-attrs="{
-                    max: 430,
-                    min: 0,
-                    step: 5,
-                    disabled: disabledLevel && !showAuto,
-                }"
-                input-type="number"
+                hide-labels
+                :max="430"
+                :min="0"
+                :model-value="vatglassesLevel ? +vatglassesLevel : 0"
+                show-input
+                :step="5"
+                @update:modelValue="vatglassesLevel = $event.toString()"
             />
             <label v-if="store.user && ownFlight && showAuto">
                 <input
-                    :checked="store.mapSettings.vatglasses?.autoLevel !== false"
+                    :checked="vatglassesAutoLevel !== false"
                     type="checkbox"
-                    @input="setUserMapSettings({ vatglasses: { autoLevel: !store.mapSettings.vatglasses?.autoLevel } })"
+                    @update:modelValue="setSettingByKey('map.vatglasses.autoLevel', $event)"
                 >
                 A
             </label>
         </div>
         <ui-toggle
-            v-if="showAuto && !store.mapSettings.vatglasses?.active && store.user && ownFlight"
-            :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
-            @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+            v-if="showAuto && !vatglassesActiveSetting && store.user && ownFlight"
+            :model-value="vatglassesAutoEnable !== false"
+            @update:modelValue="setSettingByKey('map.vatglasses.autoEnable', $event)"
         />
         <ui-toggle
             v-else-if="showAuto"
-            :model-value="!!store.mapSettings.vatglasses?.active"
-            @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            :model-value="!!vatglassesActiveSetting"
+            @update:modelValue="setSettingByKey('map.vatglasses.active', $event)"
         />
     </div>
 </template>
 
 <script setup lang="ts">
-import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { ownFlight } from '~/composables/vatsim/pilots';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import UiRange from '~/components/ui/inputs/UiRange.vue';
 
 defineProps({
     hideIfDisabled: {
@@ -84,6 +72,10 @@ defineProps({
     },
 });
 const store = useStore();
+const vatglassesCombined = useSettingValueFromFunc('map.vatglasses.combined');
+const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
+const vatglassesAutoEnable = useSettingValueFromFunc('map.vatglasses.autoEnable');
+const vatglassesActiveSetting = useSettingValueFromFunc('map.vatglasses.active');
 
 const vatglassesLevel = computed({
     get() {
@@ -92,29 +84,12 @@ const vatglassesLevel = computed({
     set(value) {
         if (value !== undefined) {
             setUserLocalSettings({ vatglassesLevel: Number(value) });
-            setUserMapSettings({ vatglasses: { autoLevel: false } });
+            setSettingByKey('map.vatglasses.autoLevel', false);
         }
     },
 });
 
-let lastScrollTime = 0;
-
-function handleWheel(e: WheelEvent) {
-    const now = Date.now();
-    const timeDiff = now - lastScrollTime;
-    lastScrollTime = now;
-
-    let stepMultiplier = 1;
-    if (timeDiff < 80) stepMultiplier = 5;
-
-    const delta = e.deltaY > 0 ? -1 : 1;
-    const change = delta * 5 * stepMultiplier;
-
-    const newValue = Math.min(430, Math.max(0, +(vatglassesLevel.value ?? '0') + change));
-    vatglassesLevel.value = newValue.toString();
-}
-
-watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
+watch(vatglassesAutoLevel, () => {
     if (!store.user) return;
     const user = ownFlight.value;
     if (!user) return;
@@ -125,7 +100,7 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
 });
 
 const vatglassesActive = isVatGlassesActive;
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && !!store.user && !!ownFlight.value);
+const disabledLevel = computed(() => vatglassesAutoLevel.value !== false && !!store.user && !!ownFlight.value);
 </script>
 
 <style lang="scss" scoped>
@@ -145,12 +120,8 @@ const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !==
     }
 }
 
-.range--wide {
-    width: 80px;
-}
-
 .range {
-    width: 80px;
+    width: 140px;
 }
 
 label {

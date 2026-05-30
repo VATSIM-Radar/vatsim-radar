@@ -156,7 +156,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
-const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+const vatGlassesCombinedActive = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');
     if (level === '999') return 'UNL';

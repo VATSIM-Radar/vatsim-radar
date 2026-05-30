@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useStore } from '~/store';
 import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
@@ -13,14 +12,13 @@ defineOptions({
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
-const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.waypoints !== false);
+const isEnabled = computed(() => getKeyedValueFromSettings('map.navigraph.layers.waypoints') !== false);
 
 const extent = computed(() => mapStore.extent);
-const terminal = computed(() => store.mapSettings.navigraphData?.terminalWaypoints);
+const terminal = computed(() => getKeyedValueFromSettings('map.navigraph.layers.terminalWaypoints'));
 
 function cleanup() {
     const features = source?.value.getFeatures() ?? [];

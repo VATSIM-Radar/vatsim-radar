@@ -4,13 +4,18 @@ import { isFetchError } from '~/utils/shared';
 export type AnyError = unknown | Error | IFetchError;
 
 export function useRadarError(error: AnyError) {
+    const store = useStore();
+
     if (isFetchError(error)) {
         const fetchError = error;
         if (fetchError?.statusCode !== 404 && fetchError?.statusCode !== 423 && fetchError?.statusCode !== 503) {
             if (fetchError.statusMessage === undefined) return;
-            const errorText = `${ fetchError.statusMessage }: ${ typeof fetchError?.request === 'string'
+
+            const data = fetchError?.response?._data;
+
+            const errorText = `${ fetchError.statusCode } (${ typeof fetchError?.request === 'string'
                 ? fetchError?.request?.split('?')[0]
-                : 'unknown' }`;
+                : 'unknown' }): ${ (data && typeof data === 'object' && 'data' in data) ? data.data : 'Unknown Error' }`;
 
             if (typeof window === 'undefined' && useIsDebug()) {
                 console.error(errorText);
@@ -18,7 +23,8 @@ export function useRadarError(error: AnyError) {
             }
 
             // captureMessage(errorText, 'error');
-            console.error(errorText);
+            console.error(errorText, error);
+            store.addError(errorText);
         }
         return;
     }

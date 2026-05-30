@@ -27,6 +27,7 @@
                 full
             />
             <ui-text
+                v-if="!hideInput"
                 class="input__input"
                 tag="label"
                 type="2b"
@@ -44,6 +45,7 @@
                     ref="input"
                     v-model="model"
                     class="input__input_input"
+                    :disabled="!!$slots.htmlContent"
                     :placeholder
                     :type="inputType"
                     @blur="focused = false"
@@ -53,6 +55,7 @@
                     @input="$emit('input', $event)"
                 >
             </ui-text>
+            <div v-else class="__spacer"/>
             <ui-separator
                 v-if="max || $slots.append"
                 distance="0"
@@ -98,6 +101,10 @@ const props = defineProps({
         type: String,
         default: 'text',
     },
+    width: {
+        type: String,
+        default: '100%',
+    },
     height: {
         type: String,
     },
@@ -112,6 +119,10 @@ const props = defineProps({
         default: false,
     },
     disabled: {
+        type: Boolean,
+        default: false,
+    },
+    hideInput: {
         type: Boolean,
         default: false,
     },
@@ -150,7 +161,7 @@ watch(model, val => {
 
 <style scoped lang="scss">
 .input {
-    width: 100%;
+    width: v-bind(width);
 
     &_label {
         user-select: none;
@@ -195,6 +206,20 @@ watch(model, val => {
             &--append {
                 cursor: pointer;
             }
+
+            :deep(.select) {
+                width: calc(100% + 24px);
+                margin: 0 -12px;
+
+                .separator {
+                    display: none;
+                }
+
+                .input_container {
+                    border: 0;
+                    background: transparent;
+                }
+            }
         }
 
         &_counter {
@@ -203,7 +228,7 @@ watch(model, val => {
         }
     }
 
-    &--focused .input_container {
+    &--focused > .input_container {
         border-color: $darkGray100;
         @include boxShadowActiveProp;
     }
@@ -255,14 +280,18 @@ watch(model, val => {
             &:is(div) {
                 position: relative;
                 z-index: 1;
+                display: flex;
+                align-items: center;
 
                 + input {
                     position: absolute;
+                    z-index: 0;
                     inset: 0;
 
                     width: 100%;
                     height: 100%;
 
+                    visibility: hidden;
                     opacity: 0;
                 }
             }

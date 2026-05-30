@@ -7,7 +7,7 @@
         >
             <div class="event-card_start">
                 <client-only>
-                    {{ formattedStart }} - {{ formattedEnd }}<template v-if="store.localSettings.eventsLocalTimezone">z</template>
+                    {{ formattedStart }} - {{ formattedEnd }}<template v-if="!eventsTimezone">z</template>
                 </client-only>
             </div>
             <div class="event-card_name">
@@ -41,7 +41,6 @@
 import type { VatsimEvent } from '~/types/data/vatsim';
 import EventDetails from '~/components/features/events/EventDetails.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import { useStore } from '~/store';
 
 const props = defineProps({
     event: {
@@ -51,30 +50,33 @@ const props = defineProps({
 });
 
 const details = ref(false);
-const store = useStore();
-const timeZone = store.localSettings.eventsLocalTimezone ? 'UTC' : undefined;
+
+const eventsTimezone = useSettingValueFromFunc('appearance.eventsLocalTimezone');
+const timeFormat = useSettingValueFromFunc('appearance.timeFormat');
+
+const timeZone = computed(() => !eventsTimezone.value ? 'UTC' : undefined);
 
 const formatter = computed(() => new Intl.DateTimeFormat(['en-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: timeFormat.value === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone,
+    timeZone: timeZone.value,
 }));
 
 const formatterWithDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: timeFormat.value === '12h' ? 'h12' : 'h23',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone,
+    timeZone: timeZone.value,
 }));
 
 const formattedStart = computed(() => formatter.value.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => {
     const date = new Date(props.event.end_time);
 
-    const method = store.localSettings.eventsLocalTimezone ? 'getUTCDate' : 'getDate';
+    const method = !eventsTimezone.value ? 'getUTCDate' : 'getDate';
 
     if (date[method]() !== new Date(props.event.start_time)[method]()) return formatterWithDate.value.format(date);
 

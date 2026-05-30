@@ -9,6 +9,15 @@
                 :grid-columns="3"
                 :items="[...blocks, ...secondBlocks].map((x, index) => ({ title: x.title, text: x.value, tooltip: x.hint, tooltipWidth: '150px', tooltipLocation: 'right' }))"
             />
+
+            <ui-data-list
+                v-if="ipfs.cdmData.depInfo"
+                :grid-columns="1"
+                :items="[{
+                    title: 'Departure info',
+                    text: props.ipfs.cdmData.depInfo.split('/').join(' | '),
+                }]"
+            />
         </ui-data-container>
 
         <ui-notification
@@ -259,13 +268,6 @@ const secondBlocks = computed(() => {
             title: 'Status',
             value: status.value,
             hint: statusHint.value,
-        });
-    }
-
-    if (props.ipfs.cdmData.depInfo) {
-        items.push({
-            title: 'Departure info',
-            value: props.ipfs.cdmData.depInfo.split('/').join(' | '),
         });
     }
 

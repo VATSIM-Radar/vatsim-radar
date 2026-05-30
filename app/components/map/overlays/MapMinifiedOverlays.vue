@@ -4,7 +4,7 @@
         class="minified-overlays"
         :class="{
             'minified-overlays--procedures': hasProcedures,
-            'minified-overlays--top-left': !isMobile && store.mapSettings.overlaysPositions === 'top-left',
+            'minified-overlays--top-left': !isMobile && overlaysPositions === 'top-left',
         }"
     >
         <transition-group name="minified-overlays--appear">
@@ -106,7 +106,7 @@ import { getPilotStatus } from '~/composables/vatsim/pilots';
 
 const isMobile = useIsMobile();
 const isTouch = useIsTouch();
-const store = useStore();
+const overlaysPositions = useSettingValueFromFunc('map.preferences.overlaysPositions');
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 

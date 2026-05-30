@@ -39,7 +39,7 @@ const tab = ref('friends');
 const store = useStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
 
-if (!store.friends.length || (store.localSettings.featuredDefaultBookmarks && store.bookmarks.length)) tab.value = 'bookmarks';
+if (!store.friends.length || (getKeyedValueFromSettings('map.preferences.featuredDefaultBookmarks') && store.bookmarks.length)) tab.value = 'bookmarks';
 </script>
 
 <style scoped lang="scss">

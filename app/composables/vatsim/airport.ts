@@ -266,13 +266,12 @@ export const getAirportCountry = (icao?: string | null) => {
 type AircraftType = MapAircraftKeys | 'training';
 
 export function getAirportCounters(counters: MapAircraftList) {
-    const store = useStore();
     const dataStore = useDataStore();
     const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
 
-    const departuresMode = store.mapSettings.airportsCounters?.departuresMode ?? 'ground';
-    const arrivalsMode = store.mapSettings.airportsCounters?.syncDeparturesArrivals ? departuresMode : store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground';
-    const prefilesMode = store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles';
+    const departuresMode = getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode');
+    const arrivalsMode = getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals') ? departuresMode : getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode');
+    const prefilesMode = getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter');
 
     let departures: VatsimShortenedAircraft[] = [];
     let arrivals: VatsimShortenedAircraft[] = [];
@@ -286,7 +285,7 @@ export function getAirportCounters(counters: MapAircraftList) {
 
     let groundDep = countersAircraft.groundDep;
 
-    if (!store.mapSettings.airportsCounters?.disableTraining) {
+    if (!getKeyedValueFromSettings('map.preferences.airports.counters.disableTraining')) {
         training = countersAircraft?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
         if (groundDep) groundDep = groundDep.filter(x => !training.some(y => y.cid === x.cid));
     }

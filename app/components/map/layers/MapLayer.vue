@@ -9,7 +9,6 @@ import { XYZ } from 'ol/source.js';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
@@ -76,7 +75,7 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
     lightNL = 'clxpykjoh00nj01pcgmrudq8q',
 }*/
 
-const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
+const isLabels = useSettingValueFromFunc('map.layers.layerLabels');
 
 const route = useRoute();
 
@@ -87,20 +86,9 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
         };
     }
 
-    let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
+    let layer = getKeyedValueFromSettings('map.layers.layer');
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
-
-    if (layer === 'SatelliteEsri' && isProductionMode()) {
-        layer = 'protoData';
-        setUserLocalSettings({
-            filters: {
-                layers: {
-                    layer: 'protoData',
-                },
-            },
-        });
-    }
 
     if (layer === 'basic') {
         return {
@@ -110,7 +98,7 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
 
     if (!(layer in externalLayers)) {
         const isGeneral = layer === 'protoGeneral';
-        const isGrayscale = store.getCurrentTheme === 'default' ? false : store.localSettings.filters?.layers?.layer === 'protoDataGray';
+        const isGrayscale = store.getCurrentTheme === 'default' ? false : getKeyedValueFromSettings('map.layers.layer') === 'protoDataGray';
 
         let theme: IPMLayer['theme'];
 
@@ -148,15 +136,18 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
 });
 const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl + ('theme' in layer.value ? layer.value.theme : ''));
 
-const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
+const transparencySettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.layers.transparency.osm'),
+    getKeyedValueFromSettings('map.layers.transparency.satellite'),
+]));
 
 const opacity = computed(() => {
-    switch (store.localSettings.filters?.layers?.layer) {
+    switch (getKeyedValueFromSettings('map.layers.layer')) {
         case 'OSM':
-            return store.localSettings.filters.layers.transparencySettings?.osm || 0.5;
+            return getKeyedValueFromSettings('map.layers.transparency.osm');
         case 'Satellite':
         case 'SatelliteEsri':
-            return store.localSettings.filters.layers.transparencySettings?.satellite || 0.3;
+            return getKeyedValueFromSettings('map.layers.transparency.satellite');
         default:
             return 1;
     }

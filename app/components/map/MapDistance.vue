@@ -31,8 +31,7 @@ import { getLength } from 'ol/sphere.js';
 import type { Geometry } from 'ol/geom.js';
 import { LineString, Point } from 'ol/geom.js';
 import { unByKey } from 'ol/Observable.js';
-import VectorLayer from 'ol/layer/Vector';
-import { useStore } from '~/store';
+import VectorLayer from 'ol/layer/Vector.js';
 import {
     calculateHeadingPair,
     buildHeadingStyles,
@@ -47,7 +46,6 @@ import { createMapFeature } from '~/utils/map/entities';
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const store = useStore();
 
 let drawing: Draw | null = null;
 
@@ -87,10 +85,9 @@ const formatLength = function(line: Geometry) {
 
     let unit: keyof typeof units = 'nmi';
 
-    if (store.localSettings.distance?.units) {
-        if (store.localSettings.distance.units === 'imperial') unit = 'mi';
-        if (store.localSettings.distance.units === 'metric') unit = 'km';
-    }
+    const selectedUnit = getKeyedValueFromSettings('map.layers.distance.units');
+    if (selectedUnit === 'imperial') unit = 'mi';
+    if (selectedUnit === 'metric') unit = 'km';
 
     const u = units[unit](meters);
     return `${ u.value.toFixed(1) } ${ u.suffix }`;
@@ -111,7 +108,7 @@ const drawStyle = (feature: FeatureLike) => {
     return [lineStyle, ...buildHeadingStyles({ map, geometry, drawing: true })];
 };
 
-watch(() => store.localSettings.distance?.units, () => {
+watch(() => getKeyedValueFromSettings('map.layers.distance.units'), () => {
     features.value = [];
     updateItems();
 });

@@ -8,7 +8,7 @@
             @appendClick="[(focused = !focused), emit('appendClick', $event)]"
             @change="updateModel(receivedValue)"
             @prependClick="emit('prependClick', $event)"
-            @update:modelValue="!focused ? undefined : (receivedValue = $event?.toUpperCase() ?? '')"
+            @update:modelValue="!focused ? undefined : (receivedValue = typeof $event === 'string' ? $event.toUpperCase() : ($event ?? ''))"
         >
             <slot/>
 
@@ -19,7 +19,7 @@
                 <slot name="prepend"/>
             </template>
 
-            <template #append>
+            <template v-if="getSuggestions.length" #append>
                 <div class="filter-box__append">
                     <div
                         v-if="$slots.append"
@@ -69,7 +69,7 @@
                         model-value
                         @update:modelValue="model = model.filter(x => x !== chip)"
                     >
-                        {{chip}}
+                        {{suggestions.find(x => x.value === chip)?.text ?? chip}}
                     </ui-chip>
                 </div>
             </template>

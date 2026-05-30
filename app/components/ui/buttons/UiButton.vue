@@ -147,6 +147,7 @@ const getAttrs = computed(() => {
 
 <style scoped lang="scss">
 .button {
+    --text-primary-color: currentColor;
     cursor: pointer;
     user-select: none;
 

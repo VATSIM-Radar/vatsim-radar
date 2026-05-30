@@ -3,13 +3,6 @@
         v-if="notamsList.length"
         class="__info-sections notams"
     >
-        <ui-select
-            :items="sortOptions"
-            :model-value="store.localSettings.filters?.notamsSortBy ?? null"
-            placeholder="Sort By"
-            width="100%"
-            @update:modelValue="setUserLocalSettings({ filters: { notamsSortBy: $event as any } })"
-        />
         <ui-copy-info :text="notamsList.map(x => x.formattedText ?? x.text).join('\n\n')"/>
         <div
             v-for="({ title, items }) in notams"
@@ -81,18 +74,15 @@
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
-import type { NotamsSortBy } from '~/types/map';
-import type { SelectItem } from '~/types/components/select';
-import UiSelect from '~/components/ui/inputs/UiSelect.vue';
-import { useStore } from '~/store';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 const data = injectAirport();
+const notamsSortBy = useSettingValueFromFunc('appearance.notamsSortBy');
 const notamsList = computed(() => {
     const list = data.value.notams ?? [];
-    const sortBy = store.localSettings.filters?.notamsSortBy ?? null;
+    const sortBy = notamsSortBy.value;
 
     if (sortBy) {
         return list.slice(0).sort((a, b) => {
@@ -149,8 +139,6 @@ const notams = computed(() => {
 
     return groups;
 });
-const store = useStore();
-
 const getNotamType = (type: VatsimAirportDataNotam['type']) => {
     switch (type) {
         case 'C':
@@ -163,25 +151,6 @@ const getNotamType = (type: VatsimAirportDataNotam['type']) => {
 
     return '';
 };
-
-const sortOptions: SelectItem[] = Object.values({
-    startAsc: {
-        value: 'startAsc',
-        text: 'Effective From (oldest)',
-    },
-    startDesc: {
-        value: 'startDesc',
-        text: 'Effective From (newest, default)',
-    },
-    endAsc: {
-        value: 'endAsc',
-        text: 'Effective To (oldest)',
-    },
-    endDesc: {
-        value: 'endDesc',
-        text: 'Effective To (newest)',
-    },
-} satisfies Record<NotamsSortBy, SelectItem>);
 
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
