@@ -74,6 +74,8 @@ import DashboardEditPopup from '~/components/features/dashboard/DashboardEditPop
 import PlusIcon from '@/assets/icons/kit/plus.svg?component';
 import { MAX_DASHBOARDS } from '~/utils/shared';
 import type { UserDashboard } from '~/utils/server/handlers/dashboards';
+import { useDataStore } from '~/composables/render/storage';
+import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 
 const store = useStore();
 const route = useRoute();
@@ -98,17 +100,17 @@ function openCreate(airport: string | null = null) {
 
 onMounted(async () => {
     if (!store.user) return;
+    if (!useDataStore().vatspy.value) {
+        checkForUpdates().then(() => checkForVATSpy()).catch(() => {});
+    }
 
     await store.fetchDashboards();
 
-    // ?new=1 (optionally with ?airport=ICAO) opens the create window pre-filled.
-    // This is how the airport overlay's "Create Dashboard" button deep-links here.
+
     if (route.query.new === '1') {
         const airport = typeof route.query.airport === 'string' ? route.query.airport.toUpperCase() : null;
         openCreate(airport);
-
-        // Strip the one-shot params so a refresh or back-navigation doesn't reopen the editor.
-        router.replace({ query: {} });
+        await router.replace({ query: {} });
     }
 });
 </script>

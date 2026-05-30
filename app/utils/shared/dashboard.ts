@@ -24,9 +24,9 @@ export type DashboardMapSize = typeof dashboardMapSizes[number];
 export const dashboardDisplayModes = ['both', 'map', 'aircraft'] as const;
 export type DashboardDisplayMode = typeof dashboardDisplayModes[number];
 
-const icaoSchema = v.pipe(v.string(), v.trim(), v.toUpperCase(), v.regex(/^[A-Z0-9]{2,4}$/));
+export const icaoSchema = v.pipe(v.string(), v.trim(), v.toUpperCase(), v.regex(/^[A-Z0-9]{2,4}$/));
 
-const enrouteCallsignSchema = v.pipe(v.string(), v.trim(), v.toUpperCase(), v.regex(/^(?=.{2,12}$)[A-Z0-9-]+(?:_[A-Z0-9-]+){0,2}$/));
+export const enrouteCallsignSchema = v.pipe(v.string(), v.trim(), v.toUpperCase(), v.regex(/^(?=.{2,12}$)[A-Z0-9-]+(?:_[A-Z0-9-]+){0,2}$/));
 
 const colorSchema = v.pipe(v.string(), v.regex(hexColorRegex));
 
