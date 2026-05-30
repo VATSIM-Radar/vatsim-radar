@@ -904,7 +904,9 @@ await setupDataFetch({
             const airports = store.config.airports.map(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x]).filter(x => x);
 
             if (airports.length) {
-                projectionExtent = buffer(boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat]))), 0.5);
+                const baseExtent = boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat])));
+                const padding = Math.max(baseExtent[2] - baseExtent[0], baseExtent[3] - baseExtent[1], 400000) * 0.75;
+                projectionExtent = buffer(baseExtent, padding);
                 center = toLonLat(getCenter(projectionExtent));
             }
         }
