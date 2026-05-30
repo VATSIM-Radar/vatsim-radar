@@ -8062,9 +8062,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.328":
-  version: 1.5.363
-  resolution: "electron-to-chromium@npm:1.5.363"
-  checksum: 10c0/03792623d703f432f4f985a77ebc07d764e968444a93ec49b35d24552356d7d8848fead9a189479c2a21b6d7b57af80ea2c03ddc88a888cf7ac558e9caa0e621
+  version: 1.5.364
+  resolution: "electron-to-chromium@npm:1.5.364"
+  checksum: 10c0/0371e925fdd112751e091455809ded5f572098ef6acd50fc5a84e932ed6ba8fa71aa63575e736db30f2374ed792a772ff14cb3f9263c407b4bd5bc1861a87953
   languageName: node
   linkType: hard
 
@@ -10015,9 +10015,9 @@ __metadata:
   linkType: hard
 
 "immutable@npm:^5.1.5":
-  version: 5.1.5
-  resolution: "immutable@npm:5.1.5"
-  checksum: 10c0/8017ece1578e3c5939ba3305176aee059def1b8a90c7fa2a347ef583ebbd38cbe77ce1bbd786a5fab57e2da00bbcb0493b92e4332cdc4e1fe5cfb09a4688df31
+  version: 5.1.6
+  resolution: "immutable@npm:5.1.6"
+  checksum: 10c0/79eb033f68ca70fca60fb052c87b5420034e460e306ce9bea2558fd7b5e0b3b59c28c4a4653867305992b4a30e169b353175d78126c1be6ed0113794b27e3317
   languageName: node
   linkType: hard
 
@@ -11867,7 +11867,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuxt@npm:^4.4.6":
+"nuxt@npm:4.4.6":
   version: 4.4.6
   resolution: "nuxt@npm:4.4.6"
   dependencies:
@@ -16256,7 +16256,7 @@ __metadata:
     marked: "npm:18.0.4"
     merge-ranges: "npm:1.0.2"
     metar-taf-parser: "npm:9.1.3"
-    nuxt: "npm:^4.4.6"
+    nuxt: "npm:4.4.6"
     ol: "npm:10.9.0"
     ol-ext: "npm:4.0.38"
     ol-mapbox-style: "npm:13.4.1"
