@@ -320,7 +320,7 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
-import { getSettingValue, useSettingValueFromFunc } from '~/composables/settings/v2/utils';
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils';
 
 const props = defineProps({
     overlay: {

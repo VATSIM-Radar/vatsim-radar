@@ -6,6 +6,7 @@ import { MAX_SETTINGS_PRESETS } from '~/utils/shared';
 import type { UserPreset } from '#prisma';
 import { UserPresetType } from '#prisma';
 import { validateSettings } from '~/utils/settings/validate';
+import { migrateV1Settings } from '~/utils/settings/migration';
 
 export async function handleSettingsEvent(event: H3Event) {
     let userId: number | undefined;
@@ -109,6 +110,13 @@ export async function handleSettingsEvent(event: H3Event) {
 
             if (body.json) {
                 body.json = body.json as Record<string, any>;
+
+                if (!('version' in body.json)) {
+                    body.json = migrateV1Settings({
+                        mapSettings: body.json,
+                    });
+                }
+
                 const validation = validateSettings(body.json);
 
                 if (!validation.success) {

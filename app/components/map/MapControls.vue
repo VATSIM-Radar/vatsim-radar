@@ -88,7 +88,6 @@ import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
-const distanceEnabled = useSettingValueFromFunc('map.layers.distance.enabled');
 const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
 const isMobile = useIsMobile();

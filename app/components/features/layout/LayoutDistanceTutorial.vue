@@ -40,11 +40,9 @@
 
 <script setup lang="ts">
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const mapStore = useMapStore();
 const settingsItems = getSettingsItems().value;
-const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
 </script>

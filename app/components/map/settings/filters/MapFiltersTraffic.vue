@@ -89,8 +89,6 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 
 const store = useStore();
-const skipBookmarkAnimation = useSettingValueFromFunc('map.preferences.skipBookmarkAnimation');
-const disableFastUpdate = useSettingValueFromFunc('map.traffic.disableFastUpdate');
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 

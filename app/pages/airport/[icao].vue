@@ -605,7 +605,7 @@ const controllerColumns = computed(() => {
                 darkColor = true;
                 break;
             case 'groundArr':
-                color = radarColors.error300;
+                color = radarColors.citrus500;
                 break;
         }
 

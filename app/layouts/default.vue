@@ -15,6 +15,7 @@
             <slot/>
         </div>
         <layout-update-popup/>
+        <layout-preset-import/>
         <div
             v-if="!store.config.hideFooter"
             class="app_footer"
@@ -62,6 +63,7 @@ import LayoutConsent from '~/components/features/layout/LayoutConsent.vue';
 import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.vue';
 import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceTutorial.vue';
 import { setAircraftDefaultColors } from '~/composables/settings/v2/utils';
+import LayoutPresetImport from '~/components/features/layout/LayoutPresetImport.vue';
 
 defineSlots<{ default: () => any }>();
 

@@ -27,7 +27,6 @@ import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import EventCard from '~/components/features/events/EventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
@@ -57,11 +56,6 @@ function getDate(_date: string) {
 
     return `${ weekday.value.format(date) }, ${ datetime.value.format(date) }`;
 }
-
-const timezone = new Intl.DateTimeFormat(['de-DE'], {
-    day: '2-digit',
-    timeZoneName: 'shortOffset',
-});
 
 const currentDate = ref(Date.now());
 

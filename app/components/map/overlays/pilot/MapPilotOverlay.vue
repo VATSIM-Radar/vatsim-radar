@@ -286,7 +286,6 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
-import UiNotification from '~/components/ui/data/UiNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
@@ -332,7 +331,6 @@ const collapsedPhoto = useCookie<boolean>('collapsedPhoto', {
 const copy = useCopyText();
 
 const store = useStore();
-const showFullRoute = useSettingValueFromFunc('map.traffic.showFullRoute');
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const dataStore = useDataStore();
 const mapStore = useMapStore();

@@ -50,12 +50,14 @@
                 Map Settings Reset
             </template>
 
-            You are about to reset your local settings to defaults. This action is permanent.
+            You are about to reset your local settings to defaults. This action is permanent.<br><br>
+
+            Also, it will set "Auto Update" to "off".
 
             <template #actions>
                 <ui-button
                     type="secondary"
-                    @click="[settingsStore.save({}, { overwrite: true, autoSave: false }), resetActive = false]"
+                    @click="[settingsStore.setAutoSave(false), settingsStore.save({}, { overwrite: true, autoSave: false }), resetActive = false]"
                 >
                     Confirm reset
                 </ui-button>
@@ -87,6 +89,7 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { backupSettings } from '~/composables/settings';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import { useRadarError } from '~/composables/errors';
+import { useSettingsStore } from '~/store/settings';
 
 const store = useStore();
 const settingsStore = useSettingsStore();
@@ -94,6 +97,8 @@ const resetActive = ref(false);
 const presetImport = useTemplateRef('presetImport');
 
 const createSettingsPreset = async (name: string, json: UserSettingsV2Partial) => {
+    // Created manually
+    if (!store.presetImport.preset) json.version = '2.0';
     const preset = await sendUserPreset(name, json, 'settings/v2', () => createSettingsPreset(name, json));
     await refresh();
     settingsStore.activeSettingsPreset = settingsStore.settingsPresets.find(x => x.name === name)?.id ?? null;

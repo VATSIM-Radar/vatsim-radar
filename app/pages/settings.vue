@@ -207,7 +207,6 @@ const mapPreview = useCookie<boolean>('map-preview', {
     sameSite: 'none',
     secure: true,
 });
-const settingsStore = useSettingsStore();
 
 const currentItem = computed(() => {
     if (search.value) {

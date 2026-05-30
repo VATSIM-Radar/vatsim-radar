@@ -38,7 +38,6 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const config = useRuntimeConfig();
 
 const showTracks = shallowRef<Record<string, TrackData>>({});
 

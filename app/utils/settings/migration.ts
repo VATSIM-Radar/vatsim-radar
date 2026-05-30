@@ -2,8 +2,58 @@ import type { SigmetType, UserLegacyLocalSettings } from '~/types/map';
 import type { UserMapLegacySettings } from '~/utils/server/handlers/map-settings';
 import type { UserSettings } from '~/utils/server/user';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
+import type { colorsList, legacyColorsList } from '~/utils/colors';
 
 const sigmetTypes = ['TS', 'VA', 'FZLVL', 'WS', 'WIND', 'ICE', 'TURB', 'MTW', 'IFR', 'OBSC', 'CONV'] satisfies SigmetType[];
+const legacyColorToV2Color = {
+    mapSectorBorder: 'darkGray500',
+    divertedBackground: 'red500',
+    divertedTextColor: 'lightGray900',
+
+    lightgray0: 'lightGray100',
+    lightgray50: 'lightGray200',
+    lightgray100: 'lightGray300',
+    lightgray125: 'lightGray400',
+    lightgray150: 'lightGray500',
+    lightgray200: 'lightGray600',
+
+    darkgray1000: 'darkGray900',
+    darkgray950: 'darkGray800',
+    darkgray900: 'darkGray700',
+    darkgray875: 'darkGray600',
+    darkgray850: 'darkGray500',
+    darkgray800: 'darkGray400',
+
+    primary300: 'blue300',
+    primary400: 'blue400',
+    primary500: 'blue500',
+    primary600: 'blue600',
+    primary700: 'blue700',
+
+    success300: 'green700',
+    success400: 'green700',
+    success500: 'green700',
+    success600: 'green800',
+    success700: 'green800',
+
+    warning300: 'orange400',
+    warning400: 'orange400',
+    warning500: 'orange500',
+    warning600: 'orange500',
+    warning700: 'orange600',
+
+    error300: 'citrus600',
+    error400: 'citrus600',
+    error500: 'citrus700',
+    error600: 'citrus700',
+    error700: 'citrus700',
+
+    info300: 'purple400',
+    info400: 'purple500',
+    info500: 'purple500',
+    info600: 'purple600',
+    info700: 'purple700',
+} satisfies Record<keyof typeof legacyColorsList, keyof typeof colorsList>;
 
 function setValue(settings: UserSettingsV2Partial, path: string, value: unknown) {
     if (value === undefined) return;
@@ -26,6 +76,25 @@ function setValue(settings: UserSettingsV2Partial, path: string, value: unknown)
 
 function setInvertedBoolean(settings: UserSettingsV2Partial, path: string, value: boolean | undefined) {
     if (typeof value === 'boolean') setValue(settings, path, !value);
+}
+
+function migrateLegacyColor(color: string): string {
+    return legacyColorToV2Color[color as keyof typeof legacyColorToV2Color] ?? color;
+}
+
+function migrateLegacyColors<T>(value: T): T {
+    if (!value || typeof value !== 'object') return value;
+    if (Array.isArray(value)) return value.map(migrateLegacyColors) as T;
+
+    const result: Record<string, unknown> = {};
+
+    for (const [key, item] of Object.entries(value)) {
+        result[key] = key === 'color' && typeof item === 'string'
+            ? migrateLegacyColor(item)
+            : migrateLegacyColors(item);
+    }
+
+    return result as T;
 }
 
 export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSettings = {} }: {
@@ -121,8 +190,8 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.preferences.airports.counters.disableTraining', mapSettings.airportsCounters?.disableTraining);
     setValue(settings, 'map.preferences.airports.showLimit', mapSettings.airportCounterLimit);
 
-    setValue(settings, 'map.preferences.colors.light', mapSettings.colors?.light);
-    setValue(settings, 'map.preferences.colors.default', mapSettings.colors?.default);
+    setValue(settings, 'map.preferences.colors.light', migrateLegacyColors(mapSettings.colors?.light));
+    setValue(settings, 'map.preferences.colors.default', migrateLegacyColors(mapSettings.colors?.default));
     setValue(settings, 'map.preferences.colors.turns', mapSettings.colors?.turns);
     setValue(settings, 'map.preferences.colors.turnsTransparency', mapSettings.colors?.turnsTransparency);
 

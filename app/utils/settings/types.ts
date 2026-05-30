@@ -16,6 +16,7 @@ import type { RecursivePartial } from '~/types';
 import type { UserPreset } from '#prisma';
 
 export interface UserSettingsV2 {
+    version: '2.0';
     appearance: {
         theme?: 'light' | 'default' | null;
         headerName: string;

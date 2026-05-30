@@ -19,8 +19,6 @@ function colorToRgb(hex: string): [r: number, g: number, b: number] | null {
 }
 
 export default defineNuxtModule((_, nuxt) => {
-    if (process.argv.includes('typecheck')) return;
-
     let scss = `@use 'sass:color';@use 'sass:map';@use 'sass:string';@function toRawRGB($color) {
     @return string.unquote(color.channel($color, "red") + ', ' + color.channel($color, "green") + ', ' + color.channel($color, "blue"));
 }`;

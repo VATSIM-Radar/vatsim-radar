@@ -12,7 +12,6 @@ import type {
 } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { UserMapPreset } from '~/utils/server/handlers/map-settings';
 import type {
     UserListLive,
     UserListLiveUser,
@@ -78,7 +77,6 @@ export const useStore = defineStore('index', {
         version: '',
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
-        mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
 
         filter: {} as UserFilter,

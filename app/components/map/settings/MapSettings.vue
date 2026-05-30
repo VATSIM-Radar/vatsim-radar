@@ -236,7 +236,7 @@ import DebugIcon from '~/assets/icons/kit/debug.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 import PopupAside from '~/components/popups/PopupAside.vue';
-import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
+import { MAX_FILTERS } from '~/utils/shared';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';

@@ -154,7 +154,6 @@ import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThem
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
-import { useStore } from '~/store';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import DocsIcon from 'assets/icons/basic/docs.svg?component';

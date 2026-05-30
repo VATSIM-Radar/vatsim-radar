@@ -123,6 +123,8 @@ const themeColorsSchema = partialObject({
 });
 
 const settingsSchema = partialObject({
+    version: v.pipe(v.string('must be a string'), list(['2.0'], 'must contain version number')),
+
     appearance: partialObject({
         headerName: v.pipe(v.string('must be a string'), v.maxLength(30, 'must be 30 characters or shorter')),
         theme: v.nullable(list(['default', 'light'], 'must be either default, light or null')),

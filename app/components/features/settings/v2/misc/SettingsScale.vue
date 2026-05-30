@@ -46,8 +46,6 @@ const icons = [
     { icon: radarIcons.a320, svg: await fetchAircraftSvgIcon('a320') },
     { icon: radarIcons.a388, svg: await fetchAircraftSvgIcon('a388') },
 ];
-
-const store = useStore();
 </script>
 
 <style scoped lang="scss">

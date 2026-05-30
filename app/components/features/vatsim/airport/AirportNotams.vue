@@ -74,9 +74,6 @@
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
-import type { NotamsSortBy } from '~/types/map';
-import type { SelectItem } from '~/types/components/select';
-import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
@@ -154,25 +151,6 @@ const getNotamType = (type: VatsimAirportDataNotam['type']) => {
 
     return '';
 };
-
-const sortOptions: SelectItem[] = Object.values({
-    startAsc: {
-        value: 'startAsc',
-        text: 'Effective From (oldest)',
-    },
-    startDesc: {
-        value: 'startDesc',
-        text: 'Effective From (newest, default)',
-    },
-    endAsc: {
-        value: 'endAsc',
-        text: 'Effective To (oldest)',
-    },
-    endDesc: {
-        value: 'endDesc',
-        text: 'Effective To (newest)',
-    },
-} satisfies Record<NotamsSortBy, SelectItem>);
 
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',

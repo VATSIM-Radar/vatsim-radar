@@ -120,7 +120,6 @@ import type { UserListLive, UserListLiveUser } from '~/utils/server/handlers/lis
 import { useStore } from '~/store';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import SettingsUserStatus from '~/components/features/settings/v2/lists/SettingsUserStatus.vue';
 
 const props = defineProps({
@@ -133,11 +132,9 @@ const props = defineProps({
 });
 
 const store = useStore();
-const featuredDefaultBookmarks = useSettingValueFromFunc('map.preferences.featuredDefaultBookmarks');
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 const sortedUsers = shallowRef<UserListLiveUser[]>([]);
-const isMobile = useIsMobile();
 
 onBeforeUnmount(() => {
     if (deletedUsers.size) store.refreshUser();

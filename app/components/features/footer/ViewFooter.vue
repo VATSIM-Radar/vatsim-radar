@@ -266,7 +266,6 @@ import NavigationAirac from '~/components/features/navigation/NavigationAirac.vu
 import QuickSettingsVatGlassesLevel from '~/components/map/settings/quick-settings/QuickSettingsVatGlassesLevel.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiText from '~/components/ui/text/UiText.vue';
@@ -274,7 +273,6 @@ import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import { navigraphAuth } from '~/composables/vatsim/auth';
 
 const store = useStore();
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import type { UserSettingsPreset, UserSettingsV2Partial } from '~/utils/settings/types';
 import { onSettingChange } from '~/composables/settings/v2/utils';
-import type { UserMapPreset } from '~/utils/server/handlers/map-settings';
 import { sendUserPreset } from '~/composables/fetchers';
 
 export const isSettingsAutoSave = globalComputed(() => useCookie<boolean>('is-settings-auto-save', {
@@ -69,6 +68,7 @@ export const useSettingsStore = defineStore('settings', {
             }
 
             this.settings = overwrite ? settings : customDefu(settings, JSON.parse(localStorage.getItem('settings') ?? '{}'));
+            if (!this.settings.version) this.settings.version = '2.0';
             onSave?.();
             if (!dontSave) {
                 await onSettingChange(autoSave);
