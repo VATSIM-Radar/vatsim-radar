@@ -10,13 +10,13 @@ Release notes are expected to change. Some items may be removed, added, or chang
 
 ## Highlights
 
-⚙️ Settings Overhaul
-♾️️ Infinite Map
-🗺️ Map Interaction Rework
-👨‍✈️ Controller Dashboard 2.0
-🚀 Performance Improvements
-✨ Website Redesign
-✈️ New Features and Improvements
+- ⚙️ Settings Overhaul
+- ♾️️ Infinite Map
+- 🗺️ Map Interaction Rework
+- 👨‍✈️ Controller Dashboard 2.0
+- 🚀 Performance Improvements
+- ✨ Website Redesign
+- ✈️ New Features and Improvements
 
 ### Settings Overhaul
 
