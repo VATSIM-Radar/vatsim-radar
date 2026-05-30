@@ -176,7 +176,7 @@ export async function handleSettingsEvent(event: H3Event) {
                     },
                 });
 
-                if (userPresets > MAX_SETTINGS_PRESETS) {
+                if (userPresets >= MAX_SETTINGS_PRESETS) {
                     return handleH3Error({
                         event,
                         statusCode: 400,

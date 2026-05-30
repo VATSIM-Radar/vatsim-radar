@@ -132,10 +132,12 @@ async function migrate() {
             await Promise.all(targetPresets.map(x => $fetch(`/api/user/settings/v2/${ x.id }`, {
                 method: 'PUT',
                 body: {
-                    json: migratedJson,
+                    json: customDefu(x.json, migratedJson),
                 },
             })));
         }
+
+        await settingsStore.fetchPresets();
 
         if (localDecision.value && localSettings.value && localDecision.value !== 'skip') {
             const targetPresets = typeof localDecision.value === 'number' ? [settingsStore.settingsPresets.find(x => x.id === localDecision.value)!] : settingsStore.settingsPresets;
@@ -146,7 +148,7 @@ async function migrate() {
             await Promise.all(targetPresets.map(x => $fetch(`/api/user/settings/v2/${ x.id }`, {
                 method: 'PUT',
                 body: {
-                    json: migratedJson,
+                    json: customDefu(x.json, migratedJson),
                 },
             })));
         }

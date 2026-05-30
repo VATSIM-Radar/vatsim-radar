@@ -80,6 +80,7 @@ export const useSettingsStore = defineStore('settings', {
         },
         setPreset(id: number) {
             settingsActivePreset().value.value = id;
+            this.activeSettingsPreset = id;
         },
     },
 });
