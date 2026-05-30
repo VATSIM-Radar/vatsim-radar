@@ -240,7 +240,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.visibility.pilotLabels', mapSettings.visibility?.pilotLabels);
 
     setValue(settings, 'map.bookings.enabled', mapSettings.visibility?.bookings);
-    setValue(settings, 'map.bookings.hours', mapSettings.bookingHours);
+    setValue(settings, 'map.bookings.hours', typeof mapSettings.bookingHours === 'string' ? parseInt(mapSettings.bookingHours) : mapSettings.bookingHours);
     setValue(settings, 'map.events.enabled', mapSettings.visibility?.events);
     setValue(settings, 'map.events.hours', mapSettings.eventsHours);
 
