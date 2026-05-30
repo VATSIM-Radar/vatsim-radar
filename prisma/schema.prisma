@@ -82,6 +82,9 @@ model UserPreset {
   userId Int
   user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])
   lists  UserPresetList[]
+
+  @@index([userId, type])
+  @@index([type])
 }
 
 model UserPresetList {

@@ -7,7 +7,7 @@
 
             <ui-toggle :model-value="settingsStore.autoSave" @update:modelValue="settingsStore.setAutoSave"/>
         </ui-setting-display>
-        <ui-setting-display>
+        <ui-setting-display v-if="settingsStore.settingsPresets.length < MAX_SETTINGS_PRESETS">
             <template #title>
                 Import Preset
             </template>
