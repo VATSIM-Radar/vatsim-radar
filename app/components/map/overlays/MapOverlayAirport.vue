@@ -248,9 +248,15 @@
             <ui-button-group>
                 <ui-button :to="`/airport/${ airport.icao }`">
                     <template #icon>
-                        <data-icon/>
+                        <airport-icon/>
                     </template>
-                    Dashboard
+                    Airport
+                </ui-button>
+                <ui-button :to="`/dashboard?new=1&airport=${ airport.icao }`">
+                    <template #icon>
+                        <dashboard-icon/>
+                    </template>
+                    Create Dashboard
                 </ui-button>
                 <ui-button
                     :disabled="!airport || airport.isPseudo"
@@ -291,7 +297,7 @@ import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
-import { getPilotStatus } from '../../../composables/vatsim/pilots';
+import { getPilotStatus } from '~/composables/vatsim/pilots';
 import { useStore } from '~/store';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/vatsim/airport';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
@@ -303,7 +309,8 @@ import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraf
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import DataIcon from '@/assets/icons/kit/data.svg?component';
+import AirportIcon from '@/assets/icons/kit/airport-dest.svg?component';
+import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
@@ -695,7 +702,6 @@ onMounted(() => {
         }
 
         &_question {
-            align-self: center;
             align-self: flex-start;
             margin-top: 3px;
         }

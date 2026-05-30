@@ -48,113 +48,12 @@
                 />
             </div>
             <div class="airport_header_section">
-                <ui-toggle v-model="controllerMode">
-                    Controller Mode
-                </ui-toggle>
-            </div>
-            <div class="airport_header_section">
                 <ui-toggle v-model="arrivalTracks">
                     Arrival Tracks
                 </ui-toggle>
             </div>
-            <div
-                v-if="controllerMode"
-                class="airport_header_section"
-            >
-                <ui-select
-                    v-model="displayedColumns"
-                    :items="displayableColumns"
-                    multiple
-                    placeholder="Displayed columns"
-                    show-placeholder
-                    width="200px"
-                />
-            </div>
-            <div
-                v-if="controllerMode"
-                class="airport_header_section"
-            >
-                <ui-toggle
-                    v-model="showPilotStats"
-                >
-                    Show pilot stats
-                </ui-toggle>
-            </div>
         </div>
-        <div
-            v-if="controllerMode"
-            class="airport_header"
-        >
-            <div class="airport_header_section">
-                <div class="airport_header__title">
-                    <div class="airport_header__title_label">
-                        Time
-                    </div>
-                    <client-only>
-                        <div class="airport_header__title_name">
-                            {{ formatDateDime.format(dataStore.time.value) }}z
-                        </div>
-                    </client-only>
-                </div>
-            </div>
-            <div
-                v-if="currentQnh"
-                class="airport_header_section airport_header_section--themed"
-            >
-                <div class="airport_header_section--themed_section">
-                    <s
-                        v-if="!changesAck && previousQnh"
-                        @click="changesAck = true"
-                    >{{previousQnh?.value}}</s>
-                    <strong>{{currentQnh.value}}</strong> {{currentQnh.unit}}
-                </div>
-                <div
-                    v-if="currentAtisLetter?.departure || currentAtisLetter?.arrival"
-                    class="airport_header_section--themed_section"
-                >
-                    <div
-                        v-if="currentAtisLetter.departure"
-                        class="airport_header_section--themed_section_item"
-                    >
-                        {{currentAtisLetter.departure}}
-                    </div>
-                    <div
-                        v-if="currentAtisLetter.arrival"
-                        class="airport_header_section--themed_section_item"
-                    >
-                        {{currentAtisLetter.arrival}}
-                    </div>
-                </div>
-            </div>
-            <div
-                v-if="currentMetar"
-                class="airport_header_section airport__metar"
-            >
-                <template v-if="previousMetar">
-                    <div
-                        class="airport__metar_arrow airport__metar_arrow--prev"
-                        :class="{ 'airport__metar_arrow--disabled': !previousMetar || showPreviousMetar }"
-                        @click="previousMetar && (showPreviousMetar = true)"
-                    >
-                        <arrow-top-icon/>
-                    </div>
-                    <div
-                        class="airport__metar_arrow airport__metar_arrow--next"
-                        :class="{ 'airport__metar_arrow--disabled': !showPreviousMetar }"
-                        @click="showPreviousMetar = false"
-                    >
-                        <arrow-top-icon/>
-                    </div>
-                </template>
-                <div class="airport__metar_text">
-                    {{showPreviousMetar ? previousMetar : currentMetar}}
-                </div>
-            </div>
-        </div>
-        <div
-            v-if="!controllerMode"
-            class="airport_sections"
-        >
+        <div class="airport_sections">
             <div class="airport_column">
                 <div class="airport_column_data">
                     <div class="airport_column__title">
@@ -232,51 +131,6 @@
             </div>
         </div>
         <div
-            v-else
-            class="airport_sections"
-            :class="[`airport_sections--aircraft-cols-${ controllerColumns.length }`]"
-        >
-            <div
-                v-for="column in controllerColumns"
-                :key="column.key"
-                class="airport_column"
-                :style="{ '--color': column.color }"
-            >
-                <div class="airport_column_data">
-                    <div class="airport_column__title">
-                        <div class="airport__aircraft-title">
-                            <div class="airport__aircraft-title_text">
-                                {{ column.title }}
-                            </div>
-                            <div
-                                v-if="column.key === 'arrivals'"
-                                class="airport__aircraft-title_interval"
-                            >
-                                <vatsim-traffic-rate
-                                    :aircraft="aircraft"
-                                    :icon-color="radarColors.orange500"
-                                    :text-color="radarColors.orange500"
-                                    :use-opacity="store.theme === 'default'"
-                                />
-                            </div>
-                            <ui-bubble
-                                class="airport__aircraft-title_bubble"
-                                :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
-                            >
-                                {{ aircraft?.[column.key]?.length ?? 0 }}
-                            </ui-bubble>
-                        </div>
-                    </div>
-                    <airport-aircraft
-                        v-if="ready"
-                        v-model:selected="selectedPilot"
-                        in-dashboard
-                        :simple-mode="column.key"
-                    />
-                </div>
-            </div>
-        </div>
-        <div
             v-if="mapLayouts[mapMode ?? 'default'].map !== '0'"
             :key="store.theme"
             class="airport_map"
@@ -320,8 +174,6 @@ import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
-import { parseMetar } from 'metar-taf-parser';
-import type { IAltimeter } from 'metar-taf-parser';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { Ref } from 'vue';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
@@ -330,17 +182,14 @@ import { useStore } from '~/store';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
-import { useShowPilotStats } from '~/composables/vatsim/pilots';
+import type { MapAircraftMode } from '~/types/map';
 import AirportPilot from '~/components/features/vatsim/airport/AirportPilot.vue';
-import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import { useRadarError } from '~/composables/errors';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
@@ -419,12 +268,6 @@ watch(selectedPilot, async () => {
     }
 });
 
-const formatDateDime = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
 const aircraftMode = ref<MapAircraftMode | null>(null);
 const aircraftModes: SelectItem<MapAircraftMode>[] = [
     {
@@ -453,13 +296,6 @@ const aircraftModes: SelectItem<MapAircraftMode>[] = [
     },
 ];
 
-const displayedColumns = ref<MapAircraftKeys[]>(['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr']);
-// const displayedColumns = useCookie<MapAircraftKeys[]>('dashboard-displayed-columns', {
-//     sameSite: 'strict',
-//     secure: true,
-//     default: () => ['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr'],
-// });
-
 watch(() => dataStore.navigraphProcedures.value[airportData.value?.icao ?? ''], async () => {
     if (airportMapFrame.value) {
         await sleep(1000);
@@ -472,43 +308,12 @@ watch(() => dataStore.navigraphProcedures.value[airportData.value?.icao ?? ''], 
     deep: 3,
 });
 
-const displayableColumns: SelectItem<MapAircraftKeys>[] = [
-    {
-        value: 'prefiles',
-        text: 'Prefiles',
-    },
-    {
-        value: 'groundDep',
-        text: 'Departing',
-    },
-    {
-        value: 'departures',
-        text: 'Departed',
-    },
-    {
-        value: 'arrivals',
-        text: 'Arriving',
-    },
-    {
-        value: 'groundArr',
-        text: 'Landed',
-    },
-];
-
 type MapMode = 'default' | 'dashBigMapBig' | 'dashSmallMapBig' | 'dashBigMapSmall' | 'dashOnly' | 'mapOnly';
 const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     sameSite: 'none',
     secure: true,
     watch: false,
     default: () => null,
-    path: '/',
-});
-
-const controllerMode = useCookie<boolean>('controller-mode', {
-    sameSite: 'none',
-    secure: true,
-    watch: false,
-    default: () => false,
     path: '/',
 });
 
@@ -520,7 +325,7 @@ function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | '
     if (isMobileOrTablet.value) return `${ height }vh`;
 
     let calculatedHeight = `calc(${ height }vh`;
-    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - ${ controllerMode.value ? '32px - 16px' : '0px' } - 16px)`;
+    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - 16px)`;
     else if (type === 'map') calculatedHeight += ` - 16px)`;
     else if (type === 'alone') calculatedHeight += ` - (32px + 56px) - 16px)`;
     else calculatedHeight += ')';
@@ -582,42 +387,6 @@ const mapModes: SelectItem<MapMode>[] = [
     },
 ];
 
-const controllerColumns = computed(() => {
-    return displayableColumns.filter(x => !displayedColumns.value.length || displayedColumns.value.includes(x.value)).map(x => {
-        // getPilotStatus
-
-        let color: string;
-        let darkColor = false;
-
-        switch (x.value) {
-            case 'prefiles':
-                color = radarColors.lightGray600;
-                darkColor = store.theme === 'default';
-                break;
-            case 'groundDep':
-                color = radarColors.green500;
-                break;
-            case 'departures':
-                color = radarColors.blue700;
-                break;
-            case 'arrivals':
-                color = radarColors.orange500;
-                darkColor = true;
-                break;
-            case 'groundArr':
-                color = radarColors.error300;
-                break;
-        }
-
-        return {
-            title: x.text,
-            key: x.value,
-            color,
-            darkColor,
-        };
-    });
-});
-
 const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     sameSite: 'none',
     secure: true,
@@ -626,17 +395,12 @@ const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     path: '/',
 });
 
-const showPilotStats = useShowPilotStats();
-
 const settings = computed(() => ({
     zoom: mapQuery.value?.zoom,
     aircraft: aircraftMode.value,
     info: airportTab.value,
     weather: weatherTab.value,
-    columns: displayedColumns.value.join(','),
     mode: mapMode.value,
-    controller: Number(controllerMode.value).toString(),
-    stats: Number(showPilotStats.value).toString(),
     tracks: Number(arrivalTracks.value).toString(),
 }) satisfies Record<string, string | null | undefined>);
 
@@ -648,8 +412,6 @@ onMounted(() => {
         const query = route.query[setting];
         if (typeof query !== 'string' || !query.trim()) continue;
 
-        const arr = query.split(',');
-
         switch (setting) {
             case 'aircraft':
                 if (aircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
@@ -659,15 +421,6 @@ onMounted(() => {
                 break;
             case 'weather':
                 if (query === 'metar' || query === 'taf') weatherTab.value = query as any;
-                break;
-            case 'columns':
-                if (arr.every(x => displayedColumns.value.includes(x as any))) displayedColumns.value = arr as any;
-                break;
-            case 'controller':
-                controllerMode.value = query === '1';
-                break;
-            case 'stats':
-                showPilotStats.value = query === '1';
                 break;
             case 'tracks':
                 arrivalTracks.value = query === '1';
@@ -710,50 +463,6 @@ useLazyAsyncData(async () => {
     triggerRef(airportData);
 }, {
     server: false,
-});
-
-type ATISChange = { departure: string | null; arrival: string | null } | null;
-
-const changesAck = ref(true);
-
-const currentAtisLetter = computed<ATISChange>(() => {
-    if (!airportData.value) return null;
-    const atis = atc.value?.filter(x => x.isATIS || x.facility === -1);
-
-    const departure = atis?.length === 1 ? atis[0].atis_code ?? null : (atis?.find(x => x.callsign.endsWith('D_ATIS')) ?? atis[0])?.atis_code ?? null;
-
-    return {
-        departure,
-        arrival: atis?.length === 1 ? null : (atis?.find(x => departure && x.callsign.endsWith('A_ATIS')) ?? atis[1])?.atis_code ?? null,
-    };
-});
-
-const previousQnh = shallowRef<null | IAltimeter>(null);
-const currentQnh = computed(() => {
-    if (!airportData.value?.airport?.metar) return null;
-    const parsedMetar = parseMetar(airportData.value?.airport?.metar);
-    return parsedMetar.altimeter;
-});
-
-const previousMetar = ref<null | string>(null);
-const showPreviousMetar = ref(false);
-const currentMetar = computed(() => {
-    return airportData.value?.airport?.metar ?? null;
-});
-
-watch(currentMetar, (_, oldVal) => {
-    if (!oldVal) return;
-    previousMetar.value = oldVal;
-});
-
-watch(() => currentQnh.value?.value, (_, oldVal) => {
-    if (oldVal && oldVal !== previousQnh.value?.value) {
-        previousQnh.value = {
-            ...currentQnh.value!,
-            value: oldVal,
-        };
-        changesAck.value = false;
-    }
 });
 
 const loadingData = ref(false);
@@ -839,88 +548,6 @@ await setupDataFetch({
         &_section {
             position: relative;
 
-            &--themed {
-                position: relative;
-
-                display: flex;
-                gap: 12px;
-                align-items: center;
-
-                padding: 8px 12px !important;
-                border-radius: 8px;
-
-                font-size: 11px;
-
-                background: $black;
-
-                &::after {
-                    left: calc(100% + 16px) !important;
-                }
-
-                &:not(:last-child) {
-                    margin-right: 16px;
-                }
-
-                &_section, &_section_item {
-                    @include pc {
-                        position: relative;
-
-                        &:not(:last-child) {
-                            padding-right: 12px;
-
-                            &::after {
-                                content: '';
-
-                                position: absolute;
-                                top: calc(50% - 8px);
-                                left: 100%;
-
-                                width: 1px;
-                                height: 16px;
-
-                                background: varToRgba('lightGray500', 0.2);
-                            }
-                        }
-                    }
-                }
-
-                &_section {
-                    display: flex;
-                    gap: 6px;
-                    align-items: center;
-
-                    s, strong {
-                        font-size: 13px;
-                    }
-
-                    s {
-                        cursor: pointer;
-                        color: $lightGray600;
-                        opacity: 0.5;
-                    }
-
-                    strong {
-                        font-weight: 600;
-                        color: $blue500;
-                    }
-
-                    &_item {
-                        &::after {
-                            top: calc(50% - 2px) !important;
-                            left: calc(100% - 2px) !important;
-
-                            width: 4px !important;
-                            height: 4px !important;
-                            border-radius: 100%;
-                        }
-
-                        &:not(:last-child) {
-                            padding-right: 6px;
-                        }
-                    }
-                }
-            }
-
             @include pc {
                 &:not(:last-child) {
                     padding-right: 16px;
@@ -962,69 +589,6 @@ await setupDataFetch({
         }
     }
 
-    &__metar {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-
-        &_arrow {
-            cursor: pointer;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            width: 32px;
-            min-width: 32px;
-            height: 32px;
-            border-radius: 8px;
-
-            background: $darkGray700;
-
-            @include hover {
-                transition: 0.3s;
-
-                &:hover {
-                    background: $darkGray600;
-                }
-            }
-
-            &--disabled {
-                opacity: 0.5;
-                background: $darkGray500;
-
-                &, svg {
-                    pointer-events: none;
-                    cursor: default;
-                }
-            }
-
-            svg {
-                transform: rotate(90deg);
-                width: 10px;
-            }
-
-            &--prev svg {
-                transform: rotate(-90deg);
-            }
-        }
-
-        &_text {
-            user-select: all;
-
-            display: flex;
-            align-items: center;
-
-            min-height: 32px;
-            padding: 4px 12px;
-            border-radius: 8px;
-
-            font-size:  12px;
-
-            background: $darkGray700;
-        }
-    }
-
     &_sections {
         overflow: auto;
         display: flex;
@@ -1034,26 +598,6 @@ await setupDataFetch({
         @include mobile {
             flex-direction: column;
             height: auto;
-        }
-
-        &--aircraft-cols-4, &--aircraft-cols-5 {
-            :deep(.aircraft_list) {
-                flex-direction: column;
-                flex-wrap: nowrap;
-            }
-
-            @include mobile {
-                flex-direction: row;
-                height: var(--dashboard-height);
-
-                .airport_column {
-                    min-width: 400px;
-
-                    @include mobileOnly {
-                        min-width: 80vw;
-                    }
-                }
-            }
         }
     }
 
@@ -1131,35 +675,6 @@ await setupDataFetch({
                 padding-top: 0;
             }
         }
-    }
-
-    &__aircraft-title {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: space-between;
-
-        width: 100%;
-
-        color: var(--color);
-
-        & &_bubble {
-            background: var(--color);
-
-            &--dark {
-                color: $darkGray400Orig;
-            }
-        }
-
-        &_interval {
-            display: flex;
-            gap: 12px;
-
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 100%;
-        }
-
     }
 
     &_map {
