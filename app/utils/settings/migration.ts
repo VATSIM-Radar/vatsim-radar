@@ -127,7 +127,8 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.preferences.searchBy', localSettings.traffic?.searchBy);
     setValue(settings, 'map.preferences.searchLimit', localSettings.traffic?.searchLimit);
 
-    setValue(settings, 'map.layers.weather', localSettings.filters?.layers?.weather2 === false ? null : localSettings.filters?.layers?.weather2);
+    // @ts-expect-error incorrect value can be here sometimes
+    setValue(settings, 'map.layers.weather', (localSettings.filters?.layers?.weather2 === false || localSettings.filters?.layers?.weather2 === 'false') ? null : localSettings.filters?.layers?.weather2);
     setValue(settings, 'map.layers.layer', localSettings.filters?.layers?.layer);
     setValue(settings, 'map.layers.layerLabels', localSettings.filters?.layers?.layerLabels);
     setValue(settings, 'map.layers.relativeIndicator', localSettings.filters?.layers?.relativeIndicator);
