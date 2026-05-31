@@ -1,7 +1,7 @@
 <template>
     <div
         class="flight-info"
-        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
+        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? pilot.status === 'arrTaxi' ? 100 : 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
     >
         <ui-data-container>
             <template #icon>

@@ -322,7 +322,7 @@ if (!currentItem.value) {
 <style scoped lang="scss">
 .settings {
     /* header footer page-block-header gap */
-    --max-height: calc(100dvh - 56px - 32px - 52px - 32px - var(--container-vertical-padding) * 2 - 2px);
+    --max-height: calc(100dvh - 56px - 32px - 68px - 32px - var(--container-vertical-padding) * 2 - 2px);
     position: relative;
 
     display: flex;
@@ -336,8 +336,8 @@ if (!currentItem.value) {
 
     &_iframe {
         overflow: hidden;
+        flex-grow: 1;
 
-        width: 35%;
         min-width: 35%;
         height: var(--max-height);
         border: none;

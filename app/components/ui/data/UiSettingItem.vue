@@ -48,7 +48,7 @@
                 type="link"
                 @click="emit('jumped')"
             >
-                Jump to component
+                Jump to setting
             </ui-button>
         </template>
         <div class="__vertical-group-16">

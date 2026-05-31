@@ -302,10 +302,13 @@ export const useStore = defineStore('index', {
             if (!this.user) return {};
             return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));
         },
+        getEvents(): VatsimActiveEvent[] {
+            return this.events.filter(x => new Date(x.end_time).getTime() < useDataStore().time.value);
+        },
         eventsMap(): Record<string, VatsimActiveEvent> {
             const icaoMap: Record<string, VatsimActiveEvent> = {};
 
-            for (const event of this.events) {
+            for (const event of this.getEvents) {
                 for (const { icao } of event.airports) {
                     if (icaoMap[icao]) continue;
                     icaoMap[icao] = event;

@@ -192,8 +192,8 @@ import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude, NotamType } from '~/utils/shared/vatsim';
 import MapSelectedProcedures from '~/components/map/MapSelectedProcedures.vue';
-import { defaults } from 'ol/interaction.js';
-import PointerInteraction from 'ol/interaction/Pointer.js';
+import { defaults, Interaction } from 'ol/interaction.js';
+import MapBrowserEventType from 'ol/MapBrowserEventType.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import LayerGroup from 'ol/layer/Group.js';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
@@ -651,8 +651,6 @@ async function handleMoveEnd() {
     mapStore.moving = false;
 }
 
-let lastClickTime = 0;
-
 async function initDistance(event: MapBrowserEvent) {
     const pilots = getPilotsForPixel(map.value!, event.pixel);
     if (pilots.length === 1) {
@@ -665,73 +663,61 @@ async function initDistance(event: MapBrowserEvent) {
 
 let overlaysCache: typeof mapStore.overlays = [];
 
-function handleDownEvent(event: MapBrowserEvent) {
-    if (mapStore.distance.pixel) return false;
-    const now = Date.now();
+function startDistance(event: MapBrowserEvent) {
+    overlaysCache = mapStore.overlays.slice(0);
 
-    if (distanceInteraction.value === 'ctrlclick') {
-        overlaysCache = mapStore.overlays.slice(0);
-        if (event.originalEvent.ctrlKey || event.originalEvent.metaKey) {
-            initDistance(event).then(async () => {
-                await nextTick();
-                mapStore.overlays = overlaysCache;
-            });
+    initDistance(event).then(async () => {
+        await nextTick();
+        mapStore.overlays = overlaysCache;
+    });
+}
 
-            return true;
+class DistanceInteraction extends Interaction {
+    override handleEvent(event: MapBrowserEvent) {
+        if (mapStore.distance.pixel) return true;
+
+        const useCtrlClick = distanceInteraction.value === 'ctrlclick';
+        const isCtrlClick = event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey);
+        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK;
+
+        if ((useCtrlClick && isCtrlClick) || (!useCtrlClick && isDoubleClick)) {
+            startDistance(event);
+
+            return false;
         }
-
-        return false;
-    }
-
-    if ((event.originalEvent as PointerEvent).buttons !== 1) return false;
-
-    if (now - lastClickTime < 300) {
-        initDistance(event).then(async () => {
-            await nextTick();
-            mapStore.overlays = overlaysCache;
-        });
-        lastClickTime = 0;
 
         return true;
     }
-    else overlaysCache = mapStore.overlays.slice(0);
-
-    lastClickTime = now;
-
-    return false;
 }
 
-class DoubleClick extends PointerInteraction {
-    constructor() {
-        super({
-            handleDownEvent,
-        });
-    }
-}
-
-const doubleClick = new DoubleClick();
+const distanceInteractionHandler = new DistanceInteraction();
+let managedMapInteractions: Interaction[] = [];
 
 function setMapInteractions() {
     if (!map.value) return;
     const withDistance = distanceEnabled.value;
     const ctrl = distanceInteraction.value === 'ctrlclick';
 
-    map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
-    map.value.getInteractions().clear();
+    for (const interaction of managedMapInteractions) {
+        map.value.removeInteraction(interaction);
+    }
+    managedMapInteractions = [];
 
     if (withDistance) {
         const interactions = defaults({
             doubleClickZoom: !!ctrl,
         }).extend([
-            doubleClick,
+            distanceInteractionHandler,
         ]);
 
-        interactions.forEach(x => map.value?.addInteraction(x));
+        managedMapInteractions = interactions.getArray().slice();
+        managedMapInteractions.forEach(x => map.value?.addInteraction(x));
     }
     else {
         const interactions = defaults();
 
-        interactions.forEach(x => map.value?.addInteraction(x));
+        managedMapInteractions = interactions.getArray().slice();
+        managedMapInteractions.forEach(x => map.value?.addInteraction(x));
     }
 }
 

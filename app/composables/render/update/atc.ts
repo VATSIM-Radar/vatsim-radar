@@ -54,15 +54,17 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
             continue;
         }
 
-        const word = '';
+        let word = '';
 
-        for (let i = 0; i < (fir.callsign ?? fir.icao).length; i++) {
-            if (!callsign.startsWith(fir.callsign ?? fir.icao) && !callsign.startsWith(fir.icao)) break;
+        for (let i = 0; i < (fir.callsign ?? fir.icao).length - 1; i++) {
+            word += (fir.callsign ?? fir.icao).slice(0, i + 1);
+
+            if ((!fir.callsign || !callsign.startsWith(fir.callsign)) && !callsign.startsWith(fir.icao)) break;
         }
 
         let length = word.length;
 
-        if ((fir.callsign || fir.icao) === callsignMiddle) length = 100;
+        if (fir.callsign === callsignMiddle || fir.icao === callsignMiddle) length = 100;
 
         if (length < maxStart) {
             continue;
@@ -296,8 +298,11 @@ export async function updateControllers(context: DataUpdateContext) {
                     match = true;
                     const atisText = controller.text_atis.join(' ');
 
-                    for (const [areaText, targetCallsign] of Object.entries(setting.mapping)) {
-                        const areaTextRegExp = new RegExp(`\\b${ RegExp.escape(areaText) }\\b`, 'i');
+                    for (let [areaText, targetCallsign] of Object.entries(setting.mapping)) {
+                        if (typeof RegExp.escape === 'function') areaText = RegExp.escape(areaText);
+                        else areaText = areaText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+                        const areaTextRegExp = new RegExp(`\\b${ areaText }\\b`, 'i');
 
                         if (areaTextRegExp.test(atisText) && controller.callsign !== targetCallsign) {
                             if (!realCallsigns.has(targetCallsign)) {

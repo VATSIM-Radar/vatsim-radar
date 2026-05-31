@@ -1,5 +1,22 @@
 # Changelog
 
+# [2.0.0-beta.1.2]
+
+## Alpha changes
+
+- Fixed visibility settings applied inverted
+- Map preview will take all available width now
+- Fixed settings global vertical scroll
+- Fixed arrival progress showing as 0 when landed
+- Fixed event showed as active when already over
+- Fixed bookings staffed until showing before booking has started
+- Removed z from booking time when local timezone is enabled
+- Fixed incorrect priorities for some ATC facilities, such as LIRR_NE1_CTR
+- Fixed LPPO_CTR only showing one sector (and similar bugs)
+- Fixed map crash in some browsers
+- Fixed map becoming unresponsive when used distance tool with double click type
+- Implemented dynamic counters offset based on airport icao
+
 # [2.0.0-beta.1.1]
 
 ## Alpha changes

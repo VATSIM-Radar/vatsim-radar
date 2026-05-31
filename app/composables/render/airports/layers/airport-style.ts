@@ -11,6 +11,15 @@ import { VatsimEventType } from '~/types/data/vatsim';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style> = {};
+let textMeasureContext: CanvasRenderingContext2D | null = null;
+
+const airportCounterMinOffsetX = 30;
+const airportCounterLocalAtcOffsetX = 5;
+const airportCounterIcaoGap = 8;
+const airportCounterFakeObstacleLeftOverflow = 5;
+const maxAirportIcaoWidthFallback = 44;
+const airportCounterTextOffsetX = 9;
+const airportCounterPopupGap = 5;
 
 function getCachedFill(color: string) {
     let cachedFill = styleFillCache[color];
@@ -38,6 +47,44 @@ function getDeclutterMode(atcLength: number) {
     else if (declutterIf === 'none') declutterMode = 'obstacle';
 
     return declutterMode;
+}
+
+function getTextWidth(text: string, font: string, fallback = maxAirportIcaoWidthFallback) {
+    if (!textMeasureContext && typeof document !== 'undefined') {
+        textMeasureContext = document.createElement('canvas').getContext('2d');
+    }
+
+    if (!textMeasureContext) return fallback;
+
+    textMeasureContext.font = font;
+
+    return textMeasureContext.measureText(text).width;
+}
+
+const counterOffsetCache: Record<string, number> = {};
+
+export function getAirportCounterOffsetX(icao: string, localsLength: number) {
+    const cacheKey = `${ icao }-${ localsLength > 3 ? 'many-locals' : 'few-locals' }`;
+    if (counterOffsetCache[cacheKey]) return counterOffsetCache[cacheKey];
+
+    const counterLeftEdgeOffset = Math.ceil((getTextWidth(icao, getTextFont('caption-medium')) / 2) + airportCounterFakeObstacleLeftOverflow + airportCounterIcaoGap);
+    counterOffsetCache[cacheKey] = Math.max(airportCounterMinOffsetX, counterLeftEdgeOffset) + (localsLength > 3 ? airportCounterLocalAtcOffsetX : 0);
+
+    return counterOffsetCache[cacheKey];
+}
+
+function getAirportCounterTextFont() {
+    return getTextFont('caption-medium').replace('11px', '10px');
+}
+
+export function getAirportCounterPopupOffsetX({ icao, localsLength, counter }: {
+    icao: string;
+    localsLength: number;
+    counter: number;
+}) {
+    const counterWidth = Math.ceil(getTextWidth(counter.toString(), getAirportCounterTextFont(), counter.toString().length * 6));
+
+    return getAirportCounterOffsetX(icao, localsLength) + airportCounterTextOffsetX + counterWidth + airportCounterPopupGap;
 }
 
 export function setAirportStyle(layer: VectorLayer) {
@@ -252,8 +299,7 @@ export function setAirportStyle(layer: VectorLayer) {
 
             if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && getKeyedValueFromSettings('map.preferences.airports.counters.enabled') !== false && showAirportDetails) {
                 const height = 12;
-                let offsetX = 30;
-                if (properties.localsLength > 3) offsetX = 35;
+                const offsetX = getAirportCounterOffsetX(properties.icao, properties.localsLength);
                 const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 2));
 
                 let textColor = getCachedFill(radarColors.green600Hex);
@@ -300,7 +346,7 @@ export function setAirportStyle(layer: VectorLayer) {
                             declutterMode: 'none',
                         }),
                         text: new Text({
-                            font: getTextFont('caption-medium').replace('11px', '10px'),
+                            font: getAirportCounterTextFont(),
                             text: '',
                             offsetX: 0,
                             offsetY: 0,
@@ -316,7 +362,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 }
 
                 styleCache[cacheKey].getImage()!.setDisplacement([offsetX, -offsetY]);
-                styleCache[cacheKey].getText()!.setOffsetX(offsetX + 9);
+                styleCache[cacheKey].getText()!.setOffsetX(offsetX + airportCounterTextOffsetX);
                 styleCache[cacheKey].getText()!.setOffsetY(offsetY + 6);
                 styleCache[cacheKey].getText()!.setText(properties.counter.toString());
 

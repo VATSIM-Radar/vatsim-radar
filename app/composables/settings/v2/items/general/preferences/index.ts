@@ -23,7 +23,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
         onChange: value => setSettingByKey('appearance.timeFormat', value as UserSettingsV2['appearance']['timeFormat']),
     },
     eventsLocalTimezone: {
-        title: 'Events Zulu time',
+        title: 'Events local time',
         description: 'Shows VATSIM Events in your local timezone instead of Zulu time',
         searchKeywords: ['utc', 'timezone', 'local', 'zulu'],
         type: 'toggle',

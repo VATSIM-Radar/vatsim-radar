@@ -51,7 +51,7 @@
                             @click.stop
                         >
                             <template #default="{ item: { item } }">
-                                <ui-text type="3b">
+                                <ui-text :class="{ 'select__dropdown_selected': !props.multiple && activeItems.includes(item.value) }" type="3b">
                                     <template v-if="!multiple">
                                         {{ item.text || String(item.value) }}
                                     </template>
@@ -161,7 +161,7 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const getItems = computed(() => {
-    return props.items.filter(x => props.multiple || !activeItems.value.includes(x.value));
+    return props.items;
 });
 
 const shownValue = computed<string>(() => {
@@ -258,6 +258,10 @@ function updateModel(value: SelectItemValueType, add: boolean) {
                 top: calc(100% - 20px);
                 opacity: 0;
             }
+        }
+
+        &_selected {
+            color: $blue500;
         }
     }
 

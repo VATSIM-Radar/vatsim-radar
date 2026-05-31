@@ -408,6 +408,10 @@ watch(getSections, sections => {
 
 
     &__section {
+        &:not(.info-popup_content_tabs, .info-popup__section--actions) {
+            flex-grow: 1;
+        }
+
         &--actions {
             position: sticky;
             z-index: 5;

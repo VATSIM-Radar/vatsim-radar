@@ -252,19 +252,19 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
         setValue(settings, 'map.visibility.atc.ground', mapSettings.visibility.atc);
     }
     else {
-        setValue(settings, 'map.visibility.atc.firs', mapSettings.visibility?.atc?.firs);
-        setValue(settings, 'map.visibility.atc.approach', mapSettings.visibility?.atc?.approach);
-        setValue(settings, 'map.visibility.atc.ground', mapSettings.visibility?.atc?.ground);
+        setInvertedBoolean(settings, 'map.visibility.atc.firs', mapSettings.visibility?.atc?.firs);
+        setInvertedBoolean(settings, 'map.visibility.atc.approach', mapSettings.visibility?.atc?.approach);
+        setInvertedBoolean(settings, 'map.visibility.atc.ground', mapSettings.visibility?.atc?.ground);
     }
 
-    setValue(settings, 'map.visibility.atcLabels', mapSettings.visibility?.atcLabels);
-    setValue(settings, 'map.visibility.airports', mapSettings.visibility?.airports);
-    setValue(settings, 'map.visibility.pilots', mapSettings.visibility?.pilots);
-    setValue(settings, 'map.visibility.gates', mapSettings.visibility?.gates);
-    setValue(settings, 'map.visibility.runways', mapSettings.visibility?.runways);
-    setValue(settings, 'map.visibility.pilotsInfo', mapSettings.visibility?.pilotsInfo);
-    setValue(settings, 'map.visibility.atcInfo', mapSettings.visibility?.atcInfo);
-    setValue(settings, 'map.visibility.pilotLabels', mapSettings.visibility?.pilotLabels);
+    setInvertedBoolean(settings, 'map.visibility.atcLabels', mapSettings.visibility?.atcLabels);
+    setInvertedBoolean(settings, 'map.visibility.airports', mapSettings.visibility?.airports);
+    setInvertedBoolean(settings, 'map.visibility.pilots', mapSettings.visibility?.pilots);
+    setInvertedBoolean(settings, 'map.visibility.gates', mapSettings.visibility?.gates);
+    setInvertedBoolean(settings, 'map.visibility.runways', mapSettings.visibility?.runways);
+    setInvertedBoolean(settings, 'map.visibility.pilotsInfo', mapSettings.visibility?.pilotsInfo);
+    setInvertedBoolean(settings, 'map.visibility.atcInfo', mapSettings.visibility?.atcInfo);
+    setInvertedBoolean(settings, 'map.visibility.pilotLabels', mapSettings.visibility?.pilotLabels);
 
     setValue(settings, 'map.bookings.enabled', mapSettings.visibility?.bookings);
     setValue(settings, 'map.bookings.hours', typeof mapSettings.bookingHours === 'string' ? parseInt(mapSettings.bookingHours) : mapSettings.bookingHours);

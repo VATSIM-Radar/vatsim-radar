@@ -45,7 +45,9 @@ defineSlots<{ default?(): any }>();
 <style scoped lang="scss">
 .icon {
     position: relative;
+
     width: var(--size);
+    min-width: var(--size);
     height: var(--size);
     padding: 4px;
 

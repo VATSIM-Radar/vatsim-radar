@@ -48,6 +48,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 let drawing: Draw | null = null;
+let sketchListener: EventsKey | undefined;
 
 const tooltip = ref<Coordinate | null>(null);
 const tooltipRotation = ref(0);
@@ -59,6 +60,23 @@ const currentResult = ref<string | null>(null);
 const features = shallowRef<Feature[]>([]);
 const fromHeading = ref<string>('---');
 const toHeading = ref<string>('---');
+
+function resetDistanceDraft() {
+    mapStore.distance.pixel = null;
+    mapStore.distance.initAircraft = null;
+    mapStore.distance.targetAircraft = null;
+    mapStore.distance.overlayOpenCheck = false;
+
+    sketch.value = null;
+    tooltip.value = null;
+    tooltipRotation.value = 0;
+    currentResult.value = null;
+
+    if (sketchListener) {
+        unByKey(sketchListener);
+        sketchListener = undefined;
+    }
+}
 
 const distanceDisplay = computed(() => {
     const distance = currentResult.value ?? '';
@@ -183,6 +201,7 @@ watch(() => mapStore.distance.pixel, pixel => {
     if (drawing) {
         map.value?.removeInteraction(drawing);
         drawing.dispose();
+        drawing = null;
     }
 
     if (!pixel) return;
@@ -200,12 +219,10 @@ watch(() => mapStore.distance.pixel, pixel => {
         geometryFunction: createGeodesicGeometry,
     });
 
-    let listener: EventsKey | undefined;
-
     drawing.on('drawstart', event => {
         sketch.value = event.feature;
 
-        listener = sketch.value.getGeometry()!.on('change', function(evt) {
+        sketchListener = sketch.value.getGeometry()!.on('change', function(evt) {
             const geom = evt.target as LineString;
 
             const pair = calculateHeadingPair(map, geom);
@@ -240,16 +257,7 @@ watch(() => mapStore.distance.pixel, pixel => {
         });
 
         // Reset
-        mapStore.distance.pixel = null;
-        mapStore.distance.initAircraft = null;
-        mapStore.distance.targetAircraft = null;
-
-        sketch.value = null;
-        tooltip.value = null;
-        tooltipRotation.value = 0;
-        if (listener) {
-            unByKey(listener);
-        }
+        resetDistanceDraft();
     });
 
     map.value?.addInteraction(drawing);
@@ -310,11 +318,14 @@ onBeforeUnmount(() => {
     if (drawing) {
         map.value?.removeInteraction(drawing);
         drawing.dispose();
+        drawing = null;
     }
 
     if (layer) {
         map.value?.removeLayer(layer);
     }
+
+    resetDistanceDraft();
 });
 </script>
 
