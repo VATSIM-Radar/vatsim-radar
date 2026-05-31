@@ -81,11 +81,6 @@ export const getSettingsSections = () => {
                             items: [items.account.navigraph],
                             hide: notLoggedIn,
                         },
-                        {
-                            title: 'Interface',
-                            key: 'interface',
-                            items: [items.account.theme],
-                        },
                     ],
                 },
                 {
@@ -97,6 +92,14 @@ export const getSettingsSections = () => {
                             items: [items.preferences.timeFormat, items.preferences.eventsLocalTimezone, items.preferences.bookingsLocalTimezone, items.preferences.notamsSortBy, items.preferences.favoriteSort],
                         },
                     ],
+                },
+                {
+                    title: 'Favorite Lists',
+                    url: 'favorite',
+                    items: [{
+                        key: 'favorite',
+                        items: [items.account.favorite],
+                    }],
                 },
             ],
         },
@@ -135,6 +138,11 @@ export const getSettingsSections = () => {
                     title: 'Appearance & Colors',
                     url: 'appearance',
                     items: [
+                        {
+                            title: 'Interface',
+                            key: 'interface',
+                            items: [items.account.theme],
+                        },
                         {
                             key: 'layout',
                             title: 'Layout',

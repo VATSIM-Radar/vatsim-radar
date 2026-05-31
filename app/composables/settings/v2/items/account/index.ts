@@ -4,6 +4,7 @@ import { getSettingValue, makeSettingsItems } from '~/composables/settings/v2/ut
 import { setPrivateMode } from '~/composables/fetchers/lists';
 import SettingsPrivateMode from '~/components/features/settings/v2/misc/SettingsPrivateMode.vue';
 import SettingsUser from '~/components/features/settings/v2/misc/SettingsUser.vue';
+import SettingsUserLists from '~/components/features/settings/v2/lists/SettingsUserLists.vue';
 
 export const settingsItemAccount = globalComputed(() => makeSettingsItems(({ store, settingsStore, notLoggedIn }) => ({
     navigraph: {
@@ -17,6 +18,11 @@ export const settingsItemAccount = globalComputed(() => makeSettingsItems(({ sto
         title: 'Interface theme',
         type: 'inline-component',
         component: SettingsTheme,
+    },
+    favorite: {
+        type: 'component',
+        component: SettingsUserLists,
+        searchKeywords: ['favorite', 'friends'],
     },
     privateMode: {
         title: 'Private Mode',

@@ -193,6 +193,7 @@ watch(() => route.query.list, val => {
     &_items {
         display: grid;
         grid-template-columns: repeat(2, calc(50% - 8px));
+        row-gap: 16px;
         align-self: stretch;
         justify-content: space-between;
     }

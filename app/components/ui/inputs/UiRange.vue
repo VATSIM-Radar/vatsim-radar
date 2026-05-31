@@ -153,7 +153,7 @@ function handleWheel(e: WheelEvent) {
             border-radius: 9999px;
 
             appearance: none;
-            background: $backgroundLevel2;
+            background: $backgroundLevel4;
             outline: none;
 
             &::-webkit-slider-runnable-track {

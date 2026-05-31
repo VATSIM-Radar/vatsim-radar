@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.0-beta.1.3]
+
+## Alpha changes
+
+- Add favorite section to new settings
+- Fixed VATGlasses toggle in light theme
+- Fixed 403 block when changing vatglasses level
+
 # [2.0.0-beta.1.2]
 
 ## Alpha changes

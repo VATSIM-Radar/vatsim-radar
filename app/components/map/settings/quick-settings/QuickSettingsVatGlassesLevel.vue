@@ -84,7 +84,9 @@ const vatglassesLevel = computed({
     set(value) {
         if (value !== undefined) {
             setUserLocalSettings({ vatglassesLevel: Number(value) });
-            setSettingByKey('map.vatglasses.autoLevel', false);
+            if (vatglassesAutoLevel.value) {
+                setSettingByKey('map.vatglasses.autoLevel', false);
+            }
         }
     },
 });
