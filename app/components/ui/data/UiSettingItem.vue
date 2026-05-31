@@ -17,7 +17,7 @@
             {{item.hint}}
         </template>
         <template
-            v-if="('description' in item || 'value' in item) && (item.description || (!hideReset && 'isSet' in item.value.value))"
+            v-if="('description' in item || 'value' in item) && (item.description || (!hideReset && 'value' in item && 'isSet' in item.value.value))"
             #description
         >
             {{item.description}}
