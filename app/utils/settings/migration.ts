@@ -82,6 +82,26 @@ export function migrateLegacyColor(color: string): string {
     return legacyColorToV2Color[color as keyof typeof legacyColorToV2Color] ?? color;
 }
 
+function normalizeTransparency(value: unknown): unknown {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return value;
+
+    return Number(value.toFixed(2));
+}
+
+function normalizeTransparencyValues<T>(value: T): T {
+    if (typeof value === 'number') return normalizeTransparency(value) as T;
+    if (!value || typeof value !== 'object') return value;
+    if (Array.isArray(value)) return value.map(normalizeTransparencyValues) as T;
+
+    const result: Record<string, unknown> = {};
+
+    for (const [key, item] of Object.entries(value)) {
+        result[key] = normalizeTransparencyValues(item);
+    }
+
+    return result as T;
+}
+
 function migrateLegacyColors<T>(value: T): T {
     if (!value || typeof value !== 'object') return value;
     if (Array.isArray(value)) return value.map(migrateLegacyColors) as T;
@@ -89,9 +109,15 @@ function migrateLegacyColors<T>(value: T): T {
     const result: Record<string, unknown> = {};
 
     for (const [key, item] of Object.entries(value)) {
-        result[key] = key === 'color' && typeof item === 'string'
-            ? migrateLegacyColor(item)
-            : migrateLegacyColors(item);
+        if (key === 'color' && typeof item === 'string') {
+            result[key] = migrateLegacyColor(item);
+        }
+        else if (typeof item === 'number') {
+            result[key] = normalizeTransparency(item);
+        }
+        else {
+            result[key] = migrateLegacyColors(item);
+        }
     }
 
     return result as T;
@@ -133,7 +159,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.layers.layerLabels', localSettings.filters?.layers?.layerLabels);
     setValue(settings, 'map.layers.relativeIndicator', localSettings.filters?.layers?.relativeIndicator);
     setValue(settings, 'map.layers.terminator', localSettings.filters?.layers?.terminator);
-    setValue(settings, 'map.layers.transparency', localSettings.filters?.layers?.transparencySettings);
+    setValue(settings, 'map.layers.transparency', normalizeTransparencyValues(localSettings.filters?.layers?.transparencySettings));
     setValue(settings, 'map.layers.natTrak.enabled', localSettings.natTrak?.enabled);
     setValue(settings, 'map.layers.natTrak.concorde', localSettings.natTrak?.showConcorde);
     setValue(settings, 'map.layers.natTrak.direction', localSettings.natTrak?.direction);
@@ -194,7 +220,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.preferences.colors.light', migrateLegacyColors(mapSettings.colors?.light));
     setValue(settings, 'map.preferences.colors.default', migrateLegacyColors(mapSettings.colors?.default));
     setValue(settings, 'map.preferences.colors.turns', mapSettings.colors?.turns);
-    setValue(settings, 'map.preferences.colors.turnsTransparency', mapSettings.colors?.turnsTransparency);
+    setValue(settings, 'map.preferences.colors.turnsTransparency', normalizeTransparency(mapSettings.colors?.turnsTransparency));
 
     setValue(settings, 'map.layers.heatmap', mapSettings.heatmapLayer);
 

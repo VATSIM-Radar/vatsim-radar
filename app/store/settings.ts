@@ -28,7 +28,7 @@ export const useSettingsStore = defineStore('settings', {
         async fetchPresets() {
             if (!useStore().user) return;
             this.settingsPresets = await $fetch<UserSettingsPreset[]>('/api/user/settings/v2');
-            this.autoSave = isSettingsAutoSave().value.value ?? true;
+            this.autoSave = this.getAutoSave();
             this.activeSettingsPreset = settingsActivePreset().value.value ?? null;
 
             if (this.activeSettingsPreset) {
@@ -55,7 +55,7 @@ export const useSettingsStore = defineStore('settings', {
             dontSave?: boolean;
         } = {}) {
             if (autoSave) {
-                this.autoSave = isSettingsAutoSave().value.value ?? true;
+                this.autoSave = this.getAutoSave();
 
                 if (this.autoSave && !this.activeSettingsPreset && this.settingsPresets.length) {
                     this.activeSettingsPreset = this.settingsPresets[0].id;
@@ -74,7 +74,22 @@ export const useSettingsStore = defineStore('settings', {
                 await onSettingChange(autoSave);
             }
         },
+        getAutoSave() {
+            return useStore().user?.settings.settingsAutoSave ?? isSettingsAutoSave().value.value ?? true;
+        },
         setAutoSave(val: boolean) {
+            const user = useStore().user;
+
+            if (user) {
+                user.settings.settingsAutoSave = val;
+                $fetch('/api/user/settings', {
+                    method: 'POST',
+                    body: {
+                        ...user.settings,
+                        settingsAutoSave: val,
+                    },
+                });
+            }
             isSettingsAutoSave().value.value = val;
             this.autoSave = val;
         },

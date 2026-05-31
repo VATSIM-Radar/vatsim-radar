@@ -8,6 +8,7 @@ const sortOptions: UserSettings['favoriteSort'][] = ['newest', 'oldest', 'abcAsc
 const timeOptions: UserSettings['timeFormat'][] = ['24h', '12h'];
 
 const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
+    settingsAutoSave: val => typeof val === 'boolean',
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
     autoShowAirportTracks: val => typeof val === 'boolean',

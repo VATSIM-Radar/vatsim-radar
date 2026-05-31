@@ -17,13 +17,13 @@
             {{item.hint}}
         </template>
         <template
-            v-if="('description' in item || 'value' in item) && (item.description || !hideReset)"
+            v-if="('description' in item || 'value' in item) && (item.description || (!hideReset && 'isSet' in item.value.value))"
             #description
         >
             {{item.description}}
 
             <ui-button
-                v-if="'value' in item && !hideReset"
+                v-if="'value' in item && 'isSet' in item.value.value && !hideReset"
                 class="settings-item__reset"
                 :class="{ 'settings-item__reset--hidden': !item.value.value.isSet }"
                 hover-color="red600"
@@ -123,6 +123,7 @@ const hideReset = computed(() => {
     }
 
     &--vertical {
+        display: flex;
         flex-direction: column;
         gap: 8px !important;
         align-items: stretch !important;

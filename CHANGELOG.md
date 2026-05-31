@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.0-beta.1.1]
+
+## Alpha changes
+
+- Fixed transparency migration edge cases
+- Auto save is now auto saved account-wide, and it is also now easier to reach
+- Fixed toggle setting layout on mobile
+
 # [2.0.0-beta.1]
 
 ## Alpha changes

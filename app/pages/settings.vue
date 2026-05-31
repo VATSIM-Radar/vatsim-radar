@@ -22,6 +22,9 @@
                     </template>
                 </ui-input-text>
             </div>
+            <div class="settings__auto-save">
+                <ui-setting-item :item="getSettingByItem(settingsItems.account.autoSave, { description: undefined })"/>
+            </div>
         </template>
 
         <div v-if="isHideMenu" class="settings-nav">
@@ -178,6 +181,7 @@ import type { SettingsItem, SettingsSectionBlock } from '~/composables/settings/
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const store = useStore();
 const search = ref('');
@@ -204,6 +208,7 @@ const collapsedSettings = useCookie<string[]>('collapsed-settings', { default: (
 
 const settingsStore = useSettingsStore();
 const settingsSections = getSettingsSections();
+const settingsItems = getSettingsItems().value;
 const mapPreview = useCookie<boolean>('map-preview', {
     sameSite: 'none',
     secure: true,
@@ -535,6 +540,17 @@ if (!currentItem.value) {
         border-top-right-radius: 4px;
 
         background: $darkGray900;
+    }
+
+    &__auto-save {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+
+        .setting {
+            display: flex;
+            gap: 8px;
+        }
     }
 }
 </style>

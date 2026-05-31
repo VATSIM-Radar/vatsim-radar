@@ -4,6 +4,7 @@ import type { UserSettingsV2 } from '~/utils/settings/types';
 export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ notLoggedIn }) => ({
     showFullRoute: {
         title: 'Default to full route instead of remaining',
+        description: 'Shows aircraft full route on map, instead of only remaining',
         type: 'toggle',
         value: getSettingValue('map.traffic.showFullRoute'),
         onChange: value => setSettingByKey('map.traffic.showFullRoute', value),

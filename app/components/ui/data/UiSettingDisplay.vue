@@ -112,6 +112,10 @@ function labelClick(event: MouseEvent) {
             display: flex;
             flex-direction: column;
             gap: 4px;
+
+            &.settings-item--type-toggle {
+                flex-direction: row;
+            }
         }
     }
 

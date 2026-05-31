@@ -1,12 +1,6 @@
 <template>
     <div class="management __vertical-group-16">
-        <ui-setting-display>
-            <template #title>
-                Auto Save
-            </template>
-
-            <ui-toggle :model-value="settingsStore.autoSave" @update:modelValue="settingsStore.setAutoSave"/>
-        </ui-setting-display>
+        <ui-setting-item :item="settingsItems.account.autoSave"/>
         <ui-setting-display v-if="settingsStore.settingsPresets.length < MAX_SETTINGS_PRESETS">
             <template #title>
                 Import Preset
@@ -90,11 +84,13 @@ import { backupSettings } from '~/composables/settings';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import { useRadarError } from '~/composables/errors';
 import { useSettingsStore } from '~/store/settings';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const store = useStore();
 const settingsStore = useSettingsStore();
 const resetActive = ref(false);
 const presetImport = useTemplateRef('presetImport');
+const settingsItems = getSettingsItems().value;
 
 const createSettingsPreset = async (name: string, json: UserSettingsV2Partial) => {
     // Created manually

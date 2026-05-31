@@ -13,6 +13,8 @@
                 We have found local settings on your device. You need to decide what to do with them.
             </ui-text>
 
+            <ui-setting-item :item="settingsItems.account.autoSave"/>
+
             <ui-columns-display>
                 <template v-if="showLocalSettings" #col1>
                     <ui-text type="h5">
@@ -70,11 +72,13 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useRadarError } from '~/composables/errors';
 import { migrateV1Settings } from '~/utils/settings/migration';
 import { sendUserPreset } from '~/composables/fetchers';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const localDecision = ref<'all' | 'new' | 'skip' | number | null>(null);
 const mapDecision = ref<'all' | 'new' | 'skip' | number | null>(null);
 const migrating = ref(false);
 const settingsStore = useSettingsStore();
+const settingsItems = getSettingsItems().value;
 
 const localSettings = shallowRef<UserLegacyLocalSettings | null>(null);
 const mapSettings = shallowRef<IUserLegacyMapSettings | null>(null);

@@ -37,7 +37,7 @@ export async function handleSettingChange<T extends SettingsItem>(item: T, value
 
 export interface SettingValue<T> {
     value: T;
-    isSet: boolean;
+    isSet?: boolean;
 }
 
 export type SettingValueType<T> = ComputedRef<SettingValue<T>>;
@@ -333,7 +333,6 @@ export function getSettingValue(setting: SettingsKeysWithDefault | (() => unknow
 
         return {
             value: value === undefined ? defaultValue : value,
-            isSet: false,
         };
     });
 }

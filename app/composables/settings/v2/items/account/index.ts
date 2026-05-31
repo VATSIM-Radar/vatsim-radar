@@ -44,4 +44,12 @@ export const settingsItemAccount = globalComputed(() => makeSettingsItems(({ sto
         disabled: notLoggedIn,
         component: SettingsUser,
     },
+    autoSave: {
+        title: 'Auto Save',
+        description: 'Selects first preset on new device and saves settings automatically',
+        type: 'toggle',
+        disabled: notLoggedIn,
+        value: getSettingValue(() => useSettingsStore().getAutoSave(), true),
+        onChange: value => useSettingsStore().setAutoSave(value ?? true),
+    },
 } satisfies Record<string, SettingsItem>)));
