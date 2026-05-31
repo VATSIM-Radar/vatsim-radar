@@ -76,7 +76,6 @@
 import MapFiltersPresets from '~/components/map/settings/filters/MapFiltersPresets.vue';
 import { MAX_SETTINGS_PRESETS } from '~/utils/shared';
 import { sendUserPreset } from '~/composables/fetchers';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiSettingDisplay from '~/components/ui/data/UiSettingDisplay.vue';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
