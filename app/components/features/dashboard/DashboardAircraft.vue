@@ -105,6 +105,7 @@ import type { AirportPopupPilotList, AirportPopupPilotStatus } from '~/composabl
 import { getPilotStatus, getTimeRemains } from '~/composables/vatsim/pilots';
 import { useDashboard, mapDashboardColumnToAircraftKey } from '~/composables/dashboard';
 import type { DashboardAircraftKey } from '~/composables/dashboard';
+import { useEnrouteAircraft } from '~/composables/vatsim/enroute';
 import { dashboardColumnLabels, dashboardColumns } from '~/utils/shared/dashboard';
 import type { DashboardColumn } from '~/utils/shared/dashboard';
 import type { StoreOverlayAirport } from '~/store/map';
@@ -128,8 +129,26 @@ for (const icao of airportList) {
 const COLUMN_ORDER: DashboardColumn[] = ['prefiles', 'departing', 'enroute', 'departed', 'arriving', 'landed'];
 const GROUPED_KEYS = new Set<DashboardAircraftKey>(['prefiles', 'groundDep', 'groundArr']);
 
-// TODO Enroute column
-const enrouteAircraft = computed<AirportPopupPilotStatus[]>(() => []);
+interface DashboardOverrides {
+    arrivalTracks: boolean;
+    enrouteCallsign: string | null;
+    enrouteFlightLevel: { from: number; to: number } | null;
+}
+const overrides = inject<Ref<DashboardOverrides> | null>('dashboard-overrides', null);
+
+const { enrouteAircraft: enrouteRaw } = useEnrouteAircraft({
+    callsign: computed(() => overrides?.value.enrouteCallsign ?? null),
+    flFrom: computed(() => overrides?.value.enrouteFlightLevel?.from ?? null),
+    flTo: computed(() => overrides?.value.enrouteFlightLevel?.to ?? null),
+});
+
+const enrouteAircraft = computed<AirportPopupPilotStatus[]>(() => enrouteRaw.value.map(pilot => ({
+    ...pilot,
+    isArrival: false,
+    distance: 0,
+    flown: 0,
+    eta: null,
+})));
 
 type AircraftRow =
     | { type: 'header'; key: string; icao: string; color: string | null }
