@@ -260,6 +260,16 @@ const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
 const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
 const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
 const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
+function isSameSetAsArray<T>(set: Set<T>, list: T[] | null) {
+    if (!list || set.size !== list.length) return false;
+
+    for (const item of list) {
+        if (!set.has(item)) return false;
+    }
+
+    return true;
+}
+
 const mapColorsKey = computed(() => JSON.stringify([
     store.theme,
     getColorByKey('map.preferences.colors.default.aircraft.main').value.value,
@@ -867,8 +877,12 @@ await setupDataFetch({
         });
 
         const saveData = useThrottleFn((airports: Set<string>, aircraft: Set<number>) => {
-            mapStore.renderedAirports = Array.from(airports);
-            mapStore.renderedPilots = Array.from(aircraft);
+            if (!isSameSetAsArray(airports, mapStore.renderedAirports)) {
+                mapStore.renderedAirports = Array.from(airports);
+            }
+            if (!isSameSetAsArray(aircraft, mapStore.renderedPilots)) {
+                mapStore.renderedPilots = Array.from(aircraft);
+            }
         }, 250, true);
 
         map.value.on('postrender', event => {
