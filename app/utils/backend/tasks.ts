@@ -181,7 +181,7 @@ async function vatsimTasks() {
             let minutes: string | number = parseInt(current.duration);
             if (isNaN(minutes)) minutes = current.duration;
 
-            if (current.status === 'NOTSTARTEDYET') {
+            if (current.status === 'NOTSTARTEDYET' && date.getTime() - (1000 * 60 * 60) <= Date.now()) {
                 notam = {
                     id: new Date(current.start ?? new Date().toISOString()).getTime(),
                     type: NotamType.ANNOUNCEMENT,
