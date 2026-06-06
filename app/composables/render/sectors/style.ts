@@ -208,6 +208,11 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
         }
 
         if (!labelType && isMapFeature('sector-vatglasses', properties)) {
+            const store = useStore();
+            if (!store.mapSettings.vatglasses?.combined) {
+                const level = store.localSettings.vatglassesLevel ?? 999;
+                if (properties.min > level || properties.max < level) return undefined;
+            }
             return vatglassesStyle(properties, hideOnZoom);
         }
     });

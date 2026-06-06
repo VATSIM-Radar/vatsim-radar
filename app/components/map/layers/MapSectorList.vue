@@ -105,8 +105,11 @@ onMounted(async () => {
         }
     }, 500, true);
 
-    watch([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions, mapLevel], debouncedUpdate, {
+    watch([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions], debouncedUpdate, {
         immediate: true,
+    });
+    watch(mapLevel, () => {
+        vectorSource.changed();
     });
 });
 

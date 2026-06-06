@@ -109,21 +109,28 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             vgMap[properties.vgSectorId].push(feature);
         }
 
-        const lastLevelOrCombined = store.mapSettings.vatglasses?.combined ? true : store.localSettings.vatglassesLevel ?? 999;
+        const combined = store.mapSettings.vatglasses?.combined;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
             for (const positionId in countryEntries) {
                 const position = countryEntries[positionId];
-                const id: any = 'sector-' + String(countryId) + String(positionId) + String(store.mapSettings.vatglasses?.combined);
+                const id: any = 'sector-' + String(countryId) + String(positionId) + String(combined);
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                const vgFeatures = store.mapSettings.vatglasses?.combined
-                    ? position.sectorsCombined
-                    : position.sectors?.filter(
-                        x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
-                    );
+                let vgFeatures: (typeof position.sectorsCombined) | undefined;
+                if (combined) {
+                    vgFeatures = position.sectorsCombined;
+                }
+                else if (position.sectorsCombinedBands) {
+                    vgFeatures = position.sectorsCombinedBands.flatMap(b => b.features);
+                }
+                else {
+                    vgFeatures = position.sectors;
+                }
+
+                const lastLevelOrCombined = combined ? true : (position.sectorsCombinedBands?.length ?? 0);
 
                 if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
                     const features = vgFeatures?.map(x => createMapFeature('sector-vatglasses', {
