@@ -109,7 +109,9 @@ onMounted(async () => {
         immediate: true,
     });
     watch(mapLevel, () => {
+        const log = logBench('vgRestyle');
         vectorSource.changed();
+        log();
     });
 });
 

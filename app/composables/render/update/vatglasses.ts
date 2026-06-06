@@ -15,6 +15,9 @@ import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'g
 import { polygon } from '@turf/helpers';
 import { stringToArray } from '~/utils/shared';
 import { getCombinationPool } from '~/composables/render/combination-pool';
+import { logBench } from '~/composables';
+
+export const vatglassesStats = ref({ positions: 0, recombined: 0 });
 
 let facilities: {
     ATIS: number;
@@ -36,11 +39,13 @@ function checkIgnoredPosition(id: string, callsign: string) {
 async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActivePositions, combined: boolean) {
     const pool = getCombinationPool();
     const tasks: Promise<void>[] = [];
+    let positions = 0;
 
     for (const countryGroupId in finalPositions) {
         for (const positionId in finalPositions[countryGroupId]) {
             const position = finalPositions[countryGroupId][positionId];
             if (!position) continue;
+            positions++;
             const sectors = position.sectors;
             if (!sectors) continue;
 
@@ -60,6 +65,9 @@ async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActiv
             }
         }
     }
+
+    // tasks.length == number of positions whose geometry was recomputed this tick
+    vatglassesStats.value = { positions, recombined: tasks.length };
 
     await Promise.all(tasks);
 }
@@ -436,7 +444,9 @@ export async function updateVATGlasses(context: DataUpdateContext) {
         dataStore.vatglassesCombiningInProgress.value = true;
         // Combined mode unions all altitudes
         const combined = !!store.mapSettings.vatglasses?.combined;
+        const logCombine = logBench('vgCombine');
         await combineAllVatglassesActiveSectors(finalPositions, combined).catch(e => console.error(e));
+        logCombine();
         dataStore.vatglassesCombiningInProgress.value = false;
     }
 
