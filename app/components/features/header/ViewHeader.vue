@@ -114,7 +114,7 @@
                     </template>
                 </ui-button>
                 <ui-button
-                    v-if="store.friends.length || store.bookmarks.length"
+                    v-if="(store.friends.length || store.bookmarks.length) && isMobile"
                     class="header__friends"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
