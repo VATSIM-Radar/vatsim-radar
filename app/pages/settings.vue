@@ -106,7 +106,7 @@
                         <ui-tabs
                             background="darkGray900"
                             :model-value="String(rootPath) + (childrenPath ?? '')"
-                            :tabs="Object.fromEntries(root.sections.map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
+                            :tabs="Object.fromEntries(root.sections.filter(x => x.hide === undefined || !toValue(x.hide)).map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
                             vertical
                             @update:modelValue="menuActive = false"
                         />
@@ -317,14 +317,11 @@ const currentItem = computed(() => {
     for (const root of settingsSections) {
         if (root.url !== rootPath.value) continue;
 
-        for (const item of root.sections) {
-            if (item.url !== childrenPath.value) {
-                if (!item.url && !childrenPath.value) return item;
+        const visibleSections = root.sections.filter(x => x.hide === undefined || !toValue(x.hide));
 
-                continue;
-            }
-            return item;
-        }
+        if (!childrenPath.value) return visibleSections[0] ?? null;
+
+        return visibleSections.find(x => x.url === childrenPath.value) ?? null;
     }
 
     return null;
@@ -339,6 +336,12 @@ if (!currentItem.value) {
     else {
         showError({ status: 404 });
     }
+}
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+else if (!childrenPath.value && currentItem.value.url) {
+    // Default section is hidden (e.g. Account while logged out) - land on the first visible one
+    // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+    navigateTo(`/settings/${ rootPath.value }/${ currentItem.value.url }`, { replace: true });
 }
 </script>
 
