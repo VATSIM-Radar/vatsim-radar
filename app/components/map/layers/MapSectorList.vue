@@ -90,6 +90,7 @@ onMounted(async () => {
     const debouncedUpdate = useThrottleFn(async () => {
         if (hideAtc.value) {
             vectorSource.clear();
+            vectorImageSource.clear();
         }
         else {
             const log = logBench('sectorsRender');

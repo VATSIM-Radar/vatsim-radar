@@ -1,6 +1,6 @@
 <template>
     <popup-fullscreen
-        v-if="store.updateRequired || $pwa?.needRefresh"
+        v-if="store.updateRequired"
         v-model="updateRequired"
         disabled
     >
