@@ -43,6 +43,7 @@
                     v-for="controller in sector.atc"
                     :key="controller.cid"
                     :controller
+                    @overlay="emit('close')"
                 />
                 <template v-if="sector.min === 0">
                     <ui-text
@@ -69,6 +70,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
+            @overlay="emit('close')"
         >
             <template #title>
                 {{getPopupName}}

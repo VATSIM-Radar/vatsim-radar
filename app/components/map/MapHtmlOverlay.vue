@@ -1,7 +1,7 @@
 <template>
     <div
         v-if="model"
-        v-show="isInteraction && isMobile"
+        v-show="isInteraction && isMobile && mobile"
         class="map-overlay-block"
     >
         <div
@@ -51,6 +51,10 @@ const props = defineProps({
     isInteraction: {
         type: Boolean,
         default: false,
+    },
+    mobile: {
+        type: Boolean,
+        default: true,
     },
 });
 
