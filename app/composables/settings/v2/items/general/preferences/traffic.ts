@@ -30,6 +30,14 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.disableFastUpdate'),
         onChange: value => setSettingByKey('map.traffic.disableFastUpdate', value),
     },
+    smoothMovement: {
+        title: 'Smooth aircraft movement',
+        description: 'Animates aircraft between position updates using a spline instead of jumping. Renders ~2s behind real time so positions stay accurate. Uses a bit more CPU.',
+        searchKeywords: ['interpolate', 'interpolation', 'animation', 'spline'],
+        type: 'toggle',
+        value: getSettingValue('map.traffic.smoothMovement'),
+        onChange: value => setSettingByKey('map.traffic.smoothMovement', value),
+    },
     declutter: {
         title: 'Aircraft Declutter',
         searchKeywords: ['labels', 'overlap', 'hide'],

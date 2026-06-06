@@ -204,7 +204,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'traffic',
                             title: 'Traffic',
-                            items: [items.preferences.traffic.disableFastUpdate],
+                            items: [items.preferences.traffic.disableFastUpdate, items.preferences.traffic.smoothMovement],
                         },
                     ],
                 },

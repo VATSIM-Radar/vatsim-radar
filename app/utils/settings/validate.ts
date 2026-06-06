@@ -222,6 +222,7 @@ const settingsSchema = partialObject({
             toggleAircraftOverlays: booleanSchema,
             autoShowAirportTracks: booleanSchema,
             disableFastUpdate: booleanSchema,
+            smoothMovement: booleanSchema,
             declutter: v.union([booleanSchema, v.literal('always')], 'must be true, false or always'),
             highlightEmergency: booleanSchema,
         }),

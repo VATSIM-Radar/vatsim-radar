@@ -15,6 +15,7 @@ import { aircraftIcons } from '~/utils/icons';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
+import { isSmoothMovementEnabled } from '~/composables/render/aircraft/smooth';
 import { aircraftState } from './state';
 import type { DataAirport } from '~/composables/render/storage';
 import type { PartialRecord } from '~/types';
@@ -104,6 +105,8 @@ export async function setMapAircraft(settings: {
     const dataStore = useDataStore();
     const mapStore = useMapStore();
 
+    const smoothMovement = isSmoothMovementEnabled();
+
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
 
     const linesFeatures = linesSource.getFeatures();
@@ -186,7 +189,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            existingFeature.getGeometry()!.setCoordinates(coordinates);
+            if (!smoothMovement || isSelfFlight) existingFeature.getGeometry()!.setCoordinates(coordinates);
             existingFeature.setProperties(properties);
         }
         else {
