@@ -144,6 +144,7 @@ import type {
     FeatureAircraft,
 } from '~/utils/map/entities';
 import { parseEncoding } from '~/utils/data';
+import { injectMap } from '~/composables/map';
 import { usePilotRating } from '~/composables/vatsim/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
@@ -151,7 +152,8 @@ import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import type { Options } from 'ol/Overlay.js';
+import type { Options, Positioning } from 'ol/Overlay.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
@@ -175,13 +177,14 @@ const emit = defineEmits({
 
 const store = useStore();
 const dataStore = useDataStore();
+const map = injectMap();
 
 const properties = computed(() => props.payload.feature.getProperties());
 const isShortInfo = computed(() => getKeyedValueFromSettings('map.preferences.aircraft.shortView'));
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[properties.value.cid.toString()]);
 const friend = computed(() => store.friends.find(x => x.cid === properties.value.cid));
 
-function overlayPositionFromHeading(headingDeg: number) {
+function overlayPositionFromHeading(headingDeg: number): Positioning {
     const h = ((headingDeg % 360) + 360) % 360;
 
     const sector = Math.floor(((h + 22.5) % 360) / 45);
@@ -199,17 +202,63 @@ function overlayPositionFromHeading(headingDeg: number) {
     }
 }
 
+const POPUP_WIDTH = computed(() => (isShortInfo.value ? 160 : 248));
+const POPUP_HEIGHT = computed(() => (isShortInfo.value ? 130 : 220));
+
+function clampPositioningToViewport({ positioning, position, safeOffsetX, safeOffsetY }: {
+    positioning: Positioning;
+    position: Coordinate;
+    safeOffsetX: number;
+    safeOffsetY: number;
+}): Positioning {
+    const size = map.value?.getSize();
+    const pixel = map.value?.getPixelFromCoordinate(position);
+    if (!size || !pixel) return positioning;
+
+    const [viewportWidth, viewportHeight] = size;
+    const [px, py] = pixel;
+    const width = POPUP_WIDTH.value;
+    const height = POPUP_HEIGHT.value;
+
+    let [vertical, horizontal] = positioning.split('-');
+
+    if (horizontal === 'left') {
+        if (px + safeOffsetX + width > viewportWidth && px - safeOffsetX - width >= 0) horizontal = 'right';
+    }
+    else if (horizontal === 'right') {
+        if (px - safeOffsetX - width < 0 && px + safeOffsetX + width <= viewportWidth) horizontal = 'left';
+    }
+    else {
+        if (px + (width / 2) > viewportWidth) horizontal = 'right';
+        else if (px - (width / 2) < 0) horizontal = 'left';
+    }
+
+    if (vertical === 'top') {
+        if (py + safeOffsetY + height > viewportHeight && py - safeOffsetY - height >= 0) vertical = 'bottom';
+    }
+    else if (vertical === 'bottom') {
+        if (py - safeOffsetY - height < 0 && py + safeOffsetY + height <= viewportHeight) vertical = 'top';
+    }
+    else {
+        if (py + (height / 2) > viewportHeight) vertical = 'bottom';
+        else if (py - (height / 2) < 0) vertical = 'top';
+    }
+
+    return `${ vertical }-${ horizontal }` as Positioning;
+}
+
 const getOverlaySettings = computed<Options>(() => {
     const coord = getCurrentWorldCoordinate({
         coordinate: properties.value.coordinates,
         eventCoordinate: props.payload.coordinate,
     });
 
+    const position: Coordinate = [
+        coord[0],
+        properties.value.coordinates[1],
+    ];
+
     const offset = [0, 0];
-
-    const positioning: Options['positioning'] = overlayPositionFromHeading(properties.value.heading);
-
-    const [first, second] = positioning.split('-');
 
     const [safeOffsetX, safeOffsetY] = getResolvedScale({
         scale: properties.value.scale,
@@ -218,16 +267,22 @@ const getOverlaySettings = computed<Options>(() => {
         onGround: properties.value.onGround,
     });
 
+    const positioning = clampPositioningToViewport({
+        positioning: overlayPositionFromHeading(properties.value.heading),
+        position,
+        safeOffsetX,
+        safeOffsetY,
+    });
+
+    const [first, second] = positioning.split('-');
+
     const backOffset = 0;
 
     offset[1] = first === 'top' ? (safeOffsetY) - backOffset : first === 'bottom' ? -(safeOffsetY) + backOffset : 0;
     offset[0] = second === 'left' ? (safeOffsetX) - backOffset : second === 'right' ? -(safeOffsetX) + backOffset : 0;
 
     return {
-        position: [
-            coord[0],
-            properties.value.coordinates[1],
-        ],
+        position,
         positioning,
         offset,
     };
