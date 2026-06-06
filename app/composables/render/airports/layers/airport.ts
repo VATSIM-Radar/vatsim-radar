@@ -175,7 +175,7 @@ export function setMapAirports({ source, airports, layer }: {
             const totalCount = list.filter(x => x[1].length).length;
             const localsLength = facilities.length;
 
-            list.filter(x => !x[1].length).forEach(([_key, value]) => {
+            list.filter(x => !x[1].length).forEach(([_key]) => {
                 const key = _key as MapAircraftKeys;
                 const existingCounter = getMapFeature('airport-counter', source, `airport-${ airport.icao }-${ key }`);
                 if (existingCounter) {
@@ -394,6 +394,11 @@ export function setMapAirports({ source, airports, layer }: {
                     source.removeFeature(feature);
                     feature.dispose();
                 }
+            }
+
+            if (isMapFeature('airport-counter', properties) && !mapStore.renderedAirports?.includes(properties.icao)) {
+                source.removeFeature(feature);
+                feature.dispose();
             }
         }
     }

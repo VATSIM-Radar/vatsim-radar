@@ -109,7 +109,7 @@ export async function setMapAircraft(settings: {
 
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
 
-    const linesFeatures = linesSource.getFeatures();
+    const linesFeatures = linesSource.getFeatures().slice(0);
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
     const keyedShownPilots = new Set(shownPilots.map(x => x.cid));
 
@@ -204,7 +204,7 @@ export async function setMapAircraft(settings: {
         updateAircraftTracksData(settings, renderState);
     }
 
-    const aircraft = source.getFeatures();
+    const aircraft = source.getFeatures().slice(0);
 
     for (const feature of aircraft) {
         if (!keyedShownPilots.has(feature.getId() as number)) {

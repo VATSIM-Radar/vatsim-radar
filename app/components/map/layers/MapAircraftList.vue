@@ -20,6 +20,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
 import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
+import { disposeAircraftStyle } from '~/composables/render/aircraft/style';
 
 defineOptions({
     render: () => null,
@@ -57,7 +58,8 @@ const getShownPilots = computed(() => {
         arrivalAirport = me.arrival;
     }
 
-    const allOnGround: number[] = [];
+    const pilotOverlayIds = new Set(pilotsOverlays.value);
+    const allOnGround = new Set<number>();
 
     for (const icao in dataStore.airportsList.value) {
         const airport = dataStore.airportsList.value[icao];
@@ -68,12 +70,12 @@ const getShownPilots = computed(() => {
             if (check) continue;
         }
 
-        allOnGround.push(...airport.aircraft.groundDep ?? []);
-        allOnGround.push(...airport.aircraft.groundArr ?? []);
+        for (const cid of airport.aircraft.groundDep ?? []) allOnGround.add(cid);
+        for (const cid of airport.aircraft.groundArr ?? []) allOnGround.add(cid);
     }
 
 
-    return pilots.filter(x => pilotsOverlays.value.includes(x.cid) || !allOnGround.includes(x.cid));
+    return pilots.filter(x => pilotOverlayIds.has(x.cid) || !allOnGround.has(x.cid));
 });
 
 const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
@@ -281,9 +283,16 @@ function initHeatmap() {
         map.value?.addLayer(heatmap);
     }
     else if (heatmap) {
-        map.value?.removeLayer(heatmap);
-        heatmap = null;
+        disposeHeatmap();
     }
+}
+
+function disposeHeatmap() {
+    if (!heatmap) return;
+
+    map.value?.removeLayer(heatmap);
+    heatmap.dispose();
+    heatmap = null;
 }
 
 watch(() => getKeyedValueFromSettings('map.layers.heatmap'), async () => {
@@ -404,8 +413,7 @@ onBeforeUnmount(() => {
     linesLayer?.dispose();
     vectorSource?.clear();
     linesSource?.clear();
-    if (heatmap) {
-        map.value?.removeLayer(heatmap);
-    }
+    disposeHeatmap();
+    disposeAircraftStyle();
 });
 </script>

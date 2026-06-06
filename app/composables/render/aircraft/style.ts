@@ -272,6 +272,12 @@ function getAircraftDefaultTurnColor(status: MapAircraftStatus, cid: number) {
     return color;
 }
 
+export function disposeAircraftStyle() {
+    watcher?.();
+    watcher = undefined;
+    refreshAircraftStyle = undefined;
+}
+
 export function setAircraftLineStyle(layer: VectorImageLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
