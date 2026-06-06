@@ -229,7 +229,7 @@
                 </ui-tooltip>
                 <ui-button
                     size="S"
-                    to="/settings"
+                    :to="route.path.startsWith('/settings') ? '/' : '/settings'"
                     :type="route.path.startsWith('/settings') ? 'primary' : 'secondary'"
                 >
                     <template #icon>
@@ -282,7 +282,7 @@ import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
-import { vatsimAuth } from '../../../composables/vatsim/auth';
+import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 
 const headerMenu = useHeaderMenu();

@@ -86,7 +86,7 @@
                 </ui-button>
                 <ui-button
                     v-if="config.public.IS_DOWN !== 'true'"
-                    to="/settings"
+                    :to="route.path.startsWith('/settings') ? '/' : '/settings'"
                     type="secondary"
                     @click="model = false"
                 >
@@ -163,6 +163,7 @@ import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 const model = defineModel({ type: Boolean, required: true });
 
 const app = useNuxtApp();
+const route = useRoute();
 const onlineCounters = useOnlineCounters();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
