@@ -238,6 +238,7 @@ const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const layer = shallowRef<LayerGroup | null>(null);
+let cleanupOpenLayersMap: (() => void) | undefined;
 const ready = ref(false);
 const restoredOverlays = ref(false);
 const store = useStore();
@@ -260,6 +261,16 @@ const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
 const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
 const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
 const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
+function isSameSetAsArray<T>(set: Set<T>, list: T[] | null) {
+    if (!list || set.size !== list.length) return false;
+
+    for (const item of list) {
+        if (!set.has(item)) return false;
+    }
+
+    return true;
+}
+
 const mapColorsKey = computed(() => JSON.stringify([
     store.theme,
     getColorByKey('map.preferences.colors.default.aircraft.main').value.value,
@@ -861,17 +872,24 @@ await setupDataFetch({
         mapStore.center = mapView.getCenter()!;
         ready.value = true;
 
-        map.value.getTargetElement().style.cursor = 'grab';
-        map.value.on('pointerdrag', function() {
-            map.value!.getTargetElement().style.cursor = 'grabbing';
-        });
+        const targetElement = map.value.getTargetElement();
+        targetElement.style.cursor = 'grab';
+
+        const pointerDragHandler = () => {
+            targetElement.style.cursor = 'grabbing';
+        };
+        map.value.on('pointerdrag', pointerDragHandler);
 
         const saveData = useThrottleFn((airports: Set<string>, aircraft: Set<number>) => {
-            mapStore.renderedAirports = Array.from(airports);
-            mapStore.renderedPilots = Array.from(aircraft);
+            if (!isSameSetAsArray(airports, mapStore.renderedAirports)) {
+                mapStore.renderedAirports = Array.from(airports);
+            }
+            if (!isSameSetAsArray(aircraft, mapStore.renderedPilots)) {
+                mapStore.renderedPilots = Array.from(aircraft);
+            }
         }, 250, true);
 
-        map.value.on('postrender', event => {
+        const postrenderHandler = (event: any) => {
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
             const rbushAircraft = features?.declutter?.aircraft;
@@ -890,12 +908,13 @@ await setupDataFetch({
             }
 
             saveData(airports, aircraft);
-        });
+        };
+        map.value.on('postrender', postrenderHandler);
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
         mapStore.center = map.value!.getView().getCenter()!;
 
-        map.value.getTargetElement().addEventListener('mousedown', event => {
+        const targetMouseDownHandler = (event: MouseEvent) => {
             const target = event.target as HTMLCanvasElement;
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
@@ -926,32 +945,62 @@ await setupDataFetch({
 
                 map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
             }
-        });
+        };
+        targetElement.addEventListener('mousedown', targetMouseDownHandler);
 
         await nextTick();
         popupsHeight.value = popups.value?.clientHeight ?? 0;
 
+        let popupsResizeObserver: ResizeObserver | undefined;
+
         if (popups.value) {
-            const resizeObserver = new ResizeObserver(() => {
+            popupsResizeObserver = new ResizeObserver(() => {
                 popupsHeight.value = popups.value?.clientHeight ?? 0;
             });
-            resizeObserver.observe(popups.value!);
+            popupsResizeObserver.observe(popups.value!);
         }
 
         await restoreOverlays();
         restoredOverlays.value = true;
 
-        map.value.on('movestart', () => {
+        const moveStartHandler = () => {
             moving = true;
             mapStore.moving = true;
-        });
-        map.value?.getView().on('change:resolution', () => {
+        };
+        const resolutionChangeHandler = () => {
             mapStore.preciseZoom = map.value?.getView().getZoom() ?? 0;
-        });
-        map.value.on('moveend', async () => {
+        };
+        const moveEndHandler = async () => {
             moving = false;
             handleMoveEnd();
-        });
+        };
+
+        map.value.on('movestart', moveStartHandler);
+        map.value.getView().on('change:resolution', resolutionChangeHandler);
+        map.value.on('moveend', moveEndHandler);
+
+        cleanupOpenLayersMap = () => {
+            const currentMap = map.value;
+            if (!currentMap) return;
+
+            popupsResizeObserver?.disconnect();
+            targetElement.removeEventListener('mousedown', targetMouseDownHandler);
+            currentMap.un('pointerdrag', pointerDragHandler);
+            currentMap.un('postrender', postrenderHandler);
+            currentMap.un('movestart', moveStartHandler);
+            currentMap.un('moveend', moveEndHandler);
+            currentMap.getView().un('change:resolution', resolutionChangeHandler);
+            currentMap.setTarget(undefined);
+            currentMap.dispose();
+
+            layer.value?.dispose();
+            layer.value = null;
+            map.value = null;
+            mapStore.moving = false;
+            mapStore.renderedAirports = null;
+            mapStore.renderedPilots = null;
+            cleanupOpenLayersMap = undefined;
+        };
 
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {
@@ -1032,6 +1081,10 @@ onBeforeUnmount(() => {
     document.removeEventListener('keydown', handleKeys, {
         capture: true,
     });
+});
+
+onUnmounted(() => {
+    cleanupOpenLayersMap?.();
 });
 </script>
 
