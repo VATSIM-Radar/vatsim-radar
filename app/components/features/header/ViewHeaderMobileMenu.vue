@@ -283,7 +283,7 @@ const counters = computed(() => ([
         gap: 12px;
         align-items: center;
 
-        @include tablet {
+        @include fromTablet {
             .button-group {
                 flex-grow: 1;
             }
