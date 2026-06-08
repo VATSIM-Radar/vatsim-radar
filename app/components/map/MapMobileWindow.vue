@@ -130,7 +130,13 @@ const overlaysHeight = computed(() => {
     }
 }
 
-.mobile-sheet {
+.mobile-sheet_popup {
+    width: 100%;
+}
+</style>
+
+<style lang="scss">
+.vbs {
     --vbs-max-width: 640px;
     --vbs-radius: 16px;
     --vbs-bg: #{$black};
@@ -142,8 +148,12 @@ const overlaysHeight = computed(() => {
     --vbs-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
     --vbs-z-index: 6;
 
-    &_popup {
-        width: 100%;
+    .vbs__content-inner {
+        padding: 0;
+    }
+    .vbs__content-inner .info-popup {
+        max-width: none;
+        scrollbar-gutter: auto;
     }
 }
 </style>
