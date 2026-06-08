@@ -42,6 +42,7 @@
         :blocking="false"
         class="mobile-sheet"
         :default-snap="({ snapPoints: points }) => points[1]"
+        :max-height="sheetMaxHeight"
         :open="sheetOpen"
         :snap-points="snapPoints"
         @dismiss="closeSheet"
@@ -68,6 +69,13 @@ import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+
+const { height: windowHeight } = useWindowSize();
+
+const sheetMaxHeight = computed(() => {
+    const headerOffset = store.config.hideHeader ? 8 : 56 + 8;
+    return Math.max(0, windowHeight.value - headerOffset);
+});
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
 const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified);
