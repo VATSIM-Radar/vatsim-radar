@@ -148,12 +148,24 @@ const overlaysHeight = computed(() => {
     --vbs-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
     --vbs-z-index: 6;
 
+    .vbs__content {
+        overscroll-behavior: none;
+    }
+
     .vbs__content-inner {
         padding: 0;
     }
+
     .vbs__content-inner .info-popup {
-        max-width: none;
         scrollbar-gutter: auto;
+        overflow: visible;
+        max-width: none;
+        max-height: none;
+    }
+
+    .vbs__content-inner .info-popup__section--actions {
+        position: sticky;
+        bottom: 0;
     }
 }
 </style>
