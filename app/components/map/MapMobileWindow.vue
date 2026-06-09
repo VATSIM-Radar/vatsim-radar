@@ -260,9 +260,18 @@ const overlaysHeight = computed(() => {
         max-height: none;
     }
 
+    .vbs__content-inner .info-popup_content {
+        justify-content: flex-start;
+    }
+
+    .vbs__content-inner .info-popup__section:not(.info-popup__section--actions) {
+        flex-grow: 0;
+    }
+
     .vbs__content-inner .info-popup__section--actions {
         position: sticky;
         bottom: 0;
+        margin-top: auto;
     }
 }
 </style>
