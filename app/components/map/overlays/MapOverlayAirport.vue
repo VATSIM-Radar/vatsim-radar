@@ -240,6 +240,7 @@
                 </ui-toggle>
             </div>
             <airport-aircraft
+                :ground-mode="props.overlay.data.aircraftGroundMode"
                 :mode="props.overlay.data.aircraftTab"
                 nav-offset="56px"
             />

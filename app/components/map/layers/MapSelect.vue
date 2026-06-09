@@ -367,6 +367,23 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
     };
 };
 
+function airportCounterOverlayOptions(counterType?: string): Parameters<typeof mapStore.addAirportOverlay>[1] {
+    switch (counterType) {
+        case 'departures':
+            return { tab: 'aircraft', aircraftTab: 'departed' };
+        case 'arrivals':
+            return { tab: 'aircraft', aircraftTab: 'arriving' };
+        case 'groundDep':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'dep' };
+        case 'groundArr':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'arr' };
+        case 'prefiles':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'prefiles' };
+        default:
+            return { tab: 'aircraft', aircraftTab: 'ground' };
+    }
+}
+
 const definitions = {
     airportControllers: {
         featureTypes: ['airport'],
@@ -408,11 +425,13 @@ const definitions = {
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
+        disableMobileHoverFallback: true,
         hover: payload => {
             return openOverlay('airportCounter', payload, 'airportCounter');
         },
         click: payload => {
-            mapStore.addAirportOverlay(payload.feature.getProperties().icao);
+            const properties = payload.feature.getProperties();
+            mapStore.addAirportOverlay(properties.icao, airportCounterOverlayOptions(properties.counterType));
         },
     },
     sector: {
@@ -586,9 +605,11 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
         priorities: [
             'distance',
             'sector',
+            // Counter before the airport/local features so tapping a counter opens
+            // the airport overlay on that traffic category, not the generic airport.
+            'airportCounter',
             'airportControllers',
             'airportLocal',
-            'airportCounter',
             'airportApproach',
             'aircraft',
             'multi',
