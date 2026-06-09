@@ -257,9 +257,9 @@ onBeforeUnmount(() => {
     }
 
     .popup-block {
+        padding: 0 10px;
         border: none;
         border-radius: 0;
-        padding: 0 10px;
         background: transparent;
     }
 
