@@ -38,6 +38,7 @@
     </transition>
 
     <bottom-sheet
+        ref="sheet"
         aria-label="Overlay details"
         :blocking="false"
         class="mobile-sheet"
@@ -46,6 +47,7 @@
         :open="sheetOpen"
         :snap-points="snapPoints"
         @dismiss="closeSheet"
+        @snap="onSnap"
     >
         <map-overlays
             v-if="overlay && !overlay.minified"
@@ -59,6 +61,8 @@
 <script setup lang="ts">
 import { BottomSheet } from 'vue-bottom-sheets';
 import 'vue-bottom-sheets/style.css';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
@@ -77,8 +81,35 @@ const sheetMaxHeight = computed(() => {
     return Math.max(0, windowHeight.value - headerOffset);
 });
 
+const sheet = useTemplateRef<InstanceType<typeof BottomSheet>>('sheet');
+const map = inject<ShallowRef<Map | null>>('map', shallowRef<Map | null>(null));
+
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
 const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified);
+
+function setMapBottomPadding(bottom: number) {
+    const view = map.value?.getView();
+    if (view) view.padding = [0, 0, bottom, 0];
+}
+
+function onSnap(height: number) {
+    setMapBottomPadding(sheetOpen.value ? height : 0);
+}
+
+watch(() => sheetOpen.value, open => {
+    // Seed padding with the default (mid) snap height on open; @snap refines it.
+    setMapBottomPadding(open ? Math.round(sheetMaxHeight.value * 0.6) : 0);
+});
+
+onBeforeUnmount(() => setMapBottomPadding(0));
+
+watch(() => mapStore.mobileSheetCollapse, () => {
+    sheet.value?.snapTo(({ snapPoints: points, height }) => {
+        const mid = points[1];
+        return height > mid ? mid : height;
+    });
+});
+
 const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures.value).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
 
 const snapPoints = ({ maxHeight, minHeight }: { maxHeight: number; minHeight: number }) => [

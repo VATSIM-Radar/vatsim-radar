@@ -101,6 +101,7 @@ export const useMapStore = defineStore('map', {
         selectedCid: null as number | false | null,
 
         activeMobileOverlay: null as null | string,
+        mobileSheetCollapse: 0,
         autoShowTracks: null as null | boolean,
 
         distance: {
