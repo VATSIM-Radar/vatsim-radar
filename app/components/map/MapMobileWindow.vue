@@ -180,6 +180,7 @@ const overlaysHeight = computed(() => {
 }
 
 .mobile-sheet_popup {
+    flex: 1 0 auto;
     width: 100%;
 }
 
@@ -243,6 +244,9 @@ const overlaysHeight = computed(() => {
     }
 
     .vbs__content-inner {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
         padding: 0;
     }
 
