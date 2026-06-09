@@ -43,18 +43,28 @@
         :blocking="false"
         class="mobile-sheet"
         :default-snap="({ snapPoints: points }) => points[1]"
+        :handle="false"
         :max-height="sheetMaxHeight"
         :open="sheetOpen"
         :snap-points="snapPoints"
         @dismiss="closeSheet"
         @snap="onSnap"
     >
-        <map-overlays
-            v-if="overlay && !overlay.minified"
-            class="mobile-sheet_popup"
-            max-height="unset"
-            :overlay
-        />
+        <template #default="{ dragHandleProps }">
+            <template v-if="overlay && !overlay.minified">
+                <div class="mobile-sheet_handle-zone">
+                    <div
+                        class="mobile-sheet_handle"
+                        v-bind="dragHandleProps"
+                    />
+                </div>
+                <map-overlays
+                    class="mobile-sheet_popup"
+                    max-height="unset"
+                    :overlay
+                />
+            </template>
+        </template>
     </bottom-sheet>
 </template>
 
@@ -171,6 +181,47 @@ const overlaysHeight = computed(() => {
 
 .mobile-sheet_popup {
     width: 100%;
+}
+
+.mobile-sheet_handle-zone {
+    position: sticky;
+    z-index: 9;
+    top: 0;
+
+    overflow: visible;
+
+    height: 0;
+
+}
+
+.mobile-sheet_handle {
+    cursor: grab;
+
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 16px;
+
+    &::after {
+        content: '';
+
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+
+        background: var(--vbs-handle);
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
 }
 </style>
 
