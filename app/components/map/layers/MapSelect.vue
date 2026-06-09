@@ -11,6 +11,7 @@
                 stopEvent: true,
             }"
             :z-index="5"
+            @close="contextMenu = null"
             @mouseleave="!$event.relatedTarget?.closest('#teleports') && (contextMenu = null)"
             @pointermove.stop
             @update:modelValue="contextMenu = null"
@@ -95,6 +96,7 @@
                 stopEvent: true,
             }"
             :z-index="5"
+            @close="multiSelectCoordinate = null"
             @mouseleave="multiSelectCoordinate = null"
             @pointermove.stop
             @update:modelValue="multiSelectCoordinate = null"

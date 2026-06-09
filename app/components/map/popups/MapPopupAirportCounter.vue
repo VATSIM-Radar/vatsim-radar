@@ -10,6 +10,7 @@
             positioning: 'center-left',
         }"
         :z-index="20"
+        @close="emit('close')"
         @id="$emit('id', $event)"
         @pointermove.stop
         @update:overlay="!$event && emit('close')"

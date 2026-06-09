@@ -237,6 +237,9 @@ const overlaysHeight = computed(() => {
     --vbs-shadow: 0 -8px 40px #{$blackAlpha64};
     --vbs-transition-duration: 320ms;
     --vbs-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mobile-sheet {
     --vbs-z-index: 6;
 
     .vbs__content {

@@ -1,6 +1,26 @@
 <template>
+    <bottom-sheet
+        v-if="model && isInteraction && isMobile"
+        aria-label="Map info"
+        :blocking="false"
+        class="map-overlay-sheet"
+        :max-height="sheetMaxHeight"
+        :open="model"
+        @dismiss="emit('close')"
+    >
+        <div
+            class="map-overlay map-overlay--sheet"
+            v-bind="$attrs"
+        >
+            <slot/>
+            <slot
+                v-if="isPopupOpen"
+                name="popup"
+            />
+        </div>
+    </bottom-sheet>
     <div
-        v-if="model"
+        v-else-if="model"
         v-show="isInteraction && isMobile"
         class="map-overlay-block"
     >
@@ -24,6 +44,8 @@ import type { PropType, ShallowRef } from 'vue';
 import type { Options } from 'ol/Overlay.js';
 import { Overlay } from 'ol';
 import type { Map } from 'ol';
+import { BottomSheet } from 'vue-bottom-sheets';
+import 'vue-bottom-sheets/style.css';
 import { useMapStore } from '~/store/map';
 
 defineOptions({
@@ -61,6 +83,9 @@ const emit = defineEmits({
     popupId(popupId: string) {
         return true;
     },
+    close() {
+        return true;
+    },
 });
 
 defineSlots<{ default: () => any; popup: () => any }>();
@@ -81,6 +106,9 @@ const overlay = defineModel('overlay', {
 const isMobile = useIsMobile();
 
 const mapStore = useMapStore();
+
+const { height: windowHeight } = useWindowSize();
+const sheetMaxHeight = computed(() => Math.max(0, windowHeight.value - (56 + 8)));
 
 const id = useId();
 const popupId = `${ id }-popup`;
@@ -215,6 +243,34 @@ onBeforeUnmount(() => {
     if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;
 });
 </script>
+
+<style lang="scss">
+.vbs__header {
+    padding: 8px 16px 0;
+}
+
+.map-overlay-sheet {
+    --vbs-z-index: 10;
+
+    .vbs__content-inner {
+        padding: 0;
+    }
+
+    .popup-block {
+        border: none;
+        border-radius: 0;
+        padding: 0 10px;
+        background: transparent;
+    }
+
+    .popup-block_title {
+        position: sticky;
+        z-index: 1;
+        top: 0;
+        background: var(--vbs-bg);
+    }
+}
+</style>
 
 <style lang="scss" scoped>
 @include mobileOnly {
