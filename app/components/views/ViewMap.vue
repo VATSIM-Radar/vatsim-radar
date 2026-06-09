@@ -528,15 +528,6 @@ const restoreOverlays = async () => {
     }
 };
 
-watch(distanceEnabled, val => {
-    if (!val) return;
-
-    if (!localStorage.getItem('distance-tool-tutorial-seen')) {
-        mapStore.distance.tutorial = true;
-        localStorage.setItem('distance-tool-tutorial-seen', '1');
-    }
-});
-
 useUpdateInterval(() => {
     if (vatglassesAutoLevel.value === false || !store.user) return;
 

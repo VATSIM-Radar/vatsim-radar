@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-beta.2]
+
+## Alpha changes
+
+- Fixed distance tool auto-syncing on new devices when autosave is enabled
+- Fixed remarks copy button displaying on top when selcal is present
+
 # [2.0.0-beta.1.3]
 
 ## Alpha changes
