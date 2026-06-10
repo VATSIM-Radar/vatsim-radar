@@ -47,6 +47,7 @@
         :max-height="sheetMaxHeight"
         :open="sheetOpen"
         :snap-points="snapPoints"
+        :theme="{ ...mapBottomSheetTheme, zIndex: 6 }"
         @dismiss="closeSheet"
         @snap="onSnap"
     >
@@ -70,9 +71,8 @@
 
 <script setup lang="ts">
 import { BottomSheet } from 'vue-bottom-sheets';
-import 'vue-bottom-sheets/style.css';
-import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
+import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
+import { injectMap } from '~/composables/map';
 import { useMapStore } from '~/store/map';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
@@ -84,15 +84,10 @@ const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const { height: windowHeight } = useWindowSize();
-
-const sheetMaxHeight = computed(() => {
-    const headerOffset = store.config.hideHeader ? 8 : 56 + 8;
-    return Math.max(0, windowHeight.value - headerOffset);
-});
+const sheetMaxHeight = useSheetMaxHeight();
 
 const sheet = useTemplateRef<InstanceType<typeof BottomSheet>>('sheet');
-const map = inject<ShallowRef<Map | null>>('map', shallowRef<Map | null>(null));
+const map = injectMap();
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
 const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified);
@@ -179,69 +174,56 @@ const overlaysHeight = computed(() => {
     }
 }
 
-.mobile-sheet_popup {
-    flex: 1 0 auto;
-    width: 100%;
-}
-
-.mobile-sheet_handle-zone {
-    position: sticky;
-    z-index: 9;
-    top: 0;
-
-    overflow: visible;
-
-    height: 0;
-
-}
-
-.mobile-sheet_handle {
-    cursor: grab;
-
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 64px;
-    height: 16px;
-
-    &::after {
-        content: '';
-
-        width: 36px;
-        height: 4px;
-        border-radius: 999px;
-
-        background: var(--vbs-handle);
+.mobile-sheet {
+    &_popup {
+        flex: 1 0 auto;
+        width: 100%;
     }
 
-    &:active {
-        cursor: grabbing;
+    &_handle-zone {
+        position: sticky;
+        z-index: 9;
+        top: 0;
+
+        overflow: visible;
+
+        height: 0;
+    }
+
+    &_handle {
+        cursor: grab;
+
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 64px;
+        height: 16px;
+
+        &::after {
+            content: '';
+
+            width: 36px;
+            height: 4px;
+            border-radius: 999px;
+
+            background: var(--vbs-handle);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
     }
 }
 </style>
 
 <style lang="scss">
-.vbs {
-    --vbs-max-width: 640px;
-    --vbs-radius: 16px;
-    --vbs-bg: #{$black};
-    --vbs-color: #{$lightGray200};
-    --vbs-backdrop: #{$blackAlpha64};
-    --vbs-handle: #{$whiteAlpha24};
-    --vbs-shadow: 0 -8px 40px #{$blackAlpha64};
-    --vbs-transition-duration: 320ms;
-    --vbs-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 .mobile-sheet {
-    --vbs-z-index: 6;
-
     .vbs__content {
         overscroll-behavior: none;
     }

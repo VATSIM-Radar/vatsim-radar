@@ -6,6 +6,7 @@
         class="map-overlay-sheet"
         :max-height="sheetMaxHeight"
         :open="model"
+        :theme="{ ...mapBottomSheetTheme, zIndex: 10 }"
         @dismiss="emit('close')"
     >
         <div
@@ -45,8 +46,8 @@ import type { Options } from 'ol/Overlay.js';
 import { Overlay } from 'ol';
 import type { Map } from 'ol';
 import { BottomSheet } from 'vue-bottom-sheets';
-import 'vue-bottom-sheets/style.css';
 import { useMapStore } from '~/store/map';
+import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
 
 defineOptions({
     inheritAttrs: false,
@@ -107,8 +108,7 @@ const isMobile = useIsMobile();
 
 const mapStore = useMapStore();
 
-const { height: windowHeight } = useWindowSize();
-const sheetMaxHeight = computed(() => Math.max(0, windowHeight.value - (56 + 8)));
+const sheetMaxHeight = useSheetMaxHeight();
 
 const id = useId();
 const popupId = `${ id }-popup`;
@@ -250,8 +250,6 @@ onBeforeUnmount(() => {
 }
 
 .map-overlay-sheet {
-    --vbs-z-index: 10;
-
     .vbs__content-inner {
         padding: 0;
     }
