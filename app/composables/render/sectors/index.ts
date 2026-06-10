@@ -180,7 +180,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
         const properties = feature.getProperties();
 
         if (isMapFeature('sector', properties) && !emptyIds.has(properties.id)) {
-            source.removeFeature(feature);
+            emptySource.removeFeature(feature);
             feature.dispose();
         }
     }

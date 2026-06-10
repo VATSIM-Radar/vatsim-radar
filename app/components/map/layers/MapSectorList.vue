@@ -91,6 +91,7 @@ onMounted(async () => {
     const update = async () => {
         if (hideAtc.value) {
             vectorSource.clear();
+            vectorImageSource.clear();
         }
         else {
             const log = logBench('sectorsRender');
