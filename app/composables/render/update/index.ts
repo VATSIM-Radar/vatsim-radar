@@ -66,7 +66,8 @@ export async function updateControllersRender() {
 }
 
 export function initControllersUpdate() {
-    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings], () => {
+    const combineBandsSetting = useSettingValueFromFunc('map.vatglasses.combineBands');
+    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, combineBandsSetting], () => {
         updateControllersRender();
     });
 }
