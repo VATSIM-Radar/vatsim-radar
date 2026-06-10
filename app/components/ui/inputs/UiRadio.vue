@@ -25,7 +25,7 @@
         <ui-tooltip
             v-if="hint || $slots.hint"
             class="radio_tooltip"
-            :location="hintLocation"
+            :location="hintLocation ?? 'left'"
             width="max-content"
         >
             <template #activator>
