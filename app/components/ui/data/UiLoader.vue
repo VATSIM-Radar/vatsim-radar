@@ -20,7 +20,7 @@
 import type { PropType } from 'vue';
 import type { ColorsList } from '~/utils/colors';
 import { radarColors } from '#build/radar/colors';
-import UiText from "~/components/ui/text/UiText.vue";
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     size: {
