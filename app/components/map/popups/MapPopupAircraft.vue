@@ -11,6 +11,7 @@
     >
         <popup-map-info
             v-if="pilot"
+            ref="popupRef"
             class="aircraft-hover"
             :class="{ 'aircraft-hover--short': isShortInfo }"
             content-padding="0"
@@ -152,9 +153,10 @@ import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import type { Options, Positioning } from 'ol/Overlay.js';
+import type { Options } from 'ol/Overlay.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
+import { clampOverlayPositioning, overlayPositionFromHeading } from '~/utils/map/overlay';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiText from '~/components/ui/text/UiText.vue';
@@ -184,68 +186,27 @@ const isShortInfo = computed(() => getKeyedValueFromSettings('map.preferences.ai
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[properties.value.cid.toString()]);
 const friend = computed(() => store.friends.find(x => x.cid === properties.value.cid));
 
-function overlayPositionFromHeading(headingDeg: number): Positioning {
-    const h = ((headingDeg % 360) + 360) % 360;
+// Fallback popup size used until the rendered popup has been measured
+const FALLBACK_POPUP_WIDTH = computed(() => (isShortInfo.value ? 160 : 248));
+const FALLBACK_POPUP_HEIGHT = computed(() => (isShortInfo.value ? 130 : 220));
 
-    const sector = Math.floor(((h + 22.5) % 360) / 45);
+// Measure the real popup so a content-driven height never overflows the viewport.
+const popupRef = ref<ComponentPublicInstance | null>(null);
+const popupSize = ref<{ width: number; height: number } | null>(null);
+let popupObserver: ResizeObserver | null = null;
 
-    switch (sector) {
-        case 0: return 'center-left';
-        case 1: return 'top-left';
-        case 2: return 'top-center';
-        case 3: return 'top-right';
-        case 4: return 'center-right';
-        case 5: return 'bottom-right';
-        case 6: return 'bottom-center';
-        case 7: return 'bottom-left';
-        default: return 'center-left';
-    }
-}
+onMounted(async () => {
+    await nextTick();
+    const el = popupRef.value?.$el;
+    if (!(el instanceof HTMLElement)) return;
 
-const POPUP_WIDTH = computed(() => (isShortInfo.value ? 160 : 248));
-const POPUP_HEIGHT = computed(() => (isShortInfo.value ? 130 : 220));
+    popupObserver = new ResizeObserver(() => {
+        popupSize.value = { width: el.offsetWidth, height: el.offsetHeight };
+    });
+    popupObserver.observe(el);
+});
 
-function clampPositioningToViewport({ positioning, position, safeOffsetX, safeOffsetY }: {
-    positioning: Positioning;
-    position: Coordinate;
-    safeOffsetX: number;
-    safeOffsetY: number;
-}): Positioning {
-    const size = map.value?.getSize();
-    const pixel = map.value?.getPixelFromCoordinate(position);
-    if (!size || !pixel) return positioning;
-
-    const [viewportWidth, viewportHeight] = size;
-    const [px, py] = pixel;
-    const width = POPUP_WIDTH.value;
-    const height = POPUP_HEIGHT.value;
-
-    let [vertical, horizontal] = positioning.split('-');
-
-    if (horizontal === 'left') {
-        if (px + safeOffsetX + width > viewportWidth && px - safeOffsetX - width >= 0) horizontal = 'right';
-    }
-    else if (horizontal === 'right') {
-        if (px - safeOffsetX - width < 0 && px + safeOffsetX + width <= viewportWidth) horizontal = 'left';
-    }
-    else {
-        if (px + (width / 2) > viewportWidth) horizontal = 'right';
-        else if (px - (width / 2) < 0) horizontal = 'left';
-    }
-
-    if (vertical === 'top') {
-        if (py + safeOffsetY + height > viewportHeight && py - safeOffsetY - height >= 0) vertical = 'bottom';
-    }
-    else if (vertical === 'bottom') {
-        if (py - safeOffsetY - height < 0 && py + safeOffsetY + height <= viewportHeight) vertical = 'top';
-    }
-    else {
-        if (py + (height / 2) > viewportHeight) vertical = 'bottom';
-        else if (py - (height / 2) < 0) vertical = 'top';
-    }
-
-    return `${ vertical }-${ horizontal }` as Positioning;
-}
+onBeforeUnmount(() => popupObserver?.disconnect());
 
 const getOverlaySettings = computed<Options>(() => {
     const coord = getCurrentWorldCoordinate({
@@ -267,12 +228,20 @@ const getOverlaySettings = computed<Options>(() => {
         onGround: properties.value.onGround,
     });
 
-    const positioning = clampPositioningToViewport({
-        positioning: overlayPositionFromHeading(properties.value.heading),
-        position,
-        safeOffsetX,
-        safeOffsetY,
-    });
+    const headingPositioning = overlayPositionFromHeading(properties.value.heading);
+    const size = map.value?.getSize();
+    const pixel = map.value?.getPixelFromCoordinate(position);
+
+    const positioning = (size && pixel)
+        ? clampOverlayPositioning({
+            positioning: headingPositioning,
+            pixel: pixel as [number, number],
+            viewport: size as [number, number],
+            popup: popupSize.value ?? { width: FALLBACK_POPUP_WIDTH.value, height: FALLBACK_POPUP_HEIGHT.value },
+            offsetX: safeOffsetX,
+            offsetY: safeOffsetY,
+        })
+        : headingPositioning;
 
     const [first, second] = positioning.split('-');
 
