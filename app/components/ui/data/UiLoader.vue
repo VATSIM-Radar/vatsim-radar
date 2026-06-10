@@ -7,12 +7,12 @@
         }"
     >
         <div class="loader_spinner"/>
-        <div
+        <ui-text
             v-if="$slots.default"
-            class="loader_text"
+            type="caption-medium"
         >
             <slot/>
-        </div>
+        </ui-text>
     </div>
 </template>
 
@@ -20,6 +20,7 @@
 import type { PropType } from 'vue';
 import type { ColorsList } from '~/utils/colors';
 import { radarColors } from '#build/radar/colors';
+import UiText from "~/components/ui/text/UiText.vue";
 
 defineProps({
     size: {
@@ -57,12 +58,6 @@ defineSlots<{ default?(): any }>();
                 transform: rotate(360deg);
             }
         }
-    }
-
-    &_text {
-        font-size: 13px;
-        font-weight: 500;
-        color: $lightGray200;
     }
 }
 </style>

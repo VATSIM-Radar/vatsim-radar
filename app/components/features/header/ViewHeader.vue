@@ -229,8 +229,8 @@
                 </ui-tooltip>
                 <ui-button
                     size="S"
-                    :to="route.path.startsWith('/settings') ? '/' : '/settings'"
                     :type="route.path.startsWith('/settings') ? 'primary' : 'secondary'"
+                    @click="route.path.startsWith('/settings') ? goBack() : navigateTo('/settings')"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -284,6 +284,9 @@ import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
+import { useGoBack } from '~/composables/useGoBack';
+
+const { goBack } = useGoBack();
 
 const headerMenu = useHeaderMenu();
 

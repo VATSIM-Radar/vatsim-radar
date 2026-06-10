@@ -371,12 +371,12 @@ function cancelBookingOverride() {
 
     &__friends {
         position: relative;
+        min-width: unset;
 
         &-bubble {
             position: absolute;
             top: -5px;
             right: -5px;
-            min-width: unset !important;
         }
     }
 
