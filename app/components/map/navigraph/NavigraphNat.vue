@@ -12,7 +12,6 @@ defineOptions({
 });
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
-const store = useStore();
 const dataStore = useDataStore();
 let features: Feature[] = [];
 
@@ -20,13 +19,15 @@ watch(dataStore.vatsim.tracks, async () => {
     source?.value.removeFeatures(features);
     features = [];
 
-    for (const track of dataStore.vatsim.tracks.value.filter(x => x.active || (store.localSettings.natTrak?.showConcorde && x.concorde))) {
-        if (!store.localSettings.natTrak?.showConcorde && track.concorde) continue;
-        if (store.localSettings.natTrak?.showConcorde && !track.concorde) continue;
-        if (store.localSettings.natTrak?.direction) {
-            if (store.localSettings.natTrak?.direction === 'west' && track.direction !== 'west') continue;
-            if (store.localSettings.natTrak?.direction === 'east' && track.direction !== 'east') continue;
-            if (store.localSettings.natTrak?.direction === 'both' && track.direction !== null) continue;
+    const showConcorde = getKeyedValueFromSettings('map.layers.natTrak.concorde');
+    const direction = getKeyedValueFromSettings('map.layers.natTrak.direction');
+    for (const track of dataStore.vatsim.tracks.value.filter(x => x.active || (showConcorde && x.concorde))) {
+        if (!showConcorde && track.concorde) continue;
+        if (showConcorde && !track.concorde) continue;
+        if (direction) {
+            if (direction === 'west' && track.direction !== 'west') continue;
+            if (direction === 'east' && track.direction !== 'east') continue;
+            if (direction === 'both' && track.direction !== null) continue;
         }
         const waypoints = await buildNATWaypoints(track);
 

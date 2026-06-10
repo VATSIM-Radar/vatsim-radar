@@ -177,7 +177,7 @@ const store = useStore();
 const dataStore = useDataStore();
 
 const properties = computed(() => props.payload.feature.getProperties());
-const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
+const isShortInfo = computed(() => getKeyedValueFromSettings('map.preferences.aircraft.shortView'));
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[properties.value.cid.toString()]);
 const friend = computed(() => store.friends.find(x => x.cid === properties.value.cid));
 

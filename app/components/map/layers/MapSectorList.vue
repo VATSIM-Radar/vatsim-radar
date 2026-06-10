@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector.js';
-import VectorLayer from 'ol/layer/Vector';
+import VectorLayer from 'ol/layer/Vector.js';
 import { FEATURES_Z_INDEX } from '~/composables/render';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
@@ -10,7 +10,7 @@ import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { setMapSectors } from '~/composables/render/sectors';
 import { globalMapEntities } from '~/utils/map/entities';
 import { logBench } from '~/composables';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 
 defineOptions({
     render: () => null,
@@ -81,7 +81,10 @@ onMounted(async () => {
     map.value.addLayer(vectorImageLayer);
     map.value.addLayer(labelsLayer);
 
-    const mapSettings = computed(() => store.mapSettings);
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.vatglasses.active'),
+        getKeyedValueFromSettings('map.vatglasses.combined'),
+    ]));
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
 
     const debouncedUpdate = useThrottleFn(async () => {

@@ -12,27 +12,8 @@
                 height="40px"
                 placeholder="Search"
                 @appendClick="$event.input?.focus()"
-                @prependClick="filtersEnabled = !filtersEnabled"
-                @update:focused="$event && ([opened = true, filtersEnabled = false])"
+                @update:focused="$event && (opened = true)"
             >
-                <template #prepend>
-                    <ui-button
-                        class="search_filters"
-                        type="link"
-                        @click.stop="filtersEnabled = !filtersEnabled"
-                    >
-                        <template #icon>
-                            <filter-icon/>
-
-                            <div
-                                v-if="filtersCount"
-                                class="search_filters_badge"
-                            >
-                                {{ filtersCount }}
-                            </div>
-                        </template>
-                    </ui-button>
-                </template>
                 <template #append>
                     <search-icon width="16"/>
                 </template>
@@ -43,60 +24,7 @@
                 v-if="isOpened"
                 class="search_window"
             >
-                <template v-if="filtersEnabled">
-                    <ui-block-title remove-margin>
-                        Search Filters
-
-                        <template #append>
-                            <ui-button
-                                type="link"
-                                @click="setUserLocalSettings({ traffic: { searchBy: []} })"
-                            >
-                                Reset
-                            </ui-button>
-                        </template>
-                    </ui-block-title>
-
-                    <div class="__section-group __section-group--even">
-                        <ui-button
-                            size="S"
-                            :type="canSearchBy('atc') ? 'primary' : 'secondary'"
-                            @click="toggleSearchBy('atc')"
-                        >
-                            ATC
-                        </ui-button>
-                        <ui-button
-                            size="S"
-                            :type="canSearchBy('airports') ? 'primary' : 'secondary'"
-                            @click="toggleSearchBy('airports')"
-                        >
-                            Airports
-                        </ui-button>
-                        <ui-button
-                            size="S"
-                            :type="canSearchBy('flights') ? 'primary' : 'secondary'"
-                            @click="toggleSearchBy('flights')"
-                        >
-                            Flights
-                        </ui-button>
-                    </div>
-
-                    <ui-select
-                        :items="[
-                            { value: 5 },
-                            { value: 10 },
-                            { value: 25 },
-                            { value: 50 },
-                            { value: 75 },
-                        ]"
-                        :model-value="searchLimit"
-                        :placeholder="`Max items per category (${ searchLimit })`"
-                        show-placeholder
-                        @update:modelValue="setUserLocalSettings({ traffic: { searchLimit: $event as number } })"
-                    />
-                </template>
                 <div
-                    v-else
                     class="__info-sections"
                     :class="{ 'search__results-airports-match': exactAirportsMatch }"
                 >
@@ -218,9 +146,7 @@
 
 <script setup lang="ts">
 import SearchIcon from '~/assets/icons/kit/search.svg?component';
-import FilterIcon from '~/assets/icons/kit/filter.svg?component';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
-import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { VatSpyAirports } from '~/types/data/vatspy';
 import type { SearchFilter, SearchResults } from '~/types/map';
 import { useStore } from '~/store';
@@ -231,12 +157,10 @@ import { useMapStore } from '~/store/map';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
-import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import { showAirportOnMap, showAtcOnMap } from '~/composables/vatsim/controllers';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 
-const filtersEnabled = ref(false);
 const opened = ref(false);
 const search = ref('');
 const exactAirportsMatch = ref(false);
@@ -251,12 +175,15 @@ const collapsedData = reactive<PartialRecord<keyof SearchResults, boolean>>({});
 const searchResults = shallowRef<Partial<SearchResults>>({});
 
 const isOpened = computed(() => {
-    return (opened.value && (history.value.length || Object.values(searchResults.value).some(x => x.length))) || filtersEnabled.value;
+    return opened.value && (history.value.length || Object.values(searchResults.value).some(x => x.length));
 });
 
-const filterBy = computed<SearchFilter[]>(() => store.localSettings.traffic?.searchBy?.length ? store.localSettings.traffic?.searchBy : ['atc', 'flights', 'airports']);
+const filterBy = computed<SearchFilter[]>(() => {
+    const searchBy = getKeyedValueFromSettings('map.preferences.searchBy');
+    return searchBy?.length ? searchBy : ['atc', 'flights', 'airports'];
+});
 const filtersCount = computed(() => (filterBy.value.length === 0 || filterBy.value.length === 3) ? 0 : filterBy.value.length);
-const searchLimit = computed(() => store.localSettings.traffic?.searchLimit ?? 10);
+const searchLimit = useSettingValueFromFunc('map.preferences.searchLimit');
 const history = useLocalStorage<string[]>('search-history', [], {
     shallow: true,
 });
@@ -265,19 +192,6 @@ const canSearchBy = (filter: SearchFilter): boolean => {
     if (!filtersCount.value) return true;
 
     return filterBy.value.includes(filter);
-};
-
-
-const toggleSearchBy = (filter: SearchFilter) => {
-    let settings = filterBy.value;
-    if (!filterBy.value.includes(filter)) settings.push(filter);
-    else settings = settings.filter(x => x !== filter);
-
-    setUserLocalSettings({
-        traffic: {
-            searchBy: toRaw(settings),
-        },
-    });
 };
 
 const getFlightStatus = (pilot: VatsimShortenedAircraft): MapAircraftStatus => {
@@ -389,7 +303,6 @@ useClickOutside({
     element: container,
     callback: () => {
         opened.value = false;
-        filtersEnabled.value = false;
     },
 });
 
@@ -493,7 +406,7 @@ onMounted(() => {
             font-weight: 600;
             line-height: 100%;
 
-            background: $primary500;
+            background: $blue500;
         }
     }
 

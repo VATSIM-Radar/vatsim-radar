@@ -67,6 +67,7 @@ model UserAcknowledgedMessages {
 
 enum UserPresetType {
   MAP_SETTINGS
+  MAP_SETTINGS_V2
   FILTER
   BOOKMARK
   DASHBOARD_BOOKMARK
@@ -81,6 +82,9 @@ model UserPreset {
   userId Int
   user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])
   lists  UserPresetList[]
+
+  @@index([userId, type])
+  @@index([type])
 }
 
 model UserPresetList {
@@ -109,6 +113,8 @@ model UserTrackingList {
   userId     Int
   user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
   presets    UserPresetList[]
+
+  @@index([color])
 }
 
 enum AuthType {

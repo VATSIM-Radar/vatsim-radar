@@ -171,7 +171,7 @@ useClickOutside({
         align-items: center;
         justify-content: space-between;
 
-        margin: -16px;
+        margin: -16px -16px 0;
         padding: 16px;
 
         background: $black;
@@ -195,10 +195,6 @@ useClickOutside({
                 }
             }
         }
-    }
-
-    &_content {
-        margin-top: 16px;
     }
 }
 </style>

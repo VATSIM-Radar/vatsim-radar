@@ -12,10 +12,10 @@ export function isObject(val: any): val is Record<string, unknown> {
 // #123faa, #123, rgba(1,12,123,1), rgb(1,12,123), 1,2,3
 export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},( ?)\d{1,3},( ?)\d{1,3}(\)|,( ?)[0-9.]{1,4}\)))|(\d{1,3},\d{1,3},\d{1,3}))$/i;
 
-export const MAX_MAP_PRESETS = 5;
+export const MAX_SETTINGS_PRESETS = 6;
 export const MAX_USER_LISTS = 5;
 export const MAX_LISTS_USERS = 200;
-export const MAX_FILTERS = 5;
+export const MAX_FILTERS = 10;
 export const MAX_BOOKMARKS = 20;
 export const MAX_FILTER_ARRAY_VALUE = 30;
 export const MAX_MAP_ZOOM = 20;
@@ -170,6 +170,7 @@ export enum UserMessageType {
     SETTINGS_EMERGENCY = 'SETTINGS_EMERGENCY',
     NAVIGRAPH_CONNECT_WARNING = 'NAVIGRAPH_CONNECT_WARNING',
     ACHIEVEMENTS_LINK = 'ACHIEVEMENTS_LINK',
+    SETTINGS_V2_TUTORIAL = 'SETTINGS_V2_TUTORIAL',
 }
 
 export const userMessageTypes = new Set<UserMessageType>(Object.values(UserMessageType));

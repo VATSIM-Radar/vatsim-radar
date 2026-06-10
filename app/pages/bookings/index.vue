@@ -18,7 +18,7 @@
                     </div>
                     <ui-date-picker
                         v-model="dateRange"
-                        :use-local="store.mapSettings.bookingsLocalTimezone"
+                        :use-local="bookingsLocalTimezone"
                         @change="currentDateRange = 'custom'"
                     />
                 </div>
@@ -49,13 +49,8 @@
                         >
                             View on Map
                         </ui-button>
-                        <ui-toggle
-                            v-model="timelineUtc"
-                            class="picker-localtime"
-                            @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
-                        >
-                            Bookings local time
-                        </ui-toggle>
+
+                        <ui-setting-item :item="settingsItems.preferences.bookingsLocalTimezone"/>
                     </div>
                 </div>
             </template>
@@ -110,9 +105,10 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 import type { DateRange } from '~/components/ui/inputs/UiDatePicker.vue';
 import type { Reactive } from 'vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -123,6 +119,8 @@ initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
 const store = useStore();
+const settingsItems = getSettingsItems().value;
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 
 const timelineUtc = ref(false);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
@@ -178,7 +176,7 @@ watch(dateRange, async () => {
 });
 
 onMounted(() => {
-    timelineUtc.value = store.mapSettings.bookingsLocalTimezone ?? false;
+    timelineUtc.value = getKeyedValueFromSettings('appearance.bookingsLocalTimezone');
     refresh();
 });
 

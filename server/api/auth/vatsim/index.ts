@@ -6,11 +6,14 @@ import { findUserByCookie } from '~/utils/server/user';
 import { discordClient } from '~~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
 import { getDiscordName } from '~/utils/server/discord';
+import { getRedirectURL } from '~/utils/server';
 
 export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
+
+        let redirectUrl = getRedirectURL(event);
 
         const { id: verifierId, discordId, discordStrategy } = await prisma.auth.findFirstOrThrow({
             select: {
@@ -70,8 +73,11 @@ export default defineEventHandler(async event => {
             }
         }
 
-        let redirectDomain = config.public.DOMAIN;
-        if (discordId) redirectDomain = `${ redirectDomain }?discord=1`;
+        if (discordId) {
+            const url = new URL(redirectUrl);
+            url.searchParams.set('discord', '1');
+            redirectUrl = url.toString();
+        }
 
         if (vatsimUserClient) {
             await prisma.vatsimUser.update({
@@ -100,7 +106,7 @@ export default defineEventHandler(async event => {
             if (!user) {
                 await getDBUserToken(event, vatsimUserClient.user);
             }
-            return sendRedirect(event, redirectDomain);
+            return sendRedirect(event, redirectUrl);
         }
 
         if (!user) {
@@ -119,7 +125,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        return sendRedirect(event, redirectDomain);
+        return sendRedirect(event, redirectUrl);
     }
     catch (e) {
         return handleH3Exception(event, e);

@@ -58,9 +58,9 @@ const _isVatGlassesActive = () => computed(() => {
     const dataStore = useDataStore();
     const mapStore = useMapStore();
 
-    const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
+    const isAuto = getKeyedValueFromSettings('map.vatglasses.autoEnable') !== false;
 
-    if (store.mapSettings.vatglasses?.active) return true;
+    if (getKeyedValueFromSettings('map.vatglasses.active')) return true;
 
     if (isAuto) {
         if (store.user?.cid) {

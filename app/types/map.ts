@@ -36,8 +36,8 @@ export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions;
 export interface UserLayersTransparencySettings {
     satellite?: number;
     osm?: number;
-    weatherDark?: number;
-    weatherLight?: number;
+    weatherDark?: number | null;
+    weatherLight?: number | null;
     sigmets?: number;
 }
 
@@ -58,6 +58,18 @@ interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
     vatglassesLevel: number;
+    sigmetsDate: string;
+}
+
+export type UserLocalSettings = Partial<IUserLocalSettings>;
+
+interface IUserLegacyLocalSettings {
+    // Keep
+    location: Coordinate;
+    zoom: number;
+    vatglassesLevel: number;
+    sigmetsDate: string;
+
     debugMode: boolean;
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
@@ -92,7 +104,6 @@ interface IUserLocalSettings {
             weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
             layerLabels?: boolean;
-            layerVector?: boolean;
             relativeIndicator?: boolean | Units;
             terminator?: boolean;
             terminatorDayNightLine?: boolean;
@@ -102,7 +113,6 @@ interface IUserLocalSettings {
                 disabled?: SigmetType[];
                 showAirmets?: boolean;
                 raw?: boolean;
-                showGAirmets?: boolean;
             };
             transparencySettings?: UserLayersTransparencySettings;
         };
@@ -121,4 +131,4 @@ interface IUserLocalSettings {
     };
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>;
+export type UserLegacyLocalSettings = Partial<IUserLegacyLocalSettings>;

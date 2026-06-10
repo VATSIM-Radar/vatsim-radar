@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useStore } from '~/store';
 import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
@@ -16,11 +15,10 @@ defineOptions({
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
-const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.airways?.enabled !== false);
+const isEnabled = computed(() => getKeyedValueFromSettings('map.navigraph.layers.airways.enabled') !== false);
 const geometries: ObjectWithGeometry<any, {
     waypointCoordinate: Coordinate;
     airwayCoords: [Coordinate, Coordinate] | null;
@@ -34,7 +32,7 @@ const geometries: ObjectWithGeometry<any, {
 }>[] = [];
 
 const extent = computed(() => mapStore.extent);
-const level = computed(() => store.mapSettings.navigraphData?.mode);
+const level = computed(() => getKeyedValueFromSettings('map.navigraph.layers.ifrMode'));
 
 let inProgress = false;
 

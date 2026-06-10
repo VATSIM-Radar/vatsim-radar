@@ -20,13 +20,17 @@
                     <div class="__info-sections">
                         <ui-radio-group
                             :items="sigmetDatesList"
-                            :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
+                            :model-value="sigmetsActiveDate"
+                            @update:modelValue="sigmetsActiveDate = $event as string"
                         >
                             Active date
                         </ui-radio-group>
 
-                        <settings-sigmets/>
+                        <ui-setting-item :item="settingsItems.layers.sigmetsTransparency" vertical/>
+                        <ui-setting-item :item="settingsItems.layers.sigmets.showOnMap"/>
+                        <ui-setting-item :item="settingsItems.layers.sigmets.disabled" vertical/>
+                        <ui-setting-item :item="settingsItems.layers.sigmets.showAirmets"/>
+                        <ui-setting-item :item="settingsItems.layers.sigmets.raw"/>
 
                         <div class="__partner-info date_info">
                             <div class="__partner-info_image">
@@ -53,10 +57,11 @@
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
-import { useStore } from '~/store';
-import SettingsSigmets from '~/components/features/settings/SettingsSigmets.vue';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { MapEvent } from '~/app.vue';
+import { useStore } from '~/store';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 defineEmits({
     map(data: MapEvent) {
@@ -65,8 +70,13 @@ defineEmits({
 });
 const config = useRuntimeConfig();
 const store = useStore();
+const settingsItems = getSettingsItems().value;
 const sigmetDatesList = sigmetDates();
 const collapsed = ref(useIsMobile().value);
+const sigmetsActiveDate = computed({
+    get: () => store.localSettings.sigmetsDate ?? 'current',
+    set: (value: string) => setUserLocalSettings({ sigmetsDate: value }),
+});
 
 useHead(() => ({
     title: 'SIGMETs',

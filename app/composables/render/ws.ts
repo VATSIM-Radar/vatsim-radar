@@ -109,13 +109,12 @@ export function initDataWebsocket(): () => void {
 }
 
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
-    const store = useStore();
     const config = useRuntimeConfig();
 
     let closeSocket: (() => void) | undefined;
 
     function checkForSocket() {
-        if (store.localSettings.traffic?.disableFastUpdate || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
+        if (getKeyedValueFromSettings('map.traffic.disableFastUpdate') || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
         // 20 seconds gap for receiving data

@@ -54,26 +54,34 @@ export default defineNuxtConfig({
             ],
         },
     },
+
     alias: {
         '#prisma': resolve(_dirname, '.nuxt/prisma/client'),
     },
+
     hooks: {
         'components:dirs': dirs => {
             dirs.length = 0;
         },
     },
+
     srcDir: 'app/',
+
     imports: {
         dirs: ['composables/**'],
     },
+
     sourcemap: {
         client: process.env.NODE_ENV === 'development',
         server: true,
     },
+
     pinia: {
         storesDirs: ['**/store/**'],
     },
+
     compatibilityDate: '2024-12-12',
+
     experimental: {
         asyncContext: true,
         clientFallback: false,
@@ -88,6 +96,7 @@ export default defineNuxtConfig({
         inlineRouteRules: true,
         checkOutdatedBuildInterval: 1000 * 60 * 5,
     },
+
     runtimeConfig: {
         NAVIGRAPH_CLIENT_ID: process.env.NAVIGRAPH_CLIENT_ID,
         NAVIGRAPH_CLIENT_SECRET: process.env.NAVIGRAPH_CLIENT_SECRET,
@@ -140,6 +149,7 @@ export default defineNuxtConfig({
             VR_DEBUG: process.env.VR_DEBUG,
         },
     },
+
     modules: [
         '@nuxt/devtools',
         '@pinia/nuxt',
@@ -149,11 +159,14 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@nuxt/image',
     ],
+
     eslint: {
         checker: {
+            eslintPath: 'eslint',
             configType: 'flat',
         },
     },
+
     stylelint: {
         files: ['app/**/*.scss', 'app/**/*.css', 'app/**/*.vue'],
         emitError: true,
@@ -163,6 +176,7 @@ export default defineNuxtConfig({
         lintOnStart: false,
         cache: false,
     },
+
     nitro: {
         devProxy: {
             host: '127.0.0.1',
@@ -179,17 +193,21 @@ export default defineNuxtConfig({
             },
         },
     },
+
     devServer: {
         port: 8080,
     },
+
     typescript: {
         typeCheck: true,
         tsConfig: {
             compilerOptions: {
                 noUncheckedIndexedAccess: false,
+                types: ['vite-svg-loader'],
             },
         },
     },
+
     pwa: {
         registerType: 'prompt',
         includeAssets: [
@@ -264,6 +282,7 @@ export default defineNuxtConfig({
             enabled: false,
         },
     },
+
     vite: {
         optimizeDeps: {
             include: [
@@ -309,6 +328,7 @@ export default defineNuxtConfig({
                 'ol/math.js',
                 'ol/geom.js',
                 'ol/style/Circle.js',
+                'dexie',
             ],
         },
         build: {
@@ -358,5 +378,9 @@ export default defineNuxtConfig({
                 },
             }),
         ],
+    },
+
+    devtools: {
+        enabled: false,
     },
 });

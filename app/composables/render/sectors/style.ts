@@ -1,4 +1,4 @@
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { Text, Stroke, Style, Fill } from 'ol/style.js';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
@@ -10,7 +10,7 @@ import type { SettingsColorType } from '~/composables/settings/colors';
 import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style | Style[]> = {};
@@ -115,7 +115,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             }));
         }
 
-        if (!labelType && !label && useStore().localSettings.filters?.layers?.layer === 'basic') {
+        if (!labelType && !label && getKeyedValueFromSettings('map.layers.layer') === 'basic') {
             cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.03)`);
         }
 

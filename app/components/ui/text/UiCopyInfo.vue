@@ -103,6 +103,8 @@ const initialHeight = ref(0);
 watch([expanded, textarea], ([val]) => {
     if (!textarea.value) return;
 
+    if (CSS.supports('field-sizing', 'content')) return;
+
     if (val) {
         initialHeight.value = textarea.value.clientHeight;
         textarea.value.style.height = `${ textarea.value.scrollHeight }px`;
@@ -173,6 +175,7 @@ watch([expanded, textarea], ([val]) => {
         }
 
         &--with-expand .copy-info_textarea {
+            field-sizing: content;
             padding-right: 36px;
         }
     }

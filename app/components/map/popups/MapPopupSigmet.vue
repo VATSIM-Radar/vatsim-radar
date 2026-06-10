@@ -66,8 +66,6 @@ const emit = defineEmits({
     },
 });
 
-const store = useStore();
-
 const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
     timeZone: 'UTC',
     hour: '2-digit',
@@ -83,7 +81,7 @@ const zuluDate = new Intl.DateTimeFormat(['en-GB'], {
 const sigmetFields = (sigmet: Sigmet['properties']): [string, string | number][] => {
     const fields: [string, string][] = [];
 
-    if (store.localSettings?.filters?.layers?.sigmets?.raw && sigmet.raw && (sigmet.dataType === 'sigmet' || sigmet.dataType === 'airsigmet')) {
+    if (getKeyedValueFromSettings('sigmets.raw') && sigmet.raw && (sigmet.dataType === 'sigmet' || sigmet.dataType === 'airsigmet')) {
         return [['', sigmet.raw]];
     }
 

@@ -5,14 +5,14 @@
         type="caption"
     >
         <div
-            v-if="controller.booking && showBooking"
+            v-if="controller.booking && showBooking && new Date(controller.booking.start).getTime() < dataStore.time.value"
             class="atc-time_section"
         >
             <div class="atc-time_text">
                 Booked until:
             </div>
             <ui-chip class="atc-time_info">
-                {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}z
+                {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}<template v-if="!bookingsLocalTimezone">z</template>
             </ui-chip>
         </div>
         <div class="atc-time_section">
@@ -44,7 +44,8 @@ defineProps({
     },
 });
 
-const store = useStore();
+const dataStore = useDataStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 </script>
 
 <style scoped lang="scss">

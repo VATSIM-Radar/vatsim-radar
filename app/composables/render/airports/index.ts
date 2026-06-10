@@ -183,9 +183,11 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
         backupFeatures.forEach(([controller, sector]) => addFeatureToAirport(sector, airport, controller));
     }
 
+    const visibleMap = Object.fromEntries(visibleAirports.map(x => [x.icao, x]));
+
     const overlays = airportOverlays().value;
     airportsArr = airportsArr.filter(x => x.atc.length || x.aircraftCount || overlays.includes(x.icao));
-    dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, x]));
+    dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, Object.assign(x, { visible: !!visibleMap[x.icao] })]));
 
     for (const key in simawareCache) {
         if (!cached.has(key)) delete simawareCache[key];
@@ -245,6 +247,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
         }
 
         const visibleAirports: DataAirport[] = [];
+        const visibleNavigraphAirports = new Set<string>();
         const list: MapAirportRender[] = [];
 
         await Promise.all(Object.values(airports).map(async x => {
@@ -261,8 +264,13 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
                 visible: overlays.includes(x.icao) || visibleFeatures.has(x.icao) || (!coordinates || isPointInExtent(coordinates, extent)),
             };
 
-            if (result.visible) visibleAirports.push(result.airport);
-            else if (mapStore.zoom < 10) delete navigraphData.value[result.airport.icao];
+            if (result.visible) {
+                visibleAirports.push(result.airport);
+                visibleNavigraphAirports.add(result.airport.icao);
+            }
+            else {
+                delete navigraphData.value[result.airport.icao];
+            }
 
             list.push(result);
         }));
@@ -273,14 +281,17 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
 
                 const params = new URLSearchParams();
                 params.set('v', store.version);
-                params.set('layout', (store.user?.hasCharts && store.user?.hasFms && !store.mapSettings.navigraphLayers?.disable) ? '1' : '0');
-                params.set('originalData', store.mapSettings.navigraphLayers?.gatesFallback ? '1' : '0');
+                params.set('layout', (store.user?.hasCharts && store.user?.hasFms && getKeyedValueFromSettings('map.navigraph.airport.enabled')) ? '1' : '0');
 
                 navigraphData.value[airport.icao] = await $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`);
             }));
         }
-        else if (mapStore.zoom < 10) {
+        else {
             navigraphData.value = {};
+        }
+
+        for (const icao in navigraphData.value) {
+            if (!visibleNavigraphAirports.has(icao)) delete navigraphData.value[icao];
         }
 
         return {

@@ -1,7 +1,6 @@
 import type { PartialRecord } from '~/types';
 
-export const colorsList = {
-    //#region legacy
+export const legacyColorsList = {
     // darkGray500
     mapSectorBorder: '#2d2d30',
     // red500
@@ -89,7 +88,10 @@ export const colorsList = {
     info600: '#7C21FD',
     // purple700
     info700: '#6C0AFF',
-    //#endregion
+};
+
+export const colorsList = {
+    mapSectorBorder: '#2d2d30',
 
     //#region neutrals
     white: '#FAFAFA',
@@ -288,20 +290,6 @@ export type ColorsListRgb = Exclude<ColorsList, `${ string }Alpha${ string }`>;
 export const themesList = {
     light: {
         mapSectorBorder: '#D3D3E5',
-
-        darkgray1000: '#F7F7FA',
-        darkgray950: '#F2F2F7',
-        darkgray900: '#EDEDF2',
-        darkgray875: '#E6E6EB',
-        darkgray850: '#DEDEE7',
-        darkgray800: '#D5D5E4',
-
-        lightgray0: '#131316',
-        lightgray50: '#18181B',
-        lightgray100: '#202024',
-        lightgray125: '#26262C',
-        lightgray150: '#2B2B33',
-        lightgray200: '#30303C',
 
         black: '#FAFAFA',
         blackAlpha2: '#FAFAFA05',

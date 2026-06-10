@@ -1,7 +1,7 @@
 <template>
     <div
         class="flight-info"
-        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
+        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? pilot.status === 'arrTaxi' ? 100 : 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
     >
         <ui-data-container>
             <template #icon>
@@ -255,7 +255,7 @@
                 ]"
             />
             <ui-data-list
-                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : pilot.vertical_speed ? 4 : 3"
+                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : 3"
                 :items="[
                     { key: 'squawk', title: 'Squawk' },
                     { key: 'ctaf', title: ctaf && !pilot.frequencies.some(x => x === ctaf) ? 'CTAF' : undefined },
@@ -357,7 +357,7 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
 const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',

@@ -9,7 +9,11 @@
                 [`chip--facility-${ atcFacility }`]: typeof atcFacility === 'number', 'chip--type-atc': typeof atcFacility === 'number',
             },
         ]"
-        :style="{ '--atc-color': typeof atcFacility === 'number' && getFacilityPositionColor(atcFacility) }"
+        :style="{
+            '--atc-color': typeof atcFacility === 'number' && getFacilityPositionColor(atcFacility),
+            '--background-color': useColorFromProp(background),
+            '--text-color': useColorFromProp(color),
+        }"
         :type="textType"
     >
         <div
@@ -54,6 +58,7 @@ import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import UiText from '~/components/ui/text/UiText.vue';
 import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
 import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
+import { useColorFromProp } from '~/composables';
 
 const props = defineProps({
     variant: {
@@ -82,6 +87,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    background: {
+        type: String as PropType<ColorsList>,
+    },
+    color: {
+        type: String as PropType<ColorsList>,
+    },
 });
 
 defineSlots<{
@@ -90,13 +101,12 @@ defineSlots<{
     append: () => any;
 }>();
 
-const store = useStore();
 const dataStore = useDataStore();
 
 const model = defineModel({ type: Boolean });
 
 const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',
@@ -117,10 +127,10 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
     padding: 4px;
     border-radius: 2px;
 
-    color: $lightGray200;
+    color: var(--text-color, $lightGray200);
     text-align: center;
 
-    background: $darkGray600;
+    background: var(--background-color, $darkGray600);
 
     &_close {
         cursor: pointer;

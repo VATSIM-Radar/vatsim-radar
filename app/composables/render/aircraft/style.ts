@@ -1,5 +1,5 @@
-import type VectorLayer from 'ol/layer/Vector';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import { useStore } from '~/store';
@@ -155,9 +155,12 @@ export function setAircraftStyle(layer: VectorLayer) {
                 onGround,
                 scale,
             });
+            const pilotLabels = getKeyedValueFromSettings('map.visibility.pilotLabels');
+            const aircraftShowLimit = getKeyedValueFromSettings('map.preferences.aircraft.showLimit');
+            const heatmap = getKeyedValueFromSettings('map.layers.heatmap');
 
             const hideText = !aircraftOverlays().value.includes(cid) && ownFlight.value?.cid !== cid &&
-                (store.mapSettings.visibility?.pilotLabels === true || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100));
+                (!pilotLabels || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > aircraftShowLimit);
             const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;
@@ -167,9 +170,11 @@ export function setAircraftStyle(layer: VectorLayer) {
             textStyle?.setZIndex(Number(ownFlight.value?.cid === cid));
             text.getFill()!.setColor(getAircraftStatusColor(status, cid));
 
-            let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
+            let color = getColorByKey(status === 'ground'
+                ? 'map.preferences.colors.default.aircraft.ground'
+                : 'map.preferences.colors.default.aircraft.main').value.value;
 
-            if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+            if (status === 'ground' && !color) color = getColorByKey('map.preferences.colors.default.aircraft.main').value.value;
 
             const pngImage = (status === 'default' || status === 'ground') && !list;
 
@@ -185,9 +190,10 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             if (!pngImage) svg = scheduleIconForFetch(icon.icon);
             else png = schedulePngIconForFetch(pngSrc);
-            const shouldDeclutter = store.mapSettings.aircraftDeclutter === 'always'
+            const declutter = getKeyedValueFromSettings('map.traffic.declutter');
+            const shouldDeclutter = declutter === 'always'
                 ? true
-                : store.mapSettings?.aircraftDeclutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100)) : false;
+                : declutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit) : false;
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
             const svgColor = svg || !pngImage ? getAircraftStatusColor(status, cid) : undefined;
@@ -199,11 +205,11 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             if (useSvgFallback) {
                 iconColor = statusIconColor;
-                iconOpacity = store.mapSettings.heatmapLayer ? 0 : statusIconOpacity;
+                iconOpacity = heatmap ? 0 : statusIconOpacity;
             }
             else {
                 iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
-                iconOpacity = filterColor ? getColorAlpha(filterColor) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1));
+                iconOpacity = filterColor ? getColorAlpha(filterColor) : filterOpacity ?? (heatmap ? 0 : (color?.transparency ?? 1));
             }
 
             const svgSrc = svg ? svgToDataURI(reColorSvg(svg, status, cid)) : undefined;
@@ -215,7 +221,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 shouldDeclutter,
                 svgSrc ? store.theme : undefined,
                 svgSrc ? svgColor : pngSrc,
-                svgSrc ? Number(!store.mapSettings.heatmapLayer) : iconColor,
+                svgSrc ? Number(!heatmap) : iconColor,
                 svgSrc ? undefined : iconOpacity,
                 svgSrc ? undefined : !!png,
             ].join('|');
@@ -228,7 +234,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                     width: scaledWidth,
                     height: scaledHeight,
                     color: svgSrc ? undefined : iconColor,
-                    opacity: svgSrc ? Number(!store.mapSettings.heatmapLayer) : iconOpacity,
+                    opacity: svgSrc ? Number(!heatmap) : iconOpacity,
                     rotateWithView: true,
                 });
             }
@@ -255,19 +261,18 @@ export function setAircraftStyle(layer: VectorLayer) {
 
 function getAircraftDefaultTurnColor(status: MapAircraftStatus, cid: number) {
     let color = getAircraftStatusColor(status, cid);
+    const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
 
-    if (useStore().mapSettings.colors?.turnsTransparency) {
+    if (turnsTransparency) {
         const rgb = hexToRgb(color);
 
-        color = `rgba(${ rgb }, ${ useStore().mapSettings.colors?.turnsTransparency })`;
+        color = `rgba(${ rgb }, ${ turnsTransparency })`;
     }
 
     return color;
 }
 
 export function setAircraftLineStyle(layer: VectorImageLayer) {
-    const store = useStore();
-
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft-line', properties)) {
@@ -300,10 +305,11 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
             if (!styleCache.defaultLineStyle) {
                 let hex = typeof properties.color === 'string' ? properties.color : getFlightRowColor(properties.color);
 
-                if (store.mapSettings.colors?.turnsTransparency) {
+                const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
+                if (turnsTransparency) {
                     const rgb = hexToRgb(hex);
 
-                    hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+                    hex = `rgba(${ rgb }, ${ turnsTransparency })`;
                 }
 
                 const key = String(properties.color);

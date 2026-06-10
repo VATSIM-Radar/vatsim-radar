@@ -2,13 +2,14 @@
     <div
         ref="select"
         class="select"
+        @click.stop="opened = !opened"
     >
         <ui-input-text
             class="select_input"
             :disabled
             :focused="opened"
+            :width
             @appendClick="emit('appendClick', $event)"
-            @click="opened = !opened"
             @prependClick="emit('prependClick', $event)"
         >
             <template
@@ -50,7 +51,7 @@
                             @click.stop
                         >
                             <template #default="{ item: { item } }">
-                                <ui-text type="3b">
+                                <ui-text :class="{ 'select__dropdown_selected': !props.multiple && activeItems.includes(item.value) }" type="3b">
                                     <template v-if="!multiple">
                                         {{ item.text || String(item.value) }}
                                     </template>
@@ -85,7 +86,6 @@ import UiText from '~/components/ui/text/UiText.vue';
 const props = defineProps({
     width: {
         type: String,
-        default: '240px',
     },
     items: {
         type: Array as PropType<SelectItem[]>,
@@ -146,6 +146,7 @@ useClickOutside({
     element: select,
     callback: () => opened.value = false,
     strict: true,
+    ignoreElements: ['.settings-page__item_left_title'],
 });
 
 const activeItems = computed<Array<SelectItemValueType>>(() => {
@@ -160,7 +161,7 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const getItems = computed(() => {
-    return props.items.filter(x => props.multiple || !activeItems.value.includes(x.value));
+    return props.items;
 });
 
 const shownValue = computed<string>(() => {
@@ -193,6 +194,8 @@ function updateModel(value: SelectItemValueType, add: boolean) {
 
 <style scoped lang="scss">
 .select {
+    user-select: none;
+
     &_input {
         cursor: pointer;
 
@@ -255,6 +258,10 @@ function updateModel(value: SelectItemValueType, add: boolean) {
                 top: calc(100% - 20px);
                 opacity: 0;
             }
+        }
+
+        &_selected {
+            color: $blue500;
         }
     }
 

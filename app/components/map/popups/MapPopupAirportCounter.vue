@@ -35,7 +35,7 @@
                         Locals
                     </template>
                     <template v-else-if="properties.counterType === 'prefiles'">
-                        {{ !store.mapSettings.airportsCounters?.horizontalCounter || store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
+                        {{ horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
                     </template>
                 </div>
             </template>
@@ -97,6 +97,7 @@ import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { parseEncoding } from '~/utils/data';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
+import { getAirportCounterPopupOffsetX } from '~/composables/render/airports/layers/airport-style';
 
 const props = defineProps({
     payload: {
@@ -114,7 +115,7 @@ const emit = defineEmits({
     },
 });
 
-const store = useStore();
+const horizontalCounter = useSettingValueFromFunc('map.preferences.airports.counters.horizontalCounter');
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const properties = computed(() => props.payload.feature.getProperties());
@@ -126,15 +127,18 @@ const coordinate = computed(() => {
 });
 
 const getOffsetX = computed(() => {
-    let baseOffset = properties.value.localsLength > 3 ? 55 : 50;
-    if (properties.value.counter > 9) baseOffset += 7;
-    else if (properties.value.counter > 99) baseOffset += 12;
-    return baseOffset;
+    return getAirportCounterPopupOffsetX({
+        icao: properties.value.icao,
+        localsLength: properties.value.localsLength,
+        counter: properties.value.counter,
+    });
 });
 </script>
 
 <style lang="scss" scoped>
 .airport-counts {
+    max-width: 400px;
+
     .airport-counts_item, .airport-counts_title {
         &--groundDep {
             color: $green500;
@@ -171,4 +175,3 @@ const getOffsetX = computed(() => {
     }
 }
 </style>
-

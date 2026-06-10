@@ -164,10 +164,10 @@ let datetime: Intl.DateTimeFormat | undefined;
 
 export const useOnlineCounters = () => computed(() => {
     const dataStore = useDataStore();
-    const store = useStore();
+    const timeFormat = getKeyedValueFromSettings('appearance.timeFormat');
 
     datetime ||= new Intl.DateTimeFormat(['en-GB'], {
-        hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+        hourCycle: timeFormat === '12h' ? 'h12' : 'h23',
         timeZone: 'UTC',
         localeMatcher: 'best fit',
         hour: '2-digit',
@@ -175,7 +175,7 @@ export const useOnlineCounters = () => computed(() => {
         second: '2-digit',
     });
 
-    if (datetime.resolvedOptions().hourCycle === 'h12' && store.user?.settings.timeFormat === '24h') {
+    if (datetime.resolvedOptions().hourCycle === 'h12' && timeFormat === '24h') {
         datetime = new Intl.DateTimeFormat(['en-GB'], {
             timeZone: 'UTC',
             localeMatcher: 'best fit',
@@ -184,7 +184,7 @@ export const useOnlineCounters = () => computed(() => {
             second: '2-digit',
         });
     }
-    else if (datetime.resolvedOptions().hourCycle === 'h23' && store.user?.settings.timeFormat === '12h') {
+    else if (datetime.resolvedOptions().hourCycle === 'h23' && timeFormat === '12h') {
         datetime = new Intl.DateTimeFormat(['en-GB'], {
             hourCycle: 'h12',
             timeZone: 'UTC',

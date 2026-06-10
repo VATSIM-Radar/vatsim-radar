@@ -3,9 +3,9 @@ import { Icon, Style, Fill, Stroke, Text } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Geometry } from 'ol/geom.js';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 
 let styleCache: Record<string, Style> = {};
 let stylesCache: Record<string, Style[]> = {};
@@ -43,8 +43,8 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         opacity: 0.6,
     });
 
-    const showAirwaysLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
-    const showWaypointsLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
+    const showAirwaysLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showAirwaysLabel');
+    const showWaypointsLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showWaypointsLabel');
 
     const waypointsTypes = {
         default: new Style({

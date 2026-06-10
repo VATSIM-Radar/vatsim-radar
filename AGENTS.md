@@ -6,7 +6,7 @@ You are working in a complicated project. Keep this in mind while making signifi
 
 - Project runs with Docker. Don't encourage users to run `yarn dev` or something similar
 - To check Typescript errors, run `yarn typecheck`. When faced with permission error, ask user to apply `chmod -R 777 node_modules .nuxt` or something similar
-- To check Eslint errors, run `yarn lint`. When faced with permission error, ask user to apply `chmod -R 777 node_modules .nuxt` or something similar
+- To check Eslint errors, run `yarn lint`. When faced with permission error, ask user to apply `chmod -R 777 node_modules .nuxt` or something similar. Lint checks everything - no need to execute styleling or lint:ts separately
 - Do not read .env file and do not use it to run requests
 - Do not run any requests to external APIs yourself, instead, ask user to provide you a sample
 

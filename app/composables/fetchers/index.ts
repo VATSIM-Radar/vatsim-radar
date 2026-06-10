@@ -30,13 +30,12 @@ export async function sendUserPreset<T extends Record<string, any>>(name: string
 export const showBookmark = async (bookmark: UserBookmark, map: Map | null) => {
     const zoom = bookmark.zoom ?? 14;
     const dataStore = useDataStore();
-    const store = useStore();
 
     if (bookmark.icao) {
-        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.realIcao[bookmark.icao]!, map, zoom, !store.localSettings.skipBookmarkAnimation);
+        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.realIcao[bookmark.icao]!, map, zoom, !getKeyedValueFromSettings('map.preferences.skipBookmarkAnimation'));
     }
     else if (bookmark.coords) {
-        if (store.localSettings.skipBookmarkAnimation) {
+        if (getKeyedValueFromSettings('map.preferences.skipBookmarkAnimation')) {
             map?.getView()?.setCenter(bookmark.coords);
             map?.getView()?.setZoom(zoom);
         }

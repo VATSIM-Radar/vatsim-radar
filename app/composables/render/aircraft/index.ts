@@ -1,6 +1,6 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { allPilotsOnGround, ownFlight } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
@@ -12,7 +12,7 @@ import { Point } from 'ol/geom.js';
 import type { StoreOverlayPilot } from '~/store/map';
 import { degreesToRadians } from '@turf/helpers';
 import { aircraftIcons } from '~/utils/icons';
-import { createDefaultStyle } from 'ol/style/Style';
+import { createDefaultStyle } from 'ol/style/Style.js';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
 import { aircraftState } from './state';
@@ -45,7 +45,7 @@ export interface AircraftRenderState {
 }
 
 function getAircraftScale(pilot: VatsimShortenedAircraft | undefined, coordinates: Coordinate, icon: string) {
-    const baseScale = useStore().mapSettings.aircraftScale ?? 1;
+    const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
     if (!isDynamicAircraftScale.value || !pilot) return baseScale;
 
     const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
@@ -61,7 +61,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
 
     if (selfFlight || store.config.allAircraftGreen) return 'green';
 
-    const isEmergency = store.mapSettings.highlightEmergency && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
+    const isEmergency = getKeyedValueFromSettings('map.traffic.highlightEmergency') && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
 
     if (isEmergency) {
         return 'landed';

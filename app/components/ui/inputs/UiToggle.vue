@@ -111,7 +111,7 @@ const model = defineModel({
             height: 16px;
             border-radius: 9999px;
 
-            background: $lightGray400;
+            background: $lightGray400Orig;
 
             transition: 0.3s ease-in-out;
         }

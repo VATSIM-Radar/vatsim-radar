@@ -77,30 +77,8 @@ const airports = computed<Airport[]>(() => {
     return result;
 });
 
-function receiveMessage(event: MessageEvent) {
-    if (event.origin !== config.public.DOMAIN) {
-        return;
-    }
-
-    if (event.source === window) return; // the message is from the same window, so we ignore it
-
-    if (event.data && typeof event.data === 'object' && !Array.isArray(event.data) && 'proceduresUpdate' in event.data) {
-        updateCachedProcedures();
-    }
-}
-
-onMounted(() => {
-    window.addEventListener('message', receiveMessage);
-});
-
 watch(() => mapStore.overlays, updateCachedProcedures, {
     immediate: true,
-});
-
-const config = useRuntimeConfig();
-
-onBeforeUnmount(() => {
-    window.removeEventListener('message', receiveMessage);
 });
 </script>
 

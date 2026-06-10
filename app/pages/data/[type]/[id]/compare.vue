@@ -67,7 +67,7 @@ import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { ShallowRef } from 'vue';
 import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import VectorSource from 'ol/source/Vector.js';
 import type { FeatureCollection } from 'geojson';
 import type { ColorsListRgb } from '~/utils/colors';

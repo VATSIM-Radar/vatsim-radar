@@ -85,6 +85,10 @@ export default defineConfig({
                         text: 'Changelog',
                         link: '/changelog',
                     },
+                    {
+                        text: 'V2 Preliminary Changelog',
+                        link: '/changelog-v2',
+                    },
                 ],
             },
             {

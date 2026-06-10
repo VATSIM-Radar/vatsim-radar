@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useStore } from '~/store';
 import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
@@ -13,12 +12,11 @@ defineOptions({
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-vector-source');
 
-const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const isNDBEnabled = computed(() => store.mapSettings.navigraphData?.ndb !== false);
-const isVorEnabled = computed(() => store.mapSettings.navigraphData?.vordme !== false);
+const isNDBEnabled = computed(() => getKeyedValueFromSettings('map.navigraph.layers.ndb') !== false);
+const isVorEnabled = computed(() => getKeyedValueFromSettings('map.navigraph.layers.vordme') !== false);
 
 let ndbList: NavigraphNavDataShort['ndb'] | null = null;
 let vordmeList: NavigraphNavDataShort['vhf'] | null = null;
