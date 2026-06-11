@@ -1,7 +1,7 @@
 <template>
     <div
         v-if="model"
-        v-show="isInteraction && isMobile"
+        v-show="isMobile && mobile"
         class="map-overlay-block"
     >
         <div
@@ -48,9 +48,9 @@ const props = defineProps({
     activeZIndex: {
         type: Number,
     },
-    isInteraction: {
+    mobile: {
         type: Boolean,
-        default: false,
+        default: true,
     },
 });
 
@@ -142,7 +142,7 @@ function removeOverlay() {
 }
 
 watch([model, popup, openOverlayId, overlayElement], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
-    if (!overlayElement.value || (props.isInteraction && isMobile.value)) return;
+    if (!overlayElement.value || isMobile.value) return;
     await nextTick();
     if (model.value && !overlay.value) {
         if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {

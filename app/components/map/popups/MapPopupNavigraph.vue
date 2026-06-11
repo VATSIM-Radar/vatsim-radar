@@ -1,6 +1,6 @@
 <template>
     <map-html-overlay
-        class="sigmets-overlay"
+        class="navigraph-overlay"
         :settings="{ position: payload.coordinate, stopEvent: true, positioning: 'top-center' }"
         :z-index="20"
         @id="$emit('id', $event)"
@@ -16,9 +16,47 @@
             @update:modelValue="$emit('close')"
         >
             <template #title>
-                {{ getInfo?.title }}
+                <span
+                    v-if="natInfo"
+                    class="navigraph__nat-title"
+                >
+                    {{ natInfo.title }}
+                </span>
+                <template v-else>
+                    {{ getInfo?.title }}
+                </template>
             </template>
+            <div
+                v-if="natInfo"
+                class="navigraph__nat"
+            >
+                <ui-data-list
+                    :grid-columns="2"
+                    :items="natInfo.summary"
+                />
+                <ui-data-list-item v-if="natInfo.flightLevels">
+                    <template #title>
+                        Valid at
+                    </template>
+                    <div class="navigraph__nat_levels">
+                        <ui-bubble
+                            v-for="level in natInfo.flightLevels"
+                            :key="level"
+                            type="primary-flat"
+                        >
+                            {{ level }}
+                        </ui-bubble>
+                    </div>
+                </ui-data-list-item>
+                <ui-copy-info
+                    v-if="natInfo.route"
+                    :text="natInfo.route"
+                >
+                    Route
+                </ui-copy-info>
+            </div>
             <ui-data-list
+                v-else
                 :grid-columns="3"
                 :items="getInfo?.items.filter(x => x.text) ?? []"
             />
@@ -35,7 +73,11 @@ import type {
 } from '~/utils/map/entities';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
+import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
+import UiBubble from '~/components/ui/data/UiBubble.vue';
+import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import type { NavigraphGetData } from '~/utils/server/navigraph/navdata/types';
+import type { VatsimNattrakClient } from '~/types/data/vatsim';
 
 const props = defineProps({
     payload: {
@@ -54,6 +96,34 @@ const emit = defineEmits({
 });
 
 const properties = computed(() => props.payload.feature.getProperties());
+
+const datetime = new Intl.DateTimeFormat(['ru-RU'], {
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
+    day: '2-digit',
+    year: 'numeric',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+});
+
+const natInfo = computed<{ title: string; summary: DataListItem[]; flightLevels: string[] | null; route: string | null } | null>(() => {
+    if (properties.value.kind !== 'nat') return null;
+
+    const nat = properties.value as unknown as VatsimNattrakClient;
+    const summary: DataListItem[] = [];
+
+    if (nat.valid_from) summary.push({ title: 'Active from', text: `${ datetime.format(nat.valid_from) }Z` });
+    if (nat.valid_to) summary.push({ title: 'Active to', text: `${ datetime.format(nat.valid_to) }Z` });
+    if (nat.direction) summary.push({ title: 'Direction', text: nat.direction === 'west' ? 'West' : 'East' });
+
+    return {
+        title: properties.value.identifier ?? '',
+        summary,
+        flightLevels: nat.flight_levels?.length ? nat.flight_levels.map(level => `FL${ level / 100 }`) : null,
+        route: nat.last_routeing ?? null,
+    };
+});
 
 const { data } = await useLazyAsyncData(async () => {
     if (!properties.value.dbType || !properties.value.key || properties.value.key === 'nat') return null;
@@ -227,47 +297,20 @@ const getInfo = computed<{ title: string; items: DataListItem[] } | null>(() => 
 </script>
 
 <style scoped lang="scss">
-.sigmets {
-    &_list {
-        cursor: initial;
-
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        max-height: 300px;
+.navigraph {
+    &__nat-title {
+        color: $brandPrimary;
     }
 
-    &__sigmet {
+    &__nat {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        flex-direction: column;
+        gap: 12px;
 
-        max-width: 350px;
-        padding: 8px;
-        border-radius: 4px;
-
-        font-size: 13px;
-        overflow-wrap: anywhere;
-
-        &:not(:only-child) {
-            padding: 0;
-            background: $darkGray800;
-        }
-
-        @include mobileOnly {
-            max-width: 70dvw;
-        }
-
-        .__grid-info-sections {
-            gap: 0 !important;
-
-            &:not(:only-child) {
-                padding: 8px;
-                border-radius: 8px;
-                background: $darkGray600;
-            }
+        &_levels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
         }
     }
 }

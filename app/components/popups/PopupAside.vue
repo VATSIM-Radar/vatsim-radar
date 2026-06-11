@@ -172,7 +172,7 @@ useClickOutside({
         justify-content: space-between;
 
         margin: -16px -16px 0;
-        padding: 16px;
+        padding: 16px 16px 0;
 
         background: $black;
 
