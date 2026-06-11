@@ -11,6 +11,7 @@
     >
         <popup-map-info
             v-if="pilot"
+            ref="popupRef"
             class="aircraft-hover"
             :class="{ 'aircraft-hover--short': isShortInfo }"
             content-padding="0"
@@ -144,6 +145,7 @@ import type {
     FeatureAircraft,
 } from '~/utils/map/entities';
 import { parseEncoding } from '~/utils/data';
+import { injectMap } from '~/composables/map';
 import { usePilotRating } from '~/composables/vatsim/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
@@ -152,7 +154,9 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import type { Options } from 'ol/Overlay.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
+import { clampOverlayPositioning, overlayPositionFromHeading } from '~/utils/map/overlay';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiText from '~/components/ui/text/UiText.vue';
@@ -175,29 +179,34 @@ const emit = defineEmits({
 
 const store = useStore();
 const dataStore = useDataStore();
+const map = injectMap();
 
 const properties = computed(() => props.payload.feature.getProperties());
 const isShortInfo = computed(() => getKeyedValueFromSettings('map.preferences.aircraft.shortView'));
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[properties.value.cid.toString()]);
 const friend = computed(() => store.friends.find(x => x.cid === properties.value.cid));
 
-function overlayPositionFromHeading(headingDeg: number) {
-    const h = ((headingDeg % 360) + 360) % 360;
+// Fallback popup size used until the rendered popup has been measured
+const FALLBACK_POPUP_WIDTH = computed(() => (isShortInfo.value ? 160 : 248));
+const FALLBACK_POPUP_HEIGHT = computed(() => (isShortInfo.value ? 130 : 220));
 
-    const sector = Math.floor(((h + 22.5) % 360) / 45);
+// Measure the real popup so a content-driven height never overflows the viewport.
+const popupRef = ref<ComponentPublicInstance | null>(null);
+const popupSize = ref<{ width: number; height: number } | null>(null);
+let popupObserver: ResizeObserver | null = null;
 
-    switch (sector) {
-        case 0: return 'center-left';
-        case 1: return 'top-left';
-        case 2: return 'top-center';
-        case 3: return 'top-right';
-        case 4: return 'center-right';
-        case 5: return 'bottom-right';
-        case 6: return 'bottom-center';
-        case 7: return 'bottom-left';
-        default: return 'center-left';
-    }
-}
+onMounted(async () => {
+    await nextTick();
+    const el = popupRef.value?.$el;
+    if (!(el instanceof HTMLElement)) return;
+
+    popupObserver = new ResizeObserver(() => {
+        popupSize.value = { width: el.offsetWidth, height: el.offsetHeight };
+    });
+    popupObserver.observe(el);
+});
+
+onBeforeUnmount(() => popupObserver?.disconnect());
 
 const getOverlaySettings = computed<Options>(() => {
     const coord = getCurrentWorldCoordinate({
@@ -205,11 +214,12 @@ const getOverlaySettings = computed<Options>(() => {
         eventCoordinate: props.payload.coordinate,
     });
 
+    const position: Coordinate = [
+        coord[0],
+        properties.value.coordinates[1],
+    ];
+
     const offset = [0, 0];
-
-    const positioning: Options['positioning'] = overlayPositionFromHeading(properties.value.heading);
-
-    const [first, second] = positioning.split('-');
 
     const [safeOffsetX, safeOffsetY] = getResolvedScale({
         scale: properties.value.scale,
@@ -218,16 +228,30 @@ const getOverlaySettings = computed<Options>(() => {
         onGround: properties.value.onGround,
     });
 
+    const headingPositioning = overlayPositionFromHeading(properties.value.heading);
+    const size = map.value?.getSize();
+    const pixel = map.value?.getPixelFromCoordinate(position);
+
+    const positioning = (size && pixel)
+        ? clampOverlayPositioning({
+            positioning: headingPositioning,
+            pixel: pixel as [number, number],
+            viewport: size as [number, number],
+            popup: popupSize.value ?? { width: FALLBACK_POPUP_WIDTH.value, height: FALLBACK_POPUP_HEIGHT.value },
+            offsetX: safeOffsetX,
+            offsetY: safeOffsetY,
+        })
+        : headingPositioning;
+
+    const [first, second] = positioning.split('-');
+
     const backOffset = 0;
 
     offset[1] = first === 'top' ? (safeOffsetY) - backOffset : first === 'bottom' ? -(safeOffsetY) + backOffset : 0;
     offset[0] = second === 'left' ? (safeOffsetX) - backOffset : second === 'right' ? -(safeOffsetX) + backOffset : 0;
 
     return {
-        position: [
-            coord[0],
-            properties.value.coordinates[1],
-        ],
+        position,
         positioning,
         offset,
     };
