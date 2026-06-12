@@ -123,6 +123,7 @@ export const useStore = defineStore('index', {
 
         viewport: {
             width: 0,
+            height: 0,
         },
 
         isMobile: false,

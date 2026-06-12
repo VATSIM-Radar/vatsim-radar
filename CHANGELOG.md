@@ -37,6 +37,10 @@
 - Fixed turning auto save off not allowing to save preset
 - Fixed local preset resetting when auto save is disabled
 - Fixed random select error alert
+- Various landscape mode improvements
+- Distance tool can now be enabled or disabled on mobile in settings. When enabled, it will work on standard 2-click interaction as on pc
+- Fixed rare app controllers not showing up
+- Fixed overlays issues from beta 1.4
 
 ## Features and improvements
 

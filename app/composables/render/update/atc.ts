@@ -436,7 +436,7 @@ export async function updateControllers(context: DataUpdateContext) {
             if (isApp && !feature && airport?.isPseudo) continue;
 
             if (!airport && feature) {
-                const key = feature?.properties.id + feature?.properties.prefix.map(x => x.split(callsignSplitRegex)[0]).join(',');
+                const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);
                 context.airports[key] ??= {
                     icao: validPrefix ?? feature.properties.id,
@@ -465,6 +465,8 @@ export async function updateControllers(context: DataUpdateContext) {
                 dataAirport = context.airports[airport.icao!];
                 if (context.airports[airport.icao!].airport?.isPseudo && (!airport.isPseudo || context.airports[airport.icao!].aircraftCount)) context.airports[airport.icao!].airport!.isPseudo = false;
             }
+
+            if (controller.callsign.startsWith('GCCA')) console.log(controller.callsign, feature, airport, validPrefix, dataAirport);
 
             if (!dataAirport) continue;
 

@@ -13,17 +13,15 @@ import type { Extent } from 'ol/extent.js';
 import type { Geometry } from 'ol/geom.js';
 
 export const useFacilitiesIds = () => {
-    const dataStore = useDataStore();
-
     return {
         ATIS: -1,
-        OBS: dataStore.vatsim.data.facilities.value.find(x => x.short === 'OBS')?.id ?? -1,
-        FSS: dataStore.vatsim.data.facilities.value.find(x => x.short === 'FSS')?.id ?? -1,
-        DEL: dataStore.vatsim.data.facilities.value.find(x => x.short === 'DEL')?.id ?? -1,
-        GND: dataStore.vatsim.data.facilities.value.find(x => x.short === 'GND')?.id ?? -1,
-        TWR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'TWR')?.id ?? -1,
-        APP: dataStore.vatsim.data.facilities.value.find(x => x.short === 'APP')?.id ?? -1,
-        CTR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'CTR')?.id ?? -1,
+        OBS: 0,
+        FSS: 1,
+        DEL: 2,
+        GND: 3,
+        TWR: 4,
+        APP: 5,
+        CTR: 6,
     };
 };
 

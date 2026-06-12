@@ -44,7 +44,7 @@ import {
     checkForSimAware,
     checkForUpdates,
     checkForVATSpy,
-    checkForVG, initFirstCheck,
+    checkForVG,
 } from '~/composables/init';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
