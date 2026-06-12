@@ -174,7 +174,7 @@ watch(() => route.query.list, val => {
             cursor: pointer;
 
             position: absolute;
-            left: -40px;
+            left: -32px;
             transform: rotate(-90deg);
 
             display: flex;

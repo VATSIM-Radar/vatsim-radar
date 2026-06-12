@@ -25,6 +25,7 @@
                 Presets Management
             </template>
             <map-filters-presets
+                copy
                 endpoint-suffix="settings/v2"
                 :max-presets="MAX_SETTINGS_PRESETS"
                 :presets="settingsStore.settingsPresets"

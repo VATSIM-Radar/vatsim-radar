@@ -140,6 +140,26 @@
                                     Copy Link
                                 </ui-tooltip>
                                 <ui-tooltip
+                                    v-if="copy"
+                                    location="left"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            :disabled="presets.length >= maxPresets"
+                                            size="S"
+                                            type="secondary"
+                                            @click="states.copy = true"
+                                        >
+                                            <template #icon>
+                                                <copy-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
+
+                                    Copy
+                                </ui-tooltip>
+                                <ui-tooltip
                                     v-if="!disableActions"
                                     location="left"
                                     open-method="mouseOver"
@@ -209,20 +229,41 @@
                     </ui-button>
                 </template>
             </popup-fullscreen>
+            <popup-fullscreen v-model="states.copy">
+                <template #title>
+                    Preset Copy
+                </template>
+                You are about to copy {{ activePreset.name }} preset with it's saved settings.
+
+                <ui-input-text
+                    v-model="copyPresetName"
+                    placeholder="Copy as..."
+                />
+                <template #actions>
+                    <ui-button type="secondary" @click="states.copy = false">
+                        Cancel
+                    </ui-button>
+                    <ui-button
+                        :disabled="!copyPresetName || presets.some(x => x.name.toLowerCase() === copyPresetName.toLowerCase())"
+                        @click="[copyPreset(), states.copy = false]"
+                    >
+                        Copy preset
+                    </ui-button>
+                </template>
+            </popup-fullscreen>
             <popup-fullscreen v-model="states.overwrite">
                 <template #title>
-                    Preset Overwrite
+                    Preset Save
                 </template>
-                You are about to overwrite {{ activePreset.name }} preset with current settings. That will delete all previous selected preset data.
+                You are about to save {{ activePreset.name }} preset with current settings. That will delete all previous selected preset data.
                 <template #actions>
+                    <ui-button type="secondary" @click="states.overwrite = false">
+                        Cancel
+                    </ui-button>
                     <ui-button
-                        type="secondary"
                         @click="[overwritePreset(), states.overwrite = false]"
                     >
-                        Overwrite preset
-                    </ui-button>
-                    <ui-button @click="states.overwrite = false">
-                        Cancel
+                        Save preset
                     </ui-button>
                 </template>
             </popup-fullscreen>
@@ -279,11 +320,16 @@ import { VueDraggable } from 'vue-draggable-plus';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import { vatsimAuth } from '../../../../composables/vatsim/auth';
+import CopyIcon from '~/assets/icons/kit/copy.svg?component';
 
 const props = defineProps({
     presets: {
         type: Array as PropType<UserPreset[]>,
         required: true,
+    },
+    copy: {
+        type: Boolean,
+        default: false,
     },
     selectedPreset: {
         type: Object as PropType<UserCustomPreset['json']>,
@@ -359,6 +405,7 @@ const share = useCopyText();
 const store = useStore();
 
 const newPresetName = ref('');
+const copyPresetName = ref('');
 const activePreset = shallowRef<UserCustomPreset | null>(null);
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const activeCreatePreset = ref<boolean | null>(!!props.presets.length);
@@ -378,6 +425,7 @@ const states = reactive({
     rename: false,
     load: false,
     overwrite: false,
+    copy: false,
 });
 
 const isCurrentPreset = (preset: UserCustomPreset) => {
@@ -386,6 +434,10 @@ const isCurrentPreset = (preset: UserCustomPreset) => {
 
 const createPreset = async () => {
     emit('create', newPresetName.value, props.selectedPreset);
+};
+
+const copyPreset = async () => {
+    emit('create', copyPresetName.value, activePreset.value!.json);
 };
 
 const exportPreset = (preset: UserCustomPreset) => {

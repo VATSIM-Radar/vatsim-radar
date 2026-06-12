@@ -3,7 +3,7 @@ import SettingsScale from '~/components/features/settings/v2/misc/SettingsScale.
 
 export const settingsItemPreferencesAircraft = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     shortView: {
-        title: 'Short facilities view',
+        title: 'Short hover view',
         description: 'Reduces on-hover displayed info',
         type: 'toggle',
         value: getSettingValue('map.preferences.aircraft.shortView'),

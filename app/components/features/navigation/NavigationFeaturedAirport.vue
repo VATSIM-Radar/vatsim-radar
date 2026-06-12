@@ -120,7 +120,7 @@ const controllers = computed<Controller[]>(() => {
         if (list.some(x => controller.isATIS ? x.isATIS : x.facility === controller.facility) || controller.facility === ids.FSS || controller.facility === ids.CTR) continue;
 
         list.push({
-            facility: controller.facility,
+            facility: controller.isATIS ? -1 : controller.facility,
             color: getControllerPositionColor(controller),
             text: '',
             isATIS: controller.isATIS || controller.facility === ids.ATIS || !!controller.atis_code,

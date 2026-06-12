@@ -198,9 +198,7 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
             });
         }
     }
-    catch (e) {
-        console.error(e);
-    }
+    catch { /* empty */ }
 }
 
 export function checkForVG() {

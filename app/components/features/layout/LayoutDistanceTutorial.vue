@@ -1,6 +1,6 @@
 <template>
     <popup-fullscreen
-        :model-value="mapStore.distance.tutorial || !notification"
+        :model-value="mapStore.distance.tutorial || (!notification && !!isEnabled.value)"
         width="600px"
         @update:modelValue="$event ? undefined : [save(), mapStore.distance.tutorial = false]"
     >
@@ -47,6 +47,7 @@ import { checkNotification, saveUserNotification } from '~/composables/user';
 
 const mapStore = useMapStore();
 const settingsItems = getSettingsItems().value;
+const isEnabled = getSettingValue('map.layers.distance.enabled');
 const notification = computed(() => checkNotification('DISTANCE_TUTORIAL'));
 const save = () => saveUserNotification('DISTANCE_TUTORIAL');
 </script>

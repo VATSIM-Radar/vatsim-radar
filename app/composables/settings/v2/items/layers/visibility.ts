@@ -23,11 +23,18 @@ export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ 
         onChange: value => setSettingByKey('map.visibility.atc.ground', value),
     },
     atcLabels: {
-        title: 'ATC Labels',
+        title: 'Approach Labels',
         searchKeywords: ['controllers', 'callsigns'],
         type: 'toggle',
         value: getSettingValue('map.visibility.atcLabels'),
         onChange: value => setSettingByKey('map.visibility.atcLabels', value),
+    },
+    vatglassesLabels: {
+        title: 'VATGlasses labels Labels',
+        searchKeywords: ['controllers', 'callsigns'],
+        type: 'toggle',
+        value: getSettingValue('map.visibility.vatglassesLabels'),
+        onChange: value => setSettingByKey('map.visibility.vatglassesLabels', value),
     },
     airports: {
         title: 'Airports',

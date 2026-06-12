@@ -133,6 +133,8 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     return cachedStyle;
 }
 
+const vatglassesLabelsEnabled = globalComputed(() => getKeyedValueFromSettings('map.visibility.vatglassesLabels'));
+
 const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProperties, transparent: boolean): Style => {
     let rgba: string;
 
@@ -143,11 +145,12 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green500').join(',');
     }
 
-    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }`;
+    const labelsEnabled = vatglassesLabelsEnabled().value;
+    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }-${ String(labelsEnabled) }`;
 
     if (!styleCache[key]) {
         styleCache[key] = new Style({
-            text: positionId
+            text: (positionId && labelsEnabled)
                 ? new Text({
                     font: getTextFont('caption-medium'),
                     text: positionId,
@@ -172,7 +175,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         });
     }
 
-    if (positionId) {
+    if (positionId && labelsEnabled) {
         (styleCache[key] as Style).getText()!.setFill(getCachedFill(`rgba(${ rgba }, ${ transparent ? 0 : 1 })`));
         (styleCache[key] as Style).getText()!.setText(positionId);
     }

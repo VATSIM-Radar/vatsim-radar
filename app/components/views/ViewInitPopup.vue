@@ -92,8 +92,7 @@ const canShowPopup = computed(() => {
 
     let canShow = false;
 
-    for (const [key, value] of Object.entries(store.initStatus)) {
-        if ((key === 'dataGet' || (key === 'updatesCheck' && !initFirstCheck.value)) && value === 'loading') continue;
+    for (const [, value] of Object.entries(store.initStatus)) {
         if (value === 'loading' || value === 'failed') canShow = true;
     }
 

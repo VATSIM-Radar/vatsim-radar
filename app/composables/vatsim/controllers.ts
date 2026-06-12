@@ -107,6 +107,11 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     });
 }
 
+export function findAtcByCid(cid: number): VatsimShortenedController | undefined {
+    const dataStore = useDataStore();
+    return dataStore.vatsim.data.controllers.value.find(x => x.cid === cid) || dataStore.vatsim.data.atis.value.find(x => x.cid === cid);
+}
+
 export function findAtcByCallsign(callsign: string): VatsimShortenedController | undefined {
     const dataStore = useDataStore();
     return dataStore.vatsim.data.controllers.value.find(x => x.callsign === callsign) || dataStore.vatsim.data.atis.value.find(x => x.callsign === callsign);

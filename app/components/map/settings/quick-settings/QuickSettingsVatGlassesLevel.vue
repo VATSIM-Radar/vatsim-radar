@@ -34,7 +34,7 @@
                 <input
                     :checked="vatglassesAutoLevel !== false"
                     type="checkbox"
-                    @update:modelValue="setSettingByKey('map.vatglasses.autoLevel', $event)"
+                    @input="setSettingByKey('map.vatglasses.autoLevel', !vatglassesAutoLevel)"
                 >
                 A
             </label>

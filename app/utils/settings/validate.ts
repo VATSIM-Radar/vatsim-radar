@@ -149,7 +149,7 @@ const settingsSchema = partialObject({
             overlaysPositions: list(['bottom-left', 'top-left'], 'must be either bottom-left or top-left'),
 
             aircraft: partialObject({
-                shortView: booleanSchema,
+                shortView: list([false, true, 'never'], `must be one of: false, true, never`),
                 scale: rangedNumber(0.5, 1.5, 'must be a number between 0.5 and 1.5', 2),
                 dynamicScale: booleanSchema,
                 tracks: partialObject({
@@ -273,6 +273,7 @@ const settingsSchema = partialObject({
         visibility: partialObject({
             atc: partialObject(Object.fromEntries(atcVisibilityKeys.map(key => [key, booleanSchema])) as Record<string, Schema>),
             atcLabels: booleanSchema,
+            vatglassesLabels: booleanSchema,
             airports: booleanSchema,
             pilots: booleanSchema,
             gates: booleanSchema,

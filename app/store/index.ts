@@ -305,7 +305,7 @@ export const useStore = defineStore('index', {
             return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));
         },
         getEvents(): VatsimActiveEvent[] {
-            return this.events.filter(x => new Date(x.end_time).getTime() < useDataStore().time.value);
+            return this.events.filter(x => new Date(x.end_time).getTime() > useDataStore().time.value);
         },
         eventsMap(): Record<string, VatsimActiveEvent> {
             const icaoMap: Record<string, VatsimActiveEvent> = {};

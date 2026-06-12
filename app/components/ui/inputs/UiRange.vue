@@ -195,6 +195,8 @@ function handleWheel(e: WheelEvent) {
                     height: 100%;
                     border-radius: 9999px;
 
+                    pointer-events: none;
+
                     background: $brandPrimary;
 
                     @at-root .range--zero & {
@@ -213,6 +215,8 @@ function handleWheel(e: WheelEvent) {
                     width: 12px;
                     height: 12px;
                     border-radius: 100%;
+
+                    pointer-events: none;
 
                     background: $backgroundLevel1;
                 }

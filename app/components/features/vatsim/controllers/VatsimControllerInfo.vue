@@ -206,11 +206,13 @@ const isATIS = computed(() => {
 });
 
 const handleClick = () => {
-    if (!findAtcByCallsign(props.controller.callsign)) {
+    const callsign = props.controller?.duplicatedBy ?? props.controller?.callsign;
+
+    if (!findAtcByCallsign(callsign)) {
         window.open(`https://stats.vatsim.net/stats/${ props.controller.cid }`, '_blank');
         return;
     }
-    mapStore.addAtcOverlay(props.controller.callsign);
+    mapStore.addAtcOverlay(callsign);
     emit('overlay', props.controller);
 };
 
@@ -295,6 +297,7 @@ const isCopied = (key: string) => {
 
         &--secondary {
             margin-top: 0;
+            padding-bottom: 0;
             color: currentColor;
         }
 
@@ -339,6 +342,13 @@ const isCopied = (key: string) => {
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
+
+        margin-bottom: 4px;
+        padding: 4px 0;
+        border: dashed $strokeDefault;
+        border-width: 1px 0;
+
+        opacity: 0.8;
     }
 }
 </style>
