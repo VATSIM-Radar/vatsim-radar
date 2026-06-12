@@ -53,11 +53,7 @@ watch(mapSettings, val => {
     immediate: true,
 });
 
-const getShownAirports = computed(() => {
-    const airportsListSet = new Set(airportsList.value.map(x => x.airport.icao));
-
-    let list = airports.value.filter(x => airportsListSet.has(x.icao));
-
+const icaosList = computed(() => {
     const knownIcaos = new Set<string>();
 
     for (const overlay of mapStore.overlays) {
@@ -80,15 +76,23 @@ const getShownAirports = computed(() => {
         }
     }
 
+    return knownIcaos;
+});
+
+const getShownAirports = computed(() => {
+    const airportsListSet = new Set(airportsList.value.map(x => x.airport.icao));
+
+    let list = airports.value.filter(x => airportsListSet.has(x.icao));
+
     switch (getKeyedValueFromSettings('map.preferences.airports.showMode')) {
         case 'staffedOnly':
             list = list.filter(x => {
-                return knownIcaos.has(x.icao) || x.atc.length;
+                return icaosList.value.has(x.icao) || x.atc.length;
             });
             break;
         case 'staffedAndGroundTraffic':
             list = list.filter(x => {
-                return knownIcaos.has(x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
+                return icaosList.value.has(x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
             });
             break;
     }
@@ -232,7 +236,7 @@ onMounted(() => {
         log();
     }, 500, true);
 
-    useUpdateCallback([airportsList, mapSettings, mapRender, 'short', getShownAirports], () => {
+    useUpdateCallback([airportsList, mapSettings, mapRender, 'short', icaosList], () => {
         renderAirports();
     });
 });

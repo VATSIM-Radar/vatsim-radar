@@ -149,7 +149,7 @@ const settingsSchema = partialObject({
             overlaysPositions: list(['bottom-left', 'top-left'], 'must be either bottom-left or top-left'),
 
             aircraft: partialObject({
-                shortView: list([false, true, 'never'], `must be one of: false, true, never`),
+                shortView: booleanSchema,
                 scale: rangedNumber(0.5, 1.5, 'must be a number between 0.5 and 1.5', 2),
                 dynamicScale: booleanSchema,
                 tracks: partialObject({
@@ -162,7 +162,7 @@ const settingsSchema = partialObject({
 
             airports: partialObject({
                 defaultZoomLevel: rangedNumber(1, 50, 'must be a number between 1 and 50', 1),
-                shortView: booleanSchema,
+                shortView: list([false, true, 'never'], `must be one of: false, true, never`),
                 showMode: list(airportsModeKeys, `must be one of: ${ airportsModeKeys.join(', ') }`),
                 declutterIf: list(airportsDeclutterKeys, `must be one of: ${ airportsDeclutterKeys.join(', ') }`),
                 ATISAsUnstaffed: booleanSchema,

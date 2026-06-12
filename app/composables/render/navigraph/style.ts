@@ -465,18 +465,6 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                     new Style({
                         stroke: holdingStrokeBold,
                         zIndex: 5,
-                        text: new Text({
-                            font: getTextFont('caption-medium', { fontSize: 9 }),
-                            text: `${ properties.course }° ${ properties.turns }`,
-                            maxAngle: 0,
-                            placement: 'line',
-                            textBaseline: 'bottom',
-                            keepUpright: true,
-                            padding: [2, 2, 2, 2],
-                            fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.8)`,
-                            }),
-                        }),
                     }),
                 ];
             }
