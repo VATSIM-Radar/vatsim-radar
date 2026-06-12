@@ -528,15 +528,6 @@ const restoreOverlays = async () => {
     }
 };
 
-watch(distanceEnabled, val => {
-    if (!val) return;
-
-    if (!localStorage.getItem('distance-tool-tutorial-seen')) {
-        mapStore.distance.tutorial = true;
-        localStorage.setItem('distance-tool-tutorial-seen', '1');
-    }
-});
-
 useUpdateInterval(() => {
     if (vatglassesAutoLevel.value === false || !store.user) return;
 
@@ -683,13 +674,15 @@ function startDistance(event: MapBrowserEvent) {
     });
 }
 
+const isTouch = useIsTouch();
+
 class DistanceInteraction extends Interaction {
     override handleEvent(event: MapBrowserEvent) {
         if (mapStore.distance.pixel) return true;
 
         const useCtrlClick = distanceInteraction.value === 'ctrlclick';
-        const isCtrlClick = event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey);
-        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK;
+        const isCtrlClick = !isTouch.value && (event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey));
+        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK || isTouch.value;
 
         if ((useCtrlClick && isCtrlClick) || (!useCtrlClick && isDoubleClick)) {
             startDistance(event);

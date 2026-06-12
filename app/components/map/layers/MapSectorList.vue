@@ -85,6 +85,7 @@ onMounted(async () => {
         getKeyedValueFromSettings('map.vatglasses.active'),
         getKeyedValueFromSettings('map.vatglasses.combined'),
         getKeyedValueFromSettings('map.vatglasses.combineBands'),
+        getKeyedValueFromSettings('map.visibility.atc.firs'),
     ]));
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
 

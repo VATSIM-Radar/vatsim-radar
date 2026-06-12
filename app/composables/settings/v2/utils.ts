@@ -197,6 +197,7 @@ const _settingsDefaultValues = {
     'map.visibility.atc.approach': true,
     'map.visibility.atc.ground': true,
     'map.visibility.atcLabels': true,
+    'map.visibility.vatglassesLabels': true,
     'map.visibility.airports': true,
     'map.visibility.pilots': true,
     'map.visibility.gates': true,
@@ -349,8 +350,13 @@ export function useSettingValueFromFunc(setting: SettingsKeysWithDefault | (() =
     return computed(() => settingValue.value.value);
 }
 
-export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V {
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault: true): V | undefined;
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault?: false): V;
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault = false): V | undefined {
     const settingValue = getSettingByKey(useSettingsStore().settings, setting);
+
+    if (noDefault && settingValue === undefined) return settingValue;
+
     return (settingValue === undefined ? settingsDefaultValues[setting] : settingValue);
 }
 

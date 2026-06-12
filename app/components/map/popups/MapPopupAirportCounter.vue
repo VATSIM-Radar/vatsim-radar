@@ -43,6 +43,7 @@
                 <ui-text-block
                     v-for="pilot in properties.aircraft"
                     :key="pilot.cid"
+                    class="airport-counts_list_item"
                     is-button
                     :top-items="[
                         pilot.callsign,
@@ -70,12 +71,13 @@
                             </span>
                             {{ item }}
                         </template>
-                        <ui-spoiler
-                            v-else-if="item === pilot.name"
-                            type="pilot"
-                        >
-                            {{ parseEncoding(pilot.name) }}
-                        </ui-spoiler>
+                        <div  v-else-if="item === pilot.name"  class="airport-counts__popup-name">
+                            <ui-spoiler
+                                type="pilot"
+                            >
+                                {{ parseEncoding(pilot.name) }}
+                            </ui-spoiler>
+                        </div>
                         <div
                             v-else
                             class="airport-counts__popup-info"
@@ -172,6 +174,18 @@ const getOffsetX = computed(() => {
         gap: 4px;
 
         max-height: 360px;
+
+        &_item  {
+            :deep(.info-block_top) {
+                flex-wrap: nowrap;
+                white-space: nowrap;
+
+                .airport-counts__popup-name {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
     }
 }
 </style>

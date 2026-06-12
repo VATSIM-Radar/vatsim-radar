@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div ref="select">
         <map-html-overlay
             v-if="contextMenu"
             is-interaction
@@ -292,6 +292,18 @@ const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFe
 
 watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
+});
+
+const select = useTemplateRef('select');
+
+useClickOutside({
+    element: select,
+    callback: () => {
+        if (!isMobileOrTablet.value) return;
+        map.value!.getTargetElement().style.cursor = 'grab';
+        openedOverlay.value = null;
+        selectFeature(false);
+    },
 });
 
 function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, interactionKey: SelectableFeatures) {
@@ -627,7 +639,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!selected.length) {
                 openedOverlay.value = null;
-                if (type === 'hover') {
+                if (type === 'hover' || isMobileOrTablet.value) {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
                             map.value!.getTargetElement().style.cursor = 'grab';
@@ -673,6 +685,8 @@ function createSelectHandler(type: EventType, select: Select) {
                 });
 
                 tookAction = true;
+
+                if (!map.value!.getTargetElement()) return false;
 
                 if (result === false) {
                     map.value!.getTargetElement().style.cursor = 'grab';

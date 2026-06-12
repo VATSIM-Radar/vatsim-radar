@@ -185,6 +185,7 @@ function handleWheel(e: WheelEvent) {
                 height: 16px;
 
                 &::before {
+                    pointer-events: none;
                     content: '';
 
                     position: absolute;
@@ -203,6 +204,7 @@ function handleWheel(e: WheelEvent) {
                 }
 
                 &::after {
+                    pointer-events: none;
                     content: '';
 
                     position: absolute;

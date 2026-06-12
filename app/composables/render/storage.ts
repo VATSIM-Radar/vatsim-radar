@@ -11,7 +11,7 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import { getCurrentInstance } from 'vue';
-import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
+import type { Ref, ShallowRef } from 'vue';
 import type {
     RadarDataAirline,
     Sigmets,
@@ -652,14 +652,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
-        let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
 
         watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            watcher?.();
+            ws?.();
             if (val !== true) {
                 ws = checkForWSData(isMounted);
             }

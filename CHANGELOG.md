@@ -1,5 +1,52 @@
 # Changelog
 
+# [2.0.0-beta.2]
+
+## Alpha changes
+
+- Fixed distance tool auto-syncing on new devices when autosave is enabled
+- Fixed remarks copy button displaying on top when selcal is present
+- Added event airport color highlight
+- Changed default unstaffed airport color to be less bright
+- Fixed init popup showing multiple times and blinking
+- Improved airports render/update frequency when map is not moving
+- Fixed events not showing on map
+- Fixed airport dot disappearing when airport has bookings
+- Fixed weird aircraft icon on first hover
+- You can now easily copy map settings and filters
+- Added weather transparency placeholder, defaults to Auto
+- Renamed transparency to opacity everywhere
+- Renamed ATC Labels setting to Approach Labels
+- Fixed visibility settings not taking effect immediately
+- Fixed favorite list table misaligned on scroll
+- Fixed manual CID input in favorite list always autocompleting to 800000
+- Fixed airport counters misaligned vertically with airport icao
+- Realigned airport icao with vatspy coordinate
+- Fixed vatglasses auto level doing nothing
+- Slightly improved frequencies monitoring design for them to be less noticeable
+- Map hover overlay on mobile will now be closed on a click to anywhere except for overlay itself
+- Added ability to disable new vatglasses labels
+- Fixed new range not working properly in Firefox
+- Added ability to turn off new VATGlasses labels
+- Added ability to disable short facilities view
+- Fixed ATIS-only airports showing in quiet airports
+- Fixed some facilities not showing in quiet airports
+- Fixed search opening in random place on some map screens
+- Fixed duplicate controller not opening correct controller on click
+- It is now much easier to click on a holding
+- Fixed turning auto save off not allowing to save preset
+- Fixed local preset resetting when auto save is disabled
+- Fixed random select error alert
+- Various landscape mode improvements
+- Distance tool can now be enabled or disabled on mobile in settings. When enabled, it will work on standard 2-click interaction as on pc
+- Fixed rare app controllers not showing up
+- Fixed overlays issues from beta 1.4
+
+## Features and improvements
+
+- Added TWR icon to airports where SimAware TWR TRACON is shown to make it more clear that TWR is currently online
+- Airport label will now always show if aircraft with this departure or destination is hovered
+
 # [2.0.0-beta.1.4]
 
 ## Alpha changes

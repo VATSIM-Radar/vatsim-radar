@@ -53,6 +53,32 @@ watch(mapSettings, val => {
     immediate: true,
 });
 
+const icaosList = computed(() => {
+    const knownIcaos = new Set<string>();
+
+    for (const overlay of mapStore.overlays) {
+        if (overlay.type === 'airport') {
+            knownIcaos.add(overlay.key);
+            continue;
+        }
+
+        if (overlay.type !== 'pilot') continue;
+
+        knownIcaos.add(overlay.data.pilot.flight_plan?.departure ?? '');
+        knownIcaos.add(overlay.data.pilot.flight_plan?.arrival ?? '');
+    }
+
+    if (mapStore.hoveredPilot) {
+        const pilot = dataStore.vatsim.data.keyedPilots.value[mapStore.hoveredPilot];
+        if (pilot) {
+            knownIcaos.add(pilot.departure ?? '');
+            knownIcaos.add(pilot.arrival ?? '');
+        }
+    }
+
+    return knownIcaos;
+});
+
 const getShownAirports = computed(() => {
     const airportsListSet = new Set(airportsList.value.map(x => x.airport.icao));
 
@@ -61,16 +87,12 @@ const getShownAirports = computed(() => {
     switch (getKeyedValueFromSettings('map.preferences.airports.showMode')) {
         case 'staffedOnly':
             list = list.filter(x => {
-                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
-
-                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length;
+                return icaosList.value.has(x.icao) || x.atc.length;
             });
             break;
         case 'staffedAndGroundTraffic':
             list = list.filter(x => {
-                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
-
-                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
+                return icaosList.value.has(x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
             });
             break;
     }
@@ -170,6 +192,12 @@ onMounted(() => {
         getKeyedValueFromSettings('map.bookings.hours'),
         getKeyedValueFromSettings('map.preferences.airports.showMode'),
         getKeyedValueFromSettings('map.navigraph.airport.enabled'),
+        getKeyedValueFromSettings('map.visibility.airports'),
+        getKeyedValueFromSettings('map.visibility.gates'),
+        getKeyedValueFromSettings('map.visibility.atc.approach'),
+        getKeyedValueFromSettings('map.visibility.atc.ground'),
+        getKeyedValueFromSettings('map.visibility.atcLabels'),
+        getKeyedValueFromSettings('map.preferences.airports.shortView'),
     ]));
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 
@@ -208,7 +236,7 @@ onMounted(() => {
         log();
     }, 500, true);
 
-    watch([airportsList, mapSettings, mapRender], () => {
+    useUpdateCallback([airportsList, mapSettings, mapRender, 'short', icaosList], () => {
         renderAirports();
     });
 });

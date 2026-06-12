@@ -39,19 +39,19 @@ $appColor: $citrus600;
 }
 
 @mixin mobileOnly() {
-    @media all and (max-width: 699px) {
+    @media all and ((max-width: 699px) or (max-height: 500px)) {
         @content;
     }
 }
 
 @mixin tablet() {
-    @media all and (min-width: 700px) and (max-width: 1365px) {
+    @media all and (min-width: 700px) and (min-height: 500px) and (max-width: 1365px) {
         @content;
     }
 }
 
 @mixin fromTablet() {
-    @media all and (min-width: 700px) {
+    @media all and (min-width: 700px) and (min-height: 500px) {
         @content;
     }
 }

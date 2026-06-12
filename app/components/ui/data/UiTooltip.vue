@@ -23,7 +23,7 @@
                 v-if="model"
                 class="tooltip_container"
             >
-                <div class="tooltip_container_icon">
+                <div v-if="align ===  'center'" class="tooltip_container_icon">
                     <tooltip-arrow/>
                 </div>
                 <div class="tooltip_container_content">

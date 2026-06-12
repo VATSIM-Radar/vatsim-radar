@@ -341,7 +341,7 @@ async function patreonTask() {
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
 
-        let counter = 0;
+        let counter: number;
         let nextLink = '';
 
         const patrons: PatreonPledge[] = [];

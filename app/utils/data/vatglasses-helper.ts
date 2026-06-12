@@ -457,7 +457,7 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSecto
 
     if (!cleaned.length) return [];
 
-    let merged: TurfFeature<TurfPolygon | TurfMultiPolygon> | null = null;
+    let merged: TurfFeature<TurfPolygon | TurfMultiPolygon> | null;
     if (cleaned.length === 1) {
         merged = cleaned[0];
     }

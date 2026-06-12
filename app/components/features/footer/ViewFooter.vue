@@ -34,7 +34,7 @@
             </div>
 
             <div
-                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700"
+                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700 && store.viewport.height > 500"
                 class="map-footer_left_section"
             >
                 <ui-button

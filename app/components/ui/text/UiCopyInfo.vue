@@ -167,8 +167,8 @@ watch([expanded, textarea], ([val]) => {
 
         &_actions {
             position: absolute;
-            top: 12px;
             right: 8px;
+            bottom: 12px;
 
             display: flex;
             gap: 8px;

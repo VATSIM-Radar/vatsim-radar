@@ -456,3 +456,9 @@ async function deleteList() {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.list :deep(.table_header) {
+    top: 0 !important;
+}
+</style>
