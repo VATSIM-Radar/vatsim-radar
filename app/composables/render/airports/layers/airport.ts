@@ -76,12 +76,11 @@ export function setMapAirports({ source, airports, layer }: {
             let facility = facilitiesMap.get(facilityId);
 
             if (local.isATIS && getKeyedValueFromSettings('map.preferences.airports.ATISAsUnstaffed') && !locals.some(x => !x.isATIS)) {
-                let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.icao }--1`);
+                const existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.icao }--1`);
 
                 if (existingFacility) {
                     source.removeFeature(existingFacility);
                     existingFacility.dispose();
-                    existingFacility = null;
                 }
 
                 return;
