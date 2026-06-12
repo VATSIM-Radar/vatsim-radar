@@ -50,8 +50,12 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapOverlayAirport.v
 <style scoped lang="scss">
 .map-popup {
     position: relative;
+
     display: flex;
+    align-items: flex-start;
+
     max-height: var(--max-height) !important;
+
     transition: 0.5s ease-in-out;
 }
 </style>

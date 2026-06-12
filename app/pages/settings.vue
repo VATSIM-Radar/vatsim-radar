@@ -106,7 +106,7 @@
                         <ui-tabs
                             background="darkGray900"
                             :model-value="String(rootPath) + (childrenPath ?? '')"
-                            :tabs="Object.fromEntries(root.sections.map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
+                            :tabs="Object.fromEntries(root.sections.filter(x => x.hide === undefined || !toValue(x.hide)).map(x => ([root.url + x.url, ({ title: x.title, to: `/settings/${ root.url }/${ x.url }` })])))"
                             vertical
                             @update:modelValue="menuActive = false"
                         />
@@ -151,12 +151,27 @@
                 </div>
             </div>
 
-            <iframe
+            <div
                 v-if="mapPreview"
-                ref="iframe"
-                class="settings_iframe"
-                src="/?preset=settings"
-            />
+                class="settings_preview"
+            >
+                <iframe
+                    ref="iframe"
+                    class="settings_iframe"
+                    src="/?preset=settings"
+                    @load="iframeLoading = false"
+                />
+                <transition name="settings_preview_loader--appear">
+                    <div
+                        v-if="iframeLoading"
+                        class="settings_preview_loader"
+                    >
+                        <ui-loader>
+                            Opening preview...
+                        </ui-loader>
+                    </div>
+                </transition>
+            </div>
             <div
                 v-if="mapPreview && isMobileOrTablet"
                 class="settings_iframe_close"
@@ -182,11 +197,13 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import UiLoader from '~/components/ui/data/UiLoader.vue';
 
 const store = useStore();
 const search = ref('');
 const route = useRoute();
 const iframe = useTemplateRef('iframe');
+const iframeLoading = ref(false);
 
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
@@ -212,6 +229,12 @@ const settingsItems = getSettingsItems().value;
 const mapPreview = useCookie<boolean>('map-preview', {
     sameSite: 'none',
     secure: true,
+});
+
+watch(mapPreview, val => {
+    if (val) iframeLoading.value = true;
+}, {
+    immediate: true,
 });
 
 watch(() => settingsStore.settings, val => {
@@ -294,14 +317,11 @@ const currentItem = computed(() => {
     for (const root of settingsSections) {
         if (root.url !== rootPath.value) continue;
 
-        for (const item of root.sections) {
-            if (item.url !== childrenPath.value) {
-                if (!item.url && !childrenPath.value) return item;
+        const visibleSections = root.sections.filter(x => x.hide === undefined || !toValue(x.hide));
 
-                continue;
-            }
-            return item;
-        }
+        if (!childrenPath.value) return visibleSections[0] ?? null;
+
+        return visibleSections.find(x => x.url === childrenPath.value) ?? null;
     }
 
     return null;
@@ -316,6 +336,12 @@ if (!currentItem.value) {
     else {
         showError({ status: 404 });
     }
+}
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+else if (!childrenPath.value && currentItem.value.url) {
+    // Default section is hidden (e.g. Account while logged out) - land on the first visible one
+    // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+    navigateTo(`/settings/${ rootPath.value }/${ currentItem.value.url }`, { replace: true });
 }
 </script>
 
@@ -334,13 +360,14 @@ if (!currentItem.value) {
         --max-height: calc(100dvh - 56px - 32px - var(--container-vertical-padding) * 2 - 2px);
     }
 
-    &_iframe {
+    &_preview {
+        position: relative;
+
         overflow: hidden;
         flex-grow: 1;
 
         min-width: 35%;
         height: var(--max-height);
-        border: none;
         border-radius: 16px;
 
         @include mobile {
@@ -348,9 +375,38 @@ if (!currentItem.value) {
             z-index: 10;
             inset: 0;
 
-            width: 100%;
             height: 100%;
+            border-radius: 0;
         }
+
+        &_loader {
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: $darkGray900;
+
+            &--appear {
+                &-enter-active, &-leave-active {
+                    transition: opacity 0.3s ease-in-out;
+                }
+
+                &-enter-from, &-leave-to {
+                    opacity: 0;
+                }
+            }
+        }
+    }
+
+    &_iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: none;
 
         &_close {
             position: fixed;

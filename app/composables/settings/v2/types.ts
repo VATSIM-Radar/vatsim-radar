@@ -137,6 +137,7 @@ export interface SettingsSection {
     title: string;
     url: string;
     items: SettingsSectionBlock[];
+    hide?: MaybeRefOrGetter<boolean>;
 }
 
 export interface SettingsMenuGroup {

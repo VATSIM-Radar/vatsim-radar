@@ -63,6 +63,7 @@ export const getSettingsSections = () => {
                 {
                     title: 'Account',
                     url: '',
+                    hide: notLoggedIn,
                     items: [
                         {
                             key: 'account',

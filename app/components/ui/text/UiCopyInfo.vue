@@ -147,6 +147,7 @@ watch([expanded, textarea], ([val]) => {
         resize: vertical;
         scrollbar-gutter: stable;
 
+        field-sizing: content;
         min-height: 32px;
         padding: 8px 16px 8px 8px;
         border: none;
@@ -175,7 +176,6 @@ watch([expanded, textarea], ([val]) => {
         }
 
         &--with-expand .copy-info_textarea {
-            field-sizing: content;
             padding-right: 36px;
         }
     }

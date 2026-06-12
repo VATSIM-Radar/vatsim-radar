@@ -34,10 +34,11 @@
             </div>
 
             <div
-                v-if="(store.friends.length || store.bookmarks.length) &&  store.viewport.width > 1000"
+                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700"
                 class="map-footer_left_section"
             >
                 <ui-button
+                    v-if="store.viewport.width > 1000"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
                     @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
@@ -49,6 +50,23 @@
                     </template>
 
                     Favorite
+                </ui-button>
+                <ui-button
+                    v-else
+                    class="map-footer__friends"
+                    size="S"
+                    :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
+                    @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
+                >
+                    <template #icon>
+                        <star-filled-icon/>
+                        <ui-bubble
+                            class="map-footer__friends-bubble"
+                            :type="!store.friends.length ? 'secondary' : 'primary'"
+                        >
+                            {{ store.friends.length }}
+                        </ui-bubble>
+                    </template>
                 </ui-button>
 
                 <popup-aside
@@ -265,6 +283,7 @@ import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import QuickSettingsVatGlassesLevel from '~/components/map/settings/quick-settings/QuickSettingsVatGlassesLevel.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
+import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
@@ -347,6 +366,17 @@ function cancelBookingOverride() {
                     border-right: 1px solid varToRgba('lightGray500', 0.1);
                 }
             }
+        }
+    }
+
+    &__friends {
+        position: relative;
+        min-width: unset;
+
+        &-bubble {
+            position: absolute;
+            top: -5px;
+            right: -5px;
         }
     }
 

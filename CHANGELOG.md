@@ -7,6 +7,21 @@
 - Fixed distance tool auto-syncing on new devices when autosave is enabled
 - Fixed remarks copy button displaying on top when selcal is present
 
+# [2.0.0-beta.1.4]
+
+## Alpha changes
+
+- Fixed NAT tracks click not working
+- Fixed mobile overlay close behavior
+- Fixed content overlay scroll issues
+- Added loader for loading settings preview
+- Setting button second click will now open previous page, or homepage
+- Account section will now be hidden in settings for logged in users
+- Fixed favorite menu not showing from 700 to 1000 screen widths
+- Improved mobile menu layout
+- Fixed aircraft popup showing out of map view on hover
+- Significantly improved VATGlasses Combined update speed (compared to previous next builds)
+
 # [2.0.0-beta.1.3]
 
 ## Alpha changes

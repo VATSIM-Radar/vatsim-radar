@@ -163,6 +163,7 @@ const _settingsDefaultValues = {
     'map.vatglasses.autoEnable': true,
     'map.vatglasses.autoLevel': true,
     'map.vatglasses.combined': false,
+    'map.vatglasses.combineBands': false,
 
     'map.navigraph.enabled': true,
 
