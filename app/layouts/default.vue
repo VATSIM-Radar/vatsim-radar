@@ -251,7 +251,7 @@ async function getEngine(uaParser = parser) {
 }
 
 function setWindowStore() {
-    store.isMobile = window.innerWidth < 700 || window.innerHeight < 500;
+    store.isMobile = window.innerWidth < 700 || (window.innerWidth < 1365 && window.innerHeight < 500);
     store.isMobileOrTablet = window.innerWidth < 1365;
     store.isTablet = window.innerWidth < 1365 && window.innerWidth >= 700 && window.innerHeight > 500;
     store.isPC = window.innerWidth >= 1365;

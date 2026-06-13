@@ -360,6 +360,10 @@ else if (!childrenPath.value && currentItem.value.url) {
         --max-height: calc(100dvh - 56px - 32px - var(--container-vertical-padding) * 2 - 2px);
     }
 
+    @include pc {
+        --max-height: calc(100dvh - 56px);
+    }
+
     &_preview {
         position: relative;
 
@@ -370,12 +374,20 @@ else if (!childrenPath.value && currentItem.value.url) {
         height: var(--max-height);
         border-radius: 16px;
 
+        @include pc {
+            position: sticky;
+            top: 64px;
+            height: calc(var(--max-height) - 16px);
+        }
+
         @include mobile {
             position: fixed;
             z-index: 10;
-            inset: 0;
+            bottom: 0;
+            left: 0;
 
-            height: 100%;
+            width: 100%;
+            height: 50%;
             border-radius: 0;
         }
 
@@ -411,8 +423,8 @@ else if (!childrenPath.value && currentItem.value.url) {
         &_close {
             position: fixed;
             z-index: 11;
-            top: 16px;
             right: 16px;
+            bottom: calc(50% - 32px);
 
             svg {
                 width: 16px;
@@ -530,6 +542,11 @@ else if (!childrenPath.value && currentItem.value.url) {
                 margin-top: 8px;
             }
         }
+
+        @include pc {
+            position: sticky;
+            top: 56px;
+        }
     }
 
     &_content {
@@ -537,6 +554,10 @@ else if (!childrenPath.value && currentItem.value.url) {
         flex-grow: 1;
         max-width: 820px;
         max-height: var(--max-height);
+
+        @include pc {
+            max-height: unset;
+        }
     }
 
     &_contents {
@@ -606,6 +627,10 @@ else if (!childrenPath.value && currentItem.value.url) {
             display: flex;
             gap: 8px;
         }
+    }
+
+    &--preview .settings_content {
+        padding-bottom: 50vh;
     }
 }
 </style>

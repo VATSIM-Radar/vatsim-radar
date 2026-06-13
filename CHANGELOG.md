@@ -1,5 +1,21 @@
 # Changelog
 
+# [2.0.0-beta.2.2]
+
+## Alpha changes
+
+- Fixed event circle appearing incorrectly when event airport has no atc
+- Added accent to +- buttons in booking override
+- Reworked desktop settings to have full-page scroll once again
+- Mobile preview will now take 50% of page height instead of 100%
+- Fixed filter combo box not accepting more than one value
+
+## Bug fixes
+
+- Fixed departed distance incorrect for some departures
+- Fixed some aircraft icons showing slightly incorrect border color
+- Favorite pilot will now highlight in red when squawking emergency
+
 # [2.0.0-beta.2.1]
 
 ## Alpha Changes

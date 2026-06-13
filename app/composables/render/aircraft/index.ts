@@ -64,7 +64,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
     const isEmergency = getKeyedValueFromSettings('map.traffic.highlightEmergency') && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
 
     if (isEmergency) {
-        return 'landed';
+        return 'emergency';
     }
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use

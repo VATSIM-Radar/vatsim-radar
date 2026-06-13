@@ -103,7 +103,7 @@ export function setAirportStyle(layer: VectorLayer) {
 
         const properties = feature.getProperties();
 
-        const isShowDot = 'atc' in properties && !properties.atc.filter((x: VatsimShortenedController) => !x.booking && (x.isATIS || x.facility <= facilities.TWR)).length && showAirportDetails;
+        const isShowDot = 'atc' in properties && !properties.atc.filter((x: VatsimShortenedController) => (x.isATIS || x.facility <= facilities.TWR)).length && showAirportDetails;
 
         if (isMapFeature('airport', properties)) {
             if (properties.isPseudo) return;
@@ -136,7 +136,7 @@ export function setAirportStyle(layer: VectorLayer) {
                                 })
                                 : undefined,
 
-                            displacement: [getAirportCounterOffsetX(properties.icao, 0) - airportCounterIcaoGap - airportCounterLocalAtcOffsetX, 12],
+                            displacement: [getAirportCounterOffsetX(properties.icao, 0) - airportCounterIcaoGap - airportCounterLocalAtcOffsetX, 12 + (properties.atcLength ? 0 : 12)],
                             declutterMode: 'none',
                         })
                         : undefined,

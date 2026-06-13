@@ -67,6 +67,7 @@
                         v-for="(chip, index) in model"
                         :key="String(chip) + index"
                         model-value
+                        @click.stop
                         @update:modelValue="model = model.filter(x => x !== chip)"
                     >
                         {{suggestions.find(x => x.value === chip)?.text ?? chip}}

@@ -15,9 +15,7 @@ export function checkNotification(notification: UserMessageType | keyof typeof U
 
     const notifications = userNotifications().value;
 
-    if (!notifications.value || (store.user && Object.keys(notifications.value).length)) notifications.value = {};
-
-    return store.user ? !!store.userMessages[notification] : !!notifications.value[notification];
+    return store.user ? !!store.userMessages[notification] : !!notifications.value?.[notification];
 }
 
 export async function saveUserNotification(notification: UserMessageType | keyof typeof UserMessageType | null | undefined) {
