@@ -349,7 +349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:^3.1068.0":
+"@aws-sdk/client-s3@npm:3.1068.0":
   version: 3.1068.0
   resolution: "@aws-sdk/client-s3@npm:3.1068.0"
   dependencies:
@@ -17088,7 +17088,7 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:^3.1068.0"
+    "@aws-sdk/client-s3": "npm:3.1068.0"
     "@influxdata/influxdb-client": "npm:1.35.0"
     "@influxdata/influxdb-client-apis": "npm:1.35.0"
     "@navigraph/amdb": "npm:1.1.0"
