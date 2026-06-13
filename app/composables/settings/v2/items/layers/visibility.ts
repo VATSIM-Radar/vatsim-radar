@@ -36,6 +36,15 @@ export const settingsItemVisibility = globalComputed(() => makeSettingsItems(({ 
         value: getSettingValue('map.visibility.vatglassesLabels'),
         onChange: value => setSettingByKey('map.visibility.vatglassesLabels', value),
     },
+    artccTracons: {
+        title: 'ARTCC TRACONs extensions',
+        description: 'When disabled, you will still see extended ARTCCs and TRACONs (when initiated by APP, not CTR)',
+        hint: 'Disables CTR extending APP behavior',
+        searchKeywords: ['controllers', 'callsigns', 'duplicat', 'exten'],
+        type: 'toggle',
+        value: getSettingValue('map.visibility.artccTracons'),
+        onChange: value => setSettingByKey('map.visibility.artccTracons', value),
+    },
     airports: {
         title: 'Airports',
         type: 'toggle',

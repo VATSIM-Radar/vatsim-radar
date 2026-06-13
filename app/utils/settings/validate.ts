@@ -274,6 +274,7 @@ const settingsSchema = partialObject({
             atc: partialObject(Object.fromEntries(atcVisibilityKeys.map(key => [key, booleanSchema])) as Record<string, Schema>),
             atcLabels: booleanSchema,
             vatglassesLabels: booleanSchema,
+            artccTracons: booleanSchema,
             airports: booleanSchema,
             pilots: booleanSchema,
             gates: booleanSchema,

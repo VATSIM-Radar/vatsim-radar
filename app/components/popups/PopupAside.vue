@@ -10,6 +10,7 @@
                 'control-block--disabled': disabled,
                 'control-block--selected': modelValue,
                 'control-block--has-max-height': maxHeight,
+                'control-block--no-bottom-padding': headerNoPaddingBottom,
             },
         ]"
         @click.stop
@@ -79,6 +80,10 @@ const props = defineProps({
     gapFromParent: {
         type: String,
         default: '10px',
+    },
+    headerNoPaddingBottom: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -172,7 +177,11 @@ useClickOutside({
         justify-content: space-between;
 
         margin: -16px -16px 0;
-        padding: 16px 16px 0;
+        padding: 16px;
+
+        @at-root .control-block--no-bottom-padding & {
+            padding-bottom: 0;
+        }
 
         background: $black;
 

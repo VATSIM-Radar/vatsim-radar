@@ -286,6 +286,8 @@ export async function updateControllers(context: DataUpdateContext) {
         })));
     }
 
+    const shouldDuplicateArtccApp = getKeyedValueFromSettings('map.visibility.artccTracons');
+
     for (const controller of controllers) {
         const freq = parseFloat(controller.frequency || '0');
         if (freq > 137 || freq < 117) continue;
@@ -313,6 +315,8 @@ export async function updateControllers(context: DataUpdateContext) {
                                     duplicatedBy: controller.callsign,
                                     duplicated: true,
                                 };
+
+                                if (!shouldDuplicateArtccApp && controller.facility !== duplicated.facility) continue;
 
                                 // Priority to app
                                 if (duplicatedPositions[duplicated.callsign]) {

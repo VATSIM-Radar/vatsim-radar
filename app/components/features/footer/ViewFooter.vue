@@ -23,6 +23,7 @@
                 <popup-aside
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
+                    header-no-padding-bottom
                     width="480px"
                 >
                     <template #title>
@@ -72,6 +73,7 @@
                 <popup-aside
                     v-model="store.menuFriendsOpen"
                     center-by="start"
+                    header-no-padding-bottom
                     max-height="370px"
                     width="480px"
                 >

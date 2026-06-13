@@ -172,7 +172,7 @@ const type = computed(() => properties.value.type);
 const getOffsetY = computed(() => {
     switch (properties.value.type) {
         case 'airport':
-            return -5;
+            return properties.value.atc.length ? -10 : -20;
         case 'airport-atc':
             return mapStore.compactAirportView ? 10 : 20;
         default:

@@ -198,6 +198,7 @@ const _settingsDefaultValues = {
     'map.visibility.atc.ground': true,
     'map.visibility.atcLabels': true,
     'map.visibility.vatglassesLabels': true,
+    'map.visibility.artccTracons': true,
     'map.visibility.airports': true,
     'map.visibility.pilots': true,
     'map.visibility.gates': true,

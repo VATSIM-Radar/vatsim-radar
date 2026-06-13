@@ -7,7 +7,10 @@
             Manage your experience here
         </template>
         <template #append>
-            <div class="__horizontal-group-16">
+            <div class="__horizontal-group-16 settings-header">
+                <div class="settings__auto-save">
+                    <ui-setting-item :item="getSettingByItem(settingsItems.account.autoSave, { description: undefined })"/>
+                </div>
                 <ui-button :type="mapPreview ? 'primary' : 'secondary-black'" @click="mapPreview = !mapPreview">
                     Preview on Map
                 </ui-button>
@@ -21,9 +24,6 @@
                         <search-icon width="16"/>
                     </template>
                 </ui-input-text>
-            </div>
-            <div class="settings__auto-save">
-                <ui-setting-item :item="getSettingByItem(settingsItems.account.autoSave, { description: undefined })"/>
             </div>
         </template>
 
@@ -601,7 +601,6 @@ else if (!childrenPath.value && currentItem.value.url) {
     &__auto-save {
         display: flex;
         justify-content: flex-end;
-        margin-top: 8px;
 
         .setting {
             display: flex;

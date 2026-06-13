@@ -173,6 +173,7 @@ export interface UserSettingsV2 {
             atc: UserMapSettingsVisibilityATC;
             atcLabels: boolean;
             vatglassesLabels: boolean;
+            artccTracons: boolean;
             airports: boolean;
             pilots: boolean;
             gates: boolean;

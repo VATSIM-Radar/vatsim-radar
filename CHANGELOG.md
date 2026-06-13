@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-beta.2.1]
+
+## Alpha Changes
+
+- Moved auto save to same line as preview on map to improve spacing
+- Improved spacing in quick settings
+
+## Features and improvements
+
+- You can now disable ARTCC TRACONs extensions
+- Added CTAF frequency to VATSIM Airport Info when available on Info page of airport
+
 # [2.0.0-beta.2]
 
 ## Alpha changes
