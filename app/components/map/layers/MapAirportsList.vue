@@ -76,6 +76,11 @@ const icaosList = computed(() => {
         }
     }
 
+    if (ownFlight.value) {
+        knownIcaos.add(ownFlight.value.departure ?? '');
+        knownIcaos.add(ownFlight.value.arrival ?? '');
+    }
+
     return knownIcaos;
 });
 
