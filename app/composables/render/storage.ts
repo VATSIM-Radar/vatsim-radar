@@ -54,6 +54,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 import { initControllersUpdate } from '~/composables/render/update';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -117,6 +118,7 @@ const data: VatsimData = {
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
+    tracksPilotsData: ref({}),
     parsedAirports: shallowRef<Record<string, AirportListItem>>({}),
     parsedAirportsList: computed(() => Object.values(vatsim.parsedAirports.value)),
     // For fast turn-on in case we need to restore mandatory data
@@ -215,6 +217,7 @@ export interface UseDataStore {
         parsedAirportsList: Ref<AirportListItem[]>;
 
         tracks: ShallowRef<VatsimNattrakClient[]>;
+        tracksPilotsData: Ref<Record<number, Partial<InfluxGeojson>>>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;

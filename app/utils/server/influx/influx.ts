@@ -1,38 +1,28 @@
-import type { QueryApi, WriteApi, WriteOptions } from '@influxdata/influxdb-client';
-import { InfluxDB } from '@influxdata/influxdb-client';
+import type { WriteOptions } from '@influxdata/influxdb3-client';
+import { InfluxDBClient } from '@influxdata/influxdb3-client';
 
-export let influxDB: InfluxDB;
-export let influxDBQuery: QueryApi;
-export let influxDBWritePlans: WriteApi;
-export let influxDBWriteMain: WriteApi;
+export let influxDB: InfluxDBClient;
+export let influxDBQuery: InfluxDBClient;
 
-const writeOptions: Partial<WriteOptions> = {
-    batchSize: 5000,
-    flushInterval: 1000,
+export const influxDBWriteOptions: Partial<WriteOptions> = {
+    precision: 'ms',
     gzipThreshold: 1024 * 10,
-    maxRetries: 3,
-    maxRetryTime: 1000 * 30,
-    maxBufferLines: 100_000,
-    writeFailed(error, lines, attempt) {
-        if (attempt === 1) {
-            console.error(`Influx write failed for ${ lines.length } lines`, error);
-        }
-    },
-    writeRetrySkipped({ lines }) {
-        console.error(`Influx write retry skipped ${ lines.length } lines`);
-    },
+    useV2Api: false,
 };
 
 export function initInfluxDB() {
     try {
-        influxDB = new InfluxDB({
-            url: process.env.INFLUX_URL!,
+        if (!process.env.INFLUX_URL || !process.env.INFLUX_TOKEN) return;
+
+        influxDB = new InfluxDBClient({
+            host: process.env.INFLUX_URL,
             token: process.env.INFLUX_TOKEN!,
+            authScheme: 'Bearer',
+            writeTimeout: 1000 * 30,
+            queryTimeout: 1000 * 60,
         });
 
-        influxDBQuery = influxDB.getQueryApi(process.env.INFLUX_ORG!);
-        influxDBWritePlans = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_PLANS!, 'ms', writeOptions);
-        influxDBWriteMain = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_MAIN!, 'ms', writeOptions);
+        influxDBQuery = influxDB;
     }
     catch (e) {
         console.error(e);

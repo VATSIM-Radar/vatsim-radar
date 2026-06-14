@@ -88,7 +88,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          tags: ghcr.io/vatsim-radar/vatsim-radar/influx:latest
+          tags: ghcr.io/vatsim-radar/vatsim-radar/influx-v3:latest
           context: .
           push: true
           file: .config/influx.Dockerfile
@@ -150,7 +150,7 @@ jobs:
       - name: Deploy Influx
         run: kubectl apply -f .config/k8s/influx.yml
       - name: Validate Influx
-        run: kubectl rollout status deployment influx-v2
+        run: kubectl rollout status deployment influx-v3
 
   deploy-ingress:
     runs-on: ubuntu-latest
