@@ -6011,6 +6011,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/boolean-point-in-polygon@npm:^7.3.5":
+  version: 7.3.5
+  resolution: "@turf/boolean-point-in-polygon@npm:7.3.5"
+  dependencies:
+    "@turf/helpers": "npm:7.3.5"
+    "@turf/invariant": "npm:7.3.5"
+    "@types/geojson": "npm:^7946.0.10"
+    point-in-polygon-hao: "npm:^1.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/0e5d7a14de4bb3c9d46fa883252b10e10cda5409802573686b97680177107a26e37eca6310c7e96a74c47ed8d96d29cfa8f64a1b02f888ac3d466dde2800367d
+  languageName: node
+  linkType: hard
+
 "@turf/difference@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/difference@npm:7.3.5"
@@ -13819,6 +13832,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"point-in-polygon-hao@npm:^1.1.0":
+  version: 1.2.4
+  resolution: "point-in-polygon-hao@npm:1.2.4"
+  dependencies:
+    robust-predicates: "npm:^3.0.2"
+  checksum: 10c0/12badef8b15216acdae7d609a8aca1b916d6a9cac2f53ace2928e3b521bee57224489ea8fba41d001c0c05c50e64152c175e3d6583d8cad6fe7af929f082b49a
+  languageName: node
+  linkType: hard
+
 "polyclip-ts@npm:^0.16.8":
   version: 0.16.8
   resolution: "polyclip-ts@npm:0.16.8"
@@ -14825,6 +14847,13 @@ __metadata:
   version: 1.4.1
   resolution: "rfdc@npm:1.4.1"
   checksum: 10c0/4614e4292356cafade0b6031527eea9bc90f2372a22c012313be1dcc69a3b90c7338158b414539be863fa95bfcb2ddcd0587be696841af4e6679d85e62c060c7
+  languageName: node
+  linkType: hard
+
+"robust-predicates@npm:^3.0.2":
+  version: 3.0.3
+  resolution: "robust-predicates@npm:3.0.3"
+  checksum: 10c0/ae23a0318be809545f091a076818747848f144495491e24e6df5d767f2bad0a1501bbeac34e78b74681d1437ecff0585f593ebfe6c8d49a50e79c5053b962693
   languageName: node
   linkType: hard
 
@@ -17414,6 +17443,7 @@ __metadata:
     "@stylistic/eslint-plugin": "npm:5.10.0"
     "@stylistic/stylelint-plugin": "npm:5.2.0"
     "@turf/bearing": "npm:7.3.5"
+    "@turf/boolean-point-in-polygon": "npm:^7.3.5"
     "@turf/difference": "npm:7.3.5"
     "@turf/distance": "npm:7.3.5"
     "@turf/great-circle": "npm:7.3.5"
