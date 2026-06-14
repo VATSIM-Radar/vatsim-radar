@@ -203,6 +203,10 @@ onMounted(() => {
         getKeyedValueFromSettings('map.visibility.atc.ground'),
         getKeyedValueFromSettings('map.visibility.atcLabels'),
         getKeyedValueFromSettings('map.preferences.airports.shortView'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals'),
     ]));
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 

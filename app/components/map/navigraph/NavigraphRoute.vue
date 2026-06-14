@@ -43,6 +43,8 @@ function cleanup() {
     }
 }
 
+const aircraftPositions: Record<number, string> = {};
+
 async function update() {
     let currentFlight = false;
 
@@ -87,6 +89,11 @@ async function update() {
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints, coordinates: coordinate } of pilots) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, departure, callsign } = pilot;
+
+            const coord = `${ coordinate[0] }${ coordinate[1] }`;
+            if (aircraftPositions[cid] === coord) continue;
+            aircraftPositions[cid] = coord;
+
             currentFlight = cid === ownFlight.value?.cid;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 

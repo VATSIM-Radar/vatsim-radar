@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-beta.2.3]
+
+## Alpha Changes
+
+- Aircraft route update will now be skipped if it did not move
+- Fixed reactivity when changing departures/arriving mode
+
+## Features and Improvements
+
+- Airport counter is now named to represent Settings Mode for this counter
+
 # [2.0.0-beta.2.2]
 
 ## Alpha changes

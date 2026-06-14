@@ -25,18 +25,7 @@
                     :class="[`airport-counts_title--${ properties.counterType }`]"
                 >
                     {{ properties.icao }}
-                    <template v-if="properties.counterType === 'groundDep'">
-                        Departures
-                    </template>
-                    <template v-else-if="properties.counterType === 'groundArr'">
-                        Arrivals
-                    </template>
-                    <template v-else-if="properties.counterType === 'training'">
-                        Locals
-                    </template>
-                    <template v-else-if="properties.counterType === 'prefiles'">
-                        {{ horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
-                    </template>
+                    {{title}}
                 </div>
             </template>
             <div class="airport-counts_list">
@@ -100,6 +89,7 @@ import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { parseEncoding } from '~/utils/data';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import { getAirportCounterPopupOffsetX } from '~/composables/render/airports/layers/airport-style';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 const props = defineProps({
     payload: {
@@ -117,7 +107,6 @@ const emit = defineEmits({
     },
 });
 
-const horizontalCounter = useSettingValueFromFunc('map.preferences.airports.counters.horizontalCounter');
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const properties = computed(() => props.payload.feature.getProperties());
@@ -134,6 +123,66 @@ const getOffsetX = computed(() => {
         localsLength: properties.value.localsLength,
         counter: properties.value.counter,
     });
+});
+
+const title = computed(() => {
+    if (properties.value.counterType === 'groundDep') {
+        switch (getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode')) {
+            case 'total':
+                return 'Total Departures';
+            case 'totalMoving':
+                return 'Total Departures in Move';
+            case 'totalLanded':
+                return 'Landed Departures';
+            case 'airborne':
+                return 'Airborne Departrures';
+            case 'ground':
+                return 'Departures';
+            case 'groundMoving':
+                return 'Departures in Move';
+            default:
+                return 'Departures';
+        }
+    }
+
+    if (properties.value.counterType === 'groundArr') {
+        const isSync = getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals');
+        const value = isSync ? getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode') : getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode');
+
+        switch (value) {
+            case 'total':
+                return 'Total Arrivals';
+            case 'totalMoving':
+                return 'Total Arrivals in Move';
+            case 'totalLanded':
+                return 'Not Parked Arrivals';
+            case 'airborne':
+                return 'Airborne Arrivals';
+            case 'ground':
+                return 'Landed';
+            case 'groundMoving':
+                return 'Landed in Move';
+            default:
+                return 'Arrivals';
+        }
+    }
+
+    if (properties.value.counterType === 'prefiles') {
+        switch (getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter')) {
+            case 'total':
+                return 'Total Traffic';
+            case 'prefiles':
+                return 'Prefiles';
+            case 'ground':
+                return 'Ground Traffic';
+            case 'groundMoving':
+                return 'Ground In Move';
+            default:
+                return 'Prefiles';
+        }
+    }
+
+    return 'Default';
 });
 </script>
 

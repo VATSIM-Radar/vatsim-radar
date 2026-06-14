@@ -33,10 +33,10 @@
         </div>
         <client-only>
             <layout-consent/>
+            <layout-distance-tutorial/>
         </client-only>
         <layout-consent-popup/>
         <layout-notifications/>
-        <layout-distance-tutorial/>
     </div>
     <view-restricted-auth
         v-else
