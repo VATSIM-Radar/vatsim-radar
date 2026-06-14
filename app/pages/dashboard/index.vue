@@ -152,7 +152,7 @@ onMounted(async () => {
 
         @include hover {
             &:hover {
-                border-color: $primary500;
+                border-color: $blue500;
             }
         }
 

@@ -366,7 +366,7 @@ defineExpose({ combinedAircraft });
 
             @include hover {
                 &:hover {
-                    border-color: $primary500;
+                    border-color: $blue500;
                 }
             }
 
@@ -430,7 +430,7 @@ defineExpose({ combinedAircraft });
         }
 
         &--selected {
-            outline: 1px solid $primary500;
+            outline: 1px solid $blue500;
         }
 
         &_head {

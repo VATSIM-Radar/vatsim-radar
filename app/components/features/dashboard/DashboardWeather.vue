@@ -217,17 +217,17 @@ onMounted(() => {
 
         @include hover {
             &:hover {
-                border-color: $primary500;
+                border-color: $blue500;
             }
         }
 
         &--changed {
-            border-color: $warning500;
+            border-color: $citrus500;
             background: varToRgba('warning500', 0.12);
         }
 
         &--active {
-            border-color: $primary500;
+            border-color: $blue500;
         }
 
         &_head {
@@ -255,7 +255,7 @@ onMounted(() => {
 
             font-size: 11px;
             font-weight: 700;
-            color: $primary500;
+            color: $blue500;
 
             background: varToRgba('primary500', 0.15);
         }
@@ -324,10 +324,10 @@ onMounted(() => {
 
         min-width: 160px;
         padding: 6px 10px;
-        border: 1px dashed $primary500;
+        border: 1px dashed $blue500;
         border-radius: 8px;
 
-        color: $primary500;
+        color: $blue500;
 
         transition: 0.3s;
 
