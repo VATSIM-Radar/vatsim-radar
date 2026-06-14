@@ -4,7 +4,7 @@ import { influxDBQuery } from '~/utils/server/influx/influx';
 export type InfluxFlight = {
     [K in keyof Pick<VatsimPilot, 'altitude' | 'callsign' | 'cid' | 'groundspeed' | 'heading' | 'latitude' | 'longitude' | 'name' | 'qnh_mb' | 'transponder'>]?: VatsimPilot[K] | null
 } & {
-    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
+    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route' | 'revision_id' | 'departed_at' | 'arrived_at'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
 } & {
     _time: string;
     time: number;
@@ -31,6 +31,9 @@ const flightKeys = Object.keys({
     longitude: true,
     name: true,
     qnh_mb: true,
+    fpl_revision_id: true,
+    fpl_departed_at: true,
+    fpl_arrived_at: true,
     fpl_route: true,
     time: true,
     transponder: true,
@@ -42,12 +45,13 @@ const planFields: InfluxFlightKey[] = [
     'fpl_departure',
     'fpl_departure_time',
     'fpl_enroute_time',
+    'fpl_revision_id',
     'heading',
     'name',
     'qnh_mb',
     'transponder',
 ];
-const turnsFields: InfluxFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude'];
+const turnsFields: InfluxFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude', 'fpl_departed_at', 'fpl_arrived_at'];
 
 function sqlString(value: string | number) {
     return `'${ String(value).replaceAll('\'', '\'\'') }'`;
@@ -96,31 +100,32 @@ async function getFlightRows(query: string, database: string) {
     return rows.sort((a, b) => b.time! - a.time!);
 }
 
+function hasLowerRevisionWithSameCallsign(row: InfluxFlight, nextRow: InfluxFlight | undefined) {
+    return row.callsign &&
+        row.callsign === nextRow?.callsign &&
+        row.fpl_departure_time === nextRow?.fpl_departure_time &&
+        typeof row.fpl_revision_id === 'number' &&
+        typeof nextRow.fpl_revision_id === 'number' &&
+        row.fpl_revision_id > nextRow.fpl_revision_id;
+}
+
 export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
     return rows.filter((row, index) => {
         const nextRow = rows[index + 1];
 
+        if (nextRow && hasLowerRevisionWithSameCallsign(row, nextRow)) return false;
+
         const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival;
-        const isFplnChange = row?.fpl_arrival !== nextRow?.fpl_arrival && row?.fpl_departure !== nextRow?.fpl_departure;
+        const isFplnChange = row?.fpl_revision_id !== nextRow?.fpl_revision_id || row?.fpl_departure_time !== nextRow?.fpl_departure_time;
 
         if (isNew && !isFplnChange) return true;
 
         const similarRow = (
-            row.fpl_arrival &&
-            nextRow?.fpl_departure === row.fpl_departure &&
-            nextRow.callsign === row.callsign &&
-            (
-                (
-                    !!row.fpl_departure_time &&
+            nextRow.callsign === row.callsign && (
+                !!row.fpl_departure_time &&
                     !!nextRow.fpl_departure_time &&
-                    nextRow.fpl_departure_time === row.fpl_departure_time
-                ) ||
-                (
-                    !row.fpl_departure_time &&
-                    !nextRow.fpl_departure_time &&
-                    nextRow.fpl_arrival === row.fpl_arrival &&
+                    nextRow.fpl_departure_time === row.fpl_departure_time &&
                     nextRow.fpl_enroute_time === row.fpl_enroute_time
-                )
             )
         ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
             ? rows[index + 1]

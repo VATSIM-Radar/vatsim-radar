@@ -31,7 +31,7 @@ spec:
         - name: ghcr-login-secret
       containers:
         - name: influx-v3
-          image: ghcr.io/vatsim-radar/vatsim-radar/influx
+          image: ghcr.io/vatsim-radar/vatsim-radar/influx-v3
           imagePullPolicy: Always
           ports:
             - containerPort: 8181

@@ -210,4 +210,8 @@ export async function setMapAircraft(settings: {
             delete aircraftState[feature.getId() as number];
         }
     }
+
+    for (const cid in dataStore.vatsim.tracksPilotsData.value) {
+        if (!keyedShownPilots.has(+cid)) delete dataStore.vatsim.tracksPilotsData.value[cid];
+    }
 }

@@ -208,6 +208,12 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             if (data) {
                 updateState!.lastTurnsUpdateData = data;
                 updateState!.lastTurnsUpdate = Date.now();
+                if (data.departedAt || data.arrivedAt) {
+                    dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
+                        departedAt: data.departedAt,
+                        arrivedAt: data.arrivedAt,
+                    };
+                }
             }
 
             resolve(data);
