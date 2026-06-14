@@ -469,11 +469,11 @@ defineCronJob('* * * * * *', async () => {
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();
             const pilots = getShortInfluxDataForPilots();
-            if (plans.length) {
+            if (plans.length && influxDBWritePlans) {
                 influxDBWritePlans.writeRecords(plans);
             }
 
-            if (pilots.length) {
+            if (pilots.length && influxDBWriteMain) {
                 influxDBWriteMain.writeRecords(pilots);
             }
         }

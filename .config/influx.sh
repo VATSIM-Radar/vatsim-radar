@@ -1,34 +1,63 @@
 #!/bin/bash
+set -e
 
-# Run InfluxDB in background
-influxd --log-level=error &
+DATA_DIR="${INFLUXDB3_DB_DIR:-/var/lib/influxdb3/data}"
+TOKEN_FILE="${INFLUXDB3_ADMIN_TOKEN_FILE:-/var/lib/influxdb3/admin-token.json}"
+HTTP_BIND="${INFLUXDB3_HTTP_BIND_ADDR:-0.0.0.0:8181}"
+HTTP_URL="http://localhost:${HTTP_BIND##*:}"
+RETENTION_PERIOD="${INFLUX_RETENTION_PERIOD:-24h}"
+NODE_ID="${INFLUXDB3_NODE_IDENTIFIER_PREFIX:-influx-v3}"
 
-# Wait for InfluxDB to be available
-until curl -s http://localhost:8086/health | grep -q '"status":"pass"'; do
-  echo "Waiting for InfluxDB to be ready..."
+if [ -z "$INFLUX_TOKEN" ]; then
+  echo "INFLUX_TOKEN is required to start InfluxDB 3."
+  exit 1
+fi
+
+mkdir -p "$DATA_DIR" "$(dirname "$TOKEN_FILE")"
+
+if [ ! -f "$TOKEN_FILE" ]; then
+  cat > "$TOKEN_FILE" <<EOF
+{"token":"${INFLUX_TOKEN}","name":"radar-admin-token"}
+EOF
+fi
+
+influxdb3 serve \
+  --node-id "$NODE_ID" \
+  --object-store file \
+  --data-dir "$DATA_DIR" \
+  --http-bind "$HTTP_BIND" \
+  --admin-token-file "$TOKEN_FILE" \
+  --log-filter error &
+
+INFLUX_PID="$!"
+
+cleanup() {
+  kill "$INFLUX_PID" || true
+  wait "$INFLUX_PID" || true
+}
+trap cleanup TERM INT
+
+until curl -fsS "$HTTP_URL/health" > /dev/null; do
+  echo "Waiting for InfluxDB 3 to be ready..."
   sleep 2
 done
 
-# Check for existing bucket "fast-vatsim-data"
-if influx bucket list --org homelab | grep -q "fast-vatsim-data"; then
-  echo "Bucket 'fast-vatsim-data' already exists. Skipping setup."
-else
-  echo "Bucket 'fast-vatsim-data' not found. Running setup..."
-  # Configure InfluxDB
-  influx setup --force \
-      --bucket fast-vatsim-data \
-      --org homelab \
-      --token $INFLUX_TOKEN \
-      --username $INFLUX_USER \
-      --password $INFLUX_PASSWORD \
-      --retention 24h
+export INFLUXDB3_AUTH_TOKEN="$INFLUX_TOKEN"
 
-  # Create flight plan bucket
-  influx bucket create \
-      --name vatsim-fpln-data \
-      --org homelab \
-      --retention 24h \
-      --token $INFLUX_TOKEN
-fi
+for database in "$INFLUX_BUCKET_MAIN" "$INFLUX_BUCKET_PLANS"; do
+  if [ -z "$database" ]; then
+    continue
+  fi
 
-tail -f /dev/null
+  if influxdb3 show databases --host "$HTTP_URL" | grep -Fq "$database"; then
+    echo "Database '$database' already exists. Skipping setup."
+  else
+    echo "Database '$database' not found. Creating..."
+    influxdb3 create database \
+      --host "$HTTP_URL" \
+      --retention-period "$RETENTION_PERIOD" \
+      "$database"
+  fi
+done
+
+wait "$INFLUX_PID"

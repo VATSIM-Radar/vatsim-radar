@@ -1,9 +1,7 @@
-FROM influxdb:2.7
+FROM influxdb:3-core
 
 RUN apt-get update && \
-    apt-get install -y wget gnupg software-properties-common gettext && \
-    wget -qO- https://repos.influxdata.com/influxdata-archive_compat.key | apt-key add - && \
-    echo "deb https://repos.influxdata.com/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/influxdb.list && \
+    apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./.env /.env
@@ -11,6 +9,6 @@ COPY .config/influx.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 8086
+EXPOSE 8181
 
 ENTRYPOINT ["sh", "-c", "export $(grep -v '^#' /.env | xargs) && /entrypoint.sh"]

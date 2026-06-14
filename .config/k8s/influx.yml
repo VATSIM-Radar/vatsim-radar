@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: influx-v2
+  name: influx-v3
 spec:
   ports:
-    - port: 8086
+    - port: 8181
   selector:
-    app: influx-v2
+    app: influx-v3
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: influx-v2
+  name: influx-v3
 spec:
   progressDeadlineSeconds: 600
   strategy:
@@ -19,22 +19,22 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: influx-v2
+      app: influx-v3
   template:
     metadata:
       labels:
-        app: influx-v2
+        app: influx-v3
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx-m
+        doks.digitalocean.com/node-pool: influx-v3
       imagePullSecrets:
         - name: ghcr-login-secret
       containers:
-        - name: influx-v2
+        - name: influx-v3
           image: ghcr.io/vatsim-radar/vatsim-radar/influx
           imagePullPolicy: Always
           ports:
-            - containerPort: 8086
+            - containerPort: 8181
           resources:
             requests:
               cpu: 300m
@@ -42,18 +42,27 @@ spec:
             limits:
               cpu: 1800m
               memory: 3800Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 30
+            timeoutSeconds: 15
           volumeMounts:
-            - name: influx-data-v2
-              mountPath: /root/.influxdbv2
+            - name: influx-data-v3
+              mountPath: /var/lib/influxdb3
       volumes:
-        - name: influx-data-v2
+        - name: influx-data-v3
           persistentVolumeClaim:
-            claimName: radar-influx-v2
+            claimName: radar-influx-v3
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: radar-influx-v2
+  name: radar-influx-v3
 spec:
   accessModes:
     - ReadWriteOnce

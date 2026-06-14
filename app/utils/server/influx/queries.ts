@@ -11,6 +11,7 @@ export type InfluxFlight = {
     cid: string;
     disconnected?: boolean | null;
 };
+type InfluxFlightKey = Extract<keyof InfluxFlight, string>;
 const flightKeys = Object.keys({
     _time: true,
     fpl_aircraft_short: true,
@@ -33,9 +34,9 @@ const flightKeys = Object.keys({
     fpl_route: true,
     time: true,
     transponder: true,
-} satisfies Record<keyof InfluxFlight, true>) as Array<keyof InfluxFlight>;
+} satisfies Record<InfluxFlightKey, true>) as InfluxFlightKey[];
 
-const planFields: Array<keyof InfluxFlight> = [
+const planFields: InfluxFlightKey[] = [
     'callsign',
     'fpl_arrival',
     'fpl_departure',
@@ -46,32 +47,53 @@ const planFields: Array<keyof InfluxFlight> = [
     'qnh_mb',
     'transponder',
 ];
-const turnsFields: Array<keyof InfluxFlight> = ['altitude', 'groundspeed', 'latitude', 'longitude'];
+const turnsFields: InfluxFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude'];
 
-function getFieldsFilter(fields: Array<keyof InfluxFlight>) {
-    return `|> filter(fn: (r) => ${ fields.map(x => `r["_field"] == "${ x }"`).join(' or ') })`;
+function sqlString(value: string | number) {
+    return `'${ String(value).replaceAll('\'', '\'\'') }'`;
 }
 
-async function getFlightRows(query: string) {
-    const rows: Record<string, InfluxFlight> = {};
-    const result = await influxDBQuery.collectRows<{ _time: string; _value: any; _field: keyof InfluxFlight; cid: string }>(query);
+function sqlIdentifier(value: string) {
+    return `"${ value.replaceAll('"', '""') }"`;
+}
 
-    for (const item of result) {
-        let row = rows[`${ item._time }_${ item.cid }`];
-        if (!row) {
-            row = {
-                _time: item._time,
-                time: new Date(item._time).getTime(),
-                cid: item.cid,
-            } as InfluxFlight;
+function sqlTimestamp(value: string | number | Date) {
+    return sqlString(value instanceof Date ? value.toISOString() : value);
+}
 
-            rows[`${ item._time }_${ item.cid }`] = row;
+function getFieldsSelect(fields: InfluxFlightKey[]) {
+    return ['time', 'cid', ...fields].map(sqlIdentifier).join(', ');
+}
+
+function getCidFilter(cids: Array<string | number>) {
+    return cids.map(cid => `${ sqlIdentifier('cid') } = ${ sqlString(cid) }`).join(' OR ');
+}
+
+function normalizeInfluxTime(value: unknown): string {
+    if (value instanceof Date) return value.toISOString();
+    return String(value);
+}
+
+async function getFlightRows(query: string, database: string) {
+    const rows: InfluxFlight[] = [];
+
+    for await (const item of influxDBQuery.query(query, database, { type: 'sql' })) {
+        const _time = normalizeInfluxTime(item.time);
+        const row = {
+            _time,
+            time: new Date(_time).getTime(),
+            cid: String(item.cid),
+        } as InfluxFlight;
+
+        for (const key of flightKeys) {
+            if (key === '_time' || key === 'time' || key === 'cid') continue;
+            if (item[key] !== undefined && item[key] !== null) row[key] = item[key] as never;
         }
 
-        row[item._field] = item._value as never;
+        rows.push(row);
     }
 
-    return Object.values(rows).sort((a, b) => b.time! - a.time!);
+    return rows.sort((a, b) => b.time! - a.time!);
 }
 
 export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
@@ -120,15 +142,16 @@ export async function getInfluxFlightsForCid({
     offset?: number;
     onlineOnly?: boolean;
 }) {
-    const fluxQuery =
-        `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
-  |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
-  |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ cid }")
-  ${ getFieldsFilter(planFields) }
-  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
+    const database = process.env.INFLUX_BUCKET_PLANS!;
+    const sqlQuery =
+        `SELECT ${ getFieldsSelect(planFields) }
+FROM ${ sqlIdentifier('data') }
+WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(new Date(startDate)) }
+  AND ${ sqlIdentifier('time') } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
+  AND ${ sqlIdentifier('cid') } = ${ sqlString(cid) }
+ORDER BY ${ sqlIdentifier('time') } DESC`;
 
-    const rows = await getFlightRows(fluxQuery);
+    const rows = await getFlightRows(sqlQuery, database);
 
     return {
         rows: filterRows(rows).slice(0, limit),
@@ -144,15 +167,16 @@ export async function getInfluxLatestFlightForCids({
     startDate: number;
     endDate?: number;
 }) {
-    const fluxQuery =
-        `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
-  |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
-  |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => ${ cids.map(x => `r["cid"] == "${ x }"`).join(' or ') })
-  ${ getFieldsFilter(planFields) }
-  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
+    const database = process.env.INFLUX_BUCKET_PLANS!;
+    const sqlQuery =
+        `SELECT ${ getFieldsSelect(planFields) }
+FROM ${ sqlIdentifier('data') }
+WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(new Date(startDate)) }
+  AND ${ sqlIdentifier('time') } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
+  AND (${ getCidFilter(cids) })
+ORDER BY ${ sqlIdentifier('time') } DESC`;
 
-    const rows = await getFlightRows(fluxQuery);
+    const rows = await getFlightRows(sqlQuery, database);
 
     const pilots: {
         cid: number;
@@ -182,15 +206,15 @@ export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
 
     if (!row) return null;
 
-    const fluxQuery =
-        `from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
-  |> range(start: time(v: ${ start || row._time }))
-  |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ cid }")
-  ${ getFieldsFilter(turnsFields) }
-  |> keep(columns: ["_time", "cid", "_field", "_value"])`;
+    const database = process.env.INFLUX_BUCKET_MAIN!;
+    const sqlQuery =
+        `SELECT ${ getFieldsSelect(turnsFields) }
+FROM ${ sqlIdentifier('data') }
+WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(start || row._time) }
+  AND ${ sqlIdentifier('cid') } = ${ sqlString(cid) }
+ORDER BY ${ sqlIdentifier('time') } DESC`;
 
-    const rows = await getFlightRows(fluxQuery);
+    const rows = await getFlightRows(sqlQuery, database);
 
     const features: InfluxFlight[] = rows;
 
@@ -219,16 +243,16 @@ export async function getInfluxOnlineFlightsTurns(cids: number[]) {
 
     if (!flights.length) return null;
 
-    const fluxQuery =
-        `from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
-  |> range(start: ${ flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time }, stop: -5s)
-  |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => ${ flights.map(x => `r["cid"] == "${ x.cid }"`).join(' or ') })
-  ${ getFieldsFilter(turnsFields) }
-  |> keep(columns: ["_time", "cid", "_field", "_value"])
-  |> group(columns: ["_time"])`;
+    const database = process.env.INFLUX_BUCKET_MAIN!;
+    const sqlQuery =
+        `SELECT ${ getFieldsSelect(turnsFields) }
+FROM ${ sqlIdentifier('data') }
+WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time) }
+  AND ${ sqlIdentifier('time') } <= now() - INTERVAL '5 seconds'
+  AND (${ getCidFilter(flights.map(x => x.cid)) })
+ORDER BY ${ sqlIdentifier('time') } DESC`;
 
-    const rows = await getFlightRows(fluxQuery);
+    const rows = await getFlightRows(sqlQuery, database);
 
     const pilots: {
         cid: number;

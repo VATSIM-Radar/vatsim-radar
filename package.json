@@ -28,8 +28,7 @@
   "dependencies": {
     "7zip-min": "3.0.1",
     "@aws-sdk/client-s3": "3.1068.0",
-    "@influxdata/influxdb-client": "1.35.0",
-    "@influxdata/influxdb-client-apis": "1.35.0",
+    "@influxdata/influxdb3-client": "2.3.0",
     "@nuxt/image": "2.0.0",
     "@pinia/nuxt": "0.11.3",
     "@prisma/adapter-mariadb": "7.8.0",
