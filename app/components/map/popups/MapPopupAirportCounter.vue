@@ -182,7 +182,7 @@ const title = computed(() => {
         }
     }
 
-    if (properties.value.counterType === 'horizontal') {
+    if (properties.value.counterType === 'training') {
         return 'Locals';
     }
 
