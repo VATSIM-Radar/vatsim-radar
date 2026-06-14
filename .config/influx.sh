@@ -27,6 +27,8 @@ if [ ! -f "$TOKEN_FILE" ] || ! grep -q "\"token\":\"apiv3_" "$TOKEN_FILE"; then
   printf '{"token":"%s","name":"radar-admin-token"}\n' "$INFLUX_TOKEN" > "$TOKEN_FILE"
 fi
 
+export INFLUXDB3_AUTH_TOKEN="$INFLUX_TOKEN"
+
 influxdb3 serve \
   --node-id "$NODE_ID" \
   --object-store file \
@@ -47,8 +49,6 @@ until influxdb3 show databases --host "$HTTP_URL" > /dev/null 2>&1; do
   echo "Waiting for InfluxDB 3 to be ready..."
   sleep 2
 done
-
-export INFLUXDB3_AUTH_TOKEN="$INFLUX_TOKEN"
 
 for database in "$INFLUX_BUCKET_MAIN" "$INFLUX_BUCKET_PLANS"; do
   if [ -z "$database" ]; then
