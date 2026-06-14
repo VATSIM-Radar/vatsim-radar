@@ -274,9 +274,9 @@ const windowRangeLabel = computed(() => {
 });
 
 function getBarColor(count: number): string {
-    if (count >= alertThreshold.value) return getCurrentThemeHexColor('error500');
-    if (count >= warningThreshold.value) return getCurrentThemeHexColor('warning500');
-    return getCurrentThemeHexColor('success500');
+    if (count >= alertThreshold.value) return getCurrentThemeHexColor('red500');
+    if (count >= warningThreshold.value) return getCurrentThemeHexColor('citrus500');
+    return getCurrentThemeHexColor('green500');
 }
 
 const gridColor = computed(() => getCurrentThemeHexColor('darkGray500'));
