@@ -1,7 +1,8 @@
 FROM influxdb:3-core
 
-RUN apt-get update && \
-    apt-get install -y curl && \
+RUN mkdir -p /var/lib/apt/lists/partial && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./.env /.env
