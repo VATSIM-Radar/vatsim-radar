@@ -51,7 +51,9 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
             });
         }
         catch (e) {
-            console.error('Failed to load Influx turns', e);
+            if ((e as any).code !== 'UNAVAILABLE') {
+                console.error('Failed to load Influx turns', e);
+            }
 
             return {
                 flightPlan: pilot.flight_plan?.route,

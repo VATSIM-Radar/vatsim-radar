@@ -27,6 +27,11 @@ export async function onSettingChange(autoSave = true) {
             json: settingsStore.settings,
         },
     });
+    useStore().addNotification({
+        type: 'success',
+        text: 'Settings have been saved!',
+        timeout: 2000,
+    });
 }
 
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {

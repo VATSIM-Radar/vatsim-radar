@@ -113,7 +113,7 @@ export function setAirportStyle(layer: VectorLayer) {
             const event = store.eventsMap[properties.icao];
             const now = Date.now();
             const eventStarted = event && new Date(event.start_time).getTime() > now;
-            const key = `${ properties.color }-${ declutterMode }-${ String(event?.type) }-${ String(!!eventStarted) }`;
+            const key = `${ properties.color }-${ declutterMode }-${ String(event?.type) }-${ String(!!eventStarted) }-${ String(isShowDot) }`;
 
             if (!styleCache[key]) {
                 styleCache[key] = new Style({
@@ -136,7 +136,7 @@ export function setAirportStyle(layer: VectorLayer) {
                                 })
                                 : undefined,
 
-                            displacement: [getAirportCounterOffsetX(properties.icao, 0) - airportCounterIcaoGap - airportCounterLocalAtcOffsetX, 12 + (properties.atcLength ? 0 : 12)],
+                            displacement: [getAirportCounterOffsetX(properties.icao, 0) - airportCounterIcaoGap - airportCounterLocalAtcOffsetX, 12 + (!isShowDot ? 0 : 12)],
                             declutterMode: 'none',
                         })
                         : undefined,

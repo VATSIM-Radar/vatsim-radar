@@ -870,6 +870,7 @@ await setupDataFetch({
 
         const pointerDragHandler = () => {
             targetElement.style.cursor = 'grabbing';
+            mapStore.overlays.forEach(x => x.type !== 'pilot' || (x.data.tracked = false));
         };
         map.value.on('pointerdrag', pointerDragHandler);
 
