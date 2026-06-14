@@ -15,7 +15,6 @@
 
 ## Alpha Changes
 
-- Aircraft route update will now be skipped if it did not move
 - Fixed reactivity when changing departures/arriving mode
 
 ## Features and Improvements
