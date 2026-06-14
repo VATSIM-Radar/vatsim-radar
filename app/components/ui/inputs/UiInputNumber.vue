@@ -6,10 +6,13 @@
         :input-attrs
         input-type="number"
         :placeholder
-        @change="$emit('change', $event)"
+        @blur="validateChanges()"
+        @change="[validateChanges(), $nextTick().then(() => $emit('change', $event))]"
         @input="$emit('input', $event)"
     >
-        <slot/>
+        <template v-if="$slots.default" #default>
+            <slot/>
+        </template>
         <template
             v-if="$slots.icon"
             #icon
@@ -23,7 +26,7 @@
 import type { PropType } from 'vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 
-defineProps({
+const props = defineProps({
     inputAttrs: {
         type: Object as PropType<Record<string, any>>,
         default: () => {},
@@ -33,6 +36,10 @@ defineProps({
     },
     placeholder: {
         type: String,
+    },
+    allowedAfterDot: {
+        type: Number,
+        default: 0,
     },
 });
 
@@ -52,8 +59,19 @@ const model = defineModel({ type: Number as PropType<null | number>, default: nu
 
 const inputValue = computed({
     get: () => model.value === null ? '' : String(model.value),
-    set: (value: string) => {
-        model.value = value === '' ? null : Number(value);
+    set: (_value: string | number) => {
+        model.value = _value === '' ? null : Number(_value);
     },
 });
+
+function validateChanges() {
+    let value = model.value;
+    if (typeof value === 'number') {
+        if (props.inputAttrs?.min && value < props.inputAttrs.min) value = props.inputAttrs.min;
+        if (props.inputAttrs?.max && value! > props.inputAttrs.max) value = props.inputAttrs.max;
+        if (props.allowedAfterDot) value = Number(value!.toFixed(props.allowedAfterDot));
+    }
+
+    inputValue.value = value ?? '';
+}
 </script>

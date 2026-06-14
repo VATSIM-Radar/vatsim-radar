@@ -160,12 +160,10 @@ const props = defineProps({
     },
 });
 
-const store = useStore();
-
-const timeZone = computed(() => store.mapSettings.bookingsLocalTimezone ? 'UTC' : undefined);
+const timeZone = computed(() => !getKeyedValueFromSettings('appearance.bookingsLocalTimezone') ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
     timeZone: timeZone.value,

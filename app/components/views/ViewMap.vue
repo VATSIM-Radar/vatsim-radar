@@ -10,7 +10,7 @@
                 v-if="notam"
                 ref="notam"
                 class="map_notam"
-                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissable': notam.dismissable }]"
+                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissable': notam.dismissable, 'map_notam--with-popups': !store.config.hideOverlays && !isMobile && visibleOverlays.length }]"
             >
                 <div class="map_notam_icon">
                     <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
@@ -66,16 +66,16 @@
             </div>
 
             <map-controls v-if="!store.config.hideAllExternal"/>
-            <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
+            <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
                     <map-minified-overlays/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
-                        :key="String(store.localSettings.filters?.layers?.layer)"
+                        :key="String(mapLayerSetting)"
                     />
-                    <map-distance v-if="store.localSettings.distance?.enabled"/>
+                    <map-distance v-if="distanceEnabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
@@ -92,10 +92,10 @@
             <client-only v-if="ready">
                 <map-layer :key="(store.theme ?? 'default')"/>
                 <map-terminator
-                    v-if="store.localSettings.filters?.layers?.terminator"
+                    v-if="terminatorEnabled"
                     :key="(store.theme ?? 'default') + 'terminator'"
                 />
-                <map-sigmets v-if="store.localSettings.filters?.layers?.sigmets?.enabled"/>
+                <map-sigmets v-if="sigmetsShowOnMap"/>
                 <map-settings v-if="!store.config.hideHeader"/>
             </client-only>
             <popup-fullscreen
@@ -107,110 +107,6 @@
                 </template>
 
                 You have successfully verified in VATSIM Radar Discord.
-            </popup-fullscreen>
-            <popup-fullscreen :model-value="store.presetImport.preset === false">
-                <template #title>Preset Import</template>
-                Preset import failed. That could be because preset name length is more than 30 symbols, invalid JSON, or an
-                error in yours or ours network.
-                <template #actions>
-                    <ui-button @click="store.presetImport.preset = null">
-                        Thanks, I guess?
-                    </ui-button>
-                </template>
-            </popup-fullscreen>
-            <popup-fullscreen
-                :model-value="!!store.presetImport.preset && typeof store.presetImport.preset === 'object'"
-                width="600px"
-            >
-                <template #title>Preset Import</template>
-
-                Warning: preset import will overwrite your current preset.<br><br>
-
-                <ui-input-text
-                    v-if="store.user"
-                    v-model="store.presetImport.name"
-                    placeholder="Enter a name for new preset"
-                />
-
-                <template #actions>
-                    <ui-button
-                        type="secondary"
-                        @click="store.presetImport.preset = null"
-                    >
-                        Cancel import
-                    </ui-button>
-                    <ui-button
-                        :disabled="!store.presetImport.name && !!store.user"
-                        @click="store.presetImport.save!()"
-                    >
-                        Import preset
-                    </ui-button>
-                </template>
-            </popup-fullscreen>
-            <popup-fullscreen
-                :model-value="!!store.presetImport.error"
-                @update:modelValue="$event === false && (store.presetImport.error = $event)"
-            >
-                <template #title>
-                    A preset with this name already exists
-                </template>
-
-                You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
-
-                <template #actions>
-                    <ui-button
-                        hover-color="red700"
-                        primary-color="red500"
-                        @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
-                    >
-                        Overwrite my old preset
-                    </ui-button>
-                    <ui-button @click="store.presetImport.error = false">
-                        I'll rename it
-                    </ui-button>
-                </template>
-            </popup-fullscreen>
-            <popup-fullscreen
-                v-model="mapStore.distance.tutorial"
-                width="600px"
-            >
-                <template #title>
-                    Distance Tool
-                </template>
-
-                You have just enabled Distance Tool for the first time.<br> This is a message to give you a little understanding
-                on how it works.
-
-                <ol class="__info-sections">
-                    <li>
-                        <strong>This is not a tool for supervising</strong>.
-                        <br>VATSIM Radar has delays.
-                        <br> Each airspace has it's own separation rules.
-                        <br> Please, do not .wallop for separation issues.<br> If you think that separation was bad - provide
-                        feedback via local ATC facility instead.
-                    </li>
-                    <li>
-                        To activate tool, press twice on the map
-                    </li>
-                    <li>
-                        To pin point to aircraft, double click on it
-                    </li>
-                    <li>
-                        This tool disables double click to zoom. Need to use both Distance Tool and click to zoom? Enable
-                        CTRL+Click!
-
-                        <ui-toggle
-                            :model-value="!!store.localSettings.distance?.ctrlClick"
-                            @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
-                        >
-                            CTRL+Click instead of double click
-                        </ui-toggle>
-                    </li>
-                    <li>
-                        You can change CTRL+Click action and displayed units in Map layer settings (second icon on left filters
-                        screen)
-                    </li>
-                </ol>
             </popup-fullscreen>
             <popup-fullscreen
                 v-if="observerFlight && canShowObserver"
@@ -258,7 +154,7 @@
         </client-only>
         <map-layer v-else/>
         <client-only>
-            <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+            <map-scale v-if="!store.isMobile && relativeIndicator !== false"/>
             <map-select v-if="ready"/>
         </client-only>
         <slot/>
@@ -287,7 +183,6 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent.js';
 import { toDegrees } from 'ol/math.js';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
-import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
@@ -297,8 +192,8 @@ import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude, NotamType } from '~/utils/shared/vatsim';
 import MapSelectedProcedures from '~/components/map/MapSelectedProcedures.vue';
-import { defaults } from 'ol/interaction.js';
-import PointerInteraction from 'ol/interaction/Pointer.js';
+import { defaults, Interaction } from 'ol/interaction.js';
+import MapBrowserEventType from 'ol/MapBrowserEventType.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import LayerGroup from 'ol/layer/Group.js';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
@@ -308,7 +203,6 @@ import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import MapTerminator from '~/components/map/layers/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
-import MapLayer from '~/components/map/layers/MapLayer.vue';
 import MapSigmets from '~/components/map/layers/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
@@ -323,6 +217,8 @@ import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorList from '~/components/map/layers/MapSectorList.vue';
 import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
+import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
+import MapLayer from '~/components/map/layers/MapLayer.vue';
 
 defineProps({
     mode: {
@@ -342,6 +238,7 @@ const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const layer = shallowRef<LayerGroup | null>(null);
+let cleanupOpenLayersMap: (() => void) | undefined;
 const ready = ref(false);
 const restoredOverlays = ref(false);
 const store = useStore();
@@ -354,6 +251,35 @@ const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const config = useRuntimeConfig();
+const mapLayerSetting = useSettingValueFromFunc('map.layers.layer');
+const distanceEnabled = useSettingValueFromFunc('map.layers.distance.enabled');
+const distanceInteraction = useSettingValueFromFunc('map.layers.distance.interaction');
+const terminatorEnabled = useSettingValueFromFunc('map.layers.terminator');
+const sigmetsShowOnMap = useSettingValueFromFunc('sigmets.showOnMap');
+const relativeIndicator = useSettingValueFromFunc('map.layers.relativeIndicator');
+const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
+const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
+const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
+const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
+function isSameSetAsArray<T>(set: Set<T>, list: T[] | null) {
+    if (!list || set.size !== list.length) return false;
+
+    for (const item of list) {
+        if (!set.has(item)) return false;
+    }
+
+    return true;
+}
+
+const mapColorsKey = computed(() => JSON.stringify([
+    store.theme,
+    getColorByKey('map.preferences.colors.default.aircraft.main').value.value,
+    getColorByKey('map.preferences.colors.default.aircraft.ground').value.value,
+    getColorByKey('map.preferences.colors.default.approach').value.value,
+    getColorByKey('map.preferences.colors.default.firs').value.value,
+    getColorByKey('map.preferences.colors.default.gates').value.value,
+    getColorByKey('map.preferences.colors.default.runways').value.value,
+]));
 
 usePointerSwipe(notamRef, {
     threshold: 20,
@@ -422,7 +348,7 @@ if (route.query.start !== undefined && route.query.end !== undefined) {
 }
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
+    if (!autoFollow.value || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
         initialOwnCheck = true;
         return;
     }
@@ -453,7 +379,7 @@ async function checkAndAddOwnAircraft() {
     initialSpawn = true;
     initialOwnCheck = true;
 
-    if (shouldTrack && overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !allArrivedPilots.has(aircraft.cid)) {
+    if (shouldTrack && overlay && overlay.type === 'pilot' && autoZoom.value && !allArrivedPilots.has(aircraft.cid)) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }
@@ -602,17 +528,8 @@ const restoreOverlays = async () => {
     }
 };
 
-watch(() => store.localSettings.distance?.enabled, val => {
-    if (!val) return;
-
-    if (!localStorage.getItem('distance-tool-tutorial-seen')) {
-        mapStore.distance.tutorial = true;
-        localStorage.setItem('distance-tool-tutorial-seen', '1');
-    }
-});
-
 useUpdateInterval(() => {
-    if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
+    if (vatglassesAutoLevel.value === false || !store.user) return;
 
     const user = ownFlight.value;
     if (!user) return;
@@ -620,14 +537,6 @@ useUpdateInterval(() => {
     setUserLocalSettings({
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
-
-    if (store.mapSettings.navigraphData?.isModeAuto !== false) {
-        setUserMapSettings({
-            navigraphData: {
-                mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
-            },
-        });
-    }
 });
 
 const overlaysGap = 8;
@@ -722,7 +631,7 @@ async function handleMoveEnd() {
         zoom: mapStore.zoom.toFixed(2),
     };
 
-    if (initialOwnCheck && !store.mapSettings.disableQueryUpdate) {
+    if (initialOwnCheck && queryUpdateEnabled.value) {
         router.replace({
             query,
         });
@@ -744,8 +653,6 @@ async function handleMoveEnd() {
     mapStore.moving = false;
 }
 
-let lastClickTime = 0;
-
 async function initDistance(event: MapBrowserEvent) {
     const pilots = getPilotsForPixel(map.value!, event.pixel);
     if (pilots.length === 1) {
@@ -758,104 +665,94 @@ async function initDistance(event: MapBrowserEvent) {
 
 let overlaysCache: typeof mapStore.overlays = [];
 
-function handleDownEvent(event: MapBrowserEvent) {
-    if (mapStore.distance.pixel) return false;
-    const now = Date.now();
+function startDistance(event: MapBrowserEvent) {
+    overlaysCache = mapStore.overlays.slice(0);
 
-    if (store.localSettings.distance?.ctrlClick) {
-        overlaysCache = mapStore.overlays.slice(0);
-        if (event.originalEvent.ctrlKey || event.originalEvent.metaKey) {
-            initDistance(event).then(async () => {
-                await nextTick();
-                mapStore.overlays = overlaysCache;
-            });
+    initDistance(event).then(async () => {
+        await nextTick();
+        mapStore.overlays = overlaysCache;
+    });
+}
 
-            return true;
+const isTouch = useIsTouch();
+
+class DistanceInteraction extends Interaction {
+    override handleEvent(event: MapBrowserEvent) {
+        if (mapStore.distance.pixel) return true;
+
+        const useCtrlClick = distanceInteraction.value === 'ctrlclick';
+        const isCtrlClick = !isTouch.value && (event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey));
+        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK || isTouch.value;
+
+        if ((useCtrlClick && isCtrlClick) || (!useCtrlClick && isDoubleClick)) {
+            startDistance(event);
+
+            return false;
         }
-
-        return false;
-    }
-
-    if ((event.originalEvent as PointerEvent).buttons !== 1) return false;
-
-    if (now - lastClickTime < 300) {
-        initDistance(event).then(async () => {
-            await nextTick();
-            mapStore.overlays = overlaysCache;
-        });
-        lastClickTime = 0;
 
         return true;
     }
-    else overlaysCache = mapStore.overlays.slice(0);
-
-    lastClickTime = now;
-
-    return false;
 }
 
-class DoubleClick extends PointerInteraction {
-    constructor() {
-        super({
-            handleDownEvent,
-        });
-    }
-}
-
-const doubleClick = new DoubleClick();
+const distanceInteractionHandler = new DistanceInteraction();
+let managedMapInteractions: Interaction[] = [];
 
 function setMapInteractions() {
     if (!map.value) return;
-    const withDistance = store.localSettings.distance?.enabled;
-    const ctrl = store.localSettings.distance?.ctrlClick;
+    const withDistance = distanceEnabled.value;
+    const ctrl = distanceInteraction.value === 'ctrlclick';
 
-    map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
-    map.value.getInteractions().clear();
+    for (const interaction of managedMapInteractions) {
+        map.value.removeInteraction(interaction);
+    }
+    managedMapInteractions = [];
 
     if (withDistance) {
         const interactions = defaults({
             doubleClickZoom: !!ctrl,
         }).extend([
-            doubleClick,
+            distanceInteractionHandler,
         ]);
 
-        interactions.forEach(x => map.value?.addInteraction(x));
+        managedMapInteractions = interactions.getArray().slice();
+        managedMapInteractions.forEach(x => map.value?.addInteraction(x));
     }
     else {
         const interactions = defaults();
 
-        interactions.forEach(x => map.value?.addInteraction(x));
+        managedMapInteractions = interactions.getArray().slice();
+        managedMapInteractions.forEach(x => map.value?.addInteraction(x));
     }
 }
 
-watch(() => store.localSettings.distance?.enabled, setMapInteractions);
-watch(() => store.localSettings.distance?.ctrlClick, setMapInteractions);
+watch(distanceEnabled, setMapInteractions);
+watch(() => distanceInteraction.value === 'ctrlclick', setMapInteractions);
 
 await setupDataFetch({
     async onMount() {
         if (typeof route.query.airline === 'string') {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 users: {
                     pilots: {
                         type: 'prefix',
                         value: [route.query.airline],
                     },
                 },
-            }, false);
+            });
         }
         else if (typeof route.query.aircraft === 'string') {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 flights: {
                     aircraft: [route.query.aircraft],
                 },
-            }, false);
+            });
         }
         else if (typeof route.query.route === 'string' && route.query.route.split('-').length === 2) {
-            setUserActiveFilter({
+            setUserTemporaryFilter({
                 airports: {
                     routes: [route.query.route],
                 },
-            }, false);
+            });
         }
     },
     async onFetch() {
@@ -970,11 +867,24 @@ await setupDataFetch({
         mapStore.center = mapView.getCenter()!;
         ready.value = true;
 
-        map.value.getTargetElement().style.cursor = 'grab';
-        map.value.on('pointerdrag', function() {
-            map.value!.getTargetElement().style.cursor = 'grabbing';
-        });
-        map.value.on('postrender', event => {
+        const targetElement = map.value.getTargetElement();
+        targetElement.style.cursor = 'grab';
+
+        const pointerDragHandler = () => {
+            targetElement.style.cursor = 'grabbing';
+        };
+        map.value.on('pointerdrag', pointerDragHandler);
+
+        const saveData = useThrottleFn((airports: Set<string>, aircraft: Set<number>) => {
+            if (!isSameSetAsArray(airports, mapStore.renderedAirports)) {
+                mapStore.renderedAirports = Array.from(airports);
+            }
+            if (!isSameSetAsArray(aircraft, mapStore.renderedPilots)) {
+                mapStore.renderedPilots = Array.from(aircraft);
+            }
+        }, 250, true);
+
+        const postrenderHandler = (event: any) => {
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
             const rbushAircraft = features?.declutter?.aircraft;
@@ -992,14 +902,14 @@ await setupDataFetch({
                 if (isMapFeature('aircraft', properties)) aircraft.add(properties.id);
             }
 
-            mapStore.renderedAirports = Array.from(airports);
-            mapStore.renderedPilots = Array.from(aircraft);
-        });
+            saveData(airports, aircraft);
+        };
+        map.value.on('postrender', postrenderHandler);
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
         mapStore.center = map.value!.getView().getCenter()!;
 
-        map.value.getTargetElement().addEventListener('mousedown', event => {
+        const targetMouseDownHandler = (event: MouseEvent) => {
             const target = event.target as HTMLCanvasElement;
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
@@ -1030,39 +940,68 @@ await setupDataFetch({
 
                 map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
             }
-        });
+        };
+        targetElement.addEventListener('mousedown', targetMouseDownHandler);
 
         await nextTick();
         popupsHeight.value = popups.value?.clientHeight ?? 0;
 
+        let popupsResizeObserver: ResizeObserver | undefined;
+
         if (popups.value) {
-            const resizeObserver = new ResizeObserver(() => {
+            popupsResizeObserver = new ResizeObserver(() => {
                 popupsHeight.value = popups.value?.clientHeight ?? 0;
             });
-            resizeObserver.observe(popups.value!);
+            popupsResizeObserver.observe(popups.value!);
         }
 
         await restoreOverlays();
         restoredOverlays.value = true;
 
-        map.value.on('movestart', () => {
+        const moveStartHandler = () => {
             moving = true;
             mapStore.moving = true;
-        });
-        map.value?.getView().on('change:resolution', () => {
+        };
+        const resolutionChangeHandler = () => {
             mapStore.preciseZoom = map.value?.getView().getZoom() ?? 0;
-        });
-        map.value.on('moveend', async () => {
+        };
+        const moveEndHandler = async () => {
             moving = false;
             handleMoveEnd();
-        });
+        };
+
+        map.value.on('movestart', moveStartHandler);
+        map.value.getView().on('change:resolution', resolutionChangeHandler);
+        map.value.on('moveend', moveEndHandler);
+
+        cleanupOpenLayersMap = () => {
+            const currentMap = map.value;
+            if (!currentMap) return;
+
+            popupsResizeObserver?.disconnect();
+            targetElement.removeEventListener('mousedown', targetMouseDownHandler);
+            currentMap.un('pointerdrag', pointerDragHandler);
+            currentMap.un('postrender', postrenderHandler);
+            currentMap.un('movestart', moveStartHandler);
+            currentMap.un('moveend', moveEndHandler);
+            currentMap.getView().un('change:resolution', resolutionChangeHandler);
+            currentMap.setTarget(undefined);
+            currentMap.dispose();
+
+            layer.value?.dispose();
+            layer.value = null;
+            map.value = null;
+            mapStore.moving = false;
+            mapStore.renderedAirports = null;
+            mapStore.renderedPilots = null;
+            cleanupOpenLayersMap = undefined;
+        };
 
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {
             });
             if (filter) {
-                setUserActiveFilter(filter.json, false);
-                setUserFilter(filter.json);
+                setUserTemporaryFilter(filter.json);
                 store.getVATSIMData(true);
             }
         }
@@ -1125,11 +1064,7 @@ function handleKeys(event: KeyboardEvent) {
 
 onMounted(() => {
     if (route.query.vg === '1' || route.query.vg === '0') {
-        setUserMapSettings({
-            vatglasses: {
-                active: route.query.vg === '1',
-            },
-        });
+        setSettingByKey('map.vatglasses.active', route.query.vg === '1');
     }
 
     document.addEventListener('keydown', handleKeys, {
@@ -1141,6 +1076,10 @@ onBeforeUnmount(() => {
     document.removeEventListener('keydown', handleKeys, {
         capture: true,
     });
+});
+
+onUnmounted(() => {
+    cleanupOpenLayersMap?.();
 });
 </script>
 
@@ -1200,11 +1139,21 @@ onBeforeUnmount(() => {
         line-height: 100%;
         color: $lightGray400Orig;
 
+        transition: 0.3s;
+
         &--dismissable {
             cursor: grab;
 
             &:active {
                 cursor: grabbing;
+            }
+        }
+
+        &--with-popups {
+            width: calc(100vw - 16px - 40px - 16px - 16px - 24px - 360px - 32px);
+
+            @media all and (min-width: 1600px) {
+                width: calc(100vw - 16px - 40px - 16px - 16px - 24px - 400px - 32px);
             }
         }
 

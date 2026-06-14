@@ -5,8 +5,8 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 
 export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot): Coordinate {
-    let lonAdjustment = 0;
-    let latAdjustment = 0;
+    let lonAdjustment: number;
+    let latAdjustment: number;
     let direction = pilot.heading;
 
     if (direction >= 0 && direction < 90) {

@@ -25,24 +25,14 @@
                     :class="[`airport-counts_title--${ properties.counterType }`]"
                 >
                     {{ properties.icao }}
-                    <template v-if="properties.counterType === 'groundDep'">
-                        Departures
-                    </template>
-                    <template v-else-if="properties.counterType === 'groundArr'">
-                        Arrivals
-                    </template>
-                    <template v-else-if="properties.counterType === 'training'">
-                        Locals
-                    </template>
-                    <template v-else-if="properties.counterType === 'prefiles'">
-                        {{ !store.mapSettings.airportsCounters?.horizontalCounter || store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
-                    </template>
+                    {{title}}
                 </div>
             </template>
             <div class="airport-counts_list">
                 <ui-text-block
                     v-for="pilot in properties.aircraft"
                     :key="pilot.cid"
+                    class="airport-counts_list_item"
                     is-button
                     :top-items="[
                         pilot.callsign,
@@ -70,12 +60,13 @@
                             </span>
                             {{ item }}
                         </template>
-                        <ui-spoiler
-                            v-else-if="item === pilot.name"
-                            type="pilot"
-                        >
-                            {{ parseEncoding(pilot.name) }}
-                        </ui-spoiler>
+                        <div  v-else-if="item === pilot.name"  class="airport-counts__popup-name">
+                            <ui-spoiler
+                                type="pilot"
+                            >
+                                {{ parseEncoding(pilot.name) }}
+                            </ui-spoiler>
+                        </div>
                         <div
                             v-else
                             class="airport-counts__popup-info"
@@ -97,6 +88,8 @@ import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { parseEncoding } from '~/utils/data';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
+import { getAirportCounterPopupOffsetX } from '~/composables/render/airports/layers/airport-style';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 const props = defineProps({
     payload: {
@@ -114,7 +107,6 @@ const emit = defineEmits({
     },
 });
 
-const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const properties = computed(() => props.payload.feature.getProperties());
@@ -126,15 +118,78 @@ const coordinate = computed(() => {
 });
 
 const getOffsetX = computed(() => {
-    let baseOffset = properties.value.localsLength > 3 ? 55 : 50;
-    if (properties.value.counter > 9) baseOffset += 7;
-    else if (properties.value.counter > 99) baseOffset += 12;
-    return baseOffset;
+    return getAirportCounterPopupOffsetX({
+        icao: properties.value.icao,
+        localsLength: properties.value.localsLength,
+        counter: properties.value.counter,
+    });
+});
+
+const title = computed(() => {
+    if (properties.value.counterType === 'groundDep') {
+        switch (getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode')) {
+            case 'total':
+                return 'Total Departures';
+            case 'totalMoving':
+                return 'Total Departures in Move';
+            case 'totalLanded':
+                return 'Landed Departures';
+            case 'airborne':
+                return 'Airborne Departrures';
+            case 'ground':
+                return 'Departures';
+            case 'groundMoving':
+                return 'Departures in Move';
+            default:
+                return 'Departures';
+        }
+    }
+
+    if (properties.value.counterType === 'groundArr') {
+        const isSync = getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals');
+        const value = isSync ? getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode') : getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode');
+
+        switch (value) {
+            case 'total':
+                return 'Total Arrivals';
+            case 'totalMoving':
+                return 'Total Arrivals in Move';
+            case 'totalLanded':
+                return 'Not Parked Arrivals';
+            case 'airborne':
+                return 'Airborne Arrivals';
+            case 'ground':
+                return 'Landed';
+            case 'groundMoving':
+                return 'Landed in Move';
+            default:
+                return 'Arrivals';
+        }
+    }
+
+    if (properties.value.counterType === 'prefiles') {
+        switch (getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter')) {
+            case 'total':
+                return 'Total Traffic';
+            case 'prefiles':
+                return 'Prefiles';
+            case 'ground':
+                return 'Ground Traffic';
+            case 'groundMoving':
+                return 'Ground In Move';
+            default:
+                return 'Prefiles';
+        }
+    }
+
+    return 'Default';
 });
 </script>
 
 <style lang="scss" scoped>
 .airport-counts {
+    max-width: 400px;
+
     .airport-counts_item, .airport-counts_title {
         &--groundDep {
             color: $green500;
@@ -168,7 +223,18 @@ const getOffsetX = computed(() => {
         gap: 4px;
 
         max-height: 360px;
+
+        &_item  {
+            :deep(.info-block_top) {
+                flex-wrap: nowrap;
+                white-space: nowrap;
+
+                .airport-counts__popup-name {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
     }
 }
 </style>
-

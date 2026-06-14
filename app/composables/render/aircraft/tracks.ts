@@ -18,7 +18,6 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
 
     try {
         const dataStore = useDataStore();
-        const store = useStore();
         const hovered = useMapStore().hoveredPilot === aircraft.cid;
         const stringCid = aircraft.cid.toString();
 
@@ -41,18 +40,18 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
         dataStore.navigraphWaypoints.value[stringCid] = {
             pilot: pilot,
             coordinates,
-            full: typeof overlay?.data?.fullRoute === 'boolean' ? overlay?.data?.fullRoute : !!store.user?.settings.showFullRoute,
+            full: typeof overlay?.data?.fullRoute === 'boolean' ? overlay?.data?.fullRoute : !!getKeyedValueFromSettings('map.traffic.showFullRoute'),
             calculatedArrival: dataStore.navigraphWaypoints.value[stringCid]?.calculatedArrival,
-            disableHoldings: store.localSettings.navigraphRouteAirportOverlay?.holds === false && !overlay && !hovered,
-            disableWaypoints: store.localSettings.navigraphRouteAirportOverlay?.waypoints === false && !overlay && !hovered,
-            disableLabels: store.localSettings.navigraphRouteAirportOverlay?.labels === false && !overlay && !hovered,
+            disableHoldings: getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.holds') === false && !overlay && !hovered,
+            disableWaypoints: getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.waypoints') === false && !overlay && !hovered,
+            disableLabels: getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.labels') === false && !overlay && !hovered,
             waypoints: dataStore.navigraphWaypoints.value[stringCid]?.waypoints ?? await getFlightPlanWaypoints({
                 flightPlan: updateState.flightPlan!,
                 departure: pilot.departure!,
                 arrival: pilot.arrival!,
                 cid: pilot.cid,
-                disableSidParsing: store.localSettings.navigraphRouteAirportOverlay?.sid === false,
-                disableStarParsing: store.localSettings.navigraphRouteAirportOverlay?.star === false,
+                disableSidParsing: getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.sid') === false,
+                disableStarParsing: getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.star') === false,
             }),
         };
 
@@ -85,7 +84,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         features.forEach(x => x.dispose());
     }
 
-    const store = useStore();
     const mapStore = useMapStore();
     const dataStore = useDataStore();
     let track = renderSettings.tracks[aircraft.cid];
@@ -122,19 +120,23 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         const departureAirport = pilot.departure ? dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure] : null;
         const arrivalAirport = pilot.arrival ? dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival] : null;
+        const routeParsingEnabled = getKeyedValueFromSettings('map.navigraph.routeParsing.enabled');
+        const routeParsingOnHover = getKeyedValueFromSettings('map.navigraph.routeParsing.enabledOnHover');
         const canShowRoute = arrivalAirport &&
             track.isShown &&
             (pilot?.groundspeed > 50 || !!overlay || hovered) &&
-            !store.localSettings.disableNavigraphRoute &&
+            routeParsingEnabled &&
+            (routeParsingOnHover || !hovered) &&
             track.show !== 'short' &&
             !!dataStore.navigraph.version.value;
 
         let turnsColor = getAircraftStatusColor(status, aircraft.cid);
+        const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
 
-        if (store.mapSettings.colors?.turnsTransparency) {
+        if (turnsTransparency) {
             const rgb = hexToRgb(turnsColor);
 
-            turnsColor = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+            turnsColor = `rgba(${ rgb }, ${ turnsTransparency })`;
         }
 
         if (canShowRoute && !updateState.flightPlan) {
@@ -206,6 +208,12 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             if (data) {
                 updateState!.lastTurnsUpdateData = data;
                 updateState!.lastTurnsUpdate = Date.now();
+                if (data.departedAt || data.arrivedAt) {
+                    dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
+                        departedAt: data.departedAt,
+                        arrivedAt: data.arrivedAt,
+                    };
+                }
             }
 
             resolve(data);

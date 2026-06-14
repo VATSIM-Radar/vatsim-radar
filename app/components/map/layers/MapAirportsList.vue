@@ -15,6 +15,7 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
 import { isHideMapObject } from '~/composables/settings';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 
 defineOptions({
     render: () => null,
@@ -22,7 +23,6 @@ defineOptions({
 
 export type AirportNavigraphData = Record<string, NavigraphAirportData>;
 
-const store = useStore();
 const mapStore = useMapStore();
 const map = injectMap();
 const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
@@ -30,15 +30,15 @@ const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
 let airportsLayer: VectorLayer<any>;
 let airportsSource: VectorSource;
 
-let navigraphLayer: VectorLayer<any>;
+let navigraphLayer: VectorImageLayer<any>;
 let navigraphSource: VectorSource;
 
-let gatesLayer: VectorLayer<any>;
+let gatesLayer: VectorImageLayer<any>;
 let gatesSource: VectorSource;
 
 const now = new Date();
 const end = ref(new Date());
-const mapSettings = computed(() => store.mapSettings);
+const mapSettings = computed(() => getKeyedValueFromSettings('map.bookings.hours'));
 
 const dataStore = useDataStore();
 const airportsList = shallowRef<MapAirportRender[]>([]);
@@ -47,10 +47,41 @@ const airports = shallowRef<AirportListItem[]>([]);
 
 watch(mapSettings, val => {
     const currentDate = new Date();
-    currentDate.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    currentDate.setTime(now.getTime() + (((val * 60) * 60) * 1000));
     end.value = currentDate;
 }, {
     immediate: true,
+});
+
+const icaosList = computed(() => {
+    const knownIcaos = new Set<string>();
+
+    for (const overlay of mapStore.overlays) {
+        if (overlay.type === 'airport') {
+            knownIcaos.add(overlay.key);
+            continue;
+        }
+
+        if (overlay.type !== 'pilot') continue;
+
+        knownIcaos.add(overlay.data.pilot.flight_plan?.departure ?? '');
+        knownIcaos.add(overlay.data.pilot.flight_plan?.arrival ?? '');
+    }
+
+    if (mapStore.hoveredPilot) {
+        const pilot = dataStore.vatsim.data.keyedPilots.value[mapStore.hoveredPilot];
+        if (pilot) {
+            knownIcaos.add(pilot.departure ?? '');
+            knownIcaos.add(pilot.arrival ?? '');
+        }
+    }
+
+    if (ownFlight.value) {
+        knownIcaos.add(ownFlight.value.departure ?? '');
+        knownIcaos.add(ownFlight.value.arrival ?? '');
+    }
+
+    return knownIcaos;
 });
 
 const getShownAirports = computed(() => {
@@ -58,19 +89,15 @@ const getShownAirports = computed(() => {
 
     let list = airports.value.filter(x => airportsListSet.has(x.icao));
 
-    switch (store.mapSettings.airportsMode) {
+    switch (getKeyedValueFromSettings('map.preferences.airports.showMode')) {
         case 'staffedOnly':
             list = list.filter(x => {
-                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
-
-                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length;
+                return icaosList.value.has(x.icao) || x.atc.length;
             });
             break;
         case 'staffedAndGroundTraffic':
             list = list.filter(x => {
-                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.icao || y.data.pilot.flight_plan?.arrival === x.icao));
-
-                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
+                return icaosList.value.has(x.icao) || x.atc.length || x.aircraft.groundArr?.length || x.aircraft.groundDep?.length;
             });
             break;
     }
@@ -78,7 +105,7 @@ const getShownAirports = computed(() => {
     return list;
 });
 
-const updateRelatedSettings = computed(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback) + String(store.mapSettings.airportsMode));
+const updateRelatedSettings = computed(() => String(getKeyedValueFromSettings('map.navigraph.airport.enabled')) + String(getKeyedValueFromSettings('map.preferences.airports.showMode')));
 
 onMounted(() => {
     if (!map.value) throw new Error('Map is not initialized');
@@ -112,20 +139,21 @@ onMounted(() => {
     });
 
     const styles = airportLayoutStyles();
+    const touch = useIsTouch();
+    const zoomHiddenLayoutTypes = new Set<AmdbLayerName>(['taxiwayintersectionmarking', 'taxiwayguidanceline', 'deicingarea', 'finalapproachandtakeoffarea']);
 
-    navigraphLayer = new VectorLayer<any>({
+    navigraphLayer = new VectorImageLayer<any>({
         source: navigraphSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_NAVIGRAPH,
-        declutter: true,
-        updateWhileAnimating: false,
-        updateWhileInteracting: false,
+        declutter: 'airports-navigraph',
         properties: {
             type: 'airports-navigraph',
         },
+        imageRatio: touch.value ? 1 : 1.5,
         minZoom: 12,
         style: function(feature) {
-            const type = feature.getProperties().type as AmdbLayerName;
-            if ((type === 'taxiwayintersectionmarking' || type === 'taxiwayguidanceline' || type === 'deicingarea' || type === 'finalapproachandtakeoffarea') && mapStore.preciseZoom < 14.5) return;
+            const type = feature.get('type') as AmdbLayerName;
+            if (zoomHiddenLayoutTypes.has(type) && mapStore.preciseZoom < 14.5) return;
 
             const style = styles[type];
 
@@ -135,13 +163,12 @@ onMounted(() => {
         },
     });
 
-    gatesLayer = new VectorLayer<any>({
+    gatesLayer = new VectorImageLayer<any>({
         source: gatesSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
         minZoom: 15,
         declutter: 'gates',
-        updateWhileAnimating: false,
-        updateWhileInteracting: false,
+        imageRatio: touch.value ? 1 : 1.5,
         properties: {
             type: 'airports-gates',
         },
@@ -166,7 +193,21 @@ onMounted(() => {
         immediate: true,
     });
 
-    const mapSettings = computed(() => store.mapSettings);
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.bookings.hours'),
+        getKeyedValueFromSettings('map.preferences.airports.showMode'),
+        getKeyedValueFromSettings('map.navigraph.airport.enabled'),
+        getKeyedValueFromSettings('map.visibility.airports'),
+        getKeyedValueFromSettings('map.visibility.gates'),
+        getKeyedValueFromSettings('map.visibility.atc.approach'),
+        getKeyedValueFromSettings('map.visibility.atc.ground'),
+        getKeyedValueFromSettings('map.visibility.atcLabels'),
+        getKeyedValueFromSettings('map.preferences.airports.shortView'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.departuresMode'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter'),
+        getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals'),
+    ]));
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 
     const renderAirports = useThrottleFn(async () => {
@@ -204,7 +245,7 @@ onMounted(() => {
         log();
     }, 500, true);
 
-    watch([airportsList, mapSettings, mapRender], () => {
+    useUpdateCallback([airportsList, mapSettings, mapRender, 'short', icaosList], () => {
         renderAirports();
     });
 });

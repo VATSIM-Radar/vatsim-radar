@@ -8,6 +8,7 @@ $defaultPageHeight: calc(32px + 56px);
 $achievementAspectRatio: math.div(1280, 1024);
 
 $strokeDefault: $darkGray400;
+$strokeSecondary: $darkGray200;
 $navigraphColor: #da2f2b;
 $typographyPrimary: $lightGray200;
 $typographyPrimaryOrig: $lightGray200Orig;
@@ -19,7 +20,8 @@ $errorPrimaryStroke: $red500;
 $warningPrimaryStroke: $orange500;
 $successPrimaryStroke: $green500;
 
-$backgroundLevel1: $darkgray900;
+$backgroundLevel1: $darkGray900;
+$backgroundLevel2: $darkGray800;
 $backgroundLevel4: $darkGray600;
 $backgroundLevel5: $darkGray500;
 
@@ -37,13 +39,13 @@ $appColor: $citrus600;
 }
 
 @mixin mobileOnly() {
-    @media all and (max-width: 699px) {
+    @media all and ((max-width: 699px) or ((max-width: 1365px) and (max-height: 500px))) {
         @content;
     }
 }
 
 @mixin tablet() {
-    @media all and (min-width: 700px) and (max-width: 1365px) {
+    @media all and (min-width: 700px) and (min-height: 500px) and (max-width: 1365px) {
         @content;
     }
 }

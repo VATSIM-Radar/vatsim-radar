@@ -123,10 +123,14 @@ export const useMapStore = defineStore('map', {
             return !this.moving && !this.distance.pixel;
         },
         showAirportDetails(): boolean {
-            return !!this.renderedAirports && this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
+            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > 5;
         },
         compactAirportView(): boolean {
-            return !!useStore().mapSettings.shortAirportView || !this.showAirportDetails;
+            const shortView = getKeyedValueFromSettings('map.preferences.airports.shortView');
+
+            if (shortView === 'never') return false;
+
+            return !!shortView || !this.showAirportDetails;
         },
     },
     actions: {
@@ -172,7 +176,6 @@ export const useMapStore = defineStore('map', {
 
             if (typeof cid === 'number') cid = cid.toString();
             this.openingOverlay = true;
-            const store = useStore();
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
@@ -191,7 +194,7 @@ export const useMapStore = defineStore('map', {
                 const ipfsRequest = (pilot.status === 'depGate' || pilot.status === 'depTaxi') && $fetch<IpfsUser>(`/api/data/vatsim/pilot/${ cid }/ipfs`).catch(() => {});
                 const photoRequest = (pilot.flight_plan?.remarks?.includes('REG/')) && $fetch<PlaneSpottersPhoto | { status: string }>(`/api/data/vatsim/photo/${ getFlightPlanParam(pilot.flight_plan?.remarks, 'REG') }`).catch(() => {});
                 if (!params.sticky) {
-                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || x.minified || store.user?.settings.toggleAircraftOverlays);
+                    this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || x.minified || getKeyedValueFromSettings('map.traffic.toggleAircraftOverlays'));
                 }
                 if (params?.data?.tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
@@ -206,7 +209,7 @@ export const useMapStore = defineStore('map', {
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,
                     type: 'pilot',
-                    collapsed: store.user?.settings.toggleAircraftOverlays && this.overlays.some(x => x.type === 'pilot'),
+                    collapsed: getKeyedValueFromSettings('map.traffic.toggleAircraftOverlays') && this.overlays.some(x => x.type === 'pilot'),
                     sticky: cid === ownFlight.value?.cid.toString(),
                     ...params,
                     data: {
@@ -331,7 +334,7 @@ export const useMapStore = defineStore('map', {
                     ...params,
                     data: {
                         icao: airport,
-                        showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
+                        showTracks: this.autoShowTracks ?? getKeyedValueFromSettings('map.traffic.autoShowAirportTracks'),
                         aircraftTab,
                         tab,
                         ...params?.data ?? {},

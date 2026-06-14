@@ -184,6 +184,7 @@ export default defineNitroPlugin(async app => {
 
         const presets: Record<UserPresetType, number> = {
             MAP_SETTINGS: 0,
+            MAP_SETTINGS_V2: 0,
             BOOKMARK: 0,
             DASHBOARD_BOOKMARK: 0,
             FILTER: 0,

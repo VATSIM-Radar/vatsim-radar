@@ -8,8 +8,8 @@
                 v-if="!isMobile"
                 class="controls_item"
                 size="S"
-                :type="store.localSettings.distance?.enabled ? 'primary' : 'secondary-black'"
-                @click="setUserLocalSettings({ distance: { enabled: !store.localSettings.distance?.enabled } })"
+                :type="distance ? 'primary' : 'secondary-black'"
+                @click="setSettingByKey('map.layers.distance.enabled', !distance)"
             >
                 <template #icon>
                     <ruler-icon/>
@@ -86,13 +86,12 @@ import { useMapStore } from '~/store/map';
 import { toDegrees, toRadians } from 'ol/math.js';
 import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import { useStore } from '~/store';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
 const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
 const isMobile = useIsMobile();
+const distance = useSettingValueFromFunc('map.layers.distance.enabled');
 
 const setZoom = (increase: boolean) => {
     if (!view.value || view.value.getAnimating()) return;

@@ -43,6 +43,7 @@
                     v-for="controller in sector.atc"
                     :key="controller.cid"
                     :controller
+                    @overlay="emit('close')"
                 />
                 <template v-if="sector.min === 0">
                     <ui-text
@@ -69,6 +70,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
+            @overlay="emit('close')"
         >
             <template #title>
                 {{getPopupName}}
@@ -156,7 +158,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
-const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+const vatGlassesCombinedActive = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');
     if (level === '999') return 'UNL';
@@ -170,7 +172,7 @@ const type = computed(() => properties.value.type);
 const getOffsetY = computed(() => {
     switch (properties.value.type) {
         case 'airport':
-            return -5;
+            return properties.value.atc.length ? -10 : -20;
         case 'airport-atc':
             return mapStore.compactAirportView ? 10 : 20;
         default:

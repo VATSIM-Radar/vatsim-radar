@@ -41,7 +41,7 @@
                 <div class="airport-card_data_counts_counter">
                     <departing-icon class="airport-card_data_counts_counter_icon"/>
                     <div class="airport-card_data_counts_counter_text">
-                        <template v-if="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports">
+                        <template v-if="showTotalDeparturesInFeaturedAirports">
                             {{ (airport.aircraft.groundDep?.length ?? 0) + (airport.aircraft.departures?.length ?? 0) }}
                         </template>
                         <template v-else>
@@ -80,7 +80,6 @@ import DepartingIcon from '~/assets/icons/airport/departing.svg?component';
 import ArrivingIcon from '~/assets/icons/airport/landing.svg?component';
 import { getControllerPositionColor, showAirportOnMap, useFacilitiesIds } from '~/composables/vatsim/controllers';
 import { useMapStore } from '~/store/map';
-import { useStore } from '~/store';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';
 import type { ShallowRef } from 'vue';
@@ -102,7 +101,7 @@ const country = getAirportCountry(props.airport.icao);
 const ids = useFacilitiesIds();
 
 const mapStore = useMapStore();
-const store = useStore();
+const showTotalDeparturesInFeaturedAirports = useSettingValueFromFunc('map.preferences.showTotalDeparturesInFeaturedAirports');
 const map = inject<ShallowRef<Map | null>>('map')!;
 const isMobile = useIsMobile();
 
@@ -121,7 +120,7 @@ const controllers = computed<Controller[]>(() => {
         if (list.some(x => controller.isATIS ? x.isATIS : x.facility === controller.facility) || controller.facility === ids.FSS || controller.facility === ids.CTR) continue;
 
         list.push({
-            facility: controller.facility,
+            facility: controller.isATIS ? -1 : controller.facility,
             color: getControllerPositionColor(controller),
             text: '',
             isATIS: controller.isATIS || controller.facility === ids.ATIS || !!controller.atis_code,

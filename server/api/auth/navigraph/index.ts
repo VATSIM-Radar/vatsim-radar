@@ -4,11 +4,14 @@ import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/n
 import { handleH3Exception } from '~/utils/server/h3';
 import { findUserByCookie } from '~/utils/server/user';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
+import { getRedirectURL } from '~/utils/server';
 
 export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
+
+        const redirectUrl = getRedirectURL(event);
 
         const { id: verifierId, verifier } = await prisma.auth.findFirstOrThrow({
             select: {
@@ -97,7 +100,7 @@ export default defineEventHandler(async event => {
                 },
             });
 
-            return sendRedirect(event, config.public.DOMAIN);
+            return sendRedirect(event, redirectUrl);
         }
 
         if (!user && !navigraphUser) {
@@ -117,7 +120,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        return sendRedirect(event, config.public.DOMAIN);
+        return sendRedirect(event, redirectUrl);
     }
     catch (e) {
         return handleH3Exception(event, e);

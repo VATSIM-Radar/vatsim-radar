@@ -26,7 +26,7 @@
                     <div class="presets__row presets__row--no-wrap">
                         <ui-input-text
                             v-model="newPresetName"
-                            placeholder="Preset Name"
+                            placeholder="Save as..."
                         />
                         <div class="presets__row_divider"/>
                         <ui-button
@@ -38,6 +38,8 @@
                             <template #icon>
                                 <save-icon/>
                             </template>
+
+                            Save
                         </ui-button>
                     </div>
 
@@ -47,6 +49,9 @@
                     />
                 </template>
             </div>
+            <ui-notification v-else-if="!presets.length" type="info">
+                There is nothing to save... yet
+            </ui-notification>
 
             <small
                 v-if="presets.length >= maxPresets"
@@ -80,7 +85,7 @@
                                     <ui-toggle
                                         :model-value="currentPreset === preset.id"
                                         @click.stop
-                                        @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
+                                        @update:modelValue="$event ? noConfirm ? emit('save', preset.json, preset.id) : [states.load = true, activePreset = preset] : emit('reset')"
                                     />
                                     <drag-icon class="presets__drag"/>
                                 </div>
@@ -88,79 +93,92 @@
                         </ui-block-title>
 
                         <template v-if="activePreset?.id === preset.id">
-                            <div
-                                class="__grid-info-sections"
-                                :class="{ '__grid-info-sections--large-title': isMobile }"
-                            >
-                                <div class="__grid-info-sections_title">
-                                    Preset
-                                </div>
-                                <div class="presets__row">
-                                    <ui-input-text
-                                        v-model="activePreset!.name"
-                                        @change="renamePreset()"
-                                    />
-                                    <div class="presets__row_divider"/>
-                                    <ui-tooltip
-                                        v-if="!disableActions"
-                                        location="bottom"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                size="S"
-                                                type="secondary"
-                                                @click="exportPreset(activePreset!)"
-                                            >
-                                                <template #icon>
-                                                    <export-icon/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                            <div class="presets__row">
+                                <ui-input-text
+                                    v-model="activePreset!.name"
+                                    width="100%"
+                                    @change="renamePreset()"
+                                />
+                                <div v-if="!disableActions" class="presets__row_divider"/>
+                                <ui-tooltip
+                                    v-if="!disableActions"
+                                    location="bottom"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            size="S"
+                                            type="secondary"
+                                            @click="exportPreset(activePreset!)"
+                                        >
+                                            <template #icon>
+                                                <export-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Export
-                                    </ui-tooltip>
-                                    <ui-tooltip
-                                        v-if="shareUrl"
-                                        location="bottom"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                size="S"
-                                                type="secondary"
-                                                @click="share.copy(shareUrl)"
-                                            >
-                                                <template #icon>
-                                                    <check-icon v-if="share.copyState.value"/>
-                                                    <share-icon v-else/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                                    Export
+                                </ui-tooltip>
+                                <ui-tooltip
+                                    v-if="shareUrl"
+                                    location="bottom"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            size="S"
+                                            type="secondary"
+                                            @click="share.copy(shareUrl)"
+                                        >
+                                            <template #icon>
+                                                <check-icon v-if="share.copyState.value"/>
+                                                <share-icon v-else/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Share
-                                    </ui-tooltip>
-                                    <ui-tooltip
-                                        v-if="!disableActions"
-                                        location="left"
-                                        open-method="mouseOver"
-                                    >
-                                        <template #activator>
-                                            <ui-button
-                                                :disabled="isCurrentPreset(activePreset!)"
-                                                size="S"
-                                                type="secondary"
-                                                @click="states.overwrite = true"
-                                            >
-                                                <template #icon>
-                                                    <edit-icon/>
-                                                </template>
-                                            </ui-button>
-                                        </template>
+                                    Copy Link
+                                </ui-tooltip>
+                                <ui-tooltip
+                                    v-if="copy"
+                                    location="left"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            :disabled="presets.length >= maxPresets"
+                                            size="S"
+                                            type="secondary"
+                                            @click="states.copy = true"
+                                        >
+                                            <template #icon>
+                                                <copy-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
 
-                                        Overwrite
-                                    </ui-tooltip>
-                                </div>
+                                    Copy
+                                </ui-tooltip>
+                                <ui-tooltip
+                                    v-if="!disableActions"
+                                    location="left"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <ui-button
+                                            :disabled="isCurrentPreset(activePreset!)"
+                                            size="S"
+                                            type="secondary"
+                                            @click="states.overwrite = true"
+                                        >
+                                            <template #icon>
+                                                <save-icon/>
+                                            </template>
+                                        </ui-button>
+                                    </template>
+
+                                    Save
+                                </ui-tooltip>
                             </div>
 
                             <slot
@@ -188,7 +206,7 @@
         </div>
         <ui-button
             v-else
-            href="/api/auth/vatsim/redirect"
+            @click="vatsimAuth"
         >
             Authorize to manage presets
         </ui-button>
@@ -198,11 +216,11 @@
                 <template #title>
                     Preset Load
                 </template>
-                You are about to load {{ activePreset.name }} preset. That will overwrite all your current settings.
+                You are about to load preset {{ activePreset.name }}. That will overwrite all your current settings.
                 <template #actions>
                     <ui-button
                         type="secondary"
-                        @click="[emit('save', activePreset.json), states.load = false]"
+                        @click="[emit('save', activePreset.json, activePreset.id), states.load = false]"
                     >
                         Load and overwrite
                     </ui-button>
@@ -211,20 +229,41 @@
                     </ui-button>
                 </template>
             </popup-fullscreen>
+            <popup-fullscreen v-model="states.copy">
+                <template #title>
+                    Preset Copy
+                </template>
+                You are about to copy {{ activePreset.name }} preset with it's saved settings.
+
+                <ui-input-text
+                    v-model="copyPresetName"
+                    placeholder="Copy as..."
+                />
+                <template #actions>
+                    <ui-button type="secondary" @click="states.copy = false">
+                        Cancel
+                    </ui-button>
+                    <ui-button
+                        :disabled="!copyPresetName || presets.some(x => x.name.toLowerCase() === copyPresetName.toLowerCase())"
+                        @click="[copyPreset(), states.copy = false]"
+                    >
+                        Copy preset
+                    </ui-button>
+                </template>
+            </popup-fullscreen>
             <popup-fullscreen v-model="states.overwrite">
                 <template #title>
-                    Preset Overwrite
+                    Preset Save
                 </template>
-                You are about to overwrite {{ activePreset.name }} preset with current settings. That will delete all previous selected preset data.
+                You are about to save {{ activePreset.name }} preset with current settings. That will delete all previous selected preset data.
                 <template #actions>
+                    <ui-button type="secondary" @click="states.overwrite = false">
+                        Cancel
+                    </ui-button>
                     <ui-button
-                        type="secondary"
                         @click="[overwritePreset(), states.overwrite = false]"
                     >
-                        Overwrite preset
-                    </ui-button>
-                    <ui-button @click="states.overwrite = false">
-                        Cancel
+                        Save preset
                     </ui-button>
                 </template>
             </popup-fullscreen>
@@ -269,7 +308,6 @@ import { useFileDownload } from '~/composables/settings';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import ExportIcon from 'assets/icons/kit/load.svg?component';
-import EditIcon from 'assets/icons/kit/edit.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import ShareIcon from '~/assets/icons/kit/share.svg?component';
 import CheckIcon from '~/assets/icons/kit/check.svg?component';
@@ -280,11 +318,18 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import equal from 'deep-equal';
 import { VueDraggable } from 'vue-draggable-plus';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
+import { vatsimAuth } from '../../../../composables/vatsim/auth';
+import CopyIcon from '~/assets/icons/kit/copy.svg?component';
 
 const props = defineProps({
     presets: {
         type: Array as PropType<UserPreset[]>,
         required: true,
+    },
+    copy: {
+        type: Boolean,
+        default: false,
     },
     selectedPreset: {
         type: Object as PropType<UserCustomPreset['json']>,
@@ -331,7 +376,7 @@ const emit = defineEmits({
     create(name: string, data: UserCustomPreset['json']) {
         return true;
     },
-    save(data: UserCustomPreset['json']) {
+    save(data: UserCustomPreset['json'], id: number) {
         return true;
     },
     reset() {
@@ -360,10 +405,10 @@ const share = useCopyText();
 const store = useStore();
 
 const newPresetName = ref('');
+const copyPresetName = ref('');
 const activePreset = shallowRef<UserCustomPreset | null>(null);
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const activeCreatePreset = ref<boolean | null>(!!props.presets.length);
-const isMobile = useIsMobile();
 
 const currentPreset = computed(() => {
     return props.presets.find(x => equal(x.json, props.selectedPreset))?.id ?? null;
@@ -380,6 +425,7 @@ const states = reactive({
     rename: false,
     load: false,
     overwrite: false,
+    copy: false,
 });
 
 const isCurrentPreset = (preset: UserCustomPreset) => {
@@ -388,6 +434,10 @@ const isCurrentPreset = (preset: UserCustomPreset) => {
 
 const createPreset = async () => {
     emit('create', newPresetName.value, props.selectedPreset);
+};
+
+const copyPreset = async () => {
+    emit('create', copyPresetName.value, activePreset.value!.json);
 };
 
 const exportPreset = (preset: UserCustomPreset) => {
@@ -491,7 +541,7 @@ const deletePreset = async () => {
     &__drag {
         cursor: grab;
         position: absolute;
-        right: 48px;
+        right: 64px;
         width: 24px;
     }
 

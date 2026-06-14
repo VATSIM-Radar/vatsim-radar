@@ -10,9 +10,6 @@
                 bookmarks: {
                     title: 'Bookmarks',
                 },
-                traffic: {
-                    title: 'Traffic',
-                },
                 share: {
                     title: 'Share',
                 },
@@ -21,12 +18,6 @@
 
         <map-filters v-if="tab === 'filters'"/>
         <template v-else-if="tab === 'bookmarks'">
-            <ui-toggle
-                :model-value="!!store.localSettings.skipBookmarkAnimation"
-                @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
-            >
-                Disable animation
-            </ui-toggle>
             <map-filters-presets
                 :key="String(bookmarkSaveTick)"
                 create-collapse
@@ -55,17 +46,6 @@
                     />
                 </template>
             </map-filters-presets>
-        </template>
-        <template v-else-if="tab === 'traffic'">
-            <ui-toggle
-                :model-value="!!store.localSettings.traffic?.disableFastUpdate"
-                @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
-            >
-                Disable fast update
-                <template #description>
-                    Sets update to once per 15 seconds. Expected delay from 15 to 30 seconds, but it will consume much less traffic
-                </template>
-            </ui-toggle>
         </template>
         <template v-else-if="tab === 'share'">
             <ui-button

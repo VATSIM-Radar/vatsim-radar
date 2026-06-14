@@ -4,6 +4,9 @@
         :class="[
             `bubble--size-${ size }`,
             `bubble--type-${ type }`,
+            {
+                'bubble--dotted': dotted,
+            },
         ]"
         :tag="is"
         :type="textType"
@@ -33,6 +36,10 @@ defineProps({
     is: {
         type: String,
         default: 'div',
+    },
+    dotted: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -68,6 +75,10 @@ defineSlots<{ default: () => any }>();
         border-radius: 0;
         color: $brandPrimary;
         background: transparent;
+
+        &.bubble--dotted {
+            border-bottom: 1px dotted $brandPrimary;
+        }
     }
 }
 </style>

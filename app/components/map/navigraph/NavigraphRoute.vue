@@ -86,7 +86,8 @@ async function update() {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints, coordinates: coordinate } of pilots) {
-            const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
+            const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, departure, callsign } = pilot;
+
             currentFlight = cid === ownFlight.value?.cid;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -106,12 +107,21 @@ async function update() {
 
             if (!waypoints.length || arrived) continue;
 
+            if (departure && dataStore.vatspy.value?.data.keyAirports.realIcao[departure]) {
+                waypoints.unshift({
+                    identifier: '',
+                    description: ' Y  ',
+                    coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[departure]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[departure]?.lat],
+                    kind: 'enroute',
+                });
+            }
+
             if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures.value[arrival]?.approaches ?? {}).length) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 
                 waypoints.splice(index + 1, 0, {
-                    identifier: '',
+                    identifier: ' ',
                     description: ' Y  ',
                     coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lat],
                     kind: 'enroute',

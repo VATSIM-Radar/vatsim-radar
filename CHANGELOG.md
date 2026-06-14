@@ -1,547 +1,171 @@
 # Changelog
 
-# [2.0.0-alpha.9.4]
+# [2.0.0-beta.2.3]
+
+## Alpha Changes
+
+- Aircraft route update will now be skipped if it did not move
+- Fixed reactivity when changing departures/arriving mode
+
+## Features and Improvements
+
+- Airport counter is now named to represent Settings Mode for this counter
+
+# [2.0.0-beta.2.2]
+
+## Alpha changes
+
+- Fixed event circle appearing incorrectly when event airport has no atc
+- Added accent to +- buttons in booking override
+- Reworked desktop settings to have full-page scroll once again
+- Mobile preview will now take 50% of page height instead of 100%
+- Fixed filter combo box not accepting more than one value
+
+## Bug fixes
+
+- Fixed departed distance incorrect for some departures
+- Fixed some aircraft icons showing slightly incorrect border color
+- Favorite pilot will now highlight in red when squawking emergency
+
+# [2.0.0-beta.2.1]
+
+## Alpha Changes
+
+- Moved auto save to same line as preview on map to improve spacing
+- Improved spacing in quick settings
 
 ## Features and improvements
 
-- Speed up website loading on second load by utilizing PWA cache
+- You can now disable ARTCC TRACONs extensions
+- Added CTAF frequency to VATSIM Airport Info when available on Info page of airport
 
-## Bug Fixes
-
-- Fix website reloading multiple times after update
-
-# [2.0.0-alpha.9.3]
-
-## Production changes
-
-- Add CWM E/W sectors to ATC duplication
-- Navigraph-only auth is now supported for users without VATSIM Account, or without a will to link it
-- Fixed new Military Rating not displayed
+# [2.0.0-beta.2]
 
 ## Alpha changes
 
-- Added distance tool infinite worlds support by psergienko
-
-# [2.0.0-alpha.9.2]
-
-## Alpha changes
-
-- Improved VATGlasses update speed
-- Fixed labels not rendering for tracked pilots and own flight
-- Moved booked until to same line with time online
-- Redesigned time online
-
-## Improvements and changes
-
-- Significantly optimized basic layer in terms of performance and memory usage, at a cost of low quality on high zoom levels
-- Removed Sentry to improve bundle size. It's not like I was checking errors anyway
-
-## Bug Fixes
-
-- Removed duplication logic when controller is rendered in VATGlasses
-
-# [2.0.0-alpha.9.1]
-
-## Alpha changes
-
-- Fixed runway color
-- Fixed approach color
-- Fixed some airports displaying TRACON name instead of airport name on hover
-- Disabled context menu on mobile
-- Improved vertical speed update
-- Implemented dynamic flight plan parameters column count
-
-## Improvements and changes
-
-- Added an ability to zoom to any controller, including CTR
-- Controllers will now be focused when opened from search - same as with aircraft and airports
-- Weather request and route/remarks textareas are now not collapsed (except for Firefox in weather request, I'm sorry)
-
-# [2.0.0-alpha.9]
-
-## Alpha changes
-
-- Fixed Firefox font being too bold sometimes
-- Fixed favorite list going above minified overlays
-- Fixed favorite list showing booked friend when friend is already controlling
-
-## Improvements and changes
-
-- Added departed and landed time to pilot overlay
-- Added vertical speed to non-compact pilot hover and pilot overlay
-- Improved speed/altitude graph
-
-## Redesigned
-
-- Redesigned all overlays
-- All colors have been upgraded to a new palette
-
-# [2.0.0-alpha.8.4]
-
-- Removed close button from init popup
-- Fixed VG toggle displayed twice in map settings
-- Fixed logon time not showing in stats for pilots
-- Fixed airport Proc tab not responsive to selections
-- Fixed VG alt arrows in Firefox
-- Fixed some filters crashing pilots render
-
-## Improvements and changes
-
-- Changed calendar menu to open events by default
-
-# [2.0.0-alpha.8.3]
-
-## Alpha changes
-
-- Fixed VATGlasses altitude selection
-
-## Improvements and changes
-
-- Added a way to quickly disable and enable VATGlasses
-
-# [2.0.0-alpha.8.2]
-
-## Alpha changes
-
-- Aircraft without fpln hover has been fixed
-- Fixed minified overlay background
-- When overlay is collapsed, new overlay will not close collapsed overlay, even it was not sticky
-- Fixed airport proc tab not doing anything
-- Fixed airport proc tab adding much more waypoints than needed
-- Fixed airport proc procedures not rendering
-- Fixed procedure not rendering and crashing if a star was not selected
-- Fixed sectors displaying as booked even when active
-
-## Bug Fixes
-
-- Fixed waypoints sometimes not connecting with airways
-- Fixed some waypoints not showing correctly
-
-# [2.0.0-alpha.8.1]
-
-- Restored "booked until" functionality
-- Fixed long aircraft types on hover
-- Fixed "big" aircraft
-- Slightly improved aircraft hover header style
-
-# [2.0.0-alpha.8]
-
-## Alpha changes
-
-- Buttons have been redesigned. They can look weird there and there, please take a look at them!
-- Notifications have been redesigned. They can start to look weird too, or not fit to a specific place
-- Fixed some FIRs such as LPPO_CTR not displaying as they should
-- Improved sectors render performance by moving empty FIR boundaries to a performance-optimized layer variant
-- Fixed observers logon time
-- Improved switching between airport facilities on hover
-- Improved aircraft loading performance and stability
-- Added memory cleanup for aircraft to prevent memory leak
-- Redesigned pilot hover popup (again, but better)
-- Fixed diverts not showing
-- Fixed local setup not starting without Navigraph
-- Added all frequencies display on hover
-- Fixed some UIRs, such as AFRN or GULF and ASEA, not showing correct sectors
-- Removed runways from airport on-hover popup
-- Fixed CTR -> FSS sorting in hover popup
-- Fixed edge case when atc tracons with same prefixes were not showing
-- Fixed pilots labels toggle not working
+- Fixed distance tool auto-syncing on new devices when autosave is enabled
+- Fixed remarks copy button displaying on top when selcal is present
+- Added event airport color highlight
+- Changed default unstaffed airport color to be less bright
+- Fixed init popup showing multiple times and blinking
+- Improved airports render/update frequency when map is not moving
+- Fixed events not showing on map
+- Fixed airport dot disappearing when airport has bookings
+- Fixed weird aircraft icon on first hover
+- You can now easily copy map settings and filters
+- Added weather transparency placeholder, defaults to Auto
+- Renamed transparency to opacity everywhere
+- Renamed ATC Labels setting to Approach Labels
+- Fixed visibility settings not taking effect immediately
+- Fixed favorite list table misaligned on scroll
+- Fixed manual CID input in favorite list always autocompleting to 800000
+- Fixed airport counters misaligned vertically with airport icao
+- Realigned airport icao with vatspy coordinate
+- Fixed vatglasses auto level doing nothing
+- Slightly improved frequencies monitoring design for them to be less noticeable
+- Map hover overlay on mobile will now be closed on a click to anywhere except for overlay itself
+- Added ability to disable new vatglasses labels
+- Fixed new range not working properly in Firefox
+- Added ability to turn off new VATGlasses labels
+- Added ability to disable short facilities view
+- Fixed ATIS-only airports showing in quiet airports
+- Fixed some facilities not showing in quiet airports
+- Fixed search opening in random place on some map screens
+- Fixed duplicate controller not opening correct controller on click
+- It is now much easier to click on a holding
+- Fixed turning auto save off not allowing to save preset
+- Fixed local preset resetting when auto save is disabled
+- Fixed random select error alert
+- Various landscape mode improvements
+- Distance tool can now be enabled or disabled on mobile in settings. When enabled, it will work on standard 2-click interaction as on pc
+- Fixed rare app controllers not showing up
+- Fixed overlays issues from beta 1.4
 
 ## Features and improvements
 
-- Added support for search history
-- Upcoming and current events will now show on map
-- Booked favorite controller will now show in Favorite section
-- You can now hover over empty airports to find out their name
+- Added TWR icon to airports where SimAware TWR TRACON is shown to make it more clear that TWR is currently online
+- Airport label will now always show if aircraft with this departure or destination is hovered
 
-## Redesign
-
-- Buttons have been redesigned for new VATSIM Radar simple look
-- Notifications have been redesigned - each closed notification now also saves into your account, in case you are logged in. You can now also reset all saw notifications in settings
-- Redesigned header
-- Redesigned tabs
-- Redesigned controls: radios, toggles, etc
-- Made compact aircraft hover mode much more compact than before
-- Redesigned inputs and selects
-
-# [2.0.0-alpha.7.12]
-
-- Fixed VATGlasses/CTR sectors not showed in ATC tab when on ground, and also not clickable
-
-# [2.0.0-alpha.7.11]
+# [2.0.0-beta.1.4]
 
 ## Alpha changes
 
-- Added Debug Info to Debug menu with render benchmarks and more info
-- Improved performance of ATC and VATGlasses update
+- Fixed NAT tracks click not working
+- Fixed mobile overlay close behavior
+- Fixed content overlay scroll issues
+- Added loader for loading settings preview
+- Setting button second click will now open previous page, or homepage
+- Account section will now be hidden in settings for logged in users
+- Fixed favorite menu not showing from 700 to 1000 screen widths
+- Improved mobile menu layout
+- Fixed aircraft popup showing out of map view on hover
+- Significantly improved VATGlasses Combined update speed (compared to previous next builds)
 
-# [2.0.0-alpha.7.10]
+# [2.0.0-beta.1.3]
 
 ## Alpha changes
 
-- Fixed side effect in pilot popup, result in random circles render
-- Fixed aircraft without FPLN on ground not displaying as ground
-- Redesigned ATC icons to better match new VR style
+- Add favorite section to new settings
+- Fixed VATGlasses toggle in light theme
+- Fixed 403 block when changing vatglasses level
 
-# [2.0.0-alpha.7.9]
+# [2.0.0-beta.1.2]
 
 ## Alpha changes
 
-- Attempt to fix holdings memory leak
-- Attempt to fix random circles appearing
-- Attempt to fix booking/active controller live bugs (booking continues to show after controller is online etc)
-- Fixed controller dashboard crash
-- Fixed FSS display when a CTR controller is also active on FSS
+- Fixed visibility settings applied inverted
+- Map preview will take all available width now
+- Fixed settings global vertical scroll
+- Fixed arrival progress showing as 0 when landed
+- Fixed event showed as active when already over
+- Fixed bookings staffed until showing before booking has started
+- Removed z from booking time when local timezone is enabled
+- Fixed incorrect priorities for some ATC facilities, such as LIRR_NE1_CTR
+- Fixed LPPO_CTR only showing one sector (and similar bugs)
+- Fixed map crash in some browsers
+- Fixed map becoming unresponsive when used distance tool with double click type
+- Implemented dynamic counters offset based on airport icao
 
-# [2.0.0-alpha.7.8]
+# [2.0.0-beta.1.1]
 
-## Alpha Changes
+## Alpha changes
 
-- Fixed Navigraph taxiways not initializing after reload
-- Fixed sectors not displaying in ATC tab
-- Fixed some airports not showing in popular/quiet and being marked as pseudo, resulting in disappearing from multiple places
+- Fixed transparency migration edge cases
+- Auto save is now auto saved account-wide, and it is also now easier to reach
+- Fixed toggle setting layout on mobile
 
-# [2.0.0-alpha.7.7]
+# [2.0.0-beta.1]
 
-- Fixed real time pilot controller update
-- Restored departing/arriving status
-- Fixed more duplicating issues
+## Alpha changes
+
+- Moved vIFF departure info to full line display
+- Fixed significant performance drop for airports layouts
+- Fixed aircraft/airports flickering on first load
+- Fixed visible only setting doing nothing
+- Restored show when out of bounds functionality
 
 ## Features and improvements
 
-- Bookings now update more consistently and every 5 minutes instead of 15
-
-# [2.0.0-alpha.7.6]
-
-## Alpha changes
-
-- Fixed CTR duplications not working
-- Fixed bookings displayed when VATGlasses is on and callsign is different
-- Fixed prefiles not displayed
-- Fixed some sectors such as BIRD not displayed on map
-- Fixed aircraft tracking not working when overlay is in collapsed state
-
-# [2.0.0-alpha.7.5.1]
-
-## Alpha changes
-
-- Fixed next being unusable with no atc and a huge memory leak
-- Fixed some FIRs not showing on map
-
-# [2.0.0-alpha.7.5]
-
-## Alpha changes
-
-- Moved RegEx ATC duplicating to frontend, making it possible to test duplications logic. AU duplication is not supported in this configuration
-- Fixed FSS facilities not displaying
-- Fixed rare ATCs not displayed
-
-## Improvements and changes
-
-- Added TWR icon when VATGlasses sector is active
-- Bookings will no longer be added to active sectors, or to an airport where booked facility is staffed
-
-## Technical changes
-
-- Added support for booking debugging
-- Added support for a toggle for duplicating ATC instead of having to remove it all the time
-
-# [2.0.0-alpha.7.3]
-
-## Alpha changes
-
-- Fixed some CTR controllers not showing correctly
-
-## Improvements and changes
-
-- Added local debug menu to test route parsing, add fake ATCs and enable beta VATGlasses feed, available in Settings → Debug mode
-
-# [2.0.0-alpha.7.2]
-
-## Alpha changes
-
-- Fixed VATGlasses dynamic not working
-- Restored FIRs borders
-- Fixed some runways parsing
-
-## Performance Improvements
-
-- Reworked datafeed to be more compact
-
-# [2.0.0-alpha.7.1]
-
-## Alpha Changes
-
-- Fixed VATGlasses crashing sometimes
-- Fixed VATGlasses combined mode (multiple fixes there)
-- Fixed rare crashes of airport/atc list
-- Fixed VATGlasses rerendering much more often than needed
-
-# [2.0.0-alpha.7]
-
-Sectors and airports list render has been reworked from scratch. Please take a moment to compare what you see with production Radar.
-
-## Improvements and changes
-
-- Bookings are now rendered in VATGlasses mode; bookings not showing up or duplicated facilities issues have all been fixed
-- VATGlasses controllers and TRACONs covering multiple airports are now properly shown in "ATC" tab of pilot or airport
-- Added active runway parsing from ATIS on airport/ATIS, as well as runway auto-select for VATGlasses
-- Airport counters update will be much faster now
-- "Booked until" will now be displayedvb for controllers on hover
+- Filters Favorite Lists will now show list name instead of ID after it has been selected
+- Filters are now responsive, applied instantly after you modify them. Auto-save is not enabled for filters
+- A separate Enable toggle (active by default) will now show in Filters to quickly disable them
+- Significantly improved filter apply speed
+- Added a clear indication that temporal filter is applied
+- Login flow to VATSIM, Navigraph, as well as Logout has been improved, placing you to the same page you have left when pressed login/logout
 
 ## Bug Fixes
 
-- Fixed many bookings not showing up
-
-## Performance Improvements
-
-- Significantly improved performance for VATGlasses mode
-- Significantly improved memory usage for VATGlasses mode, not consuming it for countries that are not rendered
-- Reduced traffic used on regular updates
-
-## Technical changes
-
-- Pilot "At Gate" status has been removed to improve performance. Only departing and arrived now remain
-- VATGlasses combined mode is now always rendered on device, leading to a very slow initial render. This mode is not widely used, yet it had separate server instance
-- Reworked controllers/sectors logic to be on frontend, leading to improved server worker update time, reduced delay, and a better code in general, for a small performance cost
-
-# [2.0.0-alpha.6.4]
-
-- Implement ZME TRACON Duplication
-- Add MMEX ACC TMA duplicating for VATMEX
-- Add HCF Center and TRACONs to ATC duplication
-- Duplicated controllers are now properly filtered from airport if a real controller is sitting there
-- If one position is duplicated by both CTR and APP controllers, CTR will no longer show up
-- Fixed duplicated color when custom setting is used
-- Duplicating RegExp will no longer trigger by random words in ATIS
-
-# [2.0.0-alpha.6.3]
-
-## Preprod changes
-
-Those changes are production candidates!
-
-- Fixed coordinate format `6800E` not parsing correctly
-- Fixed some terminal waypoints replacing enroute waypoints if they have same identifier and region
-
-## Alpha changes
-
-- Fixed a setting to hide map airports not working
-
-# [2.0.0-alpha.6.2]
-
-## Alpha changes
-
-- Fixed map crash when restoring overlay of a pilot or atc that gone offline
-- Added longtap support for collapsed airports on touch devices to view arrival rate instead of it showing on click
-- Fixed overlays not saving on mobile
-- Fixed airport dashboard crashing on opening
-
-# [2.0.0-alpha.6.1]
-
-This release is focused on V2 feedback.
-
-## Alpha changes
-
-- Fixed some overlays not being restored after page reload
-- Fixed minified overlays zone blocking map interaction
-- Slightly changed pilot context menu UI
-- Fixed overlay content disappearing on mobile if overlay was collapsed
-- Collapsed overlays will no longer auto open on mobile
-- Fixed SIGMET and Navigraph popup closing when moving mouse in any direction except into overlay
-- Added close buttons to SIGMET and Navigraph overlays
-- Fixed context menu opening unstable
-- Fixed Firefox favicon looking goofy
-- New "General" map settings: short airport view and aircraft declutter
-- Slight new footer redesign
-- Fixed duplicated positions stroke color
-- Fixed colors not saving sometimes
-- Added arrival rate when hovering over collapsed airport overlay
-
-# [2.0.0-alpha.6]
-
-## Alpha changes
-
-- Fixed overlays being too wide on some displays
-- Reworked the way overlays are restored internally
-- Reworked the way cursor is changed internally when hovering features for much better and consistent experience
+- Fixed NOTAM overlapping with open overlay on PC
 
 ## Redesign
 
-- Redesigned copy info block
-- Redesigned attributions
-- Redesigned footer
-
-## Improvements and changes
-
-- Added context menu when clicking on aircraft, atc or airport
-- Hovered pilot and atc info now always show friend name and comment
-- Added a way to minify any overlay
-- Overlay actions are no longer pinned to bottom of the screen on mobile devices
-- Navigraph procedures will now be automatically cleared if airport overlay is closed
-- Procedures will now show in Airport Dashboard even if airport is not found in VATSIM AIP
-- Pilot overlay data updates are now happening less often
-
-# [2.0.0-alpha.5.4]
-
-## Preprod changes
-
-Those changes are production candidates! Please test them
-
-- Fixed airways merging
-- Fixed raw coordinates detection, supporting those coordinates: N4930W01520 49/1520 570021N0380421E 07N178W 0330N18000E
-- Fixed meridian line sometimes not connecting properly
-
-# [2.0.0-alpha.5.3]
-
-## Alpha Changes
-
-- Started overlays redesign, very early changes for now
-- Restored /sigmets page functionality
-- Added small animation for hover effect
-- Fixed hover not working on tablet view/small screens (hovering is now disabled for touch devices only)
-- Fixed some holdings not disappearing
-
-# [2.0.0-alpha.5.2]
-
-## Alpha Changes
-
-- Flight plan remarks height now default to  3 lines
-- Fixed aircraft flashing with callsign on first load
-- Minor bug fixes
-
-## Improvements and changes
-
-- Fixed atc time text color in light theme
-
-# [2.0.0-alpha.5.1]
-
-## Alpha Changes
-
-- Fixed self flight waypoints flickering
-- Fixed self flight line not updating
-- Fixed some tracks or routes not clearing up
-
-# [2.0.0-alpha.5]
-
-## Alpha Changes
-
-- VATGlasses sector labels now declutter with airports (with airports having priority)
-- Repositioned aircraft hover to always be placed nicely, but you won't be able to hover it anymore. I mean, you could just click the aircraft! 
-- Changed FIR/ARTCC label background to be more like on production
-- Moved Navigraph Layers to new render/select system
-
-### Mobile hovering improvements
-
-- Hover interactions have been disabled on touch devices
-- Click interactions have been reworked on touch devices to do what hover does on PC
-
-## Improvements and changes
-
-- Airway direction is now specified as next waypoint instead of "Forward" or "Backwards"
-- Removed blue highlight when you click the map
-- Navigraph AIRAC data now updates faster and in background
-- Initialization popup will not show if nothing to update
-
-## Bug Fixes
-
-- Fixed Retry button in Init Popup not closing popup if retry was successful
-- In case any of browser database methods will fail during initialization, database will be destroyed, and page will be reloaded for a complete update (assuming DB is corrupted, requiring to fix it manually before)
-
-## Redesign
-
-- Redesigned Navigraph on-click overlay
-- Redesigned pilot on-hover overlay
-- Redesigned tooltips
-
-## Performance improvements
-
-- Significantly reduced memory used by Navigraph Airways layer, added a cache for faster rendering and changed design a bit, so it's now worth giving this layer a go
-- Significantly improved performance and memory usage when rendering holdings, especially when rendering enroute holdings (all holdings layer is not enabled). Previous code was terrible. Who wrote that? Jesus.
-- Improved performance of Navigraph Layers, such as NBD, VORDME, Waypoints, as well as route rendering
-- Improved performance and memory usage of route rendering
-- Greatly improved speed of route rendering
-- Turns update has been slowed down to 5 seconds per aircraft
-
-# [2.0.0-alpha.4.3]
-
-- Fixed graphical artifacts for aircraft tracks
-
-# [2.0.0-alpha.4.2]
-
-## Alpha Changes
-
-- Fixed aircraft on-hover popup position
-
-# [2.0.0-alpha.4.1]
-
-## Alpha Changes
-
-- Fixed Gates color not changing when they are no longer occupied
-- Performance improvements for gates occupation check
-- Fixed rare airports (KLAX as an example) having incorrect on-hover name
-- Fixed CTAF frequency showing as suspended and not tuned up
-- Fixed flight track not displayed when pilot overlay is opened
-- Fixed click action always opening same airport
-
-# [2.0.0-alpha.4]
-
-Known Issues: 
-- Distance tool is INOP in all worlds except original
-- Navigraph Data has not yet been reworked to use new select system and can conflict when clicking
-
-## Improvements and changes
-
-- Significantly improved aircraft hovering stability and predictability
-- Removed aircraft on-hover delay separate setting in favor of global hover setting
-- Friend name is now always displayed in pilot hover popup
-- Implemented dynamic on-hover aircraft position (based on heading only)
-- Completely reworked map interactions with clear priorities and multiselect support
-- Significantly improved distance tool update speed when attach to an aircraft
-
-## Performance Improvements
-
-- Reworked aircraft render for much better performance, including speed of render and reduced memory and cpu usage of both aircraft and tracks update
-- Significantly improved tracks render smoothness and delay
-- Improved performance in Airport Dashboard
-
-# [2.0.0-alpha.3]
-
-## Improvements and changes
-
-- Implement on-hover delay
-- Added an ID for VATGlasses sectors
-
-## Performance Improvements
-
-- Significantly reduced memory usage for airlines icao codes
-- VATGlasses will now detach and stop updating when disabled after being enabled
-
-# [2.0.0-alpha.2]
-
-## Improvements and changes
-
-- Map is now infinite
-- Settings color reset now respects all further color changes
-- Airports are now "decluttered" when zoomed out
-- Added compact facility view when too much info is shown (`Max counters to show` setting value)
-- Mobile on-hover overlays are now fixed to bottom of the screen and centered. Wow!
-- Approach transition will now be automatically parsed from flight plan
-- Approach transition will now be automatically parsed from flight plan
-
-## Redesign
-
-- Map on-click info popup redesign
-- ATC icons redesign
-- Controller info redesign
-- New logo
-- New font
-
-## Performance Improvements
-
-- Improved performance of airports/ATC data update
-- Reworked airports render for better memory usage
-- Removed memory consumption on SimAware data
-- Reduced gates memory consumption on render
+- Tables redesign
+- Redesigned friends status: you can now click on individual links instead of one big link
+- Redesigned VATGlasses slider for a consistent look in all browsers
+- Slightly improved filters design
+- Removed filter icon from Search: search settings can now be configured in Settings v2 instead
+- Changed icons in Presets Manage so they would better reflect the action they do
+- Combobox arrow will now disappear, if there is nothing to select
 
 # [1.2.4-8]
 

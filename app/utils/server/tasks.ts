@@ -23,7 +23,7 @@ import {
     updateTransceivers,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';
-import S3 from 'aws-sdk/clients/s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
@@ -197,7 +197,7 @@ async function vatsimTasks() {
             let minutes: string | number = parseInt(current.duration);
             if (isNaN(minutes)) minutes = current.duration;
 
-            if (current.status === 'NOTSTARTEDYET') {
+            if (current.status === 'NOTSTARTEDYET' && date.getTime() - (1000 * 60 * 60) <= Date.now()) {
                 notam = {
                     id: new Date(current.start ?? new Date().toISOString()).getTime(),
                     type: NotamType.ANNOUNCEMENT,
@@ -237,17 +237,19 @@ async function vatsimTasks() {
     await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
 }
 
-let s3: S3 | undefined;
+let s3: S3Client | undefined;
 
 function backupTask() {
     defineCronJob('0 0 * * *', async () => {
         if (isDebug() || !process.env.CF_R2_API) return;
 
-        s3 ??= new S3({
+        s3 ??= new S3Client({
             endpoint: process.env.CF_R2_API,
-            accessKeyId: process.env.CF_R2_ACCESS_ID,
-            secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
-            signatureVersion: 'v4',
+            region: 'auto',
+            credentials: {
+                accessKeyId: process.env.CF_R2_ACCESS_ID!,
+                secretAccessKey: process.env.CF_R2_ACCESS_TOKEN!,
+            },
         });
 
         const {
@@ -264,16 +266,13 @@ function backupTask() {
 
         const date = new Date();
 
-        s3.upload({
+        await s3.send(new PutObjectCommand({
             Bucket: 'backups',
             Expires: new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)),
             Body: readFileSync(join(process.cwd(), 'dump.sql')),
             Key: `radar/${ date.getFullYear() }-${ date.getMonth() }-${ date.getDate() }-${ process.env.DOMAIN!.replace('https://', '').split(':')[0] }-${ date.getHours() }-${ date.getMinutes() }.sql`,
             ContentType: 'application/sql',
-        }, (err, data) => {
-            if (err) console.error(err);
-            if (data) console.info('Backup completed', data.Location);
-        });
+        })).then(() => console.info('Backup completed')).catch(console.error);
     }).catch(console.error);
 }
 
@@ -341,7 +340,7 @@ async function patreonTask() {
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
 
-        let counter = 0;
+        let counter: number;
         let nextLink = '';
 
         const patrons: PatreonPledge[] = [];

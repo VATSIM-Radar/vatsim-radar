@@ -34,7 +34,7 @@
             </div>
         </template>
         <div class="entry-tooltip-container">
-            <template v-if="store.mapSettings.bookingsLocalTimezone">
+            <template v-if="bookingsLocalTimezone">
                 {{ localStart }} - {{ localEnd }}
             </template>
             <template v-else>
@@ -84,9 +84,10 @@ const props = defineProps({
 });
 
 const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 
-const localStart = computed(() => makeBookingTime(props.entry.start, store.mapSettings.bookingsLocalTimezone ?? false));
-const localEnd = computed(() => makeBookingTime(props.entry.end, store.mapSettings.bookingsLocalTimezone ?? false));
+const localStart = computed(() => makeBookingTime(props.entry.start, bookingsLocalTimezone.value));
+const localEnd = computed(() => makeBookingTime(props.entry.end, bookingsLocalTimezone.value));
 
 function getEntryStyle() {
     const entry = props.entry;

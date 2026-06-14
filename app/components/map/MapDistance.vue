@@ -31,8 +31,7 @@ import { getLength } from 'ol/sphere.js';
 import type { Geometry } from 'ol/geom.js';
 import { LineString, Point } from 'ol/geom.js';
 import { unByKey } from 'ol/Observable.js';
-import VectorLayer from 'ol/layer/Vector';
-import { useStore } from '~/store';
+import VectorLayer from 'ol/layer/Vector.js';
 import {
     calculateHeadingPair,
     buildHeadingStyles,
@@ -47,9 +46,9 @@ import { createMapFeature } from '~/utils/map/entities';
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const store = useStore();
 
 let drawing: Draw | null = null;
+let sketchListener: EventsKey | undefined;
 
 const tooltip = ref<Coordinate | null>(null);
 const tooltipRotation = ref(0);
@@ -61,6 +60,23 @@ const currentResult = ref<string | null>(null);
 const features = shallowRef<Feature[]>([]);
 const fromHeading = ref<string>('---');
 const toHeading = ref<string>('---');
+
+function resetDistanceDraft() {
+    mapStore.distance.pixel = null;
+    mapStore.distance.initAircraft = null;
+    mapStore.distance.targetAircraft = null;
+    mapStore.distance.overlayOpenCheck = false;
+
+    sketch.value = null;
+    tooltip.value = null;
+    tooltipRotation.value = 0;
+    currentResult.value = null;
+
+    if (sketchListener) {
+        unByKey(sketchListener);
+        sketchListener = undefined;
+    }
+}
 
 const distanceDisplay = computed(() => {
     const distance = currentResult.value ?? '';
@@ -87,10 +103,9 @@ const formatLength = function(line: Geometry) {
 
     let unit: keyof typeof units = 'nmi';
 
-    if (store.localSettings.distance?.units) {
-        if (store.localSettings.distance.units === 'imperial') unit = 'mi';
-        if (store.localSettings.distance.units === 'metric') unit = 'km';
-    }
+    const selectedUnit = getKeyedValueFromSettings('map.layers.distance.units');
+    if (selectedUnit === 'imperial') unit = 'mi';
+    if (selectedUnit === 'metric') unit = 'km';
 
     const u = units[unit](meters);
     return `${ u.value.toFixed(1) } ${ u.suffix }`;
@@ -111,7 +126,7 @@ const drawStyle = (feature: FeatureLike) => {
     return [lineStyle, ...buildHeadingStyles({ map, geometry, drawing: true })];
 };
 
-watch(() => store.localSettings.distance?.units, () => {
+watch(() => getKeyedValueFromSettings('map.layers.distance.units'), () => {
     features.value = [];
     updateItems();
 });
@@ -186,6 +201,7 @@ watch(() => mapStore.distance.pixel, pixel => {
     if (drawing) {
         map.value?.removeInteraction(drawing);
         drawing.dispose();
+        drawing = null;
     }
 
     if (!pixel) return;
@@ -203,12 +219,10 @@ watch(() => mapStore.distance.pixel, pixel => {
         geometryFunction: createGeodesicGeometry,
     });
 
-    let listener: EventsKey | undefined;
-
     drawing.on('drawstart', event => {
         sketch.value = event.feature;
 
-        listener = sketch.value.getGeometry()!.on('change', function(evt) {
+        sketchListener = sketch.value.getGeometry()!.on('change', function(evt) {
             const geom = evt.target as LineString;
 
             const pair = calculateHeadingPair(map, geom);
@@ -243,16 +257,7 @@ watch(() => mapStore.distance.pixel, pixel => {
         });
 
         // Reset
-        mapStore.distance.pixel = null;
-        mapStore.distance.initAircraft = null;
-        mapStore.distance.targetAircraft = null;
-
-        sketch.value = null;
-        tooltip.value = null;
-        tooltipRotation.value = 0;
-        if (listener) {
-            unByKey(listener);
-        }
+        resetDistanceDraft();
     });
 
     map.value?.addInteraction(drawing);
@@ -313,11 +318,14 @@ onBeforeUnmount(() => {
     if (drawing) {
         map.value?.removeInteraction(drawing);
         drawing.dispose();
+        drawing = null;
     }
 
     if (layer) {
         map.value?.removeLayer(layer);
     }
+
+    resetDistanceDraft();
 });
 </script>
 

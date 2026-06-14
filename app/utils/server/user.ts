@@ -63,7 +63,7 @@ export interface FullUser {
     hasCharts: boolean | null;
     cid?: string;
     fullName?: string;
-    settings: UserSettings;
+    settings: Pick<UserSettings, 'seenVersion' | 'settingsAutoSave'>;
     discordId: string | null;
     lists: UserList[];
     messages: UserMessage[];
@@ -83,6 +83,7 @@ export interface UserSettings {
     showFullRoute?: boolean;
     headerName?: string;
     seenVersion?: string;
+    settingsAutoSave?: boolean;
     favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
 }
 

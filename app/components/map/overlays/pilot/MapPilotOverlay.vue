@@ -28,7 +28,7 @@
                 disabled: !atcSections.length,
             },
         }"
-        @collapsedSection="(event) => event.key === 'achievements' ? (collapsedAchievements = event.value) : event.key === 'ipfs' ? (collapsedViff = event.value) : event.key === 'photo' ? (collapsedPhoto = event.value) : undefined"
+        @collapsedSection="$event.key === 'achievements' ? (collapsedAchievements = $event.value) : $event.key === 'ipfs' ? (collapsedViff = $event.value) : $event.key === 'photo' ? (collapsedPhoto = $event.value) : undefined"
         @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
@@ -140,19 +140,8 @@
             v-if="depAirport"
             #procedures
         >
-            <ui-notification
-                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
-                remember-message="FULL_ROUTE_TIP"
-                type="info"
-            >
-                Want to always show full route? Visit <a
-                    class="__link"
-                    href="#"
-                    @click.prevent="store.settingsPopup = true"
-                >settings</a>.
-            </ui-notification>
             <ui-toggle
-                v-if="!store.localSettings.disableNavigraphRoute"
+                v-if="routeParsingEnabled"
                 v-model="overlay.data.fullRoute"
             >
                 Show full route
@@ -297,7 +286,6 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
-import UiNotification from '~/components/ui/data/UiNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
@@ -343,6 +331,7 @@ const collapsedPhoto = useCookie<boolean>('collapsedPhoto', {
 const copy = useCopyText();
 
 const store = useStore();
+const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();

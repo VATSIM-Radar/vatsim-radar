@@ -62,7 +62,7 @@ export interface UserListLiveUserSup extends UserListUser {
 }
 
 export interface UserListLiveUserOffline extends UserListUser {
-    type: 'offline';
+    type: 'offline' | 'new';
     data?: undefined;
 }
 

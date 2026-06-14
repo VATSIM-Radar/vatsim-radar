@@ -27,9 +27,9 @@
                 </div>
             </div>
             <ui-notification type="info">
-                Relevant real-time v2 progress is available on <a
+                All considering issues are available on <a
                     class="__link"
-                    href="https://github.com/orgs/VATSIM-Radar/projects/3"
+                    href="https://github.com/VATSIM-Radar/vatsim-radar/issues"
                     target="_blank"
                 >Github</a>
             </ui-notification>
@@ -91,6 +91,9 @@
                                             <template v-else-if="group.status === 'in-progress'">
                                                 In progress
                                             </template>
+                                            <template v-else-if="group.status === 'tentative'">
+                                                Considering
+                                            </template>
                                             <template v-else-if="group.status === 'next'">
                                                 Done in Next
                                             </template>
@@ -115,7 +118,7 @@ import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 
-type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none';
+type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none' | 'tentative';
 
 interface Item {
     title: string;
@@ -136,7 +139,7 @@ useHead({
 
 const roadmap = reactive<Roadmap[]>([
     {
-        title: 'Open Beta',
+        title: 'Released',
         completed: true,
         items: [
             'VatSPY FIRS/UIRS API',
@@ -149,12 +152,6 @@ const roadmap = reactive<Roadmap[]>([
             'Cyrillic decode',
             'Gates',
             'Settings',
-        ],
-    },
-    {
-        title: 'v1.0',
-        completed: true,
-        items: [
             {
                 title: 'Arrivals rate',
                 status: 'completed',
@@ -269,14 +266,9 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Friendly mobile version',
                 status: 'completed',
             },
-        ],
-    },
-    {
-        title: 'V2.0',
-        items: [
             {
                 title: 'Pilot/airport mouse context menu',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Oceanic Tracks integration',
@@ -284,15 +276,15 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Smart positioning for aircraft info popup',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Select/Interaction/Render rework',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Infinite Map',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
@@ -354,64 +346,48 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Settings Page',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Image of aircraft type',
-                status: 'next',
+                status: 'completed',
             },
-            'Friends list UX improvements',
-            'Filters UX improvements',
+            { title: 'Friends list UX improvements', status: 'completed' },
+            { title: 'Filters UX improvements', status: 'completed' },
             {
                 title: 'Events/ATC Bookings 2.0',
                 description: 'Events on map, improved bookings display',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Takeoff and arrival actual time',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Images or aircraft type, airline + operator',
-                status: 'next',
+                status: 'completed',
             },
         ],
     },
     {
-        title: 'Post-V2.0',
+        title: 'v2.1',
         items: [
             {
                 title: 'Historical Stats',
                 description: 'Popular over time etc',
             },
-            'Flights/controllers sessions history, VATSIM user page',
-            'History of events / events traffic',
+            { title: 'Desktop Application', status: 'tentative' },
+            { title: 'Theme Market', status: 'tentative' },
+            { title: 'Flights/controllers sessions history, VATSIM user page' },
+            { title: 'History of events / events traffic' },
         ],
     },
     {
-        title: 'Considering',
-        description: 'Those features may eventually arrive, but are still considered if they will be done at all, or at what point',
+        title: 'v2.x',
         items: [
-            'PIREPs',
-            'Stream Deck integration',
-            'Settings Presets market',
-            'Google Play app',
-            'ATC/Booking notification for active flight',
-            'Events alerts',
-            {
-                title: 'Dynamic auto-zoom and flight following',
-                description: 'Automatic zoom during phases of flight, map direction synced with heading',
-            },
-            'ECFMP integration',
-            'Twitch/streamers integration',
-            'Aircraft collision prediction',
-            {
-                title: 'Gates status in airport popup/dashboard',
-                description: 'It is to be decided do we really need this and where specifically',
-            },
-            'Hoppie integration',
-            'Lock North button',
-            'Desktop Application',
+            { title: 'ATC Alerts', status: 'tentative' },
+            { title: 'Events Alerts', status: 'tentative' },
+            { title: 'PIREPs', status: 'tentative' },
         ],
     },
 ]);
@@ -446,8 +422,9 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         'in-progress': 0,
         todo: 1,
         next: 2,
-        none: 3,
-        completed: 4,
+        tentative: 3,
+        none: 4,
+        completed: 5,
     };
 
     return groups.sort((a, b) => {
@@ -527,6 +504,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
             &--status-in-progress::before {
                 background: $blue500
+            }
+
+            &--status-tentative::before {
+                background: $citrus500
             }
 
             &--status-completed::before {
@@ -677,6 +658,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &--status-in-progress {
             --status-color: #{$blue500};
+        }
+
+        &--status-tentative {
+            --status-color: #{$citrus500};
         }
 
         &--status-next {

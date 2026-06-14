@@ -12,6 +12,7 @@
         >
         <span class="radio_icon"/>
         <ui-text
+            v-if="!hideText"
             class="radio_text"
             tag="span"
             type="2b-medium"
@@ -20,7 +21,7 @@
                 {{ text || value }}
             </slot>
         </ui-text>
-        <span class="radio_spacer"/>
+        <span v-if="hint || $slots.hint" class="radio_spacer"/>
         <ui-tooltip
             v-if="hint || $slots.hint"
             class="radio_tooltip"
@@ -50,6 +51,7 @@ export interface RadioItem<T extends string | number | boolean | null = string |
     text?: string;
     hint?: string;
     hintLocation?: TooltipLocation;
+    hideText?: boolean;
 }
 
 defineProps<RadioItem & { name?: string }>();

@@ -1,4 +1,4 @@
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { Text, Stroke, Style, Fill } from 'ol/style.js';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
@@ -10,7 +10,7 @@ import type { SettingsColorType } from '~/composables/settings/colors';
 import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style | Style[]> = {};
@@ -115,7 +115,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             }));
         }
 
-        if (!labelType && !label && useStore().localSettings.filters?.layers?.layer === 'basic') {
+        if (!labelType && !label && getKeyedValueFromSettings('map.layers.layer') === 'basic') {
             cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.03)`);
         }
 
@@ -133,6 +133,8 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     return cachedStyle;
 }
 
+const vatglassesLabelsEnabled = globalComputed(() => getKeyedValueFromSettings('map.visibility.vatglassesLabels'));
+
 const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProperties, transparent: boolean): Style => {
     let rgba: string;
 
@@ -143,11 +145,12 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green500').join(',');
     }
 
-    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }`;
+    const labelsEnabled = vatglassesLabelsEnabled().value;
+    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }-${ String(labelsEnabled) }`;
 
     if (!styleCache[key]) {
         styleCache[key] = new Style({
-            text: positionId
+            text: (positionId && labelsEnabled)
                 ? new Text({
                     font: getTextFont('caption-medium'),
                     text: positionId,
@@ -172,7 +175,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         });
     }
 
-    if (positionId) {
+    if (positionId && labelsEnabled) {
         (styleCache[key] as Style).getText()!.setFill(getCachedFill(`rgba(${ rgba }, ${ transparent ? 0 : 1 })`));
         (styleCache[key] as Style).getText()!.setText(positionId);
     }
@@ -208,6 +211,13 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
         }
 
         if (!labelType && isMapFeature('sector-vatglasses', properties)) {
+            const store = useStore();
+            const combined = getKeyedValueFromSettings('map.vatglasses.combined');
+            const combineBands = combined && getKeyedValueFromSettings('map.vatglasses.combineBands');
+            if (!combined || combineBands) {
+                const level = store.localSettings.vatglassesLevel ?? 999;
+                if (properties.min > level || properties.max < level) return undefined;
+            }
             return vatglassesStyle(properties, hideOnZoom);
         }
     });

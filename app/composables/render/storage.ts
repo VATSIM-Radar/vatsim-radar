@@ -11,7 +11,7 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import { getCurrentInstance } from 'vue';
-import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
+import type { Ref, ShallowRef } from 'vue';
 import type {
     RadarDataAirline,
     Sigmets,
@@ -47,11 +47,14 @@ import {
 import type { PartialRecord } from '~/types';
 import type { UserList } from '~/utils/server/handlers/lists';
 
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Feature, MultiPolygon } from 'geojson';
 import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 import { initControllersUpdate } from '~/composables/render/update';
+import { ownFlight } from '~/composables/vatsim/pilots';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -115,6 +118,7 @@ const data: VatsimData = {
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
+    tracksPilotsData: ref({}),
     parsedAirports: shallowRef<Record<string, AirportListItem>>({}),
     parsedAirportsList: computed(() => Object.values(vatsim.parsedAirports.value)),
     // For fast turn-on in case we need to restore mandatory data
@@ -172,6 +176,7 @@ export interface DataAirport {
         arrivals: number[];
     }>;
     aircraftCount: number;
+    visible?: boolean;
     departureCall?: string;
     departureCallPosition?: string;
     vgRunways?: string[];
@@ -212,6 +217,7 @@ export interface UseDataStore {
         parsedAirportsList: Ref<AirportListItem[]>;
 
         tracks: ShallowRef<VatsimNattrakClient[]>;
+        tracksPilotsData: Ref<Record<number, Partial<InfluxGeojson>>>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;
@@ -521,11 +527,11 @@ function initBookings() {
 
     function updateEnd() {
         const d = new Date();
-        d.setTime(Date.now() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+        d.setTime(Date.now() + ((((getKeyedValueFromSettings('map.bookings.hours')) * 60) * 60) * 1000));
         end.value = d.getTime();
     }
 
-    const bookingHours = computed(() => store.mapSettings.bookingHours);
+    const bookingHours = computed(() => getKeyedValueFromSettings('map.bookings.hours'));
     // Every 15 minutes
     const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 5);
 
@@ -560,11 +566,11 @@ function initEvents() {
 
     function updateStart() {
         const d = new Date();
-        d.setTime(Date.now() + ((((store.mapSettings.eventsHours ?? 2) * 60) * 60) * 1000));
+        d.setTime(Date.now() + (((getKeyedValueFromSettings('map.events.hours') * 60) * 60) * 1000));
         start.value = d.getTime();
     }
 
-    const eventsHours = computed(() => store.mapSettings.eventsHours);
+    const eventsHours = computed(() => getKeyedValueFromSettings('map.events.hours'));
     // Every 30 minutes
     const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 30);
 
@@ -596,20 +602,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
-    function receiveMessage(event: MessageEvent) {
-        if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
-            return;
-        }
-
-        if (event.source === window) return; // the message is from the same window, so we ignore it
-
-        if (event.data && 'type' in event.data && event.data.type === 'efbX') {
-            store.isTabVisible = event.data.action === 'resume';
-            if (store.isTabVisible) store.getVATSIMData(true);
-        }
-    }
-
-    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
+    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate');
 
     function startIntervalChecks() {
         vgInterval = setInterval(async () => {
@@ -662,15 +655,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
-        let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
-        window.addEventListener('message', receiveMessage);
 
-        watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+        watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            watcher?.();
+            ws?.();
             if (val !== true) {
                 ws = checkForWSData(isMounted);
             }
@@ -735,7 +726,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
     onBeforeUnmount(() => {
         document.removeEventListener('visibilitychange', setVisibilityState);
-        window.removeEventListener('message', receiveMessage);
         isMounted.value = false;
         ws?.();
         if (interval) clearInterval(interval);
@@ -796,11 +786,16 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }
 
 export function checkFlightLevel(level: NavDataFlightLevel) {
-    const store = useStore();
+    let ifrMode = getKeyedValueFromSettings('map.navigraph.layers.ifrMode');
+    const autoIfr = getKeyedValueFromSettings('map.navigraph.layers.ifrAuto');
 
-    if (level === 'B' || level === null || !store.mapSettings.navigraphData?.mode || store.mapSettings.navigraphData.mode === 'both') return true;
+    if (level === 'B' || level === null || !ifrMode || ifrMode === 'both') return true;
 
-    if (store.mapSettings.navigraphData?.mode && store.mapSettings.navigraphData?.mode !== 'ifrHigh') {
+    if (autoIfr && ownFlight.value) {
+        ifrMode = getPilotTrueAltitude(ownFlight.value) >= 18000 ? 'ifrHigh' : 'ifrLow';
+    }
+
+    if (ifrMode !== 'ifrHigh') {
         return level === 'L';
     }
     else return level === 'H';

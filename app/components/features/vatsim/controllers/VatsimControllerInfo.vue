@@ -125,8 +125,8 @@
             </template>
             <template v-else-if="controller.booking">
                 Booked from
-                {{ makeBookingTime(controller.booking?.start, store.mapSettings.bookingsLocalTimezone) }} to {{ makeBookingTime(controller.booking?.end, store.mapSettings.bookingsLocalTimezone) }}
-                <template v-if="!store.mapSettings.bookingsLocalTimezone">
+                {{ makeBookingTime(controller.booking?.start, bookingsLocalTimezone) }} to {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}
+                <template v-if="!bookingsLocalTimezone">
                     Z
                 </template>
             </template>
@@ -142,7 +142,6 @@ import { useMapStore } from '~/store/map';
 import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers/VatsimControllerTimeOnline.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import { getStringColorFromSettings } from '~/composables/settings/colors';
-import { useStore } from '~/store';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import UiChip from '~/components/ui/text/UiChip.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
@@ -188,7 +187,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
-const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 
 const additionalFrequencies = computed(() => {
     return props.controller.frequencies?.filter(x => {
@@ -207,11 +206,13 @@ const isATIS = computed(() => {
 });
 
 const handleClick = () => {
-    if (!findAtcByCallsign(props.controller.callsign)) {
+    const callsign = props.controller?.duplicatedBy ?? props.controller?.callsign;
+
+    if (!findAtcByCallsign(callsign)) {
         window.open(`https://stats.vatsim.net/stats/${ props.controller.cid }`, '_blank');
         return;
     }
-    mapStore.addAtcOverlay(props.controller.callsign);
+    mapStore.addAtcOverlay(callsign);
     emit('overlay', props.controller);
 };
 
@@ -296,6 +297,7 @@ const isCopied = (key: string) => {
 
         &--secondary {
             margin-top: 0;
+            padding-bottom: 0;
             color: currentColor;
         }
 
@@ -340,6 +342,13 @@ const isCopied = (key: string) => {
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
+
+        margin-bottom: 4px;
+        padding: 4px 0;
+        border: dashed $strokeDefault;
+        border-width: 1px 0;
+
+        opacity: 0.8;
     }
 }
 </style>

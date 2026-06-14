@@ -2,11 +2,13 @@ import type { UserSettings } from '~/utils/server/user';
 import { findUserByCookie } from '~/utils/server/user';
 import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
 import { prisma } from '~/utils/server/prisma';
+import type { InputJsonObject } from '@prisma/client/runtime/client';
 
 const sortOptions: UserSettings['favoriteSort'][] = ['newest', 'oldest', 'abcAsc', 'abcDesc', 'cidAsc', 'cidDesc'];
 const timeOptions: UserSettings['timeFormat'][] = ['24h', '12h'];
 
 const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
+    settingsAutoSave: val => typeof val === 'boolean',
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
     autoShowAirportTracks: val => typeof val === 'boolean',
@@ -69,7 +71,7 @@ export default defineEventHandler(async event => {
                 id: user.id,
             },
             data: {
-                settings: JSON.stringify(body),
+                settings: body as InputJsonObject,
             },
         });
     }

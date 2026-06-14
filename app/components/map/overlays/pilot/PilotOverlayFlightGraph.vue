@@ -44,7 +44,7 @@ const dataStore = useDataStore();
 const store = useStore();
 
 const formatter = computed(() => new Intl.DateTimeFormat(['de-DE'], {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'UTC',

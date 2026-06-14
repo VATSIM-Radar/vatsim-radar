@@ -154,7 +154,7 @@
         </ui-notification>
 
         <settings-favorite-users
-            :key="String(store.user?.settings.favoriteSort)"
+            :key="String(favoriteSort)"
             :list
         />
 
@@ -363,6 +363,7 @@ const importedList = ref<UserListUser[]>([]);
 const vatSpyImport = ref<VatspyFilter[] | null>(null);
 const toClear = ref(false);
 const store = useStore();
+const favoriteSort = useSettingValueFromFunc('appearance.favoriteSort');
 const activeListSettings = ref(0);
 const fileInput = useTemplateRef<HTMLInputElement>('fileImport');
 

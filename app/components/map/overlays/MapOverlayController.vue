@@ -96,20 +96,22 @@
             </div>
         </template>
         <template #frequencies>
-            <ui-notification
-                remember-message="ATC_FREQUENCIES"
-                type="info"
-            >
-                Those are frequencies this ATC is listening to - you should only contact this ATC on primary frequency, unless instructed otherwise (highlighted with blue)
-            </ui-notification>
-            <div class="atc__frequencies">
-                <div
-                    v-for="frequency in atc.frequencies?.filter((x, index) => !atc?.frequencies?.some((y, yIndex) => x === y && yIndex < index))"
-                    :key="frequency"
-                    class="atc__frequencies_item"
-                    :class="{ 'atc__frequencies_item--primary': atc.frequency === frequency }"
+            <div class="__vertical-group-16">
+                <ui-notification
+                    remember-message="ATC_FREQUENCIES"
+                    type="info"
                 >
-                    {{frequency}}
+                    Those are frequencies this ATC is listening to - you should only contact this ATC on primary frequency, unless instructed otherwise (highlighted with blue)
+                </ui-notification>
+                <div class="atc__frequencies">
+                    <div
+                        v-for="frequency in atc.frequencies?.filter((x, index) => !atc?.frequencies?.some((y, yIndex) => x === y && yIndex < index))"
+                        :key="frequency"
+                        class="atc__frequencies_item"
+                        :class="{ 'atc__frequencies_item--primary': atc.frequency === frequency }"
+                    >
+                        {{frequency}}
+                    </div>
                 </div>
             </div>
         </template>

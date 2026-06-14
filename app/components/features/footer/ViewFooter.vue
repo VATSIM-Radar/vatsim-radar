@@ -23,6 +23,7 @@
                 <popup-aside
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
+                    header-no-padding-bottom
                     width="480px"
                 >
                     <template #title>
@@ -34,10 +35,11 @@
             </div>
 
             <div
-                v-if="(store.friends.length || store.bookmarks.length) &&  store.viewport.width > 1000"
+                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700 && store.viewport.height > 500"
                 class="map-footer_left_section"
             >
                 <ui-button
+                    v-if="store.viewport.width > 1000"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
                     @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
@@ -50,32 +52,33 @@
 
                     Favorite
                 </ui-button>
+                <ui-button
+                    v-else
+                    class="map-footer__friends"
+                    size="S"
+                    :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
+                    @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
+                >
+                    <template #icon>
+                        <star-filled-icon/>
+                        <ui-bubble
+                            class="map-footer__friends-bubble"
+                            :type="!store.friends.length ? 'secondary' : 'primary'"
+                        >
+                            {{ store.friends.length }}
+                        </ui-bubble>
+                    </template>
+                </ui-button>
 
                 <popup-aside
                     v-model="store.menuFriendsOpen"
                     center-by="start"
+                    header-no-padding-bottom
                     max-height="370px"
                     width="480px"
                 >
                     <template #title>
-                        <div class="map-footer__favorite">
-                            <span>Favorite</span>
-
-                            <ui-button
-                                size="S"
-                                type="secondary"
-                                @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
-                            >
-                                Manage friends
-                            </ui-button>
-                            <ui-toggle
-                                v-if="store.bookmarks.length"
-                                :model-value="!!store.localSettings.featuredDefaultBookmarks"
-                                @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
-                            >
-                                Default to bookmarks
-                            </ui-toggle>
-                        </div>
+                        Favorite
                     </template>
 
                     <navigation-favorite/>
@@ -176,16 +179,7 @@
                     width="700px"
                 >
                     <template #title>
-                        <div class="map-footer__booking-title-row">
-                            <span>Bookings</span>
-                            <ui-toggle
-                                v-model="store.mapSettings.bookingsLocalTimezone"
-                                class="picker-localtime"
-                                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
-                            >
-                                local time
-                            </ui-toggle>
-                        </div>
+                        Bookings
                     </template>
                     <map-popup-footer-booking/>
                 </popup-aside>
@@ -260,7 +254,7 @@
             </ui-button>
             <ui-button
                 v-if="!store.user || store.user?.hasFms === null"
-                href="/api/auth/navigraph/redirect"
+                @click="navigraphAuth"
             >
                 Connect Navigraph
             </ui-button>
@@ -291,12 +285,13 @@ import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import QuickSettingsVatGlassesLevel from '~/components/map/settings/quick-settings/QuickSettingsVatGlassesLevel.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
+import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import { navigraphAuth } from '~/composables/vatsim/auth';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -376,6 +371,17 @@ function cancelBookingOverride() {
         }
     }
 
+    &__friends {
+        position: relative;
+        min-width: unset;
+
+        &-bubble {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+    }
+
     &__connections {
         display: flex;
         gap: 8px;
@@ -444,7 +450,7 @@ function cancelBookingOverride() {
 
         &_vg {
             :deep(.input) {
-                height: 32px !important;
+                --input-height: 32px;
             }
         }
 

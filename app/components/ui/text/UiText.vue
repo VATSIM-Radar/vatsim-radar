@@ -2,13 +2,13 @@
     <component
         :is="getTag"
         class="text"
-        :class="[`text--type-${ type }`, {
+        :class="[`text--type-${ type ?? 'none' }`, {
             'text--type-b': isTypeB,
         }]"
         :href="href ?? undefined"
         :style="{
-            '--text-primary-color': color !== 'currentColor' ? `var(--${ color })` : undefined,
-            '--text-hover-color': linkHoverColor ? `var(--${ linkHoverColor })` : undefined,
+            '--text-primary-color': color !== 'currentColor' ? radarColors[color as ColorsList] : undefined,
+            '--text-hover-color': linkHoverColor ? radarColors[linkHoverColor as ColorsList] : undefined,
         }"
         :target
         :to="to ?? undefined"
@@ -26,7 +26,6 @@ import { NuxtLink } from '#components';
 const props = defineProps({
     type: {
         type: String as PropType<UiTextTypes>,
-        required: true,
     },
     tag: {
         type: String,
@@ -57,7 +56,7 @@ defineSlots<{ default: () => any }>();
 
 const bTypes: UiTextTypes[] = ['1b', '2b-medium', '2b', '3b', '3b-medium', '3b-medium-alt'];
 
-const isTypeB = computed(() => bTypes.includes(props.type));
+const isTypeB = computed(() => bTypes.includes(props.type ?? '' as UiTextTypes));
 
 export type UiTextTypes =
     | 'h1'
@@ -82,7 +81,7 @@ const getTag = computed(() => {
     if (props.to) return NuxtLink;
     if (props.tag) return props.tag;
 
-    if (props.type.startsWith('h')) return props.type;
+    if (props.type?.startsWith('h')) return props.type;
 
     return 'div';
 });
@@ -101,6 +100,13 @@ const getTag = computed(() => {
         margin: 0;
         font-weight: 500;
         letter-spacing: -0.01em;
+    }
+
+    &--type-none {
+        font-family: inherit;
+        font-weight: inherit;
+        font-style: inherit;
+        line-height: inherit;
     }
 
     &--type-h1 {

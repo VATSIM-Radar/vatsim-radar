@@ -1,6 +1,6 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { allPilotsOnGround, ownFlight } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
@@ -12,7 +12,7 @@ import { Point } from 'ol/geom.js';
 import type { StoreOverlayPilot } from '~/store/map';
 import { degreesToRadians } from '@turf/helpers';
 import { aircraftIcons } from '~/utils/icons';
-import { createDefaultStyle } from 'ol/style/Style';
+import { createDefaultStyle } from 'ol/style/Style.js';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
 import { aircraftState } from './state';
@@ -45,7 +45,7 @@ export interface AircraftRenderState {
 }
 
 function getAircraftScale(pilot: VatsimShortenedAircraft | undefined, coordinates: Coordinate, icon: string) {
-    const baseScale = useStore().mapSettings.aircraftScale ?? 1;
+    const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
     if (!isDynamicAircraftScale.value || !pilot) return baseScale;
 
     const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
@@ -61,10 +61,10 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
 
     if (selfFlight || store.config.allAircraftGreen) return 'green';
 
-    const isEmergency = store.mapSettings.highlightEmergency && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
+    const isEmergency = getKeyedValueFromSettings('map.traffic.highlightEmergency') && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
 
     if (isEmergency) {
-        return 'landed';
+        return 'emergency';
     }
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
@@ -106,7 +106,7 @@ export async function setMapAircraft(settings: {
 
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
 
-    const linesFeatures = linesSource.getFeatures();
+    const linesFeatures = linesSource.getFeatures().slice(0);
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
     const keyedShownPilots = new Set(shownPilots.map(x => x.cid));
 
@@ -201,7 +201,7 @@ export async function setMapAircraft(settings: {
         updateAircraftTracksData(settings, renderState);
     }
 
-    const aircraft = source.getFeatures();
+    const aircraft = source.getFeatures().slice(0);
 
     for (const feature of aircraft) {
         if (!keyedShownPilots.has(feature.getId() as number)) {
@@ -209,5 +209,9 @@ export async function setMapAircraft(settings: {
             source.removeFeature(feature);
             delete aircraftState[feature.getId() as number];
         }
+    }
+
+    for (const cid in dataStore.vatsim.tracksPilotsData.value) {
+        if (!keyedShownPilots.has(+cid)) delete dataStore.vatsim.tracksPilotsData.value[cid];
     }
 }

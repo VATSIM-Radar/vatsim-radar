@@ -10,11 +10,10 @@
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { ScaleLine } from 'ol/control.js';
-import { useStore } from '~/store';
+import type { Units } from 'ol/control/ScaleLine.js';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const container = useTemplateRef('scale');
-const store = useStore();
 
 let scaleLine: ScaleLine | undefined;
 
@@ -23,16 +22,16 @@ watch([map, container], ([map, container]) => {
 
     scaleLine = new ScaleLine({
         target: container,
-        units: typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric',
+        units: typeof getKeyedValueFromSettings('map.layers.relativeIndicator') === 'string' ? getKeyedValueFromSettings('map.layers.relativeIndicator') as Units : 'metric',
     });
     scaleLine.setMap(map);
 }, {
     immediate: true,
 });
 
-watch(() => store.localSettings.filters?.layers?.relativeIndicator, val => {
+watch(() => getKeyedValueFromSettings('map.layers.relativeIndicator'), val => {
     if (typeof val !== 'string') return;
-    scaleLine?.setUnits(val);
+    scaleLine?.setUnits(val as Units);
 });
 
 onBeforeUnmount(() => scaleLine?.dispose());

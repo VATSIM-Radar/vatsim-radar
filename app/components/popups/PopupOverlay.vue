@@ -20,13 +20,21 @@
                 >
                     <slot :name="`action-${ action }`"/>
                 </div>
-                <div
+                <ui-tooltip
                     v-if="typeof minified === 'boolean'"
+                    align="right"
                     class="info-popup_header_actions_action info-popup_header_actions_action--minify"
-                    @click="minified = !minified"
+                    location="bottom"
                 >
-                    <minus-icon width="14"/>
-                </div>
+                    <template #activator>
+                        <div
+                            @click="minified = !minified"
+                        >
+                            <minus-icon width="14"/>
+                        </div>
+                    </template>
+                    Minify
+                </ui-tooltip>
                 <div
                     v-if="collapsible && (!isMobile || typeof minified !== 'boolean')"
                     class="info-popup_header_actions_action info-popup_header_actions_action--collapse"
@@ -131,6 +139,7 @@ import type { PropType } from 'vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import UiText from '~/components/ui/text/UiText.vue';
+import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 
 /* eslint vue/require-explicit-slots: 0 */
 
@@ -408,6 +417,10 @@ watch(getSections, sections => {
 
 
     &__section {
+        &:not(.info-popup_content_tabs, .info-popup__section--actions) {
+            flex-grow: 1;
+        }
+
         &--actions {
             position: sticky;
             z-index: 5;

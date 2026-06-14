@@ -20,8 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from '~/store';
-
 const props = defineProps({
     type: {
         type: String as PropType<'pilot' | 'controller'>,
@@ -40,10 +38,10 @@ defineSlots<{
 
 const model = defineModel({ type: Boolean });
 
-const store = useStore();
-
 const visible = computed(() => {
-    return store.mapSettings.visibility?.[props.type === 'pilot' ? 'pilotsInfo' : 'atcInfo'] !== true;
+    return props.type === 'pilot'
+        ? getKeyedValueFromSettings('map.visibility.pilotsInfo')
+        : getKeyedValueFromSettings('map.visibility.atcInfo');
 });
 </script>
 

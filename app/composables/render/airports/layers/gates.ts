@@ -1,5 +1,5 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
@@ -9,9 +9,9 @@ import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entit
 import { getSelectedColorFromSettings } from '~/composables/settings/colors';
 import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { createDefaultStyle } from 'ol/style/Style';
-
-const setAirports = new Set<string>();
+import { createDefaultStyle } from 'ol/style/Style.js';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
+import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleStrokeCache: Record<string, Stroke> = {};
@@ -19,12 +19,11 @@ let styleCache: Record<string, Style> = {};
 
 export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     source: VectorSource;
-    layer: VectorLayer;
+    layer: VectorLayer | VectorImageLayer;
     airports: DataAirport[];
     navigraphData: AirportNavigraphData;
 }) {
     const dataStore = useDataStore();
-    const store = useStore();
     styleFillCache = {};
     styleStrokeCache = {};
     styleCache = {};
@@ -126,7 +125,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         for (const gate of resolvedGates) {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
-            const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
+            const opacitySetting = getColorValueByKey('map.preferences.colors.default.gates');
 
             const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('red700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('green700').join(',') }, ${ opacitySetting ?? 1 })`;
 
@@ -187,19 +186,13 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             }
         }
 
-        setAirports.add(icao);
         newlySetAirports.add(icao);
     }
-    for (const airport of [...setAirports]) {
-        if (!newlySetAirports.has(airport)) {
-            source.forEachFeature(feature => {
-                if (feature.getProperties().airport === airport) {
-                    source.removeFeature(feature);
-                    feature.dispose();
-                }
-            });
 
-            setAirports.delete(airport);
+    source.forEachFeature(feature => {
+        if (!newlySetAirports.has(feature.getProperties().airport)) {
+            source.removeFeature(feature);
+            feature.dispose();
         }
-    }
+    });
 }

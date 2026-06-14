@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector.js';
-import VectorLayer from 'ol/layer/Vector';
+import VectorLayer from 'ol/layer/Vector.js';
 import { FEATURES_Z_INDEX } from '~/composables/render';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
@@ -10,7 +10,7 @@ import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { setMapSectors } from '~/composables/render/sectors';
 import { globalMapEntities } from '~/utils/map/entities';
 import { logBench } from '~/composables';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 
 defineOptions({
     render: () => null,
@@ -81,12 +81,18 @@ onMounted(async () => {
     map.value.addLayer(vectorImageLayer);
     map.value.addLayer(labelsLayer);
 
-    const mapSettings = computed(() => store.mapSettings);
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.vatglasses.active'),
+        getKeyedValueFromSettings('map.vatglasses.combined'),
+        getKeyedValueFromSettings('map.vatglasses.combineBands'),
+        getKeyedValueFromSettings('map.visibility.atc.firs'),
+    ]));
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
 
-    const debouncedUpdate = useThrottleFn(async () => {
+    const update = async () => {
         if (hideAtc.value) {
             vectorSource.clear();
+            vectorImageSource.clear();
         }
         else {
             const log = logBench('sectorsRender');
@@ -103,10 +109,17 @@ onMounted(async () => {
             });
             log();
         }
-    }, 500, true);
+    };
 
-    watch([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions, mapLevel], debouncedUpdate, {
+    watchThrottled([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions], update, {
         immediate: true,
+        throttle: 500,
+        trailing: true,
+    });
+    watch(mapLevel, () => {
+        const log = logBench('vgRestyle');
+        vectorSource.changed();
+        log();
     });
 });
 

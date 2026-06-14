@@ -54,15 +54,17 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
             continue;
         }
 
-        const word = '';
+        let word = '';
 
-        for (let i = 0; i < (fir.callsign ?? fir.icao).length; i++) {
-            if (!callsign.startsWith(fir.callsign ?? fir.icao) && !callsign.startsWith(fir.icao)) break;
+        for (let i = 0; i < (fir.callsign ?? fir.icao).length - 1; i++) {
+            word += (fir.callsign ?? fir.icao).slice(0, i + 1);
+
+            if ((!fir.callsign || !callsign.startsWith(fir.callsign)) && !callsign.startsWith(fir.icao)) break;
         }
 
         let length = word.length;
 
-        if ((fir.callsign || fir.icao) === callsignMiddle) length = 100;
+        if (fir.callsign === callsignMiddle || fir.icao === callsignMiddle) length = 100;
 
         if (length < maxStart) {
             continue;
@@ -244,11 +246,11 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    let bookings = (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
+    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
         const now = new Date();
-        const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
+        const timeInHours = new Date(now.getTime() + (getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000));
 
         bookings = bookings.filter(x => {
             const start = new Date(x.start);
@@ -284,6 +286,8 @@ export async function updateControllers(context: DataUpdateContext) {
         })));
     }
 
+    const shouldDuplicateArtccApp = getKeyedValueFromSettings('map.visibility.artccTracons');
+
     for (const controller of controllers) {
         const freq = parseFloat(controller.frequency || '0');
         if (freq > 137 || freq < 117) continue;
@@ -296,8 +300,11 @@ export async function updateControllers(context: DataUpdateContext) {
                     match = true;
                     const atisText = controller.text_atis.join(' ');
 
-                    for (const [areaText, targetCallsign] of Object.entries(setting.mapping)) {
-                        const areaTextRegExp = new RegExp(`\\b${ RegExp.escape(areaText) }\\b`, 'i');
+                    for (let [areaText, targetCallsign] of Object.entries(setting.mapping)) {
+                        if (typeof RegExp.escape === 'function') areaText = RegExp.escape(areaText);
+                        else areaText = areaText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+                        const areaTextRegExp = new RegExp(`\\b${ areaText }\\b`, 'i');
 
                         if (areaTextRegExp.test(atisText) && controller.callsign !== targetCallsign) {
                             if (!realCallsigns.has(targetCallsign)) {
@@ -308,6 +315,8 @@ export async function updateControllers(context: DataUpdateContext) {
                                     duplicatedBy: controller.callsign,
                                     duplicated: true,
                                 };
+
+                                if (!shouldDuplicateArtccApp && controller.facility !== duplicated.facility) continue;
 
                                 // Priority to app
                                 if (duplicatedPositions[duplicated.callsign]) {
@@ -431,7 +440,7 @@ export async function updateControllers(context: DataUpdateContext) {
             if (isApp && !feature && airport?.isPseudo) continue;
 
             if (!airport && feature) {
-                const key = feature?.properties.id + feature?.properties.prefix.map(x => x.split(callsignSplitRegex)[0]).join(',');
+                const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);
                 context.airports[key] ??= {
                     icao: validPrefix ?? feature.properties.id,
@@ -460,6 +469,8 @@ export async function updateControllers(context: DataUpdateContext) {
                 dataAirport = context.airports[airport.icao!];
                 if (context.airports[airport.icao!].airport?.isPseudo && (!airport.isPseudo || context.airports[airport.icao!].aircraftCount)) context.airports[airport.icao!].airport!.isPseudo = false;
             }
+
+            if (controller.callsign.startsWith('GCCA')) console.log(controller.callsign, feature, airport, validPrefix, dataAirport);
 
             if (!dataAirport) continue;
 

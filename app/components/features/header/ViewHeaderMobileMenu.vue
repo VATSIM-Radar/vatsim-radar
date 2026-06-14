@@ -15,7 +15,7 @@
                         :disabled="button.disabled"
                         text-align="left"
                         :to="button.children ? undefined : button.path"
-                        :type="button.active ? 'primary' : 'secondary'"
+                        :type="button.active ? 'primary' : 'secondary-black'"
                         @click="((button.path || button.action) && !button.children) ? [model = false, button.action?.()] : openedMenu = openedMenu === button.text ? null : button.text"
                     >
                         <template
@@ -48,7 +48,7 @@
                             :disabled="childrenButton.disabled"
                             text-align="left"
                             :to="childrenButton.path"
-                            :type="childrenButton.active ? 'primary' : 'secondary'"
+                            :type="childrenButton.active ? 'primary' : 'secondary-black'"
                             @click="[model = false, childrenButton.action?.()]"
                         >
                             <template
@@ -87,7 +87,7 @@
                 <ui-button
                     v-if="config.public.IS_DOWN !== 'true'"
                     type="secondary"
-                    @click="[!store.user ? store.loginPopup = true : store.settingsPopup = true, model = false]"
+                    @click="closeSettings"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -153,21 +153,27 @@ import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThem
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
-import { useStore } from '~/store';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import DocsIcon from 'assets/icons/basic/docs.svg?component';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
+import { useGoBack } from '~/composables/useGoBack';
+
+const { goBack } = useGoBack();
 
 const model = defineModel({ type: Boolean, required: true });
 
 const app = useNuxtApp();
 const onlineCounters = useOnlineCounters();
-const store = useStore();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
 const openedMenu = ref<string | null>(headerMenu.value.find(x => !x.disabled && x.active)?.text ?? null);
+
+const closeSettings = () => {
+    goBack();
+    model.value = false;
+};
 
 const counters = computed(() => ([
     ['Connections', onlineCounters.value.total],
@@ -283,7 +289,7 @@ const counters = computed(() => ([
         gap: 12px;
         align-items: center;
 
-        @include tablet {
+        @include fromTablet {
             .button-group {
                 flex-grow: 1;
             }

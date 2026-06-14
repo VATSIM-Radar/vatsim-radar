@@ -1,5 +1,5 @@
 import type VectorSource from 'ol/source/Vector.js';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setSectorStyle } from '~/composables/render/sectors/style';
 import {
@@ -7,7 +7,7 @@ import {
 } from '~/utils/data/vatglasses';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
 export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
     source: VectorSource;
@@ -109,21 +109,25 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             vgMap[properties.vgSectorId].push(feature);
         }
 
-        const lastLevelOrCombined = store.mapSettings.vatglasses?.combined ? true : store.localSettings.vatglassesLevel ?? 999;
+        const combined = !!getKeyedValueFromSettings('map.vatglasses.combined');
+        const combineBands = combined && !!getKeyedValueFromSettings('map.vatglasses.combineBands');
+        const lastLevelOrCombined = combined ? true : store.localSettings.vatglassesLevel ?? 999;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
             for (const positionId in countryEntries) {
                 const position = countryEntries[positionId];
-                const id: any = 'sector-' + String(countryId) + String(positionId) + String(store.mapSettings.vatglasses?.combined);
+                const id: any = 'sector-' + String(countryId) + String(positionId) + String(combined) + String(combineBands);
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                const vgFeatures = store.mapSettings.vatglasses?.combined
-                    ? position.sectorsCombined
-                    : position.sectors?.filter(
-                        x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
-                    );
+                const vgFeatures = combineBands
+                    ? position.sectorsCombinedBands?.flatMap(band => band.features)
+                    : combined
+                        ? position.sectorsCombined
+                        : position.sectors?.filter(
+                            x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
+                        );
 
                 if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
                     const features = vgFeatures?.map(x => createMapFeature('sector-vatglasses', {
@@ -176,7 +180,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
         const properties = feature.getProperties();
 
         if (isMapFeature('sector', properties) && !emptyIds.has(properties.id)) {
-            source.removeFeature(feature);
+            emptySource.removeFeature(feature);
             feature.dispose();
         }
     }

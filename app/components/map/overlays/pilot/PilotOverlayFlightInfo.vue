@@ -1,7 +1,7 @@
 <template>
     <div
         class="flight-info"
-        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
+        :style="{ '--percent': `${ !distance?.toGoPercent || distance?.toGoPercent < 0 ? pilot.status === 'arrTaxi' ? 100 : 0 : distance?.toGoPercent }%` , '--status-color': radarColors[getStatus.color] }"
     >
         <ui-data-container>
             <template #icon>
@@ -163,10 +163,10 @@
                 <div
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
-                    <template v-if="pilot.flight_plan?.departed_at || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                    <template v-if="departedAt || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
                             <ui-chip>
-                                {{pilot.flight_plan?.departed_at ? `${ datetime.format(new Date(pilot.flight_plan.departed_at)) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
+                                {{departedAt ? `${ datetime.format(new Date(departedAt)) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
                             </ui-chip>
                         </div>
                         <ui-separator
@@ -181,17 +181,17 @@
                         </ui-chip>
                     </div>
                     <ui-separator
-                        v-if="(distance?.toGoTime || distance?.toGoDist || pilot.flight_plan?.arrived_at)"
+                        v-if="(distance?.toGoTime || distance?.toGoDist || arrivedAt)"
                         distance="0"
                         horizontal
                     />
                     <div
-                        v-if="distance?.toGoTime || distance?.toGoDist || pilot.flight_plan?.arrived_at"
+                        v-if="distance?.toGoTime || distance?.toGoDist || arrivedAt"
                         class="flight-info__progress_footer__item"
                     >
                         <ui-chip>
-                            <template v-if="pilot.flight_plan?.arrived_at">
-                                {{datetime.format(new Date(pilot.flight_plan.arrived_at))}}z
+                            <template v-if="arrivedAt">
+                                {{datetime.format(new Date(arrivedAt))}}z
                             </template>
                             <template v-else-if="pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime">
                                 {{Math.round(distance?.toGoDist ?? 0)}} NM
@@ -255,7 +255,7 @@
                 ]"
             />
             <ui-data-list
-                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : pilot.vertical_speed ? 4 : 3"
+                :grid-columns="ctaf && !pilot.frequencies.some(x => x === ctaf) && pilot.frequencies.length >= 2 ? 4 : 3"
                 :items="[
                     { key: 'squawk', title: 'Squawk' },
                     { key: 'ctaf', title: ctaf && !pilot.frequencies.some(x => x === ctaf) ? 'CTAF' : undefined },
@@ -354,10 +354,15 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
     immediate: true,
 });
 
+const dataStore = useDataStore();
+
+const departedAt = computed(() => props.pilot.flight_plan?.departed_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.departedAt);
+const arrivedAt = computed(() => props.pilot.flight_plan?.arrived_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.arrivedAt);
+
 const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
-    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',

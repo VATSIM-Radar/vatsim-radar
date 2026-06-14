@@ -13,17 +13,15 @@ import type { Extent } from 'ol/extent.js';
 import type { Geometry } from 'ol/geom.js';
 
 export const useFacilitiesIds = () => {
-    const dataStore = useDataStore();
-
     return {
         ATIS: -1,
-        OBS: dataStore.vatsim.data.facilities.value.find(x => x.short === 'OBS')?.id ?? -1,
-        FSS: dataStore.vatsim.data.facilities.value.find(x => x.short === 'FSS')?.id ?? -1,
-        DEL: dataStore.vatsim.data.facilities.value.find(x => x.short === 'DEL')?.id ?? -1,
-        GND: dataStore.vatsim.data.facilities.value.find(x => x.short === 'GND')?.id ?? -1,
-        TWR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'TWR')?.id ?? -1,
-        APP: dataStore.vatsim.data.facilities.value.find(x => x.short === 'APP')?.id ?? -1,
-        CTR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'CTR')?.id ?? -1,
+        OBS: 0,
+        FSS: 1,
+        DEL: 2,
+        GND: 3,
+        TWR: 4,
+        APP: 5,
+        CTR: 6,
     };
 };
 
@@ -107,6 +105,11 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     });
 }
 
+export function findAtcByCid(cid: number): VatsimShortenedController | undefined {
+    const dataStore = useDataStore();
+    return dataStore.vatsim.data.controllers.value.find(x => x.cid === cid) || dataStore.vatsim.data.atis.value.find(x => x.cid === cid);
+}
+
 export function findAtcByCallsign(callsign: string): VatsimShortenedController | undefined {
     const dataStore = useDataStore();
     return dataStore.vatsim.data.controllers.value.find(x => x.callsign === callsign) || dataStore.vatsim.data.atis.value.find(x => x.callsign === callsign);
@@ -143,7 +146,6 @@ export async function findAtcAirport(atc: VatsimShortenedController): Promise<Va
 
 export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number, animate = true) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
-    const store = useStore();
     const mapStore = useMapStore();
     const view = map?.getView();
     if (!airport) return;
@@ -151,12 +153,12 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
     await nextTick();
 
-    zoom = zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14;
+    zoom = zoom ?? getKeyedValueFromSettings('map.preferences.airports.defaultZoomLevel')!;
 
     if (animate) {
         view?.animate({
             center: [airport.lon, airport.lat],
-            zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
+            zoom: zoom ?? getKeyedValueFromSettings('map.preferences.airports.defaultZoomLevel')!,
         });
     }
     else {

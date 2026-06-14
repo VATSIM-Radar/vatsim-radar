@@ -3,9 +3,9 @@ import { Icon, Style, Fill, Stroke, Text } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Geometry } from 'ol/geom.js';
-import type VectorImageLayer from 'ol/layer/VectorImage';
+import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
-import type VectorLayer from 'ol/layer/Vector';
+import type VectorLayer from 'ol/layer/Vector.js';
 
 let styleCache: Record<string, Style> = {};
 let stylesCache: Record<string, Style[]> = {};
@@ -43,8 +43,8 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         opacity: 0.6,
     });
 
-    const showAirwaysLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
-    const showWaypointsLabels = computed(() => useStore().mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
+    const showAirwaysLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showAirwaysLabel');
+    const showWaypointsLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showWaypointsLabel');
 
     const waypointsTypes = {
         default: new Style({
@@ -111,6 +111,11 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
     const holdingStroke = new Stroke({
         color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.1)`,
         width: 2,
+    });
+
+    const holdingStrokeBold = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0)`,
+        width: 15,
     });
 
     const waypointBlueStroke = new Stroke({
@@ -439,28 +444,34 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         }
 
         if (featureType === 'holdings') {
-            if (!styleCache.holdings) {
-                styleCache.holdings = new Style({
-                    stroke: holdingStroke,
-                    zIndex: 5,
-                    text: new Text({
-                        font: getTextFont('caption-medium', { fontSize: 9 }),
-                        text: `${ properties.course }° ${ properties.turns }`,
-                        maxAngle: 0,
-                        placement: 'line',
-                        textBaseline: 'bottom',
-                        keepUpright: true,
-                        padding: [2, 2, 2, 2],
-                        fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.8)`,
+            if (!stylesCache.holdings) {
+                stylesCache.holdings = [
+                    new Style({
+                        stroke: holdingStroke,
+                        zIndex: 5,
+                        text: new Text({
+                            font: getTextFont('caption-medium', { fontSize: 9 }),
+                            text: `${ properties.course }° ${ properties.turns }`,
+                            maxAngle: 0,
+                            placement: 'line',
+                            textBaseline: 'bottom',
+                            keepUpright: true,
+                            padding: [2, 2, 2, 2],
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, 0.8)`,
+                            }),
                         }),
                     }),
-                });
+                    new Style({
+                        stroke: holdingStrokeBold,
+                        zIndex: 5,
+                    }),
+                ];
             }
 
-            styleCache.holdings.getText()!.setText(`${ properties.course }° ${ properties.turns }`);
+            stylesCache.holdings[0].getText()!.setText(`${ properties.course }° ${ properties.turns }`);
 
-            return styleCache.holdings;
+            return stylesCache.holdings;
         }
 
         if (isEnroute) {

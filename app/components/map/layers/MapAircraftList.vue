@@ -19,6 +19,7 @@ import { transformExtent } from 'ol/proj.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
+import { disposeAircraftStyle } from '~/composables/render/aircraft/style';
 
 defineOptions({
     render: () => null,
@@ -38,29 +39,11 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const config = useRuntimeConfig();
-
-function receiveMessage(event: MessageEvent) {
-    if (event.origin !== config.public.DOMAIN || (!event.data || typeof event.data !== 'object' || Array.isArray(event.data))) {
-        return;
-    }
-
-    if (event.source === window) return; // the message is from the same window, so we ignore it
-
-    if (event.data && 'selectedPilot' in event.data) {
-        if (event.data.selectedPilot === null) {
-            mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot');
-        }
-        else {
-            mapStore.addPilotOverlay(event.data.selectedPilot.toString());
-        }
-    }
-}
 
 const showTracks = shallowRef<Record<string, TrackData>>({});
 
 const getShownPilots = computed(() => {
-    const groundTrafficHide = store.mapSettings.groundTraffic?.hide ?? 'lowZoom';
+    const groundTrafficHide = getKeyedValueFromSettings('map.preferences.airports.groundTraffic.hide');
     if (groundTrafficHide === 'never') return dataStore.visiblePilots.value;
     if (groundTrafficHide === 'lowZoom' && mapStore.zoom > 11) return dataStore.visiblePilots.value;
     if (groundTrafficHide !== 'always' && groundTrafficHide !== 'lowZoom') return dataStore.visiblePilots.value;
@@ -70,27 +53,28 @@ const getShownPilots = computed(() => {
 
     let arrivalAirport = '';
 
-    if (me?.arrival && !store.mapSettings.groundTraffic?.excludeMyArrival) {
+    if (me?.arrival && !getKeyedValueFromSettings('map.preferences.airports.groundTraffic.excludeMyArrival')) {
         arrivalAirport = me.arrival;
     }
 
-    const allOnGround: number[] = [];
+    const pilotOverlayIds = new Set(pilotsOverlays.value);
+    const allOnGround = new Set<number>();
 
     for (const icao in dataStore.airportsList.value) {
         const airport = dataStore.airportsList.value[icao];
         if (!airport || airport.icao === arrivalAirport) continue;
 
-        if (me && !store.mapSettings.groundTraffic?.excludeMyLocation) {
+        if (me && !getKeyedValueFromSettings('map.preferences.airports.groundTraffic.excludeMyLocation')) {
             const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);
             if (check) continue;
         }
 
-        allOnGround.push(...airport.aircraft.groundDep ?? []);
-        allOnGround.push(...airport.aircraft.groundArr ?? []);
+        for (const cid of airport.aircraft.groundDep ?? []) allOnGround.add(cid);
+        for (const cid of airport.aircraft.groundArr ?? []) allOnGround.add(cid);
     }
 
 
-    return pilots.filter(x => pilotsOverlays.value.includes(x.cid) || !allOnGround.includes(x.cid));
+    return pilots.filter(x => pilotOverlayIds.has(x.cid) || !allOnGround.has(x.cid));
 });
 
 const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
@@ -101,10 +85,9 @@ function setVisiblePilots() {
     if (!map.value) return;
     const tracks: Record<string, TrackData> = {};
 
-    const {
-        mode: tracksMode = 'arrivalsOnly',
-        limit: tracksLimit = 50,
-    } = store.mapSettings.tracks ?? {};
+    const tracksMode = getKeyedValueFromSettings('map.preferences.aircraft.tracks.mode');
+    const tracksLimit = getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit');
+    const showOutOfBounds = getKeyedValueFromSettings('map.preferences.aircraft.tracks.showOutOfBounds');
 
     const extent = mapStore.extent.slice();
     extent[0] -= 0.9;
@@ -144,7 +127,7 @@ function setVisiblePilots() {
             return;
         }
 
-        if (!pilot || !isShown) return;
+        if (!pilot || (!isShown && !showOutOfBounds)) return;
 
         let canShowForDepartures = false;
         let canShowForArrivals = false;
@@ -287,7 +270,7 @@ function setVisiblePilots() {
 }
 
 function initHeatmap() {
-    if (store.mapSettings.heatmapLayer) {
+    if (getKeyedValueFromSettings('map.layers.heatmap')) {
         if (!vectorSource || heatmap) return;
 
         heatmap = new Heatmap({
@@ -299,17 +282,28 @@ function initHeatmap() {
         map.value?.addLayer(heatmap);
     }
     else if (heatmap) {
-        map.value?.removeLayer(heatmap);
-        heatmap = null;
+        disposeHeatmap();
     }
 }
 
-watch(() => store.mapSettings.heatmapLayer, async () => {
+function disposeHeatmap() {
+    if (!heatmap) return;
+
+    map.value?.removeLayer(heatmap);
+    heatmap.dispose();
+    heatmap = null;
+}
+
+watch(() => getKeyedValueFromSettings('map.layers.heatmap'), async () => {
     await nextTick();
     initHeatmap();
 });
 
-const updateRelatedSettings = computed(() => JSON.stringify(store.mapSettings.tracks ?? {}) + String(mapStore.hoveredPilot));
+const updateRelatedSettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.mode'),
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit'),
+    getKeyedValueFromSettings('map.preferences.aircraft.tracks.showOutOfBounds'),
+]) + String(mapStore.hoveredPilot));
 
 let init = false;
 
@@ -403,10 +397,6 @@ watch(map, val => {
     immediate: true,
 });
 
-onMounted(() => {
-    window.addEventListener('message', receiveMessage);
-});
-
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     vectorLayer?.dispose();
@@ -414,9 +404,7 @@ onBeforeUnmount(() => {
     linesLayer?.dispose();
     vectorSource?.clear();
     linesSource?.clear();
-    window.removeEventListener('message', receiveMessage);
-    if (heatmap) {
-        map.value?.removeLayer(heatmap);
-    }
+    disposeHeatmap();
+    disposeAircraftStyle();
 });
 </script>
