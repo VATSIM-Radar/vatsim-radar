@@ -25,6 +25,9 @@ spec:
       labels:
         app: influx-v3
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       nodeSelector:
         doks.digitalocean.com/node-pool: influx-v3
       imagePullSecrets:
@@ -53,7 +56,7 @@ spec:
             timeoutSeconds: 15
           volumeMounts:
             - name: influx-data-v3
-              mountPath: /var/lib/influxdb3
+              mountPath: /tmp/influxdb3
       volumes:
         - name: influx-data-v3
           persistentVolumeClaim:

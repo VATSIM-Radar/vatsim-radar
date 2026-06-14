@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-DATA_DIR="${INFLUXDB3_DB_DIR:-/var/lib/influxdb3/data}"
-TOKEN_FILE="${INFLUXDB3_ADMIN_TOKEN_FILE:-/var/lib/influxdb3/admin-token.json}"
+DATA_DIR="${INFLUXDB3_DB_DIR:-/tmp/influxdb3/data}"
+TOKEN_FILE="${INFLUXDB3_ADMIN_TOKEN_FILE:-/tmp/influxdb3/admin-token.json}"
 HTTP_BIND="${INFLUXDB3_HTTP_BIND_ADDR:-0.0.0.0:8181}"
 HTTP_URL="http://localhost:${HTTP_BIND##*:}"
 RETENTION_PERIOD="${INFLUX_RETENTION_PERIOD:-24h}"
