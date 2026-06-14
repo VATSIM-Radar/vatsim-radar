@@ -4,11 +4,12 @@ import { influxDBQuery } from '~/utils/server/influx/influx';
 export type InfluxFlight = {
     [K in keyof Pick<VatsimPilot, 'altitude' | 'callsign' | 'cid' | 'groundspeed' | 'heading' | 'latitude' | 'longitude' | 'name' | 'qnh_mb' | 'transponder'>]?: VatsimPilot[K] | null
 } & {
-    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route' | 'revision_id' | 'departed_at' | 'arrived_at'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
+    [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route' | 'departed_at' | 'arrived_at'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
 } & {
     _time: string;
     time: number;
     cid: string;
+    fpl_revision?: VatsimPilotFlightPlan['revision_id'] | null;
     disconnected?: boolean | null;
 };
 type InfluxFlightKey = Extract<keyof InfluxFlight, string>;
@@ -31,7 +32,7 @@ const flightKeys = Object.keys({
     longitude: true,
     name: true,
     qnh_mb: true,
-    fpl_revision_id: true,
+    fpl_revision: true,
     fpl_departed_at: true,
     fpl_arrived_at: true,
     fpl_route: true,
@@ -45,7 +46,7 @@ const planFields: InfluxFlightKey[] = [
     'fpl_departure',
     'fpl_departure_time',
     'fpl_enroute_time',
-    'fpl_revision_id',
+    'fpl_revision',
     'heading',
     'name',
     'qnh_mb',
@@ -61,8 +62,16 @@ function sqlIdentifier(value: string) {
     return `"${ value.replaceAll('"', '""') }"`;
 }
 
+function normalizeTimestamp(value: string | number | Date) {
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value === 'number') return new Date(value).toISOString();
+    if (/^\d+$/.test(value)) return new Date(Number(value)).toISOString();
+
+    return value;
+}
+
 function sqlTimestamp(value: string | number | Date) {
-    return sqlString(value instanceof Date ? value.toISOString() : value);
+    return sqlString(normalizeTimestamp(value));
 }
 
 function getFieldsSelect(fields: InfluxFlightKey[]) {
@@ -75,6 +84,9 @@ function getCidFilter(cids: Array<string | number>) {
 
 function normalizeInfluxTime(value: unknown): string {
     if (value instanceof Date) return value.toISOString();
+    if (typeof value === 'number') return new Date(value).toISOString();
+    if (typeof value === 'string' && /^\d+$/.test(value)) return new Date(Number(value)).toISOString();
+
     return String(value);
 }
 
@@ -104,9 +116,9 @@ function hasLowerRevisionWithSameCallsign(row: InfluxFlight, nextRow: InfluxFlig
     return row.callsign &&
         row.callsign === nextRow?.callsign &&
         row.fpl_departure_time === nextRow?.fpl_departure_time &&
-        typeof row.fpl_revision_id === 'number' &&
-        typeof nextRow.fpl_revision_id === 'number' &&
-        row.fpl_revision_id > nextRow.fpl_revision_id;
+        typeof row.fpl_revision === 'number' &&
+        typeof nextRow.fpl_revision === 'number' &&
+        row.fpl_revision > nextRow.fpl_revision;
 }
 
 export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
@@ -114,14 +126,15 @@ export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
         const nextRow = rows[index + 1];
 
         if (nextRow && hasLowerRevisionWithSameCallsign(row, nextRow)) return false;
+        if (!nextRow) return true;
 
         const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival;
-        const isFplnChange = row?.fpl_revision_id !== nextRow?.fpl_revision_id || row?.fpl_departure_time !== nextRow?.fpl_departure_time;
+        const isFplnChange = row?.fpl_revision !== nextRow?.fpl_revision || row?.fpl_departure_time !== nextRow?.fpl_departure_time;
 
         if (isNew && !isFplnChange) return true;
 
         const similarRow = (
-            nextRow.callsign === row.callsign && (
+            nextRow?.callsign === row.callsign && (
                 !!row.fpl_departure_time &&
                     !!nextRow.fpl_departure_time &&
                     nextRow.fpl_departure_time === row.fpl_departure_time &&
