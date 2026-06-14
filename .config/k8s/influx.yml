@@ -46,8 +46,7 @@ spec:
               cpu: 1800m
               memory: 3800Mi
           readinessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: 8181
             initialDelaySeconds: 5
             periodSeconds: 15
