@@ -1,7 +1,7 @@
 import {
     isVatGlassesActive,
 } from '~/utils/data/vatglasses';
-import type { VatglassesSectorProperties, VatglassesActiveAirspaces, VatglassesActivePositions } from '~/utils/data/vatglasses';
+import type { VatglassesSectorProperties, VatglassesActiveAirspaces, VatglassesActivePosition, VatglassesActivePositions } from '~/utils/data/vatglasses';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type {
     VatglassesAirport,
@@ -34,6 +34,27 @@ const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', 'RUSC', 'RUCEN', 'RUWSC', '
 
 function checkIgnoredPosition(id: string, callsign: string) {
     return ignoredPositions.some(x => typeof x === 'string' ? id === x : x[0] === id && callsign.startsWith(x[1]));
+}
+
+function hasNestedEntries<T>(positions: Record<string, Record<string, T>>) {
+    return Object.values(positions).some(countryPositions => Object.keys(countryPositions).length);
+}
+
+function addFoundControllersToSet(foundControllers: Record<string, Record<string, VatsimShortenedController[]>>, target: Set<string>) {
+    for (const countryPositions of Object.values(foundControllers)) {
+        for (const controllers of Object.values(countryPositions)) {
+            controllers.forEach(controller => target.add(controller.callsign));
+        }
+    }
+}
+
+function preservePreviousSectorsIfCurrentTickIsEmpty(position: VatglassesActivePosition, previousPosition: VatglassesActivePosition | undefined) {
+    if (position.atc.length && !position.sectors?.length && previousPosition?.sectors?.length) {
+        position.sectors = previousPosition.sectors;
+        position.sectorsCombined = previousPosition.sectorsCombined;
+        position.sectorsCombinedBands = previousPosition.sectorsCombinedBands;
+        position.lastUpdated = previousPosition.lastUpdated;
+    }
 }
 
 // This function is used for the combined mode. It splits the sectors into smaller parts, each area exists only once in the result. Each split has an altrange which contains the vertical limits of the sector.
@@ -484,12 +505,24 @@ export async function updateVATGlasses(context: DataUpdateContext) {
                     }
                 }
                 finalPositions[countryGroupId][positionId].sectors = sectors.map(sector => convertSectorToGeoJson(countries[countryGroupId], sector, countryGroupId, positionId, finalPositions[countryGroupId][positionId].atc, finalPositions)).filter(sector => sector !== false) || [];
+                // Runway-dependent sectors can briefly recalculate to an empty list while ATIS/runway state changes.
+                // Keep the previous geometry for an online VG position instead of making the rendered layer blink to zero.
+                preservePreviousSectorsIfCurrentTickIsEmpty(finalPositions[countryGroupId][positionId], vatglassesActivePositions[countryGroupId]?.[positionId]);
             }
             else if (atcChanged) {
                 finalPositions[countryGroupId][positionId].sectors?.forEach(x => x.properties!.atc = finalPositions[countryGroupId][positionId].atc);
                 finalPositions[countryGroupId][positionId].lastUpdated = new Date().toISOString();
             }
         }
+    }
+
+    // If VG positions matched live controllers but no airspace matched this tick, keep the previous geometry.
+    // This prevents a transient bad dynamic ownership snapshot from replacing rendered sectors with an empty map.
+    if (hasNestedEntries(vatglassesActivePositions) && hasNestedEntries(foundControllers) && !hasNestedEntries(finalPositions)) {
+        addFoundControllersToSet(foundControllers, atcAdded);
+        context.atcAdded = atcAdded;
+        firstRun = false;
+        return false;
     }
 
     dataStore.vatglassesActivePositions.value = finalPositions;

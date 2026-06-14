@@ -97,8 +97,11 @@ watch(vatglassesAutoLevel, () => {
     const user = ownFlight.value;
     if (!user) return;
 
+    const altitude = getPilotTrueAltitude(user);
+    if (!Number.isFinite(altitude)) return;
+
     setUserLocalSettings({
-        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
+        vatglassesLevel: Math.round(altitude / 500) * 5,
     });
 });
 

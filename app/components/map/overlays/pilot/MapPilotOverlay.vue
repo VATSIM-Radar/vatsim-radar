@@ -706,12 +706,6 @@ onMounted(() => {
         immediate: true,
     });
 });
-
-onBeforeUnmount(() => {
-    if (enrouteAircraftPath.value) {
-        delete enrouteAircraftPath.value[props.overlay.key];
-    }
-});
 </script>
 
 <style scoped lang="scss">

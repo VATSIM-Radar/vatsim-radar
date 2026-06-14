@@ -87,7 +87,10 @@ onMounted(async () => {
         getKeyedValueFromSettings('map.vatglasses.combineBands'),
         getKeyedValueFromSettings('map.visibility.atc.firs'),
     ]));
-    const mapLevel = computed(() => store.localSettings.vatglassesLevel);
+    const mapLevel = computed(() => {
+        const level = store.localSettings.vatglassesLevel;
+        return typeof level === 'number' && Number.isFinite(level) ? level : 999;
+    });
 
     const update = async () => {
         if (hideAtc.value) {
@@ -111,15 +114,10 @@ onMounted(async () => {
         }
     };
 
-    watchThrottled([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions], update, {
+    watchThrottled([dataStore.sectorsList, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
         immediate: true,
         throttle: 500,
         trailing: true,
-    });
-    watch(mapLevel, () => {
-        const log = logBench('vgRestyle');
-        vectorSource.changed();
-        log();
     });
 });
 

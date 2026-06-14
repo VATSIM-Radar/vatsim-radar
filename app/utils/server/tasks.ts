@@ -75,6 +75,7 @@ const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
 });
 
 let previousDynamicData = '';
+let previousDynamicRedisData: { data: VatglassesDynamicData; version: string } | null = null;
 export async function updateVatglassesDynamic() {
     try {
         const response = await $fetch<VatglassesDynamicData>('https://api3.vatglasses.uk/live/activeownership', {
@@ -88,9 +89,13 @@ export async function updateVatglassesDynamic() {
 
         const responseText = JSON.stringify(response);
 
-        if (responseText === previousDynamicData) return;
+        if (responseText === previousDynamicData && previousDynamicRedisData) {
+            await setRedisData('data-vatglasses-dynamic', previousDynamicRedisData, 1000 * 60 * 5);
+            return;
+        }
 
         previousDynamicData = responseText;
+        previousDynamicRedisData = data;
 
         await setRedisData('data-vatglasses-dynamic', data, 1000 * 60 * 5);
     }
@@ -479,7 +484,7 @@ export async function setupRedisDataFetch() {
             else if (message === 'navigraph-data') {
                 radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
             }
-            else if (message === 'vatglasses-dynamic') {
+            else if (message === 'data-vatglasses-dynamic' || message === 'vatglasses-dynamic') {
                 radarStorage.vatglasses.dynamicData = await getRedisData('data-vatglasses-dynamic') ?? {
                     version: '',
                     data: null,
