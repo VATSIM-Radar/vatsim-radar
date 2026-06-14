@@ -1,14 +1,7 @@
 FROM influxdb:3-core
 
-RUN mkdir -p /var/lib/apt/lists/partial && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
-
 COPY ./.env /.env
-COPY .config/influx.sh /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
+COPY --chmod=755 .config/influx.sh /entrypoint.sh
 
 EXPOSE 8181
 

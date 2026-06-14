@@ -37,7 +37,7 @@ cleanup() {
 }
 trap cleanup TERM INT
 
-until curl -fsS "$HTTP_URL/health" > /dev/null; do
+until influxdb3 show databases --host "$HTTP_URL" > /dev/null 2>&1; do
   echo "Waiting for InfluxDB 3 to be ready..."
   sleep 2
 done
