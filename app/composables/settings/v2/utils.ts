@@ -208,7 +208,7 @@ const _settingsDefaultValues = {
     'map.visibility.pilotLabels': true,
 
     'map.bookings.enabled': true,
-    'map.bookings.hours': 0.5,
+    'map.bookings.hours': 1,
 
     'map.events.enabled': true,
     'map.events.hours': 1,
