@@ -2,7 +2,7 @@
 set -e
 
 DATA_DIR="${INFLUXDB3_DB_DIR:-/tmp/influxdb3/data}"
-TOKEN_FILE="${INFLUXDB3_ADMIN_TOKEN_FILE:-/tmp/influxdb3/admin-token.json}"
+TOKEN_FILE="${INFLUXDB3_ADMIN_TOKEN_FILE:-/tmp/influxdb3/admin-token}"
 HTTP_BIND="${INFLUXDB3_HTTP_BIND_ADDR:-0.0.0.0:8181}"
 HTTP_URL="http://localhost:${HTTP_BIND##*:}"
 RETENTION_PERIOD="${INFLUX_RETENTION_PERIOD:-24h}"
@@ -13,12 +13,18 @@ if [ -z "$INFLUX_TOKEN" ]; then
   exit 1
 fi
 
+case "$INFLUX_TOKEN" in
+  apiv3_*) ;;
+  *)
+    echo "INFLUX_TOKEN must be an InfluxDB 3 admin token that starts with 'apiv3_'."
+    exit 1
+    ;;
+esac
+
 mkdir -p "$DATA_DIR" "$(dirname "$TOKEN_FILE")"
 
-if [ ! -f "$TOKEN_FILE" ]; then
-  cat > "$TOKEN_FILE" <<EOF
-{"token":"${INFLUX_TOKEN}","name":"radar-admin-token"}
-EOF
+if [ ! -f "$TOKEN_FILE" ] || ! grep -q '^apiv3_' "$TOKEN_FILE"; then
+  printf '%s\n' "$INFLUX_TOKEN" > "$TOKEN_FILE"
 fi
 
 influxdb3 serve \

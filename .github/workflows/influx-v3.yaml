@@ -19,7 +19,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Add .env file
-        run: echo "${{ secrets.ENV }}" > .env
+        run: |
+          printf '%s\n' "${{ secrets.ENV }}" > .env
+          printf '\nINFLUX_TOKEN=%s\n' "${{ secrets.INFLUX_TOKEN }}" >> .env
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
