@@ -437,4 +437,81 @@ export const duplicatingSettings = [
             'CMH West': 'DAY_M_APP',
         },
     },
+    /**
+     * @description ACC Amazonico (SBAZ)
+     * @author 1233530
+     */
+    {
+        regex: /^(SBAZ)(_\w{0,3})?_(CTR)$/,
+        mapping: {
+            SBWA: 'SBWA_APP',
+            SBWB: 'SBWB_APP',
+            SBWN: 'SBNW_APP',
+            SBWQ: 'SBWQ_APP',
+            SBWS: 'SBWS_APP',
+            SBWV: 'SBWV_APP',
+            SBWX: 'SBWX_APP',
+            SBWY: 'SBWY_APP',
+            SBXB: 'SBXB_APP',
+            SBXJ: 'SBXJ_APP',
+            SBXK: 'SBXK_APP',
+
+        },
+    },
+    /**
+     * @description ACC Brasilia (SBBS)
+     * @author 1233530
+     */
+    {
+        regex: /^(SBBS)(_\w{0,3})?_(CTR)$/,
+        mapping: {
+            SBWH: 'SBWH_APP',
+            SBWR: 'SBWR_APP',
+            SBWU: 'SBWU_APP',
+            SBXD: 'SBXD_APP',
+            SBXN: 'SBXN_APP',
+            SBXQ: 'SBXQ_APP',
+            SBXU: 'SBXU_APP',
+            SBXW: 'SBXW_APP',
+        },
+    },
+    /**
+     * @description ACC Curitiba (SBCW)
+     * @author 1233530
+     */
+    {
+        regex: /^(SBCW)(_\w{0,3})?_(CTR)$/,
+        mapping: {
+            SBWE: 'SBWE_APP',
+            SBWG: 'SBWG_APP',
+            SBWI: 'SBWI_APP',
+            SBWJ: 'SBWJ_APP',
+            SBWM: 'SBWM_APP',
+            SBWP: 'SBWP_APP',
+            SBWT: 'SBWT_APP',
+            SBXF: 'SBXF_APP',
+            SBXG: 'SBXG_APP',
+            SBXO: 'SBXO_APP',
+            SBXP: 'SBXP_APP',
+        },
+    },
+    /**
+     * @description ACC Recife (SBRE)
+     * @author 1233530
+     */
+    {
+        regex: /^(SBRE)(_\w{0,3})?_(CTR)$/,
+        mapping: {
+            SBWF: 'SBWF_APP',
+            SBWK: 'SBWK_APP',
+            SBWL: 'SBWL_APP',
+            SBWZ: 'SBWZ_APP',
+            SBXA: 'SBXA_APP',
+            SBXE: 'SBXE_APP',
+            SBXM: 'SBXM_APP',
+            SBXR: 'SBXR_APP',
+            SBXS: 'SBXS_APP',
+            SBXT: 'SBXT_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
