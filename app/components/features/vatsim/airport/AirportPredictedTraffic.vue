@@ -189,7 +189,7 @@ const dataStore = useDataStore();
 
 // Single-airport fallback resolved from injection; the `aircraft` prop (multi-airport dashboard)
 // takes precedence when provided. Both are set up unconditionally so props are only read reactively.
-const injectedAirport = injectAirport();
+const injectedAirport = injectAirport(true);
 const ownAircraft = getAircraftForAirport(injectedAirport);
 const aircraft = computed<AirportPopupPilotList | null>(() => props.aircraft ?? ownAircraft.value);
 
@@ -208,7 +208,7 @@ const firstBinStart = computed(() => {
     return Math.floor(now / binSizeMs.value) * binSizeMs.value;
 });
 
-const airportAltitudeFt = computed(() => props.airportAltitudeFt ?? injectedAirport.value?.airport?.vatInfo?.altitude_ft ?? 0);
+const airportAltitudeFt = computed(() => props.airportAltitudeFt ?? injectedAirport?.value?.airport?.vatInfo?.altitude_ft ?? 0);
 
 function isStillAirborne(arrival: { altitude?: number; groundspeed?: number; distance?: number }) {
     const alt = arrival.altitude ?? 0;

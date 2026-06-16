@@ -29,6 +29,7 @@ export interface StoreOverlayDefault {
     collapsed: boolean;
     minified: boolean;
     sticky: boolean;
+    dontSave?: boolean;
 }
 
 export interface StoreOverlayPilot extends StoreOverlayDefault {

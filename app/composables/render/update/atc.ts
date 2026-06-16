@@ -470,8 +470,6 @@ export async function updateControllers(context: DataUpdateContext) {
                 if (context.airports[airport.icao!].airport?.isPseudo && (!airport.isPseudo || context.airports[airport.icao!].aircraftCount)) context.airports[airport.icao!].airport!.isPseudo = false;
             }
 
-            if (controller.callsign.startsWith('GCCA')) console.log(controller.callsign, feature, airport, validPrefix, dataAirport);
-
             if (!dataAirport) continue;
 
             // Booking ATC are added last, so that makes sense

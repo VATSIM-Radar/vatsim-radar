@@ -127,11 +127,13 @@
                     Weather Request
                 </ui-button>
             </div>
-            <div class="dashboard-view_header_aside">
-                <div class="dashboard-view_header_clock">
-                    {{ utcTime }}<span class="dashboard-view_header_clock_z">z</span>
+            <client-only>
+                <div class="dashboard-view_header_aside">
+                    <div class="dashboard-view_header_clock">
+                        {{ utcTime }}<span class="dashboard-view_header_clock_z">z</span>
+                    </div>
                 </div>
-            </div>
+            </client-only>
             <div class="dashboard-view_header_weather">
                 <dashboard-weather
                     :can-edit="dashboard.owner"
@@ -211,19 +213,26 @@ const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const config = useRuntimeConfig();
-const requestFetch = useRequestFetch();
-
 const id = computed(() => route.params.id as string);
 
-const dashboard = shallowRef<PublicDashboard | null>(null);
-provide('dashboard', dashboard);
+const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashboard-${ toValue(id) }`, async () => {
+    try {
+        return await $fetch<PublicDashboard>(`/api/data/dashboard/${ id.value }`);
+    }
+    catch (e) {
+        const error = e as { statusCode?: number; response?: { status?: number }; data?: unknown };
+        showError({
+            status: error?.statusCode ?? error?.response?.status ?? 500,
+            statusText: typeof error?.data === 'string' ? error.data : undefined,
+        });
+        return null;
+    }
+}, {
+    server: false,
+});
 
 const airportsData = shallowRef<Record<string, StoreOverlayAirport['data']>>({});
 provide('dashboard-airports-data', airportsData);
-
-watch(dashboard, value => {
-    store.activeDashboard = value?.json ?? null;
-}, { immediate: true });
 
 onBeforeUnmount(() => {
     store.activeDashboard = null;
@@ -285,7 +294,21 @@ provide('dashboard-overrides', computed(() => ({
     enrouteFlightLevel: enrouteFlightLevel.value,
 })));
 
-const mapSrc = computed(() => `/?preset=dashboard&airports=${ airportIcaos.value.join(',') }&tracks=${ Number(arrivalTracks.value) }`);
+const mapSrc = computed(() => {
+    const params = new URLSearchParams();
+
+    params.set('preset', 'dashboard');
+    params.set('airports', airportIcaos.value.join(','));
+    params.set('tracks', Number(arrivalTracks.value).toString());
+
+    if (!isNaN(Number(id.value))) {
+        params.set('dashboard', id.value);
+    }
+
+    if (settings.value?.enrouteCallsign) params.set('atcCallsign', settings.value.enrouteCallsign);
+
+    return `/?${ params.toString() }`;
+});
 
 useHead(() => ({
     title: dashboard.value?.name ?? 'Dashboard',
@@ -305,6 +328,7 @@ const selectedPilot = ref<number | null>(null);
 let skipSelectedPilotWatch = false;
 
 function receiveMessage(event: MessageEvent) {
+    console.log(event);
     if (event.origin !== config.public.DOMAIN || !event.data || typeof event.data !== 'object' || Array.isArray(event.data)) return;
     if ('selectedPilot' in event.data && selectedPilot.value !== event.data.selectedPilot) {
         selectedPilot.value = event.data.selectedPilot;
@@ -347,21 +371,27 @@ onBeforeUnmount(() => {
     window.removeEventListener('message', receiveMessage);
 });
 
-const { data, refresh: refreshDashboard } = await useAsyncData(`dashboard-${ toValue(id) }`, async () => {
-    try {
-        return await requestFetch<PublicDashboard>(`/api/data/dashboard/${ id.value }`);
-    }
-    catch (e) {
-        const error = e as { statusCode?: number; response?: { status?: number }; data?: unknown };
-        showError({
-            statusCode: error?.statusCode ?? error?.response?.status ?? 500,
-            statusMessage: typeof error?.data === 'string' ? error.data : undefined,
-        });
-        return null;
-    }
-});
+provide('dashboard', dashboard);
 
-dashboard.value = data.value ?? null;
+watch(dashboard, async value => {
+    store.activeDashboard = value?.json ?? null;
+    if (!value) return;
+
+    airportsData.value = await fetchAirportsWeather();
+
+    await Promise.all(airportIcaos.value.map(async icao => {
+        const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).catch(() => null);
+        const entry = airportsData.value[icao];
+        if (notams && entry) entry.notams = notams;
+    }));
+    triggerRef(airportsData);
+}, { immediate: true });
+
+await setupDataFetch({
+    onSuccessCallback() {
+        ready.value = true;
+    },
+});
 
 const actionsOpen = ref(false);
 const confirmPublic = ref(false);
@@ -407,7 +437,6 @@ async function onCopyLink() {
 async function onSaved() {
     editorOpen.value = false;
     await refreshDashboard();
-    dashboard.value = data.value ?? dashboard.value;
     await refreshWeather();
 }
 
@@ -447,29 +476,6 @@ async function refreshWeather() {
         if (entry && existing?.notams?.length) entry.notams = existing.notams;
     }
     airportsData.value = next;
-}
-
-if (toValue(dashboard)) {
-    const { data: weatherData } = await useAsyncData(`dashboard-weather-${ toValue(id) }`, fetchAirportsWeather, {
-        default: () => ({}),
-    });
-    airportsData.value = weatherData.value ?? {};
-
-    useLazyAsyncData(`dashboard-notams-${ toValue(id) }`, async () => {
-        await Promise.all(airportIcaos.value.map(async icao => {
-            const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).catch(() => null);
-            const entry = airportsData.value[icao];
-            if (notams && entry) entry.notams = notams;
-        }));
-        triggerRef(airportsData);
-        return true;
-    }, { server: false });
-
-    await setupDataFetch({
-        onSuccessCallback() {
-            ready.value = true;
-        },
-    });
 }
 </script>
 

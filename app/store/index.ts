@@ -44,6 +44,8 @@ export interface SiteConfig {
 
     airports?: string[];
     airport?: string;
+    mainAtcCallsign?: string;
+    dashboardId?: number;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     onlyAirportsAircraft?: boolean;
@@ -453,6 +455,7 @@ export const useStore = defineStore('index', {
         },
         async fetchDashboards() {
             this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
+            console.log(this.dashboards);
         },
     },
 });

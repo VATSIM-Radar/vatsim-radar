@@ -276,7 +276,7 @@ function pilotBottomItems(pilot: AirportPopupPilotStatus, key: DashboardAircraft
 }
 
 function selectPilot(pilot: AirportPopupPilotStatus) {
-    selected.value = pilot.cid;
+    selected.value = selected.value === pilot.cid ? null : pilot.cid;
 }
 
 const horizontal = computed(() => {

@@ -1,6 +1,8 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
+import type { PublicDashboard } from '~/utils/server/handlers/dashboards';
+import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -77,7 +79,7 @@ const dashboardPreset: SiteConfig = {
     hideHeader: true,
     hideFooter: true,
     hideAllExternal: false,
-    hideOverlays: true,
+    hideOverlays: false,
     onlyAirportAircraft: true,
     showInfoForPrimaryAirport: true,
     hideBookings: true,
@@ -111,9 +113,10 @@ const myulllLargePreset: SiteConfig = {
     showCornerLogo: false,
 };
 
-export function checkAndSetMapPreset() {
+export async function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
+    const mapStore = useMapStore();
 
     if (!query.preset) return;
 
@@ -159,11 +162,39 @@ export function checkAndSetMapPreset() {
         preset.airports = query.airports.split(',').map(x => x.toUpperCase());
         preset.hideSectors = false;
         preset.hideAirports = false;
+
+        nextTick().then(async () => {
+            for (const airport of preset.airports!) {
+                await checkForUpdates();
+                await checkForVATSpy();
+
+                await mapStore.addAirportOverlay(airport, undefined, {
+                    minified: true,
+                    collapsed: true,
+                    data: {
+                        showTracks: true,
+                    },
+                    dontSave: true,
+                });
+            }
+        });
     }
 
     if (typeof query.airport === 'string') {
         preset.airport = query.airport.toUpperCase();
         preset.hideSectors = true;
+    }
+
+    if (typeof query.atcCallsign === 'string') {
+        preset.mainAtcCallsign = query.atcCallsign.toUpperCase();
+    }
+
+    if (typeof query.dashboard === 'string') {
+        preset.dashboardId = +query.dashboard;
+
+        $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
+            store.activeDashboard = x.json;
+        }).catch(console.error);
     }
 
     if (typeof query.airportMode === 'string' && query.airportMode) {

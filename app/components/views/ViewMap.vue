@@ -566,7 +566,7 @@ watch([isMobile, popups], () => {
 function saveOverlays() {
     if (!restoredOverlays.value) return;
     localStorage.setItem('overlays', JSON.stringify(
-        mapStore.overlays.map(x => ({
+        mapStore.overlays.filter(x => !x.dontSave).map(x => ({
             ...x,
             data: undefined,
         })),

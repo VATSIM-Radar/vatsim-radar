@@ -32,7 +32,7 @@ export const activeAirportsList = globalComputed(() => {
     if (store.config.airport) {
         list = list[store.config.airport] ? { [store.config.airport]: list[store.config.airport] } : {};
     }
-    else {
+    else if (store.config.hideAllExternal) {
         list = {};
 
         for (const airport of store.config.airports ?? []) {

@@ -262,7 +262,7 @@ watch(selectedPilot, async () => {
 
     if (airportMapFrame.value) {
         const iframeWindow = airportMapFrame.value.contentWindow;
-        const message = { selectedPilot: selectedPilot.value };
+        const message = { selectedPilot: selectedPilot.value ?? null };
         const targetOrigin = config.public.DOMAIN;
         iframeWindow?.postMessage(message, targetOrigin);
     }
