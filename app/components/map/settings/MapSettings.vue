@@ -485,5 +485,11 @@ const importPreset = async () => {
             }
         }
     }
+
+    @media all and (max-height: 400px) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
 }
 </style>

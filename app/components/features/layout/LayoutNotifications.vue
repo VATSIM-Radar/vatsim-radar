@@ -41,11 +41,15 @@ const store = useStore();
         &--appear {
             &-enter-active,
             &-leave-active {
+                max-height: 200px;
                 transition: 0.3s ease-out;
             }
 
             &-enter-from,
             &-leave-to {
+                overflow: hidden;
+
+                max-height: 0;
                 margin-top: -12px;
                 padding-top: 0;
                 padding-bottom: 0;

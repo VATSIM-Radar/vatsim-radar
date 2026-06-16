@@ -170,6 +170,7 @@ export const aircraftStatusColors: Record<MapAircraftStatus, ColorsList> = {
     departing: 'green500',
     arriving: 'orange400',
     landed: 'red300',
+    emergency: 'red500',
 };
 
 export const aircraftSvgColors = () => {
@@ -189,7 +190,7 @@ export const getFilteredAircraftSettings = (cid: number) => {
 
 export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
     const list = cid && getUserList(cid);
-    if (list) {
+    if (list && status !== 'emergency') {
         return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
     }
 
@@ -236,7 +237,7 @@ export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number)
     return iconContent;
 }
 
-export type MapAircraftStatus = 'default' | 'ground' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
+export type MapAircraftStatus = 'default' | 'ground' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed' | 'emergency';
 
 const svgIconsCache: Record<string, string | Promise<string>> = {};
 

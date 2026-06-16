@@ -171,6 +171,7 @@ export enum UserMessageType {
     NAVIGRAPH_CONNECT_WARNING = 'NAVIGRAPH_CONNECT_WARNING',
     ACHIEVEMENTS_LINK = 'ACHIEVEMENTS_LINK',
     SETTINGS_V2_TUTORIAL = 'SETTINGS_V2_TUTORIAL',
+    DISTANCE_TUTORIAL = 'DISTANCE_TUTORIAL',
 }
 
 export const userMessageTypes = new Set<UserMessageType>(Object.values(UserMessageType));

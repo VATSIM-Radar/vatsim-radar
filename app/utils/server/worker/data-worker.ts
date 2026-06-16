@@ -8,7 +8,7 @@ import updateVatsimExtendedPilots, {
     updateVatsimDataStorage,
     updateVatsimMandatoryDataStorage,
 } from '~/utils/server/vatsim/update';
-import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/server/influx/influx';
+import { influxDB, influxDBWriteOptions, initInfluxDB } from '~/utils/server/influx/influx';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/server/worker/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
@@ -467,14 +467,19 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.notam = radarStorage.vatsimNotam ?? notams.find(x => (!x.activeTo || new Date(x.activeTo).getTime() > Date.now()) && (!x.activeFrom || new Date(x.activeFrom).getTime() < Date.now())) ?? null;
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
-            const plans = getPlanInfluxDataForPilots();
-            const pilots = getShortInfluxDataForPilots();
-            if (plans.length) {
-                influxDBWritePlans.writeRecords(plans);
-            }
+            try {
+                const plans = getPlanInfluxDataForPilots();
+                const pilots = getShortInfluxDataForPilots();
+                if (plans.length && process.env.INFLUX_BUCKET_PLANS) {
+                    await influxDB.write(plans, process.env.INFLUX_BUCKET_PLANS, undefined, influxDBWriteOptions);
+                }
 
-            if (pilots.length) {
-                influxDBWriteMain.writeRecords(pilots);
+                if (pilots.length && process.env.INFLUX_BUCKET_MAIN) {
+                    await influxDB.write(pilots, process.env.INFLUX_BUCKET_MAIN, undefined, influxDBWriteOptions);
+                }
+            }
+            catch (error) {
+                console.error('Influx write failed', error);
             }
         }
 

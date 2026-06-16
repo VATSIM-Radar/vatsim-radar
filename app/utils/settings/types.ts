@@ -58,7 +58,7 @@ export interface UserSettingsV2 {
 
             airports: {
                 defaultZoomLevel: number;
-                shortView: boolean;
+                shortView: boolean | 'never';
                 showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
                 declutterIf: 'unstaffed' | 'all' | 'none';
                 ATISAsUnstaffed: boolean;
@@ -124,6 +124,7 @@ export interface UserSettingsV2 {
             autoEnable: boolean;
             autoLevel: boolean;
             combined: boolean;
+            combineBands: boolean;
         };
 
         navigraph: {
@@ -171,6 +172,8 @@ export interface UserSettingsV2 {
         visibility: {
             atc: UserMapSettingsVisibilityATC;
             atcLabels: boolean;
+            vatglassesLabels: boolean;
+            artccTracons: boolean;
             airports: boolean;
             pilots: boolean;
             gates: boolean;

@@ -72,7 +72,7 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
     },
     autoFollow: {
         title: 'Auto follow me',
-        description: 'Enabling this will auto-follow your flight and enable tracking of it (on map load or whe`n spawned on ground)',
+        description: 'Enabling this will auto-follow your flight and enable tracking of it (on map load or when spawned on ground)',
         type: 'toggle',
         value: getSettingValue('map.preferences.autoFollow'),
         onChange: value => setSettingByKey('map.preferences.autoFollow', value),

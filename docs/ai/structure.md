@@ -175,7 +175,7 @@ Nitro plugins:
 - `server/plugins/vatsim.ts`: subscribes to Redis `data` channel and updates `radarStorage.vatsim`.
 - `server/plugins/cron.ts`: starts Redis data fetch setup and scheduled Navigraph init.
 - `server/plugins/discord.ts`: Discord bot/client setup, slash command registration, and `radarVersion` request context.
-- `server/plugins/influx.ts`: InfluxDB client initialization.
+- `server/plugins/influx.ts`: InfluxDB client initialization. InfluxDB 3 client setup, SQL query usage, and buffered writes live in `app/utils/server/influx/influx.ts`.
 
 Background tasks:
 
@@ -184,7 +184,7 @@ Background tasks:
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup and navdata parsing.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
-- `app/utils/server/influx/*` handles analytics queries/converters.
+- `app/utils/server/influx/*` handles analytics queries/converters. `queries.ts` builds InfluxDB 3 SQL over the `data` table; `converters.ts` still emits line protocol for the main and flight-plan databases.
 
 ## Persistence
 

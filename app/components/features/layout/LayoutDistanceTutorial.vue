@@ -1,7 +1,8 @@
 <template>
     <popup-fullscreen
-        v-model="mapStore.distance.tutorial"
+        :model-value="mapStore.distance.tutorial || (!notification && !!isEnabled.value)"
         width="600px"
+        @update:modelValue="$event ? undefined : [save(), mapStore.distance.tutorial = false]"
     >
         <template #title>
             Distance Tool
@@ -42,7 +43,11 @@
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import { getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import { checkNotification, saveUserNotification } from '~/composables/user';
 
 const mapStore = useMapStore();
 const settingsItems = getSettingsItems().value;
+const isEnabled = getSettingValue('map.layers.distance.enabled');
+const notification = computed(() => checkNotification('DISTANCE_TUTORIAL'));
+const save = () => saveUserNotification('DISTANCE_TUTORIAL');
 </script>

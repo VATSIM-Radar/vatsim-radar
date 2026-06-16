@@ -3,7 +3,6 @@ import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { updateAircraft } from '~/composables/render/update/aircraft';
 import { updateControllers } from '~/composables/render/update/atc';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { useStore } from '~/store';
 import { logBench } from '~/composables';
 
 export interface DataUpdateContext { airports: Record<string, DataAirport>; sectors: Record<string, DataSector>; atcAdded: Set<string> | null; airportsAdded: Set<string> }
@@ -66,10 +65,9 @@ export async function updateControllersRender() {
     }
 }
 
-const vgLevel = computed(() => useStore().localSettings.vatglassesLevel);
-
 export function initControllersUpdate() {
-    useUpdateCallback(['short', isVatGlassesActive, vgLevel, runwaysState, debugControllers, debugBookings], () => {
+    const combineBandsSetting = useSettingValueFromFunc('map.vatglasses.combineBands');
+    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, combineBandsSetting], () => {
         updateControllersRender();
     });
 }

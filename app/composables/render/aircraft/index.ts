@@ -64,7 +64,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
     const isEmergency = getKeyedValueFromSettings('map.traffic.highlightEmergency') && (pilot?.transponder === '7700' || pilot?.transponder === '7600' || pilot?.transponder === '7601' || pilot?.transponder === '7500');
 
     if (isEmergency) {
-        return 'landed';
+        return 'emergency';
     }
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
@@ -209,5 +209,9 @@ export async function setMapAircraft(settings: {
             source.removeFeature(feature);
             delete aircraftState[feature.getId() as number];
         }
+    }
+
+    for (const cid in dataStore.vatsim.tracksPilotsData.value) {
+        if (!keyedShownPilots.has(+cid)) delete dataStore.vatsim.tracksPilotsData.value[cid];
     }
 }

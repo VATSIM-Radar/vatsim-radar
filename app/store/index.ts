@@ -123,6 +123,7 @@ export const useStore = defineStore('index', {
 
         viewport: {
             width: 0,
+            height: 0,
         },
 
         isMobile: false,
@@ -154,6 +155,8 @@ export const useStore = defineStore('index', {
             airportsRender: 0,
             airportsPrepare: 0,
             sectorsRender: 0,
+            vgCombine: 0,
+            vgRestyle: 0,
         },
 
         wsOpen: false,
@@ -303,7 +306,7 @@ export const useStore = defineStore('index', {
             return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));
         },
         getEvents(): VatsimActiveEvent[] {
-            return this.events.filter(x => new Date(x.end_time).getTime() < useDataStore().time.value);
+            return this.events.filter(x => new Date(x.end_time).getTime() > useDataStore().time.value);
         },
         eventsMap(): Record<string, VatsimActiveEvent> {
             const icaoMap: Record<string, VatsimActiveEvent> = {};

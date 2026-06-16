@@ -2,7 +2,7 @@
     <div v-if="ready" class="lists">
         <transition-group name="lists--appear">
             <div
-                v-if="activeList || newList"
+                v-if="activeList !== null || newList"
                 class="lists_creation lists_wrapper"
             >
                 <div class="lists_title">
@@ -13,7 +13,12 @@
                         <arrow-top-icon/>
                     </div>
                     <ui-text type="h4">
-                        Manage Users List
+                        <template v-if="!activeList || newList">
+                            Create Users Lists
+                        </template>
+                        <template v-else>
+                            Manage Users List
+                        </template>
                     </ui-text>
                 </div>
                 <div class="lists_creation_list">
@@ -118,7 +123,7 @@ const newList = ref(false);
 const activeList = ref<number | null>(null);
 
 const activeListLive = computed(() => {
-    return activeList.value ? store.lists.find(x => x.id === activeList.value) ?? null : null;
+    return activeList.value !== null ? store.lists.find(x => x.id === activeList.value) ?? null : null;
 });
 
 const route = useRoute();
@@ -133,7 +138,7 @@ await setupDataFetch({
 });
 
 watch(() => route.query.list, val => {
-    if (!val) {
+    if (val === undefined || val === null || val === '') {
         newList.value = false;
         activeList.value = null;
     }
@@ -174,7 +179,7 @@ watch(() => route.query.list, val => {
             cursor: pointer;
 
             position: absolute;
-            left: -40px;
+            left: -32px;
             transform: rotate(-90deg);
 
             display: flex;

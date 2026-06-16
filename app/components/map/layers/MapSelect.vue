@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div ref="select">
         <map-html-overlay
             v-if="contextMenu"
             is-interaction
@@ -296,6 +296,18 @@ watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
 });
 
+const select = useTemplateRef('select');
+
+useClickOutside({
+    element: select,
+    callback: () => {
+        if (!isMobileOrTablet.value) return;
+        map.value!.getTargetElement().style.cursor = 'grab';
+        openedOverlay.value = null;
+        selectFeature(false);
+    },
+});
+
 function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, interactionKey: SelectableFeatures) {
     if (contextMenu.value) return;
     const element = interactableElements[key];
@@ -590,10 +602,10 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
     hover: {
         priorities: [
             'sector',
-            'airportControllers',
             'airportCounter',
-            'airportApproach',
             'airportLocal',
+            'airportControllers',
+            'airportApproach',
             'aircraft',
             'sectorVG',
             'sigmet',
@@ -607,11 +619,9 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
         priorities: [
             'distance',
             'sector',
-            // Counter before the airport/local features so tapping a counter opens
-            // the airport overlay on that traffic category, not the generic airport.
             'airportCounter',
-            'airportControllers',
             'airportLocal',
+            'airportControllers',
             'airportApproach',
             'aircraft',
             'multi',
@@ -650,7 +660,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!selected.length) {
                 openedOverlay.value = null;
-                if (type === 'hover') {
+                if (type === 'hover' || isMobileOrTablet.value) {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
                             map.value!.getTargetElement().style.cursor = 'grab';
@@ -696,6 +706,8 @@ function createSelectHandler(type: EventType, select: Select) {
                 });
 
                 tookAction = true;
+
+                if (!map.value!.getTargetElement()) return false;
 
                 if (result === false) {
                     map.value!.getTargetElement().style.cursor = 'grab';

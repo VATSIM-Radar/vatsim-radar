@@ -9,6 +9,7 @@ import { createCircle } from '~/utils';
 import {
     sortControllersByPosition,
 } from '~/composables/vatsim/controllers';
+import { VatsimEventType } from '~/types/data/vatsim';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { MapAircraftKeys } from '~/types/map';
 import { getAirportCounters } from '~/composables/vatsim/airport';
@@ -16,8 +17,15 @@ import { setAirportStyle } from '~/composables/render/airports/layers/airport-st
 
 function colorForAirport(airport: AirportListItem) {
     const mapStore = useMapStore();
-    const opacity = getKeyedValueFromSettings('map.preferences.colors.default.defaultAirport');
+    const opacity = getKeyedValueFromSettings('map.preferences.colors.default.defaultAirport', true);
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === airport.icao || x.data.pilot.flight_plan?.departure === airport.icao || x.data.pilot.flight_plan?.arrival === airport.icao));
+    const event = useStore().eventsMap[airport.icao];
+    const now = Date.now();
+    const eventStarted = event && new Date(event.start_time).getTime() > now;
+
+    if (event) {
+        if (eventStarted) return event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red400Hex;
+    }
 
     if (!hasOverlay) {
         if (!airport.atc?.length) return `rgba(${ getCurrentThemeRgbColor('lightGray800').join(',') }, ${ opacity ?? 0.6 })`;
@@ -59,7 +67,7 @@ export function setMapAirports({ source, airports, layer }: {
         // Locals
         const facilitiesMap = new Map<number, Facility>();
         const locals = airport.atc.filter(x => x.facility !== facilitiesIds.APP && x.facility !== facilitiesIds.CTR && x.facility !== facilitiesIds.FSS);
-        const featuresCallsigns = new Set<string>(airport.features?.flatMap(x => x.controllers.map(x => x.callsign)));
+        const featuresCallsigns = new Set<string>(airport.features?.flatMap(x => x.controllers.map(x => x.facility > facilitiesIds.TWR ? x.callsign : '')));
 
         locals.forEach(local => {
             if (local.facility === facilitiesIds.CTR || local.facility === facilitiesIds.FSS) return;
@@ -68,12 +76,11 @@ export function setMapAirports({ source, airports, layer }: {
             let facility = facilitiesMap.get(facilityId);
 
             if (local.isATIS && getKeyedValueFromSettings('map.preferences.airports.ATISAsUnstaffed') && !locals.some(x => !x.isATIS)) {
-                let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.icao }--1`);
+                const existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.icao }--1`);
 
                 if (existingFacility) {
                     source.removeFeature(existingFacility);
                     existingFacility.dispose();
-                    existingFacility = null;
                 }
 
                 return;
@@ -387,7 +394,7 @@ export function setMapAirports({ source, airports, layer }: {
             }
 
             if (isMapFeature('airport-atc', properties)) {
-                const featuresCallsigns = new Set<string>(airport.features?.flatMap(x => x.controllers.map(x => x.callsign)));
+                const featuresCallsigns = new Set<string>(airport.features?.flatMap(x => x.controllers.map(x => x.facility > facilitiesIds.TWR ? x.callsign : '')));
                 const locals = airport.atc.filter(x => x.facility !== facilitiesIds.APP && !featuresCallsigns.has(x.callsign));
 
                 if (!locals.length || !locals.some(x => properties.facility.facility === -1 ? x.isATIS : (x.facility === properties.facility.facility && !x.isATIS))) {

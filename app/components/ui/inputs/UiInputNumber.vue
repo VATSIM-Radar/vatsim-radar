@@ -6,7 +6,8 @@
         :input-attrs
         input-type="number"
         :placeholder
-        @change="$emit('change', $event)"
+        @blur="validateChanges()"
+        @change="[validateChanges(), $nextTick().then(() => $emit('change', $event))]"
         @input="$emit('input', $event)"
     >
         <template v-if="$slots.default" #default>
@@ -58,16 +59,19 @@ const model = defineModel({ type: Number as PropType<null | number>, default: nu
 
 const inputValue = computed({
     get: () => model.value === null ? '' : String(model.value),
-    set: (_value: string) => {
-        console.log(_value);
-        let value = _value === '' ? null : Number(_value);
-        if (typeof value === 'number') {
-            if (props.inputAttrs?.min && value < props.inputAttrs.min) value = props.inputAttrs.min;
-            if (props.inputAttrs?.max && value! > props.inputAttrs.max) value = props.inputAttrs.max;
-            if (props.allowedAfterDot) value = Number(value!.toFixed(props.allowedAfterDot));
-        }
-
-        model.value = value;
+    set: (_value: string | number) => {
+        model.value = _value === '' ? null : Number(_value);
     },
 });
+
+function validateChanges() {
+    let value = model.value;
+    if (typeof value === 'number') {
+        if (props.inputAttrs?.min && value < props.inputAttrs.min) value = props.inputAttrs.min;
+        if (props.inputAttrs?.max && value! > props.inputAttrs.max) value = props.inputAttrs.max;
+        if (props.allowedAfterDot) value = Number(value!.toFixed(props.allowedAfterDot));
+    }
+
+    inputValue.value = value ?? '';
+}
 </script>

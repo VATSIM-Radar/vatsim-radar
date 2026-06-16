@@ -33,10 +33,10 @@
         </div>
         <client-only>
             <layout-consent/>
+            <layout-distance-tutorial/>
         </client-only>
         <layout-consent-popup/>
         <layout-notifications/>
-        <layout-distance-tutorial/>
     </div>
     <view-restricted-auth
         v-else
@@ -251,13 +251,14 @@ async function getEngine(uaParser = parser) {
 }
 
 function setWindowStore() {
-    store.isMobile = window.innerWidth < 700;
-    store.isMobileOrTablet = window.innerWidth < 1466;
-    store.isTablet = window.innerWidth < 1466 && window.innerWidth >= 700;
-    store.isPC = window.innerWidth >= 1466;
+    store.isMobile = window.innerWidth < 700 || (window.innerWidth < 1365 && window.innerHeight < 500);
+    store.isMobileOrTablet = window.innerWidth < 1365;
+    store.isTablet = window.innerWidth < 1365 && window.innerWidth >= 700 && window.innerHeight > 500;
+    store.isPC = window.innerWidth >= 1365;
     store.isPCWide = window.innerWidth >= 1900;
     store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
     store.viewport.width = window.innerWidth;
+    store.viewport.height = window.innerHeight;
 }
 
 const listener = () => {

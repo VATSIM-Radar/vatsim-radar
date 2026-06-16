@@ -114,7 +114,7 @@
                     </template>
                 </ui-button>
                 <ui-button
-                    v-if="store.friends.length || store.bookmarks.length"
+                    v-if="(store.friends.length || store.bookmarks.length) && isMobile"
                     class="header__friends"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
@@ -229,8 +229,8 @@
                 </ui-tooltip>
                 <ui-button
                     size="S"
-                    to="/settings"
                     :type="route.path.startsWith('/settings') ? 'primary' : 'secondary'"
+                    @click="route.path.startsWith('/settings') ? goBack() : navigateTo('/settings')"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -282,8 +282,11 @@ import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
-import { vatsimAuth } from '../../../composables/vatsim/auth';
+import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
+import { useGoBack } from '~/composables/useGoBack';
+
+const { goBack } = useGoBack();
 
 const headerMenu = useHeaderMenu();
 

@@ -929,13 +929,11 @@ export async function updateCachedProcedures() {
     const values = enroutePath.value;
     const aircraftValues = enrouteAircraftPath.value;
     const dataStore = useDataStore();
-    const mapStore = useMapStore();
 
     if (values) {
         dataStore.navigraphProcedures.value = {};
 
         for (const [airport, value] of Object.entries(values)) {
-            if (!mapStore.overlays.find(x => x.key === airport)) continue;
             dataStore.navigraphProcedures.value[airport] ??= {
                 sids: {},
                 stars: {},

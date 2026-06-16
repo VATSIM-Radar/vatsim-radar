@@ -84,10 +84,15 @@ onMounted(async () => {
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
         getKeyedValueFromSettings('map.vatglasses.combined'),
+        getKeyedValueFromSettings('map.vatglasses.combineBands'),
+        getKeyedValueFromSettings('map.visibility.atc.firs'),
     ]));
-    const mapLevel = computed(() => store.localSettings.vatglassesLevel);
+    const mapLevel = computed(() => {
+        const level = store.localSettings.vatglassesLevel;
+        return typeof level === 'number' && Number.isFinite(level) ? level : 999;
+    });
 
-    const debouncedUpdate = useThrottleFn(async () => {
+    const update = async () => {
         if (hideAtc.value) {
             vectorSource.clear();
             vectorImageSource.clear();
@@ -107,10 +112,12 @@ onMounted(async () => {
             });
             log();
         }
-    }, 500, true);
+    };
 
-    watch([dataStore.sectorsList, mapSettings, dataStore.vatglassesActivePositions, mapLevel], debouncedUpdate, {
+    watchThrottled([dataStore.sectorsList, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
         immediate: true,
+        throttle: 500,
+        trailing: true,
     });
 });
 

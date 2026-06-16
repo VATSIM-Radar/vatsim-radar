@@ -113,7 +113,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 color: `rgba(${ getCurrentThemeRgbColor('green500').join(',') }, 1)`,
             }),
         }),
-        zIndex: 2,
+        zIndex: 4,
     });
 
     const apronElementDefaultStyle = new Style({

@@ -63,6 +63,7 @@ export const getSettingsSections = () => {
                 {
                     title: 'Account',
                     url: '',
+                    hide: notLoggedIn,
                     items: [
                         {
                             key: 'account',
@@ -309,7 +310,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'controllers',
                             title: 'Controllers',
-                            items: [items.layers.visibility.atcFirs, items.layers.visibility.atcApproach, items.layers.visibility.atcGround, items.layers.visibility.atcLabels],
+                            items: [items.layers.visibility.atcFirs, items.layers.visibility.atcApproach, items.layers.visibility.atcGround, items.layers.visibility.atcLabels, items.layers.visibility.vatglassesLabels, items.layers.visibility.artccTracons],
                         },
                         {
                             key: 'layers',

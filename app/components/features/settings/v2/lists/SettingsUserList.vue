@@ -47,7 +47,7 @@
                 Export
             </ui-button>
             <ui-button
-                v-if="localList.users.length"
+                :disabled="!localList.users.length"
                 @click="copyCids.copy(localList.users.map(x => x.cid).join(','))"
             >
                 <template v-if="copyCids.copyState.value">
@@ -58,7 +58,7 @@
                 </template>
             </ui-button>
             <ui-button
-                :disabled="localList.type === 'FRIENDS'"
+                :disabled="localList.type === 'FRIENDS' || localList.id === -1"
                 @click="deleteActive = true"
             >
                 Delete
@@ -418,6 +418,8 @@ const localList = ref<UserListLive>({
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
 if (props.list) Object.assign(localList.value, props.list);
 
+const store = useStore();
+const route = useRoute();
 const router = useRouter();
 const isNew = computed(() => localList.value.id === -1);
 const loading = ref(false);
@@ -427,12 +429,30 @@ const activeEdit = ref<null | UserListLiveUser>(null);
 
 async function save() {
     loading.value = true;
+    if (!localList.value.name || !localList.value.color) return;
+
     try {
         if (isNew.value) {
-            await addUserList(localList.value);
+            const list = await addUserList(localList.value);
+            store.addNotification({
+                type: 'success',
+                text: 'List created!',
+                timeout: 5000,
+            });
+            router.replace({ query: { list: list.id } });
+            localList.value = list as any;
         }
         else {
-            await editUserList(localList.value);
+            const list = await editUserList(localList.value);
+            store.addNotification({
+                type: 'info',
+                text: 'Changes saved!',
+                timeout: 5000,
+            });
+            if (route.query.list !== list.id?.toString()) {
+                router.replace({ query: { list: list.id } });
+                localList.value = list as any;
+            }
         }
     }
     finally {
@@ -456,3 +476,9 @@ async function deleteList() {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.list :deep(.table_header) {
+    top: 0 !important;
+}
+</style>

@@ -182,7 +182,8 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache.aircraftImage = new Style();
             }
 
-            const suffix = `${ (filterColor || (color && color.color !== 'blue500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
+            const shouldTintPngIcon = filterColor || !pngImage || (color && color.color !== 'blue500');
+            const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;

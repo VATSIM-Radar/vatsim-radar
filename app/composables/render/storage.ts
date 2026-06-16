@@ -11,7 +11,7 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import { getCurrentInstance } from 'vue';
-import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
+import type { Ref, ShallowRef } from 'vue';
 import type {
     RadarDataAirline,
     Sigmets,
@@ -54,6 +54,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 import { initControllersUpdate } from '~/composables/render/update';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -117,6 +118,7 @@ const data: VatsimData = {
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
+    tracksPilotsData: ref({}),
     parsedAirports: shallowRef<Record<string, AirportListItem>>({}),
     parsedAirportsList: computed(() => Object.values(vatsim.parsedAirports.value)),
     // For fast turn-on in case we need to restore mandatory data
@@ -215,6 +217,7 @@ export interface UseDataStore {
         parsedAirportsList: Ref<AirportListItem[]>;
 
         tracks: ShallowRef<VatsimNattrakClient[]>;
+        tracksPilotsData: Ref<Record<number, Partial<InfluxGeojson>>>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;
@@ -652,14 +655,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
-        let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
 
         watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            watcher?.();
+            ws?.();
             if (val !== true) {
                 ws = checkForWSData(isMounted);
             }

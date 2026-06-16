@@ -23,7 +23,7 @@ import {
     updateTransceivers,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';
-import S3 from 'aws-sdk/clients/s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
@@ -75,6 +75,7 @@ const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
 });
 
 let previousDynamicData = '';
+let previousDynamicRedisData: { data: VatglassesDynamicData; version: string } | null = null;
 export async function updateVatglassesDynamic() {
     try {
         const response = await $fetch<VatglassesDynamicData>('https://api3.vatglasses.uk/live/activeownership', {
@@ -88,9 +89,13 @@ export async function updateVatglassesDynamic() {
 
         const responseText = JSON.stringify(response);
 
-        if (responseText === previousDynamicData) return;
+        if (responseText === previousDynamicData && previousDynamicRedisData) {
+            await setRedisData('data-vatglasses-dynamic', previousDynamicRedisData, 1000 * 60 * 5);
+            return;
+        }
 
         previousDynamicData = responseText;
+        previousDynamicRedisData = data;
 
         await setRedisData('data-vatglasses-dynamic', data, 1000 * 60 * 5);
     }
@@ -237,17 +242,19 @@ async function vatsimTasks() {
     await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
 }
 
-let s3: S3 | undefined;
+let s3: S3Client | undefined;
 
 function backupTask() {
     defineCronJob('0 0 * * *', async () => {
         if (isDebug() || !process.env.CF_R2_API) return;
 
-        s3 ??= new S3({
+        s3 ??= new S3Client({
             endpoint: process.env.CF_R2_API,
-            accessKeyId: process.env.CF_R2_ACCESS_ID,
-            secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
-            signatureVersion: 'v4',
+            region: 'auto',
+            credentials: {
+                accessKeyId: process.env.CF_R2_ACCESS_ID!,
+                secretAccessKey: process.env.CF_R2_ACCESS_TOKEN!,
+            },
         });
 
         const {
@@ -264,16 +271,13 @@ function backupTask() {
 
         const date = new Date();
 
-        s3.upload({
+        await s3.send(new PutObjectCommand({
             Bucket: 'backups',
             Expires: new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)),
             Body: readFileSync(join(process.cwd(), 'dump.sql')),
             Key: `radar/${ date.getFullYear() }-${ date.getMonth() }-${ date.getDate() }-${ process.env.DOMAIN!.replace('https://', '').split(':')[0] }-${ date.getHours() }-${ date.getMinutes() }.sql`,
             ContentType: 'application/sql',
-        }, (err, data) => {
-            if (err) console.error(err);
-            if (data) console.info('Backup completed', data.Location);
-        });
+        })).then(() => console.info('Backup completed')).catch(console.error);
     }).catch(console.error);
 }
 
@@ -341,7 +345,7 @@ async function patreonTask() {
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
 
-        let counter = 0;
+        let counter: number;
         let nextLink = '';
 
         const patrons: PatreonPledge[] = [];
@@ -480,7 +484,7 @@ export async function setupRedisDataFetch() {
             else if (message === 'navigraph-data') {
                 radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
             }
-            else if (message === 'vatglasses-dynamic') {
+            else if (message === 'data-vatglasses-dynamic' || message === 'vatglasses-dynamic') {
                 radarStorage.vatglasses.dynamicData = await getRedisData('data-vatglasses-dynamic') ?? {
                     version: '',
                     data: null,

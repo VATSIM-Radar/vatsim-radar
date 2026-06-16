@@ -36,7 +36,7 @@
                 <div
                     v-if="$slots.htmlContent"
                     class="input__input_input"
-                    @click="input?.focus()"
+                    @click="focused = !focused"
                 >
                     <slot name="htmlContent"/>
                 </div>

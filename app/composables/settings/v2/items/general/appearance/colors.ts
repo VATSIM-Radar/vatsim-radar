@@ -38,7 +38,7 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
     },
     turnsTransparency: {
         type: 'color',
-        title: 'Track transparency',
+        title: 'Track opacity',
         mode: 'transparency',
         defaultColor: transparencyDefault('map.preferences.colors.turnsTransparency'),
         value: getSettingValue(() => ({ transparency: getSettingValue('map.preferences.colors.turnsTransparency').value.value }), { transparency: 1 }),

@@ -9,6 +9,11 @@ import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entit
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
+function getSafeVatglassesLevel() {
+    const level = useStore().localSettings.vatglassesLevel;
+    return typeof level === 'number' && Number.isFinite(level) ? level : 999;
+}
+
 export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
     source: VectorSource;
     layer: VectorLayer;
@@ -109,21 +114,26 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             vgMap[properties.vgSectorId].push(feature);
         }
 
-        const lastLevelOrCombined = getKeyedValueFromSettings('map.vatglasses.combined') ? true : store.localSettings.vatglassesLevel ?? 999;
+        const combined = !!getKeyedValueFromSettings('map.vatglasses.combined');
+        const combineBands = combined && !!getKeyedValueFromSettings('map.vatglasses.combineBands');
+        const vatglassesLevel = getSafeVatglassesLevel();
+        const lastLevelOrCombined = combined ? true : vatglassesLevel;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
             for (const positionId in countryEntries) {
                 const position = countryEntries[positionId];
-                const id: any = 'sector-' + String(countryId) + String(positionId) + String(getKeyedValueFromSettings('map.vatglasses.combined'));
+                const id: any = 'sector-' + String(countryId) + String(positionId) + String(combined) + String(combineBands);
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                const vgFeatures = getKeyedValueFromSettings('map.vatglasses.combined')
-                    ? position.sectorsCombined
-                    : position.sectors?.filter(
-                        x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
-                    );
+                const vgFeatures = combineBands
+                    ? position.sectorsCombinedBands?.flatMap(band => band.features)
+                    : combined
+                        ? position.sectorsCombined
+                        : position.sectors?.filter(
+                            x => x.properties?.min <= vatglassesLevel && x.properties?.max >= vatglassesLevel,
+                        );
 
                 if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
                     const features = vgFeatures?.map(x => createMapFeature('sector-vatglasses', {

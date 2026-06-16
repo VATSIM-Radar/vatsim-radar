@@ -133,6 +133,8 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     return cachedStyle;
 }
 
+const vatglassesLabelsEnabled = globalComputed(() => getKeyedValueFromSettings('map.visibility.vatglassesLabels'));
+
 const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProperties, transparent: boolean): Style => {
     let rgba: string;
 
@@ -143,11 +145,12 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green500').join(',');
     }
 
-    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }`;
+    const labelsEnabled = vatglassesLabelsEnabled().value;
+    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }-${ String(labelsEnabled) }`;
 
     if (!styleCache[key]) {
         styleCache[key] = new Style({
-            text: positionId
+            text: (positionId && labelsEnabled)
                 ? new Text({
                     font: getTextFont('caption-medium'),
                     text: positionId,
@@ -172,7 +175,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
         });
     }
 
-    if (positionId) {
+    if (positionId && labelsEnabled) {
         (styleCache[key] as Style).getText()!.setFill(getCachedFill(`rgba(${ rgba }, ${ transparent ? 0 : 1 })`));
         (styleCache[key] as Style).getText()!.setText(positionId);
     }
@@ -208,6 +211,14 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
         }
 
         if (!labelType && isMapFeature('sector-vatglasses', properties)) {
+            const store = useStore();
+            const combined = getKeyedValueFromSettings('map.vatglasses.combined');
+            const combineBands = combined && getKeyedValueFromSettings('map.vatglasses.combineBands');
+            if (!combined || combineBands) {
+                const vatglassesLevel = store.localSettings.vatglassesLevel;
+                const level = typeof vatglassesLevel === 'number' && Number.isFinite(vatglassesLevel) ? vatglassesLevel : 999;
+                if (properties.min > level || properties.max < level) return undefined;
+            }
             return vatglassesStyle(properties, hideOnZoom);
         }
     });

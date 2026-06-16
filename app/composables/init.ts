@@ -198,9 +198,7 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
             });
         }
     }
-    catch (e) {
-        console.error(e);
-    }
+    catch { /* empty */ }
 }
 
 export function checkForVG() {
@@ -251,7 +249,7 @@ export function checkForVG() {
         dataStore.vatglasses.value = vatglasses.version;
 
         if (isVatGlassesActive.value) {
-            await getVatglassesDynamic(dataStore);
+            await getVatglassesDynamic(dataStore).catch(() => {});
         }
         else return 'notRequired';
     });

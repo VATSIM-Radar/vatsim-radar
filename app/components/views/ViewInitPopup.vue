@@ -1,7 +1,7 @@
 <template>
     <popup-fullscreen
         disabled
-        :model-value="canShowPopup"
+        :model-value="store.initStatus.status === true"
         width="600px"
     >
         <template #title>
@@ -44,7 +44,7 @@ import {
     checkForSimAware,
     checkForUpdates,
     checkForVATSpy,
-    checkForVG, initFirstCheck,
+    checkForVG,
 } from '~/composables/init';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
@@ -86,19 +86,6 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
         method: checkForNavigraph,
     },
 };
-
-const canShowPopup = computed(() => {
-    if (store.initStatus.status === false) return false;
-
-    let canShow = false;
-
-    for (const [key, value] of Object.entries(store.initStatus)) {
-        if ((key === 'dataGet' || (key === 'updatesCheck' && !initFirstCheck.value)) && value === 'loading') continue;
-        if (value === 'loading' || value === 'failed') canShow = true;
-    }
-
-    return canShow;
-});
 
 const itemTitle = (key: keyof VRInitStatus) => {
     switch (store.initStatus[key]) {
