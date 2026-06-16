@@ -2,7 +2,6 @@
     <div ref="select">
         <map-html-overlay
             v-if="contextMenu"
-            is-interaction
             model-value
             persistent
             :settings="{
@@ -87,7 +86,6 @@
         <map-html-overlay
             v-else-if="multiSelectCoordinate"
             :key="String(multiSelectCoordinate)"
-            is-interaction
             model-value
             persistent
             :settings="{

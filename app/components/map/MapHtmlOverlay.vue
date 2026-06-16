@@ -1,6 +1,6 @@
 <template>
     <bottom-sheet
-        v-if="model && isInteraction && isMobile"
+        v-if="model && !disableMobileInteraction && isMobile"
         aria-label="Map info"
         :blocking="false"
         class="map-overlay-sheet"
@@ -21,8 +21,8 @@
         </div>
     </bottom-sheet>
     <div
-        v-if="model"
-        v-show="isMobile && mobile"
+        v-else-if="model"
+        v-show="isMobile && !disableMobileInteraction"
         class="map-overlay-block"
     >
         <div
@@ -71,9 +71,9 @@ const props = defineProps({
     activeZIndex: {
         type: Number,
     },
-    mobile: {
+    disableMobileInteraction: {
         type: Boolean,
-        default: true,
+        default: false,
     },
 });
 
@@ -245,11 +245,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss">
-.vbs__header {
-    padding: 8px 16px 0;
-}
-
 .map-overlay-sheet {
+    .vbs__header {
+        padding: 8px 16px 0;
+    }
+
     .vbs__content-inner {
         padding: 0;
     }

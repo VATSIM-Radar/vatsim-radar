@@ -2,7 +2,6 @@
     <map-html-overlay
         ref="overlay"
         class="popup-airport"
-        is-interaction
         model-value
         :settings="{
             //position: payload.coordinate,

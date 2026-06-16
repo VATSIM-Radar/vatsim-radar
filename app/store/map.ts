@@ -320,9 +320,15 @@ export const useMapStore = defineStore('map', {
                     existingOverlay.collapsed = false;
                     existingOverlay.minified = false;
                     if (existingOverlay.type === 'airport') {
+                        const nextTab = tab ?? existingOverlay.data.tab ?? 'aircraft';
+                        const nextAircraftTab = aircraftTab ?? existingOverlay.data.aircraftTab;
+
                         if (tab) existingOverlay.data.tab = tab;
                         if (aircraftTab) existingOverlay.data.aircraftTab = aircraftTab;
                         if (aircraftGroundMode) existingOverlay.data.aircraftGroundMode = aircraftGroundMode;
+                        else if (nextTab === 'aircraft' && nextAircraftTab === 'ground') {
+                            existingOverlay.data.aircraftGroundMode = 'depArr';
+                        }
                     }
                     this.activeMobileOverlay = existingOverlay.id;
                     return;

@@ -1,6 +1,5 @@
 <template>
     <map-html-overlay
-        is-interaction
         model-value
         :settings="{
             //position: payload.coordinate,

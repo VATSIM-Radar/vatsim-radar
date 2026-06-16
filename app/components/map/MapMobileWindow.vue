@@ -41,7 +41,7 @@
         ref="sheet"
         aria-label="Overlay details"
         :blocking="false"
-        class="mobile-sheet"
+        class="map-mobile-window-sheet mobile-sheet"
         :default-snap="({ snapPoints: points }) => points[1]"
         :handle="false"
         :max-height="sheetMaxHeight"
@@ -223,7 +223,7 @@ const overlaysHeight = computed(() => {
 </style>
 
 <style lang="scss">
-.mobile-sheet {
+.map-mobile-window-sheet {
     .vbs__content {
         overscroll-behavior: none;
     }
