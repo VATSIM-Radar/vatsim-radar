@@ -249,7 +249,7 @@ export function checkForVG() {
         dataStore.vatglasses.value = vatglasses.version;
 
         if (isVatGlassesActive.value) {
-            await getVatglassesDynamic(dataStore);
+            await getVatglassesDynamic(dataStore).catch(() => {});
         }
         else return 'notRequired';
     });

@@ -98,19 +98,19 @@ const customUrl = ref('');
 const tab = ref('filters');
 
 const copyUrl = () => {
-    let text = location.href;
+    const url = new URL(location.href);
+
+    url.searchParams.set('location', mapStore.center.map(x => x.toFixed(5))?.join(','));
+    url.searchParams.set('zoom', mapStore.zoom.toFixed(2));
 
     if (includeOverlays.value) {
-        const url = new URL(location.href);
         url.searchParams.delete('overlay[]');
         for (const overlay of mapStore.overlays) {
             url.searchParams.append('overlay[]', `type=${ overlay.type };key=${ overlay.key };sticky=${ Number(overlay.sticky) };collapsed=${ Number(overlay.collapsed) };minified=${ Number(overlay.minified) }`);
         }
-
-        text = url.toString();
     }
 
-    copy(text);
+    copy(url.toString());
 };
 
 const createBookmark = async (name: string, json: UserBookmark) => {

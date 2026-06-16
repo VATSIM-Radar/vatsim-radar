@@ -1,10 +1,20 @@
 # Changelog
 
+# [2.0.0-beta.2.4]
+
+## Alpha Changes
+
+- Fixed event marker sometimes going above icao
+- Fixed VATGlasses not initializing properly on first map open
+- Fixed map move not resetting aircraft tracked state
+- Fixed default favorite list not opening
+- Fixed favorite lists not creating properly
+- Added notifications when settings or favorite lists are saved
+
 # [2.0.0-beta.2.3]
 
 ## Alpha Changes
 
-- Aircraft route update will now be skipped if it did not move
 - Fixed reactivity when changing departures/arriving mode
 
 ## Features and Improvements

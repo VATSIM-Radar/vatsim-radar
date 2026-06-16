@@ -581,10 +581,10 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
     hover: {
         priorities: [
             'sector',
-            'airportControllers',
             'airportCounter',
-            'airportApproach',
             'airportLocal',
+            'airportControllers',
+            'airportApproach',
             'aircraft',
             'sectorVG',
             'sigmet',
@@ -598,9 +598,9 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
         priorities: [
             'distance',
             'sector',
-            'airportControllers',
-            'airportLocal',
             'airportCounter',
+            'airportLocal',
+            'airportControllers',
             'airportApproach',
             'aircraft',
             'multi',

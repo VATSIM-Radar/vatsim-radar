@@ -215,7 +215,8 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
             const combined = getKeyedValueFromSettings('map.vatglasses.combined');
             const combineBands = combined && getKeyedValueFromSettings('map.vatglasses.combineBands');
             if (!combined || combineBands) {
-                const level = store.localSettings.vatglassesLevel ?? 999;
+                const vatglassesLevel = store.localSettings.vatglassesLevel;
+                const level = typeof vatglassesLevel === 'number' && Number.isFinite(vatglassesLevel) ? vatglassesLevel : 999;
                 if (properties.min > level || properties.max < level) return undefined;
             }
             return vatglassesStyle(properties, hideOnZoom);

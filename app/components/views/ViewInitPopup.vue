@@ -1,7 +1,7 @@
 <template>
     <popup-fullscreen
         disabled
-        :model-value="canShowPopup"
+        :model-value="store.initStatus.status === true"
         width="600px"
     >
         <template #title>
@@ -86,18 +86,6 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
         method: checkForNavigraph,
     },
 };
-
-const canShowPopup = computed(() => {
-    if (store.initStatus.status === false) return false;
-
-    let canShow = false;
-
-    for (const [, value] of Object.entries(store.initStatus)) {
-        if (value === 'loading' || value === 'failed') canShow = true;
-    }
-
-    return canShow;
-});
 
 const itemTitle = (key: keyof VRInitStatus) => {
     switch (store.initStatus[key]) {

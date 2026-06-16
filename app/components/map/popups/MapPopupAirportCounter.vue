@@ -182,6 +182,10 @@ const title = computed(() => {
         }
     }
 
+    if (properties.value.counterType === 'training') {
+        return 'Locals';
+    }
+
     return 'Default';
 });
 </script>

@@ -9,6 +9,11 @@ import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entit
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 
+function getSafeVatglassesLevel() {
+    const level = useStore().localSettings.vatglassesLevel;
+    return typeof level === 'number' && Number.isFinite(level) ? level : 999;
+}
+
 export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
     source: VectorSource;
     layer: VectorLayer;
@@ -111,7 +116,8 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
 
         const combined = !!getKeyedValueFromSettings('map.vatglasses.combined');
         const combineBands = combined && !!getKeyedValueFromSettings('map.vatglasses.combineBands');
-        const lastLevelOrCombined = combined ? true : store.localSettings.vatglassesLevel ?? 999;
+        const vatglassesLevel = getSafeVatglassesLevel();
+        const lastLevelOrCombined = combined ? true : vatglassesLevel;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
@@ -126,7 +132,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
                     : combined
                         ? position.sectorsCombined
                         : position.sectors?.filter(
-                            x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
+                            x => x.properties?.min <= vatglassesLevel && x.properties?.max >= vatglassesLevel,
                         );
 
                 if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
