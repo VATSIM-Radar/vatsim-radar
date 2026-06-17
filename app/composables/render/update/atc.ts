@@ -203,12 +203,12 @@ export async function updateControllers(context: DataUpdateContext) {
 
     setVatspyBoundaries.clear();
 
-    if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
-        dataStore.versions.value!.vatspy = '';
-        await checkForVATSpy();
-    }
-
     if (!uirsMap) {
+        if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
+            dataStore.versions.value!.vatspy = '';
+            await checkForVATSpy();
+        }
+
         if (dataStore.vatspy.value && dataStore.vatspy.value?.data.uirs?.length && dataStore.vatspy.value?.data.firs?.length) {
             uirsMap = {};
 
