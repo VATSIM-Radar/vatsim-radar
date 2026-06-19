@@ -804,10 +804,15 @@ await setupDataFetch({
             const airports = store.config.airports.map(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x]).filter(x => x);
 
             if (airports.length) {
+                const origExtent = projectionExtent;
                 const baseExtent = boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat])));
                 const padding = Math.max(baseExtent[2] - baseExtent[0], baseExtent[3] - baseExtent[1], 400000) * 0.75;
                 projectionExtent = buffer(baseExtent, padding);
                 center = toLonLat(getCenter(projectionExtent));
+
+                if (store.config.dashboardId) {
+                    projectionExtent = origExtent;
+                }
             }
         }
 
@@ -817,7 +822,7 @@ await setupDataFetch({
         else if (store.config.airport) {
             zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
-        else if (store.config.airports?.length) zoom = 1;
+        else if (store.config.airports?.length && !store.config.dashboardId) zoom = 1;
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
             if (coords[0] > 300 || coords[0] < -300 || isNaN(coords[0])) coords[0] = 37.617633;

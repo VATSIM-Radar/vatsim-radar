@@ -67,8 +67,17 @@
                                 @click="selectPilot(row.pilot)"
                             >
                                 <template #top>
-                                    <div class="dashboard-aircraft_pilot_head">
+                                    <div
+                                        ref="pilots"
+                                        class="dashboard-aircraft_pilot_head"
+                                        :data-cid="row.pilot.cid"
+                                    >
                                         <span class="dashboard-aircraft_pilot_head_cs">{{ row.pilot.callsign }}</span>
+                                        <vatsim-pilot-hours
+                                            v-if="stats.find(x => x.cid === row.pilot.cid)"
+                                            class="dashboard-aircraft_pilot_head_stats"
+                                            :hours="stats.find(x => x.cid === row.pilot.cid)!.stats"
+                                        />
                                         <span
                                             class="dashboard-aircraft_pilot_head_status"
                                             :style="{ '--color': `rgb(var(--${ pilotStatus(row.pilot, row.statusKey).color }))` }"
@@ -111,6 +120,7 @@ import type { DashboardColumn } from '~/utils/shared/dashboard';
 import type { StoreOverlayAirport } from '~/store/map';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import ArrowTopIcon from '@/assets/icons/kit/arrow-top.svg?component';
+import VatsimPilotHours from '~/components/features/vatsim/pilots/VatsimPilotHours.vue';
 
 const selected = defineModel<number | null>('selected', { type: Number, default: null });
 
@@ -181,6 +191,34 @@ function arrivalsComparator(a: AirportPopupPilotStatus, b: AirportPopupPilotStat
     return a.eta!.getTime() - b.eta!.getTime();
 }
 
+const airportAircraft = computed(() => {
+    return new Set(Object.values(aircraftRefs).flatMap(x => Object.values(x.value ?? {}).flatMap(x => x.map(x => x.cid))));
+});
+
+const stats = ref<{
+    cid: number;
+    stats: number;
+}[]>([]);
+
+const pilots = ref<HTMLDivElement[] | HTMLDivElement>([]);
+
+const pilotsRefs = computed<HTMLDivElement[]>(() => {
+    if (Array.isArray(pilots.value)) return pilots.value;
+    if (pilots.value) return [pilots.value];
+    return [];
+});
+
+const observer = new IntersectionObserver(async entries => {
+    for (const entry of entries.filter(x => x.isIntersecting && !x.target.classList.contains('--has-stats'))) {
+        const cid = +((entry.target as HTMLDivElement).dataset.cid ?? '0');
+
+        stats.value.push({
+            cid,
+            stats: await getVATSIMMemberStats(cid, 'pilot'),
+        });
+    }
+});
+
 function buildColumn(column: DashboardColumn): ColumnView {
     const key = mapDashboardColumnToAircraftKey(column);
     const label = dashboardColumnLabels[column];
@@ -189,6 +227,7 @@ function buildColumn(column: DashboardColumn): ColumnView {
 
     if (key === 'enroute') {
         for (const pilot of enrouteAircraft.value) {
+            if (airportAircraft.value.has(pilot.cid)) continue;
             rows.push({ type: 'pilot', key: `enroute-${ pilot.cid }`, pilot, statusKey: key, color: null });
             count++;
         }
@@ -303,6 +342,20 @@ onMounted(() => {
     else {
         collapsed.value = new Set(dashboardColumns.filter(column => !openColumns.value.includes(column)));
     }
+
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
+    }
+});
+
+onUpdated(() => {
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
+    }
+});
+
+onBeforeUnmount(() => {
+    observer.disconnect();
 });
 
 defineExpose({ combinedAircraft });

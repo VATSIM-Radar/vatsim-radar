@@ -198,7 +198,7 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
 
     const store = useStore();
 
-    if (store.activeDashboard && status === 'default' && cid) {
+    if (store.activeDashboard && status !== 'hover' && cid) {
         const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
         const airports = Object.fromEntries(store.activeDashboard.airports.filter(x => x.aircraftColor).map(x => [x.icao, x.aircraftColor]));
 
