@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1068.0",
+    "@aws-sdk/client-s3": "3.1071.0",
     "@influxdata/influxdb3-client": "2.3.0",
     "@nuxt/image": "2.0.0",
     "@pinia/nuxt": "0.11.3",
@@ -50,13 +50,13 @@
     "@vueuse/core": "14.3.0",
     "@vueuse/nuxt": "14.3.0",
     "adm-zip": "0.5.17",
-    "better-sqlite3": "12.10.0",
+    "better-sqlite3": "12.11.1",
     "chardet": "2.1.1",
     "chart.js": "4.5.1",
     "chokidar": "5.0.0",
     "croner": "10.0.1",
     "deep-equal": "2.2.3",
-    "dexie": "4.4.3",
+    "dexie": "4.4.4",
     "discord.js": "14.26.4",
     "ioredis": "5.11.1",
     "jsonwebtoken": "9.0.3",
@@ -103,7 +103,7 @@
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest",
     "@types/ws": "8.18.1",
     "eslint": "10.5.0",
-    "fast-xml-parser": "5.8.0",
+    "fast-xml-parser": "5.9.2",
     "postcss": "8.5.15",
     "postcss-html": "1.8.1",
     "sass-embedded": "1.100.0",
@@ -118,5 +118,5 @@
     "vite-plugin-eslint2": "5.1.0",
     "vue-tsc": "3.3.5"
   },
-  "packageManager": "yarn@4.16.0"
+  "packageManager": "yarn@4.17.0"
 }
