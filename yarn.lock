@@ -349,9 +349,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1071.0":
-  version: 3.1071.0
-  resolution: "@aws-sdk/client-s3@npm:3.1071.0"
+"@aws-sdk/client-s3@npm:3.1072.0":
+  version: 3.1072.0
+  resolution: "@aws-sdk/client-s3@npm:3.1072.0"
   dependencies:
     "@aws-crypto/sha1-browser": "npm:5.2.0"
     "@aws-crypto/sha256-browser": "npm:5.2.0"
@@ -367,7 +367,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.7.6"
     "@smithy/types": "npm:^4.14.3"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/f6402876c5f89f450ef07ea814cf1c347d4df79ecdb35cfcd380550287650137c02a08743b53e75f504bc693dd6970652a0e8b63e1f9b5d608831965dc8e64aa
+  checksum: 10c0/d25e5e7ad73b30d48e949eb2439f9101ac3abf9147df89a4eb8bbcdb56500ce9100a76457ac548fb34d50724789e80537c032f48e2c3c7774e9da80477acd352
   languageName: node
   linkType: hard
 
@@ -7462,6 +7462,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"anynum@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "anynum@npm:1.0.1"
+  checksum: 10c0/cfda92c9215722fc4b15faa33d0eb3d5dfd28fba6cb67c1f50d214feaa7ba6497814a3e110777853585de6d91c8c962a1ae425b637d3598d9f9d8f6f6802e5bb
+  languageName: node
+  linkType: hard
+
 "apache-arrow@npm:^21.1.0":
   version: 21.1.0
   resolution: "apache-arrow@npm:21.1.0"
@@ -10212,19 +10219,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:5.9.2":
-  version: 5.9.2
-  resolution: "fast-xml-parser@npm:5.9.2"
+"fast-xml-parser@npm:5.9.3":
+  version: 5.9.3
+  resolution: "fast-xml-parser@npm:5.9.3"
   dependencies:
     "@nodable/entities": "npm:^2.2.0"
     fast-xml-builder: "npm:^1.2.0"
     is-unsafe: "npm:^1.0.1"
     path-expression-matcher: "npm:^1.5.0"
-    strnum: "npm:^2.4.0"
+    strnum: "npm:^2.4.1"
     xml-naming: "npm:^0.1.0"
   bin:
     fxparser: src/cli/cli.js
-  checksum: 10c0/dc646e73223aaa1a267b96b130cd9add3c64f50aac1b990fda15f712288cb2a619dde4014d8df0f43030ff2609a187ef657d6b058ce348deb9a251818a4cc964
+  checksum: 10c0/0f4f4b98aec027334be1d4462c6e09649bda8dd8bd1c75f6e985f4000ce4a40ea4540745fa7ac081cd65bf462b0c22fce87da9abc5ede51c9727398c91cacd5f
   languageName: node
   linkType: hard
 
@@ -11937,16 +11944,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:4.0.1":
-  version: 4.0.1
-  resolution: "jwks-rsa@npm:4.0.1"
+"jwks-rsa@npm:4.1.0":
+  version: 4.1.0
+  resolution: "jwks-rsa@npm:4.1.0"
   dependencies:
     "@types/jsonwebtoken": "npm:^9.0.4"
     debug: "npm:^4.3.4"
     jose: "npm:^6.1.3"
     limiter: "npm:^1.1.5"
+    lru-cache: "npm:^11.0.0"
     lru-memoizer: "npm:^3.0.0"
-  checksum: 10c0/aeca4b1de959707002150556f4f08ed3677fe9dd12bd0be0aa01220a86b88867357c7d2241f4975de9f53125d41cc3f5e4c5e929a8922f257b61634b208d7e3c
+  checksum: 10c0/09d03901705fdaaec4ef4dbfdabdcdd91c669b667e1bf10ac765bde3ef4c90f91d53e60ce4e7bfbec715f2490d25f6e0c58c6f75dff800399a2e1b9140e317b2
   languageName: node
   linkType: hard
 
@@ -16147,12 +16155,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strnum@npm:^2.2.3, strnum@npm:^2.4.0":
+"strnum@npm:^2.2.3":
   version: 2.4.0
   resolution: "strnum@npm:2.4.0"
   dependencies:
     anynum: "npm:^1.0.0"
   checksum: 10c0/36ac1ca6f511d8216d9b07934359f78afb158eedee73fb057c77b1cffa160a60cb848b35f219bd2c115b0037e8ec3962f492874ea4b10ef021ab6403dbb10e7e
+  languageName: node
+  linkType: hard
+
+"strnum@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "strnum@npm:2.4.1"
+  dependencies:
+    anynum: "npm:^1.0.1"
+  checksum: 10c0/0d6a42bf8a1ad74b0a6c048ecf3bea50757383bcf304877ebe6e62acca5574bc088ce71bfb4de4b89b2ab44c618834c76be5894da04b67c673ff6677788b2638
   languageName: node
   linkType: hard
 
@@ -17442,7 +17459,7 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1071.0"
+    "@aws-sdk/client-s3": "npm:3.1072.0"
     "@influxdata/influxdb3-client": "npm:2.3.0"
     "@navigraph/amdb": "npm:1.1.0"
     "@nuxt/eslint": "npm:1.16.0"
@@ -17488,10 +17505,10 @@ __metadata:
     dexie: "npm:4.4.4"
     discord.js: "npm:14.26.4"
     eslint: "npm:10.5.0"
-    fast-xml-parser: "npm:5.9.2"
+    fast-xml-parser: "npm:5.9.3"
     ioredis: "npm:5.11.1"
     jsonwebtoken: "npm:9.0.3"
-    jwks-rsa: "npm:4.0.1"
+    jwks-rsa: "npm:4.1.0"
     kafkajs: "npm:2.2.4"
     klona: "npm:2.0.6"
     magvar: "npm:2.0.1"
