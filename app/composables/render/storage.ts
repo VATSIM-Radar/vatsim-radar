@@ -208,6 +208,17 @@ export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
 
 export type PilotCalculatedArrival = Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
 
+export interface PilotNavigraphWaypoints {
+    pilot: VatsimShortenedAircraft;
+    coordinates: Coordinate;
+    calculatedArrival?: PilotCalculatedArrival;
+    full: boolean;
+    disableHoldings?: boolean;
+    disableLabels?: boolean;
+    disableWaypoints?: boolean;
+    waypoints: NavigraphNavDataEnrouteWaypointPartial[];
+}
+
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
     vatspy: ShallowRef<DataStoreVatspy | undefined>;
@@ -260,16 +271,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
-    navigraphWaypoints: Ref<Record<string, {
-        pilot: VatsimShortenedAircraft;
-        coordinates: Coordinate;
-        calculatedArrival?: PilotCalculatedArrival;
-        full: boolean;
-        disableHoldings?: boolean;
-        disableLabels?: boolean;
-        disableWaypoints?: boolean;
-        waypoints: NavigraphNavDataEnrouteWaypointPartial[];
-    }>>;
+    navigraphWaypoints: Ref<Record<string, PilotNavigraphWaypoints>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
     navigraph: {

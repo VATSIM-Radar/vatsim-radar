@@ -96,6 +96,10 @@ async function receiveMessage(event: MessageEvent) {
     if (data.type === 'settings') {
         settingsStore.save(data.settings, { autoSave: false, overwrite: true, dontSave: true });
     }
+
+    if (data.type === 'navigraph-waypoints') {
+        useDataStore().navigraphWaypoints.value = data.waypoints;
+    }
 }
 
 onMounted(() => {
