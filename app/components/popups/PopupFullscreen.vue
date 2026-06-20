@@ -7,6 +7,7 @@
         <transition name="popup--appear">
             <div
                 v-if="localValue"
+                v-bind="$attrs"
                 class="popup"
                 :class="{ 'popup--disabled': disabled }"
                 :style="{ '--width': width }"

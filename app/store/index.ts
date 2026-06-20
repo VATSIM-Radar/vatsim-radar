@@ -91,6 +91,7 @@ export const useStore = defineStore('index', {
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
         dashboards: [] as UserDashboard[],
+        favoriteDashboards: [] as UserDashboard[],
         activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
 
@@ -455,7 +456,9 @@ export const useStore = defineStore('index', {
         },
         async fetchDashboards() {
             this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
-            console.log(this.dashboards);
+        },
+        async fetchFavoriteDashboards() {
+            this.favoriteDashboards = await $fetch<UserDashboard[]>('/api/user/dashboards/favorite');
         },
     },
 });

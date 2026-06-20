@@ -9,6 +9,8 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { UserTrackingList } from '#prisma';
 import { isNext } from '~/utils/server/debug';
 import type { UserMessageType } from '~/utils/shared';
+import type { DashboardColumn } from '~/utils/shared/dashboard';
+import type { UserDashboard } from '~/utils/server/handlers/dashboards';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');

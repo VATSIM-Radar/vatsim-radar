@@ -66,7 +66,19 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
         {
             text: 'Dashboard',
             icon: DataIcon,
-            disabled: true,
+            path: '/dashboard',
+            children: [
+                {
+                    text: 'Events',
+                    path: '/events',
+                    icon: EventsIcon,
+                },
+                {
+                    text: 'Bookings',
+                    path: '/bookings',
+                    icon: BookingsIcon,
+                },
+            ],
         },
         {
             text: 'Stats',

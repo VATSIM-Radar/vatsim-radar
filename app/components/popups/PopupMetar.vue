@@ -5,7 +5,7 @@
         @update:modelValue="store.metarRequest = false"
     >
         <template #title>
-            Weather Request
+            Conditions Request
         </template>
         <div class="__info-sections">
             <popup-fullscreen
@@ -139,6 +139,12 @@
                                 Copy
                             </ui-button>
                         </div>
+                        <details>
+                            <summary>NOTAMs</summary>
+                            <div class="metar__item_body_section">
+                                <airport-notams :notams="notams[item.icao]"/>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
@@ -164,6 +170,8 @@ import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import CloseIcon from '~/assets/icons/basic/close.svg?component';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
+import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -179,6 +187,7 @@ const list = useCookie<string[]>('metars', {
     sameSite: 'none',
 });
 const cached = ref<VatsimAirportDataIcao[]>([]);
+const notams = shallowRef<Record<string, VatsimAirportDataNotam[]>>({});
 
 const isDisabledAirport = computed(() => {
     return list.value.includes(newAirport.value) || !dataStore.vatspy.value?.data.keyAirports.realIcao[newAirport.value];
@@ -214,6 +223,11 @@ async function requestAirport(icao: string) {
     const data = await $fetch<VatsimAirportDataIcao>(`/api/data/vatsim/airport/${ icao }?requestedDataType=1&excludeBookings=1`);
     data.icao = icao;
     cached.value.push(data);
+
+    $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).then(x => {
+        notams.value[icao] = x;
+    }).catch(console.error);
+
     return data;
 }
 

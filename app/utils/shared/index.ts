@@ -17,7 +17,8 @@ export const MAX_USER_LISTS = 5;
 export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 10;
 export const MAX_BOOKMARKS = 20;
-export const MAX_DASHBOARDS = 10;
+export const MAX_DASHBOARDS = 20;
+export const MAX_FAVORITE_DASHBOARDS = 50;
 export const MAX_FILTER_ARRAY_VALUE = 30;
 export const MAX_MAP_ZOOM = 20;
 

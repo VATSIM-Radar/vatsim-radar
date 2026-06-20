@@ -69,7 +69,7 @@
             <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
-                    <map-minified-overlays/>
+                    <map-minified-overlays v-if="!store.activeDashboard"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -413,7 +413,7 @@ const canShowObserver = computed(() => {
 });
 
 const restoreOverlays = async () => {
-    if (store.config.hideAllExternal) return;
+    if (store.config.hideAllExternal || store.activeDashboard) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);

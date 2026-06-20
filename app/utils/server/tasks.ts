@@ -60,12 +60,12 @@ interface VatsimStatus {
         name: string;
         start: string;
         status: 'NOTSTARTEDYET' | 'INPROGRESS' | 'COMPLETED';
-        duration: string;
+        duration: number;
         url: string;
     }[];
 }
 
-const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
+const zuluTime = new Intl.DateTimeFormat(['ru-RU'], {
     timeZone: 'UTC',
     day: '2-digit',
     month: '2-digit',
@@ -199,14 +199,14 @@ async function vatsimTasks() {
             if (!current) current = status.activeMaintenances[0];
 
             const date = new Date(current.start ?? new Date().toISOString());
-            let minutes: string | number = parseInt(current.duration);
+            let minutes: string | number = +current.duration;
             if (isNaN(minutes)) minutes = current.duration;
 
             if (current.status === 'NOTSTARTEDYET' && date.getTime() - (1000 * 60 * 60) <= Date.now()) {
                 notam = {
                     id: new Date(current.start ?? new Date().toISOString()).getTime(),
                     type: NotamType.ANNOUNCEMENT,
-                    text: `VATSIM maintenance is planned to start at ${ zuluTime.format(date) } and continue for ${ typeof minutes === 'number' ? `${ minutes } minutes` : minutes }. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
+                    text: `VATSIM maintenance is planned to start at ${ zuluTime.format(date) }z and continue for ${ typeof minutes === 'number' ? `${ minutes } minutes` : minutes }. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
                     active: true,
                     activeFrom: null,
                     activeTo: null,
@@ -217,7 +217,7 @@ async function vatsimTasks() {
                 notam = {
                     id: new Date(current.start ?? new Date().toISOString()).getTime(),
                     type: NotamType.WARNING,
-                    text: `VATSIM maintenance is currently in progress - it scheduled to end at approx. ${ typeof minutes === 'number' ? zuluTime.format(date.getTime() + (1000 * 60 * minutes)) : `${ zuluTime.format(date) } + ${ minutes }` }. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
+                    text: `VATSIM maintenance is currently in progress - it scheduled to end at approx. ${ typeof minutes === 'number' ? zuluTime.format(date.getTime() + (1000 * 60 * minutes)) : `${ zuluTime.format(date) } + ${ minutes }` }z. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
                     active: true,
                     activeFrom: null,
                     activeTo: null,

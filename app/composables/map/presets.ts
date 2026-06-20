@@ -158,12 +158,20 @@ export async function checkAndSetMapPreset() {
 
     preset = structuredClone(preset);
 
+    if (typeof query.dashboard === 'string') {
+        preset.dashboardId = +query.dashboard;
+
+        await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
+            store.activeDashboard = x.json;
+        }).catch(console.error);
+    }
+
     if (typeof query.airports === 'string') {
         preset.airports = query.airports.split(',').map(x => x.toUpperCase());
         preset.hideSectors = false;
         preset.hideAirports = false;
 
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && store.activeDashboard?.showArrivalTracks !== false) {
             nextTick().then(async () => {
                 for (const airport of preset.airports!) {
                     await checkForUpdates();
@@ -180,6 +188,9 @@ export async function checkAndSetMapPreset() {
                 }
             });
         }
+        else if (store.activeDashboard?.showArrivalTracks === false) {
+            preset.hideOverlays = true;
+        }
     }
 
     if (typeof query.airport === 'string') {
@@ -189,14 +200,6 @@ export async function checkAndSetMapPreset() {
 
     if (typeof query.atcCallsign === 'string') {
         preset.mainAtcCallsign = query.atcCallsign.toUpperCase();
-    }
-
-    if (typeof query.dashboard === 'string') {
-        preset.dashboardId = +query.dashboard;
-
-        $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
-            store.activeDashboard = x.json;
-        }).catch(console.error);
     }
 
     if (typeof query.airportMode === 'string' && query.airportMode) {

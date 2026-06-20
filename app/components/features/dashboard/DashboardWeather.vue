@@ -6,7 +6,7 @@
                 :key="entry.icao"
                 class="dashboard-weather_card"
                 :class="{
-                    'dashboard-weather_card--changed': changedWeather[entry.icao] && changedWeather[entry.icao]?.qnh !== entry.qnh,
+                    'dashboard-weather_card--changed': changedWeather[entry.icao] && changedWeather[entry.icao]?.qnh !== entry.qnh && !changedWeather[entry.icao].acknowledged,
                     'dashboard-weather_card--active': expandedMetars.has(entry.icao),
                 }"
                 @click="onCardClick(entry.icao)"
@@ -30,7 +30,7 @@
                     v-if="expandedMetars.has(entry.icao)"
                     class="dashboard-weather_card_metar"
                     :class="{ 'dashboard-weather_card_metar--empty': !entry.metar }"
-                >{{ entry.metar ?? 'No METAR' }}</code>
+                >{{ (showPreviousMetar ? changedWeather[entry.icao] ?? entry : entry).metar ?? 'No METAR' }}</code>
                 <div
                     v-else
                     class="dashboard-weather_card_meta"
@@ -39,24 +39,24 @@
                         class="dashboard-weather_card_qnh"
                         :class="{ 'dashboard-weather_card_qnh--empty': !entry.qnh }"
                     >
-                        {{ entry.qnh ?? 'No METAR' }}
+                        {{ (showPreviousMetar ? changedWeather[entry.icao] ?? entry : entry).qnh ?? 'No METAR' }}
                     </span>
                     <span
                         v-if="entry.wind"
                         class="dashboard-weather_card_wind"
                     >
-                        {{ entry.wind }}
+                        {{ (showPreviousMetar ? changedWeather[entry.icao] ?? entry : entry).wind }}
                     </span>
                 </div>
             </div>
-            <div
-                v-if="canEdit"
-                class="dashboard-weather_add"
-                @click="$emit('addAirport')"
+            <ui-button
+                v-if="entries.some(x => changedWeather[x.icao] && changedWeather[x.icao]?.metar !== x.metar)"
+                size="S"
+                :type="showPreviousMetar ? 'primary' : 'secondary'"
+                @click="showPreviousMetar = !showPreviousMetar"
             >
-                <span class="dashboard-weather_add_label">Add airport</span>
-                <plus-icon class="dashboard-weather_add_icon"/>
-            </div>
+                Show previous METAR
+            </ui-button>
         </div>
     </div>
 </template>
@@ -67,6 +67,8 @@ import { parseMetar, AltimeterUnit } from 'metar-taf-parser';
 import type { StoreOverlayAirport } from '~/store/map';
 import { useDashboard } from '~/composables/dashboard';
 import PlusIcon from '@/assets/icons/kit/plus.svg?component';
+import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 defineProps({
     canEdit: {
@@ -136,18 +138,18 @@ const entries = computed(() => {
     });
 });
 
-const QNH_STORAGE_KEY = 'vatsim-radar-dashboard-qnh';
-const storedQnh = useCookie<Record<string, { metar: string | null; qnh: string }>>(QNH_STORAGE_KEY, {
+const QNH_STORAGE_KEY = 'vatsim-radar-dashboard-metar';
+const storedMetar = useCookie<Record<string, { metar: string | null; qnh: string; wind: string | null }>>(QNH_STORAGE_KEY, {
     secure: true,
     sameSite: 'none',
     path: '/',
     default: () => ({}),
 });
-const changedWeather = ref<Record<string, { metar: string | null; qnh: string }>>({});
+const changedWeather = ref<Record<string, { metar: string | null; qnh: string; wind: string | null; acknowledged?: boolean }>>({});
 
 function acknowledgeQnh(icao: string) {
-    if (!changedWeather.value[icao]) return false;
-    delete changedWeather.value[icao];
+    if (!changedWeather.value[icao] || !changedWeather.value[icao].acknowledged) return false;
+    changedWeather.value[icao].acknowledged = true;
     return true;
 }
 
@@ -163,15 +165,17 @@ onMounted(() => {
     watch(entries, list => {
         for (const entry of list) {
             if (!entry.qnh) continue;
-            const previous = storedQnh.value[entry.icao];
+            const previous = storedMetar.value[entry.icao];
             if (previous && (previous.qnh !== entry.qnh || previous.metar !== entry.metar)) {
                 changedWeather.value[entry.icao] = {
                     qnh: previous.qnh,
+                    wind: previous.wind,
                     metar: previous.metar,
                 };
             }
-            storedQnh.value[entry.icao] = {
+            storedMetar.value[entry.icao] = {
                 qnh: entry.qnh,
+                wind: entry.wind,
                 metar: entry.metar,
             };
         }
@@ -197,8 +201,8 @@ onMounted(() => {
 
         display: flex;
         flex: 0 0 auto;
-        flex-direction: column;
-        gap: 4px;
+        gap: 8px;
+        align-items: center;
 
         min-width: 160px;
         padding: 6px 10px;
@@ -258,9 +262,7 @@ onMounted(() => {
         changes the card height (min-height, so nothing is clipped if content is ever taller) */
         &_meta {
             display: flex;
-            gap: 4px 8px;
-            align-items: center;
-            min-height: 26px;
+            flex-direction: column;
         }
 
         &_qnh {
@@ -303,42 +305,6 @@ onMounted(() => {
                 letter-spacing: normal;
                 background: transparent;
             }
-        }
-    }
-
-    &_add {
-        cursor: pointer;
-
-        display: flex;
-        flex: 0 0 auto;
-        flex-direction: column;
-        gap: 4px;
-        align-items: center;
-        justify-content: center;
-
-        min-width: 160px;
-        padding: 6px 10px;
-        border: 1px dashed $blue500;
-        border-radius: 8px;
-
-        color: $blue500;
-
-        transition: 0.3s;
-
-        @include hover {
-            &:hover {
-                background: varToRgba('primary500', 0.08);
-            }
-        }
-
-        &_icon {
-            width: 18px;
-            min-width: 18px;
-        }
-
-        &_label {
-            font-size: 12px;
-            font-weight: 600;
         }
     }
 }

@@ -1,6 +1,7 @@
 <template>
     <popup-fullscreen
         v-model="model"
+        class="dashboard-edit-popup"
         :disabled="saving"
         width="700px"
     >
@@ -56,7 +57,11 @@
                             Airports
                         </div>
 
-                        <div class="dashboard-edit_airports">
+                        <vue-draggable
+                            v-model="airports"
+                            class="dashboard-edit_airports"
+                            handle=".dashboard-edit_airport_drag"
+                        >
                             <div
                                 v-for="(airport, index) in airports"
                                 :key="index"
@@ -77,6 +82,7 @@
                                     >
                                         <close-icon/>
                                     </div>
+                                    <drag-icon class="dashboard-edit_airport_drag"/>
                                 </div>
 
                                 <div
@@ -101,7 +107,7 @@
                                     Aircraft color
                                 </ui-input-color>
                             </div>
-                        </div>
+                        </vue-draggable>
 
                         <ui-button
                             :disabled="atAirportCap"
@@ -225,6 +231,14 @@
                 Cancel
             </ui-button>
             <ui-button
+                v-if="editDashboard"
+                :disabled="saving"
+                type="destructive"
+                @click="deleteCurrentDashboard()"
+            >
+                Delete
+            </ui-button>
+            <ui-button
                 :disabled="!canSave"
                 @click="save()"
             >
@@ -251,7 +265,7 @@ import PlusIcon from '@/assets/icons/kit/plus.svg?component';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import { useDataStore } from '~/composables/render/storage';
 import { hexToRgb, rgbToHex } from '~/composables/settings/colors';
-import { createDashboard, updateDashboard } from '~/composables/fetchers/dashboards';
+import { createDashboard, deleteDashboard, updateDashboard } from '~/composables/fetchers/dashboards';
 import {
     DashboardSchema,
     MAX_DASHBOARD_AIRPORTS,
@@ -273,6 +287,8 @@ import type {
 import type { UserDashboard } from '~/utils/server/handlers/dashboards';
 import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
+import { VueDraggable } from 'vue-draggable-plus';
+import DragIcon from '~/assets/icons/kit/drag.svg?component';
 
 interface AirportRow {
     icao: string;
@@ -455,6 +471,26 @@ async function save() {
     }
 }
 
+async function deleteCurrentDashboard() {
+    const result = confirm(`Do you really want to delete ${ props.editDashboard?.name } dashboard? This action is irreversible`);
+    if (!result) return;
+
+    saving.value = true;
+    serverError.value = null;
+
+    try {
+        await deleteDashboard(props.editDashboard?.id ?? 0);
+        model.value = false;
+        location.href = '/dashboard';
+    }
+    catch (error: any) {
+        serverError.value = error?.data?.data ?? error?.statusMessage ?? 'Failed to delete dashboard. Please try again.';
+    }
+    finally {
+        saving.value = false;
+    }
+}
+
 function resetForm() {
     serverError.value = null;
 
@@ -613,6 +649,11 @@ watch(model, open => {
                     color: $red500;
                 }
             }
+        }
+
+        &_drag {
+            cursor: grab;
+            width: 32px;
         }
     }
 

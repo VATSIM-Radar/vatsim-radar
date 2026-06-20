@@ -8,12 +8,14 @@
                 <div class="dashboard-view_header_title_name">
                     {{ dashboard.name }}
                 </div>
-                <ui-bubble
-                    v-if="dashboard.public"
-                    class="dashboard-view_header_title_badge"
+                <div
+                    v-if="dashboard.public && !dashboard.owner && store.user"
+                    class="dashboard-view_header_title_favorite"
+                    @click="toggleFavorite"
                 >
-                    Public
-                </ui-bubble>
+                    <star-filled-icon v-if="store.favoriteDashboards.some(x => x.id === dashboard?.id)"/>
+                    <star-icon v-else/>
+                </div>
 
                 <ui-button
                     size="S"
@@ -40,6 +42,7 @@
 
                     <div
                         v-if="actionsOpen"
+                        _
                         class="dashboard-view_actions_backdrop"
                         @click="actionsOpen = false"
                     />
@@ -124,7 +127,7 @@
                     <template #icon>
                         <weather-icon/>
                     </template>
-                    Weather Request
+                    Conditions Request
                 </ui-button>
             </div>
             <client-only>
@@ -152,9 +155,6 @@
                 class="dashboard-view_panel"
             >
                 <div class="dashboard-view_section">
-                    <div class="dashboard-view_section_title">
-                        Aircraft
-                    </div>
                     <dashboard-aircraft
                         v-if="ready"
                         v-model:selected="selectedPilot"
@@ -208,6 +208,8 @@ import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import CopyIcon from '@/assets/icons/kit/copy.svg?component';
 import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
+import StarIcon from '~/assets/icons/kit/star.svg?component';
+import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 
 const route = useRoute();
 const router = useRouter();
@@ -228,6 +230,10 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
         return null;
     }
 }, {
+    server: false,
+});
+
+const { refresh: refreshFavorite } = await useAsyncData(store.fetchFavoriteDashboards, {
     server: false,
 });
 
@@ -413,6 +419,16 @@ function shareLink() {
     return copy(`${ config.public.DOMAIN }/dashboard/${ id.value }`);
 }
 
+async function toggleFavorite() {
+    const favorite = store.favoriteDashboards.find(x => x.id === dashboard.value?.id);
+
+    await $fetch(`/api/user/dashboards/favorite/${ dashboard.value?.id }`, {
+        method: favorite ? 'DELETE' : 'POST',
+    });
+
+    await refreshFavorite();
+}
+
 async function makePublicAndShare() {
     if (!dashboard.value) return;
     await updateDashboard(dashboard.value.id, {
@@ -501,6 +517,7 @@ async function refreshWeather() {
 
         &_title {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             align-items: center;
 
@@ -510,6 +527,14 @@ async function refreshWeather() {
             &_name {
                 font-weight: 600;
                 color: $blue500;
+            }
+
+            &_favorite {
+                cursor: pointer;
+
+                svg {
+                    width: 12px;
+                }
             }
         }
 
@@ -629,6 +654,7 @@ async function refreshWeather() {
 
         @include mobileOnly {
             flex-direction: column;
+            min-height: 100dvh;
         }
     }
 
@@ -646,9 +672,6 @@ async function refreshWeather() {
     }
 
     &_section {
-        padding: 12px;
-        border: 1px solid $darkGray800;
-        border-radius: 8px;
         background: $black;
 
         &_title {
@@ -668,10 +691,6 @@ async function refreshWeather() {
         min-width: 0;
         min-height: 0;
 
-        @include mobileOnly {
-            min-height: 320px;
-        }
-
         &_iframe {
             all: unset;
 
@@ -680,6 +699,17 @@ async function refreshWeather() {
             width: 100%;
             height: 100%;
             border-radius: 8px;
+        }
+
+        @include mobileOnly {
+            position: relative;
+            flex-grow: 1;
+            min-height: 320px;
+
+            &_iframe {
+                position: absolute;
+                inset: 0;
+            }
         }
     }
 }

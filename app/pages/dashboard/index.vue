@@ -102,7 +102,7 @@ function openCreate(airport: string | null = null) {
     editorOpen.value = true;
 }
 
-const { status } = await useAsyncData(async () => {
+const { status } = await useAsyncData('dashboards-fetch', async () => {
     await store.fetchDashboards().catch(console.error);
 }, {
     server: false,

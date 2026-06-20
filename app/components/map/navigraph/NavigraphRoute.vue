@@ -418,7 +418,7 @@ async function update() {
         for (const pilot in dataStore.navigraphWaypoints.value) {
             const arrival = dataStore.navigraphWaypoints.value[pilot];
             waypoints[pilot] = {
-                ...arrival,
+                ...toRaw(arrival),
                 waypoints: [],
             };
         }
@@ -426,7 +426,7 @@ async function update() {
         const targetOrigin = useRuntimeConfig().public.DOMAIN;
         window.parent.postMessage({
             type: 'navigraph-waypoints',
-            waypoints,
+            waypoints: JSON.parse(JSON.stringify(waypoints)),
         }, targetOrigin);
 
         for (const feature of features) {

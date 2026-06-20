@@ -4,10 +4,11 @@ import { safeParse } from 'valibot';
 import { findUserByCookie } from '~/utils/server/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/server/h3';
 import { prisma } from '~/utils/server/prisma';
-import { MAX_DASHBOARDS } from '~/utils/shared';
+import { MAX_DASHBOARDS, MAX_FAVORITE_DASHBOARDS } from '~/utils/shared';
 import { radarStorage } from '~/utils/server/storage';
 import { DashboardSettingsSchema } from '~/utils/shared/dashboard';
 import type { DashboardSettings } from '~/utils/shared/dashboard';
+import favorite from '#server/api/user/dashboards/favorite';
 
 export type UserDashboard = Omit<Dashboard, 'json'> & {
     json: DashboardSettings;
@@ -55,7 +56,7 @@ export async function handleDashboardsEvent(event: H3Event) {
         }
 
         userId = user?.id;
-        if (user && await freezeH3Request(event, user.id) !== true) return;
+        if (user && event.method !== 'GET' && await freezeH3Request(event, user.id) !== true) return;
 
         const id = getRouterParam(event, 'id');
 
@@ -260,7 +261,7 @@ export async function handleDashboardsEvent(event: H3Event) {
         return handleH3Exception(event, e);
     }
     finally {
-        if (userId) {
+        if (event.method !== 'GET' && userId) {
             unfreezeH3Request(userId);
         }
     }
@@ -313,6 +314,109 @@ export async function handlePublicDashboardEvent(event: H3Event) {
             json: dashboard.json as DashboardSettings,
             owner,
         } satisfies PublicDashboard;
+    }
+    catch (e) {
+        return handleH3Exception(event, e);
+    }
+}
+
+export async function handleDashboardFavoriteEvent(event: H3Event) {
+    try {
+        const user = await findUserByCookie(event);
+
+        if (!user) {
+            return handleH3Error({
+                event,
+                statusCode: 401,
+            });
+        }
+
+        const id = getRouterParam(event, 'id');
+
+        const favorite = await prisma.favoriteDashboard.findMany({
+            where: {
+                userId: user!.id,
+            },
+            include: {
+                dashboard: true,
+            },
+        });
+
+        let dashboard: Dashboard | null = null;
+
+        if (id) {
+            dashboard = await prisma.dashboard.findFirst({
+                where: {
+                    id: +id,
+                },
+            }) ?? null;
+
+            if (!dashboard) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    data: 'This dashboard was not found',
+                });
+            }
+
+            if (dashboard.userId === user.id) {
+                return handleH3Error({
+                    event,
+                    statusCode: 419,
+                    data: `You can't favorite your own dashboard`,
+                });
+            }
+        }
+
+        if (event.method === 'POST' && dashboard) {
+            if (favorite.length >= MAX_FAVORITE_DASHBOARDS) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    data: `Only ${ MAX_FAVORITE_DASHBOARDS } favorite dashboards are allowed`,
+                });
+            }
+
+            await prisma.favoriteDashboard.create({
+                data: {
+                    userId: user!.id,
+                    dashboardId: dashboard.id,
+                },
+                select: {
+                    id: true,
+                },
+            });
+
+            return {
+                status: 'ok',
+            };
+        }
+        else if (event.method === 'DELETE' && dashboard) {
+            await prisma.favoriteDashboard.delete({
+                where: {
+                    id: favorite.find(x => x.dashboardId === dashboard.id)?.id ?? 0,
+                },
+            });
+
+            return {
+                status: 'ok',
+            };
+        }
+        else if (event.method === 'GET') {
+            if (id) {
+                return dashboard;
+            }
+            else {
+                return favorite.map(x => x.dashboard);
+            }
+        }
+        else {
+            return handleH3Error({
+                event,
+                statusCode: 400,
+                data: 'Incorrect method received',
+            });
+        }
     }
     catch (e) {
         return handleH3Exception(event, e);

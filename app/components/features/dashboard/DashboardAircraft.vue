@@ -1,14 +1,5 @@
 <template>
     <div class="dashboard-aircraft">
-        <div class="dashboard-aircraft_rate">
-            <span class="dashboard-aircraft_rate_label">Arrivals rate</span>
-            <vatsim-traffic-rate
-                :aircraft="combinedAircraft"
-                icon-color="rgb(var(--lightGray200))"
-                text-color="rgb(var(--lightGray200))"
-            />
-        </div>
-
         <div
             class="dashboard-aircraft_columns"
             :class="{ 'dashboard-aircraft_columns--horizontal': horizontal }"
@@ -18,6 +9,7 @@
                 :key="column.column"
                 class="dashboard-aircraft_col"
                 :class="{ 'dashboard-aircraft_col--collapsed': collapsed.has(column.column) }"
+                :style="{ '--color': column.color }"
             >
                 <div
                     class="dashboard-aircraft_col_head"
@@ -27,7 +19,15 @@
                         class="dashboard-aircraft_col_head_chevron"
                         :class="{ 'dashboard-aircraft_col_head_chevron--collapsed': collapsed.has(column.column) }"
                     />
-                    <span class="dashboard-aircraft_col_head_title">{{ column.label }}</span>
+                    <ui-text class="dashboard-aircraft_col_head_title" type="2b-medium">{{ column.label }}</ui-text>
+                    <ui-text class="dashboard-aircraft_rate" type="caption">
+                        <vatsim-traffic-rate
+                            v-if="column.key === 'arrivals'"
+                            :aircraft="combinedAircraft"
+                            icon-color="rgb(var(--lightGray200))"
+                            text-color="rgb(var(--lightGray200))"
+                        />
+                    </ui-text>
                     <ui-bubble type="secondary">
                         {{ column.count }}
                     </ui-bubble>
@@ -129,6 +129,7 @@ import type { StoreOverlayAirport } from '~/store/map';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import ArrowTopIcon from '@/assets/icons/kit/arrow-top.svg?component';
 import VatsimPilotHours from '~/components/features/vatsim/pilots/VatsimPilotHours.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const selected = defineModel<number | null>('selected', { type: Number, default: null });
 
@@ -178,6 +179,7 @@ interface ColumnView {
     label: string;
     count: number;
     rows: AircraftRow[];
+    color: string;
 }
 
 function groundspeedOf(pilot: AirportPopupPilotStatus): number {
@@ -233,13 +235,21 @@ function buildColumn(column: DashboardColumn): ColumnView {
     const rows: AircraftRow[] = [];
     let count = 0;
 
+    let color: string = '';
+    if (key === 'enroute') color = radarColors[getPilotStatus('enroute').color];
+    if (key === 'prefiles') color = getAircraftStatusColor('neutral');
+    if (key === 'groundDep') color = radarColors[getPilotStatus('depTaxi').color];
+    if (key === 'groundArr') color = radarColors[getPilotStatus('arrTaxi').color];
+    if (key === 'departures') color = radarColors[getPilotStatus('departed').color];
+    if (key === 'arrivals') color = radarColors[getPilotStatus('arriving').color];
+
     if (key === 'enroute') {
         for (const pilot of enrouteAircraft.value) {
             if (airportAircraft.value.has(pilot.cid)) continue;
             rows.push({ type: 'pilot', key: `enroute-${ pilot.cid }`, pilot, statusKey: key, color: null });
             count++;
         }
-        return { column, key, label, count, rows };
+        return { column, key, label, count, rows, color };
     }
 
     if (GROUPED_KEYS.has(key)) {
@@ -253,7 +263,8 @@ function buildColumn(column: DashboardColumn): ColumnView {
                 count++;
             }
         }
-        return { column, key, label, count, rows };
+
+        return { column, key, label, count, rows, color };
     }
 
     const entries: { pilot: AirportPopupPilotStatus; icao: string; color: string | null }[] = [];
@@ -270,7 +281,7 @@ function buildColumn(column: DashboardColumn): ColumnView {
         rows.push({ type: 'pilot', key: `${ column }-${ entry.icao }-${ entry.pilot.cid }`, pilot: entry.pilot, statusKey: key, color: entry.color });
         count++;
     }
-    return { column, key, label, count, rows };
+    return { column, key, label, count, rows, color };
 }
 
 const columns = computed<ColumnView[]>(() => COLUMN_ORDER.map(buildColumn));
@@ -377,17 +388,13 @@ defineExpose({ combinedAircraft });
 
     &_rate {
         display: flex;
-        gap: 12px;
+        gap: 4px;
         align-items: center;
-
-        font-size: 13px;
-        font-weight: 600;
-        color: $lightGray200;
     }
 
     &_columns {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 12px;
 
         &--horizontal {
@@ -406,8 +413,13 @@ defineExpose({ combinedAircraft });
 
         min-width: 0;
 
-        .dashboard-aircraft_columns--horizontal & {
+        @at-root .dashboard-aircraft_columns--horizontal & {
             min-width: 240px;
+
+            .dashboard-aircraft_col_body {
+                flex-direction: column;
+                max-height: 260px;
+            }
         }
 
         &_head {
@@ -444,19 +456,17 @@ defineExpose({ combinedAircraft });
 
             &_title {
                 flex-grow: 1;
-                font-size: 14px;
-                font-weight: 700;
-                color: $lightGray200;
+                color: var(--color);
             }
         }
 
         &_body {
-            overflow-y: auto;
+            overflow: auto;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
 
-            max-height: 260px;
+            max-height: 15dvh;
             padding-right: 2px;
         }
     }
@@ -466,6 +476,7 @@ defineExpose({ combinedAircraft });
         gap: 6px;
         align-items: center;
 
+        width: 100%;
         margin-top: 4px;
 
         font-size: 12px;
