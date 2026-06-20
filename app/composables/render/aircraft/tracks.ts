@@ -110,12 +110,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
     try {
         updateState.updating = true;
+        let turnsColor = getAircraftStatusColor(status, aircraft.cid);
 
         for (const feature of tracksFeatures) {
             const properties = feature.getProperties();
 
-            if (properties.lineType === 'departure-straight') depLine = feature;
-            if (properties.lineType === 'arrival-straight') arrLine = feature;
+            if (properties.lineType === 'departure-straight' && properties.color === turnsColor) depLine = feature;
+            if (properties.lineType === 'arrival-straight' && properties.color === turnsColor) arrLine = feature;
         }
 
         const departureAirport = pilot.departure ? dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure] : null;
@@ -130,7 +131,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             track.show !== 'short' &&
             !!dataStore.navigraph.version.value;
 
-        let turnsColor = getAircraftStatusColor(status, aircraft.cid);
         const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
 
         if (turnsTransparency) {

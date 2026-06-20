@@ -206,6 +206,8 @@ export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
     data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs' | 'features'>;
 };
 
+export type PilotCalculatedArrival = Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
+
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
     vatspy: ShallowRef<DataStoreVatspy | undefined>;
@@ -261,7 +263,7 @@ export interface UseDataStore {
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
         coordinates: Coordinate;
-        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
+        calculatedArrival?: PilotCalculatedArrival;
         full: boolean;
         disableHoldings?: boolean;
         disableLabels?: boolean;

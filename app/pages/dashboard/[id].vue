@@ -661,8 +661,10 @@ async function refreshWeather() {
 
 
     &_map {
+        overflow: hidden;
         display: flex;
         flex: 0 0 var(--map-size);
+
         min-width: 0;
         min-height: 0;
 

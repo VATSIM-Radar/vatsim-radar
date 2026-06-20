@@ -291,9 +291,12 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft-line', properties)) {
-            if (properties.lineType === 'departure-straight') {
-                if (!styleCache.depLine) {
-                    styleCache.depLine = new Style({
+            if (properties.lineType === 'departure-straight' || properties.lineType === 'arrival-straight') {
+                const color = getAircraftDefaultTurnColor(properties.status, properties.cid);
+                const key = `defaultLine${ color }`;
+
+                if (!styleCache[key]) {
+                    styleCache[key] = new Style({
                         stroke: new Stroke({
                             color: getAircraftDefaultTurnColor(properties.status, properties.cid),
                             width: 1,
@@ -301,20 +304,7 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
                     });
                 }
 
-                return styleCache.depLine;
-            }
-            if (properties.lineType === 'arrival-straight') {
-                if (!styleCache.arrLine) {
-                    styleCache.arrLine = new Style({
-                        stroke: new Stroke({
-                            color: getAircraftDefaultTurnColor(properties.status, properties.cid),
-                            width: 1,
-                            lineDash: [4, 8],
-                        }),
-                    });
-                }
-
-                return styleCache.arrLine;
+                return styleCache[key];
             }
 
             if (!styleCache.defaultLineStyle) {

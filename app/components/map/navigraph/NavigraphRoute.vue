@@ -412,6 +412,12 @@ async function update() {
 
         const features = source?.value.getFeatures() ?? [];
 
+        const message = dataStore.navigraphWaypoints.value;
+        const targetOrigin = useRuntimeConfig().public.DOMAIN;
+        window.parent.postMessage(message, targetOrigin);
+
+        // TODO: post message of calculated arrivals
+
         for (const feature of features) {
             const type = feature.getProperties().featureType;
             if (type.startsWith('enroute') && !keys.has(feature.getId() as string)) {

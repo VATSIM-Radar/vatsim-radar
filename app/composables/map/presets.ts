@@ -163,21 +163,23 @@ export async function checkAndSetMapPreset() {
         preset.hideSectors = false;
         preset.hideAirports = false;
 
-        nextTick().then(async () => {
-            for (const airport of preset.airports!) {
-                await checkForUpdates();
-                await checkForVATSpy();
+        if (typeof window !== 'undefined') {
+            nextTick().then(async () => {
+                for (const airport of preset.airports!) {
+                    await checkForUpdates();
+                    await checkForVATSpy();
 
-                await mapStore.addAirportOverlay(airport, undefined, {
-                    minified: true,
-                    collapsed: true,
-                    data: {
-                        showTracks: true,
-                    },
-                    dontSave: true,
-                });
-            }
-        });
+                    await mapStore.addAirportOverlay(airport, undefined, {
+                        minified: true,
+                        collapsed: true,
+                        data: {
+                            showTracks: true,
+                        },
+                        dontSave: true,
+                    });
+                }
+            });
+        }
     }
 
     if (typeof query.airport === 'string') {

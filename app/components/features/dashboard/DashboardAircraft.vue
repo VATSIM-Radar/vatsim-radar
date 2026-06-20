@@ -73,11 +73,19 @@
                                         :data-cid="row.pilot.cid"
                                     >
                                         <span class="dashboard-aircraft_pilot_head_cs">{{ row.pilot.callsign }}</span>
+                                        <ui-bubble
+                                            v-if="'frequencies' in row.pilot && row.pilot.frequencies.length >= 1"
+                                            class="dashboard-aircraft_pilot_head_stats_frequency"
+                                            type="primary-flat"
+                                        >
+                                            {{ row.pilot.frequencies[0] }}
+                                        </ui-bubble>
                                         <vatsim-pilot-hours
                                             v-if="stats.find(x => x.cid === row.pilot.cid)"
                                             class="dashboard-aircraft_pilot_head_stats"
                                             :hours="stats.find(x => x.cid === row.pilot.cid)!.stats"
                                         />
+                                        <div class="__spacer"/>
                                         <span
                                             class="dashboard-aircraft_pilot_head_status"
                                             :style="{ '--color': `rgb(var(--${ pilotStatus(row.pilot, row.statusKey).color }))` }"

@@ -6,7 +6,7 @@
                 :key="entry.icao"
                 class="dashboard-weather_card"
                 :class="{
-                    'dashboard-weather_card--changed': changedQnh.has(entry.icao),
+                    'dashboard-weather_card--changed': changedWeather[entry.icao] && changedWeather[entry.icao]?.qnh !== entry.qnh,
                     'dashboard-weather_card--active': expandedMetars.has(entry.icao),
                 }"
                 @click="onCardClick(entry.icao)"
@@ -85,9 +85,9 @@ function getAtisLetter(icao: string): string | null {
     const atisList = dataStore.vatsim.data.atis.value.filter(atis => atis.atis_code && atis.callsign.startsWith(`${ icao }_`) && atis.callsign.endsWith('ATIS'));
     if (!atisList.length) return null;
 
-    const departure = atisList.find(atis => atis.callsign.endsWith('D_ATIS'))?.atis_code;
-    const arrival = atisList.find(atis => atis.callsign.endsWith('A_ATIS'))?.atis_code;
-    const combined = atisList.find(atis => !atis.callsign.endsWith('D_ATIS') && !atis.callsign.endsWith('A_ATIS'))?.atis_code;
+    const departure = atisList.find(atis => atis.callsign.endsWith('_D_ATIS'))?.atis_code;
+    const arrival = atisList.find(atis => atis.callsign.endsWith('_A_ATIS'))?.atis_code;
+    const combined = atisList.find(atis => !atis.callsign.endsWith('_D_ATIS') && !atis.callsign.endsWith('_A_ATIS'))?.atis_code;
 
     if (combined) return combined;
     const parts: string[] = [];
@@ -97,6 +97,7 @@ function getAtisLetter(icao: string): string | null {
 }
 
 const expandedMetars = ref<Set<string>>(new Set());
+const showPreviousMetar = ref(false);
 
 function parseQnh(metar: string): string | null {
     try {
@@ -136,22 +137,17 @@ const entries = computed(() => {
 });
 
 const QNH_STORAGE_KEY = 'vatsim-radar-dashboard-qnh';
-const storedQnh = ref<Record<string, string>>({});
-const changedQnh = ref<Set<string>>(new Set());
-
-function persistQnh() {
-    try {
-        localStorage.setItem(QNH_STORAGE_KEY, JSON.stringify(storedQnh.value));
-    }
-    catch {
-        // bro...
-    }
-}
+const storedQnh = useCookie<Record<string, { metar: string | null; qnh: string }>>(QNH_STORAGE_KEY, {
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+    default: () => ({}),
+});
+const changedWeather = ref<Record<string, { metar: string | null; qnh: string }>>({});
 
 function acknowledgeQnh(icao: string) {
-    if (!changedQnh.value.has(icao)) return false;
-    changedQnh.value.delete(icao);
-    changedQnh.value = new Set(changedQnh.value);
+    if (!changedWeather.value[icao]) return false;
+    delete changedWeather.value[icao];
     return true;
 }
 
@@ -164,23 +160,21 @@ function onCardClick(icao: string) {
 }
 
 onMounted(() => {
-    try {
-        storedQnh.value = JSON.parse(localStorage.getItem(QNH_STORAGE_KEY) ?? '{}') ?? {};
-    }
-    catch {
-        storedQnh.value = {};
-    }
-
     watch(entries, list => {
-        const next = new Set(changedQnh.value);
         for (const entry of list) {
             if (!entry.qnh) continue;
             const previous = storedQnh.value[entry.icao];
-            if (previous && previous !== entry.qnh) next.add(entry.icao);
-            storedQnh.value[entry.icao] = entry.qnh;
+            if (previous && (previous.qnh !== entry.qnh || previous.metar !== entry.metar)) {
+                changedWeather.value[entry.icao] = {
+                    qnh: previous.qnh,
+                    metar: previous.metar,
+                };
+            }
+            storedQnh.value[entry.icao] = {
+                qnh: entry.qnh,
+                metar: entry.metar,
+            };
         }
-        changedQnh.value = next;
-        persistQnh();
     }, { immediate: true, deep: true });
 });
 </script>
@@ -260,8 +254,8 @@ onMounted(() => {
             background: varToRgba('primary500', 0.15);
         }
 
-        // The QNH/wind row and the METAR row share the same min-height so toggling between them never
-        // changes the card height (min-height, so nothing is clipped if content is ever taller).
+        /* The QNH/wind row and the METAR row share the same min-height so toggling between them never
+        changes the card height (min-height, so nothing is clipped if content is ever taller) */
         &_meta {
             display: flex;
             gap: 4px 8px;
