@@ -5,6 +5,7 @@ import type { Feature, MultiPolygon, Polygon } from 'geojson';
 import { useDataStore } from '~/composables/render/storage';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
+import { isPilotOnGround } from '~/composables/vatsim/pilots';
 
 type BoundaryFeature = Feature<Polygon | MultiPolygon>;
 
@@ -85,6 +86,7 @@ export function useEnrouteAircraft(options: UseEnrouteAircraftOptions) {
         const hasBand = typeof from === 'number' && typeof to === 'number';
 
         return dataStore.vatsim.data.pilots.value.filter(pilot => {
+            if (isPilotOnGround(pilot)) return false;
             if (hasBand && (pilot.altitude < from! * 100 || pilot.altitude > to! * 100)) return false;
             const point: [number, number] = [pilot.longitude, pilot.latitude];
             return polys.some(polygon => booleanPointInPolygon(point, polygon));

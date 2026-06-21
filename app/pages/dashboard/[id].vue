@@ -9,7 +9,7 @@
                     {{ dashboard.name }}
                 </div>
                 <div
-                    v-if="dashboard.public && !dashboard.owner && store.user"
+                    v-if="dashboard.public && dashboard.id !== -1 && !dashboard.owner && store.user"
                     class="dashboard-view_header_title_favorite"
                     @click="toggleFavorite"
                 >
@@ -257,7 +257,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                 return {
                     id: -1,
                     name: icao,
-                    public: false,
+                    public: true,
                     json: {
                         airports: [
                             {
