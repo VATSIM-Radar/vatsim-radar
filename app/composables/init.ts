@@ -207,7 +207,7 @@ export function checkForVG() {
         let vatglasses = await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined;
         const vatglassesVersion = await clientDB.vatglasses.get('version') as string | undefined;
 
-        if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value!.vatglasses || vatglassesVersion !== dataStore.versions.value!.vatglasses) {
+        if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value?.vatglasses || vatglassesVersion !== dataStore.versions.value?.vatglasses) {
             vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
             await clientDB.data.put(vatglasses, 'vatglasses').catch(() => {
                 clientDB.delete();

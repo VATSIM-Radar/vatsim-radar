@@ -4,6 +4,7 @@ import { updateAircraft } from '~/composables/render/update/aircraft';
 import { updateControllers } from '~/composables/render/update/atc';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { logBench } from '~/composables';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 export interface DataUpdateContext { airports: Record<string, DataAirport>; sectors: Record<string, DataSector>; atcAdded: Set<string> | null; airportsAdded: Set<string> }
 
@@ -66,8 +67,8 @@ export async function updateControllersRender() {
 }
 
 export function initControllersUpdate() {
-    const combineBandsSetting = useSettingValueFromFunc('map.vatglasses.combineBands');
-    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, combineBandsSetting], () => {
+    const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combineBands') + getKeyedValueFromSettings('map.vatglasses.combined'));
+    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
         updateControllersRender();
     });
 }

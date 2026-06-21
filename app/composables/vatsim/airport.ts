@@ -229,7 +229,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
 
     watch(dataStore.navigraphWaypoints, debouncedUpdate);
 
-    if (getCurrentScope() && !injected && !filter) provide('airport-aircraft', aircraft);
+    if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
 };
@@ -247,7 +247,7 @@ export const getArrivalRate = (aircraft: Ref<AirportPopupPilotList | null>, inte
                 const differenceInMs = arrival.eta.getTime() - currentDate.getTime();
                 const differenceInMinutes = differenceInMs / (1000 * 60);
                 const interval = Math.floor(differenceInMinutes / intervalLength);
-                if (interval >= intervals) continue;
+                if (interval >= intervals || !returnArray[interval]) continue;
                 returnArray[interval].push(arrival);
             }
         }

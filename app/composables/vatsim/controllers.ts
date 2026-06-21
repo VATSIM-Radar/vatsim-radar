@@ -52,13 +52,13 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
     }
 
     if (facility === ids.DEL) {
-        if (raw) return radarColors.blue400Rgb;
-        return radarColors.blue400;
+        if (raw) return radarColors.blue600Rgb;
+        return radarColors.blue600;
     }
 
     if (facility === ids.TWR) {
-        if (raw) return radarColors.red500Rgb;
-        return radarColors.red500;
+        if (raw) return radarColors.red600Rgb;
+        return radarColors.red600;
     }
 
     if (facility === ids.GND) {

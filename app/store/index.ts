@@ -45,7 +45,7 @@ export interface SiteConfig {
     airports?: string[];
     airport?: string;
     mainAtcCallsign?: string;
-    dashboardId?: number;
+    dashboardId?: string;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     onlyAirportsAircraft?: boolean;

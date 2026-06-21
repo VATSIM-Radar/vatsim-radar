@@ -125,6 +125,7 @@ import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 import SettingsIcon from '~/assets/icons/kit/settings.svg?component';
 import { dashboardPredictedDefaults } from '~/utils/shared/dashboard';
 import type { DashboardPredictedOptions } from '~/utils/shared/dashboard';
+import { useDashboard } from '~/composables/dashboard';
 
 const props = defineProps({
     aircraft: {
@@ -204,6 +205,7 @@ const settingsOpen = ref(false);
 
 const store = useStore();
 const dataStore = useDataStore();
+const { getAirportAircraftColor } = useDashboard();
 
 // Single-airport fallback resolved from injection; the `aircraft` prop (multi-airport dashboard)
 // takes precedence when provided. Both are set up unconditionally so props are only read reactively.
@@ -243,9 +245,10 @@ const airborneArrivals = computed(() => {
     return aircraft.value?.arrivals?.filter(isStillAirborne) ?? [];
 });
 
-const arrivalBins = computed(() => {
+const arrivalBins = computed<Record<string, number[]>>(() => {
+    const binsByAirport: Record<string, number[]> = {};
     const bins: number[] = Array(binCount.value).fill(0);
-    if (!airborneArrivals.value.length) return bins;
+    if (!airborneArrivals.value.length) return binsByAirport;
 
     const startMs = firstBinStart.value;
     const sizeMs = binSizeMs.value;
@@ -256,8 +259,21 @@ const arrivalBins = computed(() => {
         if (offsetMs < 0) continue;
         const idx = Math.floor(offsetMs / sizeMs);
         if (idx >= bins.length) continue;
-        bins[idx] += 1;
+
+        binsByAirport[arrival.arrival!] ??= bins.slice(0);
+        binsByAirport[arrival.arrival!][idx]++;
     }
+
+    return binsByAirport;
+});
+
+const flatBins = computed(() => {
+    const bins: number[] = Array(binCount.value).fill(0);
+
+    for (const airport in arrivalBins.value) {
+        arrivalBins.value[airport].forEach((x, index) => bins[index] += x);
+    }
+
     return bins;
 });
 
@@ -268,14 +284,12 @@ const labels = computed(() => {
     });
 });
 
-const counts = computed(() => arrivalBins.value);
-
-const totalArrivals = computed(() => counts.value.reduce((acc, n) => acc + n, 0));
+const totalArrivals = computed(() => flatBins.value.reduce((acc, n) => acc + n, 0));
 
 const peakBin = computed(() => {
     let maxIdx = -1;
     let maxVal = 0;
-    counts.value.forEach((v, i) => {
+    flatBins.value.forEach((v, i) => {
         if (v > maxVal) {
             maxVal = v;
             maxIdx = i;
@@ -291,33 +305,36 @@ const windowRangeLabel = computed(() => {
     return `${ timeFormatter.format(start) }z – ${ timeFormatter.format(end) }z`;
 });
 
-function getBarColor(count: number): string {
+function getBarColor(count: number, icao: string): string {
     if (count >= predictionOptions.value.alertThreshold) return getCurrentThemeHexColor('red500');
     if (count >= predictionOptions.value.warningThreshold) return getCurrentThemeHexColor('citrus500');
-    return getCurrentThemeHexColor('green500');
+    return getAirportAircraftColor(icao) ?? getCurrentThemeHexColor('green500');
 }
 
 const gridColor = computed(() => getCurrentThemeHexColor('darkGray500'));
 const axisLabelColor = computed(() => getCurrentThemeHexColor('lightGray500'));
 
-const chartData = computed(() => ({
-    labels: labels.value,
-    datasets: [
-        {
-            label: 'Arrivals',
-            data: counts.value,
-            backgroundColor: counts.value.map(getBarColor),
-            borderColor: counts.value.map(getBarColor),
-            borderWidth: 1,
+const chartData = computed(() => {
+    return {
+        labels: labels.value,
+        datasets: Object.entries(arrivalBins.value).map(([key, value]) => ({
+            label: key,
+            data: value,
+            backgroundColor: getAirportAircraftColor(key) ?? getCurrentThemeHexColor('green500'),
+            hoverBackgroundColor: value.map(count => getBarColor(count, key)),
+            borderColor: value.map(count => count >= predictionOptions.value.alertThreshold ? getBarColor(count, key) : 'transparent'),
+            borderWidth: 4,
+            borderSkipped: 'middle' as any,
             borderRadius: 2,
             categoryPercentage: 1,
+            alignToPixels: true,
             barPercentage: 0.95,
-        },
-    ],
-}));
+        })),
+    };
+});
 
 const chartOptions = computed<Record<string, any>>(() => {
-    const maxCount = Math.max(0, ...counts.value);
+    const maxCount = Math.max(0, ...flatBins.value);
     const suggestedMax = predictionOptions.value.yMaxOverride > 0
         ? predictionOptions.value.yMaxOverride
         : Math.max(maxCount, predictionOptions.value.alertThreshold);
@@ -333,6 +350,7 @@ const chartOptions = computed<Record<string, any>>(() => {
         plugins: {
             legend: { display: false },
             tooltip: {
+                displayColors: false,
                 callbacks: {
                     title: (items: Array<{ dataIndex: number }>) => {
                         const i = items[0]?.dataIndex ?? 0;
@@ -340,13 +358,14 @@ const chartOptions = computed<Record<string, any>>(() => {
                         const to = timeFormatter.format(new Date(startMs + ((i + 1) * sizeMs)));
                         return `${ from }z – ${ to }z (${ size } min)`;
                     },
-                    label: (item: { parsed: { y: number } }) => `Arrivals: ${ item.parsed.y }`,
+                    label: (item: Record<string, any>) => `${ item.dataset.label } arrivals: ${ item.parsed.y }`,
                 },
             },
         },
         scales: {
             x: {
                 grid: { color: gridColor.value, display: false },
+                stacked: true,
                 ticks: {
                     color: axisLabelColor.value,
                     autoSkip: true,
@@ -356,6 +375,7 @@ const chartOptions = computed<Record<string, any>>(() => {
             },
             y: {
                 beginAtZero: true,
+                stacked: true,
                 suggestedMax,
                 grid: { color: gridColor.value },
                 ticks: {

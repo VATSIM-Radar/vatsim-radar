@@ -25,11 +25,10 @@
                     align="right"
                     class="info-popup_header_actions_action info-popup_header_actions_action--minify"
                     location="bottom"
+                    @click="minified = !minified"
                 >
                     <template #activator>
-                        <div
-                            @click="minified = !minified"
-                        >
+                        <div>
                             <minus-icon width="14"/>
                         </div>
                     </template>

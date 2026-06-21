@@ -80,8 +80,8 @@ const dashboardPreset: SiteConfig = {
     hideFooter: true,
     hideAllExternal: false,
     hideOverlays: false,
-    onlyAirportAircraft: true,
-    onlyAirportsAircraft: true,
+    onlyAirportAircraft: false,
+    onlyAirportsAircraft: false,
     showInfoForPrimaryAirport: true,
     hideBookings: true,
 };
@@ -160,7 +160,7 @@ export async function checkAndSetMapPreset() {
     preset = structuredClone(preset);
 
     if (typeof query.dashboard === 'string') {
-        preset.dashboardId = +query.dashboard;
+        preset.dashboardId = query.dashboard;
 
         if (typeof window !== 'undefined') {
             await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {

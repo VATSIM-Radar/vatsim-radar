@@ -146,11 +146,10 @@ const scope = getCurrentScope();
 
 watch(airportList, () => {
     aircraftRefs.value = {};
-
     try {
         scope?.run(() => {
             for (const icao of airportList.value) {
-                aircraftRefs.value[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }));
+                aircraftRefs.value[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }), ref<any>(null));
             }
         });
     }

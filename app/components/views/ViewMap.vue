@@ -564,7 +564,7 @@ watch([isMobile, popups], () => {
 });
 
 function saveOverlays() {
-    if (!restoredOverlays.value) return;
+    if (!restoredOverlays.value || store.activeDashboard) return;
     localStorage.setItem('overlays', JSON.stringify(
         mapStore.overlays.filter(x => !x.dontSave).map(x => ({
             ...x,
@@ -1290,6 +1290,7 @@ onUnmounted(() => {
         top: 24px;
         left: 24px;
 
+        overflow: hidden;
         display: flex;
         align-items: flex-start;
         justify-content: flex-end;

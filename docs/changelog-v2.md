@@ -30,7 +30,7 @@ been significantly shortened to display often changed settings.
 
 ### Infinite Map
 
-Due to internal refactor, map is not infinite horizontally. I've been asked to add this day one, enjoy!
+Due to internal refactor, map is now infinite horizontally. I've been asked to add this day one, enjoy!
 
 ### Map Interaction Rework
 

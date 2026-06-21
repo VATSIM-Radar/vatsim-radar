@@ -76,6 +76,10 @@ export const dashboardAircraftModes: SelectItem<MapAircraftMode>[] = [
         text: 'Departed',
     },
     {
+        value: 'airborne',
+        text: 'Airborne',
+    },
+    {
         value: 'arrivals',
         text: 'Arriving',
     },

@@ -406,7 +406,7 @@ async function update() {
                     toGoDist: calculatedArrival.toGoDist,
                     toGoTime: Date.now() + calculatedArrival.toGoTime,
                     toGoPercent: (calculatedArrival.depDist / (calculatedArrival.depDist + calculatedArrival.toGoDist)) * 100,
-                    stepclimbs: calculatedArrival.stepclimbs,
+                    stepclimbs: toRaw(calculatedArrival.stepclimbs),
                 };
             }
         }
@@ -420,7 +420,10 @@ async function update() {
             waypoints[pilot] = {
                 pilot: toRaw(arrival.pilot),
                 coordinates: arrival.coordinates,
-                calculatedArrival: toRaw(arrival.calculatedArrival),
+                calculatedArrival: {
+                    ...arrival.calculatedArrival,
+                    stepclimbs: arrival.calculatedArrival?.stepclimbs?.map(x => toRaw(x)),
+                },
                 full: arrival.full,
                 waypoints: [],
             };

@@ -1,5 +1,31 @@
 # Changelog
 
+# [2.0.0-beta.3.1]
+
+## Alpha Changes
+
+- Significantly improved first load delay for combined mode
+- Fixed VATGlasses combined mode not combining some sectors. No altitude fixes for now - I can't fix this without rolling back to old logic
+- Added colored airports groups for traffic prediction
+- Fixed traffic prediction crash
+- Fixed dashboard loading crash
+- Fixed non-airport aircraft not displaying on dashboard map
+- Fixed enroute aircraft not showing in dashboard
+- Fixed map crash when sending route data
+- Fixed minify small clickspot
+- Fixed minified airports crash
+- Fixed 403/404 dashboard airports adding to menu
+- Fixed random select error showing sometimes
+- Added refresh map button to dashboard
+- Fixed dashboard overriding local overlays
+- Added different colors for landed, departing and arriving on dashboard for selected airports
+- Added airborne filter for aircraft map mode
+- Fixed dashboard sometimes not showing any aircraft
+- I've decided to try more deep color for icons, lmk what you think
+- Added bookings settings on mobile
+- Fixed event local time taking no effect on hover
+- Fixed pilot name overlapping beyond boundaries
+
 # [2.0.0-beta.3]
 
 New feature by psergienko: Dashboard v2

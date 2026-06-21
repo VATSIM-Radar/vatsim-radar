@@ -239,10 +239,6 @@ export async function updateControllers(context: DataUpdateContext) {
                 firsMapByCallsign[callsign ?? icao] ??= [];
                 firsMapByCallsign[callsign ?? icao].push(key);
             }
-
-            // Cleanup
-            dataStore.vatspy.value.data.firs.length = 0;
-            dataStore.vatspy.value.data.uirs.length = 0;
         }
     }
 

@@ -145,6 +145,7 @@ const adjustTime = (isStart: boolean, minutes: number) => {
     .time-picker {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 16px;
         align-items: center;
 

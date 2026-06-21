@@ -238,6 +238,10 @@ const title = computed(() => {
                     text-overflow: ellipsis;
                 }
             }
+
+            :deep(.info-block__content:last-child) {
+                overflow: hidden;
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ export interface MapAirportRender {
 
 export type MapAircraftKeys = keyof DataAirport['aircraft'];
 export type MapAircraftList = DataAirport['aircraft'];
-export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
+export type MapAircraftMode = 'all' | 'ground' | 'airborne' | MapAircraftKeys;
 
 /**
  * @deprecated

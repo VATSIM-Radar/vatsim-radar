@@ -150,6 +150,13 @@
                     </template>
                     Create Dashboard
                 </ui-button>
+                <ui-button
+                    size="S"
+                    type="secondary"
+                    @click="mapKey++"
+                >
+                    Refresh Map
+                </ui-button>
             </div>
             <client-only>
                 <div class="dashboard-view_header_aside">
@@ -193,6 +200,7 @@
             >
                 <iframe
                     v-if="ready && mounted"
+                    :key="mapKey"
                     ref="mapFrame"
                     class="dashboard-view_map_iframe"
                     :src="mapSrc"
@@ -242,6 +250,7 @@ const store = useStore();
 const dataStore = useDataStore();
 const config = useRuntimeConfig();
 const id = computed(() => route.params.id as string);
+const mapKey = ref(0);
 
 const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashboard-${ toValue(id) }`, async () => {
     try {
@@ -275,7 +284,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                     },
                     createdAt: new Date(),
                     owner: false,
-                } satisfies PublicDashboard;
+                } satisfies PublicDashboard as PublicDashboard;
             }
             else {
                 showError({
@@ -383,10 +392,7 @@ const mapSrc = computed(() => {
     params.set('airports', airportIcaos.value.join(','));
     params.set('tracks', Number(arrivalTracks.value).toString());
     params.set('airportMode', aircraftMode.value);
-
-    if (!isNaN(Number(id.value))) {
-        params.set('dashboard', id.value);
-    }
+    params.set('dashboard', id.value);
 
     if (settings.value?.enrouteCallsign) params.set('atcCallsign', settings.value.enrouteCallsign);
 
@@ -447,9 +453,7 @@ onMounted(() => {
     }, 1000);
     weatherInterval = setInterval(refreshWeather, 1000 * 60 * 5);
     window.addEventListener('message', receiveMessage);
-
-    seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value).slice(0, 5);
-    seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? id.value });
+    store.activeDashboard = dashboard.value?.json ?? null;
 });
 
 onBeforeUnmount(() => {
@@ -463,6 +467,9 @@ provide('dashboard', dashboard);
 watch(dashboard, async value => {
     store.activeDashboard = value?.json ?? null;
     if (!value) return;
+
+    seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value).slice(0, 5);
+    seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? id.value });
 
     airportsData.value = await fetchAirportsWeather();
 
