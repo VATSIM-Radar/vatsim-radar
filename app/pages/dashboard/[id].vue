@@ -129,6 +129,17 @@
                     </template>
                     Conditions Request
                 </ui-button>
+                <ui-button
+                    v-if="dashboard?.id === -1"
+                    size="S"
+                    :to="`/dashboard?new=1&airport=${ id.toUpperCase() }`"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <data-icon/>
+                    </template>
+                    Create Dashboard
+                </ui-button>
             </div>
             <client-only>
                 <div class="dashboard-view_header_aside">
@@ -137,7 +148,7 @@
                     </div>
                 </div>
             </client-only>
-            <div class="dashboard-view_header_weather">
+            <div v-if="settings?.showMetar" class="dashboard-view_header_weather">
                 <dashboard-weather
                     :can-edit="dashboard.owner"
                 />
@@ -208,15 +219,59 @@ import CopyIcon from '@/assets/icons/kit/copy.svg?component';
 import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
 import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
+import { useDataStore } from '~/composables/render/storage';
+import { checkForUpdates, checkForVATSpy } from '~/composables/init';
+import { dashboardColumns } from '~/utils/shared/dashboard';
+import DataIcon from 'assets/icons/kit/data.svg?component';
 
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
+const dataStore = useDataStore();
 const config = useRuntimeConfig();
 const id = computed(() => route.params.id as string);
 
 const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashboard-${ toValue(id) }`, async () => {
     try {
+        if (isNaN(Number(id.value))) {
+            if (!useDataStore().vatspy.value) {
+                await checkForUpdates();
+                await checkForVATSpy();
+            }
+
+            const icao = id.value.toUpperCase();
+
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[icao]) {
+                return {
+                    id: -1,
+                    name: icao,
+                    public: false,
+                    json: {
+                        airports: [
+                            {
+                                icao,
+                                showInTrafficPrediction: true,
+                            },
+                        ],
+                        mapLocation: 'right',
+                        mapSize: 100,
+                        displayMode: 'both',
+                        showMetar: true,
+                        showArrivalTracks: true,
+                        openColumns: [...dashboardColumns],
+                    },
+                    createdAt: new Date(),
+                    owner: false,
+                } satisfies PublicDashboard;
+            }
+            else {
+                showError({
+                    status: 404,
+                });
+                return null;
+            }
+        }
+
         return await $fetch<PublicDashboard>(`/api/data/dashboard/${ id.value }`);
     }
     catch (e) {

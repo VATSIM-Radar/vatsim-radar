@@ -139,11 +139,29 @@ const { activeDashboard, sortByPriorityAirports, isColoredAirport, getAirportAir
 const route = useRoute();
 const router = useRouter();
 
-const airportList = (activeDashboard.value?.airports ?? []).map(airport => airport.icao);
-const aircraftRefs: Record<string, Ref<AirportPopupPilotList | null>> = {};
-for (const icao of airportList) {
-    aircraftRefs[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }));
-}
+const airportList = computed(() => (activeDashboard.value?.airports ?? []).map(airport => airport.icao));
+const aircraftRefs = shallowRef<Record<string, Ref<AirportPopupPilotList | null>>>({});
+
+const scope = getCurrentScope();
+
+watch(airportList, () => {
+    aircraftRefs.value = {};
+
+    try {
+        scope?.run(() => {
+            for (const icao of airportList.value) {
+                aircraftRefs.value[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }));
+            }
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
+
+    triggerRef(aircraftRefs);
+}, {
+    immediate: true,
+});
 
 const COLUMN_ORDER: DashboardColumn[] = ['prefiles', 'departing', 'enroute', 'departed', 'arriving', 'landed'];
 const GROUPED_KEYS = new Set<DashboardAircraftKey>(['prefiles', 'groundDep', 'groundArr']);
@@ -202,7 +220,7 @@ function arrivalsComparator(a: AirportPopupPilotStatus, b: AirportPopupPilotStat
 }
 
 const airportAircraft = computed(() => {
-    return new Set(Object.values(aircraftRefs).flatMap(x => Object.values(x.value ?? {}).flatMap(x => x.map(x => x.cid))));
+    return new Set(Object.values(aircraftRefs.value).flatMap(x => Object.values(x.value ?? {}).flatMap(x => x.map(x => x.cid))));
 });
 
 const stats = ref<{
@@ -253,8 +271,8 @@ function buildColumn(column: DashboardColumn): ColumnView {
     }
 
     if (GROUPED_KEYS.has(key)) {
-        for (const icao of sortByPriorityAirports(airportList)) {
-            const raw = aircraftRefs[icao]?.value?.[key as keyof AirportPopupPilotList] ?? [];
+        for (const icao of sortByPriorityAirports(airportList.value)) {
+            const raw = aircraftRefs.value[icao]?.value?.[key as keyof AirportPopupPilotList] ?? [];
             if (!raw.length) continue;
             const pilots = key === 'prefiles' ? raw.slice() : sortGround(raw);
             rows.push({ type: 'header', key: `head-${ column }-${ icao }`, icao, color: getAirportAircraftColor(icao) });
@@ -268,8 +286,8 @@ function buildColumn(column: DashboardColumn): ColumnView {
     }
 
     const entries: { pilot: AirportPopupPilotStatus; icao: string; color: string | null }[] = [];
-    for (const icao of airportList) {
-        const raw = aircraftRefs[icao]?.value?.[key as keyof AirportPopupPilotList] ?? [];
+    for (const icao of airportList.value) {
+        const raw = aircraftRefs.value[icao]?.value?.[key as keyof AirportPopupPilotList] ?? [];
         for (const pilot of raw) entries.push({ pilot, icao, color: getAirportAircraftColor(icao) });
     }
     entries.sort((a, b) => {
@@ -288,8 +306,8 @@ const columns = computed<ColumnView[]>(() => COLUMN_ORDER.map(buildColumn));
 
 const combinedAircraft = computed<AirportPopupPilotList>(() => {
     const out: AirportPopupPilotList = { groundDep: [], groundArr: [], prefiles: [], departures: [], arrivals: [] };
-    for (const icao of airportList) {
-        const list = aircraftRefs[icao]?.value;
+    for (const icao of airportList.value) {
+        const list = aircraftRefs.value[icao]?.value;
         if (!list) continue;
         out.groundDep.push(...list.groundDep);
         out.groundArr.push(...list.groundArr);

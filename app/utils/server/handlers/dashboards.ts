@@ -403,6 +403,13 @@ export async function handleDashboardFavoriteEvent(event: H3Event) {
         }
         else if (event.method === 'GET') {
             if (id) {
+                if (dashboard && dashboard.userId !== user.id) {
+                    return handleH3Error({
+                        event,
+                        statusCode: 403,
+                    });
+                }
+
                 return dashboard;
             }
             else {

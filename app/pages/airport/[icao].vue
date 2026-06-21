@@ -52,6 +52,15 @@
                     Arrival Tracks
                 </ui-toggle>
             </div>
+            <div class="airport_header_section">
+                <ui-button
+                    size="S"
+                    :to="`/dashboard/${ icao }`"
+                    type="secondary"
+                >
+                    Open Dashboard
+                </ui-button>
+            </div>
         </div>
         <div class="airport_sections">
             <div class="airport_column">
@@ -371,11 +380,11 @@ const mapModes: SelectItem<MapMode>[] = [
     },
     {
         value: 'dashBigMapSmall',
-        text: 'Large dashboard',
+        text: 'Large info',
     },
     {
         value: 'dashOnly',
-        text: 'Dashboard only',
+        text: 'Info only',
     },
     {
         value: 'mapOnly',

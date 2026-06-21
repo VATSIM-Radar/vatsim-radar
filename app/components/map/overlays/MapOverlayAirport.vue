@@ -252,12 +252,6 @@
                     </template>
                     Airport
                 </ui-button>
-                <ui-button :to="`/dashboard?new=1&airport=${ airport.icao }`">
-                    <template #icon>
-                        <dashboard-icon/>
-                    </template>
-                    Create Dashboard
-                </ui-button>
                 <ui-button
                     :disabled="!airport || airport.isPseudo"
                     @click="showOnMap"
