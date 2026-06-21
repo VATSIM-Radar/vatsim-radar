@@ -6037,7 +6037,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/boolean-point-in-polygon@npm:^7.3.5":
+"@turf/boolean-point-in-polygon@npm:7.3.5":
   version: 7.3.5
   resolution: "@turf/boolean-point-in-polygon@npm:7.3.5"
   dependencies:
@@ -17519,7 +17519,7 @@ __metadata:
     "@stylistic/eslint-plugin": "npm:5.10.0"
     "@stylistic/stylelint-plugin": "npm:5.2.0"
     "@turf/bearing": "npm:7.3.5"
-    "@turf/boolean-point-in-polygon": "npm:^7.3.5"
+    "@turf/boolean-point-in-polygon": "npm:7.3.5"
     "@turf/difference": "npm:7.3.5"
     "@turf/distance": "npm:7.3.5"
     "@turf/great-circle": "npm:7.3.5"

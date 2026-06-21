@@ -35,7 +35,7 @@
     "@prisma/client": "7.8.0",
     "@protomaps/basemaps": "5.7.2",
     "@turf/bearing": "7.3.5",
-    "@turf/boolean-point-in-polygon": "^7.3.5",
+    "@turf/boolean-point-in-polygon": "7.3.5",
     "@turf/difference": "7.3.5",
     "@turf/distance": "7.3.5",
     "@turf/great-circle": "7.3.5",
