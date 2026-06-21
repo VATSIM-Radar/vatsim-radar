@@ -429,7 +429,7 @@ async function update() {
         const targetOrigin = useRuntimeConfig().public.DOMAIN;
         window.parent.postMessage({
             type: 'navigraph-waypoints',
-            waypoints: JSON.parse(JSON.stringify(waypoints)),
+            waypoints,
         }, targetOrigin);
 
         for (const feature of features) {
