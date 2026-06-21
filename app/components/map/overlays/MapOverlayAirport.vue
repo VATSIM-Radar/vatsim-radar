@@ -304,7 +304,6 @@ import AirportControllers from '~/components/features/vatsim/airport/AirportCont
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import AirportIcon from '@/assets/icons/kit/airport-dest.svg?component';
-import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
