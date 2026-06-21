@@ -97,6 +97,16 @@
                         </label>
 
                         <label class="dashboard-view_actions_field">
+                            <span>Map aircraft override</span>
+                            <ui-select
+                                :items="dashboardAircraftModes"
+                                :model-value="aircraftModeModel"
+                                width="100%"
+                                @update:modelValue="aircraftModeModel = $event as MapAircraftMode"
+                            />
+                        </label>
+
+                        <label class="dashboard-view_actions_field">
                             <span>Enroute flight level override</span>
                             <div class="dashboard-view_actions_fl">
                                 <ui-input-number
@@ -206,6 +216,7 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
+import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import DashboardWeather from '~/components/features/dashboard/DashboardWeather.vue';
 import DashboardAircraft from '~/components/features/dashboard/DashboardAircraft.vue';
 import DashboardPrediction from '~/components/features/dashboard/DashboardPrediction.vue';
@@ -221,7 +232,8 @@ import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import { useDataStore } from '~/composables/render/storage';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
-import { dashboardColumns } from '~/utils/shared/dashboard';
+import { dashboardAircraftModes, dashboardColumns } from '~/utils/shared/dashboard';
+import type { MapAircraftMode } from '~/types/map';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 
 const route = useRoute();
@@ -259,6 +271,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                         showMetar: true,
                         showArrivalTracks: true,
                         openColumns: [...dashboardColumns],
+                        aircraftMode: 'all',
                     },
                     createdAt: new Date(),
                     owner: false,
@@ -338,6 +351,16 @@ const enrouteCallsignModel = computed({
     set: value => setQueryParam('enroute', value ? value.toUpperCase().trim() : undefined),
 });
 
+const aircraftMode = computed<MapAircraftMode>(() => {
+    const query = route.query.aircraft;
+    if (typeof query === 'string' && dashboardAircraftModes.some(mode => mode.value === query)) return query as MapAircraftMode;
+    return settings.value?.aircraftMode ?? 'all';
+});
+const aircraftModeModel = computed({
+    get: () => aircraftMode.value,
+    set: value => setQueryParam('aircraft', value === (settings.value?.aircraftMode ?? 'all') ? undefined : value),
+});
+
 const enrouteFlightLevel = computed<{ from: number; to: number } | null>(() => {
     const query = route.query.fl;
     if (typeof query === 'string' && /^\d+-\d+$/.test(query)) {
@@ -359,6 +382,7 @@ const mapSrc = computed(() => {
     params.set('preset', 'dashboard');
     params.set('airports', airportIcaos.value.join(','));
     params.set('tracks', Number(arrivalTracks.value).toString());
+    params.set('airportMode', aircraftMode.value);
 
     if (!isNaN(Number(id.value))) {
         params.set('dashboard', id.value);

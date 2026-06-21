@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 import { hexColorRegex } from '~/utils/shared';
+import type { SelectItem } from '~/types/components/select';
+import type { MapAircraftMode } from '~/types/map';
 
 export const MAX_DASHBOARD_AIRPORTS = 20;
 
@@ -39,6 +41,50 @@ export const DashboardAirportSchema = v.object({
 });
 export type DashboardAirport = v.InferOutput<typeof DashboardAirportSchema>;
 
+export const DashboardPredictedSchema = v.object({
+    binSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(60)), 10),
+    windowMinutes: v.optional(v.pipe(v.number(), v.integer(), v.minValue(15), v.maxValue(480), v.check(value => value % 15 === 0, 'Forecast range must be a multiple of 15 minutes')), 120),
+    warningThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 5),
+    alertThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 10),
+    yMaxOverride: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
+});
+export type DashboardPredictedOptions = v.InferOutput<typeof DashboardPredictedSchema>;
+
+export const dashboardPredictedDefaults: DashboardPredictedOptions = {
+    binSize: 10,
+    windowMinutes: 120,
+    warningThreshold: 5,
+    alertThreshold: 10,
+    yMaxOverride: 0,
+};
+
+export const dashboardAircraftModes: SelectItem<MapAircraftMode>[] = [
+    {
+        value: 'all',
+        text: 'All',
+    },
+    {
+        value: 'ground',
+        text: 'On Ground',
+    },
+    {
+        value: 'groundDep',
+        text: 'Departing',
+    },
+    {
+        value: 'departures',
+        text: 'Departed',
+    },
+    {
+        value: 'arrivals',
+        text: 'Arriving',
+    },
+    {
+        value: 'groundArr',
+        text: 'Landed',
+    },
+];
+
 export const DashboardSettingsSchema = v.object({
     airports: v.pipe(
         v.array(DashboardAirportSchema),
@@ -60,6 +106,8 @@ export const DashboardSettingsSchema = v.object({
     showMetar: v.optional(v.boolean(), true),
     showArrivalTracks: v.optional(v.boolean(), true),
     openColumns: v.optional(v.array(v.picklist(dashboardColumns)), () => [...dashboardColumns]),
+    predictedWindow: v.optional(DashboardPredictedSchema),
+    aircraftMode: v.optional(v.picklist(dashboardAircraftModes.map(x => x.value as MapAircraftMode), 'all' satisfies MapAircraftMode)),
 });
 export type DashboardSettings = v.InferOutput<typeof DashboardSettingsSchema>;
 

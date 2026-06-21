@@ -25,46 +25,52 @@
             class="predicted-traffic_settings"
         >
             <div class="predicted-traffic_settings_field">
-                <label>Bin size (min)</label>
+                <label>Arrival interval (minutes)</label>
                 <ui-input-number
-                    v-model="binSize"
                     height="28px"
-                    :input-attrs="{ min: 1, max: 60, step: 1 }"
+                    :input-attrs="predictionOptionLimits.binSize"
+                    :model-value="predictionOptions.binSize"
+                    @update:modelValue="updatePredictionOption('binSize', $event)"
                 />
             </div>
             <div class="predicted-traffic_settings_field">
-                <label>Window (min)</label>
+                <label>Window range (minutes)</label>
                 <ui-input-number
-                    v-model="windowMinutes"
                     height="28px"
-                    :input-attrs="{ min: 15, max: 480, step: 15 }"
+                    :input-attrs="predictionOptionLimits.windowMinutes"
+                    :model-value="predictionOptions.windowMinutes"
+                    @update:modelValue="updatePredictionOption('windowMinutes', $event)"
                 />
             </div>
             <div class="predicted-traffic_settings_field">
-                <label>Warning (orange)</label>
+                <label>Caution threshold (arrivals)</label>
                 <ui-input-number
-                    v-model="warningThreshold"
                     height="28px"
-                    :input-attrs="{ min: 1, step: 1 }"
+                    :input-attrs="predictionOptionLimits.warningThreshold"
+                    :model-value="predictionOptions.warningThreshold"
+                    @update:modelValue="updatePredictionOption('warningThreshold', $event)"
                 />
             </div>
             <div class="predicted-traffic_settings_field">
-                <label>Alert (red)</label>
+                <label>Alert threshold (arrivals)</label>
                 <ui-input-number
-                    v-model="alertThreshold"
                     height="28px"
-                    :input-attrs="{ min: 1, step: 1 }"
+                    :input-attrs="predictionOptionLimits.alertThreshold"
+                    :model-value="predictionOptions.alertThreshold"
+                    @update:modelValue="updatePredictionOption('alertThreshold', $event)"
                 />
             </div>
             <div class="predicted-traffic_settings_field">
-                <label>Y-axis max (0 = auto)</label>
+                <label>Chart Y-axis maximum (0 = automatic)</label>
                 <ui-input-number
-                    v-model="yMaxOverride"
                     height="28px"
-                    :input-attrs="{ min: 0, step: 1 }"
+                    :input-attrs="predictionOptionLimits.yMaxOverride"
+                    :model-value="predictionOptions.yMaxOverride"
+                    @update:modelValue="updatePredictionOption('yMaxOverride', $event)"
                 />
             </div>
             <ui-button
+                v-if="hasPredictionOverrides"
                 size="S"
                 type="secondary"
                 @click="resetSettings"
@@ -85,7 +91,7 @@
                 v-else
                 class="predicted-traffic_chart_empty"
             >
-                No airborne arrivals expected in the next {{ windowMinutes }} minutes.
+                No airborne arrivals expected in the next {{ predictionOptions.windowMinutes }} minutes.
             </div>
         </div>
         <div class="predicted-traffic_footer">
@@ -117,6 +123,8 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 import SettingsIcon from '~/assets/icons/kit/settings.svg?component';
+import { dashboardPredictedDefaults } from '~/utils/shared/dashboard';
+import type { DashboardPredictedOptions } from '~/utils/shared/dashboard';
 
 const props = defineProps({
     aircraft: {
@@ -127,59 +135,69 @@ const props = defineProps({
         type: Number,
         default: undefined,
     },
+    predictedOptions: {
+        type: Object as PropType<Partial<DashboardPredictedOptions> | undefined>,
+        default: undefined,
+    },
 });
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
-const defaultSettings = {
-    binSize: 10,
-    windowMinutes: 120,
-    warningThreshold: 5,
-    alertThreshold: 10,
-    yMaxOverride: 0,
+const predictionOptionLimits = {
+    binSize: { min: 1, max: 60, step: 1 },
+    windowMinutes: { min: 15, max: 480, step: 15 },
+    warningThreshold: { min: 1, step: 1 },
+    alertThreshold: { min: 1, step: 1 },
+    yMaxOverride: { min: 0, step: 1 },
+} as const;
+
+type PredictionOptionKey = keyof DashboardPredictedOptions;
+
+const route = useRoute();
+const router = useRouter();
+const optionQueryKeys: Record<PredictionOptionKey, string> = {
+    binSize: 'predictionBin',
+    windowMinutes: 'predictionRange',
+    warningThreshold: 'predictionCaution',
+    alertThreshold: 'predictionAlert',
+    yMaxOverride: 'predictionMax',
 };
+const baseOptions = computed<DashboardPredictedOptions>(() => ({
+    ...dashboardPredictedDefaults,
+    ...props.predictedOptions,
+}));
 
-const binSize = useCookie<number>('predicted-traffic-bin-size', {
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    default: () => defaultSettings.binSize,
+const predictionOptions = computed<DashboardPredictedOptions>(() => {
+    const options = { ...baseOptions.value };
+
+    for (const key of Object.keys(optionQueryKeys) as PredictionOptionKey[]) {
+        const limits = predictionOptionLimits[key];
+        const queryValue = route.query[optionQueryKeys[key]];
+        const value = typeof queryValue === 'string' ? Number(queryValue) : Number.NaN;
+        const withinRange = value >= limits.min && (!('max' in limits) || value <= limits.max);
+        const matchesStep = !limits.step || (value - limits.min) % limits.step === 0;
+
+        if (Number.isInteger(value) && withinRange && matchesStep) options[key] = value;
+    }
+
+    return options;
 });
 
-const windowMinutes = useCookie<number>('predicted-traffic-window', {
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    default: () => defaultSettings.windowMinutes,
-});
+const hasPredictionOverrides = computed(() => Object.values(optionQueryKeys).some(key => key in route.query));
 
-const warningThreshold = useCookie<number>('predicted-traffic-warning', {
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    default: () => defaultSettings.warningThreshold,
-});
+function updatePredictionOption(key: PredictionOptionKey, value: number | null) {
+    const query = { ...route.query };
+    const queryKey = optionQueryKeys[key];
 
-const alertThreshold = useCookie<number>('predicted-traffic-alert', {
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    default: () => defaultSettings.alertThreshold,
-});
-
-const yMaxOverride = useCookie<number>('predicted-traffic-ymax', {
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    default: () => defaultSettings.yMaxOverride,
-});
+    if (value === null || value === baseOptions.value[key]) delete query[queryKey];
+    else query[queryKey] = String(value);
+    router.replace({ query });
+}
 
 function resetSettings() {
-    binSize.value = defaultSettings.binSize;
-    windowMinutes.value = defaultSettings.windowMinutes;
-    warningThreshold.value = defaultSettings.warningThreshold;
-    alertThreshold.value = defaultSettings.alertThreshold;
-    yMaxOverride.value = defaultSettings.yMaxOverride;
+    const query = { ...route.query };
+    for (const queryKey of Object.values(optionQueryKeys)) delete query[queryKey];
+    router.replace({ query });
 }
 
 const settingsOpen = ref(false);
@@ -193,7 +211,7 @@ const injectedAirport = injectAirport(true);
 const ownAircraft = getAircraftForAirport(injectedAirport);
 const aircraft = computed<AirportPopupPilotList | null>(() => props.aircraft ?? ownAircraft.value);
 
-const binCount = computed(() => Math.max(1, Math.ceil(windowMinutes.value / Math.max(1, binSize.value))));
+const binCount = computed(() => Math.max(1, Math.ceil(predictionOptions.value.windowMinutes / Math.max(1, predictionOptions.value.binSize))));
 
 const timeFormatter = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -201,7 +219,7 @@ const timeFormatter = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
-const binSizeMs = computed(() => Math.max(1, binSize.value) * 60_000);
+const binSizeMs = computed(() => Math.max(1, predictionOptions.value.binSize) * 60_000);
 
 const firstBinStart = computed(() => {
     const now = dataStore.time.value || Date.now();
@@ -274,8 +292,8 @@ const windowRangeLabel = computed(() => {
 });
 
 function getBarColor(count: number): string {
-    if (count >= alertThreshold.value) return getCurrentThemeHexColor('red500');
-    if (count >= warningThreshold.value) return getCurrentThemeHexColor('citrus500');
+    if (count >= predictionOptions.value.alertThreshold) return getCurrentThemeHexColor('red500');
+    if (count >= predictionOptions.value.warningThreshold) return getCurrentThemeHexColor('citrus500');
     return getCurrentThemeHexColor('green500');
 }
 
@@ -300,11 +318,11 @@ const chartData = computed(() => ({
 
 const chartOptions = computed<Record<string, any>>(() => {
     const maxCount = Math.max(0, ...counts.value);
-    const suggestedMax = yMaxOverride.value > 0
-        ? yMaxOverride.value
-        : Math.max(maxCount, alertThreshold.value);
+    const suggestedMax = predictionOptions.value.yMaxOverride > 0
+        ? predictionOptions.value.yMaxOverride
+        : Math.max(maxCount, predictionOptions.value.alertThreshold);
 
-    const size = binSize.value;
+    const size = predictionOptions.value.binSize;
     const startMs = firstBinStart.value;
     const sizeMs = binSizeMs.value;
 

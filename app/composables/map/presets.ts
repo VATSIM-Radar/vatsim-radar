@@ -81,6 +81,7 @@ const dashboardPreset: SiteConfig = {
     hideAllExternal: false,
     hideOverlays: false,
     onlyAirportAircraft: true,
+    onlyAirportsAircraft: true,
     showInfoForPrimaryAirport: true,
     hideBookings: true,
 };
@@ -161,9 +162,11 @@ export async function checkAndSetMapPreset() {
     if (typeof query.dashboard === 'string') {
         preset.dashboardId = +query.dashboard;
 
-        await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
-            store.activeDashboard = x.json;
-        }).catch(console.error);
+        if (typeof window !== 'undefined') {
+            await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
+                store.activeDashboard = x.json;
+            }).catch(console.error);
+        }
     }
 
     if (typeof query.airports === 'string') {

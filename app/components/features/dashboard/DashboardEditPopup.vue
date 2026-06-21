@@ -12,14 +12,14 @@
         <div class="dashboard-edit">
             <div class="dashboard-edit_top">
                 <ui-input-text
-                    v-model="name"
-                    :error="!!name && !nameValid"
+                    v-model="payload.name"
+                    :error="!!payload.name && !nameValid"
                     :max="50"
                     placeholder="Dashboard name"
                 >
                     Name
                 </ui-input-text>
-                <ui-toggle v-model="isPublic">
+                <ui-toggle v-model="payload.public">
                     Public
                     <template #description>
                         Public dashboards are shareable via a direct link.
@@ -34,20 +34,20 @@
                             Display options
                         </div>
 
-                        <ui-toggle v-model="showMetar">
+                        <ui-toggle v-model="payload.json.showMetar">
                             Show METAR window
                         </ui-toggle>
-                        <ui-toggle v-model="showArrivalTracks">
+                        <ui-toggle v-model="payload.json.showArrivalTracks">
                             Show Arrival Tracks
                         </ui-toggle>
 
                         <ui-select
                             :items="columnItems"
-                            :model-value="openColumns"
+                            :model-value="payload.json.openColumns"
                             multiple
                             placeholder="Select columns"
                             width="100%"
-                            @update:modelValue="openColumns = $event as DashboardColumn[]"
+                            @update:modelValue="payload.json.openColumns = $event as DashboardColumn[]"
                         >
                             Open columns by default
                         </ui-select>
@@ -58,12 +58,12 @@
                         </div>
 
                         <vue-draggable
-                            v-model="airports"
+                            v-model="payload.json.airports"
                             class="dashboard-edit_airports"
                             handle=".dashboard-edit_airport_drag"
                         >
                             <div
-                                v-for="(airport, index) in airports"
+                                v-for="(airport, index) in payload.json.airports"
                                 :key="index"
                                 class="dashboard-edit_airport"
                             >
@@ -76,7 +76,7 @@
                                         @update:modelValue="airport.icao = ($event ?? '').toUpperCase().slice(0, 4)"
                                     />
                                     <div
-                                        v-if="airports.length > 1"
+                                        v-if="payload.json.airports.length > 1"
                                         class="dashboard-edit_airport_remove"
                                         @click="removeAirport(index)"
                                     >
@@ -101,8 +101,8 @@
 
                                 <ui-input-color
                                     color-only
-                                    :model-value="airport.color"
-                                    @update:modelValue="airport.color = $event"
+                                    :model-value="hexToColorModel(airport.aircraftColor)"
+                                    @update:modelValue="airport.aircraftColor = colorModelToHex($event)"
                                 >
                                     Aircraft color
                                 </ui-input-color>
@@ -141,31 +141,40 @@
                             </div>
                             <ui-radio-group
                                 :items="mapLocationItems"
-                                :model-value="mapLocation"
+                                :model-value="payload.json.mapLocation"
                                 two-cols
-                                @update:modelValue="mapLocation = $event as DashboardMapLocation"
+                                @update:modelValue="payload.json.mapLocation = $event as DashboardMapLocation"
                             />
                         </div>
 
                         <div class="dashboard-edit_row">
                             <ui-select
                                 :items="mapSizeItems"
-                                :model-value="mapSize"
+                                :model-value="payload.json.mapSize"
                                 width="100%"
-                                @update:modelValue="mapSize = $event as DashboardMapSize"
+                                @update:modelValue="payload.json.mapSize = $event as DashboardMapSize"
                             >
                                 Map Size
                             </ui-select>
 
                             <ui-select
                                 :items="displayModeItems"
-                                :model-value="displayMode"
+                                :model-value="payload.json.displayMode"
                                 width="100%"
-                                @update:modelValue="displayMode = $event as DashboardDisplayMode"
+                                @update:modelValue="payload.json.displayMode = $event as DashboardDisplayMode"
                             >
                                 Display Mode
                             </ui-select>
                         </div>
+
+                        <ui-select
+                            :items="dashboardAircraftModes"
+                            :model-value="payload.json.aircraftMode ?? 'all'"
+                            width="100%"
+                            @update:modelValue="payload.json.aircraftMode = $event as MapAircraftMode"
+                        >
+                            Map aircraft
+                        </ui-select>
                     </div>
                     <div class="dashboard-edit_section">
                         <div class="dashboard-edit_section_title">
@@ -173,10 +182,10 @@
                         </div>
 
                         <ui-input-text
-                            :error="!!enrouteCallsign && !enrouteCallsignValid"
-                            :model-value="enrouteCallsign"
+                            :error="!!payload.json.enrouteCallsign && !enrouteCallsignValid"
+                            :model-value="payload.json.enrouteCallsign ?? ''"
                             placeholder="e.g. UUWV_CTR"
-                            @update:modelValue="enrouteCallsign = ($event ?? '').toUpperCase()"
+                            @update:modelValue="payload.json.enrouteCallsign = ($event ?? '').toUpperCase() || null"
                         >
                             Position Callsign
                         </ui-input-text>
@@ -185,20 +194,22 @@
                         </div>
 
                         <div
-                            v-if="enrouteCallsign.trim()"
+                            v-if="payload.json.enrouteCallsign"
                             class="dashboard-edit_row"
                         >
                             <ui-input-number
-                                v-model="flFrom"
                                 :input-attrs="{ min: 0, max: 999 }"
+                                :model-value="payload.json.enrouteFlightLevel?.from ?? null"
                                 placeholder="From"
+                                @update:modelValue="updateFlightLevel('from', $event)"
                             >
                                 Flight Level From
                             </ui-input-number>
                             <ui-input-number
-                                v-model="flTo"
                                 :input-attrs="{ min: 0, max: 999 }"
+                                :model-value="payload.json.enrouteFlightLevel?.to ?? null"
                                 placeholder="To"
+                                @update:modelValue="updateFlightLevel('to', $event)"
                             >
                                 Flight Level To
                             </ui-input-number>
@@ -209,6 +220,46 @@
                         >
                             {{ flError }}
                         </div>
+                    </div>
+                    <div class="dashboard-edit_section">
+                        <div class="dashboard-edit_section_title">
+                            Traffic prediction
+                        </div>
+
+                        <div class="dashboard-edit_row">
+                            <ui-input-number
+                                v-model="predictedWindow.binSize"
+                                :input-attrs="{ min: 1, max: 60, step: 1 }"
+                            >
+                                Arrival interval (minutes)
+                            </ui-input-number>
+                            <ui-input-number
+                                v-model="predictedWindow.windowMinutes"
+                                :input-attrs="{ min: 15, max: 480, step: 15 }"
+                            >
+                                Window range (minutes)
+                            </ui-input-number>
+                        </div>
+                        <div class="dashboard-edit_row">
+                            <ui-input-number
+                                v-model="predictedWindow.warningThreshold"
+                                :input-attrs="{ min: 1, step: 1 }"
+                            >
+                                Caution threshold (arrivals)
+                            </ui-input-number>
+                            <ui-input-number
+                                v-model="predictedWindow.alertThreshold"
+                                :input-attrs="{ min: 1, step: 1 }"
+                            >
+                                Alert threshold (arrivals)
+                            </ui-input-number>
+                        </div>
+                        <ui-input-number
+                            v-model="predictedWindow.yMaxOverride"
+                            :input-attrs="{ min: 0, step: 1 }"
+                        >
+                            Chart Y-axis maximum (0 = automatic)
+                        </ui-input-number>
                     </div>
                 </div>
             </div>
@@ -271,12 +322,15 @@ import {
     MAX_DASHBOARD_AIRPORTS,
     dashboardColumnLabels,
     dashboardColumns,
+    dashboardAircraftModes,
     dashboardDisplayModes,
     dashboardMapLocations,
     dashboardMapSizes,
+    dashboardPredictedDefaults,
     enrouteCallsignSchema,
     icaoSchema,
 } from '~/utils/shared/dashboard';
+import type { MapAircraftMode } from '~/types/map';
 import type {
     DashboardColumn,
     DashboardDisplayMode,
@@ -289,12 +343,6 @@ import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings'
 import type { SelectItem } from '~/types/components/select';
 import { VueDraggable } from 'vue-draggable-plus';
 import DragIcon from '~/assets/icons/kit/drag.svg?component';
-
-interface AirportRow {
-    icao: string;
-    showInTrafficPrediction: boolean;
-    color: Partial<UserMapSettingsColor> | null;
-}
 
 const props = defineProps({
     editDashboard: {
@@ -315,18 +363,8 @@ const dataStore = useDataStore();
 
 const isEdit = computed(() => !!props.editDashboard);
 
-const name = ref('');
-const isPublic = ref(false);
-const airports = ref<AirportRow[]>([emptyAirport()]);
-const mapLocation = ref<DashboardMapLocation>('right');
-const enrouteCallsign = ref('');
-const flFrom = ref<number | null>(null);
-const flTo = ref<number | null>(null);
-const mapSize = ref<DashboardMapSize>(100);
-const displayMode = ref<DashboardDisplayMode>('both');
-const showMetar = ref(true);
-const showArrivalTracks = ref(true);
-const openColumns = ref<DashboardColumn[]>([...dashboardColumns]);
+const payload = reactive<DashboardPayload>(createPayload());
+const predictedWindow = computed(() => payload.json.predictedWindow!);
 
 const saving = ref(false);
 const serverError = ref<string | null>(null);
@@ -365,24 +403,24 @@ function colorModelToHex(color: Partial<UserMapSettingsColor> | null): string | 
     return null;
 }
 
-function emptyAirport(icao: string | null = null): AirportRow {
+function emptyAirport(icao: string | null = null): DashboardPayload['json']['airports'][number] {
     return {
         icao: icao ?? '',
         showInTrafficPrediction: false,
-        color: null,
+        aircraftColor: null,
     };
 }
 
-const atAirportCap = computed(() => airports.value.length >= MAX_DASHBOARD_AIRPORTS);
+const atAirportCap = computed(() => payload.json.airports.length >= MAX_DASHBOARD_AIRPORTS);
 
 function addAirport() {
     if (atAirportCap.value) return;
-    airports.value.push(emptyAirport());
+    payload.json.airports.push(emptyAirport());
 }
 
 function removeAirport(index: number) {
-    airports.value.splice(index, 1);
-    if (!airports.value.length) airports.value.push(emptyAirport());
+    payload.json.airports.splice(index, 1);
+    if (!payload.json.airports.length) payload.json.airports.push(emptyAirport());
 }
 
 const realIcao = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao ?? null);
@@ -394,59 +432,46 @@ function isRealIcao(icao: string) {
     return !!realIcao.value[key];
 }
 
-const airportErrors = computed(() => airports.value.map((airport, index) => {
+const airportErrors = computed(() => payload.json.airports.map((airport, index) => {
     const icao = airport.icao.trim().toUpperCase();
     if (!icao) return null;
     if (!v.safeParse(icaoSchema, icao).success) return 'ICAO must be 2-4 letters or digits';
     if (!isRealIcao(icao)) return 'Unknown airport ICAO';
-    const firstIndex = airports.value.findIndex(other => other.icao.trim().toUpperCase() === icao);
+    const firstIndex = payload.json.airports.findIndex(other => other.icao.trim().toUpperCase() === icao);
     if (firstIndex !== index) return 'Duplicate airport';
     return null;
 }));
 
-const enrouteFlightLevel = computed(() => {
-    if (!enrouteCallsign.value.trim()) return null;
-    if (flFrom.value === null || flTo.value === null) return null;
-    return { from: flFrom.value, to: flTo.value };
-});
-
 const flError = computed(() => {
-    if (!enrouteCallsign.value.trim() || flFrom.value === null || flTo.value === null) return null;
-    if (flFrom.value > flTo.value) return 'Flight Level "From" must be lower than or equal to "To".';
+    const flightLevel = payload.json.enrouteFlightLevel;
+    if (!flightLevel) return null;
+    if (flightLevel.from > flightLevel.to) return 'Flight Level "From" must be lower than or equal to "To".';
     return null;
 });
 
-const payload = computed<DashboardPayload>(() => ({
-    name: name.value.trim(),
-    public: isPublic.value,
-    json: {
-        airports: airports.value.map(airport => ({
-            icao: airport.icao.trim().toUpperCase(),
-            showInTrafficPrediction: airport.showInTrafficPrediction,
-            aircraftColor: colorModelToHex(airport.color),
-        })),
-        mapLocation: mapLocation.value,
-        enrouteCallsign: enrouteCallsign.value.trim() ? enrouteCallsign.value.trim().toUpperCase() : null,
-        enrouteFlightLevel: enrouteFlightLevel.value,
-        mapSize: mapSize.value,
-        displayMode: displayMode.value,
-        showMetar: showMetar.value,
-        showArrivalTracks: showArrivalTracks.value,
-        openColumns: openColumns.value,
-    },
-}));
+function updateFlightLevel(field: 'from' | 'to', value: number | null) {
+    if (value === null) {
+        payload.json.enrouteFlightLevel = null;
+        return;
+    }
 
-const parseResult = computed(() => v.safeParse(DashboardSchema, payload.value));
-const nameValid = computed(() => name.value.trim().length >= 1 && name.value.trim().length <= 50);
-const enrouteCallsignValid = computed(() => !enrouteCallsign.value.trim() || v.safeParse(enrouteCallsignSchema, enrouteCallsign.value).success);
-const allAirportsValid = computed(() => airports.value.length > 0 && airportErrors.value.every(error => !error) && airports.value.every(airport => !!airport.icao.trim()));
+    const flightLevel = payload.json.enrouteFlightLevel;
+    payload.json.enrouteFlightLevel = flightLevel
+        ? { ...flightLevel, [field]: value }
+        : { from: value, to: value };
+}
+
+const parseResult = computed(() => v.safeParse(DashboardSchema, payload));
+const nameValid = computed(() => payload.name.trim().length >= 1 && payload.name.trim().length <= 50);
+const enrouteCallsignValid = computed(() => !payload.json.enrouteCallsign || v.safeParse(enrouteCallsignSchema, payload.json.enrouteCallsign).success);
+const allAirportsValid = computed(() => payload.json.airports.length > 0 && airportErrors.value.every(error => !error) && payload.json.airports.every(airport => !!airport.icao.trim()));
 
 const canSave = computed(() => !saving.value && parseResult.value.success && allAirportsValid.value);
 
 async function save() {
     if (!canSave.value) return;
 
-    const result = v.safeParse(DashboardSchema, payload.value);
+    const result = v.safeParse(DashboardSchema, payload);
     if (!result.success) return;
 
     saving.value = true;
@@ -491,45 +516,60 @@ async function deleteCurrentDashboard() {
     }
 }
 
-function resetForm() {
-    serverError.value = null;
-
-    const dashboard = props.editDashboard;
-    if (dashboard) {
-        const json = dashboard.json;
-        name.value = dashboard.name;
-        isPublic.value = dashboard.public;
-        airports.value = json.airports.length
-            ? json.airports.map(airport => ({
-                icao: airport.icao,
-                showInTrafficPrediction: airport.showInTrafficPrediction ?? false,
-                color: hexToColorModel(airport.aircraftColor),
-            }))
-            : [emptyAirport()];
-        mapLocation.value = json.mapLocation ?? 'right';
-        enrouteCallsign.value = json.enrouteCallsign ?? '';
-        flFrom.value = json.enrouteFlightLevel?.from ?? null;
-        flTo.value = json.enrouteFlightLevel?.to ?? null;
-        mapSize.value = json.mapSize ?? 100;
-        displayMode.value = json.displayMode ?? 'both';
-        showMetar.value = json.showMetar ?? true;
-        showArrivalTracks.value = json.showArrivalTracks ?? true;
-        openColumns.value = json.openColumns ? [...json.openColumns] : [...dashboardColumns];
-        return;
+function createPayload(dashboard: UserDashboard | null = null): DashboardPayload {
+    if (!dashboard) {
+        return {
+            name: '',
+            public: false,
+            json: {
+                airports: [emptyAirport(props.prefillAirport)],
+                mapLocation: 'right',
+                enrouteCallsign: null,
+                enrouteFlightLevel: null,
+                mapSize: 100,
+                displayMode: 'both',
+                showMetar: true,
+                showArrivalTracks: true,
+                openColumns: [...dashboardColumns],
+                predictedWindow: { ...dashboardPredictedDefaults },
+                aircraftMode: 'all',
+            },
+        };
     }
 
-    name.value = '';
-    isPublic.value = false;
-    airports.value = [emptyAirport(props.prefillAirport)];
-    mapLocation.value = 'right';
-    enrouteCallsign.value = '';
-    flFrom.value = null;
-    flTo.value = null;
-    mapSize.value = 100;
-    displayMode.value = 'both';
-    showMetar.value = true;
-    showArrivalTracks.value = true;
-    openColumns.value = [...dashboardColumns];
+    const json = dashboard.json;
+    return {
+        name: dashboard.name,
+        public: dashboard.public,
+        json: {
+            ...json,
+            airports: json.airports.length
+                ? json.airports.map(airport => ({
+                    icao: airport.icao,
+                    showInTrafficPrediction: airport.showInTrafficPrediction ?? false,
+                    aircraftColor: airport.aircraftColor ?? null,
+                }))
+                : [emptyAirport()],
+            mapLocation: json.mapLocation ?? 'right',
+            enrouteCallsign: json.enrouteCallsign ?? null,
+            enrouteFlightLevel: json.enrouteFlightLevel ?? null,
+            mapSize: json.mapSize ?? 100,
+            displayMode: json.displayMode ?? 'both',
+            showMetar: json.showMetar ?? true,
+            showArrivalTracks: json.showArrivalTracks ?? true,
+            openColumns: json.openColumns ? [...json.openColumns] : [...dashboardColumns],
+            predictedWindow: {
+                ...dashboardPredictedDefaults,
+                ...json.predictedWindow,
+            },
+            aircraftMode: json.aircraftMode ?? 'all',
+        },
+    };
+}
+
+function resetForm() {
+    serverError.value = null;
+    Object.assign(payload, createPayload(props.editDashboard));
 }
 
 watch(model, open => {

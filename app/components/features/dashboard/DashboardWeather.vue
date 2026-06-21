@@ -1,6 +1,16 @@
 <template>
     <div class="dashboard-weather">
         <div class="dashboard-weather_strip">
+            <ui-button
+                v-if="entries.some(x => changedWeather[x.icao] && changedWeather[x.icao]?.metar !== x.metar)"
+                size="S"
+                :type="showPreviousMetar ? 'primary' : 'secondary'"
+                @click="showPreviousMetar = !showPreviousMetar"
+            >
+                <ui-text type="3b-medium">
+                    Show<br> previous METAR
+                </ui-text>
+            </ui-button>
             <div
                 v-for="entry in entries"
                 :key="entry.icao"
@@ -49,14 +59,6 @@
                     </span>
                 </div>
             </div>
-            <ui-button
-                v-if="entries.some(x => changedWeather[x.icao] && changedWeather[x.icao]?.metar !== x.metar)"
-                size="S"
-                :type="showPreviousMetar ? 'primary' : 'secondary'"
-                @click="showPreviousMetar = !showPreviousMetar"
-            >
-                Show previous METAR
-            </ui-button>
         </div>
     </div>
 </template>
@@ -67,6 +69,7 @@ import { parseMetar, AltimeterUnit } from 'metar-taf-parser';
 import type { StoreOverlayAirport } from '~/store/map';
 import { useDashboard } from '~/composables/dashboard';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 defineProps({
     canEdit: {

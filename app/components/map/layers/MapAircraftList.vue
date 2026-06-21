@@ -221,11 +221,19 @@ function setVisiblePilots() {
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
         const aircraft = new Set<number>();
+        const mode = store.config.airportMode ?? 'all';
 
         for (const key in dataStore.airportsList.value) {
             if (!store.config.airports!.includes(key)) continue;
 
-            for (const cid of Object.values(dataStore.airportsList.value[key]?.aircraft ?? []).flat()) {
+            const airportAircraft = dataStore.airportsList.value[key]?.aircraft;
+            const ids = mode === 'ground'
+                ? [...(airportAircraft?.groundDep ?? []), ...(airportAircraft?.groundArr ?? [])]
+                : mode === 'all'
+                    ? Object.values(airportAircraft ?? {}).flat()
+                    : airportAircraft?.[mode as MapAircraftKeys] ?? [];
+
+            for (const cid of ids) {
                 aircraft.add(cid);
             }
         }

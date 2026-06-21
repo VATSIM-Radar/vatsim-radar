@@ -34,7 +34,7 @@
             <div class="airport_header_section">
                 <ui-select
                     v-model="aircraftMode"
-                    :items="aircraftModes"
+                    :items="dashboardAircraftModes"
                     placeholder="Filter Map Aircraft"
                     width="200px"
                 />
@@ -201,6 +201,7 @@ import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import { dashboardAircraftModes } from '~/utils/shared/dashboard';
 
 const route = useRoute();
 const router = useRouter();
@@ -278,32 +279,6 @@ watch(selectedPilot, async () => {
 });
 
 const aircraftMode = ref<MapAircraftMode | null>(null);
-const aircraftModes: SelectItem<MapAircraftMode>[] = [
-    {
-        value: 'all',
-        text: 'All',
-    },
-    {
-        value: 'ground',
-        text: 'On Ground',
-    },
-    {
-        value: 'groundDep',
-        text: 'Departing',
-    },
-    {
-        value: 'departures',
-        text: 'Departed',
-    },
-    {
-        value: 'arrivals',
-        text: 'Arriving',
-    },
-    {
-        value: 'groundArr',
-        text: 'Landed',
-    },
-];
 
 watch(() => dataStore.navigraphProcedures.value[airportData.value?.icao ?? ''], async () => {
     if (airportMapFrame.value) {
@@ -423,7 +398,7 @@ onMounted(() => {
 
         switch (setting) {
             case 'aircraft':
-                if (aircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
+                if (dashboardAircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
                 break;
             case 'info':
                 if (query === 'info' || query === 'proc') airportTab.value = query as any;

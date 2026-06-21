@@ -14,6 +14,7 @@
         <airport-predicted-traffic
             v-if="!collapsed"
             :aircraft="combinedAircraft"
+            :predicted-options="activeDashboard?.predictedWindow"
         />
     </div>
 </template>
