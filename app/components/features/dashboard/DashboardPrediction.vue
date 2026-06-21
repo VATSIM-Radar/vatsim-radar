@@ -29,16 +29,34 @@ import ArrowTopIcon from '@/assets/icons/kit/arrow-top.svg?component';
 
 const airportsData = inject<Ref<Record<string, StoreOverlayAirport['data']>>>('dashboard-airports-data')!;
 const { activeDashboard } = useDashboard();
-const airportList = (activeDashboard.value?.airports ?? []).map(airport => airport.icao);
-const aircraftRefs: Record<string, Ref<AirportPopupPilotList | null>> = {};
-for (const icao of airportList) {
-    aircraftRefs[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }));
-}
+const airportList = computed(() => (activeDashboard.value?.airports ?? []).filter(x => x.showInTrafficPrediction).map(airport => airport.icao));
+const aircraftRefs = shallowRef<Record<string, Ref<AirportPopupPilotList | null>>>({});
+
+const scope = getCurrentScope();
+
+watch(airportList, () => {
+    aircraftRefs.value = {};
+
+    try {
+        scope?.run(() => {
+            for (const icao of airportList.value) {
+                aircraftRefs.value[icao] = getAircraftForAirport(computed(() => airportsData.value[icao] ?? { icao }));
+            }
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
+
+    triggerRef(aircraftRefs);
+}, {
+    immediate: true,
+});
 
 const combinedAircraft = computed<AirportPopupPilotList>(() => {
     const out: AirportPopupPilotList = { groundDep: [], groundArr: [], prefiles: [], departures: [], arrivals: [] };
-    for (const icao of airportList) {
-        const list = aircraftRefs[icao]?.value;
+    for (const icao of airportList.value) {
+        const list = aircraftRefs.value[icao]?.value;
         if (!list) continue;
         out.groundDep.push(...list.groundDep);
         out.groundArr.push(...list.groundArr);

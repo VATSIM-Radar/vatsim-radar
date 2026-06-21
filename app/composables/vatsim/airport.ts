@@ -91,7 +91,7 @@ export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPi
 export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'] | null>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
-    if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
+    if (!getCurrentScope()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
     if (injected) {
         return computed(() => {
             if (!toValue(injected)) {

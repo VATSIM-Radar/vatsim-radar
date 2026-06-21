@@ -418,7 +418,10 @@ async function update() {
         for (const pilot in dataStore.navigraphWaypoints.value) {
             const arrival = dataStore.navigraphWaypoints.value[pilot];
             waypoints[pilot] = {
-                ...toRaw(arrival),
+                pilot: toRaw(arrival.pilot),
+                coordinates: arrival.coordinates,
+                calculatedArrival: toRaw(arrival.calculatedArrival),
+                full: arrival.full,
                 waypoints: [],
             };
         }

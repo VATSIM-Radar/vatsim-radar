@@ -326,6 +326,8 @@ useHead(() => ({
     ],
 }));
 
+const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
+
 const ready = ref(false);
 const mounted = ref(false);
 const mapFrame = ref<HTMLIFrameElement | null>(null);
@@ -334,7 +336,6 @@ const selectedPilot = ref<number | null>(null);
 let skipSelectedPilotWatch = false;
 
 function receiveMessage(event: MessageEvent) {
-    console.log(event);
     if (event.origin !== config.public.DOMAIN || !event.data || typeof event.data !== 'object' || Array.isArray(event.data)) return;
     if ('selectedPilot' in event.data && selectedPilot.value !== event.data.selectedPilot) {
         selectedPilot.value = event.data.selectedPilot;
@@ -369,6 +370,9 @@ onMounted(() => {
     }, 1000);
     weatherInterval = setInterval(refreshWeather, 1000 * 60 * 5);
     window.addEventListener('message', receiveMessage);
+
+    seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value).slice(0, 5);
+    seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? id.value });
 });
 
 onBeforeUnmount(() => {
@@ -391,7 +395,7 @@ watch(dashboard, async value => {
         if (notams && entry) entry.notams = notams;
     }));
     triggerRef(airportsData);
-}, { immediate: true });
+}, { immediate: true, deep: true });
 
 await setupDataFetch({
     onSuccessCallback() {

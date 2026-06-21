@@ -16,48 +16,72 @@
             </div>
         </template>
 
-        <ui-notification
-            v-if="atCap"
-            class="dashboards_cap"
-            type="info"
-        >
-            You have reached the maximum of {{ MAX_DASHBOARDS }} dashboards. Delete one to create another.
-        </ui-notification>
+        <div class="__vertical-group-16">
 
-        <client-only v-if="status !== 'pending'">
-            <div
-                v-if="dashboards.length"
-                class="dashboards_list"
+            <ui-notification
+                v-if="atCap"
+                class="dashboards_cap"
+                type="info"
             >
-                <nuxt-link
-                    v-for="dashboard in dashboards"
-                    :key="dashboard.id"
-                    class="dashboards__item"
-                    :to="`/dashboard/${ dashboard.id }`"
-                >
-                    <div class="dashboards__item_name">
-                        {{ dashboard.name }}
-                    </div>
-                    <ui-bubble
-                        v-if="dashboard.public"
-                        class="dashboards__item_badge"
-                    >
-                        Public
-                    </ui-bubble>
-                </nuxt-link>
-            </div>
-            <ui-notification v-else-if="!store.user" type="info">
-                <ui-text type="h5">
-                    You need to be authorized in order to create or save dashboards. You can ask your friends to share theirs though!
-                </ui-text>
+                You have reached the maximum of {{ MAX_DASHBOARDS }} dashboards. Delete one to create another.
             </ui-notification>
-            <div
-                v-else
-                class="dashboards_empty"
-            >
-                You don't have any dashboards yet. Create one to get started.
-            </div>
-        </client-only>
+
+            <client-only v-if="status !== 'pending'">
+                <div
+                    v-if="dashboards.length"
+                    class="dashboards_list"
+                >
+                    <nuxt-link
+                        v-for="dashboard in dashboards"
+                        :key="dashboard.id"
+                        class="dashboards__item"
+                        :to="`/dashboard/${ dashboard.id }`"
+                    >
+                        <div class="dashboards__item_name">
+                            {{ dashboard.name }}
+                        </div>
+                        <ui-bubble
+                            v-if="dashboard.public"
+                            class="dashboards__item_badge"
+                        >
+                            Public
+                        </ui-bubble>
+                    </nuxt-link>
+                </div>
+                <ui-notification v-else-if="!store.user" type="info">
+                    <ui-text type="h5">
+                        You need to be authorized in order to create or save dashboards. You can ask your friends to share theirs though!
+                    </ui-text>
+                </ui-notification>
+                <div
+                    v-else
+                    class="dashboards_empty"
+                >
+                    You don't have any dashboards yet. Create one to get started.
+                </div>
+                <template v-if="store.favoriteDashboards.length">
+                    <ui-block-title>
+                        <ui-text type="h4">
+                            Favorite Dashboards
+                        </ui-text>
+                    </ui-block-title>
+                    <div
+                        class="dashboards_list"
+                    >
+                        <nuxt-link
+                            v-for="dashboard in store.favoriteDashboards"
+                            :key="dashboard.id"
+                            class="dashboards__item"
+                            :to="`/dashboard/${ dashboard.id }`"
+                        >
+                            <div class="dashboards__item_name">
+                                {{ dashboard.name }}
+                            </div>
+                        </nuxt-link>
+                    </div>
+                </template>
+            </client-only>
+        </div>
 
         <dashboard-edit-popup
             v-model="editorOpen"
@@ -80,6 +104,7 @@ import type { UserDashboard } from '~/utils/server/handlers/dashboards';
 import { useDataStore } from '~/composables/render/storage';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 import UiText from '~/components/ui/text/UiText.vue';
+import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 
 const store = useStore();
 const route = useRoute();
@@ -105,6 +130,10 @@ function openCreate(airport: string | null = null) {
 const { status } = await useAsyncData('dashboards-fetch', async () => {
     await store.fetchDashboards().catch(console.error);
 }, {
+    server: false,
+});
+
+await useAsyncData(store.fetchFavoriteDashboards, {
     server: false,
 });
 

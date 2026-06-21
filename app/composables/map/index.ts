@@ -29,6 +29,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const route = useRoute();
     const store = useStore();
     const isMobile = useIsMobile();
+    const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
 
     const menu: HeaderItem[] = [
         {
@@ -67,18 +68,10 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             text: 'Dashboard',
             icon: DataIcon,
             path: '/dashboard',
-            children: [
-                {
-                    text: 'Events',
-                    path: '/events',
-                    icon: EventsIcon,
-                },
-                {
-                    text: 'Bookings',
-                    path: '/bookings',
-                    icon: BookingsIcon,
-                },
-            ],
+            children: seenDashboards.value.map(x => ({
+                text: x.name,
+                path: `/dashboard/${ x.id }`,
+            })),
         },
         {
             text: 'Stats',
