@@ -69,7 +69,7 @@
             <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
-                    <map-minified-overlays/>
+                    <map-minified-overlays v-if="!store.activeDashboard"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -413,7 +413,7 @@ const canShowObserver = computed(() => {
 });
 
 const restoreOverlays = async () => {
-    if (store.config.hideAllExternal) return;
+    if (store.config.hideAllExternal || store.activeDashboard) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
@@ -566,7 +566,7 @@ watch([isMobile, popups], () => {
 function saveOverlays() {
     if (!restoredOverlays.value) return;
     localStorage.setItem('overlays', JSON.stringify(
-        mapStore.overlays.map(x => ({
+        mapStore.overlays.filter(x => !x.dontSave).map(x => ({
             ...x,
             data: undefined,
         })),
@@ -804,8 +804,15 @@ await setupDataFetch({
             const airports = store.config.airports.map(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x]).filter(x => x);
 
             if (airports.length) {
-                projectionExtent = buffer(boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat]))), 0.5);
+                const origExtent = projectionExtent;
+                const baseExtent = boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat])));
+                const padding = Math.max(baseExtent[2] - baseExtent[0], baseExtent[3] - baseExtent[1], 400000) * 0.75;
+                projectionExtent = buffer(baseExtent, padding);
                 center = toLonLat(getCenter(projectionExtent));
+
+                if (store.config.dashboardId) {
+                    projectionExtent = origExtent;
+                }
             }
         }
 
@@ -815,7 +822,7 @@ await setupDataFetch({
         else if (store.config.airport) {
             zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
-        else if (store.config.airports?.length) zoom = 1;
+        else if (store.config.airports?.length && !store.config.dashboardId) zoom = 1;
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
             if (coords[0] > 300 || coords[0] < -300 || isNaN(coords[0])) coords[0] = 37.617633;

@@ -19,6 +19,7 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type {
     NavigraphNavDataEnrouteWaypointPartial,
 } from '~/utils/server/navigraph/navdata/types';
+import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
 
 defineOptions({
     render: () => null,
@@ -411,6 +412,25 @@ async function update() {
         }
 
         const features = source?.value.getFeatures() ?? [];
+
+        const waypoints: Record<string, PilotNavigraphWaypoints> = {};
+
+        for (const pilot in dataStore.navigraphWaypoints.value) {
+            const arrival = dataStore.navigraphWaypoints.value[pilot];
+            waypoints[pilot] = {
+                pilot: toRaw(arrival.pilot),
+                coordinates: arrival.coordinates,
+                calculatedArrival: toRaw(arrival.calculatedArrival),
+                full: arrival.full,
+                waypoints: [],
+            };
+        }
+
+        const targetOrigin = useRuntimeConfig().public.DOMAIN;
+        window.parent.postMessage({
+            type: 'navigraph-waypoints',
+            waypoints,
+        }, targetOrigin);
 
         for (const feature of features) {
             const type = feature.getProperties().featureType;

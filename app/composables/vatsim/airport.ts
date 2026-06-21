@@ -17,10 +17,12 @@ export function provideAirport(data: MaybeRef<StoreOverlayAirport['data'] | unde
     provide('airport', data);
 }
 
-export function injectAirport(): Ref<StoreOverlayAirport['data']> {
-    const injection = inject<MaybeRef<StoreOverlayAirport['data']>>('airport')!;
+export function injectAirport(defaultValue: true): Ref<StoreOverlayAirport['data']> | null;
+export function injectAirport(defaultValue?: false): Ref<StoreOverlayAirport['data']>;
+export function injectAirport(defaultValue?: boolean): Ref<StoreOverlayAirport['data']> | null {
+    const injection = defaultValue ? inject<MaybeRef<StoreOverlayAirport['data']> | null>('airport', null) : inject<MaybeRef<StoreOverlayAirport['data']>>('airport')!;
     if (isRef(injection)) return injection;
-    return shallowRef(injection);
+    return injection ? shallowRef(injection) : null;
 }
 
 export const getATCForAirport = (data: Ref<StoreOverlayAirport['data'] | null>) => {
@@ -89,7 +91,7 @@ export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPi
 export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'] | null>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
-    if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
+    if (!getCurrentScope()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
     if (injected) {
         return computed(() => {
             if (!toValue(injected)) {

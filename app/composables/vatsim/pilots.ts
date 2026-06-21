@@ -12,7 +12,7 @@ import { useMapStore } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
-import { collapsingWithOverlay } from '~/composables';
+import { collapsingWithOverlay, useColorFromProp } from '~/composables';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
@@ -192,6 +192,21 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
     const list = cid && getUserList(cid);
     if (list && status !== 'emergency') {
         return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
+    }
+
+    if (status === 'emergency') return aircraftSvgColors().emergency;
+
+    const store = useStore();
+
+    if (store.activeDashboard && status !== 'hover' && cid) {
+        const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
+        const airports = Object.fromEntries(store.activeDashboard.airports.filter(x => x.aircraftColor).map(x => [x.icao, x.aircraftColor]));
+
+        if (aircraft?.departure && aircraft.arrival) {
+            const arrivalColor = airports[aircraft.arrival];
+
+            if (arrivalColor) return useColorFromProp(arrivalColor);
+        }
     }
 
     let filteredColor: ReturnType<typeof getFilteredAircraftSettings> | undefined;

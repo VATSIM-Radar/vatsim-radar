@@ -21,6 +21,8 @@ import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filte
 import type { IEngine } from 'ua-parser-js';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
+import type { UserDashboard } from '~/utils/server/handlers/dashboards';
+import type { DashboardSettings } from '~/utils/shared/dashboard';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
@@ -42,6 +44,8 @@ export interface SiteConfig {
 
     airports?: string[];
     airport?: string;
+    mainAtcCallsign?: string;
+    dashboardId?: number;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     onlyAirportsAircraft?: boolean;
@@ -86,6 +90,9 @@ export const useStore = defineStore('index', {
 
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
+        dashboards: [] as UserDashboard[],
+        favoriteDashboards: [] as UserDashboard[],
+        activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
 
         events: [] as VatsimActiveEvent[],
@@ -446,6 +453,12 @@ export const useStore = defineStore('index', {
         setActiveFilter(val: boolean) {
             isFilterActive().value.value = val;
             this.isFilterActive = val;
+        },
+        async fetchDashboards() {
+            this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
+        },
+        async fetchFavoriteDashboards() {
+            this.favoriteDashboards = await $fetch<UserDashboard[]>('/api/user/dashboards/favorite');
         },
     },
 });

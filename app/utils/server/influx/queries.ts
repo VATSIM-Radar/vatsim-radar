@@ -137,12 +137,13 @@ export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
             nextRow?.callsign === row.callsign && (
                 !!row.fpl_departure_time &&
                     !!nextRow.fpl_departure_time &&
-                    nextRow.fpl_departure_time === row.fpl_departure_time &&
+                    (nextRow.fpl_departure_time === row.fpl_departure_time || (nextRow.fpl_departure === row.fpl_departure && nextRow.fpl_arrival === row.fpl_arrival)) &&
                     nextRow.fpl_enroute_time === row.fpl_enroute_time
             )
         ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
             ? rows[index + 1]
             : null;
+
         return !similarRow;
     });
 }

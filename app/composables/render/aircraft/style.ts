@@ -107,6 +107,8 @@ export function setAircraftStyle(layer: VectorLayer) {
     const mapStore = useMapStore();
     refreshAircraftStyle = () => layer.changed();
 
+    const airports = computed(() => Object.fromEntries(store.activeDashboard?.airports.filter(x => x.aircraftColor).map(x => [x.icao, x.aircraftColor]) ?? []));
+
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft', properties)) {
@@ -155,6 +157,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 onGround,
                 scale,
             });
+            const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
             const pilotLabels = getKeyedValueFromSettings('map.visibility.pilotLabels');
             const aircraftShowLimit = getKeyedValueFromSettings('map.preferences.aircraft.showLimit');
             const heatmap = getKeyedValueFromSettings('map.layers.heatmap');
@@ -182,7 +185,8 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache.aircraftImage = new Style();
             }
 
-            const shouldTintPngIcon = filterColor || !pngImage || (color && color.color !== 'blue500');
+            const airportColor = airports.value[aircraft?.arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
+            const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
             const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
@@ -211,6 +215,10 @@ export function setAircraftStyle(layer: VectorLayer) {
             else {
                 iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
                 iconOpacity = filterColor ? getColorAlpha(filterColor) : filterOpacity ?? (heatmap ? 0 : (color?.transparency ?? 1));
+
+                if (airportColor) {
+                    iconColor = getAircraftStatusColor('default', cid);
+                }
             }
 
             const svgSrc = svg ? svgToDataURI(reColorSvg(svg, status, cid)) : undefined;
@@ -283,9 +291,12 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft-line', properties)) {
-            if (properties.lineType === 'departure-straight') {
-                if (!styleCache.depLine) {
-                    styleCache.depLine = new Style({
+            if (properties.lineType === 'departure-straight' || properties.lineType === 'arrival-straight') {
+                const color = getAircraftDefaultTurnColor(properties.status, properties.cid);
+                const key = `defaultLine${ color }`;
+
+                if (!styleCache[key]) {
+                    styleCache[key] = new Style({
                         stroke: new Stroke({
                             color: getAircraftDefaultTurnColor(properties.status, properties.cid),
                             width: 1,
@@ -293,20 +304,7 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
                     });
                 }
 
-                return styleCache.depLine;
-            }
-            if (properties.lineType === 'arrival-straight') {
-                if (!styleCache.arrLine) {
-                    styleCache.arrLine = new Style({
-                        stroke: new Stroke({
-                            color: getAircraftDefaultTurnColor(properties.status, properties.cid),
-                            width: 1,
-                            lineDash: [4, 8],
-                        }),
-                    });
-                }
-
-                return styleCache.arrLine;
+                return styleCache[key];
             }
 
             if (!styleCache.defaultLineStyle) {

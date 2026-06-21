@@ -85,7 +85,7 @@ const theme = useCookie<ThemesList>('theme', {
 
 store.theme = theme.value ?? settingsStore?.settings.appearance?.theme ?? 'default';
 
-checkAndSetMapPreset();
+await checkAndSetMapPreset();
 
 defineRouteRules({
     prerender: true,

@@ -68,7 +68,7 @@
                 @click="store.metarRequest = (!status || status?.startsWith('dep')) ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
             >
                 <ui-text type="caption-light">
-                    Weather Request
+                    Conditions Request
                 </ui-text>
             </ui-button>
 
