@@ -2,7 +2,19 @@
 
 # [2.0.0-beta.3]
 
-New feature: Dashboard v2
+New feature by psergienko: Dashboard v2
+
+### Controller Dashboard 2.0
+
+Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
+
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
+
+## Features and Improvements
+
+- Renamed Weather Request to Conditions Request, added NOTAMs to this window
 
 # [2.0.0-beta.2.4]
 

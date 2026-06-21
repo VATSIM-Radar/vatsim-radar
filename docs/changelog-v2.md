@@ -40,7 +40,11 @@ That also leads to performance improvements, and a MUCH better experience on mob
 
 ### Controller Dashboard 2.0
 
-TBA
+Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
+
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
 
 ### Performance Improvements
 
