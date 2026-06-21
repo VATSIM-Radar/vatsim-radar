@@ -171,7 +171,7 @@ export async function checkAndSetMapPreset() {
         preset.hideSectors = false;
         preset.hideAirports = false;
 
-        if (typeof window !== 'undefined' && store.activeDashboard?.showArrivalTracks !== false) {
+        if (typeof window !== 'undefined' && store.activeDashboard?.showArrivalTracks !== false && query.tracks !== '0') {
             nextTick().then(async () => {
                 for (const airport of preset.airports!) {
                     await checkForUpdates();

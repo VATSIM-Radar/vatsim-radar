@@ -328,6 +328,16 @@ function clearTask() {
                 },
             },
         });
+
+        await prisma.favoriteDashboard.deleteMany({
+            where: {
+                dashboard: {
+                    is: {
+                        public: false,
+                    },
+                },
+            },
+        });
     }).catch(console.error);
 }
 

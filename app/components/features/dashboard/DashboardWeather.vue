@@ -144,7 +144,7 @@ const storedMetar = useCookie<Record<string, { metar: string | null; qnh: string
 const changedWeather = ref<Record<string, { metar: string | null; qnh: string; wind: string | null; acknowledged?: boolean }>>({});
 
 function acknowledgeQnh(icao: string) {
-    if (!changedWeather.value[icao] || !changedWeather.value[icao].acknowledged) return false;
+    if (!changedWeather.value[icao] || changedWeather.value[icao].acknowledged) return false;
     changedWeather.value[icao].acknowledged = true;
     return true;
 }

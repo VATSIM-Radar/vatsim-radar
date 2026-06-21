@@ -111,6 +111,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
     try {
         updateState.updating = true;
         let turnsColor = getAircraftStatusColor(status, aircraft.cid);
+        const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
+
+        if (turnsTransparency) {
+            const rgb = hexToRgb(turnsColor);
+
+            turnsColor = `rgba(${ rgb }, ${ turnsTransparency })`;
+        }
 
         for (const feature of tracksFeatures) {
             const properties = feature.getProperties();
@@ -130,14 +137,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             (routeParsingOnHover || !hovered) &&
             track.show !== 'short' &&
             !!dataStore.navigraph.version.value;
-
-        const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
-
-        if (turnsTransparency) {
-            const rgb = hexToRgb(turnsColor);
-
-            turnsColor = `rgba(${ rgb }, ${ turnsTransparency })`;
-        }
 
         if (canShowRoute && !updateState.flightPlan) {
             updateState.flightPlan = (await $fetch<{ flightPlan: string } | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/plan`, {

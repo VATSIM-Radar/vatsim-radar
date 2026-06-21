@@ -226,6 +226,7 @@ async function requestAirport(icao: string) {
 
     $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).then(x => {
         notams.value[icao] = x;
+        triggerRef(notams);
     }).catch(console.error);
 
     return data;

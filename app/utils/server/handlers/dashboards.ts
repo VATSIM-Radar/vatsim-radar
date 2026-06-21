@@ -353,7 +353,7 @@ export async function handleDashboardFavoriteEvent(event: H3Event) {
             if (!dashboard) {
                 return handleH3Error({
                     event,
-                    statusCode: 400,
+                    statusCode: 404,
                     data: 'This dashboard was not found',
                 });
             }
@@ -363,6 +363,14 @@ export async function handleDashboardFavoriteEvent(event: H3Event) {
                     event,
                     statusCode: 419,
                     data: `You can't favorite your own dashboard`,
+                });
+            }
+
+            if (!dashboard.public) {
+                return handleH3Error({
+                    event,
+                    statusCode: 403,
+                    data: `This dashboard is private`,
                 });
             }
         }
@@ -413,7 +421,7 @@ export async function handleDashboardFavoriteEvent(event: H3Event) {
                 return dashboard;
             }
             else {
-                return favorite.map(x => x.dashboard);
+                return favorite.filter(x => !x.dashboard.public).map(x => x.dashboard);
             }
         }
         else {
