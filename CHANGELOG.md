@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.0-beta.3]
+
+New feature: Dashboard v2
+
 # [2.0.0-beta.2.4]
 
 ## Alpha Changes

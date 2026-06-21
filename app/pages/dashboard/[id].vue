@@ -140,7 +140,6 @@
             <div class="dashboard-view_header_weather">
                 <dashboard-weather
                     :can-edit="dashboard.owner"
-                    @addAirport="openEditor"
                 />
             </div>
         </div>
@@ -192,7 +191,6 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { updateDashboard } from '~/composables/fetchers/dashboards';
-import UiBubble from '~/components/ui/data/UiBubble.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';

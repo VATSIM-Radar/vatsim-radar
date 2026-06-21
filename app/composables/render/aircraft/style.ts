@@ -18,7 +18,7 @@ import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import type { WatchHandle } from 'vue';
-import { globalComputed, useColorFromProp } from '~/composables';
+import { globalComputed } from '~/composables';
 
 let styleImageCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};

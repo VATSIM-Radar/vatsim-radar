@@ -8,7 +8,6 @@ import { MAX_DASHBOARDS, MAX_FAVORITE_DASHBOARDS } from '~/utils/shared';
 import { radarStorage } from '~/utils/server/storage';
 import { DashboardSettingsSchema } from '~/utils/shared/dashboard';
 import type { DashboardSettings } from '~/utils/shared/dashboard';
-import favorite from '#server/api/user/dashboards/favorite';
 
 export type UserDashboard = Omit<Dashboard, 'json'> & {
     json: DashboardSettings;

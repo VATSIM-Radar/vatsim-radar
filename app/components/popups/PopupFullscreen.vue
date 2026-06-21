@@ -65,6 +65,8 @@ import { sleep } from '~/utils';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 
+defineOptions({ inheritAttrs: false });
+
 const props = defineProps({
     disableTeleport: {
         type: Boolean,

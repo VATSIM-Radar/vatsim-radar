@@ -66,8 +66,6 @@ import type { Ref } from 'vue';
 import { parseMetar, AltimeterUnit } from 'metar-taf-parser';
 import type { StoreOverlayAirport } from '~/store/map';
 import { useDashboard } from '~/composables/dashboard';
-import PlusIcon from '@/assets/icons/kit/plus.svg?component';
-import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 
 defineProps({
@@ -76,8 +74,6 @@ defineProps({
         default: false,
     },
 });
-
-defineEmits<{ addAirport: [] }>();
 
 const airportsData = inject<Ref<Record<string, StoreOverlayAirport['data']>>>('dashboard-airports-data')!;
 const { activeDashboard, sortByPriorityAirports, getAirportAircraftColor } = useDashboard();

@@ -19,7 +19,7 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type {
     NavigraphNavDataEnrouteWaypointPartial,
 } from '~/utils/server/navigraph/navdata/types';
-import type { PilotCalculatedArrival, PilotNavigraphWaypoints } from '~/composables/render/storage';
+import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
 
 defineOptions({
     render: () => null,
