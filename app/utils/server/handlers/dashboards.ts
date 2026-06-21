@@ -421,7 +421,7 @@ export async function handleDashboardFavoriteEvent(event: H3Event) {
                 return dashboard;
             }
             else {
-                return favorite.filter(x => !x.dashboard.public).map(x => x.dashboard);
+                return favorite.filter(x => x.dashboard.public).map(x => x.dashboard);
             }
         }
         else {
