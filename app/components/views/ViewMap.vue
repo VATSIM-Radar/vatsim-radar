@@ -685,9 +685,10 @@ class DistanceInteraction extends Interaction {
 
         const useCtrlClick = distanceInteraction.value === 'ctrlclick';
         const isCtrlClick = !isTouch.value && (event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey));
-        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK || isTouch.value;
+        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK;
+        const startsOnDoubleClick = isTouch.value || !useCtrlClick;
 
-        if ((useCtrlClick && isCtrlClick) || (!useCtrlClick && isDoubleClick)) {
+        if ((startsOnDoubleClick && isDoubleClick) || (!startsOnDoubleClick && isCtrlClick)) {
             startDistance(event);
 
             return false;
@@ -703,7 +704,8 @@ let managedMapInteractions: Interaction[] = [];
 function setMapInteractions() {
     if (!map.value) return;
     const withDistance = distanceEnabled.value;
-    const ctrl = distanceInteraction.value === 'ctrlclick';
+    // Touch devices always start the ruler on double tap, even if this setting was saved on desktop.
+    const distanceStartsOnDoubleClick = isTouch.value || distanceInteraction.value === 'dblclick';
 
     for (const interaction of managedMapInteractions) {
         map.value.removeInteraction(interaction);
@@ -712,7 +714,7 @@ function setMapInteractions() {
 
     if (withDistance) {
         const interactions = defaults({
-            doubleClickZoom: !!ctrl,
+            doubleClickZoom: !distanceStartsOnDoubleClick,
         }).extend([
             distanceInteractionHandler,
         ]);
@@ -729,7 +731,7 @@ function setMapInteractions() {
 }
 
 watch(distanceEnabled, setMapInteractions);
-watch(() => distanceInteraction.value === 'ctrlclick', setMapInteractions);
+watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 await setupDataFetch({
     async onMount() {
