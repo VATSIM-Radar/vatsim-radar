@@ -15,6 +15,10 @@ export default defineEventHandler(async event => {
 
         let redirectUrl = getRedirectURL(event);
 
+        if (typeof query.state === 'string' && query.state.endsWith('-app') && !query.webview) {
+            return sendRedirect(event, `vatsim-radar:///auth/vatsim?state=${ query.state }&code=${ query.code }`);
+        }
+
         const { id: verifierId, discordId, discordStrategy } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,
