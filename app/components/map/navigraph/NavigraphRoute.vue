@@ -32,6 +32,45 @@ const mapStore = useMapStore();
 
 let skipUpdate = false;
 
+interface RouteRenderCache {
+    waypoints: PilotNavigraphWaypoints['waypoints'];
+    full: boolean;
+    disableLabels: boolean | undefined;
+    disableWaypoints: boolean | undefined;
+    departure: string | null | undefined;
+    arrival: string;
+    hasApproach: boolean;
+    callsign: string;
+    staticKeys: Set<string>;
+    nextWaypoint?: {
+        identifier: string;
+        coordinate: Coordinate;
+        kind: NavigraphNavDataEnrouteWaypointPartial['kind'];
+    };
+}
+
+const routeRenderCache = new Map<number, RouteRenderCache>();
+
+type RouteWaypointCandidate = [identifier: string, coordinate: Coordinate, bearing: number, altitude: number | null];
+
+function hasSameRoute(cache: RouteRenderCache, route: Omit<RouteRenderCache, 'staticKeys' | 'nextWaypoint'>) {
+    return cache.waypoints === route.waypoints &&
+        cache.full === route.full &&
+        cache.disableLabels === route.disableLabels &&
+        cache.disableWaypoints === route.disableWaypoints &&
+        cache.departure === route.departure &&
+        cache.arrival === route.arrival &&
+        cache.hasApproach === route.hasApproach &&
+        cache.callsign === route.callsign;
+}
+
+function hasSameNextWaypoint(cache: RouteRenderCache, waypoint: RouteWaypointCandidate | undefined) {
+    return !!waypoint && !!cache.nextWaypoint &&
+        cache.nextWaypoint.identifier === waypoint[0] &&
+        cache.nextWaypoint.coordinate[0] === waypoint[1][0] &&
+        cache.nextWaypoint.coordinate[1] === waypoint[1][1];
+}
+
 function cleanup() {
     const features = source?.value.getFeatures() ?? [];
 
@@ -42,6 +81,8 @@ function cleanup() {
             feature.dispose();
         }
     }
+
+    routeRenderCache.clear();
 }
 
 async function update() {
@@ -49,10 +90,13 @@ async function update() {
 
     const keys = new Set<string>();
     const currentFlightKeys = new Set<string>();
+    const visibleRouteCids = new Set<number>();
+    let routeKeys: Set<string> | null = null;
 
     function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
         const existingFeature = getMapFeature('navigraph', source!.value, id);
         keys.add(id);
+        routeKeys?.add(id);
 
         if (currentFlight) {
             currentFlightKeys.add(id);
@@ -104,9 +148,27 @@ async function update() {
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
 
-            waypoints = waypoints.slice(0);
+            if (!waypoints.length || arrived) {
+                routeRenderCache.delete(cid);
+                continue;
+            }
 
-            if (!waypoints.length || arrived) continue;
+            visibleRouteCids.add(cid);
+
+            const hasApproach = !!Object.keys(dataStore.navigraphProcedures.value[arrival]?.approaches ?? {}).length;
+            const route = {
+                waypoints,
+                full,
+                disableLabels,
+                disableWaypoints,
+                departure,
+                arrival,
+                hasApproach,
+                callsign,
+            };
+            const cachedRoute = routeRenderCache.get(cid);
+
+            waypoints = waypoints.slice(0);
 
             if (departure && dataStore.vatspy.value?.data.keyAirports.realIcao[departure]) {
                 waypoints.unshift({
@@ -117,7 +179,7 @@ async function update() {
                 });
             }
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures.value[arrival]?.approaches ?? {}).length) {
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !hasApproach) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 
@@ -175,9 +237,36 @@ async function update() {
 
             rawWaypoints = rawWaypoints.slice(0, 1);
 
+            // The static route only changes when its parsed waypoints or display settings do.
+            // Reuse it only if the unchanged full selector picked the same next waypoint.
+            if (cachedRoute && hasSameRoute(cachedRoute, route) && hasSameNextWaypoint(cachedRoute, rawWaypoints[0])) {
+                for (const id of cachedRoute.staticKeys) {
+                    keys.add(id);
+                    if (currentFlight) currentFlightKeys.add(id);
+                }
+
+                if (speed >= 50) {
+                    addFeature(`enroute-${ callsign }`, () => ({
+                        geometry: turfGeometryToOl(greatCircle(coordinate, cachedRoute.nextWaypoint!.coordinate, { npoints: 16 })),
+                        key: '',
+                        identifier: '',
+                        type: 'navigraph',
+                        featureType: 'enroute-airways',
+                        dataType: 'navdata',
+                        self: true,
+                        kind: cachedRoute.nextWaypoint!.kind,
+                        dbType: cachedRoute.nextWaypoint!.kind,
+                    }));
+                }
+
+                continue;
+            }
+
+            routeKeys = new Set<string>();
             let foundWaypoint = speed < 50;
 
             let firstWaypoint = false;
+            let nextWaypoint: RouteRenderCache['nextWaypoint'];
 
             function checkAircraftStepclimb(waypoint: string) {
                 if (!foundWaypoint && calculatedArrival.stepclimbs.length) calculatedArrival.stepclimbs = calculatedArrival.stepclimbs.filter(x => x.waypoint !== waypoint);
@@ -202,8 +291,14 @@ async function update() {
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
 
-            const onFirstWaypoint = (newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
+            const onFirstWaypoint = (identifier: string, newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
                 if (firstWaypoint) return;
+
+                nextWaypoint = {
+                    identifier,
+                    coordinate: newCoordinate,
+                    kind,
+                };
 
                 const appliedDistance = applyAircraftDistance(coordinate, newCoordinate);
 
@@ -270,7 +365,7 @@ async function update() {
                     }
 
                     if (foundWaypoint) {
-                        onFirstWaypoint(waypoint.coordinate!, waypoint.kind);
+                        onFirstWaypoint(waypoint.identifier, waypoint.coordinate!, waypoint.kind);
                     }
 
                     if (typeof nextCoordinate[0] !== 'number') continue;
@@ -314,7 +409,7 @@ async function update() {
                         }
 
                         if (foundWaypoint) {
-                            onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
+                            onFirstWaypoint(currWaypoint[0], [currWaypoint[3], currWaypoint[4]], waypoint.kind);
                         }
 
                         if (!disableWaypoints) {
@@ -409,6 +504,19 @@ async function update() {
                     stepclimbs: toRaw(calculatedArrival.stepclimbs),
                 };
             }
+
+            const staticKeys = routeKeys!;
+            staticKeys.delete(`enroute-${ callsign }`);
+            routeRenderCache.set(cid, {
+                ...route,
+                staticKeys,
+                nextWaypoint,
+            });
+            routeKeys = null;
+        }
+
+        for (const cid of routeRenderCache.keys()) {
+            if (!visibleRouteCids.has(cid)) routeRenderCache.delete(cid);
         }
 
         const features = source?.value.getFeatures() ?? [];
@@ -440,6 +548,11 @@ async function update() {
             if (type.startsWith('enroute') && !keys.has(feature.getId() as string)) {
                 source?.value.removeFeature(feature);
                 feature.dispose();
+            }
+            else if (type.startsWith('enroute') && feature.getProperties().currentFlight !== currentFlightKeys.has(feature.getId() as string)) {
+                feature.setProperties({
+                    currentFlight: currentFlightKeys.has(feature.getId() as string),
+                });
             }
         }
 
