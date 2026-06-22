@@ -9,7 +9,7 @@ import { isPilotOnGround } from '~/composables/vatsim/pilots';
 
 type BoundaryFeature = Feature<Polygon | MultiPolygon>;
 
-function resolveFirPolygons(callsign: string): BoundaryFeature[] {
+async function resolveFirPolygons(callsign: string): Promise<BoundaryFeature[]> {
     const data = useDataStore().vatspy.value?.data;
     if (!data) return [];
 
@@ -21,7 +21,7 @@ function resolveFirPolygons(callsign: string): BoundaryFeature[] {
         const prefix = [fir.callsign, fir.icao].filter((value): value is string => !!value).find(value => callsign.startsWith(value));
         if (!prefix) continue;
 
-        const features = data.features[fir.boundary];
+        const features = await useDataStore().vatspyBoundary(fir.boundary);
         if (!features?.length) continue;
 
         if (prefix.length < bestLength) continue;
@@ -61,9 +61,14 @@ export function useEnrouteAircraft(options: UseEnrouteAircraftOptions) {
     const dataStore = useDataStore();
 
     const callsign = computed(() => toValue(options.callsign)?.toUpperCase().trim() || null);
+    const firPolygons = shallowRef<BoundaryFeature[]>([]);
     const traconPolygons = shallowRef<BoundaryFeature[]>([]);
     watch(callsign, async value => {
+        firPolygons.value = [];
         traconPolygons.value = [];
+        if (value && (value.endsWith('_CTR') || value.endsWith('_FSS'))) {
+            firPolygons.value = await resolveFirPolygons(value).catch(() => []);
+        }
         if (value && (value.endsWith('_APP') || value.endsWith('_DEP'))) {
             traconPolygons.value = await resolveTraconPolygons(value).catch(() => []);
         }
@@ -72,7 +77,7 @@ export function useEnrouteAircraft(options: UseEnrouteAircraftOptions) {
     const polygons = computed<BoundaryFeature[]>(() => {
         const value = callsign.value;
         if (!value) return [];
-        if (value.endsWith('_CTR') || value.endsWith('_FSS')) return resolveFirPolygons(value);
+        if (value.endsWith('_CTR') || value.endsWith('_FSS')) return firPolygons.value;
         if (value.endsWith('_APP') || value.endsWith('_DEP')) return traconPolygons.value;
         return [];
     });

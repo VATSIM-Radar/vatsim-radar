@@ -14,7 +14,7 @@ function getSafeVatglassesLevel() {
     return typeof level === 'number' && Number.isFinite(level) ? level : 999;
 }
 
-export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer }: {
+export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, labelsLayer, preserveSectors = false }: {
     source: VectorSource;
     layer: VectorLayer;
 
@@ -24,6 +24,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
     labelsLayer: VectorLayer;
 
     firs: DataSector[];
+    preserveSectors?: boolean;
 }) {
     const store = useStore();
     const dataStore = useDataStore();
@@ -97,6 +98,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
                 uir,
                 name,
                 isOceanic: fir.feature.properties.oceanic,
+                persistent: fir.persistent,
             });
             (sectorType === 'empty' ? emptySource : source).addFeature(feature);
         }
@@ -174,7 +176,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
     for (const feature of features) {
         const properties = feature.getProperties();
 
-        if ((isMapFeature('sector', properties) && !activeIds.has(properties.id)) || (isMapFeature('sector-vatglasses', properties) && !activeIds.has(properties.vgSectorId))) {
+        if ((isMapFeature('sector', properties) && !properties.persistent && !preserveSectors && !activeIds.has(properties.id)) || (isMapFeature('sector-vatglasses', properties) && !activeIds.has(properties.vgSectorId))) {
             source.removeFeature(feature);
             feature.dispose();
         }
@@ -185,7 +187,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
     for (const feature of emptyFeatures) {
         const properties = feature.getProperties();
 
-        if (isMapFeature('sector', properties) && !emptyIds.has(properties.id)) {
+        if (isMapFeature('sector', properties) && !properties.persistent && !preserveSectors && !emptyIds.has(properties.id)) {
             emptySource.removeFeature(feature);
             feature.dispose();
         }
