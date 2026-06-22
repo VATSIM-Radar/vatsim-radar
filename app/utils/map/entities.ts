@@ -126,6 +126,7 @@ export interface FeatureAirportSectorDefaultProperties {
     name: string;
     isOceanic: boolean;
     label: Coordinate;
+    persistent?: boolean;
     atc: VatsimShortenedController[];
 }
 

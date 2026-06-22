@@ -7,6 +7,7 @@ export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     let queryState = getQuery(event).state;
+    const app = getQuery(event).app;
     if (typeof queryState === 'string') {
         const existingState = await prisma.auth.findFirst({
             where: {
@@ -19,7 +20,8 @@ export default defineEventHandler(async event => {
         queryState = '';
     }
 
-    const state = queryState || randomUUID();
+    let state = queryState || randomUUID();
+    if (app) state += '-app';
 
     if (!queryState) {
         await prisma.auth.create({
