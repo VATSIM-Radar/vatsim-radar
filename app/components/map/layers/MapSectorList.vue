@@ -25,6 +25,7 @@ let vectorImageSource: VectorSource;
 let labelsLayer: VectorLayer<any>;
 let lastSectorsUpdateId = 0;
 let offlineSectorsRendered = false;
+let atcWasHidden = false;
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
@@ -42,6 +43,7 @@ onMounted(async () => {
     if (!map.value) throw new Error('Map is not initialized');
     lastSectorsUpdateId = 0;
     offlineSectorsRendered = false;
+    atcWasHidden = false;
 
     vectorSource = new VectorSource<any>({
         features: [],
@@ -106,7 +108,14 @@ onMounted(async () => {
     }
 
     await renderOfflineSectors();
-    watch(dataStore.vatspy, renderOfflineSectors);
+    watch(dataStore.vatspy, async () => {
+        if (hideAtc.value) return;
+        vectorSource.clear();
+        vectorImageSource.clear();
+        offlineSectorsRendered = false;
+        await renderOfflineSectors();
+        await updateControllersRender();
+    });
 
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
@@ -124,9 +133,14 @@ onMounted(async () => {
             vectorSource.clear();
             vectorImageSource.clear();
             offlineSectorsRendered = false;
+            atcWasHidden = true;
         }
         else {
             await renderOfflineSectors();
+            if (atcWasHidden) {
+                atcWasHidden = false;
+                await updateControllersRender();
+            }
         }
 
         if (!hideAtc.value && lastSectorsUpdateId !== dataStore.sectorsUpdateId.value) {

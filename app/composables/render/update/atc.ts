@@ -482,5 +482,4 @@ export async function updateControllers(context: DataUpdateContext) {
     for (const airport of Object.values(context.airports)) {
         airport.atc = airport.atc.filter(x => !context.atcAdded?.has(x.callsign) || x.facility <= facilities.TWR);
     }
-
 }
