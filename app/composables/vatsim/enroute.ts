@@ -63,7 +63,7 @@ export function useEnrouteAircraft(options: UseEnrouteAircraftOptions) {
     const callsign = computed(() => toValue(options.callsign)?.toUpperCase().trim() || null);
     const firPolygons = shallowRef<BoundaryFeature[]>([]);
     const traconPolygons = shallowRef<BoundaryFeature[]>([]);
-    watch(callsign, async value => {
+    watch([callsign, dataStore.vatspy], async ([value]) => {
         firPolygons.value = [];
         traconPolygons.value = [];
         if (value && (value.endsWith('_CTR') || value.endsWith('_FSS'))) {
