@@ -323,7 +323,7 @@ const windowRangeLabel = computed(() => {
 function getBarColor(count: number, icao: string): string {
     if (count >= predictionOptions.value.alertThreshold && predictionOptions.value.alertThreshold) return getCurrentThemeHexColor('red500');
     if (count >= predictionOptions.value.warningThreshold && predictionOptions.value.warningThreshold) return getCurrentThemeHexColor('citrus500');
-    if(!predictionOptions.value.stacked) return getCurrentThemeHexColor('green500');
+    if (!predictionOptions.value.stacked) return getCurrentThemeHexColor('green500');
 
     return getAirportAircraftColor(icao) ?? getCurrentThemeHexColor('green500');
 }
@@ -334,7 +334,7 @@ const axisLabelColor = computed(() => getCurrentThemeHexColor('lightGray500'));
 const chartData = computed(() => {
     return {
         labels: labels.value,
-        datasets: Object.entries(!predictionOptions.value.stacked ? {'Total': flatBins.value} : arrivalBins.value).map(([key, value]) => ({
+        datasets: Object.entries(!predictionOptions.value.stacked ? { Total: flatBins.value } : arrivalBins.value).map(([key, value]) => ({
             label: key,
             data: value,
             backgroundColor: predictionOptions.value.stacked ? getAirportAircraftColor(key) ?? getCurrentThemeHexColor('green500') : value.map(count => getBarColor(count, key)),
@@ -392,7 +392,7 @@ const chartOptions = computed<Record<string, any>>(() => {
             },
             y: {
                 beginAtZero: true,
-              stacked: predictionOptions.value.stacked,
+                stacked: predictionOptions.value.stacked,
                 suggestedMax,
                 grid: { color: gridColor.value },
                 ticks: {
