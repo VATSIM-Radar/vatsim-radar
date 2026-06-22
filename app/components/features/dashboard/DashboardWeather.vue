@@ -104,9 +104,9 @@ function parseQnh(metar: string): string | null {
     try {
         const parsed = parseMetar(metar, { issued: new Date() });
         if (!parsed.altimeter) return null;
-      if(parsed.altimeter?.unit === AltimeterUnit.InHg)  return `${ (`${parsed.altimeter?.value}.00`).slice(0, 5) } inHg`;
+        if (parsed.altimeter?.unit === AltimeterUnit.InHg) return `${ (`${ parsed.altimeter?.value }.00`).slice(0, 5) } inHg`;
 
-      return `${ parsed.altimeter?.value } hPa`;
+        return `${ parsed.altimeter?.value } hPa`;
     }
     catch {
         return null;

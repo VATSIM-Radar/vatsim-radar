@@ -12,8 +12,8 @@ let vgFirstRun: boolean | undefined = true;
 
 export async function updateControllersRender() {
     const dataStore = useDataStore();
-const store = useStore();
-const mapStore = useMapStore();
+    const store = useStore();
+    const mapStore = useMapStore();
 
     const airports: Record<string, DataAirport> = {};
     const sectors: Record<string, DataSector> = {};
@@ -48,9 +48,9 @@ const mapStore = useMapStore();
     log = logBench('updateATC');
     await updateControllers(context);
 
-    for(const event of store.getEvents) {
-        for(const airport of event.airports) {
-            if(context.airportsAdded.has(airport.icao) || !dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao]) continue
+    for (const event of store.getEvents) {
+        for (const airport of event.airports) {
+            if (context.airportsAdded.has(airport.icao) || !dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao]) continue;
             context.airports[airport.icao] = {
                 icao: airport.icao,
                 airport: dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao],
@@ -64,13 +64,13 @@ const mapStore = useMapStore();
                 },
                 aircraftCount: 1,
                 atis: {},
-            }
+            };
             context.airportsAdded.add(airport.icao);
         }
     }
 
-    for(const overlay of mapStore.overlays) {
-        if(context.airportsAdded.has(overlay.key) || overlay.type !== 'airport' || !dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key]) continue
+    for (const overlay of mapStore.overlays) {
+        if (context.airportsAdded.has(overlay.key) || overlay.type !== 'airport' || !dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key]) continue;
         context.airports[overlay.key] = {
             icao: overlay.key,
             airport: dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key],
@@ -84,7 +84,7 @@ const mapStore = useMapStore();
             },
             aircraftCount: 1,
             atis: {},
-        }
+        };
         context.airportsAdded.add(overlay.key);
     }
 

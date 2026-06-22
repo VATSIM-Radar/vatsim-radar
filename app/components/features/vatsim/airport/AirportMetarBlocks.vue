@@ -69,8 +69,8 @@ const props = defineProps({
 const altimeter = computed(() => {
     if (!('altimeter' in props.metar) || !props.metar.altimeter) return null;
 
-    if(props.metar.altimeter?.unit === AltimeterUnit.InHg)  return `${ (`${props.metar.altimeter?.value}.00`).slice(0, 5) } inHg`;
+    if (props.metar.altimeter?.unit === AltimeterUnit.InHg) return `${ (`${ props.metar.altimeter?.value }.00`).slice(0, 5) } inHg`;
 
-  return `${ props.metar.altimeter?.value } hPa`;
+    return `${ props.metar.altimeter?.value } hPa`;
 });
 </script>
