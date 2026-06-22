@@ -20,6 +20,7 @@ import type {
     NavigraphNavDataEnrouteWaypointPartial,
 } from '~/utils/server/navigraph/navdata/types';
 import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
+import { logBench } from '~/composables';
 
 defineOptions({
     render: () => null,
@@ -125,6 +126,8 @@ async function update() {
 
     try {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
+
+        const log = logBench('updateRoute');
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints, coordinates: coordinate } of pilots) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, departure, callsign } = pilot;
@@ -554,6 +557,7 @@ async function update() {
 
         skipUpdate = true;
         triggerRef(dataStore.navigraphWaypoints);
+        log();
     }
     catch (e) {
         console.error(e);
