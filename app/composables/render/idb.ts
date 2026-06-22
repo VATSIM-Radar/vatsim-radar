@@ -63,17 +63,6 @@ export async function initClientDB() {
     indexedDB.deleteDatabase('vatsim-radar');
     const db = new VatsimRadarDB('vatsim-radar-db');
 
-    db.version(6)
-        .stores({
-            data: '',
-            vatglasses: '',
-            simaware: '',
-            airlines: '',
-            navigraphAirports: '',
-            navigraphData: '',
-            navigraphDB: '',
-        });
-
     db.version(7)
         .stores({
             data: '',

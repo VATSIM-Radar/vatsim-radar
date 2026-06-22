@@ -97,13 +97,13 @@ export function checkForVATSpy() {
         if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
             vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
 
-            const { features, ...metadata } = vatspy.data;
+            const { features, ...metadata } = vatspy.data as VatSpyAPIData['data'];
             const boundaries = Object.entries(features);
 
             await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, async () => {
                 await clientDB.vatspyBoundaries.clear();
                 await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
-                await clientDB.data.put({ ...vatspy, data: metadata }, 'vatspy');
+                await clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
             }).catch(e => {
                 console.error(e);
                 clientDB.delete();
@@ -113,20 +113,6 @@ export function checkForVATSpy() {
             vatspy = { ...vatspy, data: metadata };
 
             notRequired = false;
-        }
-
-        // Migrate the pre-v7 monolithic cache without requesting VATSpy again.
-        if ('features' in vatspy.data) {
-            const { features, ...metadata } = vatspy.data;
-            const boundaries = Object.entries(features);
-
-            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, async () => {
-                await clientDB.vatspyBoundaries.clear();
-                await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
-                await clientDB.data.put({ ...vatspy, data: metadata }, 'vatspy');
-            });
-
-            vatspy = { ...vatspy, data: metadata };
         }
 
         for (const airport of vatspy.data.airports) {
