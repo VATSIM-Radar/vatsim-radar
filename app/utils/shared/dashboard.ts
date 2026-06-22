@@ -47,6 +47,7 @@ export const DashboardPredictedSchema = v.object({
     warningThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 5),
     alertThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 10),
     yMaxOverride: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
+    stacked: v.optional(v.boolean(), true),
 });
 export type DashboardPredictedOptions = v.InferOutput<typeof DashboardPredictedSchema>;
 
@@ -56,6 +57,7 @@ export const dashboardPredictedDefaults: DashboardPredictedOptions = {
     warningThreshold: 5,
     alertThreshold: 10,
     yMaxOverride: 0,
+    stacked: true,
 };
 
 export const dashboardAircraftModes: SelectItem<MapAircraftMode>[] = [

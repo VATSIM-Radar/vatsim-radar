@@ -43,7 +43,7 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
     const toPush: Feature[] = [];
 
     for (const feature of geojson.features) {
-        const previousFeature = dataToCompare.features.find(x => type === 'simaware' ? JSON.stringify(x.properties) === JSON.stringify(feature.properties) : x.id === feature.id);
+        const previousFeature = dataToCompare.features.find(x => type === 'simaware' ? JSON.stringify(x.properties) === JSON.stringify(feature.properties) : x.properties!.id === feature.properties!.id && (x.properties as any)!.oceanic === feature.properties!.oceanic);
 
         if (!previousFeature) {
             feature.properties!.fill = 'green500';
@@ -62,7 +62,7 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
     geojson.features.push(...toPush);
 
     for (const feature of dataToCompare.features) {
-        const previousFeature = geojson.features.find(x => 'name' in feature.properties ? x.properties!.id === feature.properties!.id && x.properties!.name === feature.properties!.name : x.id === feature.id);
+        const previousFeature = geojson.features.find(x => 'name' in feature.properties ? x.properties!.id === feature.properties!.id && x.properties!.name === feature.properties!.name : x.properties!.id === feature.properties!.id && x.properties!.oceanic === feature.properties!.oceanic);
         if (!previousFeature) {
             geojson.features.push({
                 ...feature,

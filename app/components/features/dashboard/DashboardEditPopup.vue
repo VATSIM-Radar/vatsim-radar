@@ -243,23 +243,30 @@
                         <div class="dashboard-edit_row">
                             <ui-input-number
                                 v-model="predictedWindow.warningThreshold"
-                                :input-attrs="{ min: 1, step: 1 }"
+                                :input-attrs="{ min: 0, step: 1 }"
                             >
                                 Caution threshold (arrivals)
                             </ui-input-number>
                             <ui-input-number
                                 v-model="predictedWindow.alertThreshold"
-                                :input-attrs="{ min: 1, step: 1 }"
+                                :input-attrs="{ min: 0, step: 1 }"
                             >
                                 Alert threshold (arrivals)
                             </ui-input-number>
                         </div>
-                        <ui-input-number
-                            v-model="predictedWindow.yMaxOverride"
-                            :input-attrs="{ min: 0, step: 1 }"
-                        >
-                            Chart Y-axis maximum (0 = automatic)
-                        </ui-input-number>
+                        <div class="dashboard-edit_row">
+                            <ui-input-number
+                                v-model="predictedWindow.yMaxOverride"
+                                :input-attrs="{ min: 0, step: 1 }"
+                            >
+                                Chart Y-axis maximum (0 = automatic)
+                            </ui-input-number>
+                            <ui-toggle
+                                v-model="predictedWindow.stacked"
+                            >
+                                Stacked columns
+                            </ui-toggle>
+                        </div>
                     </div>
                 </div>
             </div>

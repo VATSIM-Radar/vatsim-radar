@@ -92,9 +92,9 @@ function getAtisLetter(icao: string): string | null {
 
     if (combined) return combined;
     const parts: string[] = [];
-    if (departure) parts.push(`D:${ departure }`);
-    if (arrival) parts.push(`A:${ arrival }`);
-    return parts.length ? parts.join(' / ') : null;
+    if (departure) parts.push(departure);
+    if (arrival) parts.push(arrival);
+    return parts.length ? parts.join('/') : null;
 }
 
 const expandedMetars = ref<Set<string>>(new Set());
@@ -104,7 +104,9 @@ function parseQnh(metar: string): string | null {
     try {
         const parsed = parseMetar(metar, { issued: new Date() });
         if (!parsed.altimeter) return null;
-        return `${ parsed.altimeter.value } ${ parsed.altimeter.unit === AltimeterUnit.HPa ? 'hPa' : 'inHG' }`;
+      if(parsed.altimeter?.unit === AltimeterUnit.InHg)  return `${ (`${parsed.altimeter?.value}.00`).slice(0, 5) } inHg`;
+
+      return `${ parsed.altimeter?.value } hPa`;
     }
     catch {
         return null;

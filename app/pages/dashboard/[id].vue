@@ -218,8 +218,8 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from '~/store';
-import { updateDashboard } from '~/composables/fetchers/dashboards';
+import {useStore} from '~/store';
+import {updateDashboard} from '~/composables/fetchers/dashboards';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
@@ -229,19 +229,18 @@ import DashboardWeather from '~/components/features/dashboard/DashboardWeather.v
 import DashboardAircraft from '~/components/features/dashboard/DashboardAircraft.vue';
 import DashboardPrediction from '~/components/features/dashboard/DashboardPrediction.vue';
 import DashboardEditPopup from '~/components/features/dashboard/DashboardEditPopup.vue';
-import type { PublicDashboard, UserDashboard } from '~/utils/server/handlers/dashboards';
-import type { StoreOverlayAirport } from '~/store/map';
-import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~/utils/server/notams';
+import type {PublicDashboard, UserDashboard} from '~/utils/server/handlers/dashboards';
+import type {StoreOverlayAirport} from '~/store/map';
+import type {VatsimAirportData} from '~~/server/api/data/vatsim/airport/[icao]';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import CopyIcon from '@/assets/icons/kit/copy.svg?component';
 import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
 import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
-import { useDataStore } from '~/composables/render/storage';
-import { checkForUpdates, checkForVATSpy } from '~/composables/init';
-import { dashboardAircraftModes, dashboardColumns } from '~/utils/shared/dashboard';
-import type { MapAircraftMode } from '~/types/map';
+import {useDataStore} from '~/composables/render/storage';
+import {checkForUpdates, checkForVATSpy} from '~/composables/init';
+import {dashboardAircraftModes, dashboardColumns} from '~/utils/shared/dashboard';
+import type {MapAircraftMode} from '~/types/map';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 
 const route = useRoute();
@@ -472,12 +471,6 @@ watch(dashboard, async value => {
     seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? id.value });
 
     airportsData.value = await fetchAirportsWeather();
-
-    await Promise.all(airportIcaos.value.map(async icao => {
-        const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).catch(() => null);
-        const entry = airportsData.value[icao];
-        if (notams && entry) entry.notams = notams;
-    }));
     triggerRef(airportsData);
 }, { immediate: true, deep: true });
 
@@ -574,12 +567,7 @@ async function fetchAirportsWeather() {
 }
 
 async function refreshWeather() {
-    const next = await fetchAirportsWeather();
-    for (const [icao, entry] of Object.entries(next)) {
-        const existing = airportsData.value[icao];
-        if (entry && existing?.notams?.length) entry.notams = existing.notams;
-    }
-    airportsData.value = next;
+  airportsData.value = await fetchAirportsWeather();
 }
 </script>
 

@@ -8,6 +8,18 @@
 - Improved route update cpu and memory usage
 - Improved VATSpy and SimAware TRACON memory usage
 - Fixed aircraft showing twice when only arrival was submitted as flight plan
+- Fixed not a number warning on russian in atc popup on initial load
+- Improved hit tolerance for hovering over features
+- You can now turn on and off stacked dashboard columns
+- Caution/Alert dashboard thresholds will have no effect on y-axis anymore
+- Setting caution/alert to 0 will now disable this functionality
+- Fixed cookie prompt appearing twice when in controller dashboard
+- Fixed inHg altimeter display
+- Removed D/A letters when multiple ATIS configuration is active in dashboard
+- Event airports will now always show if airports "Display mode" is "all"
+- Fixed empty airports not displayed when overlay is opened
+- Fixed airports showing random tracon names in featured airports
+- Fixed duplicated positions showing as controlling quiet airports
 
 # [2.0.0-beta.3.1]
 

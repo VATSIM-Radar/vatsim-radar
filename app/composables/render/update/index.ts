@@ -12,6 +12,8 @@ let vgFirstRun: boolean | undefined = true;
 
 export async function updateControllersRender() {
     const dataStore = useDataStore();
+const store = useStore();
+const mapStore = useMapStore();
 
     const airports: Record<string, DataAirport> = {};
     const sectors: Record<string, DataSector> = {};
@@ -45,6 +47,46 @@ export async function updateControllersRender() {
     }
     log = logBench('updateATC');
     await updateControllers(context);
+
+    for(const event of store.getEvents) {
+        for(const airport of event.airports) {
+            if(context.airportsAdded.has(airport.icao) || !dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao]) continue
+            context.airports[airport.icao] = {
+                icao: airport.icao,
+                airport: dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao],
+                atc: [],
+                aircraft: {
+                    groundDep: [],
+                    groundArr: [],
+                    prefiles: [],
+                    departures: [],
+                    arrivals: [],
+                },
+                aircraftCount: 1,
+                atis: {},
+            }
+            context.airportsAdded.add(airport.icao);
+        }
+    }
+
+    for(const overlay of mapStore.overlays) {
+        if(context.airportsAdded.has(overlay.key) || overlay.type !== 'airport' || !dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key]) continue
+        context.airports[overlay.key] = {
+            icao: overlay.key,
+            airport: dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key],
+            atc: [],
+            aircraft: {
+                groundDep: [],
+                groundArr: [],
+                prefiles: [],
+                departures: [],
+                arrivals: [],
+            },
+            aircraftCount: 1,
+            atis: {},
+        }
+        context.airportsAdded.add(overlay.key);
+    }
 
     for (const airport in context.airports) {
         if (!context.airportsAdded.has(airport)) delete context.airports[airport];

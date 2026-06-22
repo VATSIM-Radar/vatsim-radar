@@ -32,7 +32,7 @@
             </div>
         </div>
         <client-only>
-            <layout-consent/>
+            <layout-consent v-if="!store.config.dashboardId"/>
             <layout-distance-tutorial/>
         </client-only>
         <layout-consent-popup/>

@@ -69,6 +69,13 @@
                     @update:modelValue="updatePredictionOption('yMaxOverride', $event)"
                 />
             </div>
+            <div class="predicted-traffic_settings_field">
+                <label>Stacked columns</label>
+                <ui-toggle
+                    :model-value="predictionOptions.stacked"
+                    @update:modelValue="updatePredictionOption('stacked', $event)"
+                />
+            </div>
             <ui-button
                 v-if="hasPredictionOverrides"
                 size="S"
@@ -126,6 +133,7 @@ import SettingsIcon from '~/assets/icons/kit/settings.svg?component';
 import { dashboardPredictedDefaults } from '~/utils/shared/dashboard';
 import type { DashboardPredictedOptions } from '~/utils/shared/dashboard';
 import { useDashboard } from '~/composables/dashboard';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 
 const props = defineProps({
     aircraft: {
@@ -147,8 +155,8 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 const predictionOptionLimits = {
     binSize: { min: 1, max: 60, step: 1 },
     windowMinutes: { min: 15, max: 480, step: 15 },
-    warningThreshold: { min: 1, step: 1 },
-    alertThreshold: { min: 1, step: 1 },
+    warningThreshold: { min: 0, step: 1 },
+    alertThreshold: { min: 0, step: 1 },
     yMaxOverride: { min: 0, step: 1 },
 } as const;
 
@@ -162,6 +170,7 @@ const optionQueryKeys: Record<PredictionOptionKey, string> = {
     warningThreshold: 'predictionCaution',
     alertThreshold: 'predictionAlert',
     yMaxOverride: 'predictionMax',
+    stacked: 'predictionStacked',
 };
 const baseOptions = computed<DashboardPredictedOptions>(() => ({
     ...dashboardPredictedDefaults,
@@ -172,9 +181,15 @@ const predictionOptions = computed<DashboardPredictedOptions>(() => {
     const options = { ...baseOptions.value };
 
     for (const key of Object.keys(optionQueryKeys) as PredictionOptionKey[]) {
-        const limits = predictionOptionLimits[key];
         const queryValue = route.query[optionQueryKeys[key]];
-        const value = typeof queryValue === 'string' ? Number(queryValue) : Number.NaN;
+
+        if (key === 'stacked') {
+            options[key] = queryValue === 'true';
+            continue;
+        }
+
+        const limits = predictionOptionLimits[key];
+        const value = typeof queryValue === 'string' ? Number(queryValue) : 0;
         const withinRange = value >= limits.min && (!('max' in limits) || value <= limits.max);
         const matchesStep = !limits.step || (value - limits.min) % limits.step === 0;
 
@@ -186,7 +201,7 @@ const predictionOptions = computed<DashboardPredictedOptions>(() => {
 
 const hasPredictionOverrides = computed(() => Object.values(optionQueryKeys).some(key => key in route.query));
 
-function updatePredictionOption(key: PredictionOptionKey, value: number | null) {
+function updatePredictionOption(key: PredictionOptionKey, value: boolean | number | null) {
     const query = { ...route.query };
     const queryKey = optionQueryKeys[key];
 
@@ -306,8 +321,10 @@ const windowRangeLabel = computed(() => {
 });
 
 function getBarColor(count: number, icao: string): string {
-    if (count >= predictionOptions.value.alertThreshold) return getCurrentThemeHexColor('red500');
-    if (count >= predictionOptions.value.warningThreshold) return getCurrentThemeHexColor('citrus500');
+    if (count >= predictionOptions.value.alertThreshold && predictionOptions.value.alertThreshold) return getCurrentThemeHexColor('red500');
+    if (count >= predictionOptions.value.warningThreshold && predictionOptions.value.warningThreshold) return getCurrentThemeHexColor('citrus500');
+    if(!predictionOptions.value.stacked) return getCurrentThemeHexColor('green500');
+
     return getAirportAircraftColor(icao) ?? getCurrentThemeHexColor('green500');
 }
 
@@ -317,13 +334,13 @@ const axisLabelColor = computed(() => getCurrentThemeHexColor('lightGray500'));
 const chartData = computed(() => {
     return {
         labels: labels.value,
-        datasets: Object.entries(arrivalBins.value).map(([key, value]) => ({
+        datasets: Object.entries(!predictionOptions.value.stacked ? {'Total': flatBins.value} : arrivalBins.value).map(([key, value]) => ({
             label: key,
             data: value,
-            backgroundColor: getAirportAircraftColor(key) ?? getCurrentThemeHexColor('green500'),
+            backgroundColor: predictionOptions.value.stacked ? getAirportAircraftColor(key) ?? getCurrentThemeHexColor('green500') : value.map(count => getBarColor(count, key)),
             hoverBackgroundColor: value.map(count => getBarColor(count, key)),
-            borderColor: value.map(count => count >= predictionOptions.value.alertThreshold ? getBarColor(count, key) : 'transparent'),
-            borderWidth: 4,
+            borderColor: value.map(count => (count >= predictionOptions.value.alertThreshold && predictionOptions.value.alertThreshold) ? getBarColor(count, key) : 'transparent'),
+            borderWidth: !predictionOptions.value.stacked ? 1 : 4,
             borderSkipped: 'middle' as any,
             borderRadius: 2,
             categoryPercentage: 1,
@@ -337,7 +354,7 @@ const chartOptions = computed<Record<string, any>>(() => {
     const maxCount = Math.max(0, ...flatBins.value);
     const suggestedMax = predictionOptions.value.yMaxOverride > 0
         ? predictionOptions.value.yMaxOverride
-        : Math.max(maxCount, predictionOptions.value.alertThreshold);
+        : maxCount + 1;
 
     const size = predictionOptions.value.binSize;
     const startMs = firstBinStart.value;
@@ -365,7 +382,7 @@ const chartOptions = computed<Record<string, any>>(() => {
         scales: {
             x: {
                 grid: { color: gridColor.value, display: false },
-                stacked: true,
+                stacked: predictionOptions.value.stacked,
                 ticks: {
                     color: axisLabelColor.value,
                     autoSkip: true,
@@ -375,7 +392,7 @@ const chartOptions = computed<Record<string, any>>(() => {
             },
             y: {
                 beginAtZero: true,
-                stacked: true,
+              stacked: predictionOptions.value.stacked,
                 suggestedMax,
                 grid: { color: gridColor.value },
                 ticks: {
