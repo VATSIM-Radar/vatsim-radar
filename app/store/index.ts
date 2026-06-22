@@ -155,6 +155,7 @@ export const useStore = defineStore('index', {
 
         bench: {
             updateAircraft: 0,
+            updateRoute: 0,
             updateVG: 0,
             updateATC: 0,
             aircraftRender: 0,

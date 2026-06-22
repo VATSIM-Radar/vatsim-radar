@@ -2,8 +2,10 @@
 
 # [2.0.0-beta.3.2]
 
-## Alpha changes
+## Alpha Changes
 
+- Fixed ruler in mobile version
+- Improved route update cpu and memory usage
 - Improved VATSpy and SimAware TRACON memory usage
 - Fixed aircraft showing twice when only arrival was submitted as flight plan
 
