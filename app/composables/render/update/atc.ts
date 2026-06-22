@@ -24,8 +24,6 @@ export interface FirFindResult {
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
 }
 
-const setVatspyBoundaries = new Set<string>();
-
 async function filterFirsForList(list: string[] | undefined, callsign: string) {
     if (!list?.length) return [];
 
@@ -71,13 +69,11 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
         }
         maxStart = length;
 
-        const features = dataStore.vatspy.value?.data.features[fir.boundary] ?? [];
+        const features = await dataStore.vatspyBoundary(fir.boundary);
 
         if (!features.length) {
             continue;
         }
-
-        setVatspyBoundaries.add(fir.boundary);
 
         result.push({
             fir,
@@ -200,8 +196,6 @@ export async function updateControllers(context: DataUpdateContext) {
             testedCallsigns.clear();
         }, 1000 * 60 * 60);
     }
-
-    setVatspyBoundaries.clear();
 
     if (!uirsMap) {
         if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
@@ -487,15 +481,5 @@ export async function updateControllers(context: DataUpdateContext) {
 
     for (const airport of Object.values(context.airports)) {
         airport.atc = airport.atc.filter(x => !context.atcAdded?.has(x.callsign) || x.facility <= facilities.TWR);
-    }
-
-    for (const boundary in dataStore.vatspy.value?.data.features) {
-        if (setVatspyBoundaries.has(boundary)) continue;
-
-        for (const feature of dataStore.vatspy.value?.data.features[boundary] ?? []) {
-            addSector(context, {
-                feature,
-            }, null);
-        }
     }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-beta.3.2]
+
+## Alpha changes
+
+- Improved VATSpy and SimAware TRACON memory usage
+- Fixed aircraft showing twice when only arrival was submitted as flight plan
+
 # [2.0.0-beta.3.1]
 
 ## Alpha Changes

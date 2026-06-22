@@ -200,10 +200,11 @@ export interface DataSector {
     uirWithFir?: boolean;
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
     atc: VatsimShortenedController[];
+    persistent?: boolean;
 }
 
 export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
-    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs' | 'features'>;
+    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs'>;
 };
 
 export type PilotCalculatedArrival = Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
@@ -246,6 +247,8 @@ export interface UseDataStore {
         notam: Ref<RadarNotam | null>;
     };
     simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
+    vatspyBoundary: (boundary: string) => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
+    vatspyBoundaries: () => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
 
     vatglasses: ShallowRef<string>;
 
@@ -256,6 +259,7 @@ export interface UseDataStore {
 
     airportsList: ShallowRef<PartialRecord<string, DataAirport>>;
     sectorsList: ShallowRef<DataSector[]>;
+    sectorsUpdateId: Ref<number>;
     atcAddedDuringUpdate: ShallowRef<Set<string>>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
@@ -295,9 +299,16 @@ const dataStore: UseDataStore = {
         iataResult.length = 0;
         return icaoResult;
     },
+    vatspyBoundary: async boundary => {
+        return await clientDB.vatspyBoundaries.get(boundary) ?? [];
+    },
+    vatspyBoundaries: async () => {
+        return (await clientDB.vatspyBoundaries.toArray()).flat();
+    },
     vatglasses,
     airportsList: shallowRef({}),
     sectorsList: shallowRef([]),
+    sectorsUpdateId: ref(0),
     atcAddedDuringUpdate: shallowRef(new Set()),
     vatglassesActivePositions,
     vatglassesActiveRunways,

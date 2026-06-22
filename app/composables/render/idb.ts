@@ -23,6 +23,13 @@ export interface IDBAirlinesData {
     airlines: RadarDataAirlinesAllList;
 }
 
+/** VATSpy metadata kept in the main cache record; boundary geometry lives in vatspyBoundaries. */
+export type IDBVatSpyData = Omit<VatSpyAPIData, 'data'> & {
+    data: Omit<VatSpyAPIData['data'], 'features'>;
+};
+
+export type IDBVatSpyBoundary = VatSpyAPIData['data']['features'][string];
+
 export type ClientNavigraphData = Omit<Required<NavigraphNavDataShort>, 'stars' | 'sids' | 'approaches'>;
 
 export type IDBNavigraphProcedures = {
@@ -32,7 +39,9 @@ export type IDBNavigraphProcedures = {
 };
 
 class VatsimRadarDB extends Dexie {
-    data!: Table<VatSpyAPIData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
+    data!: Table<IDBVatSpyData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
+
+    vatspyBoundaries!: Table<IDBVatSpyBoundary, string>;
 
     vatglasses!: Table<VatglassesPosition[] | VatglassesData[string] | string, string>;
 
@@ -54,9 +63,10 @@ export async function initClientDB() {
     indexedDB.deleteDatabase('vatsim-radar');
     const db = new VatsimRadarDB('vatsim-radar-db');
 
-    db.version(6)
+    db.version(7)
         .stores({
             data: '',
+            vatspyBoundaries: '',
             vatglasses: '',
             simaware: '',
             airlines: '',

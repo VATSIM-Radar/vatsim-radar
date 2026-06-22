@@ -39,7 +39,7 @@ export function updateAircraft(context: DataUpdateContext) {
         if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, (aircraft.departure === aircraft.airport && aircraft.status === 'depTaxi') ? 'groundDep' : 'departures');
         else if (aircraft.airport) addAircraftToAirport(context, aircraft, aircraft.airport, aircraft.status === 'depTaxi' ? 'groundDep' : 'groundArr');
 
-        if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
+        if (aircraft.departure && aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
 
         if (aircraft.airport && aircraft.departure && aircraft.airport !== aircraft.departure && aircraft.airport !== aircraft.arrival) {
             addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');

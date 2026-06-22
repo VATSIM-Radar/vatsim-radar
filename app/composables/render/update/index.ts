@@ -52,6 +52,7 @@ export async function updateControllersRender() {
 
     dataStore.airportsList.value = context.airports;
     dataStore.sectorsList.value = Object.values(context.sectors);
+    dataStore.sectorsUpdateId.value++;
 
     dataStore.atcAddedDuringUpdate.value.clear();
 
