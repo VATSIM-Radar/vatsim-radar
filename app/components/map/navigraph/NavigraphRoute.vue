@@ -38,6 +38,7 @@ interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coor
     arrival: string;
     hasApproach: boolean;
     callsign: string;
+    isLowSpeed: boolean;
     staticKeys: Set<string>;
     nextWaypoint?: {
         identifier: string;
@@ -58,7 +59,8 @@ function hasSameRoute(cache: RouteRenderCache, route: Omit<RouteRenderCache, 'st
         cache.departure === route.departure &&
         cache.arrival === route.arrival &&
         cache.hasApproach === route.hasApproach &&
-        cache.callsign === route.callsign;
+        cache.callsign === route.callsign &&
+        cache.isLowSpeed === route.isLowSpeed;
 }
 
 function hasSameNextWaypoint(cache: RouteRenderCache, waypoint: RouteWaypointCandidate | undefined) {
@@ -164,6 +166,7 @@ async function update() {
                 arrival,
                 hasApproach,
                 callsign,
+                isLowSpeed: speed < 50,
             };
             const cachedRoute = routeRenderCache.get(cid);
 
@@ -244,24 +247,12 @@ async function update() {
                     if (currentFlight) currentFlightKeys.add(id);
                 }
 
-                if (speed >= 50) {
-                    addFeature(`enroute-${ callsign }`, () => ({
-                        geometry: turfGeometryToOl(greatCircle(coordinate, cachedRoute.nextWaypoint!.coordinate, { npoints: 16 })),
-                        key: '',
-                        identifier: '',
-                        type: 'navigraph',
-                        featureType: 'enroute-airways',
-                        dataType: 'navdata',
-                        self: true,
-                        kind: cachedRoute.nextWaypoint!.kind,
-                        dbType: cachedRoute.nextWaypoint!.kind,
-                    }));
-                }
-
-                continue;
+                routeKeys = new Set(cachedRoute.staticKeys);
+            }
+            else {
+                routeKeys = new Set<string>();
             }
 
-            routeKeys = new Set<string>();
             let foundWaypoint = speed < 50;
 
             let firstWaypoint = false;
