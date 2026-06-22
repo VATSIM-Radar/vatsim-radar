@@ -32,11 +32,7 @@ const mapStore = useMapStore();
 
 let skipUpdate = false;
 
-interface RouteRenderCache {
-    waypoints: PilotNavigraphWaypoints['waypoints'];
-    full: boolean;
-    disableLabels: boolean | undefined;
-    disableWaypoints: boolean | undefined;
+interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coordinates'> {
     departure: string | null | undefined;
     arrival: string;
     hasApproach: boolean;

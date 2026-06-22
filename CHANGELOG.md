@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-beta.3.2]
+
+## Alpha Changes
+
+- Fixed ruler in mobile version
+- Improved route update cpu and memory usage
+
 # [2.0.0-beta.3.1]
 
 ## Alpha Changes
