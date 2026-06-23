@@ -136,7 +136,7 @@
                     type="h5"
                     @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
                 >
-                    {{depAirport?.icao ?? 'ZZZZ'}}
+                    {{props.pilot.flight_plan?.departure ?? 'ZZZZ'}}
                 </ui-text>
                 <div class="flight-info__progress__line">
                     <div class="flight-info__progress__line_svg">
@@ -153,7 +153,7 @@
                     type="h5"
                     @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
                 >
-                    {{arrAirport?.icao ?? 'ZZZZ'}}
+                    {{props.pilot.flight_plan?.arrival ?? 'ZZZZ'}}
                 </ui-text>
             </div>
             <ui-text

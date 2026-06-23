@@ -107,16 +107,6 @@ onMounted(async () => {
         offlineSectorsRendered = true;
     }
 
-    await renderOfflineSectors();
-    watch(dataStore.vatspy, async () => {
-        if (hideAtc.value) return;
-        vectorSource.clear();
-        vectorImageSource.clear();
-        offlineSectorsRendered = false;
-        await renderOfflineSectors();
-        await updateControllersRender();
-    });
-
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
         getKeyedValueFromSettings('map.vatglasses.combined'),
@@ -175,13 +165,27 @@ onMounted(async () => {
         }
     };
 
+    dataStore.sectorsUpdateId.value = 0;
+    dataStore.sectorsList.value = [];
+
+    watch(dataStore.vatspy, async () => {
+        if (hideAtc.value) return;
+        vectorSource.clear();
+        vectorImageSource.clear();
+        offlineSectorsRendered = false;
+        await renderOfflineSectors();
+        await updateControllersRender();
+    });
+
     watchThrottled([dataStore.sectorsUpdateId, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
         immediate: true,
         throttle: 500,
         trailing: true,
     });
 
-    if (dataStore.vatspy.value) await updateControllersRender();
+    await updateControllersRender();
+
+    await renderOfflineSectors();
 });
 
 onBeforeUnmount(() => {

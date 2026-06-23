@@ -141,7 +141,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
         } satisfies AirportPopupPilotList;
 
         for (const pilot of dataStore.vatsim.data.pilots.value) {
-            if (data.icao !== pilot.departure && data.icao !== pilot.arrival) {
+            if (data.icao !== pilot.departure && data.icao !== pilot.arrival && vatAirport?.iata !== pilot.departure && vatAirport?.iata !== pilot.arrival) {
                 // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
                 // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
                 if (!pilot.departure && !pilot.arrival) {
@@ -156,8 +156,11 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
             let flown = 0;
             let eta: Date | null = null;
 
-            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
-            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
+            let departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
+            let arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
+
+            if (!departureAirport && vatAirport) departureAirport = vatAirport.iata === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIata[pilot.departure!];
+            if (!arrivalAirport && vatAirport) arrivalAirport = vatAirport.iata === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIata[pilot.arrival!];
 
             const pilotDistance = pilotDistances.value[pilot.cid.toString()] ?? {};
 

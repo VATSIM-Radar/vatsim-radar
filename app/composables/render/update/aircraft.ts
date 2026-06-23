@@ -5,9 +5,11 @@ import type { MapAircraftKeys } from '~/types/map';
 function addAircraftToAirport(context: DataUpdateContext, aircraft: VatsimShortenedAircraft | VatsimShortenedPrefile, icao: string, kind: MapAircraftKeys) {
     const { airports } = context;
     const dataStore = useDataStore();
+    const vatAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[icao] ?? dataStore.vatspy.value?.data.keyAirports.realIata[icao];
+    if (vatAirport) icao = vatAirport.icao;
+
     const airport = airports[icao];
     if (!airport) {
-        const vatAirport = dataStore.vatspy.value?.data.keyAirports.icao[icao];
         if (!vatAirport) return;
 
         airports[icao] = {
@@ -26,10 +28,12 @@ function addAircraftToAirport(context: DataUpdateContext, aircraft: VatsimShorte
         };
     }
 
-    airports[icao].aircraft[kind] ??= [];
-    airports[icao].aircraft[kind].push(aircraft.cid);
-    airports[icao].aircraftCount++;
-    context.airportsAdded.add(icao);
+    if (airports[icao]) {
+        airports[icao].aircraft[kind] ??= [];
+        airports[icao].aircraft[kind]?.push(aircraft.cid);
+        airports[icao].aircraftCount++;
+        context.airportsAdded.add(icao);
+    }
 }
 
 export function updateAircraft(context: DataUpdateContext) {
@@ -37,9 +41,10 @@ export function updateAircraft(context: DataUpdateContext) {
 
     for (const aircraft of dataStore.vatsim.data.pilots.value) {
         if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, (aircraft.departure === aircraft.airport && aircraft.status === 'depTaxi') ? 'groundDep' : 'departures');
-        else if (aircraft.airport) addAircraftToAirport(context, aircraft, aircraft.airport, aircraft.status === 'depTaxi' ? 'groundDep' : 'groundArr');
+        else if (aircraft.airport && aircraft.status === 'depTaxi') addAircraftToAirport(context, aircraft, aircraft.airport, 'groundDep');
 
-        if (aircraft.departure && aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
+        if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
+        else if (aircraft.airport && aircraft.status === 'arrTaxi') addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');
 
         if (aircraft.airport && aircraft.departure && aircraft.airport !== aircraft.departure && aircraft.airport !== aircraft.arrival) {
             addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');

@@ -173,6 +173,14 @@ async function updateVatsimExtendedPilots() {
         const dep = extendedPilot.flight_plan?.departure && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.departure];
         const arr = extendedPilot.flight_plan?.arrival && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.arrival];
 
+        if (groundAirport?.icao) {
+            if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
+            else extendedPilot.status = 'arrTaxi';
+
+            extendedPilot.airport = groundAirport.icao;
+            origPilot.airport = groundAirport.icao;
+        }
+
         if (dep && arr) {
             const pilotCoords = [extendedPilot.longitude, extendedPilot.latitude];
             const depCoords = [dep.lon, dep.lat];
@@ -180,13 +188,6 @@ async function updateVatsimExtendedPilots() {
 
             totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
             extendedPilot.depDist = calculateDistanceInNauticalMiles(depCoords, pilotCoords);
-            if (groundAirport?.icao) {
-                if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
-                else extendedPilot.status = 'arrTaxi';
-
-                extendedPilot.airport = groundAirport.icao;
-                origPilot.airport = groundAirport.icao;
-            }
 
             if (extendedPilot.status !== 'arrGate' && extendedPilot.status !== 'arrTaxi') {
                 extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
@@ -221,11 +222,6 @@ async function updateVatsimExtendedPilots() {
                 }
             }
         }
-        else if (groundAirport) {
-            extendedPilot.airport = groundAirport.icao;
-            extendedPilot.status = extendedPilot.flight_plan?.arrival ? 'arrTaxi' : 'depTaxi';
-        }
-
         if (extendedPilot.flight_plan?.altitude) {
             if (Number(extendedPilot.flight_plan?.altitude) < 1000) extendedPilot.flight_plan.altitude = (Number(extendedPilot.flight_plan?.altitude) * 100).toString();
 

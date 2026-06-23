@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-beta.3.3]
+
+## Alpha Changes
+
+- Fixed CTR disappearing on map rejoin
+- Initial work to support airports iata field aliases
+
+## Bug Fixes
+
+- Fixed rare datafeed worker crash
+
 # [2.0.0-beta.3.2]
 
 ## Alpha Changes
