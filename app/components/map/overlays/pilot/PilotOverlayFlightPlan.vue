@@ -189,7 +189,6 @@ const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const store = useStore();
 const mapStore = useMapStore();
-const dataStore = useDataStore();
 
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);
