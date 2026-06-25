@@ -249,12 +249,11 @@ const airportAltitudeFt = computed(() => props.airportAltitudeFt ?? injectedAirp
 function isStillAirborne(arrival: { altitude?: number; groundspeed?: number; distance?: number }) {
     const alt = arrival.altitude ?? 0;
     const gs = arrival.groundspeed ?? 0;
-    const dist = arrival.distance ?? 0;
 
     const aboveAirport = alt > airportAltitudeFt.value + 1000;
     if (aboveAirport) return true;
 
-    return gs > 80 && dist > 3;
+    return gs > 80;
 }
 
 const airborneArrivals = computed(() => {
