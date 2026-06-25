@@ -98,6 +98,7 @@ export function getGatesMatch(
     const maybeOccupied = new Set<string>();
 
     for (const pilot of pilots) {
+        if (!pilot) continue;
         const match = getPilotGateMatch(pilot, gates);
 
         for (const gateId of match.truly) {
