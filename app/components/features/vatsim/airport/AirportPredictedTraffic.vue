@@ -340,7 +340,11 @@ const chartData = computed(() => {
             data: value,
             backgroundColor: predictionOptions.value.stacked ? getAirportAircraftColor(key) ?? getCurrentThemeHexColor('green500') : value.map(count => getBarColor(count, key)),
             hoverBackgroundColor: value.map(count => getBarColor(count, key)),
-            borderColor: value.map(count => (count >= predictionOptions.value.alertThreshold && predictionOptions.value.alertThreshold) ? getBarColor(count, key) : 'transparent'),
+            borderColor: value.map(count => {
+                if (count >= predictionOptions.value.alertThreshold && predictionOptions.value.alertThreshold) return getBarColor(count, key);
+                if (count >= predictionOptions.value.warningThreshold && predictionOptions.value.warningThreshold) return getBarColor(count, key);
+                return 'transparent';
+            }),
             borderWidth: !predictionOptions.value.stacked ? 1 : 4,
             borderSkipped: 'middle' as any,
             borderRadius: 2,
