@@ -40,6 +40,18 @@ export const settingsItemApplication = globalComputed(() => makeSettingsItems(({
             else setUserLocalSettings({ app: { presence: { modes: { observer: value } } } });
         },
     },
+    offlinePresence: {
+        type: 'toggle',
+        title: 'Offline',
+        description: `Offline presence: highlights that you are in Radar all the time it's open`,
+        value: computed(() => ({
+            value: store.localSettings.app?.presence?.modes?.offline ?? false,
+        })),
+        onChange: value => {
+            if (value === undefined) delete store.localSettings.app?.presence?.modes?.offline;
+            else setUserLocalSettings({ app: { presence: { modes: { offline: value } } } });
+        },
+    },
     appAsVATSIMRadar: {
         type: 'radio',
         items: [

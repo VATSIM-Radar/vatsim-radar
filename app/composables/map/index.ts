@@ -142,7 +142,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     },
                 },
                 {
-                    text: 'Install App',
+                    text: 'Install PWA',
                     active: false,
                     hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
                     action: () => {

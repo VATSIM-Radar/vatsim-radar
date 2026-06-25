@@ -74,12 +74,65 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
     return presence;
 }
 
+function getOfflinePresence() {
+    const presence: DiscordPresenceBody = {
+        details: 'Offline',
+        state: '',
+        appAsVatsimRadar: true,
+    };
+
+    const mapStore = useMapStore();
+    const route = useRoute();
+
+    if (route.path.startsWith('/events')) {
+        presence.state = 'Looking for event to attend';
+        return presence;
+    }
+
+    if (route.path.startsWith('/bookings')) {
+        presence.state = 'Browsing bookings';
+        return presence;
+    }
+
+    if (route.path.startsWith('/stats')) {
+        presence.state = 'Browsing network stats';
+        return presence;
+    }
+
+    if (route.path.startsWith('/sigmets')) {
+        presence.state = 'Checking SIGMETs';
+        return presence;
+    }
+
+    if (route.path.startsWith('/dashboard')) {
+        presence.state = 'Watching for traffic in Dashboard';
+        return presence;
+    }
+
+    if (mapStore.overlays.some(x => x.type === 'pilot' || x.type === 'atc')) {
+        presence.state = 'Spying on someone';
+        return presence;
+    }
+
+    if (mapStore.overlays.some(x => x.type === 'airport')) {
+        presence.state = 'Looking on airport traffic';
+        return presence;
+    }
+
+    presence.state = 'Browsing across the map';
+    return presence;
+}
+
 export function getDiscordPresence() {
     const store = useStore();
-    const { pilot, atc, observer } = store.localSettings.app?.presence?.modes ?? {};
+    const { pilot, atc, observer, offline } = store.localSettings.app?.presence?.modes ?? {};
     const cid = store.user?.cid && Number(store.user.cid);
 
-    if ((!pilot && !atc && !observer) || !cid || !data) return;
+    if ((!pilot && !atc && !observer) || !cid || !data) {
+        if (offline) return getOfflinePresence();
+
+        return;
+    }
 
     const presence: DiscordPresenceBody = {
         details: '',
@@ -137,6 +190,8 @@ export function getDiscordPresence() {
             return presence;
         }
     }
+
+    if (offline) return getOfflinePresence();
 }
 
 let isSet = false;
@@ -172,6 +227,8 @@ export async function initDiscordPresenceUpdate() {
 
     const store = useStore();
 
+    if (store.config.dashboardId) return;
+
     // Causing watch leak, intended
     nextTick(() => {
         const relevantSettings = computed(() => store.localSettings.app?.presence);
@@ -193,7 +250,14 @@ export async function initDiscordPresenceUpdate() {
     }
 
     interval = setInterval(async () => {
-        if (inProgress) return;
+        if (inProgress || (
+            !store.localSettings?.app?.presence?.modes?.atc &&
+            !store.localSettings?.app?.presence?.modes?.pilot &&
+            !store.localSettings?.app?.presence?.modes?.observer
+        )) {
+            if (!inProgress) setDiscordPresence();
+            return;
+        }
 
         try {
             inProgress = true;

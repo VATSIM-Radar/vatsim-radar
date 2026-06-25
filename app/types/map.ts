@@ -70,6 +70,7 @@ interface IUserLocalSettings {
                 pilot?: boolean;
                 atc?: boolean;
                 observer?: boolean;
+                offline?: boolean;
             } | null;
 
             /**
