@@ -45,7 +45,7 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
     switch (flight?.status) {
         case 'cruising':
         case 'enroute':
-            presence.state = `Enroute - ${ Math.round(flight.toGoDist) }NM remains`;
+            presence.state = `Enroute${ flight.toGoDist ? ` - ${ Math.round(flight.toGoDist) }NM remains` : '' }`;
             break;
         case 'depGate':
         case 'depTaxi':
@@ -62,7 +62,7 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
             presence.state = `Climbing`;
             break;
         case 'descending':
-            presence.state = `Descending - ${ Math.round(flight.toGoDist) }NM remains`;
+            presence.state = `Descending${ flight.toGoDist ? ` - ${ Math.round(flight.toGoDist) }NM remains` : '' }`;
             break;
         case 'arriving':
             presence.state = `Arriving`;
