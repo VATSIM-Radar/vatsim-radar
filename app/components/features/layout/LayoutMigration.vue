@@ -83,7 +83,7 @@ const settingsItems = getSettingsItems().value;
 const localSettings = shallowRef<UserLegacyLocalSettings | null>(null);
 const mapSettings = shallowRef<IUserLegacyMapSettings | null>(null);
 
-const allowedLocal = ['location', 'zoom', 'vatglassesLevel', 'sigmetsDate'];
+const allowedLocal = ['location', 'zoom', 'vatglassesLevel', 'sigmetsDate', 'app'];
 
 const showLocalSettings = computed(() => {
     const keys = Object.keys(localSettings.value ?? {});

@@ -436,6 +436,10 @@ export const isIframe = computed(() => {
     return useRoute().query.iframe;
 });
 
+export const isApp = computed(() => {
+    return useStore().appVersion;
+});
+
 export function logBench(key: keyof ReturnType<typeof useStore>['bench']) {
     const start = Date.now();
     return () => {

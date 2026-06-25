@@ -1,4 +1,4 @@
-import type { PartialRecord } from '~/types/index';
+import type { PartialRecord, RecursivePartial } from '~/types/index';
 import type {
     VatsimNattrak,
     VatsimShortenedAircraft,
@@ -59,9 +59,28 @@ interface IUserLocalSettings {
     zoom: number;
     vatglassesLevel: number;
     sigmetsDate: string;
+
+    app: {
+        presence?: {
+            /**
+             * True means show when piloting
+             * @default false
+             */
+            modes: {
+                pilot?: boolean;
+                atc?: boolean;
+                observer?: boolean;
+            } | null;
+
+            /**
+             * @default true
+             */
+            appAsVATSIMRadar?: boolean;
+        };
+    };
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>;
+export type UserLocalSettings = RecursivePartial<IUserLocalSettings>;
 
 interface IUserLegacyLocalSettings {
     // Keep

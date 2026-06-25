@@ -84,6 +84,8 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapPresetsFetched: false,
 
+        appVersion: null as null | string,
+
         filter: {} as UserFilter,
         tempFilter: null as UserFilter | null,
         isFilterActive: true,

@@ -10,6 +10,7 @@ import type { WatchStopHandle } from 'vue';
 import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
 import { updateCachedProcedures } from '~/composables/navigraph';
+import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
 
 const route = useRoute();
 
@@ -58,13 +59,11 @@ async function receiveMessage(event: MessageEvent) {
         location.reload();
     }
 
-    if (data && 'action' in data) {
-        if (data.action === 'logout') {
-            logout();
-        }
+    if (data && 'action' in data && data.action === 'logout') {
+        logout();
     }
 
-    if (event.source === window || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
+    if ((event.source === window && data.type !== 'efbX') || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
     const mapStore = useMapStore();
@@ -106,6 +105,8 @@ onMounted(() => {
     window.addEventListener('message', receiveMessage);
 
     window.parent.postMessage({ status: 'ready' }, '*');
+
+    initDiscordPresenceUpdate();
 });
 
 onBeforeUnmount(() => {
