@@ -182,6 +182,7 @@ const predictionOptions = computed<DashboardPredictedOptions>(() => {
 
     for (const key of Object.keys(optionQueryKeys) as PredictionOptionKey[]) {
         const queryValue = route.query[optionQueryKeys[key]];
+        if (typeof queryValue !== 'string') continue;
 
         if (key === 'stacked') {
             options[key] = queryValue === 'true';
@@ -189,7 +190,7 @@ const predictionOptions = computed<DashboardPredictedOptions>(() => {
         }
 
         const limits = predictionOptionLimits[key];
-        const value = typeof queryValue === 'string' ? Number(queryValue) : 0;
+        const value = Number(queryValue);
         const withinRange = value >= limits.min && (!('max' in limits) || value <= limits.max);
         const matchesStep = !limits.step || (value - limits.min) % limits.step === 0;
 

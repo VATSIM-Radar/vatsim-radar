@@ -44,8 +44,8 @@ export type DashboardAirport = v.InferOutput<typeof DashboardAirportSchema>;
 export const DashboardPredictedSchema = v.object({
     binSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(60)), 10),
     windowMinutes: v.optional(v.pipe(v.number(), v.integer(), v.minValue(15), v.maxValue(480), v.check(value => value % 15 === 0, 'Forecast range must be a multiple of 15 minutes')), 120),
-    warningThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 5),
-    alertThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 10),
+    warningThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 5),
+    alertThreshold: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 10),
     yMaxOverride: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0)), 0),
     stacked: v.optional(v.boolean(), true),
 });
