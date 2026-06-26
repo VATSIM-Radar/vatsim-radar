@@ -19,7 +19,6 @@ if (typeof window !== 'undefined') getTrayValue();
 interface DiscordPresenceBody {
     details: string;
     state: string;
-    appAsVatsimRadar: boolean;
     pilotCallsign?: string;
     atcCallsign?: string;
     startTimestamp?: string;
@@ -31,7 +30,6 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
     const presence: DiscordPresenceBody = {
         details: '',
         state: '',
-        appAsVatsimRadar: useStore().localSettings.app?.presence?.appAsVATSIMRadar !== false,
     };
 
     if (flight.departure || flight.arrival) {
@@ -78,7 +76,6 @@ function getOfflinePresence() {
     const presence: DiscordPresenceBody = {
         details: 'Offline',
         state: '',
-        appAsVatsimRadar: true,
     };
 
     const mapStore = useMapStore();
@@ -137,7 +134,6 @@ export function getDiscordPresence() {
     const presence: DiscordPresenceBody = {
         details: '',
         state: '',
-        appAsVatsimRadar: store.localSettings.app?.presence?.appAsVATSIMRadar !== false,
     };
 
     const ownFlight = pilot ? data.pilots.find(x => x.cid === cid) : undefined;

@@ -116,7 +116,7 @@ export const getSettingsSections = () => {
                             key: 'application',
                             title: 'Discord Presence',
                             description: 'Want to highlight your activity? Toggle these on!',
-                            items: [items.account.application.pilotPresence, items.account.application.atcPresence, items.account.application.observerPresence, items.account.application.offlinePresence, items.account.application.appAsVATSIMRadar],
+                            items: [items.account.application.pilotPresence, items.account.application.atcPresence, items.account.application.observerPresence, items.account.application.offlinePresence],
                         },
                         {
                             key: 'general',

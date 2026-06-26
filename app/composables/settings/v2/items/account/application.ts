@@ -52,28 +52,6 @@ export const settingsItemApplication = globalComputed(() => makeSettingsItems(({
             else setUserLocalSettings({ app: { presence: { modes: { offline: value } } } });
         },
     },
-    appAsVATSIMRadar: {
-        type: 'radio',
-        items: [
-            {
-                value: false,
-                text: 'VATSIM',
-            },
-            {
-                value: true,
-                text: 'VATSIM Radar',
-            },
-        ],
-        title: 'Discord App Name',
-        disabled: notLoggedIn,
-        value: computed(() => ({
-            value: store.localSettings.app?.presence?.appAsVATSIMRadar ?? true,
-        })),
-        onChange: value => {
-            if (value === undefined) delete store.localSettings.app?.presence?.appAsVATSIMRadar;
-            else setUserLocalSettings({ app: { presence: { appAsVATSIMRadar: value as boolean } } });
-        },
-    },
     hideToTray: {
         type: 'toggle',
         title: 'Stay Active',

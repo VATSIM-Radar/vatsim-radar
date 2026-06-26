@@ -72,11 +72,6 @@ interface IUserLocalSettings {
                 observer?: boolean;
                 offline?: boolean;
             } | null;
-
-            /**
-             * @default true
-             */
-            appAsVATSIMRadar?: boolean;
         };
     };
 }
