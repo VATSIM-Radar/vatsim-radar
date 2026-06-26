@@ -1,5 +1,7 @@
 # AI Agent Decisions
 
+- Desktop app release parsing in `app/utils/server/github.ts` intentionally uses a hardcoded allowlist of expected GitHub asset names. `.zip` assets are treated as portable packages for every platform, while `.dmg`, `.deb`, and `.exe` are installer packages.
+- The `/download` page groups desktop app release files by platform and architecture, then renders installer and portable package buttons inside the same group. Recommended desktop app highlighting is based on `ua-parser-js`, with client-side feature checks used after mount to refine CPU architecture when the browser supports it. Mobile, tablet, and wearable devices do not get a highlighted desktop recommendation.
 - `UiBurger` treats the numeric `size` prop as the burger line width in pixels. Line height, gap, and active-state translate distance scale from that width via CSS variables, preserving the original 12px-wide visual proportions by default.
 - `UiRange` keeps its custom fill and thumb as decorative container pseudo-elements. Those pseudo-elements must not receive pointer events, because Firefox can otherwise start drag on the decoration instead of the native `input[type='range']`.
 - Airport counter horizontal placement is based on cached measured ICAO label width plus counter declutter overflow and a gap. The cache key must include both ICAO and the `localsLength > 3` layout branch, and popup offset should use the shared counter popup offset helper so the OpenLayers counter and HTML popup stay aligned.

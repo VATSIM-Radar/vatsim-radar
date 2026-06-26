@@ -46,6 +46,10 @@ defineSlots<{ default?(): any }>();
 .icon {
     position: relative;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     width: var(--size);
     min-width: var(--size);
     height: var(--size);

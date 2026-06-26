@@ -160,13 +160,14 @@
                 class="header__sections_section"
             >
                 <ui-button
-                    href="https://github.com/VATSIM-Radar/vatsim-radar"
+                    class="header__update"
+                    :class="{ 'header__update-required': store.desktopRelease?.version && store.appVersion && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null' }"
                     size="S"
-                    target="_blank"
+                    to="/download"
                     type="secondary"
                 >
                     <template #icon>
-                        <github-icon/>
+                        <import-icon/>
                     </template>
                 </ui-button>
                 <ui-button
@@ -263,7 +264,6 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
-import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import DocsIcon from 'assets/icons/basic/docs.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
@@ -285,6 +285,7 @@ import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 import { useGoBack } from '~/composables/useGoBack';
+import ImportIcon from '~/assets/icons/kit/import.svg?component';
 
 const { goBack } = useGoBack();
 
@@ -561,6 +562,10 @@ const mobileMenuOpened = ref(false);
             right: -5px;
             min-width: unset !important;
         }
+    }
+
+    &__update-required {
+        border: 2px solid $blue500 !important;
     }
 }
 </style>

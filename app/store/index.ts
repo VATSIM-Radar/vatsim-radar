@@ -28,6 +28,7 @@ import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
 import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
+import type { DesktopAppResponse } from '~/utils/server/github';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -96,6 +97,7 @@ export const useStore = defineStore('index', {
         favoriteDashboards: [] as UserDashboard[],
         activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
+        desktopRelease: null as DesktopAppResponse | null,
 
         events: [] as VatsimActiveEvent[],
         fetchedBookings: [] as VatsimBooking[],
@@ -462,6 +464,9 @@ export const useStore = defineStore('index', {
         },
         async fetchFavoriteDashboards() {
             this.favoriteDashboards = await $fetch<UserDashboard[]>('/api/user/dashboards/favorite');
+        },
+        async fetchRelease() {
+            this.desktopRelease = await $fetch<DesktopAppResponse>('/api/data/releases');
         },
     },
 });

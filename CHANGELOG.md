@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-beta.3.4]
+
+## Alpha Changes
+
+- Add desktop app download page
+
 # [2.0.0-beta.3.3]
 
 ## Alpha Changes

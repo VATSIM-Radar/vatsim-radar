@@ -128,6 +128,12 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     icon: PatreonIcon,
                 },
                 {
+                    text: 'Github',
+                    action: () => {
+                        return window.open('https://github.com/VATSIM-Radar/vatsim-radar');
+                    },
+                },
+                {
                     text: 'Privacy Policy',
                     path: '/privacy-policy',
                 },

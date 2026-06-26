@@ -315,9 +315,13 @@ await useAsyncData('default-init', async () => {
 
 await useAsyncData('map-presets', async () => {
     setAircraftDefaultColors();
-    await settingsStore.fetchPresets();
+    await settingsStore.fetchPresets().catch(console.error);
 }, {
     server: false,
+});
+
+await useAsyncData('desktop-releases', async () => {
+    await store.fetchRelease().catch(console.error);
 });
 </script>
 
