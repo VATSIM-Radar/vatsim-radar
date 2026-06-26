@@ -27,6 +27,8 @@ interface DiscordPresenceBody {
 let data: VatsimLiveDataShort | undefined;
 
 function getFlightPresence(flight: VatsimShortenedAircraft) {
+    const dataStore = useDataStore();
+
     const presence: DiscordPresenceBody = {
         details: '',
         state: '',
@@ -40,10 +42,14 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
     presence.pilotCallsign = flight.callsign;
     presence.startTimestamp = flight.logon_time;
 
+    const toGoLocal = dataStore.navigraphWaypoints.value[flight.cid]?.calculatedArrival;
+
+    const toGoDist = toGoLocal?.toGoDist ?? flight.toGoDist;
+
     switch (flight?.status) {
         case 'cruising':
         case 'enroute':
-            presence.state = `Enroute${ flight.toGoDist ? ` - ${ Math.round(flight.toGoDist) }NM remains` : '' }`;
+            presence.state = `Enroute${ toGoDist ? ` - ${ Math.round(toGoDist) }NM remains` : '' }`;
             break;
         case 'depGate':
         case 'depTaxi':
@@ -60,7 +66,7 @@ function getFlightPresence(flight: VatsimShortenedAircraft) {
             presence.state = `Climbing`;
             break;
         case 'descending':
-            presence.state = `Descending${ flight.toGoDist ? ` - ${ Math.round(flight.toGoDist) }NM remains` : '' }`;
+            presence.state = `Descending${ toGoDist ? ` - ${ Math.round(toGoDist) }NM remains` : '' }`;
             break;
         case 'arriving':
             presence.state = `Arriving`;

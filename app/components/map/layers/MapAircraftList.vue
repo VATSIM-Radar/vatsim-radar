@@ -426,5 +426,6 @@ onBeforeUnmount(() => {
     linesSource?.clear();
     disposeHeatmap();
     disposeAircraftStyle();
+    dataStore.navigraphWaypoints.value = {};
 });
 </script>
