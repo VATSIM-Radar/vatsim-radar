@@ -494,7 +494,8 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
                 transform: translateX(-50%) rotate(90deg);
 
                 :deep(svg) {
-                    width: 16px;
+                    width: auto;
+                    height: 20px;
                 }
             }
         }

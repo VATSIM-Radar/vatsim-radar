@@ -1,10 +1,22 @@
 # Changelog
 
-# [2.0.0-beta.3.4]
+# [2.0.0-beta.4]
 
 ## Alpha Changes
 
 - Add desktop app download page
+- Fixed tracks theme change reactivity in preview
+- Fixed reset button reactivity in preview
+- Removed application settings from non-app environment
+- Removed huge empty space in settings on pc
+- Reduced right click area
+- Significantly reduced click and hover area on non-touch devices
+- It is now much more easier to hover over aircraft
+- Select will now return All Selected if all items are indeed selected
+- Improved aircraft quality on high resolution/quality displays
+- Reverse max shown tracks limit to be ascending
+- Changed progress icon to be fixed
+- Fixed some icons being too wide in aircraft overlay
 
 # [2.0.0-beta.3.3]
 

@@ -115,6 +115,7 @@ const roadmap = reactive<Roadmap[]>([
         title: 'Released',
         completed: true,
         items: [
+            { title: 'Desktop Application', status: 'completed' },
             'VatSPY FIRS/UIRS API',
             'VATSIM data caching',
             'Log in via VATSIM/Navigraph',
@@ -349,7 +350,6 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Historical Stats',
                 description: 'Popular over time etc',
             },
-            { title: 'Desktop Application', status: 'tentative' },
             { title: 'Theme Market', status: 'tentative' },
             { title: 'Flights/controllers sessions history, VATSIM user page' },
             { title: 'History of events / events traffic' },
@@ -358,7 +358,6 @@ const roadmap = reactive<Roadmap[]>([
     {
         title: 'v2.x',
         items: [
-            { title: 'ATC Alerts', status: 'tentative' },
             { title: 'Events Alerts', status: 'tentative' },
             { title: 'PIREPs', status: 'tentative' },
         ],
@@ -393,8 +392,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         'in-progress': 0,
         todo: 1,
         next: 2,
-        tentative: 3,
-        none: 4,
+        none: 3,
+        tentative: 4,
         completed: 5,
     };
 

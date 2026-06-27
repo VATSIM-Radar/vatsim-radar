@@ -2,6 +2,7 @@ import type VectorLayer from 'ol/layer/Vector.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
+import RegularShape from 'ol/style/RegularShape.js';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
@@ -21,6 +22,7 @@ import type { WatchHandle } from 'vue';
 import { globalComputed } from '~/composables';
 
 let styleImageCache: Record<string, Icon> = {};
+let hitboxImageCache: Record<string, RegularShape> = {};
 let styleCache: Record<string, Style> = {};
 
 let fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
@@ -97,12 +99,43 @@ function getColorAlpha(color: string) {
     return parseFloat(color.split(',')[3]);
 }
 
+function getAircraftHitboxStyle(size: number) {
+    const hitboxSize = Math.ceil(size);
+    const key = `aircraftHitbox${ hitboxSize }`;
+
+    if (!hitboxImageCache[key]) {
+        hitboxImageCache[key] = new RegularShape({
+            points: 4,
+            radius: hitboxSize / Math.SQRT2,
+            angle: Math.PI / 4,
+            fill: new Fill({
+                color: 'rgba(0, 0, 0, 0)',
+            }),
+        });
+    }
+
+    if (!styleCache.aircraftHitbox) {
+        styleCache.aircraftHitbox = new Style();
+    }
+
+    styleCache.aircraftHitbox.setImage(hitboxImageCache[key]);
+
+    return styleCache.aircraftHitbox;
+}
+
+function getAircraftPngWidth(renderedWidth: number) {
+    const pixelRatio = typeof globalThis.devicePixelRatio === 'number' ? Math.min(Math.ceil(globalThis.devicePixelRatio), 3) : 1;
+
+    return Math.ceil((renderedWidth * pixelRatio) / 10) * 10;
+}
+
 let watcher: WatchHandle | undefined = undefined;
 
 export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
 
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
+    hitboxImageCache = {};
     const store = useStore();
     const mapStore = useMapStore();
     refreshAircraftStyle = () => layer.changed();
@@ -179,16 +212,17 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             if (status === 'ground' && !color) color = getColorByKey('map.preferences.colors.default.aircraft.main').value.value;
 
-            const pngImage = (status === 'default' || status === 'ground') && !list;
+            const pngImage = !list;
 
             if (!styleCache.aircraftImage) {
                 styleCache.aircraftImage = new Style();
             }
 
             const airportColor = airports.value[aircraft?.arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
-            const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
+            const useStatusColor = status !== 'default' && status !== 'ground';
+            const shouldTintPngIcon = filterColor || useStatusColor || !pngImage || airportColor || (color && color.color !== 'blue500');
             const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
-            const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
+            const pngSrc = `/_ipx/w_${ getAircraftPngWidth(scaledWidth) },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;
             let png: HTMLImageElement | null = null;
@@ -201,14 +235,14 @@ export function setAircraftStyle(layer: VectorLayer) {
                 : declutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit) : false;
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
-            const svgColor = svg || !pngImage ? getAircraftStatusColor(status, cid) : undefined;
+            const svgColor = svg || !pngImage || useStatusColor ? getAircraftStatusColor(status, cid) : undefined;
             const statusIconColor = svgColor ? `rgb(${ hexToRgb(svgColor) })` : undefined;
             const statusIconOpacity = svgColor ? getColorAlpha(svgColor) ?? 1 : undefined;
             const useSvgFallback = !pngImage && !svg;
             let iconColor: string | undefined;
             let iconOpacity: number | undefined;
 
-            if (useSvgFallback) {
+            if (useSvgFallback || useStatusColor) {
                 iconColor = statusIconColor;
                 iconOpacity = heatmap ? 0 : statusIconOpacity;
             }
@@ -251,7 +285,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             styleImageCache[imageStyleKey].setRotation(rotation);
 
             styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
-            return [styleCache.aircraftImage, styleCache.aircraftText];
+            return [getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight)), styleCache.aircraftImage, styleCache.aircraftText];
         }
     });
 
@@ -262,6 +296,7 @@ export function setAircraftStyle(layer: VectorLayer) {
         if (val && Object.values(fetchedPngIcons).length > val) {
             if (useIsDebug()) console.log(Object.values(fetchedPngIcons).length, Object.values(styleImageCache).length, 'aircraft cleanup');
             styleImageCache = {};
+            hitboxImageCache = {};
             fetchedIcons = {};
             fetchedPngIcons = {};
         }
@@ -317,13 +352,11 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
                     hex = `rgba(${ rgb }, ${ turnsTransparency })`;
                 }
 
-                const key = String(properties.color);
-
-                styleCache[`line${ key }`] ??= new Style({
+                styleCache[`line${ hex }`] ??= new Style({
                     stroke: new Stroke({ color: hex, width: 2 }),
                 });
 
-                return styleCache[`line${ key }`];
+                return styleCache[`line${ hex }`];
             }
         }
     });

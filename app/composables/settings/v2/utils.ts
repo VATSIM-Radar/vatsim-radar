@@ -278,7 +278,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
             result[last] = value as unknown;
 
             if (value === null) setCustomDefuMergeAsIs();
-            return useSettingsStore().save(root);
+            return settingsStore.save(root);
         }
     }
     catch (e) {

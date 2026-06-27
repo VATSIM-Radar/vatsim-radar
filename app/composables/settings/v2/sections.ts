@@ -110,7 +110,7 @@ export const getSettingsSections = () => {
                 {
                     title: 'Application Settings',
                     url: 'application',
-                    hide: !isApp,
+                    hide: computed(() => !isApp.value),
                     items: [
                         {
                             key: 'application',

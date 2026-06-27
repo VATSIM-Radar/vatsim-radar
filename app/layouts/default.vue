@@ -316,12 +316,14 @@ await useAsyncData('default-init', async () => {
 await useAsyncData('map-presets', async () => {
     setAircraftDefaultColors();
     await settingsStore.fetchPresets().catch(console.error);
+    return true;
 }, {
     server: false,
 });
 
 await useAsyncData('desktop-releases', async () => {
     await store.fetchRelease().catch(console.error);
+    return true;
 });
 </script>
 
