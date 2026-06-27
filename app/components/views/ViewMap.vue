@@ -618,9 +618,7 @@ watch([visibleOverlays, popupsHeight, isMobile], async () => {
 let moving = true;
 let success = false;
 
-async function handleMoveEnd() {
-    if (!success) return;
-    moving = false;
+function moveEndActions() {
     const view = map.value!.getView();
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
@@ -650,6 +648,13 @@ async function handleMoveEnd() {
         location: mapStore.center,
         zoom: mapStore.zoom,
     });
+}
+
+async function handleMoveEnd() {
+    if (!success) return;
+    moving = false;
+
+    moveEndActions();
 
     await sleep(300);
     if (moving) return;
@@ -899,7 +904,7 @@ await setupDataFetch({
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
             const rbushAircraft = features?.declutter?.aircraft;
-            handleMoveEnd();
+            moveEndActions();
             if (!rbushAirports && !rbushAircraft) return;
 
             const list = [
