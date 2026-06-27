@@ -15,7 +15,7 @@ import { aircraftIcons } from '~/utils/icons';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
-import { isSmoothMovementEnabled } from '~/composables/render/aircraft/smooth';
+import { isSmoothMovementEnabled, isSmoothMovementSuspendedForLoad } from '~/composables/render/aircraft/smooth';
 import { aircraftState } from './state';
 import type { DataAirport } from '~/composables/render/storage';
 import type { PartialRecord } from '~/types';
@@ -115,7 +115,7 @@ export async function setMapAircraft(settings: {
     const dataStore = useDataStore();
     const mapStore = useMapStore();
 
-    const smoothMovement = isSmoothMovementEnabled();
+    const smoothMovement = isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad();
 
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
 
@@ -163,10 +163,16 @@ export async function setMapAircraft(settings: {
         const pilot = dataStore.vatsim.data.keyedPilots.value[aircraft.cid] as VatsimShortenedAircraft | undefined;
         const overlay = overlays[aircraft.cid];
         const isOnGround = allPilotsOnGround.value.has(aircraft.cid);
-        const scale = getAircraftScale(pilot, coordinates, aircraft.icon);
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
+        const smoothFeatureProperties = smoothMovement && !isSelfFlight && existingFeature
+            ? existingFeature.getProperties()
+            : undefined;
+        const featureCoordinates = smoothFeatureProperties
+            ? existingFeature!.getGeometry()!.getCoordinates()
+            : coordinates;
+        const featureHeading = smoothFeatureProperties?.heading ?? heading ?? 0;
 
         const renderState: AircraftRenderState = {
             pilot,
@@ -177,12 +183,14 @@ export async function setMapAircraft(settings: {
             isOnGround,
             status: 'default',
             tracksFeatures: linesFeaturesMap[aircraft.cid] ?? [],
-            coordinates,
+            coordinates: featureCoordinates,
         };
 
         const status = getAircraftStatus(renderState, dataStore.airportsList.value);
 
         renderState.status = status;
+
+        const scale = getAircraftScale(pilot, featureCoordinates, aircraft.icon);
 
         const properties: FeatureAircraftProperties = {
             id: aircraft.cid,
@@ -191,11 +199,11 @@ export async function setMapAircraft(settings: {
             status,
             icon,
             callsign: pilot?.callsign,
-            rotation: degreesToRadians(heading ?? 0),
-            heading,
+            rotation: degreesToRadians(featureHeading),
+            heading: featureHeading,
             scale,
             onGround: isOnGround,
-            coordinates,
+            coordinates: featureCoordinates,
         };
 
         if (existingFeature) {

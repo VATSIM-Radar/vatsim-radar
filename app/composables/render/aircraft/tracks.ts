@@ -10,6 +10,9 @@ import type { FeatureAircraftLine } from '~/utils/map/entities';
 import type { Position } from 'geojson';
 import { aircraftState } from './state';
 
+const TURNS_REQUEST_INTERVAL = 1000 * 15;
+const TURNS_REQUEST_TIMEOUT = 1000 * 5;
+
 async function updateAircraftRoute(show: boolean | null | undefined, renderSettings: AircraftRenderSettings, { aircraft, pilot, coordinates, overlay, tracksFeatures }: AircraftRenderState) {
     const updateState = aircraftState[aircraft.cid];
 
@@ -140,7 +143,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         if (canShowRoute && !updateState.flightPlan) {
             updateState.flightPlan = (await $fetch<{ flightPlan: string } | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/plan`, {
-                timeout: 1000 * 5,
+                timeout: TURNS_REQUEST_TIMEOUT,
             }).catch(console.error))?.flightPlan ?? '';
         }
 
@@ -187,26 +190,28 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         let shortUpdate = !!updateState.turnsFirstGroupTimestamp;
 
-        let turns = await new Promise<InfluxGeojson | null | undefined>(async resolve => {
+        const turns = await new Promise<InfluxGeojson | null | undefined>(async resolve => {
             if (track.show === 'short') {
                 resolve(null);
                 return;
             }
 
-            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - (1000 * 5) && updateState?.lastTurnsUpdateData) {
+            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - TURNS_REQUEST_INTERVAL && updateState?.lastTurnsUpdateData) {
                 resolve(updateState?.lastTurnsUpdateData);
                 return;
             }
 
             // requestIdleCallback was here, just in case
 
-            const data = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ updateState.turnsFirstGroupTimestamp ?? '' }`, {
-                timeout: 1000 * 5,
+            const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
+            const data = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
+                timeout: TURNS_REQUEST_TIMEOUT,
             }).catch(console.error) ?? null;
 
             if (data) {
                 updateState!.lastTurnsUpdateData = data;
                 updateState!.lastTurnsUpdate = Date.now();
+                updateState!.needsFullTurnsUpdate = false;
                 if (data.departedAt || data.arrivedAt) {
                     dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
                         departedAt: data.departedAt,
@@ -229,13 +234,8 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.turnsFirstGroupTimestamp = '';
             updateState.turnsSecondGroupPoint = null;
             updateState.turnsTimestamp = '';
-            updateState.lastTurnsUpdate = 0;
-            updateState.lastTurnsUpdateData = undefined;
+            updateState.needsFullTurnsUpdate = true;
             shortUpdate = false;
-
-            turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=`, {
-                timeout: 1000 * 5,
-            }).catch(console.error) ?? null;
         }
 
         if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {

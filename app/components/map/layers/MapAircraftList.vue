@@ -415,13 +415,13 @@ watch(map, val => {
     setVisiblePilots();
     init = true;
 
-    if (getKeyedValueFromSettings('map.traffic.smoothMovement')) startSmoothMovement(vectorSource);
+    if (getKeyedValueFromSettings('map.traffic.smoothMovement')) startSmoothMovement(vectorSource, linesSource);
 }, {
     immediate: true,
 });
 
 watch(() => getKeyedValueFromSettings('map.traffic.smoothMovement'), enabled => {
-    if (enabled && vectorSource) startSmoothMovement(vectorSource);
+    if (enabled && vectorSource) startSmoothMovement(vectorSource, linesSource);
     else stopSmoothMovement();
 });
 
