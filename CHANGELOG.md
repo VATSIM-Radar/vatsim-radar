@@ -1,5 +1,222 @@
 # Changelog
 
+# [2.0.0-beta.4.1]
+
+## Alpha Changes
+
+- Fixed favorite aircraft disappearing from map
+- Fixed departed time not saving upon server restart
+- Fixed airport data updating for ages in overlay
+- Fixed deleted/restricted dashboards still showing in menu
+- Fixed default map size in dashboard to be 50% and added more steps
+- Fixed map cursor stuck in grabbing icon
+- Improved render stability after map move
+- Fixed memory leak on reopening map
+- Added update popup
+
+# [2.0.0-beta.4]
+
+## Alpha Changes
+
+- Add desktop app download page
+- Fixed tracks theme change reactivity in preview
+- Fixed reset button reactivity in preview
+- Removed application settings from non-app environment
+- Removed huge empty space in settings on pc
+- Reduced right click area
+- Significantly reduced click and hover area on non-touch devices
+- It is now much more easier to hover over aircraft
+- Select will now return All Selected if all items are indeed selected
+- Improved aircraft quality on high resolution/quality displays
+- Reverse max shown tracks limit to be ascending
+- Changed progress icon to be fixed
+- Fixed some icons being too wide in aircraft overlay
+
+# [2.0.0-beta.3.3]
+
+## Alpha Changes
+
+- Fixed CTR disappearing on map rejoin
+- Initial work to support airports iata field aliases
+
+## Bug Fixes
+
+- Fixed rare datafeed worker crash
+
+# [2.0.0-beta.3.2]
+
+## Alpha Changes
+
+- Fixed ruler in mobile version
+- Improved route update cpu and memory usage
+- Improved VATSpy and SimAware TRACON memory usage
+- Fixed aircraft showing twice when only arrival was submitted as flight plan
+- Fixed not a number warning on russian in atc popup on initial load
+- Improved hit tolerance for hovering over features
+- You can now turn on and off stacked dashboard columns
+- Caution/Alert dashboard thresholds will have no effect on y-axis anymore
+- Setting caution/alert to 0 will now disable this functionality
+- Fixed cookie prompt appearing twice when in controller dashboard
+- Fixed inHg altimeter display
+- Removed D/A letters when multiple ATIS configuration is active in dashboard
+- Event airports will now always show if airports "Display mode" is "all"
+- Fixed empty airports not displayed when overlay is opened
+- Fixed airports showing random tracon names in featured airports
+- Fixed duplicated positions showing as controlling quiet airports
+
+# [2.0.0-beta.3.1]
+
+## Alpha Changes
+
+- Significantly improved first load delay for combined mode
+- Fixed VATGlasses combined mode not combining some sectors. No altitude fixes for now - I can't fix this without rolling back to old logic
+- Added colored airports groups for traffic prediction
+- Fixed traffic prediction crash
+- Fixed dashboard loading crash
+- Fixed non-airport aircraft not displaying on dashboard map
+- Fixed enroute aircraft not showing in dashboard
+- Fixed map crash when sending route data
+- Fixed minify small clickspot
+- Fixed minified airports crash
+- Fixed 403/404 dashboard airports adding to menu
+- Fixed random select error showing sometimes
+- Added refresh map button to dashboard
+- Fixed dashboard overriding local overlays
+- Added different colors for landed, departing and arriving on dashboard for selected airports
+- Added airborne filter for aircraft map mode
+- Fixed dashboard sometimes not showing any aircraft
+- I've decided to try more deep color for icons, lmk what you think
+- Added bookings settings on mobile
+- Fixed event local time taking no effect on hover
+- Fixed pilot name overlapping beyond boundaries
+
+# [2.0.0-beta.3]
+
+New feature by psergienko: Dashboard v2
+
+### Controller Dashboard 2.0
+
+Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
+
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
+
+## Features and Improvements
+
+- Renamed Weather Request to Conditions Request, added NOTAMs to this window
+
+# [2.0.0-beta.2.4]
+
+## Alpha Changes
+
+- Fixed event marker sometimes going above icao
+- Fixed VATGlasses not initializing properly on first map open
+- Fixed map move not resetting aircraft tracked state
+- Fixed default favorite list not opening
+- Fixed favorite lists not creating properly
+- Added notifications when settings or favorite lists are saved
+
+# [2.0.0-beta.2.3]
+
+## Alpha Changes
+
+- Fixed reactivity when changing departures/arriving mode
+
+## Features and Improvements
+
+- Airport counter is now named to represent Settings Mode for this counter
+
+# [2.0.0-beta.2.2]
+
+## Alpha changes
+
+- Fixed event circle appearing incorrectly when event airport has no atc
+- Added accent to +- buttons in booking override
+- Reworked desktop settings to have full-page scroll once again
+- Mobile preview will now take 50% of page height instead of 100%
+- Fixed filter combo box not accepting more than one value
+
+## Bug fixes
+
+- Fixed departed distance incorrect for some departures
+- Fixed some aircraft icons showing slightly incorrect border color
+- Favorite pilot will now highlight in red when squawking emergency
+
+# [2.0.0-beta.2.1]
+
+## Alpha Changes
+
+- Moved auto save to same line as preview on map to improve spacing
+- Improved spacing in quick settings
+
+## Features and improvements
+
+- You can now disable ARTCC TRACONs extensions
+- Added CTAF frequency to VATSIM Airport Info when available on Info page of airport
+
+# [2.0.0-beta.2]
+
+## Alpha changes
+
+- Fixed distance tool auto-syncing on new devices when autosave is enabled
+- Fixed remarks copy button displaying on top when selcal is present
+- Added event airport color highlight
+- Changed default unstaffed airport color to be less bright
+- Fixed init popup showing multiple times and blinking
+- Improved airports render/update frequency when map is not moving
+- Fixed events not showing on map
+- Fixed airport dot disappearing when airport has bookings
+- Fixed weird aircraft icon on first hover
+- You can now easily copy map settings and filters
+- Added weather transparency placeholder, defaults to Auto
+- Renamed transparency to opacity everywhere
+- Renamed ATC Labels setting to Approach Labels
+- Fixed visibility settings not taking effect immediately
+- Fixed favorite list table misaligned on scroll
+- Fixed manual CID input in favorite list always autocompleting to 800000
+- Fixed airport counters misaligned vertically with airport icao
+- Realigned airport icao with vatspy coordinate
+- Fixed vatglasses auto level doing nothing
+- Slightly improved frequencies monitoring design for them to be less noticeable
+- Map hover overlay on mobile will now be closed on a click to anywhere except for overlay itself
+- Added ability to disable new vatglasses labels
+- Fixed new range not working properly in Firefox
+- Added ability to turn off new VATGlasses labels
+- Added ability to disable short facilities view
+- Fixed ATIS-only airports showing in quiet airports
+- Fixed some facilities not showing in quiet airports
+- Fixed search opening in random place on some map screens
+- Fixed duplicate controller not opening correct controller on click
+- It is now much easier to click on a holding
+- Fixed turning auto save off not allowing to save preset
+- Fixed local preset resetting when auto save is disabled
+- Fixed random select error alert
+- Various landscape mode improvements
+- Distance tool can now be enabled or disabled on mobile in settings. When enabled, it will work on standard 2-click interaction as on pc
+- Fixed rare app controllers not showing up
+- Fixed overlays issues from beta 1.4
+
+## Features and improvements
+
+- Added TWR icon to airports where SimAware TWR TRACON is shown to make it more clear that TWR is currently online
+- Airport label will now always show if aircraft with this departure or destination is hovered
+
+# [2.0.0-beta.1.4]
+
+## Alpha changes
+
+- Fixed NAT tracks click not working
+- Fixed mobile overlay close behavior
+- Fixed content overlay scroll issues
+- Added loader for loading settings preview
+- Setting button second click will now open previous page, or homepage
+- Account section will now be hidden in settings for logged in users
+- Fixed favorite menu not showing from 700 to 1000 screen widths
+- Improved mobile menu layout
+- Fixed aircraft popup showing out of map view on hover
+- Significantly improved VATGlasses Combined update speed (compared to previous next builds)
+
 # [2.0.0-beta.1.3]
 
 ## Alpha changes

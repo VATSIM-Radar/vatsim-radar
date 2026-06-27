@@ -126,10 +126,10 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
 
     source.value?.clear();
     source.value?.addFeatures(features);
-    source.value?.addFeatures(features.filter(x => x.getProperties().fill).map(x => new Feature({
+    source.value?.addFeatures(features.filter(x => x.getProperties().fill && (x.getProperties().label_lon || x.getProperties().label)).map(x => new Feature({
         ...x.getProperties(),
         type: 'text',
-        geometry: new Point([x.getProperties().label_lon, x.getProperties().label_lat]),
+        geometry: new Point(x.getProperties().label_lon ? [x.getProperties().label_lon, x.getProperties().label_lat] : x.getProperties().label),
     })));
 }, {
     immediate: true,

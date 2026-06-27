@@ -103,7 +103,7 @@ const initialHeight = ref(0);
 watch([expanded, textarea], ([val]) => {
     if (!textarea.value) return;
 
-    if (CSS.supports('field-sizing', 'content')) return;
+    if (CSS.supports('field-sizing', 'content') && props.autoExpand) return;
 
     if (val) {
         initialHeight.value = textarea.value.clientHeight;
@@ -136,10 +136,12 @@ watch([expanded, textarea], ([val]) => {
     }
 
     &_expand {
+        transform: rotate(180deg);
         height: 16px;
+        transition: 0.3s;
 
         &--expanded {
-            transform: rotate(180deg);
+            transform: rotate(0deg);
         }
     }
 
@@ -166,8 +168,8 @@ watch([expanded, textarea], ([val]) => {
 
         &_actions {
             position: absolute;
-            top: 12px;
             right: 8px;
+            bottom: 12px;
 
             display: flex;
             gap: 8px;
@@ -175,8 +177,11 @@ watch([expanded, textarea], ([val]) => {
         }
 
         &--with-expand .copy-info_textarea {
-            field-sizing: content;
             padding-right: 36px;
+        }
+
+        &:not(&--with-expand) .copy-info_textarea{
+            field-sizing: content;
         }
     }
 }

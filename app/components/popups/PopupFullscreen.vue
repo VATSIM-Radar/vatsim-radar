@@ -7,6 +7,7 @@
         <transition name="popup--appear">
             <div
                 v-if="localValue"
+                v-bind="$attrs"
                 class="popup"
                 :class="{ 'popup--disabled': disabled }"
                 :style="{ '--width': width }"
@@ -63,6 +64,8 @@
 import { sleep } from '~/utils';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+
+defineOptions({ inheritAttrs: false });
 
 const props = defineProps({
     disableTeleport: {

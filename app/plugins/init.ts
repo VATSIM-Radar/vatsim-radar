@@ -5,5 +5,6 @@ export default defineNuxtPlugin(() => {
     if (import.meta.server) {
         store.user = useRequestEvent()?.context.user ?? null;
         store.version = useRequestEvent()?.context.radarVersion ?? '';
+        store.appVersion = useRequestEvent()?.headers.get('radarWebview') ?? null;
     }
 });

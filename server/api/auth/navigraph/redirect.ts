@@ -7,7 +7,9 @@ export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     const verifier = getNavigraphCodeVerifier();
-    const state = randomUUID();
+    let state = randomUUID();
+    const app = getQuery(event).app;
+    if (app) state += '-app';
 
     const url = new URL('https://identity.api.navigraph.com/connect/authorize');
     url.searchParams.set('client_id', config.NAVIGRAPH_CLIENT_ID);

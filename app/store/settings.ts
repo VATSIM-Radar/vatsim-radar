@@ -35,7 +35,7 @@ export const useSettingsStore = defineStore('settings', {
                 const preset = this.settingsPresets.find(x => x.id === this.activeSettingsPreset);
 
                 if (preset) {
-                    await this.save(preset.json, { overwrite: true, autoSave: false });
+                    await this.save(JSON.parse(JSON.stringify(preset.json)), { overwrite: true, autoSave: false });
                     return;
                 }
                 else {
@@ -44,8 +44,11 @@ export const useSettingsStore = defineStore('settings', {
             }
 
             if (!this.activeSettingsPreset && this.autoSave && this.settingsPresets.length) {
-                this.activeSettingsPreset = this.settingsPresets[0].id;
-                await this.save(this.settingsPresets[0].json, { overwrite: true, autoSave: false });
+                this.setPreset(this.settingsPresets[0].id);
+                await this.save(JSON.parse(JSON.stringify(this.settingsPresets[0].json)), { overwrite: true, autoSave: false });
+            }
+            else {
+                await this.save(JSON.parse(localStorage.getItem('settings') ?? '{}'), { overwrite: true, autoSave: false });
             }
         },
         async save(settings: UserSettingsV2Partial, { overwrite, onSave, autoSave = true, dontSave }: {
@@ -63,7 +66,10 @@ export const useSettingsStore = defineStore('settings', {
                 else if (!this.settingsPresets.length && useStore().user) {
                     await sendUserPreset('Default', {}, 'settings/v2', () => new Promise<void>(resolve => resolve));
                     await this.fetchPresets();
-                    this.activeSettingsPreset = this.settingsPresets[0]?.id ?? null;
+                    this.setPreset(this.settingsPresets[0]?.id ?? null);
+                }
+                else if (!this.autoSave && this.activeSettingsPreset) {
+                    this.setPreset(null);
                 }
             }
 
@@ -93,7 +99,7 @@ export const useSettingsStore = defineStore('settings', {
             isSettingsAutoSave().value.value = val;
             this.autoSave = val;
         },
-        setPreset(id: number) {
+        setPreset(id: number | null) {
             settingsActivePreset().value.value = id;
             this.activeSettingsPreset = id;
         },

@@ -173,6 +173,14 @@ async function updateVatsimExtendedPilots() {
         const dep = extendedPilot.flight_plan?.departure && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.departure];
         const arr = extendedPilot.flight_plan?.arrival && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.arrival];
 
+        if (groundAirport?.icao) {
+            if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
+            else extendedPilot.status = 'arrTaxi';
+
+            extendedPilot.airport = groundAirport.icao;
+            origPilot.airport = groundAirport.icao;
+        }
+
         if (dep && arr) {
             const pilotCoords = [extendedPilot.longitude, extendedPilot.latitude];
             const depCoords = [dep.lon, dep.lat];
@@ -180,13 +188,6 @@ async function updateVatsimExtendedPilots() {
 
             totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
             extendedPilot.depDist = calculateDistanceInNauticalMiles(depCoords, pilotCoords);
-            if (groundAirport?.icao) {
-                if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
-                else extendedPilot.status = 'arrTaxi';
-
-                extendedPilot.airport = groundAirport.icao;
-                origPilot.airport = groundAirport.icao;
-            }
 
             if (extendedPilot.status !== 'arrGate' && extendedPilot.status !== 'arrTaxi') {
                 extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
@@ -221,11 +222,6 @@ async function updateVatsimExtendedPilots() {
                 }
             }
         }
-        else if (groundAirport) {
-            extendedPilot.airport = groundAirport.icao;
-            extendedPilot.status = extendedPilot.flight_plan?.arrival ? 'arrTaxi' : 'depTaxi';
-        }
-
         if (extendedPilot.flight_plan?.altitude) {
             if (Number(extendedPilot.flight_plan?.altitude) < 1000) extendedPilot.flight_plan.altitude = (Number(extendedPilot.flight_plan?.altitude) * 100).toString();
 
@@ -449,14 +445,23 @@ function parseCoordinates(input: string) {
         const lat = parseFloat(match[2]);
         const lon = parseFloat(match[3]);
 
-        // Преобразуем широту: 40.25 → 4025 (40°15′)
-        const latDeg = Math.floor(lat);
-        const latMin = Math.round((lat - latDeg) * 60);
-        const latStr = `${ latDeg.toString().padStart(2, '0') }${ latMin.toString().padStart(2, '0') }`;
+        let latDeg = Math.floor(lat);
+        let latMin = Math.round((lat - latDeg) * 60);
 
-        // Преобразуем долготу: 52.3 → 5230 (52°18′)
-        const lonDeg = Math.floor(lon);
-        const lonMin = Math.round((lon - lonDeg) * 60);
+        if (latMin === 60) {
+            latDeg++;
+            latMin = 0;
+        }
+
+        let lonDeg = Math.floor(lon);
+        let lonMin = Math.round((lon - lonDeg) * 60);
+
+        if (lonMin === 60) {
+            lonDeg++;
+            lonMin = 0;
+        }
+
+        const latStr = `${ latDeg.toString().padStart(2, '0') }${ latMin.toString().padStart(2, '0') }`;
         const lonStr = `${ lonDeg.toString().padStart(2, '0') }${ lonMin.toString().padStart(2, '0') }`;
 
         result.push(`${ latStr }/${ lonStr }`);

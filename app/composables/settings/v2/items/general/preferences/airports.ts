@@ -66,10 +66,15 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
     },
     shortView: {
         title: 'Short facilities view',
-        description: 'Always shows airport facilities as lines',
-        type: 'toggle',
+        description: 'Shows airport facilities as lines',
+        type: 'radio',
+        items: [
+            { value: true, text: 'Always' },
+            { value: false, text: 'Auto' },
+            { value: 'never', text: 'Never' },
+        ],
         value: getSettingValue('map.preferences.airports.shortView'),
-        onChange: value => setSettingByKey('map.preferences.airports.shortView', value),
+        onChange: value => setSettingByKey('map.preferences.airports.shortView', value as any),
     },
     showMode: {
         title: 'Display mode',

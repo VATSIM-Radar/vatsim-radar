@@ -21,7 +21,7 @@ function getListWithExcludedUsers<T extends Partial<UserList>>(list: T): T {
 export async function addUserList(list: AddUserListOther | AddUserListFriends) {
     const store = useStore();
 
-    const result = await $fetch('/api/user/lists', {
+    const result = await $fetch<Partial<UserList>>('/api/user/lists', {
         method: 'POST',
         body: getListWithExcludedUsers(list),
     });
@@ -35,7 +35,7 @@ export async function editUserList(list: Partial<UserList> & { id: number }, upd
 
     const store = useStore();
 
-    const result = await $fetch(`/api/user/lists/${ list.id }`, {
+    const result = await $fetch<Partial<UserList>>(`/api/user/lists/${ list.id }`, {
         method: 'PUT',
         body: getListWithExcludedUsers(list),
     });

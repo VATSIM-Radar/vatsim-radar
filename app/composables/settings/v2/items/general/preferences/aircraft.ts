@@ -3,7 +3,7 @@ import SettingsScale from '~/components/features/settings/v2/misc/SettingsScale.
 
 export const settingsItemPreferencesAircraft = globalComputed(() => makeSettingsItems(({ settingsStore }) => ({
     shortView: {
-        title: 'Short facilities view',
+        title: 'Short hover view',
         description: 'Reduces on-hover displayed info',
         type: 'toggle',
         value: getSettingValue('map.preferences.aircraft.shortView'),
@@ -71,7 +71,7 @@ export const settingsItemPreferencesAircraft = globalComputed(() => makeSettings
         title: 'Max shown tracks limit',
         description: 'Max tracks to be shown and fetched at the same time',
         type: 'select',
-        items: [{ value: 100 }, { value: 75 }, { value: 50 }, { value: 40 }, { value: 25 }, { value: 15 }, { value: 10 }],
+        items: [{ value: 100 }, { value: 75 }, { value: 50 }, { value: 40 }, { value: 25 }, { value: 15 }, { value: 10 }].reverse(),
         value: getSettingValue('map.preferences.aircraft.tracks.limit'),
         onChange: value => setSettingByKey('map.preferences.aircraft.tracks.limit', value as any),
     },

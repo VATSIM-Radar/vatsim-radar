@@ -26,7 +26,7 @@
         </div>
         <ui-text-block
             v-if="!isMobile"
-            :bottom-items="[ country?.country, airport.airport?.name ]"
+            :bottom-items="[ country?.country, dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao]?.name ]"
             class="airport-card_info"
         >
             <template #bottom="{ item }">
@@ -104,6 +104,7 @@ const mapStore = useMapStore();
 const showTotalDeparturesInFeaturedAirports = useSettingValueFromFunc('map.preferences.showTotalDeparturesInFeaturedAirports');
 const map = inject<ShallowRef<Map | null>>('map')!;
 const isMobile = useIsMobile();
+const dataStore = useDataStore();
 
 interface Controller {
     facility: number;
@@ -120,7 +121,7 @@ const controllers = computed<Controller[]>(() => {
         if (list.some(x => controller.isATIS ? x.isATIS : x.facility === controller.facility) || controller.facility === ids.FSS || controller.facility === ids.CTR) continue;
 
         list.push({
-            facility: controller.facility,
+            facility: controller.isATIS ? -1 : controller.facility,
             color: getControllerPositionColor(controller),
             text: '',
             isATIS: controller.isATIS || controller.facility === ids.ATIS || !!controller.atis_code,

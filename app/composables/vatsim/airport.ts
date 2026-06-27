@@ -17,10 +17,12 @@ export function provideAirport(data: MaybeRef<StoreOverlayAirport['data'] | unde
     provide('airport', data);
 }
 
-export function injectAirport(): Ref<StoreOverlayAirport['data']> {
-    const injection = inject<MaybeRef<StoreOverlayAirport['data']>>('airport')!;
+export function injectAirport(defaultValue: true): Ref<StoreOverlayAirport['data']> | null;
+export function injectAirport(defaultValue?: false): Ref<StoreOverlayAirport['data']>;
+export function injectAirport(defaultValue?: boolean): Ref<StoreOverlayAirport['data']> | null {
+    const injection = defaultValue ? inject<MaybeRef<StoreOverlayAirport['data']> | null>('airport', null) : inject<MaybeRef<StoreOverlayAirport['data']>>('airport')!;
     if (isRef(injection)) return injection;
-    return shallowRef(injection);
+    return injection ? shallowRef(injection) : null;
 }
 
 export const getATCForAirport = (data: Ref<StoreOverlayAirport['data'] | null>) => {
@@ -89,7 +91,7 @@ export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPi
 export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'] | null>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
-    if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
+    if (!getCurrentScope()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
     if (injected) {
         return computed(() => {
             if (!toValue(injected)) {
@@ -139,7 +141,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
         } satisfies AirportPopupPilotList;
 
         for (const pilot of dataStore.vatsim.data.pilots.value) {
-            if (data.icao !== pilot.departure && data.icao !== pilot.arrival) {
+            if (data.icao !== pilot.departure && data.icao !== pilot.arrival && vatAirport?.iata !== pilot.departure && vatAirport?.iata !== pilot.arrival) {
                 // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
                 // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
                 if (!pilot.departure && !pilot.arrival) {
@@ -154,8 +156,11 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
             let flown = 0;
             let eta: Date | null = null;
 
-            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
-            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
+            let departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
+            let arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
+
+            if (!departureAirport && vatAirport) departureAirport = vatAirport.iata === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIata[pilot.departure!];
+            if (!arrivalAirport && vatAirport) arrivalAirport = vatAirport.iata === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIata[pilot.arrival!];
 
             const pilotDistance = pilotDistances.value[pilot.cid.toString()] ?? {};
 
@@ -227,7 +232,7 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
 
     watch(dataStore.navigraphWaypoints, debouncedUpdate);
 
-    if (getCurrentScope() && !injected && !filter) provide('airport-aircraft', aircraft);
+    if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
 };
@@ -245,7 +250,7 @@ export const getArrivalRate = (aircraft: Ref<AirportPopupPilotList | null>, inte
                 const differenceInMs = arrival.eta.getTime() - currentDate.getTime();
                 const differenceInMinutes = differenceInMs / (1000 * 60);
                 const interval = Math.floor(differenceInMinutes / intervalLength);
-                if (interval >= intervals) continue;
+                if (interval >= intervals || !returnArray[interval]) continue;
                 returnArray[interval].push(arrival);
             }
         }

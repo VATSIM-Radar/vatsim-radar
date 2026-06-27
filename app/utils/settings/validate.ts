@@ -162,7 +162,7 @@ const settingsSchema = partialObject({
 
             airports: partialObject({
                 defaultZoomLevel: rangedNumber(1, 50, 'must be a number between 1 and 50', 1),
-                shortView: booleanSchema,
+                shortView: list([false, true, 'never'], `must be one of: false, true, never`),
                 showMode: list(airportsModeKeys, `must be one of: ${ airportsModeKeys.join(', ') }`),
                 declutterIf: list(airportsDeclutterKeys, `must be one of: ${ airportsDeclutterKeys.join(', ') }`),
                 ATISAsUnstaffed: booleanSchema,
@@ -219,6 +219,7 @@ const settingsSchema = partialObject({
 
         traffic: partialObject({
             showFullRoute: booleanSchema,
+            showRouteDetails: booleanSchema,
             toggleAircraftOverlays: booleanSchema,
             autoShowAirportTracks: booleanSchema,
             disableFastUpdate: booleanSchema,
@@ -274,6 +275,8 @@ const settingsSchema = partialObject({
         visibility: partialObject({
             atc: partialObject(Object.fromEntries(atcVisibilityKeys.map(key => [key, booleanSchema])) as Record<string, Schema>),
             atcLabels: booleanSchema,
+            vatglassesLabels: booleanSchema,
+            artccTracons: booleanSchema,
             airports: booleanSchema,
             pilots: booleanSchema,
             gates: booleanSchema,

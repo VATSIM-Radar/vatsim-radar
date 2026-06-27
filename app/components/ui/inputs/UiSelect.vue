@@ -169,6 +169,10 @@ const shownValue = computed<string>(() => {
         return props.placeholder || '';
     }
 
+    if (props.items && activeItems.value.length === getItems.value?.length) {
+        return `All selected`;
+    }
+
     if (props.items && activeItems.value.length > 1) {
         return `${ activeItems.value.length } selected`;
     }

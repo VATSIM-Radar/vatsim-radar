@@ -75,7 +75,7 @@
                                 size="S"
                                 @click="store.metarRequest = true"
                             >
-                                Weather Request
+                                Conditions Request
                             </ui-button>
                             <ui-block-title remove-margin>
                                 Weather on map
@@ -484,6 +484,12 @@ const importPreset = async () => {
                 color:$blue500;
             }
         }
+    }
+
+    @media all and (max-height: 400px) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
     }
 }
 </style>

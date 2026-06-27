@@ -35,14 +35,19 @@ export function kafkaAddClient(event: KafkaAddClient) {
 }
 
 export function kafkaRemoveClient(event: KafkaRmClient) {
-    if (event.Callsign) {
-        updatedPilots.delete(event.Callsign);
-        pilotVerticalSpeedEntries.delete(event.Callsign);
+    const callsign = event.Callsign;
+    if (!callsign) return;
+
+    updatedPilots.delete(callsign);
+    pilotVerticalSpeedEntries.delete(callsign);
+
+    if (wssPilots[callsign]) {
+        wssPilots[callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
     }
 
-    if (event.Callsign && wssPilots[event.Callsign]) {
-        wssPilots[event.Callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
-    }
+    delete radarStorage.vatsim.kafka.pilots[callsign];
+    delete radarStorage.vatsim.kafka.atc[callsign];
+    delete radarStorage.vatsim.kafka.prefiles[callsign];
 }
 
 export function kafkaUpdateController(event: KafkaAD) {

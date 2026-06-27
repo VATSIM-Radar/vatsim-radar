@@ -24,8 +24,6 @@ export interface FirFindResult {
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
 }
 
-const setVatspyBoundaries = new Set<string>();
-
 async function filterFirsForList(list: string[] | undefined, callsign: string) {
     if (!list?.length) return [];
 
@@ -71,13 +69,11 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
         }
         maxStart = length;
 
-        const features = dataStore.vatspy.value?.data.features[fir.boundary] ?? [];
+        const features = await dataStore.vatspyBoundary(fir.boundary);
 
         if (!features.length) {
             continue;
         }
-
-        setVatspyBoundaries.add(fir.boundary);
 
         result.push({
             fir,
@@ -201,14 +197,12 @@ export async function updateControllers(context: DataUpdateContext) {
         }, 1000 * 60 * 60);
     }
 
-    setVatspyBoundaries.clear();
-
-    if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
-        dataStore.versions.value!.vatspy = '';
-        await checkForVATSpy();
-    }
-
     if (!uirsMap) {
+        if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
+            dataStore.versions.value!.vatspy = '';
+            await checkForVATSpy();
+        }
+
         if (dataStore.vatspy.value && dataStore.vatspy.value?.data.uirs?.length && dataStore.vatspy.value?.data.firs?.length) {
             uirsMap = {};
 
@@ -239,10 +233,6 @@ export async function updateControllers(context: DataUpdateContext) {
                 firsMapByCallsign[callsign ?? icao] ??= [];
                 firsMapByCallsign[callsign ?? icao].push(key);
             }
-
-            // Cleanup
-            dataStore.vatspy.value.data.firs.length = 0;
-            dataStore.vatspy.value.data.uirs.length = 0;
         }
     }
 
@@ -286,6 +276,8 @@ export async function updateControllers(context: DataUpdateContext) {
         })));
     }
 
+    const shouldDuplicateArtccApp = getKeyedValueFromSettings('map.visibility.artccTracons');
+
     for (const controller of controllers) {
         const freq = parseFloat(controller.frequency || '0');
         if (freq > 137 || freq < 117) continue;
@@ -313,6 +305,8 @@ export async function updateControllers(context: DataUpdateContext) {
                                     duplicatedBy: controller.callsign,
                                     duplicated: true,
                                 };
+
+                                if (!shouldDuplicateArtccApp && controller.facility !== duplicated.facility) continue;
 
                                 // Priority to app
                                 if (duplicatedPositions[duplicated.callsign]) {
@@ -436,7 +430,7 @@ export async function updateControllers(context: DataUpdateContext) {
             if (isApp && !feature && airport?.isPseudo) continue;
 
             if (!airport && feature) {
-                const key = feature?.properties.id + feature?.properties.prefix.map(x => x.split(callsignSplitRegex)[0]).join(',');
+                const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);
                 context.airports[key] ??= {
                     icao: validPrefix ?? feature.properties.id,
@@ -487,15 +481,5 @@ export async function updateControllers(context: DataUpdateContext) {
 
     for (const airport of Object.values(context.airports)) {
         airport.atc = airport.atc.filter(x => !context.atcAdded?.has(x.callsign) || x.facility <= facilities.TWR);
-    }
-
-    for (const boundary in dataStore.vatspy.value?.data.features) {
-        if (setVatspyBoundaries.has(boundary)) continue;
-
-        for (const feature of dataStore.vatspy.value?.data.features[boundary] ?? []) {
-            addSector(context, {
-                feature,
-            }, null);
-        }
     }
 }

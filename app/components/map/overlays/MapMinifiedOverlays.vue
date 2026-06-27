@@ -138,11 +138,12 @@ const airports = computed(() => {
 });
 
 const hoveredAirport = ref('');
+const scope = getCurrentScope();
 
 const airportAircraft = computed(() => hoveredAirport.value
-    ? getAircraftForAirport({
+    ? scope?.run(() => getAircraftForAirport({
         icao: hoveredAirport.value,
-    }).value
+    }, ref<any>(null)).value)
     : null);
 
 function itemClick(item: StoreOverlay) {

@@ -8,7 +8,7 @@ import updateVatsimExtendedPilots, {
     updateVatsimDataStorage,
     updateVatsimMandatoryDataStorage,
 } from '~/utils/server/vatsim/update';
-import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/server/influx/influx';
+import { influxDB, influxDBWriteOptions, initInfluxDB } from '~/utils/server/influx/influx';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/server/worker/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
@@ -366,10 +366,10 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        const pilotCallsigns = new Set(data.pilots.map(p => p.callsign));
-        const atcCallsigns = new Set(data.controllers.map(c => c.callsign));
-        const atisCallsigns = new Set(data.atis.map(a => a.callsign));
-        const prefileCallsigns = new Set(data.prefiles.map(p => p.callsign));
+        const pilotCallsigns = new Set(data.pilots.map(p => p?.callsign ?? ''));
+        const atcCallsigns = new Set(data.controllers.map(c => c?.callsign ?? ''));
+        const atisCallsigns = new Set(data.atis.map(a => a?.callsign ?? ''));
+        const prefileCallsigns = new Set(data.prefiles.map(p => p?.callsign ?? ''));
 
         Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
             if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
@@ -431,28 +431,31 @@ defineCronJob('* * * * * *', async () => {
             },
         });
 
+        const pilotsMap = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x]));
+        const prefilesMap = Object.fromEntries(radarStorage.vatsim.data!.prefiles.map(x => [x.cid, x]));
+
         radarStorage.vatsim.regularData = {
             ...regularData,
             pilots: regularData.pilots.map(x => {
-                const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
+                const origPilot = pilotsMap[x.cid];
                 return {
                     ...x,
-                    aircraft_short: origPilot.flight_plan?.aircraft_short,
-                    aircraft_faa: origPilot.flight_plan?.aircraft_faa,
-                    departure: origPilot.flight_plan?.departure,
-                    arrival: origPilot.flight_plan?.arrival,
-                    flight_rules: origPilot.flight_plan?.flight_rules,
+                    aircraft_short: origPilot?.flight_plan?.aircraft_short,
+                    aircraft_faa: origPilot?.flight_plan?.aircraft_faa,
+                    departure: origPilot?.flight_plan?.departure,
+                    arrival: origPilot?.flight_plan?.arrival,
+                    flight_rules: origPilot?.flight_plan?.flight_rules,
                 };
             }),
             prefiles: regularData.prefiles.map(x => {
-                const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
+                const origPilot = prefilesMap[x.cid];
                 return {
                     ...x,
-                    aircraft_short: origPilot.flight_plan?.aircraft_short,
-                    aircraft_faa: origPilot.flight_plan?.aircraft_faa,
-                    departure: origPilot.flight_plan?.departure,
-                    arrival: origPilot.flight_plan?.arrival,
-                    flight_rules: origPilot.flight_plan?.flight_rules,
+                    aircraft_short: origPilot?.flight_plan?.aircraft_short,
+                    aircraft_faa: origPilot?.flight_plan?.aircraft_faa,
+                    departure: origPilot?.flight_plan?.departure,
+                    arrival: origPilot?.flight_plan?.arrival,
+                    flight_rules: origPilot?.flight_plan?.flight_rules,
                 };
             }),
             bars: shortBars,
@@ -467,14 +470,19 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.notam = radarStorage.vatsimNotam ?? notams.find(x => (!x.activeTo || new Date(x.activeTo).getTime() > Date.now()) && (!x.activeFrom || new Date(x.activeFrom).getTime() < Date.now())) ?? null;
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
-            const plans = getPlanInfluxDataForPilots();
-            const pilots = getShortInfluxDataForPilots();
-            if (plans.length) {
-                influxDBWritePlans.writeRecords(plans);
-            }
+            try {
+                const plans = getPlanInfluxDataForPilots();
+                const pilots = getShortInfluxDataForPilots();
+                if (plans.length && process.env.INFLUX_BUCKET_PLANS) {
+                    await influxDB.write(plans, process.env.INFLUX_BUCKET_PLANS, undefined, influxDBWriteOptions);
+                }
 
-            if (pilots.length) {
-                influxDBWriteMain.writeRecords(pilots);
+                if (pilots.length && process.env.INFLUX_BUCKET_MAIN) {
+                    await influxDB.write(pilots, process.env.INFLUX_BUCKET_MAIN, undefined, influxDBWriteOptions);
+                }
+            }
+            catch (error) {
+                console.error('Influx write failed', error);
             }
         }
 

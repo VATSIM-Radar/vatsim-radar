@@ -127,7 +127,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     }
 
     checkForSocket();
-    const interval = setInterval(checkForSocket, 5000);
+    interval = setInterval(checkForSocket, 5000);
 
     /* async function storageEvent() {
         const data = localStorage.getItem('radar-socket-vat-data');

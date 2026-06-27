@@ -2,6 +2,7 @@
     <div
         ref="picker"
         class="color-picker"
+        tr
     >
         <div class="color-picker__input">
             <ui-input-text
@@ -19,14 +20,14 @@
                         :items="transparencyOptions"
                         max-dropdown-height="150px"
                         :model-value="modelValue?.transparency ?? defaultColor?.transparency ?? 1"
-                        placeholder="Transparency"
+                        placeholder="Opacity"
                         width="100px"
                         @update:modelValue="emit('update:modelValue', { ...defaultColor, ...modelValue, transparency: +($event as string) })"
                     />
                 </template>
 
                 <template v-if="transparencyOnly" #htmlContent>
-                    Transparency
+                    Opacity
                 </template>
 
                 <template

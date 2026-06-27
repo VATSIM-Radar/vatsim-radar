@@ -11,7 +11,7 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import { getCurrentInstance } from 'vue';
-import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
+import type { Ref, ShallowRef } from 'vue';
 import type {
     RadarDataAirline,
     Sigmets,
@@ -55,6 +55,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import type { AirportListItem, AirportTraconFeature } from '~/composables/render/airports';
 import { initControllersUpdate } from '~/composables/render/update';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<DataStoreVatspy>();
@@ -118,6 +119,7 @@ const data: VatsimData = {
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
+    tracksPilotsData: ref({}),
     parsedAirports: shallowRef<Record<string, AirportListItem>>({}),
     parsedAirportsList: computed(() => Object.values(vatsim.parsedAirports.value)),
     // For fast turn-on in case we need to restore mandatory data
@@ -199,11 +201,25 @@ export interface DataSector {
     uirWithFir?: boolean;
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
     atc: VatsimShortenedController[];
+    persistent?: boolean;
 }
 
 export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
-    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs' | 'features'>;
+    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs'>;
 };
+
+export type PilotCalculatedArrival = Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
+
+export interface PilotNavigraphWaypoints {
+    pilot: VatsimShortenedAircraft;
+    coordinates: Coordinate;
+    calculatedArrival?: PilotCalculatedArrival;
+    full: boolean;
+    disableHoldings?: boolean;
+    disableLabels?: boolean;
+    disableWaypoints?: boolean;
+    waypoints: NavigraphNavDataEnrouteWaypointPartial[];
+}
 
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
@@ -216,6 +232,7 @@ export interface UseDataStore {
         parsedAirportsList: Ref<AirportListItem[]>;
 
         tracks: ShallowRef<VatsimNattrakClient[]>;
+        tracksPilotsData: Ref<Record<number, Partial<InfluxGeojson>>>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;
@@ -231,6 +248,8 @@ export interface UseDataStore {
         notam: Ref<RadarNotam | null>;
     };
     simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
+    vatspyBoundary: (boundary: string) => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
+    vatspyBoundaries: () => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
 
     vatglasses: ShallowRef<string>;
 
@@ -241,6 +260,7 @@ export interface UseDataStore {
 
     airportsList: ShallowRef<PartialRecord<string, DataAirport>>;
     sectorsList: ShallowRef<DataSector[]>;
+    sectorsUpdateId: Ref<number>;
     atcAddedDuringUpdate: ShallowRef<Set<string>>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
@@ -256,16 +276,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
-    navigraphWaypoints: Ref<Record<string, {
-        pilot: VatsimShortenedAircraft;
-        coordinates: Coordinate;
-        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
-        full: boolean;
-        disableHoldings?: boolean;
-        disableLabels?: boolean;
-        disableWaypoints?: boolean;
-        waypoints: NavigraphNavDataEnrouteWaypointPartial[];
-    }>>;
+    navigraphWaypoints: Ref<Record<string, PilotNavigraphWaypoints>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
     navigraph: {
@@ -289,9 +300,16 @@ const dataStore: UseDataStore = {
         iataResult.length = 0;
         return icaoResult;
     },
+    vatspyBoundary: async boundary => {
+        return await clientDB.vatspyBoundaries.get(boundary) ?? [];
+    },
+    vatspyBoundaries: async () => {
+        return (await clientDB.vatspyBoundaries.toArray()).flat();
+    },
     vatglasses,
     airportsList: shallowRef({}),
     sectorsList: shallowRef([]),
+    sectorsUpdateId: ref(0),
     atcAddedDuringUpdate: shallowRef(new Set()),
     vatglassesActivePositions,
     vatglassesActiveRunways,
@@ -658,14 +676,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
-        let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
 
         watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            watcher?.();
+            ws?.();
             if (val !== true) {
                 ws = checkForWSData(isMounted);
             }

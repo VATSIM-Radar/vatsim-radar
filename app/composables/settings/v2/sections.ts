@@ -20,10 +20,15 @@ import { settingsItemTraffic } from '~/composables/settings/v2/items/general/pre
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import SettingsManagement from '~/components/features/settings/v2/misc/SettingsManagement.vue';
 import SettingsRecommendedPerformance from '~/components/features/settings/v2/misc/SettingsRecommendedPerformance.vue';
+import { isApp } from '~/composables';
+import { settingsItemApplication } from '~/composables/settings/v2/items/account/application';
 
 export const getSettingsItems = globalComputed(() => {
     return {
-        account: settingsItemAccount().value,
+        account: {
+            ...settingsItemAccount().value,
+            application: settingsItemApplication().value,
+        },
         appearance: {
             ...settingsItemAppearance().value,
             colors: settingsItemAppearanceColors().value,
@@ -56,13 +61,14 @@ export const getSettingsSections = () => {
 
     return [
         {
-            title: 'Account Settings',
-            url: 'account',
+            title: 'General Settings',
+            url: 'general',
             icon: PersonIcon,
             sections: [
                 {
                     title: 'Account',
                     url: '',
+                    hide: notLoggedIn,
                     items: [
                         {
                             key: 'account',
@@ -100,6 +106,25 @@ export const getSettingsSections = () => {
                         key: 'favorite',
                         items: [items.account.favorite],
                     }],
+                },
+                {
+                    title: 'Application Settings',
+                    url: 'application',
+                    hide: computed(() => !isApp.value),
+                    items: [
+                        {
+                            key: 'application',
+                            title: 'Discord Presence',
+                            description: 'Want to highlight your activity? Toggle these on!',
+                            items: [items.account.application.pilotPresence, items.account.application.atcPresence, items.account.application.observerPresence, items.account.application.offlinePresence],
+                        },
+                        {
+                            key: 'general',
+                            title: 'General App Settings',
+                            description: `App Version: ${ store.appVersion }`,
+                            items: [items.account.application.hideToTray],
+                        },
+                    ],
                 },
             ],
         },
@@ -199,7 +224,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'overlays',
                             title: 'Overlays',
-                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.toggleAircraftOverlays],
+                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.showRouteDetails, items.preferences.traffic.toggleAircraftOverlays],
                         },
                         {
                             key: 'traffic',
@@ -246,7 +271,7 @@ export const getSettingsSections = () => {
             icon: MapSettingsIcon,
             sections: [
                 {
-                    title: 'Map Display',
+                    title: 'Layers and Weather',
                     url: '',
                     items: [
                         {
@@ -267,7 +292,7 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
-                    title: 'Traffic & Airspace',
+                    title: 'Map Overlays',
                     url: 'traffic',
                     items: [
                         {
@@ -309,7 +334,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'controllers',
                             title: 'Controllers',
-                            items: [items.layers.visibility.atcFirs, items.layers.visibility.atcApproach, items.layers.visibility.atcGround, items.layers.visibility.atcLabels],
+                            items: [items.layers.visibility.atcFirs, items.layers.visibility.atcApproach, items.layers.visibility.atcGround, items.layers.visibility.atcLabels, items.layers.visibility.vatglassesLabels, items.layers.visibility.artccTracons],
                         },
                         {
                             key: 'layers',
@@ -324,7 +349,7 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
-                    title: 'Navigraph',
+                    title: 'Navigraph Layers',
                     url: 'navigraph',
                     items: [
                         {

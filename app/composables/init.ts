@@ -3,6 +3,7 @@ import type { VatDataVersions } from '~/types/data';
 import type { VRInitStatus, VRInitStatusResult } from '~/store';
 import { useStore } from '~/store';
 import { clientDB } from '~/composables/render/idb';
+import type { IDBVatSpyData } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
@@ -92,15 +93,24 @@ export function checkForData() {
 export function checkForVATSpy() {
     return initCheck('vatspy', async ({ dataStore }) => {
         let notRequired = true;
-        let vatspy = await clientDB.data.get('vatspy') as VatSpyAPIData | undefined;
+        let vatspy = await clientDB.data.get('vatspy') as IDBVatSpyData | VatSpyAPIData | undefined;
         if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
             vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
 
-            await clientDB.data.put(vatspy, 'vatspy').catch(e => {
+            const { features, ...metadata } = vatspy.data as VatSpyAPIData['data'];
+            const boundaries = Object.entries(features);
+
+            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, async () => {
+                await clientDB.vatspyBoundaries.clear();
+                await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
+                await clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
+            }).catch(e => {
                 console.error(e);
                 clientDB.delete();
                 location.reload();
             });
+
+            vatspy = { ...vatspy, data: metadata };
 
             notRequired = false;
         }
@@ -198,9 +208,7 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
             });
         }
     }
-    catch (e) {
-        console.error(e);
-    }
+    catch { /* empty */ }
 }
 
 export function checkForVG() {
@@ -209,7 +217,7 @@ export function checkForVG() {
         let vatglasses = await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined;
         const vatglassesVersion = await clientDB.vatglasses.get('version') as string | undefined;
 
-        if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value!.vatglasses || vatglassesVersion !== dataStore.versions.value!.vatglasses) {
+        if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value?.vatglasses || vatglassesVersion !== dataStore.versions.value?.vatglasses) {
             vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
             await clientDB.data.put(vatglasses, 'vatglasses').catch(() => {
                 clientDB.delete();
@@ -251,7 +259,7 @@ export function checkForVG() {
         dataStore.vatglasses.value = vatglasses.version;
 
         if (isVatGlassesActive.value) {
-            await getVatglassesDynamic(dataStore);
+            await getVatglassesDynamic(dataStore).catch(() => {});
         }
         else return 'notRequired';
     });

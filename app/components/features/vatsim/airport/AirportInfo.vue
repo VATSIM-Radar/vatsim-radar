@@ -20,6 +20,7 @@
                 { title: 'Elevation', text: `${ airportInfo.altitude_m }m, ${ airportInfo.altitude_ft }ft` },
                 { title: 'Transition Level', text: airportInfo.transition_level },
                 { title: 'Transition Altitude', text: airportInfo.transition_alt },
+                { title: 'CTAF', text: airportInfo.ctafFreq },
             ]"
         />
     </div>

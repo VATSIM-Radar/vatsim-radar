@@ -31,6 +31,8 @@ export type InfluxGeojsonFeature = InfluxGeojsonFeatureCollection['features'][0]
 export type InfluxGeojson = {
     flightPlan?: string;
     flightPlanTime?: string;
+    departedAt?: string | null;
+    arrivedAt?: string | null;
     features?: InfluxGeojsonFeatureCollection[];
 };
 
@@ -40,8 +42,18 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
     }
 
     const geoRows: InfluxGeojsonFeature[] = [];
+    let depTime: string | null = null;
+    let arrTime: string | null = null;
 
     for (const row of rows.filter(x => x.latitude && x.longitude)) {
+        if (row.fpl_departed_at) {
+            depTime = row.fpl_departed_at;
+        }
+
+        if (row.fpl_arrived_at) {
+            arrTime = row.fpl_arrived_at;
+        }
+
         geoRows.push({
             type: 'Feature',
             properties: {
@@ -100,6 +112,8 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
 
     return {
         flightPlanTime: flightPlanStart,
+        departedAt: depTime,
+        arrivedAt: arrTime,
         features: rowsGroups,
     };
 }
@@ -145,6 +159,7 @@ export function getPlanInfluxDataForPilots() {
             qnh_mb: pilot.qnh_mb,
             transponder: pilot.transponder,
             fpl_route: pilot.flight_plan?.route,
+            fpl_revision: pilot.flight_plan?.revision_id,
             fpl_enroute_time: pilot.flight_plan?.enroute_time,
             fpl_departure_time: pilot.flight_plan?.deptime,
             fpl_flight_rules: pilot.flight_plan?.flight_rules,
@@ -153,7 +168,12 @@ export function getPlanInfluxDataForPilots() {
             fpl_altitude: pilot.flight_plan?.altitude,
         };
 
-        if (previousPilot && previousPilot.callsign === obj.callsign && previousPilot.flight_plan?.deptime === obj.fpl_departure_time && previousPilot.flight_plan?.enroute_time === obj.fpl_enroute_time && previousPilot.flight_plan?.departure === obj.fpl_departure) return;
+        if (previousPilot &&
+            previousPilot.callsign === obj.callsign &&
+            previousPilot.flight_plan?.deptime === obj.fpl_departure_time &&
+            previousPilot.flight_plan?.enroute_time === obj.fpl_enroute_time &&
+            previousPilot.flight_plan?.revision_id === obj.fpl_revision
+        ) return;
 
         const entries = Object.entries(obj)
             .filter(([key, value]) => value !== undefined && value !== null)
@@ -192,7 +212,7 @@ export function getShortInfluxDataForPilots() {
 
     const newPilotsData: typeof previousShortData = {};
 
-    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
+    const data = radarStorage.vatsim.extendedPilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousShortData[pilot.cid];
 
         const previousAltitude = !previousShortData[pilot.cid]?.previousAltitude ||
@@ -219,6 +239,8 @@ export function getShortInfluxDataForPilots() {
             name: pilot.name,
             qnh_mb: pilot.qnh_mb,
             transponder: pilot.transponder,
+            fpl_departed_at: pilot.flight_plan?.departed_at,
+            fpl_arrived_at: pilot.flight_plan?.arrived_at,
         };
 
         const previousObj = previousPilot && {
@@ -231,6 +253,8 @@ export function getShortInfluxDataForPilots() {
             name: previousPilot.pilot.name,
             qnh_mb: previousPilot.pilot.qnh_mb,
             transponder: previousPilot.pilot.transponder,
+            fpl_departed_at: previousPilot.pilot.flight_plan?.departed_at,
+            fpl_arrived_at: previousPilot.pilot.flight_plan?.arrived_at,
         };
 
         const entries = Object.entries(obj)

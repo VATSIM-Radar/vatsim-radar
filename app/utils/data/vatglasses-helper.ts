@@ -7,7 +7,7 @@ import kinks from '@turf/kinks';
 import mergeRanges from 'merge-ranges';
 import { fromLonLat, toLonLat } from 'ol/proj.js';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, MultiPolygon as TurfMultiPolygon, LineString, Point } from 'geojson';
-import type { VatglassesSectorProperties } from './vatglasses';
+import type { VatglassesSectorProperties, VatglassesSectorBand } from './vatglasses';
 
 import lineIntersect from '@turf/line-intersect';
 
@@ -210,9 +210,7 @@ const isPointOnSegment = (p1: number[], p2: number[], p: number[], tolerance: nu
     if (dotProduct < 0) return false;
 
     const squaredLengthBA = ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1));
-    if (dotProduct > squaredLengthBA) return false;
-
-    return true;
+    return dotProduct <= squaredLengthBA;
 };
 
 /**
@@ -429,52 +427,128 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
 }
 
 export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[]) {
-    const groupedSectors: { [index: string]: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] } = {};
+    if (!sectors?.length) return [];
+
+    const cleaned: TurfFeature<TurfPolygon | TurfMultiPolygon, VatglassesSectorProperties>[] = [];
+    const uncombined: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] = [];
+    let min = Infinity;
+    let max = -Infinity;
+    let baseProps: VatglassesSectorProperties | undefined;
 
     for (const sector of sectors) {
-        if (sector.properties) {
-            for (const altrange of sector.properties.altrange ?? []) {
-                const joinedAltrange = altrange.join('-');
-                if (groupedSectors[joinedAltrange]) {
-                    groupedSectors[joinedAltrange].push(sector);
-                }
-                else {
-                    groupedSectors[joinedAltrange] = [sector];
-                }
-            }
-        }
-    }
-
-    const combinedGroupSectors = [];
-    for (const altrange in groupedSectors) {
-        const sectors = groupedSectors[altrange];
-        if (sectors.length === 0) {
-            continue;
-        }
-        if (sectors.length === 1) {
-            const combined = sectors[0];
-            const properties = combined.properties as VatglassesSectorProperties;
-            [properties.min, properties.max] = altrange.split('-').map(Number);
-
-            combinedGroupSectors.push(combined);
-            continue;
-        }
+        // Coordinate conversion mutates the input. Preserve the original lon/lat
+        // geometry so a self-intersecting sector remains visible without union.
+        const originalSector = cloneSectorFeature(sector);
         try {
-            // const combined = union(truncate(featureCollection(sectors), { mutate: true }));
-            const combined = union((featureCollection(sectors)));
-            if (combined) {
-                flattenEach(combined, function(currentFeature) {
-                    currentFeature.properties = structuredClone(sectors[0].properties);
-                    const properties = currentFeature.properties as VatglassesSectorProperties;
-                    [properties.min, properties.max] = altrange.split('-').map(Number);
+            convertPolygonCoordinates(sector);
+            roundPolygonCoordinates(sector);
+            removeDuplicateCoords(sector);
 
-                    combinedGroupSectors.push(currentFeature as TurfFeature<TurfPolygon>);
-                });
+            if (kinks(sector).features.length > 0) {
+                uncombined.push(originalSector);
+                continue;
+            }
+
+            cleaned.push(sector);
+            baseProps ??= sector.properties;
+            const p = sector.properties;
+            if (p) {
+                if ((p.min ?? 0) < min) min = p.min ?? 0;
+                if ((p.max ?? 999) > max) max = p.max ?? 999;
             }
         }
         catch (e) {
             if (VGdebugMode) console.error(e);
         }
     }
-    return combinedGroupSectors;
+
+    if (!cleaned.length) return uncombined;
+
+    let merged: TurfFeature<TurfPolygon | TurfMultiPolygon> | null;
+    if (cleaned.length === 1) {
+        merged = cleaned[0];
+    }
+    else {
+        // Fast path: union everything in a single call.
+        try {
+            merged = union(featureCollection(cleaned));
+        }
+        catch (e) {
+            if (VGdebugMode) console.error(e);
+            merged = null;
+        }
+        if (!merged) {
+            let acc: TurfFeature<TurfPolygon | TurfMultiPolygon> = cleaned[0];
+            for (let i = 1; i < cleaned.length; i++) {
+                try {
+                    const u = union(featureCollection([acc, cleaned[i]]));
+                    if (u) acc = u;
+                }
+                catch (e) {
+                    if (VGdebugMode) console.error(e);
+                }
+            }
+            merged = acc;
+        }
+    }
+
+    if (!merged) return [];
+
+    const combinedGroupSectors: TurfFeature<TurfPolygon>[] = [];
+    flattenEach(merged, function(currentFeature) {
+        revertPolygonCoordinatesToLonLat(currentFeature);
+        roundPolygonCoordinates(currentFeature, 6);
+        currentFeature.properties = {
+            ...(baseProps as VatglassesSectorProperties),
+            min: min === Infinity ? 0 : min,
+            max: max === -Infinity ? 999 : max,
+        };
+        combinedGroupSectors.push(currentFeature as TurfFeature<TurfPolygon>);
+    });
+    // Preserve malformed source polygons instead of silently dropping sectors.
+    return [...combinedGroupSectors, ...uncombined];
+}
+
+function cloneSectorFeature(feature: TurfFeature<TurfPolygon, VatglassesSectorProperties>): TurfFeature<TurfPolygon, VatglassesSectorProperties> {
+    return {
+        type: 'Feature',
+        properties: { ...feature.properties },
+        geometry: {
+            type: 'Polygon',
+            coordinates: feature.geometry.coordinates.map(ring => ring.map(coord => [coord[0], coord[1]])),
+        },
+    };
+}
+
+export function combineSectorsByBands(sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[]): VatglassesSectorBand[] {
+    if (!sectors?.length) return [];
+
+    const edges = new Set<number>();
+    for (const sector of sectors) {
+        edges.add(sector.properties?.min ?? 0);
+        edges.add(sector.properties?.max ?? 999);
+    }
+    const sortedEdges = [...edges].sort((a, b) => a - b);
+
+    const bands: VatglassesSectorBand[] = [];
+    for (let i = 0; i < sortedEdges.length - 1; i++) {
+        const min = sortedEdges[i];
+        const max = sortedEdges[i + 1];
+        const mid = (min + max) / 2;
+
+        const active = sectors.filter(x => (x.properties?.min ?? 0) <= mid && (x.properties?.max ?? 999) >= mid);
+        if (!active.length) continue;
+        const features = combineSectors(active.map(cloneSectorFeature)) as TurfFeature<TurfPolygon, VatglassesSectorProperties>[];
+        if (!features.length) continue;
+
+        for (const feature of features) {
+            if (feature.properties) {
+                feature.properties.min = min;
+                feature.properties.max = max;
+            }
+        }
+        bands.push({ min, max, features });
+    }
+
+    return bands;
 }

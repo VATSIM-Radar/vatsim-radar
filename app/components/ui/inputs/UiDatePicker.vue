@@ -2,7 +2,7 @@
     <div class="time-picker">
         <div class="time-picker-container">
             <ui-button
-                type="secondary"
+                type="secondary-black"
                 @click="adjustTime(true, -30)"
             >
                 -
@@ -13,7 +13,7 @@
                 @input="updateStartDate"
             />
             <ui-button
-                type="secondary"
+                type="secondary-black"
                 @click="adjustTime(true, 30)"
             >
                 +
@@ -28,7 +28,7 @@
             class="time-picker-container"
         >
             <ui-button
-                type="secondary"
+                type="secondary-black"
                 @click="adjustTime(false, -30)"
             >
                 -
@@ -39,7 +39,7 @@
                 @input="updateEndDate"
             />
             <ui-button
-                type="secondary"
+                type="secondary-black"
                 @click="adjustTime(false, 30)"
             >
                 +
@@ -145,6 +145,7 @@ const adjustTime = (isStart: boolean, minutes: number) => {
     .time-picker {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 16px;
         align-items: center;
 

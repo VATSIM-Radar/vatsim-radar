@@ -27,6 +27,11 @@ export async function onSettingChange(autoSave = true) {
             json: settingsStore.settings,
         },
     });
+    useStore().addNotification({
+        type: 'success',
+        text: 'Settings have been saved!',
+        timeout: 2000,
+    });
 }
 
 export async function handleSettingChange<T extends SettingsItem>(item: T, value: SettingChangeValue<T>): Promise<unknown> {
@@ -153,6 +158,7 @@ const _settingsDefaultValues = {
     'map.layers.distance.interaction': 'dblclick',
 
     'map.traffic.showFullRoute': false,
+    'map.traffic.showRouteDetails': false,
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,
@@ -164,6 +170,7 @@ const _settingsDefaultValues = {
     'map.vatglasses.autoEnable': true,
     'map.vatglasses.autoLevel': true,
     'map.vatglasses.combined': false,
+    'map.vatglasses.combineBands': false,
 
     'map.navigraph.enabled': true,
 
@@ -197,6 +204,8 @@ const _settingsDefaultValues = {
     'map.visibility.atc.approach': true,
     'map.visibility.atc.ground': true,
     'map.visibility.atcLabels': true,
+    'map.visibility.vatglassesLabels': true,
+    'map.visibility.artccTracons': true,
     'map.visibility.airports': true,
     'map.visibility.pilots': true,
     'map.visibility.gates': true,
@@ -206,7 +215,7 @@ const _settingsDefaultValues = {
     'map.visibility.pilotLabels': true,
 
     'map.bookings.enabled': true,
-    'map.bookings.hours': 0.5,
+    'map.bookings.hours': 1,
 
     'map.events.enabled': true,
     'map.events.hours': 1,
@@ -271,7 +280,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
             result[last] = value as unknown;
 
             if (value === null) setCustomDefuMergeAsIs();
-            return useSettingsStore().save(root);
+            return settingsStore.save(root);
         }
     }
     catch (e) {
@@ -349,8 +358,13 @@ export function useSettingValueFromFunc(setting: SettingsKeysWithDefault | (() =
     return computed(() => settingValue.value.value);
 }
 
-export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K): V {
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault: true): V | undefined;
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault?: false): V;
+export function getKeyedValueFromSettings<K extends SettingsKeysWithDefault, V = DeepValueOfSetting<UserSettingsV2, any>>(setting: K, noDefault = false): V | undefined {
     const settingValue = getSettingByKey(useSettingsStore().settings, setting);
+
+    if (noDefault && settingValue === undefined) return settingValue;
+
     return (settingValue === undefined ? settingsDefaultValues[setting] : settingValue);
 }
 

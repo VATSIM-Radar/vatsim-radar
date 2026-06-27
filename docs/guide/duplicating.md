@@ -18,7 +18,7 @@ Example: Area A in ZOA/NCT ATIS will duplicate controller with `SJC_APP` callsig
 
 In that case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
-Common ATC duplicating rules can be found or edited here: https://github.com/VATSIM-Radar/vatsim-radar/blob/next/app/utils/backend/vatsim/atc-duplicating.ts
+Common ATC duplicating rules can be found or edited here: https://github.com/VATSIM-Radar/vatsim-radar/blob/next/app/utils/server/vatsim/atc-duplicating.ts
 
 ## ZMA Ocean Area
 

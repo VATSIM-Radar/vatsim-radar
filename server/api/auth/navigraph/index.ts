@@ -13,6 +13,10 @@ export default defineEventHandler(async event => {
 
         const redirectUrl = getRedirectURL(event);
 
+        if (typeof query.state === 'string' && query.state.endsWith('-app') && !query.webview) {
+            return sendRedirect(event, `vatsim-radar:///auth/navigraph?state=${ query.state }&code=${ query.code }`);
+        }
+
         const { id: verifierId, verifier } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,

@@ -43,6 +43,7 @@
                     v-for="controller in sector.atc"
                     :key="controller.cid"
                     :controller
+                    @overlay="emit('close')"
                 />
                 <template v-if="sector.min === 0">
                     <ui-text
@@ -69,6 +70,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
+            @overlay="emit('close')"
         >
             <template #title>
                 {{getPopupName}}
@@ -100,7 +102,13 @@
                         class="popup-airport_event_date"
                         type="caption"
                     >
-                        Live from {{makeBookingTime(new Date(event.start_time))}}z to {{makeBookingTime(new Date(event.end_time))}}z
+                        Live from
+                        <template v-if="isLocal.value">
+                            {{makeBookingTime(new Date(event.start_time), true)}} to {{makeBookingTime(new Date(event.end_time), true)}}
+                        </template>
+                        <template v-else>
+                            {{makeBookingTime(new Date(event.start_time))}}z to {{makeBookingTime(new Date(event.end_time))}}z
+                        </template>
                     </ui-text>
                     <div class="popup-airport_event_action">
                         <ui-button
@@ -156,6 +164,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
+const isLocal = getSettingValue('appearance.eventsLocalTimezone');
 const vatGlassesCombinedActive = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');
@@ -170,7 +179,7 @@ const type = computed(() => properties.value.type);
 const getOffsetY = computed(() => {
     switch (properties.value.type) {
         case 'airport':
-            return -5;
+            return properties.value.atc.length ? -10 : -20;
         case 'airport-atc':
             return mapStore.compactAirportView ? 10 : 20;
         default:

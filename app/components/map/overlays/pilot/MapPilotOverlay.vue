@@ -677,10 +677,6 @@ watch(() => props.overlay.data.tracked, val => {
     immediate: true,
 });
 
-function handlePointerDrag() {
-    props.overlay.data.tracked = false;
-}
-
 onMounted(() => {
     watch(() => pilot.value.airport, async icao => {
         try {
@@ -709,16 +705,6 @@ onMounted(() => {
     }, {
         immediate: true,
     });
-
-    map.value?.on('pointerdrag', handlePointerDrag);
-});
-
-onBeforeUnmount(() => {
-    map.value?.un('pointerdrag', handlePointerDrag);
-
-    if (enrouteAircraftPath.value) {
-        delete enrouteAircraftPath.value[props.overlay.key];
-    }
 });
 </script>
 

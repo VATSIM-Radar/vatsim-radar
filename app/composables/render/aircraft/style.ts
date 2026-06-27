@@ -2,6 +2,7 @@ import type VectorLayer from 'ol/layer/Vector.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
+import RegularShape from 'ol/style/RegularShape.js';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
@@ -21,6 +22,7 @@ import type { WatchHandle } from 'vue';
 import { globalComputed } from '~/composables';
 
 let styleImageCache: Record<string, Icon> = {};
+let hitboxImageCache: Record<string, RegularShape> = {};
 let styleCache: Record<string, Style> = {};
 
 let fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
@@ -97,15 +99,50 @@ function getColorAlpha(color: string) {
     return parseFloat(color.split(',')[3]);
 }
 
+function getAircraftHitboxStyle(size: number) {
+    const hitboxSize = Math.ceil(size);
+    const imageKey = `aircraftHitbox${ hitboxSize }`;
+    const styleKey = `aircraftHitboxStyle${ hitboxSize }`;
+
+    if (!hitboxImageCache[imageKey]) {
+        hitboxImageCache[imageKey] = new RegularShape({
+            points: 4,
+            radius: hitboxSize / Math.SQRT2,
+            angle: Math.PI / 4,
+            fill: new Fill({
+                color: 'rgba(0, 0, 0, 0)',
+            }),
+            declutterMode: 'none',
+        });
+    }
+
+    if (!styleCache[styleKey]) {
+        styleCache[styleKey] = new Style({
+            image: hitboxImageCache[imageKey],
+        });
+    }
+
+    return styleCache[styleKey];
+}
+
+function getAircraftPngWidth(renderedWidth: number) {
+    const pixelRatio = typeof globalThis.devicePixelRatio === 'number' ? Math.min(Math.ceil(globalThis.devicePixelRatio), 3) : 1;
+
+    return Math.ceil((renderedWidth * pixelRatio) / 10) * 10;
+}
+
 let watcher: WatchHandle | undefined = undefined;
 
 export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
 
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
+    hitboxImageCache = {};
     const store = useStore();
     const mapStore = useMapStore();
     refreshAircraftStyle = () => layer.changed();
+
+    const airports = computed(() => Object.fromEntries(store.activeDashboard?.airports.filter(x => x.aircraftColor).map(x => [x.icao, x.aircraftColor]) ?? []));
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
@@ -155,6 +192,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 onGround,
                 scale,
             });
+            const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
             const pilotLabels = getKeyedValueFromSettings('map.visibility.pilotLabels');
             const aircraftShowLimit = getKeyedValueFromSettings('map.preferences.aircraft.showLimit');
             const heatmap = getKeyedValueFromSettings('map.layers.heatmap');
@@ -182,8 +220,10 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache.aircraftImage = new Style();
             }
 
-            const suffix = `${ (filterColor || (color && color.color !== 'blue500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
-            const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
+            const airportColor = airports.value[aircraft?.arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
+            const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
+            const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
+            const pngSrc = `/_ipx/w_${ getAircraftPngWidth(scaledWidth) },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;
             let png: HTMLImageElement | null = null;
@@ -210,6 +250,10 @@ export function setAircraftStyle(layer: VectorLayer) {
             else {
                 iconColor = filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'blue500') ? getColorFromSettings(color) : undefined);
                 iconOpacity = filterColor ? getColorAlpha(filterColor) : filterOpacity ?? (heatmap ? 0 : (color?.transparency ?? 1));
+
+                if (airportColor) {
+                    iconColor = getAircraftStatusColor('default', cid);
+                }
             }
 
             const svgSrc = svg ? svgToDataURI(reColorSvg(svg, status, cid)) : undefined;
@@ -242,7 +286,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             styleImageCache[imageStyleKey].setRotation(rotation);
 
             styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
-            return [styleCache.aircraftImage, styleCache.aircraftText];
+            return [getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight)), styleCache.aircraftImage, styleCache.aircraftText];
         }
     });
 
@@ -253,6 +297,7 @@ export function setAircraftStyle(layer: VectorLayer) {
         if (val && Object.values(fetchedPngIcons).length > val) {
             if (useIsDebug()) console.log(Object.values(fetchedPngIcons).length, Object.values(styleImageCache).length, 'aircraft cleanup');
             styleImageCache = {};
+            hitboxImageCache = {};
             fetchedIcons = {};
             fetchedPngIcons = {};
         }
@@ -282,9 +327,12 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft-line', properties)) {
-            if (properties.lineType === 'departure-straight') {
-                if (!styleCache.depLine) {
-                    styleCache.depLine = new Style({
+            if (properties.lineType === 'departure-straight' || properties.lineType === 'arrival-straight') {
+                const color = getAircraftDefaultTurnColor(properties.status, properties.cid);
+                const key = `defaultLine${ color }`;
+
+                if (!styleCache[key]) {
+                    styleCache[key] = new Style({
                         stroke: new Stroke({
                             color: getAircraftDefaultTurnColor(properties.status, properties.cid),
                             width: 1,
@@ -292,20 +340,7 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
                     });
                 }
 
-                return styleCache.depLine;
-            }
-            if (properties.lineType === 'arrival-straight') {
-                if (!styleCache.arrLine) {
-                    styleCache.arrLine = new Style({
-                        stroke: new Stroke({
-                            color: getAircraftDefaultTurnColor(properties.status, properties.cid),
-                            width: 1,
-                            lineDash: [4, 8],
-                        }),
-                    });
-                }
-
-                return styleCache.arrLine;
+                return styleCache[key];
             }
 
             if (!styleCache.defaultLineStyle) {
@@ -318,13 +353,11 @@ export function setAircraftLineStyle(layer: VectorImageLayer) {
                     hex = `rgba(${ rgb }, ${ turnsTransparency })`;
                 }
 
-                const key = String(properties.color);
-
-                styleCache[`line${ key }`] ??= new Style({
+                styleCache[`line${ hex }`] ??= new Style({
                     stroke: new Stroke({ color: hex, width: 2 }),
                 });
 
-                return styleCache[`line${ key }`];
+                return styleCache[`line${ hex }`];
             }
         }
     });

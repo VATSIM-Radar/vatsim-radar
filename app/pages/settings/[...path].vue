@@ -64,20 +64,25 @@ const route = useRoute();
 const sectionRef = useTemplateRef<HTMLDivElement[]>('sectionRef');
 const isMobile = useIsMobileOrTablet();
 
+const getRoot = computed(() => {
+    if (isMobile.value) return root.value;
+    return window;
+});
+
 function scrollToHash() {
-    const scrollContainer = root.value?.parentElement;
+    const scrollContainer = getRoot.value && 'getBoundingClientRect' in getRoot.value ? getRoot.value?.parentElement : getRoot.value;
     if (!scrollContainer) return;
 
     const hash = route.hash.slice(1);
     const item = hash ? sectionRef.value?.find(section => section.dataset.sectionId === hash) : null;
 
     if (item) {
-        const containerRect = scrollContainer.getBoundingClientRect();
+        const containerRect = 'getBoundingClientRect' in scrollContainer ? scrollContainer.getBoundingClientRect() : undefined;
         const itemRect = item.getBoundingClientRect();
 
         scrollContainer.scrollTo({
             behavior: 'smooth',
-            top: scrollContainer.scrollTop + itemRect.top - containerRect.top - 16,
+            top: ('getBoundingClientRect' in scrollContainer ? scrollContainer.scrollTop : scrollContainer.scrollY) + itemRect.top - (containerRect?.top ?? 0) - 16,
         });
     }
     else {
@@ -88,11 +93,11 @@ function scrollToHash() {
 }
 
 function scrollPageToRoot() {
-    if (!root.value || !isMobile.value) return;
+    if (!getRoot.value || !isMobile.value) return;
 
     window.scrollTo({
         behavior: 'smooth',
-        top: window.scrollY + root.value.getBoundingClientRect().top - 56 - 52 - 16,
+        top: window.scrollY + ('getBoundingClientRect' in getRoot.value ? getRoot.value.getBoundingClientRect().top : 0) - 56 - 52 - 16,
     });
 }
 

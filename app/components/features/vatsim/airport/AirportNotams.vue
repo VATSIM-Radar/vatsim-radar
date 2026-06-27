@@ -5,7 +5,7 @@
     >
         <ui-copy-info :text="notamsList.map(x => x.formattedText ?? x.text).join('\n\n')"/>
         <div
-            v-for="({ title, items }) in notams"
+            v-for="({ title, items }) in notamsGroups"
             :key="title"
             class="notams_list"
         >
@@ -78,10 +78,16 @@ import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
-const data = injectAirport();
+const props = defineProps({
+    notams: {
+        type: Array as PropType<VatsimAirportDataNotam[]>,
+    },
+});
+
+const data = injectAirport(true);
 const notamsSortBy = useSettingValueFromFunc('appearance.notamsSortBy');
 const notamsList = computed(() => {
-    const list = data.value.notams ?? [];
+    const list = props.notams ?? data?.value.notams ?? [];
     const sortBy = notamsSortBy.value;
 
     if (sortBy) {
@@ -104,7 +110,8 @@ const notamsList = computed(() => {
 
     return list;
 });
-const notams = computed(() => {
+
+const notamsGroups = computed(() => {
     const groups = {
         future: {
             title: 'Future',

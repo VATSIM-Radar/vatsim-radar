@@ -29,6 +29,7 @@ export interface StoreOverlayDefault {
     collapsed: boolean;
     minified: boolean;
     sticky: boolean;
+    dontSave?: boolean;
 }
 
 export interface StoreOverlayPilot extends StoreOverlayDefault {
@@ -123,10 +124,14 @@ export const useMapStore = defineStore('map', {
             return !this.moving && !this.distance.pixel;
         },
         showAirportDetails(): boolean {
-            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > 5.5;
+            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > 5;
         },
         compactAirportView(): boolean {
-            return !!getKeyedValueFromSettings('map.preferences.airports.shortView') || !this.showAirportDetails;
+            const shortView = getKeyedValueFromSettings('map.preferences.airports.shortView');
+
+            if (shortView === 'never') return false;
+
+            return !!shortView || !this.showAirportDetails;
         },
     },
     actions: {
@@ -340,7 +345,7 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
 
                 overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`, {
-                    timeout: 5000,
+                    timeout: 15000,
                 });
                 $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`).then(x => overlay.data.notams = x).catch(e => {
                     console.error(e);

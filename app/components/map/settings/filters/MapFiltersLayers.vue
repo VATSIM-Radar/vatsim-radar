@@ -26,12 +26,10 @@
 
         <ui-setting-item :item="getSettingByItem(settingsItems.layers.layer, { title: '', description: undefined })"/>
 
-        <template v-if="!isMobile">
-            <ui-setting-item :item="settingsItems.layers.relativeIndicator"/>
-            <ui-setting-item :item="settingsItems.layers.distanceEnabled"/>
-            <ui-setting-item :item="settingsItems.layers.distanceUnits"/>
-            <ui-setting-item :item="getSettingByItem(settingsItems.layers.distanceInteraction, { description: undefined })"/>
-        </template>
+        <ui-setting-item :item="settingsItems.layers.relativeIndicator"/>
+        <ui-setting-item :item="settingsItems.layers.distanceEnabled"/>
+        <ui-setting-item :item="settingsItems.layers.distanceUnits"/>
+        <ui-setting-item :item="getSettingByItem(settingsItems.layers.distanceInteraction, { description: undefined })"/>
 
         <ui-block-title remove-margin>
             Navigraph Settings
@@ -54,7 +52,6 @@ import UiColumnsDisplay from '~/components/ui/data/UiColumnsDisplay.vue';
 import { getSettingByItem, getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
-const isMobile = useIsMobile();
 const settingsItems = getSettingsItems().value;
 const natTrakEnabled = useSettingValueFromFunc('map.layers.natTrak.enabled');
 </script>

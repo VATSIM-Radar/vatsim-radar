@@ -2,14 +2,15 @@ import type { H3Event } from 'h3';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/server/h3';
 import { filterUserLists, findUserByCookie } from '~/utils/server/user';
 import type { UserTrackingList } from '#prisma';
-import { prisma } from '~/utils/server/prisma';
 import { UserTrackingListType } from '#prisma';
+import { prisma } from '~/utils/server/prisma';
 import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
 import { colorsList } from '~/utils/colors';
 import type {
     VatsimBooking,
     VatsimShortenedAircraft,
-    VatsimShortenedController, VatsimShortenedData,
+    VatsimShortenedController,
+    VatsimShortenedData,
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
 import { validateColor, validateRandomObjectKeys } from '~/utils/server/handlers/index';
@@ -284,7 +285,7 @@ export async function handleListsEvent(event: H3Event) {
             }
 
             if (list) {
-                await prisma.userTrackingList.update({
+                return prisma.userTrackingList.update({
                     where: {
                         id: list.id,
                     },
@@ -312,7 +313,7 @@ export async function handleListsEvent(event: H3Event) {
                     });
                 }
 
-                await prisma.userTrackingList.create({
+                return prisma.userTrackingList.create({
                     data: {
                         name: body.name!,
                         users: body.users!,
@@ -323,10 +324,6 @@ export async function handleListsEvent(event: H3Event) {
                     },
                 });
             }
-
-            return {
-                status: 'ok',
-            };
         }
         else if (event.method === 'DELETE' && list) {
             await prisma.userTrackingList.delete({

@@ -159,7 +159,12 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-    if (tileLayer) map.value?.removeLayer(tileLayer);
+    if (tileLayer) {
+        tileLayer.getSource()?.clear();
+        map.value?.removeLayer(tileLayer);
+        tileLayer.dispose();
+        tileLayer = undefined;
+    }
     clearInterval(interval);
 });
 </script>

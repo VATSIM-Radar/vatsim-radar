@@ -63,4 +63,3 @@ export function getRedirectURL(event: H3Event) {
 
     return config.public.DOMAIN;
 }
-
