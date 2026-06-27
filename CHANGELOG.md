@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-beta.4.1]
+
+## Alpha Changes
+
+- Fixed favorite aircraft disappearing from map
+- Fixed departed time not saving upon server restart
+- Fixed airport data updating for ages in overlay
+- Fixed deleted/restricted dashboards still showing in menu
+- Fixed default map size in dashboard to be 50% and added more steps
+- Fixed map cursor stuck in grabbing icon
+- Improved render stability after map move
+
 # [2.0.0-beta.4]
 
 ## Alpha Changes

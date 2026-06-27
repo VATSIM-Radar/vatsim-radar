@@ -20,7 +20,7 @@ export const dashboardColumnLabels: Record<DashboardColumn, string> = {
 export const dashboardMapLocations = ['right', 'left', 'above', 'below'] as const;
 export type DashboardMapLocation = typeof dashboardMapLocations[number];
 
-export const dashboardMapSizes = [25, 50, 75, 100] as const;
+export const dashboardMapSizes = [15, 25, 35, 50, 65, 75, 85] as const;
 export type DashboardMapSize = typeof dashboardMapSizes[number];
 
 export const dashboardDisplayModes = ['both', 'map', 'aircraft'] as const;
@@ -107,7 +107,7 @@ export const DashboardSettingsSchema = v.object({
         }),
         v.check(({ from, to }) => from <= to, 'Enroute FL "from" must be lower than or equal to "to"'),
     ))),
-    mapSize: v.optional(v.picklist(dashboardMapSizes), 100),
+    mapSize: v.optional(v.picklist(dashboardMapSizes), 50),
     displayMode: v.optional(v.picklist(dashboardDisplayModes), 'both'),
     showMetar: v.optional(v.boolean(), true),
     showArrivalTracks: v.optional(v.boolean(), true),

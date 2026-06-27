@@ -335,6 +335,12 @@ const atc = getATCForAirport(overlayData);
 const aircraft = getAircraftForAirport(overlayData);
 const map = inject<ShallowRef<Map | null>>('map')!;
 
+watch(() => props.overlay.data, () => {
+    triggerRef(overlayData);
+}, {
+    deep: true,
+});
+
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -538,7 +544,6 @@ const runways = computed(() => dataStore.airportsList.value[props.overlay.data.i
 
 onMounted(() => {
     const interval = setInterval(async () => {
-        if (!store.isTabVisible) return;
         props.overlay.data.airport = {
             ...props.overlay.data.airport,
             ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),

@@ -101,26 +101,28 @@ function getColorAlpha(color: string) {
 
 function getAircraftHitboxStyle(size: number) {
     const hitboxSize = Math.ceil(size);
-    const key = `aircraftHitbox${ hitboxSize }`;
+    const imageKey = `aircraftHitbox${ hitboxSize }`;
+    const styleKey = `aircraftHitboxStyle${ hitboxSize }`;
 
-    if (!hitboxImageCache[key]) {
-        hitboxImageCache[key] = new RegularShape({
+    if (!hitboxImageCache[imageKey]) {
+        hitboxImageCache[imageKey] = new RegularShape({
             points: 4,
             radius: hitboxSize / Math.SQRT2,
             angle: Math.PI / 4,
             fill: new Fill({
                 color: 'rgba(0, 0, 0, 0)',
             }),
+            declutterMode: 'none',
         });
     }
 
-    if (!styleCache.aircraftHitbox) {
-        styleCache.aircraftHitbox = new Style();
+    if (!styleCache[styleKey]) {
+        styleCache[styleKey] = new Style({
+            image: hitboxImageCache[imageKey],
+        });
     }
 
-    styleCache.aircraftHitbox.setImage(hitboxImageCache[key]);
-
-    return styleCache.aircraftHitbox;
+    return styleCache[styleKey];
 }
 
 function getAircraftPngWidth(renderedWidth: number) {
@@ -212,15 +214,14 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             if (status === 'ground' && !color) color = getColorByKey('map.preferences.colors.default.aircraft.main').value.value;
 
-            const pngImage = !list;
+            const pngImage = (status === 'default' || status === 'ground') && !list;
 
             if (!styleCache.aircraftImage) {
                 styleCache.aircraftImage = new Style();
             }
 
             const airportColor = airports.value[aircraft?.arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
-            const useStatusColor = status !== 'default' && status !== 'ground';
-            const shouldTintPngIcon = filterColor || useStatusColor || !pngImage || airportColor || (color && color.color !== 'blue500');
+            const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
             const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ getAircraftPngWidth(scaledWidth) },quality_85,f_png/aircraft/${ icon.icon }${ suffix }.png`;
 
@@ -235,14 +236,14 @@ export function setAircraftStyle(layer: VectorLayer) {
                 : declutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit) : false;
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
-            const svgColor = svg || !pngImage || useStatusColor ? getAircraftStatusColor(status, cid) : undefined;
+            const svgColor = svg || !pngImage ? getAircraftStatusColor(status, cid) : undefined;
             const statusIconColor = svgColor ? `rgb(${ hexToRgb(svgColor) })` : undefined;
             const statusIconOpacity = svgColor ? getColorAlpha(svgColor) ?? 1 : undefined;
             const useSvgFallback = !pngImage && !svg;
             let iconColor: string | undefined;
             let iconOpacity: number | undefined;
 
-            if (useSvgFallback || useStatusColor) {
+            if (useSvgFallback) {
                 iconColor = statusIconColor;
                 iconOpacity = heatmap ? 0 : statusIconOpacity;
             }

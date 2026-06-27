@@ -46,8 +46,8 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
     let arrTime: string | null = null;
 
     for (const row of rows.filter(x => x.latitude && x.longitude)) {
-        if (row.fpl_departure_time) {
-            depTime = row.fpl_departure_time;
+        if (row.fpl_departed_at) {
+            depTime = row.fpl_departed_at;
         }
 
         if (row.fpl_arrived_at) {

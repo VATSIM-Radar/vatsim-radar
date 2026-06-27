@@ -503,6 +503,8 @@ async function save() {
     }
 }
 
+const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
+
 async function deleteCurrentDashboard() {
     const result = confirm(`Do you really want to delete ${ props.editDashboard?.name } dashboard? This action is irreversible`);
     if (!result) return;
@@ -513,6 +515,8 @@ async function deleteCurrentDashboard() {
     try {
         await deleteDashboard(props.editDashboard?.id ?? 0);
         model.value = false;
+        seenDashboards.value = seenDashboards.value.filter(x => +x.id !== props.editDashboard?.id && x.name);
+        await nextTick();
         location.href = '/dashboard';
     }
     catch (error: any) {
@@ -533,7 +537,7 @@ function createPayload(dashboard: UserDashboard | null = null): DashboardPayload
                 mapLocation: 'right',
                 enrouteCallsign: null,
                 enrouteFlightLevel: null,
-                mapSize: 100,
+                mapSize: 50,
                 displayMode: 'both',
                 showMetar: true,
                 showArrivalTracks: true,
@@ -560,7 +564,7 @@ function createPayload(dashboard: UserDashboard | null = null): DashboardPayload
             mapLocation: json.mapLocation ?? 'right',
             enrouteCallsign: json.enrouteCallsign ?? null,
             enrouteFlightLevel: json.enrouteFlightLevel ?? null,
-            mapSize: json.mapSize ?? 100,
+            mapSize: json.mapSize ?? 50,
             displayMode: json.displayMode ?? 'both',
             showMetar: json.showMetar ?? true,
             showArrivalTracks: json.showArrivalTracks ?? true,

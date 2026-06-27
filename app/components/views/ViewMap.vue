@@ -899,6 +899,7 @@ await setupDataFetch({
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
             const rbushAircraft = features?.declutter?.aircraft;
+            handleMoveEnd();
             if (!rbushAirports && !rbushAircraft) return;
 
             const list = [
@@ -978,6 +979,7 @@ await setupDataFetch({
         };
         const moveEndHandler = async () => {
             moving = false;
+            targetElement.style.cursor = 'grab';
             handleMoveEnd();
         };
 

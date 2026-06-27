@@ -219,6 +219,7 @@ const settingsSchema = partialObject({
 
         traffic: partialObject({
             showFullRoute: booleanSchema,
+            showRouteDetails: booleanSchema,
             toggleAircraftOverlays: booleanSchema,
             autoShowAirportTracks: booleanSchema,
             disableFastUpdate: booleanSchema,

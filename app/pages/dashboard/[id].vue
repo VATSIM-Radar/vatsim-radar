@@ -274,7 +274,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                             },
                         ],
                         mapLocation: 'right',
-                        mapSize: 100,
+                        mapSize: 50,
                         displayMode: 'both',
                         showMetar: true,
                         showArrivalTracks: true,
@@ -286,6 +286,8 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                 } satisfies PublicDashboard as PublicDashboard;
             }
             else {
+                seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value && x.name).slice(0, 5);
+                await nextTick();
                 showError({
                     status: 404,
                 });
@@ -297,6 +299,8 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
     }
     catch (e) {
         const error = e as { statusCode?: number; response?: { status?: number }; data?: unknown };
+        seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value && x.name).slice(0, 5);
+        await nextTick();
         showError({
             status: error?.statusCode ?? error?.response?.status ?? 500,
             statusText: typeof error?.data === 'string' ? error.data : undefined,
@@ -465,10 +469,10 @@ provide('dashboard', dashboard);
 
 watch(dashboard, async value => {
     store.activeDashboard = value?.json ?? null;
+    seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value && x.name).slice(0, 5);
     if (!value) return;
 
-    seenDashboards.value = seenDashboards.value.filter(x => x.id !== id.value).slice(0, 5);
-    seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? id.value });
+    seenDashboards.value.unshift({ id: id.value, name: dashboard.value?.name ?? '' });
 
     airportsData.value = await fetchAirportsWeather();
     triggerRef(airportsData);

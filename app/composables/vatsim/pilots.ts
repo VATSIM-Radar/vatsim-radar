@@ -264,9 +264,7 @@ export async function fetchAircraftSvgIcon(icon: AircraftIcon) {
     else if (!svg) {
         svgIconsCache[icon] = new Promise<string>(async (resolve, reject) => {
             try {
-                let result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
-                result = result.replace(/\swidth="[^"]*"/i, '')
-                    .replace(/\sheight="[^"]*"/i, '');
+                const result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
                 svg = result;
                 resolve(result);
             }

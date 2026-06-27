@@ -158,6 +158,7 @@ const _settingsDefaultValues = {
     'map.layers.distance.interaction': 'dblclick',
 
     'map.traffic.showFullRoute': false,
+    'map.traffic.showRouteDetails': false,
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,
