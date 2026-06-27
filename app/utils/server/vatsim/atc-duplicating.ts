@@ -514,4 +514,14 @@ export const duplicatingSettings = [
             SBXT: 'SBXT_APP',
         },
     },
+    /**
+     * @description TMA Rio (SBWJ)
+     * @author 1233530
+     */
+    {
+        regex: /^(SBWJ)(_\w{0,3})?_(APP)$/,
+        mapping: {
+            SBES: 'SBES_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
