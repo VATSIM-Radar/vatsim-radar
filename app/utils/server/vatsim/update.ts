@@ -60,7 +60,7 @@ export function updateVatsimDataStorage() {
     const prefiles: VatsimPrefile[] = [];
 
     for (const prefile of data.prefiles) {
-        if (cids.has(prefile.cid)) continue;
+        if (!prefile || cids.has(prefile.cid)) continue;
 
         cids.add(prefile.cid);
         prefiles.push(prefile);
