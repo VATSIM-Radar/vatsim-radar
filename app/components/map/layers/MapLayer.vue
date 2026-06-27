@@ -341,7 +341,17 @@ const vatglassesEnabled = isVatGlassesActive;
 watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], initLayer);
 
 onBeforeUnmount(() => {
-    if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
+    if (tileLayer.value) {
+        tileLayer.value.getSource()?.clear();
+        map.value?.removeLayer(tileLayer.value);
+        tileLayer.value.dispose();
+        tileLayer.value = null;
+    }
+    if (attributionLayer) {
+        map.value?.removeLayer(attributionLayer);
+        attributionLayer.dispose();
+        attributionLayer = null;
+    }
 });
 </script>
 

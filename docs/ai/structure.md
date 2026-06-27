@@ -95,11 +95,13 @@ Core files:
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
+- `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 
 Map component groups:
 
 - `app/components/map/layers/*`: layer-level map UI and rendered layer components.
+  - `app/components/map/layers/MapLayer.vue`: base raster/vector tile layer selection, Protomaps styling, attribution layer setup, and tile source cleanup.
 - `app/components/map/overlays/*`: draggable/minified overlays for pilots, airports, ATC, etc.
 - `app/components/map/popups/*`: OpenLayers popup content.
 - `app/components/map/settings/*`: map filters and quick settings panels.

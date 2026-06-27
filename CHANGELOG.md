@@ -11,6 +11,8 @@
 - Fixed default map size in dashboard to be 50% and added more steps
 - Fixed map cursor stuck in grabbing icon
 - Improved render stability after map move
+- Fixed memory leak on reopening map
+- Added update popup
 
 # [2.0.0-beta.4]
 
