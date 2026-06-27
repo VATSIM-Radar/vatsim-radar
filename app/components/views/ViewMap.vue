@@ -618,7 +618,9 @@ watch([visibleOverlays, popupsHeight, isMobile], async () => {
 let moving = true;
 let success = false;
 
-function moveEndActions() {
+async function handleMoveEnd() {
+    if (!success) return;
+    moving = false;
     const view = map.value!.getView();
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
@@ -648,17 +650,15 @@ function moveEndActions() {
         location: mapStore.center,
         zoom: mapStore.zoom,
     });
-}
-
-async function handleMoveEnd() {
-    if (!success) return;
-    moving = false;
-
-    moveEndActions();
 
     await sleep(300);
     if (moving) return;
     mapStore.moving = false;
+    mapStore.zoom = view.getZoom() ?? 0;
+    mapStore.rotation = toDegrees(view.getRotation() ?? 0);
+    mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+    mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 }
 
 async function initDistance(event: MapBrowserEvent) {
@@ -904,7 +904,6 @@ await setupDataFetch({
             const features = event.frameState;
             const rbushAirports = features?.declutter?.airports;
             const rbushAircraft = features?.declutter?.aircraft;
-            moveEndActions();
             if (!rbushAirports && !rbushAircraft) return;
 
             const list = [
