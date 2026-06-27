@@ -75,7 +75,7 @@
                     @click="model = false"
                 >
                     <template #icon>
-                        <import-icon/>
+                        <load-on-pc-icon/>
                     </template>
                 </ui-button>
                 <ui-button
@@ -95,15 +95,6 @@
                 >
                     <template #icon>
                         <settings-icon/>
-                    </template>
-                </ui-button>
-                <ui-button
-                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
-                    type="secondary"
-                    @click="app.$pwa?.install()"
-                >
-                    <template #icon>
-                        <load-on-pc-icon/>
                     </template>
                 </ui-button>
                 <ui-button-group>
@@ -155,7 +146,6 @@ import { useHeaderMenu, useOnlineCounters } from '~/composables/map';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThemeSwitcher.vue';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
-import ImportIcon from '~/assets/icons/kit/import.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
@@ -168,7 +158,6 @@ const { goBack } = useGoBack();
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();
-const app = useNuxtApp();
 const onlineCounters = useOnlineCounters();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
