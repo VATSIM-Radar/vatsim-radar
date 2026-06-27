@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1073.0",
+    "@aws-sdk/client-s3": "3.1075.0",
     "@influxdata/influxdb3-client": "2.3.0",
     "@nuxt/image": "2.0.0",
     "@pinia/nuxt": "0.11.3",
@@ -100,7 +100,7 @@
     "@types/geojson": "7946.0.16",
     "@types/jsonwebtoken": "9.0.10",
     "@types/merge-ranges": "1.0.2",
-    "@types/node": "26.0.0",
+    "@types/node": "26.0.1",
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest",
     "@types/ws": "8.18.1",
     "eslint": "10.5.0",
@@ -108,7 +108,7 @@
     "postcss": "8.5.15",
     "postcss-html": "1.8.1",
     "sass-embedded": "1.100.0",
-    "stylelint": "17.13.0",
+    "stylelint": "17.14.0",
     "stylelint-config-clean-order": "10.0.0",
     "stylelint-config-recommended-scss": "17.0.1",
     "stylelint-config-recommended-vue": "1.6.1",
@@ -116,7 +116,7 @@
     "stylelint-order": "8.1.1",
     "tsx": "4.22.4",
     "typescript": "6.0.3",
-    "vite-plugin-eslint2": "5.1.0",
+    "vite-plugin-eslint2": "5.3.0",
     "vue-tsc": "3.3.5"
   },
   "packageManager": "yarn@4.17.0"
