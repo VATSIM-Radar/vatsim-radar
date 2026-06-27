@@ -67,6 +67,7 @@
             <div class="mobile-menu__links">
                 <view-header-theme-switcher/>
                 <ui-button
+                    v-if="!store.appVersion || (store.desktopRelease?.version && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null')"
                     class="mobile-menu__update"
                     :class="{ 'mobile-menu__update-required': store.desktopRelease?.version && store.appVersion && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null' }"
                     to="/download"

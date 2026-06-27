@@ -160,6 +160,7 @@
                 class="header__sections_section"
             >
                 <ui-button
+                    v-if="!store.appVersion || (store.desktopRelease?.version && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null')"
                     class="header__update"
                     :class="{ 'header__update-required': store.desktopRelease?.version && store.appVersion && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null' }"
                     size="S"
