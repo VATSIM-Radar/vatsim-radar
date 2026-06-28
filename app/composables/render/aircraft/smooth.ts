@@ -110,7 +110,7 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
         track.groundspeed = groundspeed;
 
         const last = track.samples[track.samples.length - 1];
-        if (last.lon === pilot.longitude && last.lat === pilot.latitude) continue;
+        if (last.lon === pilot.longitude && last.lat === pilot.latitude && last.heading === pilot.heading) continue;
 
         changed++;
         track.samples.push({ t, lon: pilot.longitude, lat: pilot.latitude, heading });
