@@ -467,7 +467,11 @@ defineCronJob('* * * * * *', async () => {
                 let match = false;
 
                 for (const setting of duplicatingSettings) {
-                    if (controller.text_atis?.length && setting.regex.test(controller.callsign)) {
+                    if (controller.text_atis?.length && (
+                        setting.matchRegex?.test(controller.callsign) || ((setting.prefixes?.length || setting.suffixes?.length) &&
+                            (!setting.prefixes?.length || setting.prefixes?.some(x => controller.callsign.startsWith(x))) &&
+                            (!setting.suffixes?.length || setting.suffixes?.some(x => controller.callsign.endsWith(x)))
+                        ))) {
                         match = true;
                         const atisText = controller.text_atis.join(' ');
 
