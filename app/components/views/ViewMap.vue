@@ -740,6 +740,7 @@ watch(distanceEnabled, setMapInteractions);
 watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 const pixelRatio = computed(() => {
+    if (typeof window === 'undefined') return 1;
     const value = getKeyedValueFromSettings('map.preferences.highRatio');
     if (value === 'low') return 1;
 

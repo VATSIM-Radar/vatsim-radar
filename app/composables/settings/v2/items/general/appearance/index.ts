@@ -16,7 +16,7 @@ export const settingsItemAppearance = globalComputed(() => makeSettingsItems(({ 
     highRatio: {
         title: 'Map Quality',
         description: 'Improves map smoothness and graphics by rendering it with a higher pixel ratio',
-        hint: `Your pixel ratio is ${ window.devicePixelRatio } by default`,
+        hint: `Your pixel ratio is ${ typeof window === 'undefined' ? 'N/A' : window.devicePixelRatio } by default`,
         type: 'radio',
         items: [
             { value: true, text: 'High' },
