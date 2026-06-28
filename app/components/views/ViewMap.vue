@@ -852,6 +852,7 @@ await setupDataFetch({
 
         map.value = new Map({
             target: mapContainer.value!,
+            pixelRatio: Math.max(window.devicePixelRatio || 1, 2),
             controls: [
                 new Attribution({
                     collapsible: false,
