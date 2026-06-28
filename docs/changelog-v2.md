@@ -79,6 +79,7 @@ And that are just the highlights! Full changelog is available below.
 - Added departed and landed time to pilot overlay
 - Added vertical speed to non-compact pilot hover and pilot overlay
 - Added aircraft photo in overlay
+- Added smooth aircraft movement by psergienko
 
 ### UI/UX Improvements
 

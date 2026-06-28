@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-beta.5]
+
+## Alpha Changes
+
+- Smooth aircraft movement (interpolation) by psergienko
+
 # [2.0.0-beta.4.1]
 
 ## Alpha Changes
