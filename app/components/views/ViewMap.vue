@@ -740,6 +740,9 @@ watch(distanceEnabled, setMapInteractions);
 watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 const pixelRatio = computed(() => {
+    const value = getKeyedValueFromSettings('map.preferences.highRatio');
+    if (value === 'low') return 1;
+
     return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : window.devicePixelRatio;
 });
 
