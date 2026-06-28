@@ -229,7 +229,7 @@ export async function initDiscordPresenceUpdate() {
 
     const store = useStore();
 
-    if (store.config.dashboardId) return;
+    if (store.config.dashboardId || !store.appVersion) return;
 
     // Causing watch leak, intended
     nextTick(() => {

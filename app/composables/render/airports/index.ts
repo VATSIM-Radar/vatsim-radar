@@ -204,7 +204,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
     map: Map;
 }): Promise<VisibleAirportsResult | null> {
     const dataStore = useDataStore();
-    if (settingAirports || !dataStore.vatspy.value) return null;
+    if (settingAirports || !dataStore.vatspy.value || !map) return null;
     settingAirports = true;
 
     const store = useStore();

@@ -370,6 +370,7 @@ watch(map, val => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'aircraft';
     });
+
     if (hasLayer) return;
 
     if (!vectorLayer) {

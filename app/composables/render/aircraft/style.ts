@@ -286,6 +286,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             styleImageCache[imageStyleKey].setRotation(rotation);
 
             styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
+            if (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit) return styleCache.aircraftImage;
             return [getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight)), styleCache.aircraftImage, styleCache.aircraftText];
         }
     });
