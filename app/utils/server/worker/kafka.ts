@@ -23,7 +23,7 @@ export async function initKafka() {
             },
         });
 
-        const consumer = kafka.consumer({ groupId: process.env.VATSIM_KAFKA_GROUP! });
+        const consumer = kafka.consumer({ groupId: process.env.VATSIM_KAFKA_GROUP!, minBytes: 1, maxWaitTimeInMs: 100 });
         await consumer.connect();
 
         const topics = [

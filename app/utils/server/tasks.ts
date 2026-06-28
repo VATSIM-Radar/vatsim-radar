@@ -148,6 +148,7 @@ async function vatsimTasks() {
             responseType: 'json',
             method: 'POST',
             body: {
+                client: process.env.VATSIM_VOICE_USERNAME,
                 username: process.env.VATSIM_VOICE_USERNAME,
                 password: process.env.VATSIM_VOICE_PASSWORD,
             },

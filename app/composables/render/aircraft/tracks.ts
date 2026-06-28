@@ -13,6 +13,8 @@ import { aircraftState } from './state';
 const TURNS_REQUEST_INTERVAL = 1000 * 15;
 const TURNS_REQUEST_TIMEOUT = 1000 * 5;
 
+const STRAIGHT_LINE_NPOINTS = 8;
+
 async function updateAircraftRoute(show: boolean | null | undefined, renderSettings: AircraftRenderSettings, { aircraft, pilot, coordinates, overlay, tracksFeatures }: AircraftRenderState) {
     const updateState = aircraftState[aircraft.cid];
 
@@ -455,7 +457,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                 const start = point([departureAirport.lon, departureAirport.lat]);
                 const end = point(coordinates);
 
-                const geometry = turfGeometryToOl(greatCircle(start, end));
+                const geometry = turfGeometryToOl(greatCircle(start, end, { npoints: STRAIGHT_LINE_NPOINTS }));
 
                 if (depLine) {
                     depLine.setGeometry(geometry);
