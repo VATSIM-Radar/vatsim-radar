@@ -6,6 +6,7 @@
 
 - Fix freeze between samples on smooth aircraft movement updates by psergienko
 - Fix aircraft movement jittering by psergienko
+- Fixed degraded performance for friends lists
 
 # [2.0.0-beta.5]
 
