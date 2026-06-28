@@ -1,11 +1,18 @@
 import type { H3Event, H3Error } from 'h3';
 import { prisma } from '~/utils/backend/prisma';
 import { isNext } from '~/utils/backend/debug';
-import { MAX_LISTS_USERS } from '~/utils/shared';
 import { handleH3Error } from '~/utils/backend/h3';
 
-// TODO: use on next after prod release
 export default defineEventHandler(async (event: H3Event): Promise<Record<string, boolean> | void | H3Error<any>> => {
+    const authorization = getHeader(event, 'Authorization');
+
+    if (!authorization || !process.env.VATSIM_IDENT_TOKEN || authorization.replace('Bearer ', '') !== process.env.VATSIM_IDENT_TOKEN) {
+        return handleH3Error({
+            event,
+            statusCode: 401,
+        });
+    }
+
     const ids = readBody<Array<string | number>>(event);
 
     if (isNext()) {
@@ -14,20 +21,10 @@ export default defineEventHandler(async (event: H3Event): Promise<Record<string,
         }).catch(() => {}) ?? {};
     }
 
-    if (!Array.isArray(ids) || ids.length > MAX_LISTS_USERS) {
-        return handleH3Error({
-            event,
-            data: 'Invalid body',
-            statusCode: 400,
-        });
-    }
-
     const users = await prisma.user.findMany({
         where: {
-            vatsim: {
-                id: {
-                    in: ids.map(x => typeof x === 'string' ? x : x.toString()),
-                },
+            NOT: {
+                privateMode: false,
             },
         },
         select: {
@@ -40,5 +37,5 @@ export default defineEventHandler(async (event: H3Event): Promise<Record<string,
         },
     });
 
-    return Object.fromEntries(ids.map(id => [id.toString(), users.find(x => x.vatsim?.id === id.toString())?.privateMode ?? false]));
+    return Object.fromEntries(users.map(user => [user.vatsim?.id, user.privateMode ?? false]).filter(x => x[0] && x[1]));
 });
