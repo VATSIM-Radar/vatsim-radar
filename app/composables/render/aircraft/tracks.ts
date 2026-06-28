@@ -12,6 +12,7 @@ import { aircraftState } from './state';
 
 const TURNS_REQUEST_INTERVAL = 1000 * 15;
 const TURNS_REQUEST_TIMEOUT = 1000 * 5;
+
 const STRAIGHT_LINE_NPOINTS = 8;
 
 async function updateAircraftRoute(show: boolean | null | undefined, renderSettings: AircraftRenderSettings, { aircraft, pilot, coordinates, overlay, tracksFeatures }: AircraftRenderState) {
