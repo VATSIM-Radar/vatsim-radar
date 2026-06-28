@@ -126,6 +126,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.aircraft.main': { color: 'blue500' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
+    'map.preferences.highRatio': true,
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,

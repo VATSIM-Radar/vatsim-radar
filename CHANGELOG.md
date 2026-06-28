@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.0-beta.5.2]
+
+## Alpha Changes
+
+- Added new Map Quality setting, High by default
+- Fixed own flight update
+- Fixed smooth update after comeback to map
+
 # [2.0.0-beta.5.1]
 
 ## Alpha Changes

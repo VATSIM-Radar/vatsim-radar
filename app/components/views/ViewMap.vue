@@ -219,6 +219,7 @@ import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
 import MapLayer from '~/components/map/layers/MapLayer.vue';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 defineProps({
     mode: {
@@ -738,6 +739,10 @@ function setMapInteractions() {
 watch(distanceEnabled, setMapInteractions);
 watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
+const pixelRatio = computed(() => {
+    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : window.devicePixelRatio;
+});
+
 await setupDataFetch({
     async onMount() {
         if (typeof route.query.airline === 'string') {
@@ -852,7 +857,7 @@ await setupDataFetch({
 
         map.value = new Map({
             target: mapContainer.value!,
-            pixelRatio: Math.max(window.devicePixelRatio || 1, 2),
+            pixelRatio: pixelRatio.value,
             controls: [
                 new Attribution({
                     collapsible: false,
@@ -1034,6 +1039,10 @@ await setupDataFetch({
 
         success = true;
     },
+});
+
+watch(pixelRatio, val => {
+    map.value?.setPixelRatio(val);
 });
 
 const trackedAircraft = computed(() => {

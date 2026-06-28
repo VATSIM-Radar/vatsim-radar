@@ -171,7 +171,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'layout',
                             title: 'Layout',
-                            items: [items.appearance.overlaysPositions],
+                            items: [items.appearance.overlaysPositions, items.appearance.highRatio],
                         },
                         {
                             key: 'tracks',
@@ -427,6 +427,7 @@ export const getSettingsSections = () => {
                                     description: 'Less labels and tracks to render for your CPU - the lower, the better',
                                 } as typeof items.preferences.aircraft.showLimit,
                                 items.preferences.aircraft.tracksShowLimit,
+                                items.preferences.traffic.smoothMovement,
                             ],
                         },
                         {
@@ -445,7 +446,7 @@ export const getSettingsSections = () => {
                         },
                         {
                             key: 'layers',
-                            title: 'Layers',
+                            title: 'Map & Layers',
                             items: [
                                 {
                                     type: 'toggle',
@@ -454,6 +455,7 @@ export const getSettingsSections = () => {
                                     value: getSettingValue(() => getKeyedValueFromSettings('map.layers.layer') === 'basic', false),
                                     onChange: value => setSettingByKey('map.layers.layer', value === true ? 'basic' : undefined),
                                 },
+                                items.appearance.highRatio,
                             ],
                         },
                     ],

@@ -13,4 +13,15 @@ export const settingsItemAppearance = globalComputed(() => makeSettingsItems(({ 
         value: getSettingValue('map.preferences.overlaysPositions'),
         onChange: value => setSettingByKey('map.preferences.overlaysPositions', value as any),
     },
+    highRatio: {
+        title: 'Map Quality',
+        description: 'Improves map smoothness and graphics by rendering it with a higher pixel ratio',
+        type: 'radio',
+        items: [
+            { value: true, text: 'High' },
+            { value: false, text: 'Default' },
+        ],
+        value: getSettingValue('map.preferences.highRatio'),
+        onChange: value => setSettingByKey('map.preferences.highRatio', value as any),
+    },
 })));

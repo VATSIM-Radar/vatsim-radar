@@ -43,6 +43,7 @@ export interface UserSettingsV2 {
             enableQueryUpdate: boolean;
 
             overlaysPositions: 'bottom-left' | 'top-left';
+            highRatio: boolean;
 
             aircraft: {
                 shortView: boolean;
