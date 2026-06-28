@@ -168,7 +168,7 @@
                     type="secondary"
                 >
                     <template #icon>
-                        <import-icon/>
+                        <load-on-pc-icon/>
                     </template>
                 </ui-button>
                 <ui-button
@@ -181,24 +181,6 @@
                         <docs-icon/>
                     </template>
                 </ui-button>
-                <ui-tooltip
-                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
-                    location="bottom"
-                    width="max-content"
-                >
-                    <template #activator>
-                        <ui-button
-                            size="S"
-                            type="secondary"
-                            @click="app.$pwa?.install()"
-                        >
-                            <template #icon>
-                                <load-on-pc-icon/>
-                            </template>
-                        </ui-button>
-                    </template>
-                    Install App
-                </ui-tooltip>
                 <ui-tooltip
                     align="left"
                     location="left"
@@ -286,7 +268,6 @@ import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 import { useGoBack } from '~/composables/useGoBack';
-import ImportIcon from '~/assets/icons/kit/import.svg?component';
 
 const { goBack } = useGoBack();
 
@@ -297,7 +278,6 @@ const store = useStore();
 const headerName = useSettingValueFromFunc('appearance.headerName');
 const config = useRuntimeConfig();
 
-const app = useNuxtApp();
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
 

@@ -111,7 +111,7 @@ const title = useTemplateRef('title');
 
 const update: Update = {
     name: String(updatePopupActive),
-    type: 'minor',
+    type: 'major',
     height: '650px',
     features: [
         {
