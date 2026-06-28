@@ -27,6 +27,7 @@ interface Track {
 
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
+const LIMIT_SMOOTH_FRAME_RATE = false;
 const DELAY_GAPS = 1.3;
 const DELAY_EXTRA = 500;
 const MIN_DELAY = 1500;
@@ -42,6 +43,8 @@ const MS_PER_HOUR = 1000 * 60 * 60;
 const NM_PER_DEGREE = 60;
 const POSITION_SMOOTH_MS = 300;
 const HEADING_SMOOTH_MS = 900;
+const INACTIVE_FRAME_GAP = 1000 * 10;
+const INACTIVE_SNAP_DISTANCE_NM = 2;
 
 const tracks = new Map<number, Track>();
 let lastServerTime = 0;
@@ -162,6 +165,19 @@ function positionalSpeedKt(dLon: number, dLat: number, lat: number, dtMs: number
     const dLonNm = dLon * Math.cos(degreesToRadians(lat)) * NM_PER_DEGREE;
     const dLatNm = dLat * NM_PER_DEGREE;
     return (Math.hypot(dLonNm, dLatNm) / dtMs) * MS_PER_HOUR;
+}
+
+function distanceNm(fromLon: number, fromLat: number, toLon: number, toLat: number) {
+    const dLonNm = shortLonDelta(toLon - fromLon) * Math.cos(degreesToRadians(toLat)) * NM_PER_DEGREE;
+    const dLatNm = (toLat - fromLat) * NM_PER_DEGREE;
+
+    return Math.hypot(dLonNm, dLatNm);
+}
+
+function shouldSnapAfterInactiveGap(track: Track, lon: number, lat: number, sinceLast: number) {
+    if (!track.applied || Number.isNaN(track.aLon) || sinceLast < INACTIVE_FRAME_GAP) return false;
+
+    return distanceNm(track.aLon, track.aLat, lon, lat) >= INACTIVE_SNAP_DISTANCE_NM;
 }
 
 function pchipSlope(dPrev: number, dNext: number, hPrev: number, hNext: number) {
@@ -335,7 +351,7 @@ function frame() {
 
         const now = Date.now();
         const sinceLast = lastSmoothFrameWall ? now - lastSmoothFrameWall : SMOOTH_FRAME_INTERVAL;
-        if (lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
+        if (LIMIT_SMOOTH_FRAME_RATE && lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
         lastSmoothFrameWall = now;
 
         if (isSmoothMovementSuspendedForLoad()) return;
@@ -361,9 +377,10 @@ function frame() {
             const { lon, lat, heading } = result;
 
             const seeded = track.applied && !Number.isNaN(track.aLon);
-            const nextLon = seeded ? smoothLon(track.aLon, lon, positionAmount) : lon;
-            const nextLat = seeded ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
-            const nextHeading = seeded ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
+            const snapAfterInactiveGap = shouldSnapAfterInactiveGap(track, lon, lat, sinceLast);
+            const nextLon = seeded && !snapAfterInactiveGap ? smoothLon(track.aLon, lon, positionAmount) : lon;
+            const nextLat = seeded && !snapAfterInactiveGap ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
+            const nextHeading = seeded && !snapAfterInactiveGap ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
 
             if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
             track.aLon = nextLon;
