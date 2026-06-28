@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-beta.5.1]
+
+## Alpha Changes
+
+- Fixed degraded performance for friends lists
+
 # [2.0.0-beta.5]
 
 ## Alpha Changes
