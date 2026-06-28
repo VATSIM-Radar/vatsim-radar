@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-beta.5.1]
+
+## Alpha Changes
+
+- Fix freeze between samples on smooth aircraft movement updates by psergienko
+- Fix aircraft movement jittering by psergienko
+
 # [2.0.0-beta.5]
 
 ## Alpha Changes
