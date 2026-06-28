@@ -95,7 +95,7 @@ Core files:
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
-- `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, and moves existing aircraft OpenLayers geometries on `requestAnimationFrame`.
+- `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
 - `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 

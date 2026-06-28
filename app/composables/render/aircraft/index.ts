@@ -207,7 +207,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovement || isSelfFlight) existingFeature.getGeometry()!.setCoordinates(coordinates);
+            if (!smoothMovement) existingFeature.getGeometry()!.setCoordinates(coordinates);
             existingFeature.setProperties(properties);
         }
         else {

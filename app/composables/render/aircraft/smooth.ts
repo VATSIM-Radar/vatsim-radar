@@ -27,18 +27,17 @@ interface Track {
 
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
-const DELAY_GAPS = 2;
-const DELAY_EXTRA = 200;
+const DELAY_GAPS = 1.3;
+const DELAY_EXTRA = 500;
 const MIN_DELAY = 1500;
-const MAX_DELAY = 8000;
-const GAP_DECAY = 0.9;
-const DEFAULT_GAP = 1500;
+const MAX_DELAY = 6000;
+const CADENCE_SMOOTH = 0.2;
+const DEFAULT_GAP = 4000;
 const STALL_GAP = 15000;
 const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
 const EXTRAP_CAP = 5000;
 const MOVING_THRESHOLD = 30;
-const BULK_CHANGE_FRACTION = 0.25;
 const MS_PER_HOUR = 1000 * 60 * 60;
 const NM_PER_DEGREE = 60;
 const POSITION_SMOOTH_MS = 300;
@@ -48,7 +47,6 @@ const tracks = new Map<number, Track>();
 let lastServerTime = 0;
 let lastTimestampNum = 0;
 let lastSampleT = 0;
-let lastBulkWall = 0;
 let recentMaxGap = DEFAULT_GAP;
 let clockOffset = 0;
 let clockOffsetReady = false;
@@ -86,6 +84,8 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     const seen = new Set<number>();
     let changed = 0;
+    let intervalSum = 0;
+    let intervalCount = 0;
 
     for (const pilot of pilots) {
         seen.add(pilot.cid);
@@ -107,15 +107,24 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
         if (last.lon === pilot.longitude && last.lat === pilot.latitude && last.heading === heading) continue;
 
         changed++;
+
+        const interval = t - last.t;
+        if (interval >= 400 && interval <= STALL_GAP) {
+            intervalSum += interval;
+            intervalCount++;
+        }
+
         track.samples.push({ t, lon: pilot.longitude, lat: pilot.latitude, heading });
         if (track.samples.length > MAX_SAMPLES) track.samples.shift();
     }
-    const changedFraction = pilots.length ? changed / pilots.length : 0;
-    if (changedFraction >= BULK_CHANGE_FRACTION) {
-        const bulkGap = lastBulkWall ? now - lastBulkWall : DEFAULT_GAP;
-        lastBulkWall = now;
-        if (bulkGap >= 400 && bulkGap <= STALL_GAP) recentMaxGap = Math.max(bulkGap, recentMaxGap * GAP_DECAY);
+
+    if (intervalCount) {
+        const meanInterval = intervalSum / intervalCount;
+        recentMaxGap += (meanInterval - recentMaxGap) * CADENCE_SMOOTH;
+        recentMaxGap = Math.min(Math.max(recentMaxGap, 400), STALL_GAP);
     }
+
+    const changedFraction = pilots.length ? changed / pilots.length : 0;
 
     if (useIsDebug()) {
         console.debug(`[smooth] dServer=${ serverTime - lastServerTime }ms dStamp=${ timestampNum - lastTimestampNum }ms moved=${ (changedFraction * 100).toFixed(0) }% cadence=${ Math.round(recentMaxGap) }ms delay=${ Math.round(computeDelay()) }ms pilots=${ pilots.length }`);
@@ -320,62 +329,65 @@ function updateNavigraphRouteFeature(callsign: string | undefined, coordinate: C
 }
 
 function frame() {
-    rafId = requestAnimationFrame(frame);
+    try {
+        const source = activeSource;
+        if (!source) return;
 
-    const source = activeSource;
-    if (!source) return;
+        const now = Date.now();
+        const sinceLast = lastSmoothFrameWall ? now - lastSmoothFrameWall : SMOOTH_FRAME_INTERVAL;
+        if (lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
+        lastSmoothFrameWall = now;
 
-    const now = Date.now();
-    const sinceLast = lastSmoothFrameWall ? now - lastSmoothFrameWall : SMOOTH_FRAME_INTERVAL;
-    if (lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
-    lastSmoothFrameWall = now;
+        if (isSmoothMovementSuspendedForLoad()) return;
 
-    if (isSmoothMovementSuspendedForLoad()) return;
+        const renderTime = now - computeDelay();
+        const selfCid = ownFlight.value?.cid;
+        const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
+        const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
-    const renderTime = now - computeDelay();
-    const selfCid = ownFlight.value?.cid;
-    const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
-    const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
+        for (const feature of source.getFeatures()) {
+            const properties = feature.getProperties();
+            if (!isMapFeature('aircraft', properties)) continue;
 
-    for (const feature of source.getFeatures()) {
-        const properties = feature.getProperties();
-        if (!isMapFeature('aircraft', properties)) continue;
+            const cid = properties.cid;
+            if (cid === selfCid) continue;
 
-        const cid = properties.cid;
-        if (cid === selfCid) continue;
+            const track = tracks.get(cid);
+            if (!track) continue;
 
-        const track = tracks.get(cid);
-        if (!track) continue;
+            const result = interpolateSamples(track.samples, renderTime);
+            if (!result) continue;
 
-        const result = interpolateSamples(track.samples, renderTime);
-        if (!result) continue;
+            const { lon, lat, heading } = result;
 
-        const { lon, lat, heading } = result;
+            const seeded = track.applied && !Number.isNaN(track.aLon);
+            const nextLon = seeded ? smoothLon(track.aLon, lon, positionAmount) : lon;
+            const nextLat = seeded ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
+            const nextHeading = seeded ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
 
-        const seeded = track.applied && !Number.isNaN(track.aLon);
-        const nextLon = seeded ? smoothLon(track.aLon, lon, positionAmount) : lon;
-        const nextLat = seeded ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
-        const nextHeading = seeded ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
+            if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
+            track.aLon = nextLon;
+            track.aLat = nextLat;
+            track.aHeading = nextHeading;
+            track.applied = true;
 
-        if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
-        track.aLon = nextLon;
-        track.aLat = nextLat;
-        track.aHeading = nextHeading;
-        track.applied = true;
+            const geometry = feature.getGeometry() as Point | undefined;
+            if (!geometry) continue;
 
-        const geometry = feature.getGeometry() as Point | undefined;
-        if (!geometry) continue;
+            feature.set('coordinates', [nextLon, nextLat], true);
+            feature.set('scale', getDynamicScale(properties, nextLat), true);
+            geometry.setCoordinates([nextLon, nextLat]);
+            feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : nextHeading), true);
+            feature.set('heading', nextHeading, true);
 
-        feature.set('coordinates', [nextLon, nextLat], true);
-        feature.set('scale', getDynamicScale(properties, nextLat), true);
-        geometry.setCoordinates([nextLon, nextLat]);
-        feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : nextHeading), true);
-        feature.set('heading', nextHeading, true);
-
-        const coordinate: Coordinate = [nextLon, nextLat];
-        updateAircraftLineFeatures(cid, coordinate);
-        updateNavigraphRouteCoordinate(cid, coordinate);
-        updateNavigraphRouteFeature(properties.callsign, coordinate);
+            const coordinate: Coordinate = [nextLon, nextLat];
+            updateAircraftLineFeatures(cid, coordinate);
+            updateNavigraphRouteCoordinate(cid, coordinate);
+            updateNavigraphRouteFeature(properties.callsign, coordinate);
+        }
+    }
+    finally {
+        rafId = requestAnimationFrame(frame);
     }
 }
 
@@ -394,7 +406,6 @@ export function stopSmoothMovement() {
     lastServerTime = 0;
     lastTimestampNum = 0;
     lastSampleT = 0;
-    lastBulkWall = 0;
     lastSmoothFrameWall = 0;
     recentMaxGap = DEFAULT_GAP;
     clockOffset = 0;
