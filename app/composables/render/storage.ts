@@ -22,6 +22,7 @@ import { View } from 'ol';
 import { clientDB } from '~/composables/render/idb';
 import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
+import { isSmoothMovementEnabled, recordSmoothSamples } from '~/composables/render/aircraft/smooth';
 import { useStore } from '~/store';
 import {
     isVatGlassesActive,
@@ -513,6 +514,8 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
 
     triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
+
+    if (isSmoothMovementEnabled()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;
@@ -628,9 +631,12 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             checkForTracks();
         }, 30000);
 
+        let mandatoryTick = 0;
         interval = setInterval(async () => {
             if (mandatoryInProgess || !store.isTabVisible) return;
             if (socketsEnabled()) {
+                mandatoryTick++;
+                if (!isSmoothMovementEnabled() && mandatoryTick % 2 !== 0) return;
                 mandatoryInProgess = true;
 
                 try {
@@ -649,7 +655,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 }
                 mandatoryInProgess = false;
             }
-        }, 2000);
+        }, 1000);
 
         visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';

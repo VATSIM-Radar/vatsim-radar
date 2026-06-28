@@ -116,6 +116,7 @@ export interface UserSettingsV2 {
             toggleAircraftOverlays: boolean;
             autoShowAirportTracks: boolean;
             disableFastUpdate: boolean;
+            smoothMovement: boolean;
             declutter: boolean | 'always';
             highlightEmergency: boolean;
         };

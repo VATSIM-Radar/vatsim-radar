@@ -19,6 +19,7 @@ import { transformExtent } from 'ol/proj.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
+import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
 import { disposeAircraftStyle } from '~/composables/render/aircraft/style';
 
 defineOptions({
@@ -413,11 +414,19 @@ watch(map, val => {
 
     setVisiblePilots();
     init = true;
+
+    if (getKeyedValueFromSettings('map.traffic.smoothMovement')) startSmoothMovement(vectorSource, linesSource);
 }, {
     immediate: true,
 });
 
+watch(() => getKeyedValueFromSettings('map.traffic.smoothMovement'), enabled => {
+    if (enabled && vectorSource) startSmoothMovement(vectorSource, linesSource);
+    else stopSmoothMovement();
+});
+
 onBeforeUnmount(() => {
+    stopSmoothMovement();
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     vectorLayer?.dispose();
     if (linesLayer) map.value?.removeLayer(linesLayer);

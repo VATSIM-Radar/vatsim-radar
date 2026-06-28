@@ -162,6 +162,7 @@ const _settingsDefaultValues = {
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,
+    'map.traffic.smoothMovement': true,
     'map.traffic.declutter': false,
     'map.traffic.highlightEmergency': false,
 

@@ -652,7 +652,7 @@ async function handleMoveEnd() {
     });
 
     await sleep(300);
-    if (moving) return;
+    if (moving || !map.value) return;
     mapStore.moving = false;
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);

@@ -13,4 +13,5 @@ export const aircraftState: Record<number, Partial<{
     timestamps: Set<string>;
     flightPlan: string;
     previousFlightPlan: string;
+    needsFullTurnsUpdate: boolean;
 }> | undefined> = {};

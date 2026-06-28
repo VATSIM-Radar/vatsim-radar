@@ -21,6 +21,7 @@ import type {
 } from '~/utils/server/navigraph/navdata/types';
 import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
 import { logBench } from '~/composables';
+import { setSmoothNavigraphRouteSource } from '~/composables/render/aircraft/smooth';
 
 defineOptions({
     render: () => null,
@@ -32,6 +33,11 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 let skipUpdate = false;
+
+if (source) {
+    watch(source, value => setSmoothNavigraphRouteSource(value), { immediate: true });
+    onBeforeUnmount(() => setSmoothNavigraphRouteSource(null));
+}
 
 interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coordinates'> {
     departure: string | null | undefined;
