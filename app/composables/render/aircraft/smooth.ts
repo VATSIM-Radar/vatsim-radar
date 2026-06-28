@@ -19,36 +19,34 @@ interface Sample {
 
 interface Track {
     samples: Sample[];
-    groundspeed: number;
     aLon: number;
     aLat: number;
     aHeading: number;
-    lastApplyWall: number;
     applied: boolean;
 }
 
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
-const DELAY_GAPS = 0.25;
-const DELAY_EXTRA = 500;
-const MIN_DELAY = 1000;
+const DELAY_GAPS = 2;
+const DELAY_EXTRA = 200;
+const MIN_DELAY = 1500;
 const MAX_DELAY = 8000;
 const GAP_DECAY = 0.9;
 const DEFAULT_GAP = 1500;
 const STALL_GAP = 15000;
 const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
+const EXTRAP_CAP = 5000;
 const MOVING_THRESHOLD = 30;
-const CORRECTION_SMOOTH_MS = 900;
-const EXTRAPOLATE_GAP_MULTIPLIER = 2;
-const EARTH_RADIUS_NM = 3440.065;
+const BULK_CHANGE_FRACTION = 0.25;
 const MS_PER_HOUR = 1000 * 60 * 60;
+const NM_PER_DEGREE = 60;
 
 const tracks = new Map<number, Track>();
 let lastServerTime = 0;
 let lastTimestampNum = 0;
 let lastSampleT = 0;
-let lastSampleWall = 0;
+let lastBulkWall = 0;
 let recentMaxGap = DEFAULT_GAP;
 let clockOffset = 0;
 let clockOffsetReady = false;
@@ -71,8 +69,6 @@ function computeDelay() {
 export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: number, timestampNum: number, now = Date.now()) {
     if (serverTime && serverTime <= lastServerTime) return;
 
-    const dataStore = useDataStore();
-    const keyedPilots = dataStore.vatsim.data.keyedPilots.value;
     const instantOffset = now - serverTime;
     if (!clockOffsetReady) {
         clockOffset = instantOffset;
@@ -88,58 +84,37 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     const seen = new Set<number>();
     let changed = 0;
-    let cadenceSum = 0;
-    let cadenceCount = 0;
 
     for (const pilot of pilots) {
         seen.add(pilot.cid);
         const heading = pilot.heading ?? 0;
-        const groundspeed = keyedPilots[pilot.cid]?.groundspeed ?? 0;
         const track = tracks.get(pilot.cid);
 
         if (!track) {
             tracks.set(pilot.cid, {
                 samples: [{ t, lon: pilot.longitude, lat: pilot.latitude, heading }],
-                groundspeed,
                 aLon: NaN,
                 aLat: NaN,
                 aHeading: NaN,
-                lastApplyWall: 0,
                 applied: false,
             });
             continue;
         }
 
-        track.groundspeed = groundspeed;
-
         const last = track.samples[track.samples.length - 1];
         if (last.lon === pilot.longitude && last.lat === pilot.latitude && last.heading === heading) continue;
 
         changed++;
-
-        const interval = t - last.t;
-        if (groundspeed > MOVING_THRESHOLD && interval >= 400 && interval <= STALL_GAP) {
-            cadenceSum += interval;
-            cadenceCount++;
-        }
-
         track.samples.push({ t, lon: pilot.longitude, lat: pilot.latitude, heading });
         if (track.samples.length > MAX_SAMPLES) track.samples.shift();
     }
-
-    const serverGap = serverTime && lastServerTime ? serverTime - lastServerTime : 0;
-    const timestampGap = timestampNum && lastTimestampNum ? timestampNum - lastTimestampNum : 0;
-    const wallGap = lastSampleWall ? now - lastSampleWall : DEFAULT_GAP;
-    const sampleGap = serverGap || timestampGap || wallGap;
-
-    lastSampleWall = now;
-
-    const cadence = cadenceCount ? cadenceSum / cadenceCount : sampleGap;
-    if (cadence >= 400 && cadence <= STALL_GAP) {
-        recentMaxGap = Math.max(cadence, recentMaxGap * GAP_DECAY);
+    const changedFraction = pilots.length ? changed / pilots.length : 0;
+    if (changedFraction >= BULK_CHANGE_FRACTION) {
+        const bulkGap = lastBulkWall ? now - lastBulkWall : DEFAULT_GAP;
+        lastBulkWall = now;
+        if (bulkGap >= 400 && bulkGap <= STALL_GAP) recentMaxGap = Math.max(bulkGap, recentMaxGap * GAP_DECAY);
     }
 
-    const changedFraction = pilots.length ? changed / pilots.length : 0;
     if (useIsDebug()) {
         console.debug(`[smooth] dServer=${ serverTime - lastServerTime }ms dStamp=${ timestampNum - lastTimestampNum }ms moved=${ (changedFraction * 100).toFixed(0) }% cadence=${ Math.round(recentMaxGap) }ms delay=${ Math.round(computeDelay()) }ms pilots=${ pilots.length }`);
     }
@@ -167,80 +142,87 @@ function normalizeLon(lon: number) {
     return ((((lon + 180) % 360) + 360) % 360) - 180;
 }
 
-function radiansToDegrees(value: number) {
-    return value * (180 / Math.PI);
+function positionalSpeedKt(dLon: number, dLat: number, lat: number, dtMs: number) {
+    if (dtMs <= 0) return 0;
+    const dLonNm = dLon * Math.cos(degreesToRadians(lat)) * NM_PER_DEGREE;
+    const dLatNm = dLat * NM_PER_DEGREE;
+    return (Math.hypot(dLonNm, dLatNm) / dtMs) * MS_PER_HOUR;
 }
 
-function projectByGroundspeed(sample: Sample, groundspeed: number, elapsedMs: number) {
-    const distanceNm = (groundspeed * elapsedMs) / MS_PER_HOUR;
-    if (distanceNm <= 0) return { lon: sample.lon, lat: sample.lat };
-
-    const angularDistance = distanceNm / EARTH_RADIUS_NM;
-    const bearing = degreesToRadians(sample.heading);
-    const lat1 = degreesToRadians(sample.lat);
-    const lon1 = degreesToRadians(sample.lon);
-
-    const sinLat1 = Math.sin(lat1);
-    const cosLat1 = Math.cos(lat1);
-    const sinDistance = Math.sin(angularDistance);
-    const cosDistance = Math.cos(angularDistance);
-
-    const lat2 = Math.asin((sinLat1 * cosDistance) + (cosLat1 * sinDistance * Math.cos(bearing)));
-    const lon2 = lon1 + Math.atan2(
-        Math.sin(bearing) * sinDistance * cosLat1,
-        cosDistance - (sinLat1 * Math.sin(lat2)),
-    );
-
-    return {
-        lon: normalizeLon(radiansToDegrees(lon2)),
-        lat: radiansToDegrees(lat2),
-    };
+function pchipSlope(dPrev: number, dNext: number, hPrev: number, hNext: number) {
+    if (dPrev === 0 || dNext === 0 || ((dPrev > 0) !== (dNext > 0))) return 0;
+    const w1 = (2 * hNext) + hPrev;
+    const w2 = hNext + (2 * hPrev);
+    return (w1 + w2) / ((w1 / dPrev) + (w2 / dNext));
 }
 
-type InterpMode = 'hold' | 'interpolate' | 'extrapolate';
+function hermite(y1: number, y2: number, m1: number, m2: number, h: number, s: number) {
+    const s2 = s * s;
+    const s3 = s2 * s;
+    return (((2 * s3) - (3 * s2) + 1) * y1) +
+        (((s3 - (2 * s2) + s) * h) * m1) +
+        ((((-2) * s3) + (3 * s2)) * y2) +
+        (((s3 - s2) * h) * m2);
+}
 
-export interface InterpResult { lon: number; lat: number; heading: number; mode: InterpMode }
+function interpAxis(y0: number, y1: number, y2: number, y3: number, hPrev: number, hCur: number, hNext: number, s: number) {
+    const dCur = (y2 - y1) / hCur;
+    const dPrev = hPrev > 0 ? (y1 - y0) / hPrev : dCur;
+    const dNext = hNext > 0 ? (y3 - y2) / hNext : dCur;
+    const m1 = hPrev > 0 ? pchipSlope(dPrev, dCur, hPrev, hCur) : dCur;
+    const m2 = hNext > 0 ? pchipSlope(dCur, dNext, hCur, hNext) : dCur;
+    return hermite(y1, y2, m1, m2, hCur, s);
+}
 
-// Keep aircraft speed predictable: linear interpolation between known points, then dead-reckon until fresh data arrives.
-export function interpolateSamples(samples: Sample[], renderTime: number, groundspeed: number, maxExtrapolateMs = Infinity): InterpResult | null {
+export interface InterpResult { lon: number; lat: number; heading: number }
+
+export function interpolateSamples(samples: Sample[], renderTime: number): InterpResult | null {
     const n = samples.length;
     if (n === 0) return null;
     if (n === 1 || renderTime <= samples[0].t) {
         const s = samples[0];
-        return { lon: s.lon, lat: s.lat, heading: s.heading, mode: 'hold' };
+        return { lon: s.lon, lat: s.lat, heading: s.heading };
     }
     if (renderTime >= samples[n - 1].t) {
         const b = samples[n - 1];
-        if (groundspeed <= MOVING_THRESHOLD) return { lon: b.lon, lat: b.lat, heading: b.heading, mode: 'hold' };
-        const elapsed = Math.min(renderTime - b.t, maxExtrapolateMs);
-        const { lon, lat } = projectByGroundspeed(b, groundspeed, elapsed);
-        return { lon, lat, heading: b.heading, mode: 'extrapolate' };
+        const a = samples[n - 2];
+        const dt = b.t - a.t;
+        if (dt <= 0) return { lon: b.lon, lat: b.lat, heading: b.heading };
+
+        const dLon = shortLonDelta(b.lon - a.lon);
+        const dLat = b.lat - a.lat;
+        if (positionalSpeedKt(dLon, dLat, b.lat, dt) <= MOVING_THRESHOLD) {
+            return { lon: b.lon, lat: b.lat, heading: b.heading };
+        }
+
+        const ext = Math.min(renderTime - b.t, EXTRAP_CAP);
+        const lon = normalizeLon(b.lon + ((dLon / dt) * ext));
+        const lat = b.lat + ((dLat / dt) * ext);
+        return { lon, lat, heading: b.heading };
     }
 
     let i = n - 2;
     while (i > 0 && samples[i].t > renderTime) i--;
 
+    const p0 = samples[i - 1] ?? samples[i];
     const p1 = samples[i];
     const p2 = samples[i + 1];
+    const p3 = samples[i + 2] ?? samples[i + 1];
+
     const hCur = p2.t - p1.t;
+    const hPrev = p1.t - p0.t;
+    const hNext = p3.t - p2.t;
     const s = hCur > 0 ? (renderTime - p1.t) / hCur : 0;
 
+    const l0 = p1.lon + shortLonDelta(p0.lon - p1.lon);
     const l2 = p1.lon + shortLonDelta(p2.lon - p1.lon);
+    const l3 = p1.lon + shortLonDelta(p3.lon - p1.lon);
 
-    const lon = normalizeLon(p1.lon + ((l2 - p1.lon) * s));
-    const lat = p1.lat + ((p2.lat - p1.lat) * s);
+    const lon = normalizeLon(interpAxis(l0, p1.lon, l2, l3, hPrev, hCur, hNext, s));
+    const lat = interpAxis(p0.lat, p1.lat, p2.lat, p3.lat, hPrev, hCur, hNext, s);
     const heading = lerpAngle(p1.heading, p2.heading, s);
 
-    return { lon, lat, heading, mode: 'interpolate' };
-}
-
-function smoothLon(from: number, to: number, amount: number) {
-    return normalizeLon(from + (shortLonDelta(to - from) * amount));
-}
-
-function correctionAmount(elapsed: number) {
-    if (elapsed <= 0) return 1;
-    return 1 - Math.exp(-elapsed / CORRECTION_SMOOTH_MS);
+    return { lon, lat, heading };
 }
 
 function getDynamicScale(properties: MapFeatureProperties<'aircraft'>, lat: number) {
@@ -344,7 +326,6 @@ function frame() {
     if (isSmoothMovementSuspendedForLoad()) return;
 
     const renderTime = now - computeDelay();
-    const maxExtrapolateMs = recentMaxGap * EXTRAPOLATE_GAP_MULTIPLIER;
     const selfCid = ownFlight.value?.cid;
 
     for (const feature of source.getFeatures()) {
@@ -357,38 +338,27 @@ function frame() {
         const track = tracks.get(cid);
         if (!track) continue;
 
-        const result = interpolateSamples(track.samples, renderTime, track.groundspeed, maxExtrapolateMs);
+        const result = interpolateSamples(track.samples, renderTime);
         if (!result) continue;
 
         const { lon, lat, heading } = result;
 
-        const amount = (track.applied && !Number.isNaN(track.aLon))
-            ? correctionAmount(now - track.lastApplyWall)
-            : 1;
-
-        const nextLon = amount >= 1 ? lon : smoothLon(track.aLon, lon, amount);
-        const nextLat = amount >= 1 ? lat : track.aLat + ((lat - track.aLat) * amount);
-        const nextHeading = amount >= 1 ? heading : lerpAngle(track.aHeading, heading, amount);
-
-        const outputChanged = !track.applied || track.aLon !== nextLon || track.aLat !== nextLat || track.aHeading !== nextHeading;
-        track.aLon = nextLon;
-        track.aLat = nextLat;
-        track.aHeading = nextHeading;
-        track.lastApplyWall = now;
+        if (track.applied && track.aLon === lon && track.aLat === lat && track.aHeading === heading) continue;
+        track.aLon = lon;
+        track.aLat = lat;
+        track.aHeading = heading;
         track.applied = true;
-
-        if (!outputChanged) continue;
 
         const geometry = feature.getGeometry() as Point | undefined;
         if (!geometry) continue;
 
-        feature.set('coordinates', [nextLon, nextLat], true);
-        feature.set('scale', getDynamicScale(properties, nextLat), true);
-        geometry.setCoordinates([nextLon, nextLat]);
-        feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : nextHeading), true);
-        feature.set('heading', nextHeading, true);
+        feature.set('coordinates', [lon, lat], true);
+        feature.set('scale', getDynamicScale(properties, lat), true);
+        geometry.setCoordinates([lon, lat]);
+        feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : heading), true);
+        feature.set('heading', heading, true);
 
-        const coordinate: Coordinate = [nextLon, nextLat];
+        const coordinate: Coordinate = [lon, lat];
         updateAircraftLineFeatures(cid, coordinate);
         updateNavigraphRouteCoordinate(cid, coordinate);
         updateNavigraphRouteFeature(properties.callsign, coordinate);
@@ -410,7 +380,7 @@ export function stopSmoothMovement() {
     lastServerTime = 0;
     lastTimestampNum = 0;
     lastSampleT = 0;
-    lastSampleWall = 0;
+    lastBulkWall = 0;
     lastSmoothFrameWall = 0;
     recentMaxGap = DEFAULT_GAP;
     clockOffset = 0;
