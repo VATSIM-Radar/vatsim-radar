@@ -89,7 +89,6 @@
                 </ui-button>
                 <ui-button
                     v-if="config.public.IS_DOWN !== 'true'"
-                    to="/settings"
                     type="secondary"
                     @click="closeSettings"
                 >
@@ -162,9 +161,14 @@ const onlineCounters = useOnlineCounters();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
 const openedMenu = ref<string | null>(headerMenu.value.find(x => !x.disabled && x.active)?.text ?? null);
+const route = useRoute();
+const router = useRouter();
 
 const closeSettings = () => {
-    goBack();
+    if (route.path.startsWith('/settings')) {
+        goBack();
+    }
+    else router.push('/settings');
     model.value = false;
 };
 

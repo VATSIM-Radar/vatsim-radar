@@ -185,6 +185,7 @@ Background tasks:
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
+- `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup and navdata parsing.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
 - `app/utils/server/influx/*` handles analytics queries/converters. `queries.ts` builds InfluxDB 3 SQL over the `data` table; `converters.ts` still emits line protocol for the main and flight-plan databases.

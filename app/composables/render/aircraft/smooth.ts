@@ -38,7 +38,8 @@ const DEFAULT_GAP = 1500;
 const STALL_GAP = 15000;
 const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
-const MOVING_THRESHOLD = 30;
+const AIRBORNE_MOVING_THRESHOLD = 30;
+const GROUND_MOVING_THRESHOLD = 3;
 const CORRECTION_SMOOTH_MS = 900;
 const EARTH_RADIUS_NM = 3440.065;
 const MS_PER_HOUR = 1000 * 60 * 60;
@@ -191,7 +192,7 @@ type InterpMode = 'hold' | 'interpolate' | 'extrapolate';
 export interface InterpResult { lon: number; lat: number; heading: number; mode: InterpMode }
 
 // Keep aircraft speed predictable: linear interpolation between known points, then dead-reckon until fresh data arrives.
-export function interpolateSamples(samples: Sample[], renderTime: number, groundspeed: number): InterpResult | null {
+export function interpolateSamples(samples: Sample[], renderTime: number, groundspeed: number, movingThreshold: number): InterpResult | null {
     const n = samples.length;
     if (n === 0) return null;
     if (n === 1 || renderTime <= samples[0].t) {
@@ -200,7 +201,7 @@ export function interpolateSamples(samples: Sample[], renderTime: number, ground
     }
     if (renderTime >= samples[n - 1].t) {
         const b = samples[n - 1];
-        if (groundspeed <= MOVING_THRESHOLD) return { lon: b.lon, lat: b.lat, heading: b.heading, mode: 'hold' };
+        if (groundspeed <= movingThreshold) return { lon: b.lon, lat: b.lat, heading: b.heading, mode: 'hold' };
         const { lon, lat } = projectByGroundspeed(b, groundspeed, renderTime - b.t);
         return { lon, lat, heading: b.heading, mode: 'extrapolate' };
     }
@@ -287,11 +288,7 @@ function updateAircraftLineFeatures(cid: number, coordinate: Coordinate) {
         const geometry = feature.getGeometry();
         if (!(geometry instanceof LineString) && !(geometry instanceof MultiLineString)) continue;
 
-        if (properties.lineType === 'arrival-straight') {
-            const end = getLastCoordinate(geometry);
-            if (end) feature.setGeometry(getLineGeometry(coordinate, end));
-        }
-        else if (properties.lineType === 'departure-straight' || properties.lineType === 'aircraft') {
+        if (properties.lineType === 'departure-straight' || properties.lineType === 'aircraft') {
             const start = getFirstCoordinate(geometry);
             if (start) feature.setGeometry(getLineGeometry(start, coordinate));
         }
@@ -344,7 +341,8 @@ function frame() {
         const track = tracks.get(cid);
         if (!track) continue;
 
-        const result = interpolateSamples(track.samples, renderTime, track.groundspeed);
+        const movingThreshold = properties.onGround ? GROUND_MOVING_THRESHOLD : AIRBORNE_MOVING_THRESHOLD;
+        const result = interpolateSamples(track.samples, renderTime, track.groundspeed, movingThreshold);
         if (!result) continue;
 
         const { lon, lat, heading } = result;
