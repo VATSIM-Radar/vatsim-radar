@@ -184,6 +184,7 @@ Background tasks:
 
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
+- `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup and navdata parsing.
