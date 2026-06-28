@@ -40,6 +40,7 @@ const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
 const MOVING_THRESHOLD = 30;
 const CORRECTION_SMOOTH_MS = 900;
+const EXTRAPOLATE_GAP_MULTIPLIER = 2;
 const EARTH_RADIUS_NM = 3440.065;
 const MS_PER_HOUR = 1000 * 60 * 60;
 
@@ -87,6 +88,8 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     const seen = new Set<number>();
     let changed = 0;
+    let cadenceSum = 0;
+    let cadenceCount = 0;
 
     for (const pilot of pilots) {
         seen.add(pilot.cid);
@@ -110,9 +113,16 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
         track.groundspeed = groundspeed;
 
         const last = track.samples[track.samples.length - 1];
-        if (last.lon === pilot.longitude && last.lat === pilot.latitude && last.heading === pilot.heading) continue;
+        if (last.lon === pilot.longitude && last.lat === pilot.latitude && last.heading === heading) continue;
 
         changed++;
+
+        const interval = t - last.t;
+        if (groundspeed > MOVING_THRESHOLD && interval >= 400 && interval <= STALL_GAP) {
+            cadenceSum += interval;
+            cadenceCount++;
+        }
+
         track.samples.push({ t, lon: pilot.longitude, lat: pilot.latitude, heading });
         if (track.samples.length > MAX_SAMPLES) track.samples.shift();
     }
@@ -124,8 +134,9 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     lastSampleWall = now;
 
-    if (sampleGap >= 400 && sampleGap <= STALL_GAP) {
-        recentMaxGap = Math.max(sampleGap, recentMaxGap * GAP_DECAY);
+    const cadence = cadenceCount ? cadenceSum / cadenceCount : sampleGap;
+    if (cadence >= 400 && cadence <= STALL_GAP) {
+        recentMaxGap = Math.max(cadence, recentMaxGap * GAP_DECAY);
     }
 
     const changedFraction = pilots.length ? changed / pilots.length : 0;
@@ -191,7 +202,7 @@ type InterpMode = 'hold' | 'interpolate' | 'extrapolate';
 export interface InterpResult { lon: number; lat: number; heading: number; mode: InterpMode }
 
 // Keep aircraft speed predictable: linear interpolation between known points, then dead-reckon until fresh data arrives.
-export function interpolateSamples(samples: Sample[], renderTime: number, groundspeed: number): InterpResult | null {
+export function interpolateSamples(samples: Sample[], renderTime: number, groundspeed: number, maxExtrapolateMs = Infinity): InterpResult | null {
     const n = samples.length;
     if (n === 0) return null;
     if (n === 1 || renderTime <= samples[0].t) {
@@ -201,7 +212,8 @@ export function interpolateSamples(samples: Sample[], renderTime: number, ground
     if (renderTime >= samples[n - 1].t) {
         const b = samples[n - 1];
         if (groundspeed <= MOVING_THRESHOLD) return { lon: b.lon, lat: b.lat, heading: b.heading, mode: 'hold' };
-        const { lon, lat } = projectByGroundspeed(b, groundspeed, renderTime - b.t);
+        const elapsed = Math.min(renderTime - b.t, maxExtrapolateMs);
+        const { lon, lat } = projectByGroundspeed(b, groundspeed, elapsed);
         return { lon, lat, heading: b.heading, mode: 'extrapolate' };
     }
 
@@ -332,6 +344,7 @@ function frame() {
     if (isSmoothMovementSuspendedForLoad()) return;
 
     const renderTime = now - computeDelay();
+    const maxExtrapolateMs = recentMaxGap * EXTRAPOLATE_GAP_MULTIPLIER;
     const selfCid = ownFlight.value?.cid;
 
     for (const feature of source.getFeatures()) {
@@ -344,28 +357,27 @@ function frame() {
         const track = tracks.get(cid);
         if (!track) continue;
 
-        const result = interpolateSamples(track.samples, renderTime, track.groundspeed);
+        const result = interpolateSamples(track.samples, renderTime, track.groundspeed, maxExtrapolateMs);
         if (!result) continue;
 
         const { lon, lat, heading } = result;
-        let nextLon = lon;
-        let nextLat = lat;
-        let nextHeading = heading;
 
-        if (result.mode === 'interpolate' && track.applied) {
-            const amount = correctionAmount(now - track.lastApplyWall);
+        const amount = (track.applied && !Number.isNaN(track.aLon))
+            ? correctionAmount(now - track.lastApplyWall)
+            : 1;
 
-            nextLon = smoothLon(track.aLon, lon, amount);
-            nextLat = track.aLat + ((lat - track.aLat) * amount);
-            nextHeading = lerpAngle(track.aHeading, heading, amount);
-        }
+        const nextLon = amount >= 1 ? lon : smoothLon(track.aLon, lon, amount);
+        const nextLat = amount >= 1 ? lat : track.aLat + ((lat - track.aLat) * amount);
+        const nextHeading = amount >= 1 ? heading : lerpAngle(track.aHeading, heading, amount);
 
-        if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
+        const outputChanged = !track.applied || track.aLon !== nextLon || track.aLat !== nextLat || track.aHeading !== nextHeading;
         track.aLon = nextLon;
         track.aLat = nextLat;
         track.aHeading = nextHeading;
         track.lastApplyWall = now;
         track.applied = true;
+
+        if (!outputChanged) continue;
 
         const geometry = feature.getGeometry() as Point | undefined;
         if (!geometry) continue;
