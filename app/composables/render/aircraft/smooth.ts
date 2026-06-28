@@ -41,6 +41,8 @@ const MOVING_THRESHOLD = 30;
 const BULK_CHANGE_FRACTION = 0.25;
 const MS_PER_HOUR = 1000 * 60 * 60;
 const NM_PER_DEGREE = 60;
+const POSITION_SMOOTH_MS = 300;
+const HEADING_SMOOTH_MS = 900;
 
 const tracks = new Map<number, Track>();
 let lastServerTime = 0;
@@ -140,6 +142,10 @@ function lerpAngle(a: number, b: number, u: number) {
 
 function normalizeLon(lon: number) {
     return ((((lon + 180) % 360) + 360) % 360) - 180;
+}
+
+function smoothLon(from: number, to: number, amount: number) {
+    return normalizeLon(from + (shortLonDelta(to - from) * amount));
 }
 
 function positionalSpeedKt(dLon: number, dLat: number, lat: number, dtMs: number) {
@@ -320,13 +326,16 @@ function frame() {
     if (!source) return;
 
     const now = Date.now();
-    if (lastSmoothFrameWall && now - lastSmoothFrameWall < SMOOTH_FRAME_INTERVAL) return;
+    const sinceLast = lastSmoothFrameWall ? now - lastSmoothFrameWall : SMOOTH_FRAME_INTERVAL;
+    if (lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
     lastSmoothFrameWall = now;
 
     if (isSmoothMovementSuspendedForLoad()) return;
 
     const renderTime = now - computeDelay();
     const selfCid = ownFlight.value?.cid;
+    const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
+    const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
     for (const feature of source.getFeatures()) {
         const properties = feature.getProperties();
@@ -343,22 +352,27 @@ function frame() {
 
         const { lon, lat, heading } = result;
 
-        if (track.applied && track.aLon === lon && track.aLat === lat && track.aHeading === heading) continue;
-        track.aLon = lon;
-        track.aLat = lat;
-        track.aHeading = heading;
+        const seeded = track.applied && !Number.isNaN(track.aLon);
+        const nextLon = seeded ? smoothLon(track.aLon, lon, positionAmount) : lon;
+        const nextLat = seeded ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
+        const nextHeading = seeded ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
+
+        if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
+        track.aLon = nextLon;
+        track.aLat = nextLat;
+        track.aHeading = nextHeading;
         track.applied = true;
 
         const geometry = feature.getGeometry() as Point | undefined;
         if (!geometry) continue;
 
-        feature.set('coordinates', [lon, lat], true);
-        feature.set('scale', getDynamicScale(properties, lat), true);
-        geometry.setCoordinates([lon, lat]);
-        feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : heading), true);
-        feature.set('heading', heading, true);
+        feature.set('coordinates', [nextLon, nextLat], true);
+        feature.set('scale', getDynamicScale(properties, nextLat), true);
+        geometry.setCoordinates([nextLon, nextLat]);
+        feature.set('rotation', degreesToRadians(properties.icon?.icon === 'ball' ? 0 : nextHeading), true);
+        feature.set('heading', nextHeading, true);
 
-        const coordinate: Coordinate = [lon, lat];
+        const coordinate: Coordinate = [nextLon, nextLat];
         updateAircraftLineFeatures(cid, coordinate);
         updateNavigraphRouteCoordinate(cid, coordinate);
         updateNavigraphRouteFeature(properties.callsign, coordinate);
