@@ -615,6 +615,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     let interval: NodeJS.Timeout | null = null;
     let vgInterval: NodeJS.Timeout | null = null;
     let visibilityInterval: NodeJS.Timeout | null = null;
+    let listsInterval: NodeJS.Timeout | null = null;
     let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
@@ -664,6 +665,17 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             onFetch?.();
             localStorage.setItem('radar-visibility-check', Date.now().toString());
         }, 10000);
+
+        let lastListsUpdate = 0;
+
+        listsInterval = setInterval(async () => {
+            // Every 5 minutes
+            const needToUpdate = dataStore.time.value - lastListsUpdate > 1000 * 60 * 5;
+
+            if (!needToUpdate) return;
+            store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
+            lastListsUpdate = Date.now();
+        }, 1000 * 60);
     }
 
     function setVisibilityState() {
@@ -694,11 +706,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             if (val) {
                 checkForVG();
             }
-        });
-
-        watch(() => store.lists.flatMap(x => x.users.filter(x => x.type !== 'offline' || x.hidden).map(x => x.cid)).join(','), async val => {
-            if (store.initStatus.status !== false) return;
-            store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
         });
 
         initControllersUpdate();
@@ -752,6 +759,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         if (interval) clearInterval(interval);
         if (vgInterval) clearInterval(vgInterval);
         if (visibilityInterval) clearInterval(visibilityInterval);
+        if (listsInterval) clearInterval(listsInterval);
     });
 }
 
