@@ -5,7 +5,6 @@ import { degreesToRadians, point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import { isMapFeature } from '~/utils/map/entities';
 import type { MapFeatureProperties } from '~/utils/map/entities';
-import { ownFlight } from '~/composables/vatsim/pilots';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -349,13 +348,6 @@ function isDocumentHidden() {
     return typeof document !== 'undefined' && document.visibilityState === 'hidden';
 }
 
-function getSelfCoordinate(now: number) {
-    const coordinate = useDataStore().vatsim.selfCoordinate.value;
-    if (!coordinate || now - coordinate.date > 1000 * 5) return null;
-
-    return coordinate;
-}
-
 function frame() {
     try {
         const source = activeSource;
@@ -370,8 +362,6 @@ function frame() {
         if (isSmoothMovementSuspendedForLoad()) return;
 
         const renderTime = now - computeDelay();
-        const selfCid = ownFlight.value?.cid;
-        const selfCoordinate = getSelfCoordinate(now);
         const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
         const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
@@ -380,50 +370,31 @@ function frame() {
             if (!isMapFeature('aircraft', properties)) continue;
 
             const cid = properties.cid;
-            const selfTarget = cid === selfCid && selfCoordinate
-                ? {
-                    lon: selfCoordinate.coordinate[0],
-                    lat: selfCoordinate.coordinate[1],
-                    heading: selfCoordinate.heading,
-                }
-                : null;
-            const track = selfTarget ? null : tracks.get(cid);
-            if (!selfTarget && !track) continue;
+            const track = tracks.get(cid);
+            if (!track) continue;
 
-            const result = selfTarget ?? interpolateSamples(track!.samples, renderTime);
+            const result = interpolateSamples(track.samples, renderTime);
             if (!result) continue;
 
             const { lon, lat, heading } = result;
 
+            const seeded = track.applied && !Number.isNaN(track.aLon);
+            const snapAfterInactiveGap = shouldSnapAfterInactiveGap(track, lon, lat, sinceLast);
+            const closeEnoughToTarget = seeded && distanceNm(track.aLon, track.aLat, lon, lat) <= POSITION_SNAP_DISTANCE_NM;
+            const snapToTarget = snapAfterInactiveGap || closeEnoughToTarget;
+
+            const nextLon = seeded && !snapToTarget ? smoothLon(track.aLon, lon, positionAmount) : lon;
+            const nextLat = seeded && !snapToTarget ? track.aLat + ((lat - track.aLat) * positionAmount) : lat;
+            const nextHeading = seeded && !snapToTarget ? lerpAngle(track.aHeading, heading, headingAmount) : heading;
+
+            if (track.applied && track.aLon === nextLon && track.aLat === nextLat && track.aHeading === nextHeading) continue;
+            track.aLon = nextLon;
+            track.aLat = nextLat;
+            track.aHeading = nextHeading;
+            track.applied = true;
+
             const geometry = feature.getGeometry() as Point | undefined;
             if (!geometry) continue;
-
-            const currentCoordinate = selfTarget ? geometry.getCoordinates() : null;
-            const currentLon = selfTarget ? currentCoordinate![0] : track!.aLon;
-            const currentLat = selfTarget ? currentCoordinate![1] : track!.aLat;
-            const currentHeading = selfTarget ? properties.heading : track!.aHeading;
-            const seeded = selfTarget
-                ? typeof currentLon === 'number' && typeof currentLat === 'number'
-                : track!.applied && !Number.isNaN(track!.aLon);
-            const closeEnoughToTarget = seeded && distanceNm(currentLon, currentLat, lon, lat) <= POSITION_SNAP_DISTANCE_NM;
-            const snapAfterInactiveGap = selfTarget
-                ? seeded && sinceLast >= INACTIVE_FRAME_GAP && distanceNm(currentLon, currentLat, lon, lat) >= INACTIVE_SNAP_DISTANCE_NM
-                : shouldSnapAfterInactiveGap(track!, lon, lat, sinceLast);
-            const snapToTarget = snapAfterInactiveGap || closeEnoughToTarget;
-            const nextLon = seeded && !snapToTarget ? smoothLon(currentLon, lon, positionAmount) : lon;
-            const nextLat = seeded && !snapToTarget ? currentLat + ((lat - currentLat) * positionAmount) : lat;
-            const nextHeading = seeded && !snapToTarget ? lerpAngle(currentHeading, heading, headingAmount) : heading;
-
-            if (selfTarget) {
-                if (currentLon === nextLon && currentLat === nextLat && currentHeading === nextHeading) continue;
-            }
-            else {
-                if (track!.applied && track!.aLon === nextLon && track!.aLat === nextLat && track!.aHeading === nextHeading) continue;
-                track!.aLon = nextLon;
-                track!.aLat = nextLat;
-                track!.aHeading = nextHeading;
-                track!.applied = true;
-            }
 
             feature.set('coordinates', [nextLon, nextLat], true);
             feature.set('scale', getDynamicScale(properties, nextLat), true);

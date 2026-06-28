@@ -166,7 +166,7 @@ export async function setMapAircraft(settings: {
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
-        const smoothFeatureProperties = smoothMovement && !isSelfFlight && existingFeature
+        const smoothFeatureProperties = smoothMovement && existingFeature
             ? existingFeature.getProperties()
             : undefined;
         const featureCoordinates = smoothFeatureProperties
