@@ -3,6 +3,16 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const _dirname = dirname(fileURLToPath(import.meta.url));
+const appDataIgnorePatterns = [
+    'data',
+    'data/**',
+    'app/data',
+    'app/data/**',
+    '**/app/data',
+    '**/app/data/**',
+    resolve(_dirname, 'app/data'),
+    resolve(_dirname, 'app/data/**'),
+];
 
 function isDebug() {
     return process.env.VR_DEBUG === '1' || import.meta.dev || process.env.NODE_ENV === 'development';
@@ -15,6 +25,8 @@ if (process.env.DOMAIN?.includes('next')) appName = 'VATSIM Radar Next';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+    ignore: appDataIgnorePatterns,
+
     app: {
         buildAssetsDir: '/static/',
         rootId: '__app',
@@ -178,6 +190,10 @@ export default defineNuxtConfig({
     },
 
     nitro: {
+        ignore: appDataIgnorePatterns,
+        watchOptions: {
+            ignored: appDataIgnorePatterns,
+        },
         devProxy: {
             host: '127.0.0.1',
         },
@@ -341,6 +357,9 @@ export default defineNuxtConfig({
         },
         server: {
             allowedHosts: ['localhost', 'frontend', 'nuxt', 'bs-local'],
+            watch: {
+                ignored: appDataIgnorePatterns,
+            },
         },
         css: {
             preprocessorMaxWorkers: true,
