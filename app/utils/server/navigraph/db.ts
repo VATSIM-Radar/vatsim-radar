@@ -1,7 +1,7 @@
 import sqlite3 from 'better-sqlite3';
 import { join } from 'path';
 import { readdirSync } from 'fs';
-import { existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/server/storage';
 import { unpack } from '7zip-min';
@@ -70,15 +70,15 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
     writeFileSync(tempPath, Buffer.from(zip));
 
     try {
-        if (!existsSync(tempDir)) {
-            mkdirSync(tempDir);
-        }
+        rmSync(tempDir, { recursive: true, force: true });
+        mkdirSync(tempDir);
 
         await unpack(tempPath, tempDir);
         const dirList = readdirSync(tempDir);
         renameSync(join(tempDir, dirList[0]), join(path, filename));
     }
     finally {
+        rmSync(tempDir, { recursive: true, force: true });
         if (existsSync(tempPath)) {
             unlinkSync(tempPath);
         }

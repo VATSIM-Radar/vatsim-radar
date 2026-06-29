@@ -26,6 +26,9 @@ spec:
           command: ["/radar/.config/navigraph-prod.sh"]
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: navigraph-data
+              mountPath: /radar/app/data
           readinessProbe:
             tcpSocket:
               port: 3000
@@ -34,6 +37,10 @@ spec:
             successThreshold: 1
             failureThreshold: 30
             timeoutSeconds: 15
+      volumes:
+        - name: navigraph-data
+          persistentVolumeClaim:
+            claimName: radar-navigraph-prod
 ---
 apiVersion: v1
 kind: Service
