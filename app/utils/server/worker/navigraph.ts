@@ -2,39 +2,39 @@ import { createRouter, addRoute, findRoute } from 'rou3';
 import { serve } from 'srvx';
 import { defaultRedis, setRedisSync, unsetRedisSync } from '~/utils/server/redis';
 import { radarStorage } from '~/utils/server/storage';
-import { processDatabase } from '~/utils/server/navigraph/navdata';
 import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/server/navigraph/db';
 import type { cycles } from '~/utils/server/navigraph/db';
-import type {
-    NavDataProcedure,
-    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataApproachShort,
-    NavigraphNavDataShort,
-    NavigraphNavDataStar, NavigraphNavDataStarShort,
-} from '~/utils/server/navigraph/navdata/types';
-import { defineCronJob } from '~/utils/server';
+import type { NavigraphNavDataShort, NavigraphNavDataShortProcedures } from '~/utils/server/navigraph/navdata/types';
+import { defineCronJob, readJsonFile } from '~/utils/server';
+import {
+    ensureCycleCache,
+    getCachedProcedurePath,
+    readCachedItem,
+} from '~/utils/server/navigraph/cache';
+import type { NavigraphCycleType, NavigraphProcedureGroup } from '~/utils/server/navigraph/cache';
 
 const navigraphData: {
     versions: typeof cycles;
-    full: {
-        current: NavigraphNavData | null;
-        outdated: NavigraphNavData | null;
-    };
     short: {
         current: NavigraphNavDataShort | null;
         outdated: NavigraphNavDataShort | null;
+    };
+    cachePath: {
+        current: string;
+        outdated: string;
     };
 } = {
     versions: {
         current: '',
         outdated: '',
     },
-    full: {
-        current: null,
-        outdated: null,
-    },
     short: {
         current: null,
         outdated: null,
+    },
+    cachePath: {
+        current: '',
+        outdated: '',
     },
 };
 
@@ -48,16 +48,23 @@ async function updateNavigraph() {
         if (navigraphData.versions.current !== radarStorage.navigraph.current || navigraphData.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
             console.log('Update has started', radarStorage.navigraph.current, navigraphData.versions.current);
             await unsetRedisSync('navigraph-ready');
-            const current = await processDatabase(navigraphCurrentDb!, radarStorage.navigraph.current);
-            const outdated = await processDatabase(navigraphOutdatedDb!, radarStorage.navigraph.outdated);
+            const current = await ensureCycleCache({
+                type: 'current',
+                version: radarStorage.navigraph.current,
+                db: navigraphCurrentDb!,
+            });
+            const outdated = await ensureCycleCache({
+                type: 'outdated',
+                version: radarStorage.navigraph.outdated,
+                db: navigraphOutdatedDb!,
+            });
 
             navigraphData.versions = { ...radarStorage.navigraph };
 
-            navigraphData.full.current = current.full;
             navigraphData.short.current = current.short;
-
-            navigraphData.full.outdated = outdated.full;
             navigraphData.short.outdated = outdated.short;
+            navigraphData.cachePath.current = current.path;
+            navigraphData.cachePath.outdated = outdated.path;
 
             setRedisSync('navigraph-ready', '1', 1000 * 60 * 60 * 24);
             defaultRedis.publish('update', 'navigraph-data');
@@ -111,13 +118,9 @@ serve({
 
         if (route.data.type === 'item') {
             const { type, key, data } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
 
-            const object = navigraphData.full[type as 'current' | 'outdated']?.[data as keyof NavigraphNavData];
-            if (!object) {
-                return handleError('Data object not found');
-            }
-
-            const item = object[key as keyof typeof object];
+            const item = readCachedItem(root, data, key);
             if (!item) {
                 return handleError('Item not found for this key');
             }
@@ -163,44 +166,14 @@ serve({
             });
         }
 
-        function getShortStar(star: NavDataProcedure<NavigraphNavDataStar>): NavigraphNavDataStarShort {
-            return {
-                identifier: star.procedure.identifier,
-                runways: star.procedure.runways,
-                transitions: {
-                    runway: star.transitions.runway.map(x => x.name),
-                    enroute: star.transitions.enroute.map(x => x.name),
-                },
-            };
-        }
-
-        function getShortApproach(star: NavDataProcedure<NavigraphNavDataApproach>): NavigraphNavDataApproachShort {
-            return {
-                name: star.procedure.procedureName,
-                runway: star.procedure.runway,
-                transitions: star.transitions.map(x => x.name),
-            };
-        }
-
         if (route.data.type === 'allProcedures') {
             const { type, airport } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
+            const data = readJsonFile<NavigraphNavDataShortProcedures>(getCachedProcedurePath(root, airport, undefined, 'all'));
+            if (!data) return handleError('Not found');
 
-            const stars = data.stars[airport];
-            const sids = data.sids[airport];
-            const approaches = data.approaches[airport];
-
-            if (!stars && !sids && !approaches) return handleError('Not found');
-
-            return new Response(JSON.stringify({
-                stars: stars?.map(x => getShortStar(x)) ?? [],
-                sids: sids?.map(x => getShortStar(x)) ?? [],
-                approaches: approaches?.map(x => getShortApproach(x)) ?? [],
-            }), {
+            return new Response(JSON.stringify(data), {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -209,46 +182,23 @@ serve({
 
         if (route.data.type === 'procedures') {
             const { type, airport, group } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
+            const procedures = readJsonFile(getCachedProcedurePath(root, airport, group as NavigraphProcedureGroup, 'index'));
+            if (!procedures) return handleError('Not found');
 
-            const _procedures = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
-
-            if (!_procedures) return handleError('Not found');
-
-            if (group !== 'approaches') {
-                const procedures = _procedures as NavDataProcedure<NavigraphNavDataStar>[];
-
-                return new Response(JSON.stringify(procedures.map(x => getShortStar(x))), {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-            }
-            else {
-                const procedures = _procedures as NavDataProcedure<NavigraphNavDataApproach>[];
-
-                return new Response(JSON.stringify(procedures.map(x => getShortApproach(x))), {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-            }
+            return new Response(JSON.stringify(procedures), {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
         }
 
         if (route.data.type === 'procedure') {
             const { type, airport, group, index } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
-
-            const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport]?.[+index];
-
+            const procedure = readJsonFile(getCachedProcedurePath(root, airport, group as NavigraphProcedureGroup, index));
             if (!procedure) return handleError('Not found');
 
             return new Response(JSON.stringify(procedure), {
@@ -261,13 +211,9 @@ serve({
 
         if (route.data.type === 'allProcedure') {
             const { type, airport, group } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
-
-            const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
+            const procedure = readCachedItem(root, group, airport);
 
             if (!procedure) return handleError('Not found');
 

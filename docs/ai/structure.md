@@ -187,7 +187,7 @@ Background tasks:
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
-- `app/utils/server/navigraph/*` handles Navigraph DB setup and navdata parsing.
+- `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
 - `app/utils/server/influx/*` handles analytics queries/converters. `queries.ts` builds InfluxDB 3 SQL over the `data` table; `converters.ts` still emits line protocol for the main and flight-plan databases.
 
