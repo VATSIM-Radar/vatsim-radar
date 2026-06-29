@@ -126,6 +126,12 @@ function writeItemCache(path: string, full: NavigraphNavData) {
     }
 }
 
+function clearFullData(full: NavigraphNavData) {
+    for (const key of Object.keys(full)) {
+        delete (full as unknown as Record<string, unknown>)[key];
+    }
+}
+
 function isCacheReady(path: string) {
     if (!existsSync(join(path, 'ready')) || !existsSync(join(path, 'short.json'))) return false;
 
@@ -187,20 +193,26 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
     mkdirSync(path, { recursive: true });
 
     const processed = await processDatabase(db, version);
+    const short = processed.short;
 
-    writeItemCache(path, processed.full);
-    writeProcedureCache(path, processed.full);
-    writeJsonFile(join(path, 'short.json'), processed.short);
-    writeJsonFile(join(path, 'cache-version.json'), {
-        version: cacheVersion,
-    } satisfies CacheVersionFile);
-    writeFileSync(join(path, 'ready'), version);
+    try {
+        writeItemCache(path, processed.full);
+        writeProcedureCache(path, processed.full);
+        writeJsonFile(join(path, 'short.json'), short);
+        writeJsonFile(join(path, 'cache-version.json'), {
+            version: cacheVersion,
+        } satisfies CacheVersionFile);
+        writeFileSync(join(path, 'ready'), version);
+    }
+    finally {
+        clearFullData(processed.full);
+    }
 
     pruneOldCycleCaches(type, version);
 
     return {
         path,
-        short: processed.short,
+        short,
     };
 }
 
