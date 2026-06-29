@@ -26,6 +26,10 @@ export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;
 }
 
+export function encodeCachePart(value: string | number) {
+    return encodeURIComponent(String(value));
+}
+
 export function isProductionMode() {
     return typeof process !== 'undefined' ? process.env.DOMAIN === 'https://vatsim-radar.com' : useRuntimeConfig().public.DOMAIN === 'https://vatsim-radar.com';
 }
