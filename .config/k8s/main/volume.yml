@@ -9,15 +9,3 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: do-block-storage
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: radar-navigraph-prod
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: do-block-storage
