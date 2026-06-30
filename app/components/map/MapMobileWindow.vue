@@ -98,6 +98,7 @@ function setMapBottomPadding(bottom: number) {
 }
 
 function onSnap(height: number) {
+    if (sheetOpen.value && height <= 0) closeSheet();
     setMapBottomPadding(sheetOpen.value ? height : 0);
 }
 

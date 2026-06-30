@@ -348,6 +348,11 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 
 const isMobileOrTablet = useIsTouch();
 
+watch(() => mapStore.activeMobileOverlay, id => {
+    if (id || !isMobileOrTablet.value) return;
+    selectFeature(false);
+});
+
 const airportContextAction: RadarEventAction = (payload: RadarEventPayload<FeatureAirport | FeatureAirportAtc>) => {
     const properties = payload.feature.getProperties();
 

@@ -19,7 +19,7 @@ import { transformExtent } from 'ol/proj.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
-import { disposeAircraftStyle } from '~/composables/render/aircraft/style';
+import { disposeAircraftStyle, isPilotOverlayParked } from '~/composables/render/aircraft/style';
 
 defineOptions({
     render: () => null,
@@ -78,6 +78,8 @@ const getShownPilots = computed(() => {
 });
 
 const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
+// Pilot overlays whose aircraft should highlight + draw tracks (excludes "parked" minimized mobile chips).
+const activePilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
 const airportOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'airport' && x.data.showTracks).map(x => x.key));
 const renderedPilots = computed(() => useMapStore().renderedPilots?.length);
 
@@ -115,7 +117,7 @@ function setVisiblePilots() {
         const pilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
         if (!pilot) return;
 
-        const isOverlay = pilotsOverlays.value.includes(x.cid);
+        const isOverlay = activePilotsOverlays.value.includes(x.cid);
         const isShown = visibleFeatures.has(x.cid);
 
         if (isOverlay) {
@@ -340,6 +342,12 @@ useUpdateCallback(['mandatory', 'short', 'extent', showTracks, updateRelatedSett
 });
 
 watch([getShownPilots, canRender, showTracks, renderedPilots, dataStore.vatsim.data.keyedPilots], debouncedUpdate);
+
+watch(activePilotsOverlays, () => {
+    if (!init) return;
+    visibleSet();
+    debouncedUpdate();
+});
 
 watch(map, val => {
     if (!val) return;
