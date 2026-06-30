@@ -2,7 +2,6 @@
     <map-html-overlay
         ref="overlay"
         class="popup-airport"
-        is-interaction
         model-value
         :settings="{
             //position: payload.coordinate,
@@ -12,6 +11,7 @@
             positioning: type === 'airport' ? 'bottom-center' : 'top-center',
         }"
         :z-index="20"
+        @close="emit('close')"
         @id="$emit('id', $event)"
         @pointermove.stop
         @update:overlay="!$event && emit('close')"
@@ -43,7 +43,7 @@
                     v-for="controller in sector.atc"
                     :key="controller.cid"
                     :controller
-                    @overlay="emit('close')"
+                    @overlay="$emit('close')"
                 />
                 <template v-if="sector.min === 0">
                     <ui-text
@@ -70,7 +70,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
-            @overlay="emit('close')"
+            @overlay="$emit('close')"
         >
             <template #title>
                 {{getPopupName}}

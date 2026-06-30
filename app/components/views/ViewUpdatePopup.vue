@@ -267,7 +267,7 @@ const close = async () => {
 
         @include mobileOnly {
             width: 80dvw;
-            height: auto;
+            min-height: auto;
         }
 
         &_title {

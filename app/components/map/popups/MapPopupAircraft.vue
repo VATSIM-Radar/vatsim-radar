@@ -1,10 +1,10 @@
 <template>
     <map-html-overlay
         class="aircraft-overlay"
-        is-interaction
         model-value
         :settings="getOverlaySettings"
         :z-index="20"
+        @close="emit('close')"
         @id="$emit('id', $event)"
         @pointermove.stop
         @update:overlay="!$event && emit('close')"

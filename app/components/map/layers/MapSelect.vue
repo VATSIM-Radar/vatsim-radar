@@ -2,7 +2,6 @@
     <div ref="select">
         <map-html-overlay
             v-if="contextMenu"
-            is-interaction
             model-value
             persistent
             :settings="{
@@ -11,6 +10,7 @@
                 stopEvent: true,
             }"
             :z-index="5"
+            @close="contextMenu = null"
             @mouseleave="!$event.relatedTarget?.closest('#teleports') && (contextMenu = null)"
             @pointermove.stop
             @update:modelValue="contextMenu = null"
@@ -86,7 +86,6 @@
         <map-html-overlay
             v-else-if="multiSelectCoordinate"
             :key="String(multiSelectCoordinate)"
-            is-interaction
             model-value
             persistent
             :settings="{
@@ -95,6 +94,7 @@
                 stopEvent: true,
             }"
             :z-index="5"
+            @close="multiSelectCoordinate = null"
             @mouseleave="multiSelectCoordinate = null"
             @pointermove.stop
             @update:modelValue="multiSelectCoordinate = null"
@@ -348,6 +348,11 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 
 const isMobileOrTablet = useIsTouch();
 
+watch(() => mapStore.activeMobileOverlay, id => {
+    if (id || !isMobileOrTablet.value) return;
+    selectFeature(false);
+});
+
 const airportContextAction: RadarEventAction = (payload: RadarEventPayload<FeatureAirport | FeatureAirportAtc>) => {
     const properties = payload.feature.getProperties();
 
@@ -378,6 +383,23 @@ const airportContextAction: RadarEventAction = (payload: RadarEventPayload<Featu
         ],
     };
 };
+
+function airportCounterOverlayOptions(counterType?: string): Parameters<typeof mapStore.addAirportOverlay>[1] {
+    switch (counterType) {
+        case 'departures':
+            return { tab: 'aircraft', aircraftTab: 'departed' };
+        case 'arrivals':
+            return { tab: 'aircraft', aircraftTab: 'arriving' };
+        case 'groundDep':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'dep' };
+        case 'groundArr':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'arr' };
+        case 'prefiles':
+            return { tab: 'aircraft', aircraftTab: 'ground', aircraftGroundMode: 'prefiles' };
+        default:
+            return { tab: 'aircraft', aircraftTab: 'ground' };
+    }
+}
 
 const definitions = {
     airportControllers: {
@@ -420,11 +442,13 @@ const definitions = {
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
+        disableMobileHoverFallback: true,
         hover: payload => {
             return openOverlay('airportCounter', payload, 'airportCounter');
         },
         click: payload => {
-            mapStore.addAirportOverlay(payload.feature.getProperties().icao);
+            const properties = payload.feature.getProperties();
+            mapStore.addAirportOverlay(properties.icao, airportCounterOverlayOptions(properties.counterType));
         },
     },
     sector: {

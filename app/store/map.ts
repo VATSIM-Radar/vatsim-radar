@@ -60,6 +60,7 @@ export interface StoreOverlayAirport extends StoreOverlayDefault {
         notams?: VatsimAirportDataNotam[];
         showTracks?: boolean;
         aircraftTab?: 'departed' | 'ground' | 'arriving';
+        aircraftGroundMode?: 'depArr' | 'dep' | 'arr' | 'prefiles';
         tab?: 'aircraft' | 'atc' | 'procedures' | 'info';
     };
 }
@@ -102,6 +103,7 @@ export const useMapStore = defineStore('map', {
         selectedCid: null as number | false | null,
 
         activeMobileOverlay: null as null | string,
+        mobileSheetCollapse: 0,
         autoShowTracks: null as null | boolean,
 
         distance: {
@@ -299,8 +301,9 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
             }
         },
-        async addAirportOverlay(airport: string, { aircraftTab, tab }: {
+        async addAirportOverlay(airport: string, { aircraftTab, aircraftGroundMode, tab }: {
             aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
+            aircraftGroundMode?: StoreOverlayAirport['data']['aircraftGroundMode'];
             tab?: StoreOverlayAirport['data']['tab'];
         } = {}, params?: PartialOverlayParams<StoreOverlayAirport>) {
             if (this.openingOverlay) {
@@ -317,6 +320,17 @@ export const useMapStore = defineStore('map', {
                     if (store.isMobile) this.overlays.forEach(x => x.minified = true);
                     existingOverlay.collapsed = false;
                     existingOverlay.minified = false;
+                    if (existingOverlay.type === 'airport') {
+                        const nextTab = tab ?? existingOverlay.data.tab ?? 'aircraft';
+                        const nextAircraftTab = aircraftTab ?? existingOverlay.data.aircraftTab;
+
+                        if (tab) existingOverlay.data.tab = tab;
+                        if (aircraftTab) existingOverlay.data.aircraftTab = aircraftTab;
+                        if (aircraftGroundMode) existingOverlay.data.aircraftGroundMode = aircraftGroundMode;
+                        else if (nextTab === 'aircraft' && nextAircraftTab === 'ground') {
+                            existingOverlay.data.aircraftGroundMode = 'depArr';
+                        }
+                    }
                     this.activeMobileOverlay = existingOverlay.id;
                     return;
                 }
@@ -337,6 +351,7 @@ export const useMapStore = defineStore('map', {
                         icao: airport,
                         showTracks: this.autoShowTracks ?? getKeyedValueFromSettings('map.traffic.autoShowAirportTracks'),
                         aircraftTab,
+                        aircraftGroundMode,
                         tab,
                         ...params?.data ?? {},
                     },

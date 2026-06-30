@@ -133,7 +133,11 @@ function getAircraftPngWidth(renderedWidth: number) {
 
 let watcher: WatchHandle | undefined = undefined;
 
-export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
+export function isPilotOverlayParked(overlay: { minified: boolean; sticky: boolean }): boolean {
+    return useStore().isMobile && overlay.minified && !overlay.sticky;
+}
+
+export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
 
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};

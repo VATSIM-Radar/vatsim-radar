@@ -646,4 +646,51 @@ img {
         max-width: 56px;
     }
 }
+
+.radar-vbs {
+    &_popup {
+        flex: 1 0 auto;
+        width: 100%;
+    }
+
+    &_handle-zone {
+        position: sticky;
+        z-index: 9;
+        top: 0;
+
+        overflow: visible;
+
+        height: 0;
+    }
+
+    &_handle {
+        cursor: grab;
+
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 64px;
+        height: 16px;
+
+        &::after {
+            content: '';
+
+            width: 36px;
+            height: 4px;
+            border-radius: 999px;
+
+            background: var(--vbs-handle);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+}
 </style>

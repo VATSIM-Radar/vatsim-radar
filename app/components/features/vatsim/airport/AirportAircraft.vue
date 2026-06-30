@@ -176,6 +176,10 @@ const props = defineProps({
         type: String as PropType<'departed' | 'ground' | 'arriving'>,
         default: 'ground',
     },
+    groundMode: {
+        type: String as PropType<AircraftGroundMode | null>,
+        default: null,
+    },
     navOffset: {
         type: String,
         default: '0',
@@ -206,7 +210,8 @@ export type AircraftGroundMode = 'depArr' | 'dep' | 'arr' | 'prefiles';
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const aircraftMode = ref<'departed' | 'ground' | 'arriving'>(props.mode);
-const aircraftGroundMode = ref<AircraftGroundMode>('depArr');
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const aircraftGroundMode = ref<AircraftGroundMode>(props.groundMode ?? 'depArr');
 const aircraftGroundFilterOpened = ref(false);
 
 const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.icao ?? '']);
@@ -231,6 +236,14 @@ watch(() => props.simpleMode, val => {
     }
 }, {
     immediate: true,
+});
+
+watch(() => props.mode, val => {
+    aircraftMode.value = val;
+});
+
+watch(() => props.groundMode, val => {
+    if (val) aircraftGroundMode.value = val;
 });
 
 const displayedAircraft = computed((): AirportPopupPilotStatus[] => {

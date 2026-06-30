@@ -61,7 +61,7 @@
         <template #action-track>
             <div
                 title="Track aircraft"
-                @click="props.overlay.data.tracked = !props.overlay.data.tracked"
+                @click="toggleTrack"
             >
                 <track-icon
                     class="pilot__track"
@@ -210,7 +210,7 @@
             <ui-button-group>
                 <ui-button
                     :disabled="store.config.hideAllExternal"
-                    @click="overlay.data.tracked = !overlay.data.tracked"
+                    @click="toggleTrack"
                 >
                     <template #icon>
                         <track-icon
@@ -357,8 +357,14 @@ const arrAirport = computed<AirportListItem | null>(() => {
     return dataStore.vatsim.parsedAirports.value[pilot.value.flight_plan?.arrival ?? ''];
 });
 
+const toggleTrack = () => {
+    props.overlay.data.tracked = !props.overlay.data.tracked;
+    mapStore.mobileSheetCollapse++;
+};
+
 const showOnMap = () => {
     showPilotOnMap(pilot.value, map.value);
+    mapStore.mobileSheetCollapse++;
 };
 
 const viewRoute = () => {
@@ -369,6 +375,7 @@ const viewRoute = () => {
     ]);
 
     props.overlay.data.tracked = false;
+    mapStore.mobileSheetCollapse++;
 
     const view = map.value?.getView();
 

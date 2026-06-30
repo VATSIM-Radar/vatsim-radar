@@ -17287,6 +17287,7 @@ __metadata:
     vite-svg-loader: "npm:5.1.1"
     vitepress: "npm:1.6.4"
     vue: "npm:3.5.39"
+    vue-bottom-sheets: "npm:^0.4.0"
     vue-chartjs: "npm:5.3.3"
     vue-draggable-plus: "npm:0.6.1"
     vue-tsc: "npm:3.3.5"
@@ -17648,6 +17649,15 @@ __metadata:
   version: 3.1.0
   resolution: "vscode-uri@npm:3.1.0"
   checksum: 10c0/5f6c9c10fd9b1664d71fab4e9fbbae6be93c7f75bb3a1d9d74399a88ab8649e99691223fd7cef4644376cac6e94fa2c086d802521b9a8e31c5af3e60f0f35624
+  languageName: node
+  linkType: hard
+
+"vue-bottom-sheets@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "vue-bottom-sheets@npm:0.4.0"
+  peerDependencies:
+    vue: ^3.3.0
+  checksum: 10c0/61f634a3cd0f3147a0a6f85afd9365e7b151cf5083634a3402a50e493760cfdde75d63fb6060abb7d5aeb004253d389dd02e93ac3df579fba5ad5b9ff62bb6fc
   languageName: node
   linkType: hard
 

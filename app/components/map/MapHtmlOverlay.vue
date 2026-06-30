@@ -1,7 +1,34 @@
 <template>
+    <bottom-sheet
+        v-if="usesMobileSheet"
+        aria-label="Map info"
+        :blocking="false"
+        class="map-overlay-sheet"
+        :handle="false"
+        :max-height="sheetMaxHeight"
+        :open="model"
+        :theme="{ ...mapBottomSheetTheme, zIndex: 10 }"
+        @dismiss="emit('close')"
+    >
+        <template #default="{ dragHandleProps }">
+            <div class="radar-vbs_handle-zone">
+                <div
+                    class="radar-vbs_handle"
+                    v-bind="dragHandleProps"
+                />
+            </div>
+            <div class="map-overlay map-overlay--sheet" v-bind="$attrs">
+                <slot/>
+                <slot
+                    v-if="isPopupOpen"
+                    name="popup"
+                />
+            </div>
+        </template>
+    </bottom-sheet>
     <div
-        v-if="model"
-        v-show="isMobile && mobile"
+        v-else-if="model"
+        v-show="false"
         class="map-overlay-block"
     >
         <div
@@ -24,7 +51,9 @@ import type { PropType, ShallowRef } from 'vue';
 import type { Options } from 'ol/Overlay.js';
 import { Overlay } from 'ol';
 import type { Map } from 'ol';
+import { BottomSheet } from 'vue-bottom-sheets';
 import { useMapStore } from '~/store/map';
+import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
 
 defineOptions({
     inheritAttrs: false,
@@ -48,9 +77,9 @@ const props = defineProps({
     activeZIndex: {
         type: Number,
     },
-    mobile: {
+    disableMobileInteraction: {
         type: Boolean,
-        default: true,
+        default: false,
     },
 });
 
@@ -59,6 +88,9 @@ const emit = defineEmits({
         return true;
     },
     popupId(popupId: string) {
+        return true;
+    },
+    close() {
         return true;
     },
 });
@@ -79,8 +111,13 @@ const overlay = defineModel('overlay', {
 });
 
 const isMobile = useIsMobile();
+const usesMobileSheet = computed(() => {
+    return model.value && isMobile.value && !props.disableMobileInteraction && !props.persistent;
+});
 
 const mapStore = useMapStore();
+
+const sheetMaxHeight = useSheetMaxHeight();
 
 const id = useId();
 const popupId = `${ id }-popup`;
@@ -141,8 +178,13 @@ function removeOverlay() {
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
 }
 
-watch([model, popup, openOverlayId, overlayElement], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
-    if (!overlayElement.value || isMobile.value) return;
+watch([model, popup, openOverlayId, overlayElement, usesMobileSheet], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
+    if (usesMobileSheet.value) {
+        removeOverlay();
+        return;
+    }
+
+    if (!overlayElement.value) return;
     await nextTick();
     if (model.value && !overlay.value) {
         if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {
@@ -215,6 +257,36 @@ onBeforeUnmount(() => {
     if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;
 });
 </script>
+
+<style lang="scss">
+.map-overlay-sheet {
+    .vbs__header {
+        padding: 8px 16px 0;
+    }
+
+    .vbs__content-inner {
+        padding: 0;
+    }
+
+    .popup-block {
+        padding: 0 10px;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .popup-block_title {
+        position: sticky;
+        z-index: 1;
+        top: 0;
+        background: var(--vbs-bg);
+    }
+
+    .radar-vbs_handle {
+        top: 0;
+    }
+}
+</style>
 
 <style lang="scss" scoped>
 @include mobileOnly {

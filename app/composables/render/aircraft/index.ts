@@ -13,7 +13,7 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { degreesToRadians } from '@turf/helpers';
 import { aircraftIcons } from '~/utils/icons';
 import { createDefaultStyle } from 'ol/style/Style.js';
-import { setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
+import { isPilotOverlayParked, setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
 import { isSmoothMovementEnabled, isSmoothMovementSuspendedForLoad } from '~/composables/render/aircraft/smooth';
 import { aircraftState } from './state';
@@ -116,8 +116,7 @@ export async function setMapAircraft(settings: {
     const mapStore = useMapStore();
 
     const smoothMovement = isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad();
-
-    const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').map(x => [+x.key, x]));
+    const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
 
     const linesFeatures = linesSource.getFeatures().slice(0);
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
