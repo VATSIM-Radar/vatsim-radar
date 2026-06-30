@@ -65,8 +65,8 @@
                         <ui-data-list
                             :items="[
                                 { key: 'rating', title: 'Rating', text: shortRating },
-                                { key: 'total', title: 'Total Hours', text: stats?.total },
-                                { key: 'on-rating', title: `Hours on ${ shortRating }`, text: stats?.rating },
+                                { key: 'total', title: 'Total Hours', text: stats?.total, hide: !stats },
+                                { key: 'on-rating', title: `Hours on ${ shortRating }`, text: stats?.rating, hide: !stats },
                                 { key: 'time-online', title: 'Time Online', text: getATCTime(atc) },
                             ]"
                         >

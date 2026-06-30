@@ -24,8 +24,6 @@ export interface FirFindResult {
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
 }
 
-const setVatspyBoundaries = new Set<string>();
-
 async function filterFirsForList(list: string[] | undefined, callsign: string) {
     if (!list?.length) return [];
 
@@ -71,13 +69,11 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
         }
         maxStart = length;
 
-        const features = dataStore.vatspy.value?.data.features[fir.boundary] ?? [];
+        const features = await dataStore.vatspyBoundary(fir.boundary);
 
         if (!features.length) {
             continue;
         }
-
-        setVatspyBoundaries.add(fir.boundary);
 
         result.push({
             fir,
@@ -201,14 +197,12 @@ export async function updateControllers(context: DataUpdateContext) {
         }, 1000 * 60 * 60);
     }
 
-    setVatspyBoundaries.clear();
-
-    if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
-        dataStore.versions.value!.vatspy = '';
-        await checkForVATSpy();
-    }
-
     if (!uirsMap) {
+        if (dataStore.vatspy.value && !dataStore.vatspy.value.data.uirs?.length) {
+            dataStore.versions.value!.vatspy = '';
+            await checkForVATSpy();
+        }
+
         if (dataStore.vatspy.value && dataStore.vatspy.value?.data.uirs?.length && dataStore.vatspy.value?.data.firs?.length) {
             uirsMap = {};
 
@@ -239,10 +233,6 @@ export async function updateControllers(context: DataUpdateContext) {
                 firsMapByCallsign[callsign ?? icao] ??= [];
                 firsMapByCallsign[callsign ?? icao].push(key);
             }
-
-            // Cleanup
-            dataStore.vatspy.value.data.firs.length = 0;
-            dataStore.vatspy.value.data.uirs.length = 0;
         }
     }
 
@@ -296,7 +286,11 @@ export async function updateControllers(context: DataUpdateContext) {
             let match = false;
 
             for (const setting of duplicatingSettings) {
-                if (controller.text_atis?.length && setting.regex.test(controller.callsign)) {
+                if (controller.text_atis?.length && (
+                    setting.matchRegex?.test(controller.callsign) || ((setting.prefixes?.length || setting.suffixes?.length) &&
+                        (!setting.prefixes?.length || setting.prefixes?.some(x => controller.callsign.startsWith(x))) &&
+                        (!setting.suffixes?.length || setting.suffixes?.some(x => controller.callsign.endsWith(x)))
+                    ))) {
                     match = true;
                     const atisText = controller.text_atis.join(' ');
 
@@ -470,8 +464,6 @@ export async function updateControllers(context: DataUpdateContext) {
                 if (context.airports[airport.icao!].airport?.isPseudo && (!airport.isPseudo || context.airports[airport.icao!].aircraftCount)) context.airports[airport.icao!].airport!.isPseudo = false;
             }
 
-            if (controller.callsign.startsWith('GCCA')) console.log(controller.callsign, feature, airport, validPrefix, dataAirport);
-
             if (!dataAirport) continue;
 
             // Booking ATC are added last, so that makes sense
@@ -493,15 +485,5 @@ export async function updateControllers(context: DataUpdateContext) {
 
     for (const airport of Object.values(context.airports)) {
         airport.atc = airport.atc.filter(x => !context.atcAdded?.has(x.callsign) || x.facility <= facilities.TWR);
-    }
-
-    for (const boundary in dataStore.vatspy.value?.data.features) {
-        if (setVatspyBoundaries.has(boundary)) continue;
-
-        for (const feature of dataStore.vatspy.value?.data.features[boundary] ?? []) {
-            addSector(context, {
-                feature,
-            }, null);
-        }
     }
 }

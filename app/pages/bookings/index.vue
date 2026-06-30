@@ -2,7 +2,7 @@
     <ui-page-container>
         <div class="picker">
             <template
-                v-if="!isMobile && !collapsed"
+                v-if="!collapsed"
             >
                 <div class="picker-row picker-row-top">
                     <div class="picker-presets-custom">
@@ -321,6 +321,7 @@ useHead({
     &-row {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 64px;
         align-items: center;
     }
@@ -329,6 +330,7 @@ useHead({
         &-fixed {
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 16px;
             align-items: center;
         }
@@ -336,6 +338,7 @@ useHead({
         &-custom {
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 8px;
             align-items: center;
         }
@@ -344,6 +347,7 @@ useHead({
     &-actions {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 16px;
         align-items: center;
     }
@@ -358,6 +362,7 @@ useHead({
         &-container {
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 16px;
             align-items: center;
             justify-content: center;

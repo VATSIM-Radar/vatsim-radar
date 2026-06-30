@@ -117,8 +117,8 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
         if (!runways?.length && !gates?.length) continue;
 
         const pilots = [
-            ...(airportsMap[icao]?.groundDep ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x]),
-            ...(airportsMap[icao]?.groundArr ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x]),
+            ...(airportsMap[icao]?.groundDep ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x]).filter(x => x),
+            ...(airportsMap[icao]?.groundArr ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x]).filter(x => x),
         ] as VatsimShortenedAircraft[];
 
         const resolvedGates = gates ? getGatesMatch(gates, pilots) : [];

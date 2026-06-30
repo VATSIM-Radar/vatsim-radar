@@ -299,7 +299,7 @@ const select = useTemplateRef('select');
 useClickOutside({
     element: select,
     callback: () => {
-        if (!isMobileOrTablet.value) return;
+        if (!isMobileOrTablet.value || !map.value) return;
         map.value!.getTargetElement().style.cursor = 'grab';
         openedOverlay.value = null;
         selectFeature(false);
@@ -651,6 +651,7 @@ watch(contextMenu, val => {
 function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
         try {
+            if (!map.value) return;
             const selected = (arg.mapBrowserEvent && type !== 'hover') ? arg.selected : select.getFeatures().getArray();
 
             if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
@@ -666,7 +667,9 @@ function createSelectHandler(type: EventType, select: Select) {
                 if (type === 'hover' || isMobileOrTablet.value) {
                     sleep(100).then(() => {
                         if (!select.getFeatures().getArray().length) {
-                            map.value!.getTargetElement().style.cursor = 'grab';
+                            if (map.value) {
+                                map.value!.getTargetElement().style.cursor = 'grab';
+                            }
                             openedOverlay.value = null;
                             selectFeature(false);
                         }
@@ -710,7 +713,7 @@ function createSelectHandler(type: EventType, select: Select) {
 
                 tookAction = true;
 
-                if (!map.value!.getTargetElement()) return false;
+                if (!map.value?.getTargetElement()) return false;
 
                 if (result === false) {
                     map.value!.getTargetElement().style.cursor = 'grab';
@@ -777,7 +780,9 @@ function createSelectHandler(type: EventType, select: Select) {
 
             if (!tookAction) {
                 if (type === 'hover') {
-                    map.value!.getTargetElement().style.cursor = 'grab';
+                    if (map.value) {
+                        map.value!.getTargetElement().style.cursor = 'grab';
+                    }
                     select.clearSelection();
                 }
                 else if (type === 'click') {
@@ -811,7 +816,7 @@ watch(map, val => {
         condition: pointerMove,
         multi: true,
         style: null,
-        hitTolerance: 2,
+        hitTolerance: isMobileOrTablet.value ? 5 : 2,
         filter,
     });
 
@@ -821,7 +826,7 @@ watch(map, val => {
 
     clickSelect = new Select({
         condition: singleClick,
-        hitTolerance: 5,
+        hitTolerance: isMobileOrTablet.value ? 5 : 2,
         multi: true,
         style: null,
         toggleCondition: always,
@@ -838,7 +843,7 @@ watch(map, val => {
 
     rightClickSelect = new Select({
         condition: rightClickCondition,
-        hitTolerance: 10,
+        hitTolerance: 5,
         multi: true,
         style: null,
         toggleCondition: always,

@@ -29,6 +29,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const route = useRoute();
     const store = useStore();
     const isMobile = useIsMobile();
+    const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
 
     const menu: HeaderItem[] = [
         {
@@ -66,7 +67,13 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
         {
             text: 'Dashboard',
             icon: DataIcon,
-            disabled: true,
+            path: '/dashboard',
+            children: seenDashboards.value.length
+                ? seenDashboards.value.map(x => ({
+                    text: x.name,
+                    path: `/dashboard/${ x.id }`,
+                }))
+                : undefined,
         },
         {
             text: 'Stats',
@@ -123,6 +130,12 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     icon: PatreonIcon,
                 },
                 {
+                    text: 'Github',
+                    action: () => {
+                        return window.open('https://github.com/VATSIM-Radar/vatsim-radar');
+                    },
+                },
+                {
                     text: 'Privacy Policy',
                     path: '/privacy-policy',
                 },
@@ -137,7 +150,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     },
                 },
                 {
-                    text: 'Install App',
+                    text: 'Install PWA',
                     active: false,
                     hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
                     action: () => {

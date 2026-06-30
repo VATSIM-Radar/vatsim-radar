@@ -32,7 +32,7 @@
             </div>
         </div>
         <client-only>
-            <layout-consent/>
+            <layout-consent v-if="!store.config.dashboardId"/>
             <layout-distance-tutorial/>
         </client-only>
         <layout-consent-popup/>
@@ -85,7 +85,7 @@ const theme = useCookie<ThemesList>('theme', {
 
 store.theme = theme.value ?? settingsStore?.settings.appearance?.theme ?? 'default';
 
-checkAndSetMapPreset();
+await checkAndSetMapPreset();
 
 defineRouteRules({
     prerender: true,
@@ -315,9 +315,15 @@ await useAsyncData('default-init', async () => {
 
 await useAsyncData('map-presets', async () => {
     setAircraftDefaultColors();
-    await settingsStore.fetchPresets();
+    await settingsStore.fetchPresets().catch(console.error);
+    return true;
 }, {
     server: false,
+});
+
+await useAsyncData('desktop-releases', async () => {
+    await store.fetchRelease().catch(console.error);
+    return true;
 });
 </script>
 

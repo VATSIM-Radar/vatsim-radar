@@ -57,8 +57,6 @@ export const useSettingsStore = defineStore('settings', {
             autoSave?: boolean;
             dontSave?: boolean;
         } = {}) {
-            console.log(autoSave, this.activeSettingsPreset);
-
             if (autoSave) {
                 this.autoSave = this.getAutoSave();
 

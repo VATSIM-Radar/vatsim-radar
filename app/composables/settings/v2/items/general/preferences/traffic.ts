@@ -9,6 +9,13 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.showFullRoute'),
         onChange: value => setSettingByKey('map.traffic.showFullRoute', value),
     },
+    showRouteDetails: {
+        title: 'Show all route details',
+        description: 'Shows miles remaining and other information without need to hover over it in overlay',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showRouteDetails'),
+        onChange: value => setSettingByKey('map.traffic.showRouteDetails', value),
+    },
     toggleAircraftOverlays: {
         title: 'Fast open multiple aircraft',
         description: 'By default, you have to pin aircraft overlay to keep it open - it will close otherwise. With this setting, it will stay open, and others will open minified.',
@@ -29,6 +36,14 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         type: 'toggle',
         value: getSettingValue('map.traffic.disableFastUpdate'),
         onChange: value => setSettingByKey('map.traffic.disableFastUpdate', value),
+    },
+    smoothMovement: {
+        title: 'Smooth aircraft movement',
+        description: 'Animates aircraft between position updates using a spline instead of jumping. Renders ~2s behind real time so positions stay accurate. Uses a bit more CPU.',
+        searchKeywords: ['interpolate', 'interpolation', 'animation', 'spline'],
+        type: 'toggle',
+        value: getSettingValue('map.traffic.smoothMovement'),
+        onChange: value => setSettingByKey('map.traffic.smoothMovement', value),
     },
     declutter: {
         title: 'Aircraft Declutter',

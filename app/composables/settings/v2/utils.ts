@@ -126,6 +126,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.aircraft.main': { color: 'blue500' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
+    'map.preferences.highRatio': false,
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,
@@ -158,9 +159,11 @@ const _settingsDefaultValues = {
     'map.layers.distance.interaction': 'dblclick',
 
     'map.traffic.showFullRoute': false,
+    'map.traffic.showRouteDetails': false,
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,
+    'map.traffic.smoothMovement': true,
     'map.traffic.declutter': false,
     'map.traffic.highlightEmergency': false,
 
@@ -278,7 +281,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
             result[last] = value as unknown;
 
             if (value === null) setCustomDefuMergeAsIs();
-            return useSettingsStore().save(root);
+            return settingsStore.save(root);
         }
     }
     catch (e) {

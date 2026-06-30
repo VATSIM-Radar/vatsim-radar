@@ -15,6 +15,7 @@ import { aircraftIcons } from '~/utils/icons';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { isPilotOverlayParked, setAircraftLineStyle, setAircraftStyle } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
+import { isSmoothMovementEnabled, isSmoothMovementSuspendedForLoad } from '~/composables/render/aircraft/smooth';
 import { aircraftState } from './state';
 import type { DataAirport } from '~/composables/render/storage';
 import type { PartialRecord } from '~/types';
@@ -76,6 +77,16 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
         if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
     }
 
+    if (store.config.airports && !overlay) {
+        for (const airport of store.config.airports) {
+            const vatAirport = airportsMap[airport];
+            if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
+            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
+            if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
+            if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
+        }
+    }
+
     if (overlay || (showTracks && !isOnGround)) return 'active';
 
     return isOnGround ? 'ground' : 'default';
@@ -104,7 +115,8 @@ export async function setMapAircraft(settings: {
     const dataStore = useDataStore();
     const mapStore = useMapStore();
 
-    const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
+    const smoothMovement = isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad();
+    const overlays =  = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
 
     const linesFeatures = linesSource.getFeatures().slice(0);
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
@@ -150,10 +162,16 @@ export async function setMapAircraft(settings: {
         const pilot = dataStore.vatsim.data.keyedPilots.value[aircraft.cid] as VatsimShortenedAircraft | undefined;
         const overlay = overlays[aircraft.cid];
         const isOnGround = allPilotsOnGround.value.has(aircraft.cid);
-        const scale = getAircraftScale(pilot, coordinates, aircraft.icon);
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
+        const smoothFeatureProperties = smoothMovement && existingFeature
+            ? existingFeature.getProperties()
+            : undefined;
+        const featureCoordinates = smoothFeatureProperties
+            ? existingFeature!.getGeometry()!.getCoordinates()
+            : coordinates;
+        const featureHeading = smoothFeatureProperties?.heading ?? heading ?? 0;
 
         const renderState: AircraftRenderState = {
             pilot,
@@ -164,12 +182,14 @@ export async function setMapAircraft(settings: {
             isOnGround,
             status: 'default',
             tracksFeatures: linesFeaturesMap[aircraft.cid] ?? [],
-            coordinates,
+            coordinates: featureCoordinates,
         };
 
         const status = getAircraftStatus(renderState, dataStore.airportsList.value);
 
         renderState.status = status;
+
+        const scale = getAircraftScale(pilot, featureCoordinates, aircraft.icon);
 
         const properties: FeatureAircraftProperties = {
             id: aircraft.cid,
@@ -178,15 +198,15 @@ export async function setMapAircraft(settings: {
             status,
             icon,
             callsign: pilot?.callsign,
-            rotation: degreesToRadians(heading ?? 0),
-            heading,
+            rotation: degreesToRadians(featureHeading),
+            heading: featureHeading,
             scale,
             onGround: isOnGround,
-            coordinates,
+            coordinates: featureCoordinates,
         };
 
         if (existingFeature) {
-            existingFeature.getGeometry()!.setCoordinates(coordinates);
+            if (!smoothMovement) existingFeature.getGeometry()!.setCoordinates(coordinates);
             existingFeature.setProperties(properties);
         }
         else {

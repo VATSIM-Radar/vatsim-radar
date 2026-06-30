@@ -95,11 +95,14 @@ Core files:
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
+- `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
+- `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 
 Map component groups:
 
 - `app/components/map/layers/*`: layer-level map UI and rendered layer components.
+  - `app/components/map/layers/MapLayer.vue`: base raster/vector tile layer selection, Protomaps styling, attribution layer setup, and tile source cleanup.
 - `app/components/map/overlays/*`: draggable/minified overlays for pilots, airports, ATC, etc.
 - `app/components/map/popups/*`: OpenLayers popup content.
 - `app/components/map/settings/*`: map filters and quick settings panels.
@@ -181,8 +184,10 @@ Background tasks:
 
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
+- `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
-- `app/utils/server/navigraph/*` handles Navigraph DB setup and navdata parsing.
+- `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
+- `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
 - `app/utils/server/influx/*` handles analytics queries/converters. `queries.ts` builds InfluxDB 3 SQL over the `data` table; `converters.ts` still emits line protocol for the main and flight-plan databases.
 

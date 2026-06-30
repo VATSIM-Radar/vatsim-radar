@@ -430,17 +430,24 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSecto
     if (!sectors?.length) return [];
 
     const cleaned: TurfFeature<TurfPolygon | TurfMultiPolygon, VatglassesSectorProperties>[] = [];
+    const uncombined: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] = [];
     let min = Infinity;
     let max = -Infinity;
     let baseProps: VatglassesSectorProperties | undefined;
 
     for (const sector of sectors) {
+        // Coordinate conversion mutates the input. Preserve the original lon/lat
+        // geometry so a self-intersecting sector remains visible without union.
+        const originalSector = cloneSectorFeature(sector);
         try {
             convertPolygonCoordinates(sector);
             roundPolygonCoordinates(sector);
             removeDuplicateCoords(sector);
 
-            if (kinks(sector).features.length > 0) continue;
+            if (kinks(sector).features.length > 0) {
+                uncombined.push(originalSector);
+                continue;
+            }
 
             cleaned.push(sector);
             baseProps ??= sector.properties;
@@ -455,7 +462,7 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSecto
         }
     }
 
-    if (!cleaned.length) return [];
+    if (!cleaned.length) return uncombined;
 
     let merged: TurfFeature<TurfPolygon | TurfMultiPolygon> | null;
     if (cleaned.length === 1) {
@@ -498,7 +505,8 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSecto
         };
         combinedGroupSectors.push(currentFeature as TurfFeature<TurfPolygon>);
     });
-    return combinedGroupSectors;
+    // Preserve malformed source polygons instead of silently dropping sectors.
+    return [...combinedGroupSectors, ...uncombined];
 }
 
 function cloneSectorFeature(feature: TurfFeature<TurfPolygon, VatglassesSectorProperties>): TurfFeature<TurfPolygon, VatglassesSectorProperties> {

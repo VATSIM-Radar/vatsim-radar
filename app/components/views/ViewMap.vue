@@ -69,7 +69,7 @@
             <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
-                    <map-minified-overlays/>
+                    <map-minified-overlays v-if="!store.activeDashboard"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -219,6 +219,7 @@ import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
 import MapLayer from '~/components/map/layers/MapLayer.vue';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 defineProps({
     mode: {
@@ -413,7 +414,7 @@ const canShowObserver = computed(() => {
 });
 
 const restoreOverlays = async () => {
-    if (store.config.hideAllExternal) return;
+    if (store.config.hideAllExternal || store.activeDashboard) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
@@ -564,9 +565,9 @@ watch([isMobile, popups], () => {
 });
 
 function saveOverlays() {
-    if (!restoredOverlays.value) return;
+    if (!restoredOverlays.value || store.activeDashboard) return;
     localStorage.setItem('overlays', JSON.stringify(
-        mapStore.overlays.map(x => ({
+        mapStore.overlays.filter(x => !x.dontSave).map(x => ({
             ...x,
             data: undefined,
         })),
@@ -652,8 +653,13 @@ async function handleMoveEnd() {
     });
 
     await sleep(300);
-    if (moving) return;
+    if (moving || !map.value) return;
     mapStore.moving = false;
+    mapStore.zoom = view.getZoom() ?? 0;
+    mapStore.rotation = toDegrees(view.getRotation() ?? 0);
+    mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+    mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 }
 
 async function initDistance(event: MapBrowserEvent) {
@@ -685,9 +691,10 @@ class DistanceInteraction extends Interaction {
 
         const useCtrlClick = distanceInteraction.value === 'ctrlclick';
         const isCtrlClick = !isTouch.value && (event.type === MapBrowserEventType.POINTERDOWN && (event.originalEvent.ctrlKey || event.originalEvent.metaKey));
-        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK || isTouch.value;
+        const isDoubleClick = event.type === MapBrowserEventType.DBLCLICK;
+        const startsOnDoubleClick = isTouch.value || !useCtrlClick;
 
-        if ((useCtrlClick && isCtrlClick) || (!useCtrlClick && isDoubleClick)) {
+        if ((startsOnDoubleClick && isDoubleClick) || (!startsOnDoubleClick && isCtrlClick)) {
             startDistance(event);
 
             return false;
@@ -703,7 +710,8 @@ let managedMapInteractions: Interaction[] = [];
 function setMapInteractions() {
     if (!map.value) return;
     const withDistance = distanceEnabled.value;
-    const ctrl = distanceInteraction.value === 'ctrlclick';
+    // Touch devices always start the ruler on double tap, even if this setting was saved on desktop.
+    const distanceStartsOnDoubleClick = isTouch.value || distanceInteraction.value === 'dblclick';
 
     for (const interaction of managedMapInteractions) {
         map.value.removeInteraction(interaction);
@@ -712,7 +720,7 @@ function setMapInteractions() {
 
     if (withDistance) {
         const interactions = defaults({
-            doubleClickZoom: !!ctrl,
+            doubleClickZoom: !distanceStartsOnDoubleClick,
         }).extend([
             distanceInteractionHandler,
         ]);
@@ -729,7 +737,15 @@ function setMapInteractions() {
 }
 
 watch(distanceEnabled, setMapInteractions);
-watch(() => distanceInteraction.value === 'ctrlclick', setMapInteractions);
+watch([isTouch, () => distanceInteraction.value], setMapInteractions);
+
+const pixelRatio = computed(() => {
+    if (typeof window === 'undefined') return 1;
+    const value = getKeyedValueFromSettings('map.preferences.highRatio');
+    if (value === 'low') return 1;
+
+    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : window.devicePixelRatio;
+});
 
 await setupDataFetch({
     async onMount() {
@@ -804,8 +820,15 @@ await setupDataFetch({
             const airports = store.config.airports.map(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x]).filter(x => x);
 
             if (airports.length) {
-                projectionExtent = buffer(boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat]))), 0.5);
+                const origExtent = projectionExtent;
+                const baseExtent = boundingExtent(airports.map(x => fromLonLat([x!.lon, x!.lat])));
+                const padding = Math.max(baseExtent[2] - baseExtent[0], baseExtent[3] - baseExtent[1], 400000) * 0.75;
+                projectionExtent = buffer(baseExtent, padding);
                 center = toLonLat(getCenter(projectionExtent));
+
+                if (store.config.dashboardId) {
+                    projectionExtent = origExtent;
+                }
             }
         }
 
@@ -815,7 +838,7 @@ await setupDataFetch({
         else if (store.config.airport) {
             zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
-        else if (store.config.airports?.length) zoom = 1;
+        else if (store.config.airports?.length && !store.config.dashboardId) zoom = 1;
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
             if (coords[0] > 300 || coords[0] < -300 || isNaN(coords[0])) coords[0] = 37.617633;
@@ -838,6 +861,7 @@ await setupDataFetch({
 
         map.value = new Map({
             target: mapContainer.value!,
+            pixelRatio: pixelRatio.value,
             controls: [
                 new Attribution({
                     collapsible: false,
@@ -969,6 +993,7 @@ await setupDataFetch({
         };
         const moveEndHandler = async () => {
             moving = false;
+            targetElement.style.cursor = 'grab';
             handleMoveEnd();
         };
 
@@ -1018,6 +1043,10 @@ await setupDataFetch({
 
         success = true;
     },
+});
+
+watch(pixelRatio, val => {
+    map.value?.setPixelRatio(val);
 });
 
 const trackedAircraft = computed(() => {
@@ -1283,6 +1312,7 @@ onUnmounted(() => {
         top: 24px;
         left: 24px;
 
+        overflow: hidden;
         display: flex;
         align-items: flex-start;
         justify-content: flex-end;

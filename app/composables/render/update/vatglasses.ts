@@ -178,6 +178,7 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace, context: DataU
 
 function convertSectorToGeoJson(country: VatglassesData[string], sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
     try {
+        if (!sector.points) return false;
         // Create a polygon turf object
         const firstCoord = sector.points[0];
         const lastCoord = sector.points[sector.points.length - 1];

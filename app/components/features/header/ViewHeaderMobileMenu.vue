@@ -67,12 +67,15 @@
             <div class="mobile-menu__links">
                 <view-header-theme-switcher/>
                 <ui-button
-                    href="https://github.com/VATSIM-Radar/vatsim-radar"
-                    target="_blank"
+                    v-if="!store.appVersion || (store.desktopRelease?.version && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null')"
+                    class="mobile-menu__update"
+                    :class="{ 'mobile-menu__update-required': store.desktopRelease?.version && store.appVersion && store.desktopRelease.version !== store.appVersion && store.appVersion !== 'null' }"
+                    to="/download"
                     type="secondary"
+                    @click="model = false"
                 >
                     <template #icon>
-                        <github-icon/>
+                        <load-on-pc-icon/>
                     </template>
                 </ui-button>
                 <ui-button
@@ -91,15 +94,6 @@
                 >
                     <template #icon>
                         <settings-icon/>
-                    </template>
-                </ui-button>
-                <ui-button
-                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
-                    type="secondary"
-                    @click="app.$pwa?.install()"
-                >
-                    <template #icon>
-                        <load-on-pc-icon/>
                     </template>
                 </ui-button>
                 <ui-button-group>
@@ -151,7 +145,6 @@ import { useHeaderMenu, useOnlineCounters } from '~/composables/map';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThemeSwitcher.vue';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
-import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
@@ -163,15 +156,19 @@ import { useGoBack } from '~/composables/useGoBack';
 const { goBack } = useGoBack();
 
 const model = defineModel({ type: Boolean, required: true });
-
-const app = useNuxtApp();
+const store = useStore();
 const onlineCounters = useOnlineCounters();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
 const openedMenu = ref<string | null>(headerMenu.value.find(x => !x.disabled && x.active)?.text ?? null);
+const route = useRoute();
+const router = useRouter();
 
 const closeSettings = () => {
-    goBack();
+    if (route.path.startsWith('/settings')) {
+        goBack();
+    }
+    else router.push('/settings');
     model.value = false;
 };
 
@@ -294,6 +291,10 @@ const counters = computed(() => ([
                 flex-grow: 1;
             }
         }
+    }
+
+    &__update-required {
+        border: 2px solid $blue500 !important;
     }
 }
 </style>

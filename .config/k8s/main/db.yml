@@ -29,7 +29,11 @@ spec:
         doks.digitalocean.com/node-pool: main
       containers:
         - name: db
-          image: mysql
+          image: mysql:9.7
+          args:
+            - "--innodb-buffer-pool-size=128M"
+            - "--max-connections=80"
+            - "--performance-schema=OFF"
           env:
             - name: MYSQL_ALLOW_EMPTY_PASSWORD
               value: "yes"

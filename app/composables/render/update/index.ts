@@ -4,6 +4,7 @@ import { updateAircraft } from '~/composables/render/update/aircraft';
 import { updateControllers } from '~/composables/render/update/atc';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { logBench } from '~/composables';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 export interface DataUpdateContext { airports: Record<string, DataAirport>; sectors: Record<string, DataSector>; atcAdded: Set<string> | null; airportsAdded: Set<string> }
 
@@ -11,6 +12,8 @@ let vgFirstRun: boolean | undefined = true;
 
 export async function updateControllersRender() {
     const dataStore = useDataStore();
+    const store = useStore();
+    const mapStore = useMapStore();
 
     const airports: Record<string, DataAirport> = {};
     const sectors: Record<string, DataSector> = {};
@@ -45,12 +48,53 @@ export async function updateControllersRender() {
     log = logBench('updateATC');
     await updateControllers(context);
 
+    for (const event of store.getEvents) {
+        for (const airport of event.airports) {
+            if (context.airportsAdded.has(airport.icao) || !dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao]) continue;
+            context.airports[airport.icao] = {
+                icao: airport.icao,
+                airport: dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao],
+                atc: [],
+                aircraft: {
+                    groundDep: [],
+                    groundArr: [],
+                    prefiles: [],
+                    departures: [],
+                    arrivals: [],
+                },
+                aircraftCount: 1,
+                atis: {},
+            };
+            context.airportsAdded.add(airport.icao);
+        }
+    }
+
+    for (const overlay of mapStore.overlays) {
+        if (context.airportsAdded.has(overlay.key) || overlay.type !== 'airport' || !dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key]) continue;
+        context.airports[overlay.key] = {
+            icao: overlay.key,
+            airport: dataStore.vatspy.value?.data.keyAirports.realIcao[overlay.key],
+            atc: [],
+            aircraft: {
+                groundDep: [],
+                groundArr: [],
+                prefiles: [],
+                departures: [],
+                arrivals: [],
+            },
+            aircraftCount: 1,
+            atis: {},
+        };
+        context.airportsAdded.add(overlay.key);
+    }
+
     for (const airport in context.airports) {
         if (!context.airportsAdded.has(airport)) delete context.airports[airport];
     }
 
     dataStore.airportsList.value = context.airports;
     dataStore.sectorsList.value = Object.values(context.sectors);
+    dataStore.sectorsUpdateId.value++;
 
     dataStore.atcAddedDuringUpdate.value.clear();
 
@@ -66,8 +110,8 @@ export async function updateControllersRender() {
 }
 
 export function initControllersUpdate() {
-    const combineBandsSetting = useSettingValueFromFunc('map.vatglasses.combineBands');
-    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, combineBandsSetting], () => {
+    const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combineBands') + getKeyedValueFromSettings('map.vatglasses.combined'));
+    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
         updateControllersRender();
     });
 }

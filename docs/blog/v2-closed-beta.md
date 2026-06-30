@@ -8,12 +8,12 @@ Major included features:
 
 - Partial website redesign: total UI Kit refresh, new map look, new pilot overlay, and more
 - Settings page, replacing most of the previous settings, including map settings, layers, and user settings
+- Desktop Application
 - Render and data update rework with decreased network consumption and performance improvements
 - Interaction rework, including mobile version click info rework for a much better experience
 - A new way to work with overlays: collapse state
 - Map is now infinite
-- A lot of other changes and bug fixes listed in full (
-  draft) [changelog](https://github.com/VATSIM-Radar/vatsim-radar/blob/next/CHANGELOG.md)
+- A lot of other changes and bug fixes listed in full [changelog](/changelog-v2)
 
 ## When will VATSIM Radar V2 be released?
 
@@ -36,25 +36,40 @@ Once you have access, you need to follow special steps to access this version.
 
 ### Will my friends and settings be available on Next?
 
-No, you will have to export your friends and settings to Next.
+No, you will have to export your friends and settings to Next. In order to do so:
 
-### Will settings I made on Next transfer to main version?
+#### Friends export
+
+1. Open [normal version](https://vatsim-radar.com/) of VATSIM Radar
+2. Click on top right Settings icon
+3. Open Favorite Lists tab
+4. Export your lists and import them on Next
+
+#### Settings export
+
+1. Open [normal version](https://vatsim-radar.com/) of VATSIM Radar
+2. Click on left Settings icon in map menu
+3. Open Manage tab
+4. Expand your preset (or save it first)
+5. Export it and import in Save & Load section on Next
+
+### Will my friends and settings I created on Next transfer to main version?
 
 No, but you will get a chance to export them before it closes.
 
 ## What are the phases of testing?
 
-### Phase 1 (Mid-June 2026)
+### Phase 1 (Mid-June 2026) - Active
 
 Access to Next is granted to those who applied for Early Adopters in early Summer 2026, but were not selected.
 
-### Phase 2 (June 2026)
+### Phase 2 (June 2026) - Active
 
-Access to Next is granted to everyone who registered for the Closed Beta before it launches.
+Access to Next is granted to everyone who registered for the Closed Beta.
 
-### Phase 3 (Summer 2026)
+### Phase 3 (July 2026)
 
-Access to Next is granted to everyone without the need to authenticate, register, or even be in Discord.
+Access to Next is granted to everyone without the need to authenticate.
 
 ## Is Next under NDA?
 

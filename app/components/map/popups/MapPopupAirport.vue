@@ -102,7 +102,13 @@
                         class="popup-airport_event_date"
                         type="caption"
                     >
-                        Live from {{makeBookingTime(new Date(event.start_time))}}z to {{makeBookingTime(new Date(event.end_time))}}z
+                        Live from
+                        <template v-if="isLocal.value">
+                            {{makeBookingTime(new Date(event.start_time), true)}} to {{makeBookingTime(new Date(event.end_time), true)}}
+                        </template>
+                        <template v-else>
+                            {{makeBookingTime(new Date(event.start_time))}}z to {{makeBookingTime(new Date(event.end_time))}}z
+                        </template>
                     </ui-text>
                     <div class="popup-airport_event_action">
                         <ui-button
@@ -158,6 +164,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
+const isLocal = getSettingValue('appearance.eventsLocalTimezone');
 const vatGlassesCombinedActive = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');

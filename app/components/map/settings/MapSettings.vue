@@ -75,7 +75,7 @@
                                 size="S"
                                 @click="store.metarRequest = true"
                             >
-                                Weather Request
+                                Conditions Request
                             </ui-button>
                             <ui-block-title remove-margin>
                                 Weather on map

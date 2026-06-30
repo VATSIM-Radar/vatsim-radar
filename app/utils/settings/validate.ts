@@ -147,6 +147,7 @@ const settingsSchema = partialObject({
             searchLimit: list([5, 10, 20, 50, 75], 'must be one of: 5, 10, 20, 50, 75'),
             enableQueryUpdate: booleanSchema,
             overlaysPositions: list(['bottom-left', 'top-left'], 'must be either bottom-left or top-left'),
+            highRatio: list([true, false, 'low'], 'must be either true, false or low'),
 
             aircraft: partialObject({
                 shortView: booleanSchema,
@@ -219,9 +220,11 @@ const settingsSchema = partialObject({
 
         traffic: partialObject({
             showFullRoute: booleanSchema,
+            showRouteDetails: booleanSchema,
             toggleAircraftOverlays: booleanSchema,
             autoShowAirportTracks: booleanSchema,
             disableFastUpdate: booleanSchema,
+            smoothMovement: booleanSchema,
             declutter: v.union([booleanSchema, v.literal('always')], 'must be true, false or always'),
             highlightEmergency: booleanSchema,
         }),

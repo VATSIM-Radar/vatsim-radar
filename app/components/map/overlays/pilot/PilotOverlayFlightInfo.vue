@@ -136,7 +136,7 @@
                     type="h5"
                     @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
                 >
-                    {{depAirport?.icao ?? 'ZZZZ'}}
+                    {{props.pilot.flight_plan?.departure ?? 'ZZZZ'}}
                 </ui-text>
                 <div class="flight-info__progress__line">
                     <div class="flight-info__progress__line_svg">
@@ -153,7 +153,7 @@
                     type="h5"
                     @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
                 >
-                    {{arrAirport?.icao ?? 'ZZZZ'}}
+                    {{props.pilot.flight_plan?.arrival ?? 'ZZZZ'}}
                 </ui-text>
             </div>
             <ui-text
@@ -161,11 +161,58 @@
                 type="caption"
             >
                 <div
+                    v-if="showRouteDetails.value"
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
                     <template v-if="departedAt || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
-                            <ui-chip>
+                            <ui-chip v-if="departedAt" title="Departed At">
+                                {{`${ datetime.format(new Date(departedAt)) }z`}}
+                            </ui-chip>
+                            <ui-chip title="Distance from Departure">
+                                {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
+                            </ui-chip>
+                        </div>
+                        <ui-separator
+                            distance="0"
+                            horizontal
+                        />
+                    </template>
+                    <div class="flight-info__progress_footer__item">
+                        Online
+                        <ui-chip>
+                            {{ getLogonTime }}
+                        </ui-chip>
+                    </div>
+                    <ui-separator
+                        v-if="(distance?.toGoTime || distance?.toGoDist || arrivedAt)"
+                        distance="0"
+                        horizontal
+                    />
+                    <div
+                        v-if="distance?.toGoDist || arrivedAt"
+                        class="flight-info__progress_footer__item"
+                    >
+                        <ui-chip v-if="arrivedAt || distance?.toGoDist" :title="arrivedAt ? 'Arrived At' : 'Distance Remaining'">
+                            <template v-if="arrivedAt">
+                                {{datetime.format(new Date(arrivedAt))}}z
+                            </template>
+                            <template v-else>
+                                {{Math.round(distance?.toGoDist ?? 0)}} NM
+                            </template>
+                        </ui-chip>
+                        <ui-chip v-if="distance?.toGoTime! && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time at Destination">
+                            {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
+                        </ui-chip>
+                    </div>
+                </div>
+                <div
+                    v-else
+                    class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
+                >
+                    <template v-if="departedAt || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                        <div class="flight-info__progress_footer__item">
+                            <ui-chip :title="departedAt ? 'Departed At' : 'Departed Distance'">
                                 {{departedAt ? `${ datetime.format(new Date(departedAt)) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
                             </ui-chip>
                         </div>
@@ -189,7 +236,7 @@
                         v-if="distance?.toGoTime || distance?.toGoDist || arrivedAt"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip>
+                        <ui-chip :title="arrivedAt ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime) ? 'Distance remaining' : 'Time at Destination'">
                             <template v-if="arrivedAt">
                                 {{datetime.format(new Date(arrivedAt))}}z
                             </template>
@@ -203,12 +250,12 @@
                     </div>
                 </div>
                 <div
-                    v-if="!isPilotOnGround(pilot)"
+                    v-if="!isPilotOnGround(pilot) && !showRouteDetails.value"
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--additional"
                 >
                     <template v-if="distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
-                            <ui-chip>
+                            <ui-chip title="Distance from Departure">
                                 {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
                             </ui-chip>
                         </div>
@@ -221,7 +268,7 @@
                         v-if="distance?.toGoDist"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip>
+                        <ui-chip title="Remaining Distance">
                             {{Math.round(distance.toGoDist)}} NM
                         </ui-chip>
                     </div>
@@ -234,7 +281,7 @@
                         v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip>
+                        <ui-chip title="Time at Destination">
                             {{ getTimeRemains(new Date(distance.toGoTime!)) }}
                         </ui-chip>
                     </div>
@@ -328,6 +375,7 @@ const props = defineProps({
 
 const mapStore = useMapStore();
 const store = useStore();
+const showRouteDetails = getSettingValue('map.traffic.showRouteDetails');
 
 const getLogonTime = computed(() => {
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
@@ -494,7 +542,8 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
                 transform: translateX(-50%) rotate(90deg);
 
                 :deep(svg) {
-                    width: 16px;
+                    width: auto;
+                    height: 20px;
                 }
             }
         }

@@ -20,10 +20,15 @@ import { settingsItemTraffic } from '~/composables/settings/v2/items/general/pre
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import SettingsManagement from '~/components/features/settings/v2/misc/SettingsManagement.vue';
 import SettingsRecommendedPerformance from '~/components/features/settings/v2/misc/SettingsRecommendedPerformance.vue';
+import { isApp } from '~/composables';
+import { settingsItemApplication } from '~/composables/settings/v2/items/account/application';
 
 export const getSettingsItems = globalComputed(() => {
     return {
-        account: settingsItemAccount().value,
+        account: {
+            ...settingsItemAccount().value,
+            application: settingsItemApplication().value,
+        },
         appearance: {
             ...settingsItemAppearance().value,
             colors: settingsItemAppearanceColors().value,
@@ -56,8 +61,8 @@ export const getSettingsSections = () => {
 
     return [
         {
-            title: 'Account Settings',
-            url: 'account',
+            title: 'General Settings',
+            url: 'general',
             icon: PersonIcon,
             sections: [
                 {
@@ -101,6 +106,25 @@ export const getSettingsSections = () => {
                         key: 'favorite',
                         items: [items.account.favorite],
                     }],
+                },
+                {
+                    title: 'Application Settings',
+                    url: 'application',
+                    hide: computed(() => !isApp.value),
+                    items: [
+                        {
+                            key: 'application',
+                            title: 'Discord Presence',
+                            description: 'Want to highlight your activity? Toggle these on!',
+                            items: [items.account.application.pilotPresence, items.account.application.atcPresence, items.account.application.observerPresence, items.account.application.offlinePresence],
+                        },
+                        {
+                            key: 'general',
+                            title: 'General App Settings',
+                            description: `App Version: ${ store.appVersion }`,
+                            items: [items.account.application.hideToTray],
+                        },
+                    ],
                 },
             ],
         },
@@ -147,7 +171,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'layout',
                             title: 'Layout',
-                            items: [items.appearance.overlaysPositions],
+                            items: [items.appearance.overlaysPositions, items.appearance.highRatio],
                         },
                         {
                             key: 'tracks',
@@ -200,12 +224,12 @@ export const getSettingsSections = () => {
                         {
                             key: 'overlays',
                             title: 'Overlays',
-                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.toggleAircraftOverlays],
+                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.showRouteDetails, items.preferences.traffic.toggleAircraftOverlays],
                         },
                         {
                             key: 'traffic',
                             title: 'Traffic',
-                            items: [items.preferences.traffic.disableFastUpdate],
+                            items: [items.preferences.traffic.disableFastUpdate, items.preferences.traffic.smoothMovement],
                         },
                     ],
                 },
@@ -247,7 +271,7 @@ export const getSettingsSections = () => {
             icon: MapSettingsIcon,
             sections: [
                 {
-                    title: 'Map Display',
+                    title: 'Layers and Weather',
                     url: '',
                     items: [
                         {
@@ -268,7 +292,7 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
-                    title: 'Traffic & Airspace',
+                    title: 'Map Overlays',
                     url: 'traffic',
                     items: [
                         {
@@ -325,7 +349,7 @@ export const getSettingsSections = () => {
                     ],
                 },
                 {
-                    title: 'Navigraph',
+                    title: 'Navigraph Layers',
                     url: 'navigraph',
                     items: [
                         {
@@ -403,6 +427,7 @@ export const getSettingsSections = () => {
                                     description: 'Less labels and tracks to render for your CPU - the lower, the better',
                                 } as typeof items.preferences.aircraft.showLimit,
                                 items.preferences.aircraft.tracksShowLimit,
+                                items.preferences.traffic.smoothMovement,
                             ],
                         },
                         {
@@ -421,7 +446,7 @@ export const getSettingsSections = () => {
                         },
                         {
                             key: 'layers',
-                            title: 'Layers',
+                            title: 'Map & Layers',
                             items: [
                                 {
                                     type: 'toggle',
@@ -430,6 +455,7 @@ export const getSettingsSections = () => {
                                     value: getSettingValue(() => getKeyedValueFromSettings('map.layers.layer') === 'basic', false),
                                     onChange: value => setSettingByKey('map.layers.layer', value === true ? 'basic' : undefined),
                                 },
+                                items.appearance.highRatio,
                             ],
                         },
                     ],

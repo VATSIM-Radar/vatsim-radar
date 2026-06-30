@@ -22,6 +22,7 @@ import { View } from 'ol';
 import { clientDB } from '~/composables/render/idb';
 import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
+import { isSmoothMovementEnabled, recordSmoothSamples } from '~/composables/render/aircraft/smooth';
 import { useStore } from '~/store';
 import {
     isVatGlassesActive,
@@ -200,11 +201,25 @@ export interface DataSector {
     uirWithFir?: boolean;
     feature: Feature<MultiPolygon, VatSpyDataProperties>;
     atc: VatsimShortenedController[];
+    persistent?: boolean;
 }
 
 export type DataStoreVatspy = Omit<VatSpyAPIData, 'data'> & {
-    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs' | 'features'>;
+    data: Pick<VatSpyAPIData['data'], 'id' | 'keyAirports' | 'countries' | 'firs' | 'uirs'>;
 };
+
+export type PilotCalculatedArrival = Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
+
+export interface PilotNavigraphWaypoints {
+    pilot: VatsimShortenedAircraft;
+    coordinates: Coordinate;
+    calculatedArrival?: PilotCalculatedArrival;
+    full: boolean;
+    disableHoldings?: boolean;
+    disableLabels?: boolean;
+    disableWaypoints?: boolean;
+    waypoints: NavigraphNavDataEnrouteWaypointPartial[];
+}
 
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
@@ -233,6 +248,8 @@ export interface UseDataStore {
         notam: Ref<RadarNotam | null>;
     };
     simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
+    vatspyBoundary: (boundary: string) => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
+    vatspyBoundaries: () => Promise<Feature<MultiPolygon, VatSpyDataProperties>[]>;
 
     vatglasses: ShallowRef<string>;
 
@@ -243,6 +260,7 @@ export interface UseDataStore {
 
     airportsList: ShallowRef<PartialRecord<string, DataAirport>>;
     sectorsList: ShallowRef<DataSector[]>;
+    sectorsUpdateId: Ref<number>;
     atcAddedDuringUpdate: ShallowRef<Set<string>>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     /**
@@ -258,16 +276,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
-    navigraphWaypoints: Ref<Record<string, {
-        pilot: VatsimShortenedAircraft;
-        coordinates: Coordinate;
-        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
-        full: boolean;
-        disableHoldings?: boolean;
-        disableLabels?: boolean;
-        disableWaypoints?: boolean;
-        waypoints: NavigraphNavDataEnrouteWaypointPartial[];
-    }>>;
+    navigraphWaypoints: Ref<Record<string, PilotNavigraphWaypoints>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
     navigraph: {
@@ -291,9 +300,16 @@ const dataStore: UseDataStore = {
         iataResult.length = 0;
         return icaoResult;
     },
+    vatspyBoundary: async boundary => {
+        return await clientDB.vatspyBoundaries.get(boundary) ?? [];
+    },
+    vatspyBoundaries: async () => {
+        return (await clientDB.vatspyBoundaries.toArray()).flat();
+    },
     vatglasses,
     airportsList: shallowRef({}),
     sectorsList: shallowRef([]),
+    sectorsUpdateId: ref(0),
     atcAddedDuringUpdate: shallowRef(new Set()),
     vatglassesActivePositions,
     vatglassesActiveRunways,
@@ -498,6 +514,8 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
 
     triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
+
+    if (isSmoothMovementEnabled()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;
@@ -597,6 +615,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     let interval: NodeJS.Timeout | null = null;
     let vgInterval: NodeJS.Timeout | null = null;
     let visibilityInterval: NodeJS.Timeout | null = null;
+    let listsInterval: NodeJS.Timeout | null = null;
     let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
@@ -613,9 +632,12 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             checkForTracks();
         }, 30000);
 
+        let mandatoryTick = 0;
         interval = setInterval(async () => {
             if (mandatoryInProgess || !store.isTabVisible) return;
             if (socketsEnabled()) {
+                mandatoryTick++;
+                if (!isSmoothMovementEnabled() && mandatoryTick % 2 !== 0) return;
                 mandatoryInProgess = true;
 
                 try {
@@ -634,7 +656,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 }
                 mandatoryInProgess = false;
             }
-        }, 2000);
+        }, 1000);
 
         visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';
@@ -643,6 +665,17 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             onFetch?.();
             localStorage.setItem('radar-visibility-check', Date.now().toString());
         }, 10000);
+
+        let lastListsUpdate = 0;
+
+        listsInterval = setInterval(async () => {
+            // Every 5 minutes
+            const needToUpdate = dataStore.time.value - lastListsUpdate > 1000 * 60 * 5;
+
+            if (!needToUpdate) return;
+            store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
+            lastListsUpdate = Date.now();
+        }, 1000 * 60);
     }
 
     function setVisibilityState() {
@@ -673,11 +706,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             if (val) {
                 checkForVG();
             }
-        });
-
-        watch(() => store.lists.flatMap(x => x.users.filter(x => x.type !== 'offline' || x.hidden).map(x => x.cid)).join(','), async val => {
-            if (store.initStatus.status !== false) return;
-            store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
         });
 
         initControllersUpdate();
@@ -731,6 +759,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         if (interval) clearInterval(interval);
         if (vgInterval) clearInterval(vgInterval);
         if (visibilityInterval) clearInterval(visibilityInterval);
+        if (listsInterval) clearInterval(listsInterval);
     });
 }
 

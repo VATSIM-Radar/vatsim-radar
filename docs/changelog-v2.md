@@ -12,6 +12,7 @@ Release notes are expected to change. Some items may be removed, added, or chang
 
 - ⚙️ Settings Overhaul
 - ♾️️ Infinite Map
+- 💻 Desktop App
 - 🗺️ Map Interaction Rework
 - 👨‍✈️ Controller Dashboard 2.0
 - 🚀 Performance Improvements
@@ -30,7 +31,15 @@ been significantly shortened to display often changed settings.
 
 ### Infinite Map
 
-Due to internal refactor, map is not infinite horizontally. I've been asked to add this day one, enjoy!
+Due to internal refactor, map is now infinite horizontally. I've been asked to add this day one, enjoy!
+
+### Desktop App
+
+You can now download VATSIM Radar and install it on your PC! 
+
+This feature has limitations - for example, on MacOS you'll have to disable quarantine for Radar to install it, and on Windows you'll see a SmartScreen warning.
+
+Still, if you manage to install it, you can use it as any desktop app - you can even enable Rich Presence in Settings -> Application Settings. 
 
 ### Map Interaction Rework
 
@@ -40,7 +49,11 @@ That also leads to performance improvements, and a MUCH better experience on mob
 
 ### Controller Dashboard 2.0
 
-TBA
+Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
+
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
 
 ### Performance Improvements
 
@@ -66,6 +79,7 @@ And that are just the highlights! Full changelog is available below.
 - Added departed and landed time to pilot overlay
 - Added vertical speed to non-compact pilot hover and pilot overlay
 - Added aircraft photo in overlay
+- Added smooth aircraft movement by psergienko
 
 ### UI/UX Improvements
 
@@ -99,6 +113,8 @@ And that are just the highlights! Full changelog is available below.
 - Login flow to VATSIM, Navigraph, as well as Logout has been improved, placing you to the same page you have left when
   pressed login/logout
 - You can now declutter aircraft when zoomed out, or always, to improve performance
+- Airport counter is now named to represent Settings Mode for this counter
+- Favorite pilot will now highlight in red when squawking emergency
 
 ### General Improvements and Additions
 
@@ -113,6 +129,11 @@ And that are just the highlights! Full changelog is available below.
 - Booked favorite controller will now show in Favorite section
 - You can now hover over empty airports to find out their name
 - Fix website reloading multiple times after update
+- Renamed Weather Request to Conditions Request, added NOTAMs to this window
+- You can now disable ARTCC TRACONs extensions
+- Added CTAF frequency to VATSIM Airport Info when available on Info page of airport
+- Added TWR icon to airports where SimAware TWR TRACON is shown to make it more clear that TWR is currently online
+- Airport label will now always show if aircraft with this departure or destination is hovered
 
 ### Performance improvements
 
@@ -202,3 +223,6 @@ And that are just the highlights! Full changelog is available below.
 - Fixed some waypoints not showing correctly
 - Removed duplication logic when controller is rendered in VATGlasses
 - Fixed NOTAM overlapping with open overlay on PC
+- Fixed rare datafeed worker crash
+- Fixed departed distance incorrect for some departures
+- Fixed some aircraft icons showing slightly incorrect border color

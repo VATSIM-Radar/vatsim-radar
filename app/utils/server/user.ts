@@ -9,6 +9,7 @@ import type { UserList } from '~/utils/server/handlers/lists';
 import type { UserTrackingList } from '#prisma';
 import { isNext } from '~/utils/server/debug';
 import type { UserMessageType } from '~/utils/shared';
+import { getRedisSync, setRedisSync } from '~/utils/server/redis';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -85,6 +86,41 @@ export interface UserSettings {
     seenVersion?: string;
     settingsAutoSave?: boolean;
     favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
+}
+
+export async function getAllPrivateUsers(): Promise<Record<string, boolean | string>> {
+    const cache = await getRedisSync('private-users');
+    if (cache) return JSON.parse(cache);
+
+    const users = await prisma.user.findMany({
+        where: {
+            NOT: {
+                privateMode: false,
+            },
+        },
+        select: {
+            privateMode: true,
+            vatsim: {
+                select: {
+                    id: true,
+                },
+            },
+        },
+    });
+
+    const object = Object.fromEntries(users.map(user => [user.vatsim?.id, user.privateMode ?? false]).filter(x => x[0] && x[1]));
+
+    if (isNext()) {
+        const privacy = await $fetch<Record<string, boolean | string>>(`https://vatsim-radar.com/api/user/lists/privacy`, {
+            headers: { authorization: `Bearer ${ process.env.VATSIM_IDENT_TOKEN }` },
+        }).catch(() => ({} as Record<string, boolean | string>));
+        for (const user in privacy) {
+            object[user] ??= privacy[user];
+        }
+    }
+
+    await setRedisSync('private-users', JSON.stringify(object), 1000 * 60 * 5);
+    return object;
 }
 
 export async function findAndRefreshUserByCookie(event: H3Event, refresh: boolean | undefined, includeLists: true): Promise<FullUser | null>;
@@ -204,33 +240,11 @@ export async function findAndRefreshUserByCookie(event: H3Event, refresh = true,
 
 export async function filterUserLists(_lists: Array<UserTrackingList | UserList>): Promise<UserList[]> {
     const lists = _lists as UserList[];
-
-    const dbUsers = (await prisma.user.findMany({
-        where: {
-            vatsim: {
-                id: {
-                    in: lists.flatMap(x => x.users.map(x => x.cid.toString())),
-                },
-            },
-        },
-        select: {
-            privateMode: true,
-            vatsim: {
-                select: {
-                    id: true,
-                },
-            },
-        },
-    })).filter(x => x.privateMode).map(x => x.vatsim?.id).filter(x => x);
+    const allPrivate = await getAllPrivateUsers();
 
     for (const list of lists) {
         for (const user of list.users) {
-            if (dbUsers.includes(user.cid.toString())) user.private = true;
-
-            if (!user.private && isNext()) {
-                const request = await $fetch<{ isPrivate: boolean }>(`https://vatsim-radar.com/api/user/lists/privacy/${ user.cid }`).catch(() => {});
-                if (request?.isPrivate) user.private = true;
-            }
+            if (allPrivate[user.cid.toString()]) user.private = true;
         }
     }
 

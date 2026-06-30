@@ -18,6 +18,8 @@ const applyDisabled = computed(() => {
         getKeyedValueFromSettings('map.preferences.aircraft.tracks.limit') === 25 &&
         getKeyedValueFromSettings('map.preferences.airports.showLimit') === 25 &&
         getKeyedValueFromSettings('map.preferences.airports.showMode') === 'staffedAndGroundTraffic' &&
+        getKeyedValueFromSettings('map.traffic.smoothMovement') !== false &&
+        getKeyedValueFromSettings('map.preferences.highRatio') !== false &&
         getKeyedValueFromSettings('map.layers.layer') === 'basic';
 });
 
@@ -27,6 +29,8 @@ function apply() {
     setSettingByKey('map.preferences.aircraft.tracks.limit', 25);
     setSettingByKey('map.preferences.airports.showMode', 'staffedAndGroundTraffic');
     setSettingByKey('map.preferences.airports.showLimit', 25);
+    setSettingByKey('map.preferences.highRatio', false);
+    setSettingByKey('map.traffic.smoothMovement', false);
     setSettingByKey('map.layers.layer', 'basic');
 }
 </script>

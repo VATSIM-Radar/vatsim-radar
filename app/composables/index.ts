@@ -388,7 +388,7 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = false;
+export const updatePopupActive: false | string = 'v2.0.0-rc';
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 
 export function isServer() {
@@ -434,6 +434,10 @@ export function globalComputed<T>(
 
 export const isIframe = computed(() => {
     return useRoute().query.iframe;
+});
+
+export const isApp = computed(() => {
+    return useStore().appVersion;
 });
 
 export function logBench(key: keyof ReturnType<typeof useStore>['bench']) {

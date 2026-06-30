@@ -1,31 +1,6 @@
 <template>
     <ui-page-container>
         <div class="roadmap">
-            <div class="roadmap_runway">
-                <div class="roadmap_runway_start">
-                    <roadmap-runway height="56"/>
-                </div>
-                <div class="roadmap_runway_digits">
-                    06
-                </div>
-                <div class="roadmap_runway_cols">
-                    <div
-                        v-for="col in roadmap"
-                        :key="col.title"
-                        class="roadmap_runway_col"
-                        :class="{
-                            'roadmap_runway_col--status-completed': col.completed,
-                            'roadmap_runway_col--status-in-progress': col.items.some(x => typeof x === 'object' && (x.status === 'in-progress' || x.status === 'completed')),
-                        }"
-                    />
-                </div>
-                <div
-                    class="roadmap_runway_aircraft"
-                    :style="{ '--percents': `${ percents }%` }"
-                >
-                    <roadmap-aircraft height="32"/>
-                </div>
-            </div>
             <ui-notification type="info">
                 All considering issues are available on <a
                     class="__link"
@@ -114,8 +89,6 @@
 
 <script setup lang="ts">
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
-import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
-import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none' | 'tentative';
@@ -142,6 +115,7 @@ const roadmap = reactive<Roadmap[]>([
         title: 'Released',
         completed: true,
         items: [
+            { title: 'Desktop Application', status: 'completed' },
             'VatSPY FIRS/UIRS API',
             'VATSIM data caching',
             'Log in via VATSIM/Navigraph',
@@ -376,7 +350,6 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Historical Stats',
                 description: 'Popular over time etc',
             },
-            { title: 'Desktop Application', status: 'tentative' },
             { title: 'Theme Market', status: 'tentative' },
             { title: 'Flights/controllers sessions history, VATSIM user page' },
             { title: 'History of events / events traffic' },
@@ -385,14 +358,11 @@ const roadmap = reactive<Roadmap[]>([
     {
         title: 'v2.x',
         items: [
-            { title: 'ATC Alerts', status: 'tentative' },
             { title: 'Events Alerts', status: 'tentative' },
             { title: 'PIREPs', status: 'tentative' },
         ],
     },
 ]);
-
-const percents = 60;
 
 interface RoadmapGroup {
     status: ItemStatus;
@@ -422,8 +392,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         'in-progress': 0,
         todo: 1,
         next: 2,
-        tentative: 3,
-        none: 4,
+        none: 3,
+        tentative: 4,
         completed: 5,
     };
 
@@ -435,108 +405,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
 <style scoped lang="scss">
 .roadmap {
-    &_runway {
-        position: relative;
-
-        display: flex;
-        align-items: center;
-
-        height: 56px;
-        margin-bottom: 48px;
-        border-radius: 8px;
-
-        background: $darkGray700;
-
-        &::before {
-            content: '';
-
-            position: absolute;
-            left: 8%;
-
-            width: 92%;
-            height: 1px;
-
-            background-image: linear-gradient(to right, $darkGray400 33%, rgb(255, 255, 255, 0) 0%);
-            background-repeat: repeat-x;
-            background-position: bottom;
-            background-size: 25px 1px;
-        }
-
-        > * {
-            position: absolute;
-            z-index: 1;
-        }
-
-        &_start {
-            left: 1.7%;
-        }
-
-        &_digits {
-            left: 5%;
-
-            writing-mode: vertical-lr;
-            font-size: 12px;
-            font-weight: 300;
-            text-orientation: mixed;
-        }
-
-        &_cols {
-            width: 100%;
-        }
-
-        &_col {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-
-            &::before {
-                content: '';
-
-                position: absolute;
-
-                width: 8px;
-                height: 8px;
-                border-radius: 100%;
-
-                background: $lightGray300;
-            }
-
-            &--status-in-progress::before {
-                background: $blue500
-            }
-
-            &--status-tentative::before {
-                background: $citrus500
-            }
-
-            &--status-completed::before {
-                background: $green500;
-            }
-        }
-
-        &_aircraft {
-            left: var(--percents);
-            color: $lightGray500;
-            animation: move 5s cubic-bezier(.85, .02, .47, .98);
-
-            @keyframes move {
-                0% {
-                    left: 0;
-                }
-
-                100% {
-                    left: var(--percents);
-                }
-            }
-
-            svg :deep(path) {
-                stroke: $darkGray800;
-            }
-        }
-    }
-
-    &_cols, .roadmap_runway_cols {
+    &_cols {
         display: flex;
         gap: 16px;
         align-items: flex-start;

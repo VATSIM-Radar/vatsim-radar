@@ -242,6 +242,8 @@ watch(() => settingsStore.settings, val => {
         type: 'settings',
         settings: toRaw(val),
     });
+}, {
+    deep: true,
 });
 
 const currentItem = computed(() => {
@@ -629,8 +631,10 @@ else if (!childrenPath.value && currentItem.value.url) {
         }
     }
 
-    &--preview .settings_content {
-        padding-bottom: 50vh;
+    @include mobileOnly {
+        &--preview .settings_content {
+            padding-bottom: 50vh;
+        }
     }
 }
 </style>

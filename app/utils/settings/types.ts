@@ -43,6 +43,7 @@ export interface UserSettingsV2 {
             enableQueryUpdate: boolean;
 
             overlaysPositions: 'bottom-left' | 'top-left';
+            highRatio: boolean;
 
             aircraft: {
                 shortView: boolean;
@@ -112,9 +113,11 @@ export interface UserSettingsV2 {
 
         traffic: {
             showFullRoute: boolean;
+            showRouteDetails: boolean;
             toggleAircraftOverlays: boolean;
             autoShowAirportTracks: boolean;
             disableFastUpdate: boolean;
+            smoothMovement: boolean;
             declutter: boolean | 'always';
             highlightEmergency: boolean;
         };

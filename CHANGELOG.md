@@ -1,5 +1,133 @@
 # Changelog
 
+# [2.0.0-beta.5.2]
+
+## Alpha Changes
+
+- Added new Map Quality setting, High by default
+- Fixed own flight update
+- Fixed smooth update after comeback to map
+
+# [2.0.0-beta.5.1]
+
+## Alpha Changes
+
+- Fix freeze between samples on smooth aircraft movement updates by psergienko
+- Fix aircraft movement jittering by psergienko
+- Fixed degraded performance for friends lists
+
+# [2.0.0-beta.5]
+
+## Alpha Changes
+
+- Smooth aircraft movement (interpolation) by psergienko
+
+# [2.0.0-beta.4.1]
+
+## Alpha Changes
+
+- Fixed favorite aircraft disappearing from map
+- Fixed departed time not saving upon server restart
+- Fixed airport data updating for ages in overlay
+- Fixed deleted/restricted dashboards still showing in menu
+- Fixed default map size in dashboard to be 50% and added more steps
+- Fixed map cursor stuck in grabbing icon
+- Improved render stability after map move
+- Fixed memory leak on reopening map
+- Added update popup
+
+# [2.0.0-beta.4]
+
+## Alpha Changes
+
+- Add desktop app download page
+- Fixed tracks theme change reactivity in preview
+- Fixed reset button reactivity in preview
+- Removed application settings from non-app environment
+- Removed huge empty space in settings on pc
+- Reduced right click area
+- Significantly reduced click and hover area on non-touch devices
+- It is now much more easier to hover over aircraft
+- Select will now return All Selected if all items are indeed selected
+- Improved aircraft quality on high resolution/quality displays
+- Reverse max shown tracks limit to be ascending
+- Changed progress icon to be fixed
+- Fixed some icons being too wide in aircraft overlay
+
+# [2.0.0-beta.3.3]
+
+## Alpha Changes
+
+- Fixed CTR disappearing on map rejoin
+- Initial work to support airports iata field aliases
+
+## Bug Fixes
+
+- Fixed rare datafeed worker crash
+
+# [2.0.0-beta.3.2]
+
+## Alpha Changes
+
+- Fixed ruler in mobile version
+- Improved route update cpu and memory usage
+- Improved VATSpy and SimAware TRACON memory usage
+- Fixed aircraft showing twice when only arrival was submitted as flight plan
+- Fixed not a number warning on russian in atc popup on initial load
+- Improved hit tolerance for hovering over features
+- You can now turn on and off stacked dashboard columns
+- Caution/Alert dashboard thresholds will have no effect on y-axis anymore
+- Setting caution/alert to 0 will now disable this functionality
+- Fixed cookie prompt appearing twice when in controller dashboard
+- Fixed inHg altimeter display
+- Removed D/A letters when multiple ATIS configuration is active in dashboard
+- Event airports will now always show if airports "Display mode" is "all"
+- Fixed empty airports not displayed when overlay is opened
+- Fixed airports showing random tracon names in featured airports
+- Fixed duplicated positions showing as controlling quiet airports
+
+# [2.0.0-beta.3.1]
+
+## Alpha Changes
+
+- Significantly improved first load delay for combined mode
+- Fixed VATGlasses combined mode not combining some sectors. No altitude fixes for now - I can't fix this without rolling back to old logic
+- Added colored airports groups for traffic prediction
+- Fixed traffic prediction crash
+- Fixed dashboard loading crash
+- Fixed non-airport aircraft not displaying on dashboard map
+- Fixed enroute aircraft not showing in dashboard
+- Fixed map crash when sending route data
+- Fixed minify small clickspot
+- Fixed minified airports crash
+- Fixed 403/404 dashboard airports adding to menu
+- Fixed random select error showing sometimes
+- Added refresh map button to dashboard
+- Fixed dashboard overriding local overlays
+- Added different colors for landed, departing and arriving on dashboard for selected airports
+- Added airborne filter for aircraft map mode
+- Fixed dashboard sometimes not showing any aircraft
+- I've decided to try more deep color for icons, lmk what you think
+- Added bookings settings on mobile
+- Fixed event local time taking no effect on hover
+- Fixed pilot name overlapping beyond boundaries
+
+# [2.0.0-beta.3]
+
+New feature by psergienko: Dashboard v2
+
+### Controller Dashboard 2.0
+
+Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
+
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
+
+## Features and Improvements
+
+- Renamed Weather Request to Conditions Request, added NOTAMs to this window
+
 # [2.0.0-beta.2.4]
 
 ## Alpha Changes

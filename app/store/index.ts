@@ -21,11 +21,14 @@ import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filte
 import type { IEngine } from 'ua-parser-js';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
+import type { UserDashboard } from '~/utils/server/handlers/dashboards';
+import type { DashboardSettings } from '~/utils/shared/dashboard';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
 import type { PartialRecord } from '~/types';
 import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
+import type { DesktopAppResponse } from '~/utils/server/github';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -42,6 +45,8 @@ export interface SiteConfig {
 
     airports?: string[];
     airport?: string;
+    mainAtcCallsign?: string;
+    dashboardId?: string;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     onlyAirportsAircraft?: boolean;
@@ -80,13 +85,19 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapPresetsFetched: false,
 
+        appVersion: null as null | string,
+
         filter: {} as UserFilter,
         tempFilter: null as UserFilter | null,
         isFilterActive: true,
 
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
+        dashboards: [] as UserDashboard[],
+        favoriteDashboards: [] as UserDashboard[],
+        activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
+        desktopRelease: null as DesktopAppResponse | null,
 
         events: [] as VatsimActiveEvent[],
         fetchedBookings: [] as VatsimBooking[],
@@ -148,6 +159,7 @@ export const useStore = defineStore('index', {
 
         bench: {
             updateAircraft: 0,
+            updateRoute: 0,
             updateVG: 0,
             updateATC: 0,
             aircraftRender: 0,
@@ -446,6 +458,15 @@ export const useStore = defineStore('index', {
         setActiveFilter(val: boolean) {
             isFilterActive().value.value = val;
             this.isFilterActive = val;
+        },
+        async fetchDashboards() {
+            this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
+        },
+        async fetchFavoriteDashboards() {
+            this.favoriteDashboards = await $fetch<UserDashboard[]>('/api/user/dashboards/favorite');
+        },
+        async fetchRelease() {
+            this.desktopRelease = await $fetch<DesktopAppResponse>('/api/data/releases');
         },
     },
 });

@@ -61,7 +61,7 @@ const quietAirports = computed(() => {
     const facilities = useFacilitiesIds();
 
     return dataStore.vatsim.parsedAirportsList.value
-        .filter(x => x.airport && (!x.airport.isPseudo || x.aircraftCount) && (!store.featuredVisibleOnly || x.visible) && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => !x.isATIS && !x.booking && x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
+        .filter(x => x.airport && (!x.airport.isPseudo || x.aircraftCount) && (!store.featuredVisibleOnly || x.visible) && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => !x.isATIS && !x.booking && !x.duplicated && x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
         .slice()
         .sort((a, b) => {
             const aArrivals = (a.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);

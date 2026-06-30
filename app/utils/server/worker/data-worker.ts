@@ -366,10 +366,10 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        const pilotCallsigns = new Set(data.pilots.map(p => p.callsign));
-        const atcCallsigns = new Set(data.controllers.map(c => c.callsign));
-        const atisCallsigns = new Set(data.atis.map(a => a.callsign));
-        const prefileCallsigns = new Set(data.prefiles.map(p => p.callsign));
+        const pilotCallsigns = new Set(data.pilots.map(p => p?.callsign ?? ''));
+        const atcCallsigns = new Set(data.controllers.map(c => c?.callsign ?? ''));
+        const atisCallsigns = new Set(data.atis.map(a => a?.callsign ?? ''));
+        const prefileCallsigns = new Set(data.prefiles.map(p => p?.callsign ?? ''));
 
         Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
             if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
@@ -431,28 +431,31 @@ defineCronJob('* * * * * *', async () => {
             },
         });
 
+        const pilotsMap = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x]));
+        const prefilesMap = Object.fromEntries(radarStorage.vatsim.data!.prefiles.map(x => [x.cid, x]));
+
         radarStorage.vatsim.regularData = {
             ...regularData,
             pilots: regularData.pilots.map(x => {
-                const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
+                const origPilot = pilotsMap[x.cid];
                 return {
                     ...x,
-                    aircraft_short: origPilot.flight_plan?.aircraft_short,
-                    aircraft_faa: origPilot.flight_plan?.aircraft_faa,
-                    departure: origPilot.flight_plan?.departure,
-                    arrival: origPilot.flight_plan?.arrival,
-                    flight_rules: origPilot.flight_plan?.flight_rules,
+                    aircraft_short: origPilot?.flight_plan?.aircraft_short,
+                    aircraft_faa: origPilot?.flight_plan?.aircraft_faa,
+                    departure: origPilot?.flight_plan?.departure,
+                    arrival: origPilot?.flight_plan?.arrival,
+                    flight_rules: origPilot?.flight_plan?.flight_rules,
                 };
             }),
             prefiles: regularData.prefiles.map(x => {
-                const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
+                const origPilot = prefilesMap[x.cid];
                 return {
                     ...x,
-                    aircraft_short: origPilot.flight_plan?.aircraft_short,
-                    aircraft_faa: origPilot.flight_plan?.aircraft_faa,
-                    departure: origPilot.flight_plan?.departure,
-                    arrival: origPilot.flight_plan?.arrival,
-                    flight_rules: origPilot.flight_plan?.flight_rules,
+                    aircraft_short: origPilot?.flight_plan?.aircraft_short,
+                    aircraft_faa: origPilot?.flight_plan?.aircraft_faa,
+                    departure: origPilot?.flight_plan?.departure,
+                    arrival: origPilot?.flight_plan?.arrival,
+                    flight_rules: origPilot?.flight_plan?.flight_rules,
                 };
             }),
             bars: shortBars,

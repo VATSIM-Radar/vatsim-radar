@@ -17,7 +17,7 @@
                         @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
                     >
                         <ui-text type="3b-medium">
-                            {{depAirport?.icao ?? flightPlan?.departure ?? 'ZZZZ'}}
+                            {{props.flightPlan?.departure ?? depAirport?.icao ?? flightPlan?.departure ?? 'ZZZZ'}}
                         </ui-text>
                         <ui-text
                             v-if="depAirport?.name"
@@ -33,7 +33,7 @@
                         @click="divOrgAirport && mapStore.addAirportOverlay(divOrgAirport.icao)"
                     >
                         <ui-text type="3b-medium">
-                            {{divOrgAirport?.icao ?? flightPlan?.diverted_origin ?? 'ZZZZ'}}
+                            {{props.flightPlan?.diverted_origin ?? divOrgAirport?.icao ?? flightPlan?.diverted_origin ?? 'ZZZZ'}}
                         </ui-text>
                         <ui-text
                             v-if="divOrgAirport?.name"
@@ -48,7 +48,7 @@
                         @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
                     >
                         <ui-text type="3b-medium">
-                            {{arrAirport?.icao ?? flightPlan?.arrival ?? 'ZZZZ'}}
+                            {{props.flightPlan?.arrival ?? arrAirport?.icao ?? flightPlan?.arrival ?? 'ZZZZ'}}
                         </ui-text>
                         <ui-text
                             v-if="arrAirport?.name"
@@ -68,7 +68,7 @@
                 @click="store.metarRequest = (!status || status?.startsWith('dep')) ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
             >
                 <ui-text type="caption-light">
-                    Weather Request
+                    Conditions Request
                 </ui-text>
             </ui-button>
 
@@ -189,7 +189,6 @@ const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const store = useStore();
 const mapStore = useMapStore();
-const dataStore = useDataStore();
 
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);
@@ -225,9 +224,9 @@ const alternates = computed(() => {
     };
 });
 
-const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.departure ?? ''] ?? null);
-const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.arrival ?? ''] ?? null);
-const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.flightPlan?.diverted_origin ?? ''] ?? null);
+const depAirport = computed(() => getAirportByIcao(props.flightPlan?.departure));
+const arrAirport = computed(() => getAirportByIcao(props.flightPlan?.arrival));
+const divOrgAirport = computed(() => getAirportByIcao(props.flightPlan?.diverted_origin));
 
 const flightPlanItems = computed(() => {
     if (!props.flightPlan) return [];

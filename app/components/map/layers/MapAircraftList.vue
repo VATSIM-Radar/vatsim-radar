@@ -20,6 +20,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
 import { disposeAircraftStyle, isPilotOverlayParked } from '~/composables/render/aircraft/style';
+import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
 
 defineOptions({
     render: () => null,
@@ -221,26 +222,43 @@ function setVisiblePilots() {
         showTracks.value = tracks;
     }
 
-    if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
+    const dashboardMode = !store.config.onlyAirportsAircraft && store.config.dashboardId;
+
+    if (store.config.airports?.length && (store.config.onlyAirportsAircraft || store.config.dashboardId)) {
         const aircraft = new Set<number>();
+        const mode = store.config.airportMode ?? 'all';
+        const airports = new Set<string>();
 
-        for (const key in dataStore.airportsList.value) {
-            if (!store.config.airports!.includes(key)) continue;
+        for (const key of store.config.airports) {
+            airports.add(key);
 
-            for (const cid of Object.values(dataStore.airportsList.value[key]?.aircraft ?? []).flat()) {
+            const airportAircraft = dataStore.airportsList.value[key]?.aircraft;
+            const ids = mode === 'ground'
+                ? [...(airportAircraft?.groundDep ?? []), ...(airportAircraft?.groundArr ?? [])]
+                : mode === 'airborne'
+                    ? [...(airportAircraft?.departures ?? []), ...(airportAircraft?.arrivals ?? [])]
+                    : mode === 'all'
+                        ? Object.values(airportAircraft ?? {}).flat()
+                        : airportAircraft?.[mode as MapAircraftKeys] ?? [];
+
+            for (const cid of ids) {
                 aircraft.add(cid);
             }
         }
 
-        if (aircraft.size) {
-            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.has(x.cid));
+        if (aircraft.size || dashboardMode) {
+            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.has(x.cid) ||
+                (dashboardMode &&
+                    dataStore.vatsim.data.keyedPilots.value[x.cid]?.departure &&
+                    !airports.has(dataStore.vatsim.data.keyedPilots.value[x.cid]?.departure ?? '') &&
+                    !airports.has(dataStore.vatsim.data.keyedPilots.value[x.cid]?.arrival ?? '')));
         }
         else {
             dataStore.visiblePilots.value = [];
         }
     }
 
-    if (store.config.airport && store.config.onlyAirportAircraft) {
+    if (store.config.airport && (store.config.onlyAirportAircraft || store.config.dashboardId)) {
         const airport = dataStore.airportsList.value[store.config.airport];
         if (airport) {
             const coords = [dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lat];
@@ -256,6 +274,9 @@ function setVisiblePilots() {
                 if (store.config.airportMode && store.config.airportMode !== 'all') {
                     if (store.config.airportMode === 'ground') {
                         return airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid);
+                    }
+                    if (store.config.airportMode === 'airborne') {
+                        return airport.aircraft.departures?.includes(x.cid) || airport.aircraft.arrivals?.includes(x.cid);
                     }
                     else {
                         return airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid);
@@ -357,6 +378,7 @@ watch(map, val => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'aircraft';
     });
+
     if (hasLayer) return;
 
     if (!vectorLayer) {
@@ -401,11 +423,19 @@ watch(map, val => {
 
     setVisiblePilots();
     init = true;
+
+    if (getKeyedValueFromSettings('map.traffic.smoothMovement')) startSmoothMovement(vectorSource, linesSource);
 }, {
     immediate: true,
 });
 
+watch(() => getKeyedValueFromSettings('map.traffic.smoothMovement'), enabled => {
+    if (enabled && vectorSource) startSmoothMovement(vectorSource, linesSource);
+    else stopSmoothMovement();
+});
+
 onBeforeUnmount(() => {
+    stopSmoothMovement();
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     vectorLayer?.dispose();
     if (linesLayer) map.value?.removeLayer(linesLayer);
@@ -414,5 +444,6 @@ onBeforeUnmount(() => {
     linesSource?.clear();
     disposeHeatmap();
     disposeAircraftStyle();
+    dataStore.navigraphWaypoints.value = {};
 });
 </script>

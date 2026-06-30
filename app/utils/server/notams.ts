@@ -67,6 +67,7 @@ export async function getAirportNotams(icao: string, formatted: true): Promise<s
 export async function getAirportNotams(icao: string, formatted?: false): Promise<VatsimAirportDataNotam[]>;
 export async function getAirportNotams(icao: string, formatted?: boolean): Promise<VatsimAirportDataNotam[] | string[]>;
 export async function getAirportNotams(icao: string, formatted?: boolean): Promise<VatsimAirportDataNotam[] | string[]> {
+    if (import.meta.dev) return [];
     const cachedNotamsRedis = await getRedisSync(`${ icao }-notams`);
     const cachedNotams: VatsimAirportDataNotam[] | null = cachedNotamsRedis ? JSON.parse(cachedNotamsRedis) : null;
 

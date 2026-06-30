@@ -32,7 +32,7 @@ export const activeAirportsList = globalComputed(() => {
     if (store.config.airport) {
         list = list[store.config.airport] ? { [store.config.airport]: list[store.config.airport] } : {};
     }
-    else {
+    else if (store.config.hideAllExternal) {
         list = {};
 
         for (const airport of store.config.airports ?? []) {
@@ -204,7 +204,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
     map: Map;
 }): Promise<VisibleAirportsResult | null> {
     const dataStore = useDataStore();
-    if (settingAirports || !dataStore.vatspy.value) return null;
+    if (settingAirports || !dataStore.vatspy.value || !map) return null;
     settingAirports = true;
 
     const store = useStore();

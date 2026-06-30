@@ -8,6 +8,7 @@ import { useStore } from '~/store';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { setMapSectors } from '~/composables/render/sectors';
+import { updateControllersRender } from '~/composables/render/update';
 import { globalMapEntities } from '~/utils/map/entities';
 import { logBench } from '~/composables';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
@@ -22,6 +23,9 @@ let vectorSource: VectorSource;
 let vectorImageSource: VectorSource;
 
 let labelsLayer: VectorLayer<any>;
+let lastSectorsUpdateId = 0;
+let offlineSectorsRendered = false;
+let atcWasHidden = false;
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
@@ -37,6 +41,9 @@ export interface MapFir {
 
 onMounted(async () => {
     if (!map.value) throw new Error('Map is not initialized');
+    lastSectorsUpdateId = 0;
+    offlineSectorsRendered = false;
+    atcWasHidden = false;
 
     vectorSource = new VectorSource<any>({
         features: [],
@@ -81,6 +88,25 @@ onMounted(async () => {
     map.value.addLayer(vectorImageLayer);
     map.value.addLayer(labelsLayer);
 
+    async function renderOfflineSectors() {
+        if (offlineSectorsRendered || !dataStore.vatspy.value) return;
+
+        // Offline VATSpy sectors do not depend on live controller updates. Render them once,
+        // then let OpenLayers retain the projected geometry instead of keeping GeoJSON in RAM.
+        const offlineSectors = await dataStore.vatspyBoundaries();
+        if (!map.value) return;
+
+        setMapSectors({
+            source: vectorSource,
+            layer: vectorLayer,
+            emptyLayer: vectorImageLayer,
+            emptySource: vectorImageSource,
+            labelsLayer,
+            firs: offlineSectors.map(feature => ({ feature, atc: [], persistent: true })),
+        });
+        offlineSectorsRendered = true;
+    }
+
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
         getKeyedValueFromSettings('map.vatglasses.combined'),
@@ -96,8 +122,18 @@ onMounted(async () => {
         if (hideAtc.value) {
             vectorSource.clear();
             vectorImageSource.clear();
+            offlineSectorsRendered = false;
+            atcWasHidden = true;
         }
         else {
+            await renderOfflineSectors();
+            if (atcWasHidden) {
+                atcWasHidden = false;
+                await updateControllersRender();
+            }
+        }
+
+        if (!hideAtc.value && lastSectorsUpdateId !== dataStore.sectorsUpdateId.value) {
             const log = logBench('sectorsRender');
             setMapSectors({
                 source: vectorSource,
@@ -110,15 +146,46 @@ onMounted(async () => {
 
                 firs: dataStore.sectorsList.value,
             });
+            lastSectorsUpdateId = dataStore.sectorsUpdateId.value;
+            dataStore.sectorsList.value = [];
             log();
+        }
+        else if (!hideAtc.value) {
+            // Settings can change VATGlasses geometry without a live ATC update.
+            // Keep the already projected VATSpy sectors while rebuilding only dynamic data.
+            setMapSectors({
+                source: vectorSource,
+                layer: vectorLayer,
+                emptyLayer: vectorImageLayer,
+                emptySource: vectorImageSource,
+                labelsLayer,
+                firs: [],
+                preserveSectors: true,
+            });
         }
     };
 
-    watchThrottled([dataStore.sectorsList, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
+    dataStore.sectorsUpdateId.value = 0;
+    dataStore.sectorsList.value = [];
+
+    watch(dataStore.vatspy, async () => {
+        if (hideAtc.value) return;
+        vectorSource.clear();
+        vectorImageSource.clear();
+        offlineSectorsRendered = false;
+        await renderOfflineSectors();
+        await updateControllersRender();
+    });
+
+    watchThrottled([dataStore.sectorsUpdateId, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
         immediate: true,
         throttle: 500,
         trailing: true,
     });
+
+    await updateControllersRender();
+
+    await renderOfflineSectors();
 });
 
 onBeforeUnmount(() => {

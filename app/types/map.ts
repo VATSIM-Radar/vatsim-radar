@@ -1,4 +1,4 @@
-import type { PartialRecord } from '~/types/index';
+import type { PartialRecord, RecursivePartial } from '~/types/index';
 import type {
     VatsimNattrak,
     VatsimShortenedAircraft,
@@ -17,7 +17,7 @@ export interface MapAirportRender {
 
 export type MapAircraftKeys = keyof DataAirport['aircraft'];
 export type MapAircraftList = DataAirport['aircraft'];
-export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
+export type MapAircraftMode = 'all' | 'ground' | 'airborne' | MapAircraftKeys;
 
 /**
  * @deprecated
@@ -59,9 +59,24 @@ interface IUserLocalSettings {
     zoom: number;
     vatglassesLevel: number;
     sigmetsDate: string;
+
+    app: {
+        presence?: {
+            /**
+             * True means show when piloting
+             * @default false
+             */
+            modes: {
+                pilot?: boolean;
+                atc?: boolean;
+                observer?: boolean;
+                offline?: boolean;
+            } | null;
+        };
+    };
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>;
+export type UserLocalSettings = RecursivePartial<IUserLocalSettings>;
 
 interface IUserLegacyLocalSettings {
     // Keep
