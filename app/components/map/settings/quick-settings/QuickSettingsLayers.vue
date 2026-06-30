@@ -24,7 +24,6 @@
                     <div class="spinner"/>
                 </div>
             </div>
-            <ui-setting-item :item="settingsItems.layers.vatglassesCombineBands"/>
             <ui-setting-item :item="settingsItems.layers.vatglassesAutoLevel"/>
         </div>
         <quick-settings-vat-glasses-level/>

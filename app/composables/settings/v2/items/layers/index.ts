@@ -219,15 +219,6 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         onChange: value => setSettingByKey('map.vatglasses.combined', value),
         disabled: computed(() => !getSettingValue('map.vatglasses.active').value.value),
     },
-    vatglassesCombineBands: {
-        title: 'Combine by Altitude',
-        description: 'Merge sectors within altitude bands so the level slider still applies.',
-        searchKeywords: ['vatglasses', 'sectors', 'airspace', 'altitude', 'bands'],
-        type: 'toggle',
-        value: getSettingValue('map.vatglasses.combineBands'),
-        onChange: value => setSettingByKey('map.vatglasses.combineBands', value),
-        disabled: computed(() => !getSettingValue('map.vatglasses.active').value.value || !getSettingValue('map.vatglasses.combined').value.value),
-    },
     vatglassesAutoLevel: {
         title: 'Auto-Set Level',
         description: 'Based on your flight',

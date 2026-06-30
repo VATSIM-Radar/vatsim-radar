@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="(!vatglassesCombined || vatglassesCombineBands) && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
+        v-if="!vatglassesCombined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
         class="vg-level"
     >
         <div
@@ -73,7 +73,6 @@ defineProps({
 });
 const store = useStore();
 const vatglassesCombined = useSettingValueFromFunc('map.vatglasses.combined');
-const vatglassesCombineBands = useSettingValueFromFunc('map.vatglasses.combineBands');
 const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
 const vatglassesAutoEnable = useSettingValueFromFunc('map.vatglasses.autoEnable');
 const vatglassesActiveSetting = useSettingValueFromFunc('map.vatglasses.active');

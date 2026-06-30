@@ -306,7 +306,7 @@
                 vatglasses positions: {{ vatglassesStats.positions }}
             </li>
             <li>
-                vatglasses recombined: {{ vatglassesStats.recombined }}
+                vatglasses recombined (last tick): {{ vatglassesStats.recombined }}
             </li>
             <li>
                 wsOpen: {{store.wsOpen}}

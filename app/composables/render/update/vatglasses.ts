@@ -17,8 +17,6 @@ import { stringToArray } from '~/utils/shared';
 
 let worker: Worker | null = null;
 
-export const vatglassesStats = { positions: 0, recombined: 0 };
-
 let facilities: {
     ATIS: number;
     OBS: number;
@@ -89,62 +87,23 @@ function combineSectorsWithWorker(sectors: any): Promise<any> {
     });
 }
 
-function combineSectorsByBandsWithWorker(sectors: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-        if (!worker) return;
-        worker.postMessage(['combineSectorsByBands', sectors]);
-
-        worker.onmessage = function(event: { data: any }) {
-            resolve(event.data);
-        };
-
-        worker.onerror = function(error: any) {
-            reject(error);
-        };
-    });
-}
-
-let lastCombineBandsMode: boolean | null = null;
-
 async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActivePositions) {
-    const combineBands = !!getKeyedValueFromSettings('map.vatglasses.combineBands');
-    const modeChanged = lastCombineBandsMode !== null && lastCombineBandsMode !== combineBands;
-    lastCombineBandsMode = combineBands;
-
-    let positions = 0;
-    let recombined = 0;
-
     for (const countryGroupId in finalPositions) {
         for (const positionId in finalPositions[countryGroupId]) {
-            const position = finalPositions[countryGroupId][positionId];
-            if (!position) continue;
-            positions++;
-            // sectorsCombined === null is the signal that the geometry needs to be (re)calculated;
-            // a strategy switch forces every position to recompute as well.
-            if (position.sectorsCombined === null || modeChanged) {
-                recombined++;
-                position.lastUpdated = new Date().toISOString();
-                const sectors = position.sectors;
+            if (!finalPositions[countryGroupId][positionId]) continue;
+            if (finalPositions[countryGroupId][positionId].sectorsCombined === null) { // if it is null, it is the signal for us this needs to be (re)calculated
+                finalPositions[countryGroupId][positionId].lastUpdated = new Date().toISOString();
+                const sectors = finalPositions[countryGroupId][positionId]['sectors'];
                 if (sectors) {
-                    if (combineBands) {
-                        position.sectorsCombinedBands = await combineSectorsByBandsWithWorker(sectors);
-                        position.sectorsCombined = [];
-                    }
-                    else {
-                        const splittedSectors = await splitSectorsWithWorker(sectors);
+                    const splittedSectors = await splitSectorsWithWorker(sectors);
 
-                        if (splittedSectors) {
-                            position.sectorsCombined = await combineSectorsWithWorker(splittedSectors);
-                        }
-                        position.sectorsCombinedBands = null;
+                    if (splittedSectors) {
+                        finalPositions[countryGroupId][positionId].sectorsCombined = await combineSectorsWithWorker(splittedSectors);
                     }
                 }
             }
         }
     }
-
-    vatglassesStats.positions = positions;
-    vatglassesStats.recombined = recombined;
 }
 
 function getActiveSectorsOfAirspace(airspace: VatglassesAirspace, context: DataUpdateContext) {

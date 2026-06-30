@@ -117,7 +117,6 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
         }
 
         const combined = !!getKeyedValueFromSettings('map.vatglasses.combined');
-        const combineBands = combined && !!getKeyedValueFromSettings('map.vatglasses.combineBands');
         const vatglassesLevel = getSafeVatglassesLevel();
         const lastLevelOrCombined = combined ? true : vatglassesLevel;
 
@@ -125,17 +124,15 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
             for (const positionId in countryEntries) {
                 const position = countryEntries[positionId];
-                const id: any = 'sector-' + String(countryId) + String(positionId) + String(combined) + String(combineBands);
+                const id: any = 'sector-' + String(countryId) + String(positionId) + String(getKeyedValueFromSettings('map.vatglasses.combined'));
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                const vgFeatures = combineBands
-                    ? position.sectorsCombinedBands?.flatMap(band => band.features)
-                    : combined
-                        ? position.sectorsCombined
-                        : position.sectors?.filter(
-                            x => x.properties?.min <= vatglassesLevel && x.properties?.max >= vatglassesLevel,
-                        );
+                const vgFeatures = combined
+                    ? position.sectorsCombined
+                    : position.sectors?.filter(
+                        x => x.properties?.min <= vatglassesLevel && x.properties?.max >= vatglassesLevel,
+                    );
 
                 if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
                     const features = vgFeatures?.map(x => createMapFeature('sector-vatglasses', {

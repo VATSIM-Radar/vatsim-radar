@@ -110,7 +110,7 @@ export async function updateControllersRender() {
 }
 
 export function initControllersUpdate() {
-    const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combineBands') + getKeyedValueFromSettings('map.vatglasses.combined'));
+    const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
     useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
         updateControllersRender();
     });

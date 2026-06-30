@@ -110,7 +110,6 @@ onMounted(async () => {
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
         getKeyedValueFromSettings('map.vatglasses.combined'),
-        getKeyedValueFromSettings('map.vatglasses.combineBands'),
         getKeyedValueFromSettings('map.visibility.atc.firs'),
     ]));
     const mapLevel = computed(() => {
@@ -118,7 +117,7 @@ onMounted(async () => {
         return typeof level === 'number' && Number.isFinite(level) ? level : 999;
     });
 
-    const update = async () => {
+    const debouncedUpdate = useThrottleFn(async () => {
         if (hideAtc.value) {
             vectorSource.clear();
             vectorImageSource.clear();
@@ -163,7 +162,7 @@ onMounted(async () => {
                 preserveSectors: true,
             });
         }
-    };
+    }, 500, true);
 
     dataStore.sectorsUpdateId.value = 0;
     dataStore.sectorsList.value = [];
@@ -177,10 +176,8 @@ onMounted(async () => {
         await updateControllersRender();
     });
 
-    watchThrottled([dataStore.sectorsUpdateId, mapSettings, mapLevel, dataStore.vatglassesActivePositions], update, {
+    watchThrottled([dataStore.sectorsUpdateId, mapSettings, mapLevel, dataStore.vatglassesActivePositions], debouncedUpdate, {
         immediate: true,
-        throttle: 500,
-        trailing: true,
     });
 
     await updateControllersRender();

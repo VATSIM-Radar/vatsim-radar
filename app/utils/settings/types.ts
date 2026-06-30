@@ -127,7 +127,6 @@ export interface UserSettingsV2 {
             autoEnable: boolean;
             autoLevel: boolean;
             combined: boolean;
-            combineBands: boolean;
         };
 
         navigraph: {
