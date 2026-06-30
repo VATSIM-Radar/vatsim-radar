@@ -104,8 +104,6 @@ async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActiv
             }
         }
     }
-
-    await Promise.all(tasks);
 }
 
 function getActiveSectorsOfAirspace(airspace: VatglassesAirspace, context: DataUpdateContext) {

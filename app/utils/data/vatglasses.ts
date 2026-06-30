@@ -5,18 +5,10 @@ import type {
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
 
-export interface VatglassesSectorBand {
-    min: number;
-    max: number;
-    features: TurfFeature<TurfPolygon, VatglassesSectorProperties>[];
-}
-
 export interface VatglassesActivePosition {
     atc: VatsimShortenedController[];
     sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
-    // Combined-mode union of all the positionы sector
     sectorsCombined: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
-    sectorsCombinedBands?: VatglassesSectorBand[] | null;
     activeRunway: Record<string, string>;
     airspaceKeys: string | null;
     lastUpdated: string | null;

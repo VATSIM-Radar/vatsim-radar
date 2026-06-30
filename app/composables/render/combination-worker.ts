@@ -1,4 +1,4 @@
-import { combineSectors, combineSectorsByBands, splitSectors } from '~/utils/data/vatglasses-helper';
+import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 
 self.onmessage = function(event) {
     const [type, sectors] = event.data;
@@ -8,10 +8,6 @@ self.onmessage = function(event) {
     }
     else if (type === 'combineSectors') {
         const result = combineSectors(sectors);
-        self.postMessage(result);
-    }
-    else if (type === 'combineSectorsByBands') {
-        const result = combineSectorsByBands(sectors);
         self.postMessage(result);
     }
 };

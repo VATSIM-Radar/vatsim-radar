@@ -3,6 +3,7 @@ import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { updateAircraft } from '~/composables/render/update/aircraft';
 import { updateControllers } from '~/composables/render/update/atc';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { useStore } from '~/store';
 import { logBench } from '~/composables';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
@@ -108,6 +109,8 @@ export async function updateControllersRender() {
         updateControllersRender();
     }
 }
+
+const vgLevel = computed(() => useStore().localSettings.vatglassesLevel);
 
 export function initControllersUpdate() {
     const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));

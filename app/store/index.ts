@@ -167,6 +167,7 @@ export const useStore = defineStore('index', {
             airportsRender: 0,
             airportsPrepare: 0,
             sectorsRender: 0,
+            vgCombine: 0,
         },
 
         wsOpen: false,
