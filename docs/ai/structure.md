@@ -104,6 +104,8 @@ Map component groups:
 - `app/components/map/layers/*`: layer-level map UI and rendered layer components.
   - `app/components/map/layers/MapLayer.vue`: base raster/vector tile layer selection, Protomaps styling, attribution layer setup, and tile source cleanup.
 - `app/components/map/overlays/*`: draggable/minified overlays for pilots, airports, ATC, etc.
+- `app/components/map/MapHtmlOverlay.vue`: shared OpenLayers HTML overlay wrapper. On mobile, non-persistent interactive popups render as bottom sheets; persistent coordinate overlays still use OpenLayers positioning.
+- `app/components/map/MapMobileWindow.vue`: mobile overlay window/sheet host. Featured Airports/Favorite mobile menus take priority over the active overlay bottom sheet.
 - `app/components/map/popups/*`: OpenLayers popup content.
 - `app/components/map/settings/*`: map filters and quick settings panels.
 - `app/components/map/navigraph/*`: Navigraph visual layers and procedures.

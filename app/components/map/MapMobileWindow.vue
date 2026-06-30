@@ -90,7 +90,8 @@ const sheet = useTemplateRef<InstanceType<typeof BottomSheet>>('sheet');
 const map = injectMap();
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
-const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified);
+const mobileMenuOpen = computed(() => store.featuredAirportsOpen || store.menuFriendsOpen);
+const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified && !mobileMenuOpen.value);
 
 function setMapBottomPadding(bottom: number) {
     const view = map.value?.getView();

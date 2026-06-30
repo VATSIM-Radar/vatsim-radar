@@ -1,6 +1,6 @@
 <template>
     <bottom-sheet
-        v-if="model && !disableMobileInteraction && isMobile"
+        v-if="usesMobileSheet"
         aria-label="Map info"
         :blocking="false"
         class="map-overlay-sheet"
@@ -28,7 +28,7 @@
     </bottom-sheet>
     <div
         v-else-if="model"
-        v-show="isMobile && !disableMobileInteraction"
+        v-show="false"
         class="map-overlay-block"
     >
         <div
@@ -54,7 +54,6 @@ import type { Map } from 'ol';
 import { BottomSheet } from 'vue-bottom-sheets';
 import { useMapStore } from '~/store/map';
 import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
-import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -112,6 +111,9 @@ const overlay = defineModel('overlay', {
 });
 
 const isMobile = useIsMobile();
+const usesMobileSheet = computed(() => {
+    return model.value && isMobile.value && !props.disableMobileInteraction && !props.persistent;
+});
 
 const mapStore = useMapStore();
 
@@ -176,8 +178,13 @@ function removeOverlay() {
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
 }
 
-watch([model, popup, openOverlayId, overlayElement], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
-    if (!overlayElement.value || isMobile.value) return;
+watch([model, popup, openOverlayId, overlayElement, usesMobileSheet], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
+    if (usesMobileSheet.value) {
+        removeOverlay();
+        return;
+    }
+
+    if (!overlayElement.value) return;
     await nextTick();
     if (model.value && !overlay.value) {
         if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {
