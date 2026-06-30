@@ -104,6 +104,8 @@ async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActiv
             }
         }
     }
+
+    await Promise.all(tasks);
 }
 
 function getActiveSectorsOfAirspace(airspace: VatglassesAirspace, context: DataUpdateContext) {
@@ -489,7 +491,9 @@ export async function updateVATGlasses(context: DataUpdateContext) {
 
     if (!firstRun && getKeyedValueFromSettings('map.vatglasses.active') && getKeyedValueFromSettings('map.vatglasses.combined') && !dataStore.vatglassesCombiningInProgress.value) {
         dataStore.vatglassesCombiningInProgress.value = true;
+        const logCombine = logBench('vgCombine');
         await combineAllVatglassesActiveSectors(finalPositions).catch(e => console.error(e));
+        logCombine();
         dataStore.vatglassesCombiningInProgress.value = false;
     }
 

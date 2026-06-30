@@ -303,12 +303,6 @@
                 {{key}}: {{item}}ms
             </li>
             <li>
-                vatglasses positions: {{ vatglassesStats.positions }}
-            </li>
-            <li>
-                vatglasses recombined (last tick): {{ vatglassesStats.recombined }}
-            </li>
-            <li>
                 wsOpen: {{store.wsOpen}}
             </li>
             <li>
@@ -338,7 +332,6 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapFiltersDebugUpload from '~/components/map/settings/filters/MapFiltersDebugUpload.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import { debugBookings, debugControllers } from '~/composables/render/update/utils';
-import { vatglassesStats } from '~/composables/render/update/vatglasses';
 import { getFacilityByCallsign } from '~/utils/shared/vatsim';
 import CheckIcon from '~/assets/icons/kit/check.svg?component';
 import MapFiltersDebugBooking from '~/components/map/settings/filters/MapFiltersDebugBooking.vue';
