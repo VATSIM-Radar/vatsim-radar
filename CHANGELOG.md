@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-beta.6]
+
+## Alpha Changes
+
+- Rolled back VATGlasses Combined Mode changes (it will now be slower, but working as before)
+
+## Features and Improvements
+
+- Added Mobile Sheets on mobile by psergienko
+
 # [2.0.0-beta.5.2]
 
 ## Alpha Changes

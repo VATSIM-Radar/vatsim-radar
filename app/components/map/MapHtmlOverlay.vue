@@ -4,21 +4,27 @@
         aria-label="Map info"
         :blocking="false"
         class="map-overlay-sheet"
+        :handle="false"
         :max-height="sheetMaxHeight"
         :open="model"
         :theme="{ ...mapBottomSheetTheme, zIndex: 10 }"
         @dismiss="emit('close')"
     >
-        <div
-            class="map-overlay map-overlay--sheet"
-            v-bind="$attrs"
-        >
-            <slot/>
-            <slot
-                v-if="isPopupOpen"
-                name="popup"
-            />
-        </div>
+        <template #default="{ dragHandleProps }">
+            <div class="radar-vbs_handle-zone">
+                <div
+                    class="radar-vbs_handle"
+                    v-bind="dragHandleProps"
+                />
+            </div>
+            <div class="map-overlay map-overlay--sheet" v-bind="$attrs">
+                <slot/>
+                <slot
+                    v-if="isPopupOpen"
+                    name="popup"
+                />
+            </div>
+        </template>
     </bottom-sheet>
     <div
         v-else-if="model"
@@ -48,6 +54,7 @@ import type { Map } from 'ol';
 import { BottomSheet } from 'vue-bottom-sheets';
 import { useMapStore } from '~/store/map';
 import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
+import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -266,6 +273,10 @@ onBeforeUnmount(() => {
         z-index: 1;
         top: 0;
         background: var(--vbs-bg);
+    }
+
+    .radar-vbs_handle {
+        top: 0;
     }
 }
 </style>

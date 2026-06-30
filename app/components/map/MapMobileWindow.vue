@@ -53,14 +53,14 @@
     >
         <template #default="{ dragHandleProps }">
             <template v-if="overlay && !overlay.minified">
-                <div class="mobile-sheet_handle-zone">
+                <div class="radar-vbs_handle-zone">
                     <div
-                        class="mobile-sheet_handle"
+                        class="radar-vbs_handle"
                         v-bind="dragHandleProps"
                     />
                 </div>
                 <map-overlays
-                    class="mobile-sheet_popup"
+                    class="radar-vbs_popup"
                     max-height="unset"
                     :overlay
                 />
@@ -171,53 +171,6 @@ const overlaysHeight = computed(() => {
         &-leave-to {
             top: -10px;
             opacity: 0;
-        }
-    }
-}
-
-.mobile-sheet {
-    &_popup {
-        flex: 1 0 auto;
-        width: 100%;
-    }
-
-    &_handle-zone {
-        position: sticky;
-        z-index: 9;
-        top: 0;
-
-        overflow: visible;
-
-        height: 0;
-    }
-
-    &_handle {
-        cursor: grab;
-
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 64px;
-        height: 16px;
-
-        &::after {
-            content: '';
-
-            width: 36px;
-            height: 4px;
-            border-radius: 999px;
-
-            background: var(--vbs-handle);
-        }
-
-        &:active {
-            cursor: grabbing;
         }
     }
 }
