@@ -233,6 +233,7 @@ const settingsSchema = partialObject({
             active: booleanSchema,
             autoEnable: booleanSchema,
             autoLevel: booleanSchema,
+            combineBands: booleanSchema,
             combined: booleanSchema,
         }),
 

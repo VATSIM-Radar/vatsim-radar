@@ -50,7 +50,6 @@ function preservePreviousSectorsIfCurrentTickIsEmpty(position: VatglassesActiveP
     if (position.atc.length && !position.sectors?.length && previousPosition?.sectors?.length) {
         position.sectors = previousPosition.sectors;
         position.sectorsCombined = previousPosition.sectorsCombined;
-        position.sectorsCombinedBands = previousPosition.sectorsCombinedBands;
         position.lastUpdated = previousPosition.lastUpdated;
     }
 }

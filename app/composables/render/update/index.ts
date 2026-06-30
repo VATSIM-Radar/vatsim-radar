@@ -110,8 +110,6 @@ export async function updateControllersRender() {
     }
 }
 
-const vgLevel = computed(() => useStore().localSettings.vatglassesLevel);
-
 export function initControllersUpdate() {
     const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
     useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
