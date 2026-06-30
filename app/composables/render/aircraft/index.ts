@@ -116,7 +116,7 @@ export async function setMapAircraft(settings: {
     const mapStore = useMapStore();
 
     const smoothMovement = isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad();
-    const overlays =  = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
+    const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
 
     const linesFeatures = linesSource.getFeatures().slice(0);
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
