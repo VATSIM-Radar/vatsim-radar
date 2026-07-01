@@ -190,7 +190,7 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     waypoint?: string;
     key?: string;
     dbType: keyof NavigraphNavDataShort | NavigraphNavDataEnrouteWaypointPartial['kind'] | null;
-    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'procedure' | `procedure-${ string }` | 'ndb' | 'vhf' | 'holdings' | `holdings-${ string }`;
+    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'procedure' | `procedure-${ string }` | 'ndb' | 'vhf' | 'holdings' | `holdings-${ string }` | 'restrictive-airspace' | 'controlled-airspace';
     usage?: string;
     description?: string;
     self?: boolean;

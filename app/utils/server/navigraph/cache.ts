@@ -7,6 +7,7 @@ import { processDatabase } from '~/utils/server/navigraph/navdata';
 import type {
     NavDataProcedure,
     NavigraphNavData,
+    NavigraphNavDataFull,
     NavigraphNavDataApproach,
     NavigraphNavDataApproachShort,
     NavigraphNavDataShort,
@@ -20,7 +21,7 @@ export type NavigraphProcedureGroup = 'stars' | 'sids' | 'approaches';
 
 export const navigraphCacheRoot = join(process.cwd(), 'app/data/navigraph-cache');
 const procedureGroups = ['stars', 'sids', 'approaches'] as const satisfies readonly NavigraphProcedureGroup[];
-const cacheVersion = 'items-by-type-v1';
+const cacheVersion = 'items-by-type-v6';
 const itemMemoryTtl = 10 * 60 * 1000;
 
 type CacheVersionFile = {
@@ -118,7 +119,7 @@ function writeProcedureCache(path: string, full: NavigraphNavData) {
     }
 }
 
-function writeItemCache(path: string, full: NavigraphNavData) {
+function writeItemCache(path: string, full: NavigraphNavDataFull) {
     for (const [dataKey, data] of Object.entries(full)) {
         if (procedureGroups.includes(dataKey as NavigraphProcedureGroup)) continue;
 
@@ -126,7 +127,7 @@ function writeItemCache(path: string, full: NavigraphNavData) {
     }
 }
 
-function clearFullData(full: NavigraphNavData) {
+function clearFullData(full: NavigraphNavDataFull) {
     for (const key of Object.keys(full)) {
         delete (full as unknown as Record<string, unknown>)[key];
     }
@@ -236,4 +237,8 @@ export function readCachedItem(root: string, data: string, key: string) {
     if (!isObject(itemFile)) return null;
 
     return itemFile[key] ?? null;
+}
+
+export function readCachedItemData(root: string, data: string) {
+    return readCachedItemFile(join(root, 'item', `${ encodeCachePart(data) }.json`));
 }

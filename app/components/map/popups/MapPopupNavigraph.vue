@@ -76,7 +76,7 @@ import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
-import type { NavigraphGetData } from '~/utils/server/navigraph/navdata/types';
+import type { NavigraphGetData, NavigraphNavDataFull } from '~/utils/server/navigraph/navdata/types';
 import type { VatsimNattrakClient } from '~/types/data/vatsim';
 
 const props = defineProps({
@@ -287,6 +287,104 @@ const getInfo = computed<{ title: string; items: DataListItem[] } | null>(() => 
                 {
                     title: 'Waypoint',
                     text: _data.waypoint?.identifier,
+                },
+            ],
+        };
+    }
+    else if (properties.value.dbType === 'restrictedAirspace') {
+        const _data = data.value as NavigraphNavDataFull['restrictedAirspace'][string];
+
+        return {
+            title: _data.airspace.name || _data.airspace.designation || properties.value.name || '',
+            items: [
+                {
+                    title: 'Type',
+                    text: _data.airspace.type,
+                },
+                {
+                    title: 'Designation',
+                    text: _data.airspace.designation,
+                },
+                {
+                    title: 'Name',
+                    text: _data.airspace.name,
+                },
+                {
+                    title: 'Lower limit',
+                    text: _data.airspace.lowerLimit,
+                },
+                {
+                    title: 'Upper limit',
+                    text: _data.airspace.upperLimit,
+                },
+                {
+                    title: 'Level',
+                    text: _data.airspace.flightLevel === 'H' ? 'High' : _data.airspace.flightLevel === 'L' ? 'Low' : 'Both',
+                },
+                {
+                    title: 'ICAO',
+                    text: _data.airspace.icaoCode,
+                },
+                {
+                    title: 'Area',
+                    text: _data.airspace.areaCode,
+                },
+                {
+                    title: 'Points',
+                    text: _data.points.length,
+                },
+            ],
+        };
+    }
+    else if (properties.value.dbType === 'controlledAirspace') {
+        const _data = data.value as NavigraphNavDataFull['controlledAirspace'][string];
+
+        return {
+            title: _data.airspace.name || _data.airspace.center || properties.value.name || '',
+            items: [
+                {
+                    title: 'Type',
+                    text: _data.airspace.type,
+                },
+                {
+                    title: 'Classification',
+                    text: _data.airspace.classification,
+                },
+                {
+                    title: 'Center',
+                    text: _data.airspace.center,
+                },
+                {
+                    title: 'Name',
+                    text: _data.airspace.name,
+                },
+                {
+                    title: 'Lower limit',
+                    text: _data.airspace.lowerLimit,
+                },
+                {
+                    title: 'Upper limit',
+                    text: _data.airspace.upperLimit,
+                },
+                {
+                    title: 'Level',
+                    text: _data.airspace.flightLevel === 'H' ? 'High' : _data.airspace.flightLevel === 'L' ? 'Low' : 'Both',
+                },
+                {
+                    title: 'ICAO',
+                    text: _data.airspace.icaoCode,
+                },
+                {
+                    title: 'Area',
+                    text: _data.airspace.areaCode,
+                },
+                {
+                    title: 'Time',
+                    text: _data.airspace.timeCode,
+                },
+                {
+                    title: 'Points',
+                    text: _data.points.length,
                 },
             ],
         };

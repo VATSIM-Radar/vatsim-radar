@@ -165,6 +165,13 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         lineDash: [6, 12],
     });
 
+    const airspaceStroke = new Stroke({
+        color: `rgba(${ getCurrentThemeRgbColor('orange600').join(',') }, 0.5)`,
+        width: 1,
+    });
+
+    const airspaceStyle = new Style({ stroke: airspaceStroke });
+
     const strokesCache = {
         self: {} as Record<string, Stroke>,
         currentFlight: {} as Record<string, Stroke>,
@@ -252,6 +259,8 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
             return stylesCache[key];
         }
+
+        if (featureType === 'restrictive-airspace' || featureType === 'controlled-airspace') return airspaceStyle;
 
         if (featureType.endsWith('waypoint')) {
             let text = `${ properties.waypoint }`;

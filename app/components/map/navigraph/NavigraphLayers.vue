@@ -6,6 +6,7 @@
         <template v-if="mapStore.zoom > 5 && navigraphEnabled !== false">
             <navigraph-ndb v-if="ndbEnabled || vordmeEnabled"/>
             <navigraph-airways v-if="airwaysEnabled"/>
+            <navigraph-airspace v-if="restrictiveEnabled || controlledEnabled"/>
             <navigraph-waypoints v-if="waypointsEnabled"/>
             <navigraph-holdings/>
         </template>
@@ -224,6 +225,7 @@ import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import { setNavigraphStyle } from '~/composables/render/navigraph/style';
 import VectorLayer from 'ol/layer/Vector.js';
+import NavigraphAirspace from '~/components/map/navigraph/NavigraphAirspace.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
@@ -237,6 +239,8 @@ const navigraphEnabled = useSettingValueFromFunc('map.navigraph.enabled');
 const ndbEnabled = useSettingValueFromFunc('map.navigraph.layers.ndb');
 const vordmeEnabled = useSettingValueFromFunc('map.navigraph.layers.vordme');
 const airwaysEnabled = useSettingValueFromFunc('map.navigraph.layers.airways.enabled');
+const restrictiveEnabled = useSettingValueFromFunc('map.navigraph.layers.airspace.restricted');
+const controlledEnabled = useSettingValueFromFunc('map.navigraph.layers.airspace.controlled');
 const waypointsEnabled = useSettingValueFromFunc('map.navigraph.layers.waypoints');
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const natTrakEnabled = useSettingValueFromFunc('map.layers.natTrak.enabled');

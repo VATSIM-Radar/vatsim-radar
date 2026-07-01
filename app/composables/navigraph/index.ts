@@ -284,13 +284,15 @@ const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{
 const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 const dataCache: {
-    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings']: NavigraphNavDataShort[K]
+    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings' | 'restrictedAirspace' | 'controlledAirspace']: NavigraphNavDataShort[K]
 } = {
     vhf: {},
     ndb: {},
     waypoints: {},
     airways: {},
     holdings: {},
+    restrictedAirspace: {},
+    controlledAirspace: {},
 };
 
 let latestUpdate = 0;
@@ -377,8 +379,8 @@ function mergeTwoAirways(
     return undefined;
 }
 
-export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
-export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings', key: string): Promise<any | null> {
+export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings' | 'restrictedAirspace' | 'controlledAirspace'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
+export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings' | 'restrictedAirspace' | 'controlledAirspace', key: string): Promise<any | null> {
     latestUpdate = Date.now();
 
     if (key in dataCache[type]) return dataCache[type][key];
@@ -395,6 +397,8 @@ if (typeof window !== 'undefined') {
             dataCache.ndb = {};
             dataCache.waypoints = {};
             dataCache.airways = {};
+            dataCache.restrictedAirspace = {};
+            dataCache.controlledAirspace = {};
         }
     }, 1000);
 }

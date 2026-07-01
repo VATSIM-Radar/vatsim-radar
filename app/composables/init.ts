@@ -266,7 +266,7 @@ export function checkForVG() {
 }
 
 async function upsertBagsByIdentifier<D extends any[], T extends Record<string, D>>(
-    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb' | 'holdings',
+    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb' | 'holdings' | 'restrictedAirspace' | 'controlledAirspace',
     entries: T,
 ) {
     const mapStore = useMapStore();
@@ -341,6 +341,8 @@ async function updateNavigraph() {
         await upsertBagsByIdentifier('vhf', fetchedData.vhf);
         await upsertBagsByIdentifier('ndb', fetchedData.ndb);
         await upsertBagsByIdentifier('holdings', fetchedData.holdings);
+        await upsertBagsByIdentifier('restrictedAirspace', fetchedData.restrictedAirspace);
+        await upsertBagsByIdentifier('controlledAirspace', fetchedData.controlledAirspace);
 
         for (const key in fetchedData) {
             await clientDB.navigraphData.put(fetchedData[key as keyof typeof fetchedData] as any, key as any);
