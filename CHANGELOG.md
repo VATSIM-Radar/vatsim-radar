@@ -1,5 +1,24 @@
 # Changelog
 
+# [2.0.0-rc.1]
+
+## Alpha Changes
+
+- Restored Navigraph tab in Layers quick settings
+- Changed Map Settings icon
+
+## Features and Improvements
+
+- Added a setting to move favorites to top right corner of screen on desktop - like on mobile version
+- Added a setting to pin favorites
+- Added point bearing distance support
+- Added ICAO in route field support
+
+## Bug Fixes
+
+- Fixed concorde NAT tracks parsing incorrectly
+- Fixed some incorrect airways parsing bugs
+
 # [2.0.0-beta.6]
 
 ## Alpha Changes

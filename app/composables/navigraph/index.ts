@@ -202,6 +202,9 @@ function withSign(value: number, dir: string): number {
 // Wrote this myself because chatgpt can't write regex properly
 const preciseRegex = /^(((?<latDir>[NS])(?<latRaw>\d{1,6}))|((?<latRaw2>\d{1,6})(?<latDir2>[NS]))|((?<latRaw3>\d{1,4})(\/)?))(((?<lonDir>[EW])(?<lonRaw>\d{2,7}))|((?<lonRaw2>\d{2,7})(?<lonDir2>[EW]))|((\/)(?<lonRaw3>\d{1,4})))$/;
 
+const bearingRegex = /^(?<word>[A-Z]+)(?<heading>[0-9]{3})(?<miles>[0-9]{3})/;
+const earthRadiusNm = 3440.065;
+
 function parseCoordPart(raw: string, degreeDigits: 2 | 3, isLonDir2 = false): number | null {
     if (degreeDigits === 2) {
         if (raw.length <= 2) return parseInt(raw, 10); // 7, 07, 49
@@ -265,6 +268,45 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     ];
 }
 
+function calculateBearingCoordinate(reference: Coordinate, heading: number, miles: number): Coordinate {
+    const lon = reference[0] * Math.PI / 180;
+    const lat = reference[1] * Math.PI / 180;
+    const bearing = heading * Math.PI / 180;
+    const angularDistance = miles / earthRadiusNm;
+
+    const destinationLat = Math.asin(
+        (Math.sin(lat) * Math.cos(angularDistance)) +
+        (Math.cos(lat) * Math.sin(angularDistance) * Math.cos(bearing)),
+    );
+    const destinationLon = lon + Math.atan2(
+        Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(lat),
+        Math.cos(angularDistance) - (Math.sin(lat) * Math.sin(destinationLat)),
+    );
+
+    return [
+        ((((destinationLon * 180 / Math.PI) + 540) % 360) - 180),
+        destinationLat * 180 / Math.PI,
+    ];
+}
+
+export async function getBearingCoord(input: string, previousWaypoint?: Coordinate | null): Promise<[Coordinate, string] | null> {
+    const value = input.trim();
+
+    const match = value.match(bearingRegex);
+    if (!match) return null;
+
+    const { word, heading, miles } = match.groups ?? {};
+    if (!word || !heading || !miles) return null;
+
+    const reference = await getSmallestNavigraphCoordinate(word, previousWaypoint ?? undefined);
+    if (!reference) return null;
+
+    return [
+        calculateBearingCoordinate(reference.coordinate, parseInt(heading, 10), parseInt(miles, 10)),
+        input.split('/')[1] ?? `${ word }${ heading }${ miles }`,
+    ];
+}
+
 export interface FlightPlanInputWaypoint {
     flightPlan: string;
     departure: string;
@@ -278,6 +320,92 @@ export interface FlightPlanInputWaypoint {
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
     return distance(compare, coordinate, { units: 'nauticalmiles' });
+}
+
+function isCoordinate(coordinate: unknown[]): coordinate is Coordinate {
+    return coordinate.every(value => typeof value === 'number' && Number.isFinite(value));
+}
+
+type NavigraphCoordinateCandidate = {
+    coordinate: Coordinate;
+    identifier: string;
+    kind: NavigraphNavDataEnrouteWaypointPartial['kind'];
+    key: string;
+    type: string;
+};
+
+function sortNavigraphCoordinateCandidates<T extends NavigraphCoordinateCandidate>(candidates: T[], reference?: Coordinate): T[] {
+    if (!reference) return candidates;
+
+    return candidates.toSorted((a, b) => waypointDiff(reference, a.coordinate) - waypointDiff(reference, b.coordinate));
+}
+
+function createNavigraphCoordinateCandidate(candidate: Omit<NavigraphCoordinateCandidate, 'coordinate'> & { coordinate: unknown[] }): NavigraphCoordinateCandidate | null {
+    if (!isCoordinate(candidate.coordinate)) return null;
+
+    return {
+        ...candidate,
+        coordinate: candidate.coordinate,
+    };
+}
+
+async function getSmallestNavigraphCoordinate(search: string, reference?: Coordinate): Promise<NavigraphCoordinateCandidate | null> {
+    const dataStore = useDataStore();
+    const vhfs = await getNavigraphParsedData('vhf', search);
+    const ndbs = await getNavigraphParsedData('ndb', search);
+    const waypointsList = await getNavigraphParsedData('waypoints', search);
+    const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[search] ?? dataStore.vatspy.value?.data.keyAirports.realIata[search];
+
+    const candidates = [
+        ...Object.entries(vhfs ?? {}).map(([key, value]) => createNavigraphCoordinateCandidate({
+            coordinate: [value[4], value[5]],
+            identifier: value[0],
+            key,
+            kind: 'vhf',
+            type: '',
+        })),
+        ...Object.entries(ndbs ?? {}).map(([key, value]) => createNavigraphCoordinateCandidate({
+            coordinate: [value[3], value[4]],
+            identifier: value[0],
+            key,
+            kind: 'ndb',
+            type: '',
+        })),
+        ...Object.entries(waypointsList ?? {}).map(([key, value]) => createNavigraphCoordinateCandidate({
+            coordinate: [value[1], value[2]],
+            identifier: value[0],
+            key,
+            kind: 'enroute',
+            type: value[3],
+        })),
+        airport && createNavigraphCoordinateCandidate({
+            coordinate: [airport.lon, airport.lat],
+            identifier: airport.icao,
+            key: airport.icao,
+            kind: 'enroute',
+            type: 'airport',
+        }),
+    ].filter(x => !!x);
+
+    const smallest = sortNavigraphCoordinateCandidates(candidates, reference)[0];
+
+    if (!smallest) return null;
+    if (reference && waypointDiff(reference, smallest.coordinate) >= 2000) return null;
+
+    return smallest;
+}
+
+function getNatRouteWaypointToken(token: string): { identifier: string; coordinate: Coordinate | null } {
+    const split = token.split('/');
+
+    if (split.length === 2) {
+        return {
+            identifier: split[1],
+            coordinate: getPreciseCoord(split[0])?.[0] ?? null,
+        };
+    }
+
+    return { identifier: token, coordinate: getPreciseCoord(token)?.[0] ?? null };
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
@@ -295,83 +423,131 @@ const dataCache: {
 
 let latestUpdate = 0;
 
-function getAirwaySegment<T>(arr: T[], from: number, to: number): T[] {
-    if (from === -1 || to === -1) return [];
+type ShortAirwayEntry = [string, ShortAirway];
+type ShortAirwayWaypoint = ShortAirway[2][number];
 
-    if (from <= to) {
-        return arr.slice(from, to + 1);
-    }
-
-    return arr.slice(to, from + 1).reverse();
+function cloneAirwayWithSegment(airway: ShortAirwayEntry, segment: ShortAirwayWaypoint[]): ShortAirwayEntry {
+    return [
+        airway[0],
+        [
+            airway[1][0],
+            airway[1][1],
+            segment.map(waypoint => [...waypoint] as ShortAirwayWaypoint),
+        ],
+    ];
 }
 
-function mergeTwoAirways(
-    startingAirway: [string, ShortAirway],
-    endAirway: [string, ShortAirway],
-    prevWaypoint: string,
-    nextWaypoint?: string,
-) {
-    const startPoints = startingAirway[1][2];
-    const endPoints = endAirway[1][2];
+function sameAirwayWaypointCoordinate(a: ShortAirwayWaypoint, b: ShortAirwayWaypoint): boolean {
+    return Math.abs(a[3] - b[3]) < 0.01 && Math.abs(a[4] - b[4]) < 0.01;
+}
 
-    const startIdx = startPoints.findIndex(wp => wp[0] === prevWaypoint);
-    if (startIdx === -1) return undefined;
+function resolveAirwayPath(
+    airways: ShortAirwayEntry[],
+    fromWaypoint: string,
+    toWaypoint: string,
+): ShortAirwayEntry | undefined {
+    type AirwayGraphNode = {
+        id: string;
+        airway: ShortAirwayEntry;
+        waypoint: ShortAirwayWaypoint;
+        edges: Set<string>;
+    };
 
-    const endIdx = nextWaypoint
-        ? endPoints.findIndex(wp => wp[0] === nextWaypoint)
-        : -1;
+    const nodes = new Map<string, AirwayGraphNode>();
+    const nodesByIdentifier = new Map<string, AirwayGraphNode[]>();
 
-    const endPointNames = new Set(endPoints.map(wp => wp[0]));
+    // Airways with the same identifier can be split by region/type, so model all fragments as one route graph.
+    for (const airway of airways) {
+        for (let index = 0; index < airway[1][2].length; index++) {
+            const waypoint = airway[1][2][index];
+            const id = `${ airway[0] }:${ index }`;
+            const node: AirwayGraphNode = {
+                id,
+                airway,
+                waypoint,
+                edges: new Set(),
+            };
 
-    const overlapCandidates = startPoints
-        .map((wp, idx) => ({ name: wp[0], startOverlapIdx: idx }))
-        .filter(x => endPointNames.has(x.name))
-        .map(x => ({
-            name: x.name,
-            startOverlapIdx: x.startOverlapIdx,
-            endOverlapIdx: endPoints.findIndex(wp => wp[0] === x.name),
-        }))
-        .filter(x => x.endOverlapIdx !== -1);
+            nodes.set(id, node);
 
-    if (nextWaypoint && endIdx !== -1) {
-        for (const candidate of overlapCandidates) {
-            const left = getAirwaySegment(startPoints, startIdx, candidate.startOverlapIdx);
-            const right = getAirwaySegment(endPoints, candidate.endOverlapIdx, endIdx);
+            const sameIdentifierNodes = nodesByIdentifier.get(waypoint[0]) ?? [];
+            sameIdentifierNodes.push(node);
+            nodesByIdentifier.set(waypoint[0], sameIdentifierNodes);
 
-            if (!left.length || !right.length) continue;
-
-            const merged = [
-                ...left,
-                ...right.slice(1),
-            ];
-
-            const neededAirway = JSON.parse(JSON.stringify(startingAirway)) as typeof startingAirway;
-            neededAirway[1][2] = merged;
-            return neededAirway;
+            if (index > 0) {
+                const previousId = `${ airway[0] }:${ index - 1 }`;
+                node.edges.add(previousId);
+                nodes.get(previousId)?.edges.add(id);
+            }
         }
     }
 
-    for (const candidate of overlapCandidates) {
-        const left = getAirwaySegment(startPoints, startIdx, candidate.startOverlapIdx);
+    // Region transitions are represented by duplicated boundary waypoints with the same identifier and coordinate.
+    for (const sameIdentifierNodes of nodesByIdentifier.values()) {
+        for (let i = 0; i < sameIdentifierNodes.length; i++) {
+            for (let k = i + 1; k < sameIdentifierNodes.length; k++) {
+                const first = sameIdentifierNodes[i];
+                const second = sameIdentifierNodes[k];
 
-        if (!left.length) continue;
+                if (!sameAirwayWaypointCoordinate(first.waypoint, second.waypoint)) continue;
 
-        const rightForward = endPoints.slice(candidate.endOverlapIdx + 1);
-        const rightBackward = endPoints.slice(0, candidate.endOverlapIdx).reverse();
+                first.edges.add(second.id);
+                second.edges.add(first.id);
+            }
+        }
+    }
 
-        const right =
-            rightForward.length >= rightBackward.length
-                ? rightForward
-                : rightBackward;
+    const startNodes = nodesByIdentifier.get(fromWaypoint) ?? [];
+    const endNodeIds = new Set((nodesByIdentifier.get(toWaypoint) ?? []).map(node => node.id));
 
-        const merged = [
-            ...left,
-            ...right,
-        ];
+    if (!startNodes.length || !endNodeIds.size) return undefined;
 
-        const neededAirway = JSON.parse(JSON.stringify(startingAirway)) as typeof startingAirway;
-        neededAirway[1][2] = merged;
-        return neededAirway;
+    const visited = new Set<string>();
+    const queue = startNodes.map(node => ({
+        id: node.id,
+        path: [node.id],
+    }));
+
+    for (const node of startNodes) {
+        visited.add(node.id);
+    }
+
+    // Multi-source BFS keeps the route direction-independent and allows the anchor point to live in any fragment.
+    while (queue.length) {
+        const current = queue.shift()!;
+
+        if (endNodeIds.has(current.id)) {
+            const pathWaypoints: ShortAirwayWaypoint[] = [];
+
+            for (const id of current.path) {
+                const waypoint = nodes.get(id)?.waypoint;
+                if (!waypoint) continue;
+                const previousPathWaypoint = pathWaypoints[pathWaypoints.length - 1];
+                if (previousPathWaypoint?.[0] === waypoint[0] && sameAirwayWaypointCoordinate(previousPathWaypoint, waypoint)) continue;
+
+                pathWaypoints.push(waypoint);
+            }
+
+            if (!pathWaypoints.length) return undefined;
+
+            return cloneAirwayWithSegment(nodes.get(current.path[0])!.airway, pathWaypoints);
+        }
+
+        const node = nodes.get(current.id);
+        if (!node) continue;
+
+        for (const nextId of node.edges) {
+            if (visited.has(nextId)) continue;
+
+            visited.add(nextId);
+            queue.push({
+                id: nextId,
+                path: [
+                    ...current.path,
+                    nextId,
+                ],
+            });
+        }
     }
 
     return undefined;
@@ -707,66 +883,27 @@ export async function getFlightPlanWaypoints({
 
             const previousWaypoint = previousWaypointCoordinate(waypoints[waypoints.length - 1]);
 
-            const prevEntry = entries[i - 1]?.split('/')[0];
-            if (prevEntry && waypoints[waypoints.length - 1]?.airway && await getNavigraphParsedData('airways', prevEntry)) {
-                continue;
-            }
+            const bearing = await getBearingCoord(search, previousWaypoint);
 
-            const nextEntry = entries[i + 1]?.split('/')[0];
-            if (nextEntry && await getNavigraphParsedData('airways', nextEntry)) {
+            if (bearing) {
+                waypoints.push({
+                    identifier: split[1] || bearing[1] || entry,
+                    coordinate: bearing[0],
+                    kind: 'enroute',
+                });
                 continue;
             }
 
             const airways = await getNavigraphParsedData('airways', search);
 
             if (airways) {
-                let list = Object.entries(airways);
-                let neededAirway = list.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) && x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+                const prevWaypoint = entries[i - 1]?.split('/')[0];
+                const nextWaypoint = entries[i + 1]?.split('/')[0];
+                const neededAirway = prevWaypoint && nextWaypoint
+                    ? resolveAirwayPath(Object.entries(airways), prevWaypoint, nextWaypoint)
+                    : undefined;
 
-                if (!neededAirway) {
-                    list = JSON.parse(JSON.stringify(list));
-                    const prevWaypoint = entries[i - 1]?.split('/')[0];
-                    const nextWaypoint = entries[i + 1]?.split('/')[0];
-
-                    const neededAirways = list.filter(airway => airway[1][2].some(wp => wp[0] === prevWaypoint) ||
-                        (nextWaypoint ? airway[1][2].some(wp => wp[0] === nextWaypoint) : false));
-
-                    if (neededAirways.length === 2 && prevWaypoint) {
-                        const startingAirway = neededAirways.find(airway => airway[1][2].some(wp => wp[0] === prevWaypoint));
-
-                        const endAirway = nextWaypoint
-                            ? neededAirways.find(airway => airway !== startingAirway &&
-                                airway[1][2].some(wp => wp[0] === nextWaypoint))
-                            : neededAirways.find(airway => airway !== startingAirway);
-
-                        if (!startingAirway || !endAirway) {
-                            neededAirway = undefined;
-                        }
-                        else {
-                            neededAirway = mergeTwoAirways(
-                                startingAirway,
-                                endAirway,
-                                prevWaypoint,
-                                nextWaypoint,
-                            );
-                        }
-                    }
-                }
-
-                if (neededAirway && entries[i + 1] && entries[i - 1]) {
-                    let startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
-                    let endIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i + 1]?.split('/')[0]);
-
-                    neededAirway = JSON.parse(JSON.stringify(neededAirway)) as [string, ShortAirway];
-
-                    if (startIndex > endIndex) {
-                        neededAirway[1][2].reverse();
-                        startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
-                        endIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i + 1]?.split('/')[0]);
-                    }
-
-                    neededAirway[1][2] = neededAirway[1][2].slice(startIndex === -1 ? 0 : startIndex, endIndex === -1 ? neededAirway[1][2].length : endIndex + 1);
-
+                if (neededAirway) {
                     if (neededAirway[1][2].length === 1) {
                         const waypoint = neededAirway[1][2][0];
 
@@ -792,75 +929,26 @@ export async function getFlightPlanWaypoints({
                 continue;
             }
 
-            const vhfs = await getNavigraphParsedData('vhf', search);
-            const ndbs = await getNavigraphParsedData('ndb', search);
-            const waypointsList = await getNavigraphParsedData('waypoints', search);
+            const prevEntry = entries[i - 1]?.split('/')[0];
+            if (prevEntry && waypoints[waypoints.length - 1]?.airway && await getNavigraphParsedData('airways', prevEntry)) {
+                continue;
+            }
 
-            if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
-                const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {
-                    const aCoord = [a[1][4], a[1][5]];
-                    const bCoord = [b[1][4], b[1][5]];
+            const nextEntry = entries[i + 1]?.split('/')[0];
+            if (nextEntry && await getNavigraphParsedData('airways', nextEntry)) {
+                continue;
+            }
 
-                    return waypointDiff(previousWaypoint!, aCoord) - waypointDiff(previousWaypoint!, bCoord);
-                })[0];
+            const smallest = previousWaypoint ? await getSmallestNavigraphCoordinate(search, previousWaypoint) : null;
 
-                const ndbWaypoint = previousWaypoint && Object.entries(ndbs ?? {}).sort((a, b) => {
-                    const aCoord = [a[1][3], a[1][4]];
-                    const bCoord = [b[1][3], b[1][4]];
-
-                    return waypointDiff(previousWaypoint!, aCoord) - waypointDiff(previousWaypoint!, bCoord);
-                })[0];
-
-                const regularWaypoint = previousWaypoint && Object.entries(waypointsList ?? {}).sort((a, b) => {
-                    const aCoord = [a[1][1], a[1][2]];
-                    const bCoord = [b[1][1], b[1][2]];
-
-                    return waypointDiff(previousWaypoint!, aCoord) - waypointDiff(previousWaypoint!, bCoord);
-                })[0];
-
-                let kind: NavigraphNavDataEnrouteWaypointPartial['kind'] = 'enroute';
-                let identifier = '';
-                let key = '';
-                let type = '';
-                let coordinate: Coordinate = [0, 0];
-
-                const smallestCoordinates = [
-                    [[vhfWaypoint?.[1][4], vhfWaypoint?.[1][5]], 'vhf'],
-                    [[ndbWaypoint?.[1][3], ndbWaypoint?.[1][4]], 'ndb'],
-                    [[regularWaypoint?.[1][1], regularWaypoint?.[1][2]], 'waypoint'],
-                ] satisfies [Coordinate, string][];
-
-                const smallest = smallestCoordinates.filter(x => typeof x[0][0] === 'number').sort((a, b) => {
-                    return waypointDiff(previousWaypoint, a[0]) - waypointDiff(previousWaypoint, b[0]);
-                })[0];
-
-                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 2000) {
-                    coordinate = smallest[0];
-
-                    if (smallest[1] === 'waypoint') {
-                        identifier = regularWaypoint[1][0];
-                        key = regularWaypoint[0];
-                        type = regularWaypoint[1][3];
-                    }
-                    else if (smallest[1] === 'vhf') {
-                        identifier = vhfWaypoint[1][0];
-                        key = vhfWaypoint[0];
-                        kind = 'vhf';
-                    }
-                    else if (smallest[1] === 'ndb') {
-                        identifier = ndbWaypoint[1][0];
-                        key = ndbWaypoint[0];
-                        kind = 'ndb';
-                    }
-
-                    waypoints.push({
-                        identifier,
-                        coordinate,
-                        kind,
-                        type,
-                        key,
-                    });
-                }
+            if (smallest) {
+                waypoints.push({
+                    identifier: smallest.identifier,
+                    coordinate: smallest.coordinate,
+                    kind: smallest.kind,
+                    type: smallest.type,
+                    key: smallest.key,
+                });
             }
         }
     }
@@ -1027,7 +1115,7 @@ export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak
     const parsedWaypoints: {
         identifier: string;
         coordinate: Coordinate | null;
-    }[] = waypoints.map(x => ({ identifier: x, coordinate: getPreciseCoord(x)?.[0] ?? null }));
+    }[] = waypoints.map(x => getNatRouteWaypointToken(x));
 
     for (let i = 0; i < parsedWaypoints.length; i++) {
         const waypoint = parsedWaypoints[i];
