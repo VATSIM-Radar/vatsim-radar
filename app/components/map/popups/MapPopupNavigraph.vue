@@ -295,7 +295,7 @@ const getInfo = computed<{ title: string; items: DataListItem[] } | null>(() => 
         const _data = data.value as NavigraphNavDataFull['restrictedAirspace'][string];
 
         return {
-            title: _data.airspace.name || _data.airspace.designation || properties.value.name || '',
+            title: `${ _data.airspace.type }${ _data.airspace.designation }`,
             items: [
                 {
                     title: 'Type',

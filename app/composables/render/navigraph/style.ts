@@ -165,12 +165,88 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         lineDash: [6, 12],
     });
 
-    const airspaceStroke = new Stroke({
-        color: `rgba(${ getCurrentThemeRgbColor('orange600').join(',') }, 0.5)`,
-        width: 1,
+    const restrictedAirspaceStyle = new Style({
+        stroke: new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            width: 1,
+        }),
+        text: new Text({
+            font: getTextFont('caption'),
+            text: '',
+            placement: 'point',
+            repeat: 400,
+            keepUpright: true,
+            declutterMode: 'declutter',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.5)`,
+            }),
+        }),
     });
 
-    const airspaceStyle = new Style({ stroke: airspaceStroke });
+    const restrictedAirspaceStyleSelected = new Style({
+        stroke: new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            width: 1,
+        }),
+        fill: new Fill({
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.07)`,
+        }),
+        text: new Text({
+            font: getTextFont('caption'),
+            text: '',
+            placement: 'point',
+            repeat: 400,
+            keepUpright: true,
+            declutterMode: 'declutter',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.5)`,
+            }),
+        }),
+    });
+
+    const controlledAirspaceStyle = new Style({
+        stroke: new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.1)`,
+            width: 1,
+        }),
+        text: new Text({
+            font: getTextFont('caption'),
+            text: '',
+            placement: 'line',
+            repeat: 400,
+            offsetY: 10,
+            keepUpright: true,
+            declutterMode: 'declutter',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.4)`,
+            }),
+        }),
+    });
+
+    const controlledAirspaceStyleSelected = new Style({
+        stroke: new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.2)`,
+            width: 1,
+        }),
+        fill: new Fill({
+            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.07)`,
+        }),
+        text: new Text({
+            font: getTextFont('caption'),
+            text: '',
+            placement: 'line',
+            repeat: 400,
+            keepUpright: true,
+            declutterMode: 'declutter',
+            rotateWithView: false,
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.4)`,
+            }),
+        }),
+    });
 
     const strokesCache = {
         self: {} as Record<string, Stroke>,
@@ -260,7 +336,21 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
             return stylesCache[key];
         }
 
-        if (featureType === 'restrictive-airspace' || featureType === 'controlled-airspace') return airspaceStyle;
+        if (featureType === 'restrictive-airspace') {
+            const style = properties.opened ? restrictedAirspaceStyleSelected : restrictedAirspaceStyle;
+
+            style.getText()!.setText(`${ properties.identifier } ${ properties.lowerLimit } - ${ properties.upperLimit }`);
+
+            return style;
+        }
+
+        if (featureType === 'controlled-airspace') {
+            const style = properties.opened ? controlledAirspaceStyleSelected : controlledAirspaceStyle;
+
+            style.getText()!.setText(`${ properties.identifier } ${ properties.lowerLimit } - ${ properties.upperLimit }`);
+
+            return style;
+        }
 
         if (featureType.endsWith('waypoint')) {
             let text = `${ properties.waypoint }`;

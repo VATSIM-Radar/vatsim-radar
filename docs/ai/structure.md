@@ -107,6 +107,7 @@ Map component groups:
 - `app/components/map/MapHtmlOverlay.vue`: shared OpenLayers HTML overlay wrapper. On mobile, non-persistent interactive popups render as bottom sheets; persistent coordinate overlays still use OpenLayers positioning.
 - `app/components/map/MapMobileWindow.vue`: mobile overlay window/sheet host. Featured Airports/Favorite mobile menus take priority over the active overlay bottom sheet.
 - `app/components/map/popups/*`: OpenLayers popup content.
+- `app/components/map/layers/MapSelect.vue`: central OpenLayers hover/click/right-click selection interaction. It applies priority ordering, opens feature popups, and owns the click multiselect menu for lower-priority overlapping features such as SIGMET, VATGlasses, and Navigraph.
 - `app/components/map/settings/*`: map filters and quick settings panels.
 - `app/components/map/navigraph/*`: Navigraph visual layers and procedures.
 - `app/components/map/airports/*`: airport counters/runway/traffic subviews.

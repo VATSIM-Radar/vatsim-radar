@@ -193,8 +193,8 @@ const _settingsDefaultValues = {
     'map.navigraph.layers.airways.enabled': false,
     'map.navigraph.layers.airways.showAirwaysLabel': true,
     'map.navigraph.layers.airways.showWaypointsLabel': true,
-    'map.navigraph.layers.airspace.restricted': true,
-    'map.navigraph.layers.airspace.controlled': true,
+    'map.navigraph.layers.airspace.restricted': false,
+    'map.navigraph.layers.airspace.controlled': false,
 
     'map.navigraph.airport.enabled': true,
     'map.navigraph.airport.taxiways': true,

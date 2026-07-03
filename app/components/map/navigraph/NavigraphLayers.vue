@@ -6,7 +6,7 @@
         <template v-if="mapStore.zoom > 5 && navigraphEnabled !== false">
             <navigraph-ndb v-if="ndbEnabled || vordmeEnabled"/>
             <navigraph-airways v-if="airwaysEnabled"/>
-            <navigraph-airspace v-if="restrictiveEnabled || controlledEnabled"/>
+            <navigraph-airspace v-if="(restrictiveEnabled || controlledEnabled) && mapStore.zoom > 6"/>
             <navigraph-waypoints v-if="waypointsEnabled"/>
             <navigraph-holdings/>
         </template>

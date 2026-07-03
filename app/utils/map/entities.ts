@@ -199,6 +199,10 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     ident?: string;
     dme?: string | null;
     frequency?: number;
+    lowerLimit?: string | null;
+    upperLimit?: string | null;
+    opened?: boolean;
+    selected?: boolean;
     flightLevel?: NavDataFlightLevel;
     inbound?: number;
     outbound?: number;

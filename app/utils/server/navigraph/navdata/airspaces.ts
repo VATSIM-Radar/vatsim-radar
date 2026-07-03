@@ -225,7 +225,7 @@ export const processNavdataControlledAirspace: NavdataProcessFunction = async ({
             ...airspace,
             airspace: {
                 ...airspace.airspace,
-                type: airspace.airspace.type ?? airspace.airspace.classification,
+                type: airspace.airspace.classification,
             },
         }, airspace.airspace.center);
     }
