@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
+import { intersects } from 'ol/extent.js';
 import { useMapStore } from '~/store/map';
 import { checkFlightLevel } from '~/composables/render/storage';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
@@ -30,16 +31,42 @@ type AirspaceDataKey = 'restrictedAirspace' | 'controlledAirspace';
 type AirspaceFeatureType = 'restrictive-airspace' | 'controlled-airspace';
 
 let inProgress = false;
+let pendingRender = false;
+let disposed = false;
+let previousRestrictedEnabled = false;
+let previousControlledEnabled = false;
 const airspaces: Partial<Record<AirspaceDataKey, NavigraphNavDataShort[AirspaceDataKey]>> = {};
 const featuresCache = new Map<string, FeatureNavigraph>();
+const extentCache = new WeakMap<ShortAirspace, number[] | null>();
 
 function isAirspaceInExtent(item: ShortAirspace, extent: number[]) {
-    return item[6].some(point => {
-        if (point[0] != null && point[1] != null && isPointInExtent([point[0], point[1]], extent)) return true;
-        if (point[3] != null && point[4] != null && isPointInExtent([point[3], point[4]], extent)) return true;
+    let itemExtent = extentCache.get(item);
 
-        return false;
-    });
+    if (itemExtent === undefined) {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        const extend = (longitude: number | null, latitude: number | null) => {
+            if (longitude == null || latitude == null || !Number.isFinite(longitude) || !Number.isFinite(latitude)) return;
+
+            minX = Math.min(minX, longitude);
+            minY = Math.min(minY, latitude);
+            maxX = Math.max(maxX, longitude);
+            maxY = Math.max(maxY, latitude);
+        };
+
+        for (const point of item[6]) {
+            extend(point[0], point[1]);
+            extend(point[3], point[4]);
+        }
+
+        itemExtent = minX === Infinity ? null : [minX, minY, maxX, maxY];
+        extentCache.set(item, itemExtent);
+    }
+
+    return itemExtent ? intersects(itemExtent, extent) : false;
 }
 
 function getFeature(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, key: string, item: ShortAirspace) {
@@ -101,6 +128,7 @@ async function renderAirspaces(dataKey: AirspaceDataKey, featureType: AirspaceFe
         const existingFeature = getMapFeature('navigraph', source!.value, id);
         counter++;
         if (counter % 1000 === 0) await sleep(0);
+        if (disposed) return;
 
         if (!checkFlightLevel(item[5]) || !isAirspaceInExtent(item, extent)) {
             if (existingFeature) {
@@ -134,38 +162,62 @@ function cleanup() {
     delete airspaces.controlledAirspace;
 }
 
-watch([restrictiveEnabled, controlledEnabled, extent, level], async ([restrictedEnabled, controlledEnabled, extent], [oldRestrictedEnabled, oldControlledEnabled]) => {
-    if (inProgress) return;
-
-    if (restrictedEnabled !== oldRestrictedEnabled || controlledEnabled !== oldControlledEnabled) {
-        cleanup();
-
-        if (!restrictedEnabled && !controlledEnabled) return;
+async function updateAirspaces() {
+    if (inProgress) {
+        pendingRender = true;
+        return;
     }
 
-    try {
-        inProgress = true;
+    do {
+        pendingRender = false;
 
-        const displayed = new Set<string>();
+        const restrictedLayerEnabled = restrictiveEnabled.value;
+        const controlledLayerEnabled = controlledEnabled.value;
+        const currentExtent = extent.value;
 
-        if (restrictedEnabled) await renderAirspaces('restrictedAirspace', 'restrictive-airspace', extent, displayed);
-        if (controlledEnabled) await renderAirspaces('controlledAirspace', 'controlled-airspace', extent, displayed);
+        if (restrictedLayerEnabled !== previousRestrictedEnabled || controlledLayerEnabled !== previousControlledEnabled) {
+            cleanup();
+            previousRestrictedEnabled = restrictedLayerEnabled;
+            previousControlledEnabled = controlledLayerEnabled;
 
-        const features = source?.value.getFeatures() ?? [];
-
-        for (const feature of features) {
-            const properties = feature.getProperties();
-            if ((properties.featureType !== 'restrictive-airspace' && properties.featureType !== 'controlled-airspace') || displayed.has(properties.id)) continue;
-
-            source?.value.removeFeature(feature);
+            if (!restrictedLayerEnabled && !controlledLayerEnabled) continue;
         }
-    }
-    finally {
-        inProgress = false;
-    }
+
+        try {
+            inProgress = true;
+
+            const displayed = new Set<string>();
+
+            if (restrictedLayerEnabled) await renderAirspaces('restrictedAirspace', 'restrictive-airspace', currentExtent, displayed);
+            if (controlledLayerEnabled) await renderAirspaces('controlledAirspace', 'controlled-airspace', currentExtent, displayed);
+            if (disposed) return;
+
+            const features = source?.value.getFeatures() ?? [];
+
+            for (const feature of features) {
+                const properties = feature.getProperties();
+                if ((properties.featureType !== 'restrictive-airspace' && properties.featureType !== 'controlled-airspace') || displayed.has(properties.id)) continue;
+
+                source?.value.removeFeature(feature);
+            }
+        }
+        finally {
+            inProgress = false;
+        }
+    } while (pendingRender && !disposed);
+}
+
+const renderAirspacesThrottled = useThrottleFn(updateAirspaces, 500, true);
+
+watch([restrictiveEnabled, controlledEnabled, extent, level], () => {
+    if (inProgress) pendingRender = true;
+    renderAirspacesThrottled();
 }, {
     immediate: true,
 });
 
-onBeforeUnmount(cleanup);
+onBeforeUnmount(() => {
+    disposed = true;
+    cleanup();
+});
 </script>
