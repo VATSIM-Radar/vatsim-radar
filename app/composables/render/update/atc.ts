@@ -236,7 +236,7 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
+    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings && !store.activeFilter) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
         const now = new Date();

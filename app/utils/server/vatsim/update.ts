@@ -440,31 +440,25 @@ function parseCoordinates(input: string) {
     const regex = /([A-Z]+\d+W)\s+\(([\d.]+)N\s+-(\d+(?:\.\d*)?)W\)/g;
     const result = [];
 
+    function decimalToCompact(value: number, degreeDigits: number) {
+        let degrees = Math.floor(value);
+        let decimals = Math.round((value - degrees) * 100);
+
+        if (decimals === 100) {
+            degrees++;
+            decimals = 0;
+        }
+
+        return `${ degrees.toString().padStart(degreeDigits, '0') }${ decimals.toString().padStart(2, '0') }`;
+    }
+
     let match;
     while ((match = regex.exec(input)) !== null) {
         const lat = parseFloat(match[2]);
         const lon = parseFloat(match[3]);
 
-        let latDeg = Math.floor(lat);
-        let latMin = Math.round((lat - latDeg) * 60);
-
-        if (latMin === 60) {
-            latDeg++;
-            latMin = 0;
-        }
-
-        let lonDeg = Math.floor(lon);
-        let lonMin = Math.round((lon - lonDeg) * 60);
-
-        if (lonMin === 60) {
-            lonDeg++;
-            lonMin = 0;
-        }
-
-        const latStr = `${ latDeg.toString().padStart(2, '0') }${ latMin.toString().padStart(2, '0') }`;
-        const lonStr = `${ lonDeg.toString().padStart(2, '0') }${ lonMin.toString().padStart(2, '0') }`;
-
-        result.push(`${ latStr }/${ lonStr }`);
+        // Concorde tracks publish compact decimal-degree coordinates; keep the same coordinate semantics as pilot routes.
+        result.push(`${ decimalToCompact(lat, 2) }N${ decimalToCompact(lon, 3) }W/${ match[1] }`);
     }
 
     return result.join(' ');

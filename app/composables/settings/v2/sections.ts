@@ -171,7 +171,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'layout',
                             title: 'Layout',
-                            items: [items.appearance.overlaysPositions, items.appearance.highRatio],
+                            items: [items.appearance.overlaysPositions, items.appearance.highRatio, items.appearance.favoriteLocation],
                         },
                         {
                             key: 'tracks',
@@ -214,7 +214,7 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: 'aircraft',
-                            items: [items.preferences.aircraft.shortView, items.preferences.traffic.declutter, items.preferences.traffic.highlightEmergency, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.scale],
+                            items: [items.preferences.aircraft.shortView, items.preferences.traffic.declutter, items.preferences.traffic.highlightEmergency, items.preferences.aircraft.showLimit, items.preferences.aircraft.dynamicScale, items.preferences.aircraft.ownAtcHighlight, items.preferences.aircraft.scale],
                         },
                         {
                             key: 'tracks',

@@ -62,7 +62,7 @@ export function isSmoothMovementSuspendedForLoad() {
     const renderedPilots = useMapStore().renderedPilots;
     if (!renderedPilots) return false;
 
-    return renderedPilots.length > getKeyedValueFromSettings('map.preferences.aircraft.showLimit');
+    return renderedPilots.length > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || useMapStore().zoom < 6;
 }
 
 function computeDelay() {
