@@ -18,6 +18,7 @@
 - Added ICAO in route field support
 - Added pilots section into each atc showing aircraft under control
 - Added a setting to highlight sector where you are currently flying
+- Added restricted and controller airways support
 
 ## Bug Fixes
 
