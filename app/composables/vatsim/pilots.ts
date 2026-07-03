@@ -415,7 +415,7 @@ export const ownATC = globalComputed(() => {
     for (const controller of atc) {
         const sector = findATCSector(controller);
 
-        if (sector) callsings.push(controller.callsign);
+        if (sector && isPointInExtent([ownFlight.value.longitude, ownFlight.value.latitude], sector)) callsings.push(controller.callsign);
     }
 
     return callsings;
