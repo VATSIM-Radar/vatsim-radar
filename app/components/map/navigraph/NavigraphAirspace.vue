@@ -94,9 +94,13 @@ function getFeature(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, 
 async function renderAirspaces(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, extent: number[], displayed: Set<string>) {
     airspaces[dataKey] ??= await dataStore.navigraph.data(dataKey) ?? {};
 
+    let counter = 0;
+
     for (const [key, item] of Object.entries(airspaces[dataKey] ?? {})) {
         const id = `${ featureType }-${ key }`;
         const existingFeature = getMapFeature('navigraph', source!.value, id);
+        counter++;
+        if (counter % 1000 === 0) await sleep(0);
 
         if (!checkFlightLevel(item[5]) || !isAirspaceInExtent(item, extent)) {
             if (existingFeature) {
@@ -130,12 +134,13 @@ function cleanup() {
     delete airspaces.controlledAirspace;
 }
 
-watch([restrictiveEnabled, controlledEnabled, extent, level], async ([restrictedEnabled, controlledEnabled, extent]) => {
+watch([restrictiveEnabled, controlledEnabled, extent, level], async ([restrictedEnabled, controlledEnabled, extent], [oldRestrictedEnabled, oldControlledEnabled]) => {
     if (inProgress) return;
 
-    if (!restrictedEnabled && !controlledEnabled) {
+    if (restrictedEnabled !== oldRestrictedEnabled || controlledEnabled !== oldControlledEnabled) {
         cleanup();
-        return;
+
+        if (!restrictedEnabled && !controlledEnabled) return;
     }
 
     try {
