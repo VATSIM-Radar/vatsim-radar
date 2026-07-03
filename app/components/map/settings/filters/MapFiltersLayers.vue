@@ -64,7 +64,6 @@
 
 <script setup lang="ts">
 import UiNotification from '~/components/ui/data/UiNotification.vue';
-import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import UiColumnsDisplay from '~/components/ui/data/UiColumnsDisplay.vue';
 import { getSettingByItem, getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
