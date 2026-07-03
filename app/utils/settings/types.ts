@@ -43,12 +43,14 @@ export interface UserSettingsV2 {
             enableQueryUpdate: boolean;
 
             overlaysPositions: 'bottom-left' | 'top-left';
+            favoriteLocation: 'header' | 'footer';
             highRatio: boolean;
 
             aircraft: {
                 shortView: boolean;
                 scale: number;
                 dynamicScale: boolean;
+                ownAtcHighlight: boolean;
                 tracks: {
                     mode: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
                     showOutOfBounds: boolean;

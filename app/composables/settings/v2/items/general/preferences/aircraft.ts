@@ -16,6 +16,13 @@ export const settingsItemPreferencesAircraft = globalComputed(() => makeSettings
         value: getSettingValue('map.preferences.aircraft.dynamicScale'),
         onChange: value => setSettingByKey('map.preferences.aircraft.dynamicScale', value as any),
     },
+    ownAtcHighlight: {
+        title: 'Own ATC highlight',
+        description: 'Highlights ATC area where you are currently flying',
+        type: 'toggle',
+        value: getSettingValue('map.preferences.aircraft.ownAtcHighlight'),
+        onChange: value => setSettingByKey('map.preferences.aircraft.ownAtcHighlight', value as any),
+    },
     scale: {
         title: 'Scale',
         description: 'Scales aircraft in general - no matter if Dynamic Scale is enabled',

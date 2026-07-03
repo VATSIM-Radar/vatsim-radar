@@ -212,6 +212,24 @@ export function findATCSector(atc: VatsimShortenedController) {
         ]);
     }
 
+    if (!features.length) {
+        const dataStore = useDataStore();
+        const airport = atc.callsign.split('_')[0];
+        const foundAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[airport] ??
+            dataStore.vatspy.value?.data.keyAirports.icao[airport] ??
+            dataStore.vatspy.value?.data.keyAirports.realIata[airport] ??
+            dataStore.vatspy.value?.data.keyAirports.iata[airport];
+
+        if (foundAirport) {
+            return [
+                foundAirport.lon - 0.05,
+                foundAirport.lat - 0.05,
+                foundAirport.lon + 0.05,
+                foundAirport.lat + 0.05,
+            ];
+        }
+    }
+
     let extent: Extent | null = null;
 
     for (const feature of features) {

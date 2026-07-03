@@ -147,6 +147,7 @@ const settingsSchema = partialObject({
             searchLimit: list([5, 10, 20, 50, 75], 'must be one of: 5, 10, 20, 50, 75'),
             enableQueryUpdate: booleanSchema,
             overlaysPositions: list(['bottom-left', 'top-left'], 'must be either bottom-left or top-left'),
+            favoriteLocation: list(['footer', 'header'], 'must be either footer or header'),
             highRatio: list([true, false, 'low'], 'must be either true, false or low'),
 
             aircraft: partialObject({
@@ -158,6 +159,7 @@ const settingsSchema = partialObject({
                     showOutOfBounds: booleanSchema,
                     limit: rangedNumber(1, 100, 'must be a number between 1 and 100', 0),
                 }),
+                ownAtcHighlight: booleanSchema,
                 showLimit: rangedNumber(0, 1000, 'must be a number between 0 and 1000', 0),
             }),
 

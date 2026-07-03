@@ -13,6 +13,8 @@
 - Added a setting to pin favorites
 - Added point bearing distance support
 - Added ICAO in route field support
+- Added pilots section into each atc showing aircraft under control
+- Added a setting to highlight sector where you are currently flying
 
 ## Bug Fixes
 

@@ -80,6 +80,7 @@ const _settingsDefaultValues = {
     'map.preferences.aircraft.tracks.showOutOfBounds': false,
     'map.preferences.aircraft.tracks.limit': 50,
     'map.preferences.aircraft.showLimit': 100,
+    'map.preferences.aircraft.ownAtcHighlight': false,
 
     'map.preferences.airports.defaultZoomLevel': 14,
 
@@ -127,6 +128,7 @@ const _settingsDefaultValues = {
 
     'map.preferences.overlaysPositions': 'bottom-left',
     'map.preferences.highRatio': false,
+    'map.preferences.favoriteLocation': 'footer',
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,

@@ -14,6 +14,7 @@ import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay, useColorFromProp } from '~/composables';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -396,6 +397,28 @@ export const ownFlight = computed(() => {
         null;
     }
     return dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ?? null;
+});
+
+const ownHighlight = globalComputed(() => getKeyedValueFromSettings('map.preferences.aircraft.ownAtcHighlight'));
+
+export const ownATC = globalComputed(() => {
+    if (!ownFlight.value || !ownHighlight().value) return [];
+
+    const dataStore = useDataStore();
+
+    const frequencies = new Set(ownFlight.value.frequencies);
+
+    const atc = dataStore.vatsim.data.controllers.value.filter(x => x.frequencies?.some(x => frequencies.has(x)));
+
+    const callsings: string[] = [];
+
+    for (const controller of atc) {
+        const sector = findATCSector(controller);
+
+        if (sector) callsings.push(controller.callsign);
+    }
+
+    return callsings;
 });
 
 export function getAircraftDistance(pilot: VatsimExtendedPilot | VatsimShortenedAircraft): Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'> | null {

@@ -26,4 +26,16 @@ export const settingsItemAppearance = globalComputed(() => makeSettingsItems(({ 
         value: getSettingValue('map.preferences.highRatio'),
         onChange: value => setSettingByKey('map.preferences.highRatio', value as any),
     },
+    favoriteLocation: {
+        title: 'Favorite Location',
+        description: 'Choose where Favorite button is located in Desktop mode',
+        hint: 'Affects desktop and wide tablets only',
+        type: 'radio',
+        items: [
+            { value: 'header', text: 'Header' },
+            { value: 'footer', text: 'Footer' },
+        ],
+        value: getSettingValue('map.preferences.favoriteLocation'),
+        onChange: value => setSettingByKey('map.preferences.favoriteLocation', value as any),
+    },
 })));
