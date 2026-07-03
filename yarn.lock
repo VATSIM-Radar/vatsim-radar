@@ -15487,16 +15487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:0.11.19":
-  version: 0.11.19
-  resolution: "srvx@npm:0.11.19"
-  bin:
-    srvx: bin/srvx.mjs
-  checksum: 10c0/3afb56cdc3d661f009616c2aac50609a4d4fc6066e0e6e20ce225e8fafcef05fdfe7b25ac18d5fe31090836dd05e998278df9521e11ac76739a79650330de181
-  languageName: node
-  linkType: hard
-
-"srvx@npm:^0.11.15, srvx@npm:^0.11.17":
+"srvx@npm:0.11.20, srvx@npm:^0.11.15, srvx@npm:^0.11.17":
   version: 0.11.20
   resolution: "srvx@npm:0.11.20"
   bin:
@@ -16337,9 +16328,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:4.22.4":
-  version: 4.22.4
-  resolution: "tsx@npm:4.22.4"
+"tsx@npm:4.22.5":
+  version: 4.22.5
+  resolution: "tsx@npm:4.22.5"
   dependencies:
     esbuild: "npm:~0.28.0"
     fsevents: "npm:~2.3.3"
@@ -16348,7 +16339,7 @@ __metadata:
       optional: true
   bin:
     tsx: dist/cli.mjs
-  checksum: 10c0/3df31eb4929ff501b40b122163705b201ea57a492581e14312ae95d21eb015b33ded46a3fd564f9c89a0e8083186987fc4f10dd38182c4ad6241605974f6c927
+  checksum: 10c0/aab2bb66462b1dd03eb1ef1f0c02159c55e0c945bfa20c901e037036d024190c543c3b02f2554f5345912fb60e9f1d3148e3291beca935cedf82dee0cfda1a02
   languageName: node
   linkType: hard
 
@@ -17143,7 +17134,7 @@ __metadata:
     rou3: "npm:0.8.1"
     sass-embedded: "npm:1.100.0"
     sharp: "npm:0.35.3"
-    srvx: "npm:0.11.19"
+    srvx: "npm:0.11.20"
     stylelint: "npm:17.14.0"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-recommended-scss: "npm:17.0.1"
@@ -17151,7 +17142,7 @@ __metadata:
     stylelint-config-standard: "npm:40.0.0"
     stylelint-order: "npm:8.1.1"
     svgo: "npm:4.0.1"
-    tsx: "npm:4.22.4"
+    tsx: "npm:4.22.5"
     typescript: "npm:6.0.3"
     ua-parser-js: "npm:2.0.10"
     valibot: "npm:1.4.2"
