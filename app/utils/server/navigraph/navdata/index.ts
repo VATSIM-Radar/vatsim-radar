@@ -12,15 +12,16 @@ import {
 import type {
     NavdataProcessFunction,
     NavdataRunwaysByAirport,
-    NavigraphNavData,
+    NavigraphNavDataFull,
     NavigraphNavDataShort,
 } from '~/utils/server/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/server/navigraph/navdata/star-sid';
+import { processNavdataControlledAirspace, processNavdataRestrictedAirspace } from '~/utils/server/navigraph/navdata/airspaces';
 
 export async function processDatabase(db: sqlite3.Database, version: string) {
     console.time('navigraph get');
 
-    const fullData: Partial<NavigraphNavData> = {};
+    const fullData: Partial<NavigraphNavDataFull> = {};
     const shortData: Partial<NavigraphNavDataShort> = {
         version,
     };
@@ -70,6 +71,12 @@ export async function processDatabase(db: sqlite3.Database, version: string) {
     await processNavdataAirways(settings);
     console.timeLog('navigraph get', 'airways');
 
+    await processNavdataRestrictedAirspace(settings);
+    console.timeLog('navigraph get', 'restricted airspace');
+
+    await processNavdataControlledAirspace(settings);
+    console.timeLog('navigraph get', 'controlled airspace');
+
     await processNavdataSid(settings);
     console.timeLog('navigraph get', 'sids');
 
@@ -82,7 +89,7 @@ export async function processDatabase(db: sqlite3.Database, version: string) {
     console.timeEnd('navigraph get');
 
     return {
-        full: fullData as NavigraphNavData,
+        full: fullData as NavigraphNavDataFull,
         short: shortData as NavigraphNavDataShort,
     };
 }

@@ -1,5 +1,6 @@
 import type { Coordinate } from 'ol/coordinate.js';
 import type sqlite3 from 'better-sqlite3';
+import type { AirspaceCoordinate as SharedAirspaceCoordinate } from '~/utils/shared/airspace';
 
 export interface NavigraphNavDataVHF {
     elevation: number;
@@ -133,30 +134,49 @@ export interface NavigraphNavDataStar {
 
 export type NavigraphNavDataSid = NavigraphNavDataStar;
 
-export interface NavigraphNavDataControlledAirspace {
-    center: string;
-    classification: string;
-    type: string;
-    coordinates: AirspaceCoordinateObj[];
-    multipleCode: string;
-    icaoCode: string;
-    areaCode: string;
-    lowerLimit: string | null;
-    upperLimit: string | null;
-    name: string;
-    flightLevel: NavDataFlightLevel;
+export interface NavigraphNavDataRestrictedAirspacePoint {
+    arcBearing: number | null;
+    arcDistance: number | null;
+    arcOrigin: SharedAirspaceCoordinate | null;
+    boundaryVia: string;
+    coordinate: SharedAirspaceCoordinate | null;
+    seqno: number;
 }
 
 export interface NavigraphNavDataRestrictedAirspace {
-    coordinates: AirspaceCoordinateObj[];
-    type: string;
-    icaoCode: string;
-    areaCode: string;
-    designation: string;
-    lowerLimit: string | null;
-    upperLimit: string | null;
-    name: string;
-    flightLevel: NavDataFlightLevel;
+    airspace: {
+        areaCode: string | null;
+        designation: string | null;
+        flightLevel: NavDataFlightLevel;
+        icaoCode: string | null;
+        lowerLimit: string | null;
+        lowerLimitUnit: string | null;
+        multipleCode: string | null;
+        name: string | null;
+        type: string | null;
+        upperLimit: string | null;
+        upperLimitUnit: string | null;
+    };
+    points: NavigraphNavDataRestrictedAirspacePoint[];
+}
+
+export interface NavigraphNavDataControlledAirspace {
+    airspace: {
+        areaCode: string | null;
+        center: string | null;
+        classification: string | null;
+        flightLevel: NavDataFlightLevel;
+        icaoCode: string | null;
+        lowerLimit: string | null;
+        lowerLimitUnit: string | null;
+        multipleCode: string | null;
+        name: string | null;
+        timeCode: string | null;
+        type: string | null;
+        upperLimit: string | null;
+        upperLimitUnit: string | null;
+    };
+    points: NavigraphNavDataRestrictedAirspacePoint[];
 }
 
 export type NavDataProcedure<T extends NavigraphNavDataApproach | NavigraphNavDataStar | NavigraphNavDataSid> = {
@@ -189,22 +209,39 @@ export interface NavigraphNavData {
     approaches: Record<string, NavDataProcedure<NavigraphNavDataApproach>[]>;
     stars: Record<string, NavDataProcedure<NavigraphNavDataStar>[]>;
     sids: Record<string, NavDataProcedure<NavigraphNavDataSid>[]>;
-    // restrictedAirspace: NavigraphNavDataRestrictedAirspace[];
-    // controlledAirspace: NavigraphNavDataControlledAirspace[];
+}
+
+export interface NavigraphNavDataFull extends NavigraphNavData {
+    restrictedAirspace: Record<string, NavigraphNavDataRestrictedAirspace>;
+    controlledAirspace: Record<string, NavigraphNavDataControlledAirspace>;
 }
 
 export type NavigraphGetData<K extends keyof NavigraphNavData> = NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never;
 export type NavigraphNavItems = {
     [K in keyof NavigraphNavData]: NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never
 };
-export type AirspaceCoordinateObj = {
-    coordinate: Coordinate;
-    bearing?: number;
-    distance?: number;
-    boundaryVia: string;
-};
 export type AirspaceCoordinate = [coordinate: Coordinate, boundaryVia: string, bearing?: number, distance?: number];
 export type ShortAirway = [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavDataFlightLevel, type?: string][]];
+export type ShortAirspace = [
+    type: string | null,
+    identifier: string | null,
+    name: string | null,
+    lowerLimit: string | null,
+    upperLimit: string | null,
+    flightLevel: NavDataFlightLevel,
+    points: [
+        longitude: number | null,
+        latitude: number | null,
+        boundaryVia: string,
+        arcOriginLongitude: number | null,
+        arcOriginLatitude: number | null,
+        arcBearing: number | null,
+        arcDistance: number | null,
+        seqno: number,
+    ][],
+];
+export type ShortRestrictiveAirspace = ShortAirspace;
+export type ShortControlledAirspace = ShortAirspace;
 
 export interface NavigraphNavDataShort {
     version: string;
@@ -213,11 +250,13 @@ export interface NavigraphNavDataShort {
     holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;
     airways: Record<string, ShortAirway>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string, terminal: boolean]>;
+    restrictedAirspace: Record<string, ShortRestrictiveAirspace>;
+    controlledAirspace: Record<string, ShortControlledAirspace>;
 }
 
 export type NavdataProcessFunction = (settings: {
     db: sqlite3.Database;
-    fullData: Partial<NavigraphNavData>;
+    fullData: Partial<NavigraphNavDataFull>;
     shortData: Partial<NavigraphNavDataShort>;
     runwaysByAirport: NavdataRunwaysByAirport;
 }) => PromiseLike<any>;
