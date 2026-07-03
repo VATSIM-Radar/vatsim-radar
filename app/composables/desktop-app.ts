@@ -3,6 +3,7 @@ import type {
     VatsimLiveDataShort,
     VatsimShortenedAircraft,
 } from '~/types/data/vatsim';
+import { isPointInExtent } from '~/composables/index';
 
 export const trayValue = ref(false);
 
@@ -162,7 +163,25 @@ export function getDiscordPresence() {
 
         if (atc) {
             presence.details = atc.callsign;
-            presence.state = 'Controlling';
+
+            const sector = findATCSector(atc);
+
+            const frequenciesSet = new Set(atc.frequencies ?? []);
+
+            let pilotsAll = 0;
+            let pilotsControlling = 0;
+            const dataStore = useDataStore();
+
+            if (sector) {
+                for (const pilot of dataStore.vatsim.data.pilots.value) {
+                    if (!isPointInExtent([pilot.longitude, pilot.latitude], sector)) continue;
+
+                    pilotsAll++;
+                    if (pilot.frequencies.some(x => frequenciesSet.has(x))) pilotsControlling++;
+                }
+            }
+
+            presence.state = pilotsAll ? `Controlling (${ pilotsControlling }/${ pilotsAll } aircraft)` : 'Controlling';
             presence.atcCallsign = atc.callsign;
             presence.startTimestamp = atc.logon_time;
             return presence;
@@ -233,7 +252,7 @@ export async function initDiscordPresenceUpdate() {
 
     // Causing watch leak, intended
     nextTick(() => {
-        const relevantSettings = computed(() => store.localSettings.app?.presence);
+        const relevantSettings = computed(() => JSON.stringify(store.localSettings.app?.presence));
 
         watch(relevantSettings, () => {
             setDiscordPresence();

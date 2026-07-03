@@ -6,6 +6,9 @@
 
 - Restored Navigraph tab in Layers quick settings
 - Changed Map Settings icon
+- Controller presence will now show how many aircraft are controlled
+- Smooth aircraft will now be disabled on high zoom levels
+- Fixed bookings showing when filter is active
 
 ## Features and Improvements
 
