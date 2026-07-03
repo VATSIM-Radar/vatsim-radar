@@ -80,6 +80,7 @@ And that are just the highlights! Full changelog is available below.
 - Added vertical speed to non-compact pilot hover and pilot overlay
 - Added aircraft photo in overlay
 - Added smooth aircraft movement by psergienko
+- Added restricted and controller airways support
 
 ### UI/UX Improvements
 
@@ -115,6 +116,9 @@ And that are just the highlights! Full changelog is available below.
 - You can now declutter aircraft when zoomed out, or always, to improve performance
 - Airport counter is now named to represent Settings Mode for this counter
 - Favorite pilot will now highlight in red when squawking emergency
+- Added a setting to highlight sector where you are currently flying
+- Added pilots section into each atc showing aircraft under control
+- Added Mobile Sheets on mobile by psergienko
 
 ### General Improvements and Additions
 
@@ -134,6 +138,10 @@ And that are just the highlights! Full changelog is available below.
 - Added CTAF frequency to VATSIM Airport Info when available on Info page of airport
 - Added TWR icon to airports where SimAware TWR TRACON is shown to make it more clear that TWR is currently online
 - Airport label will now always show if aircraft with this departure or destination is hovered
+- Added point bearing distance support
+- Added ICAO in route field support
+- Added a setting to move favorites to top right corner of screen on desktop - like on mobile version
+- Added a setting to pin favorites
 
 ### Performance improvements
 
@@ -226,3 +234,5 @@ And that are just the highlights! Full changelog is available below.
 - Fixed rare datafeed worker crash
 - Fixed departed distance incorrect for some departures
 - Fixed some aircraft icons showing slightly incorrect border color
+- Fixed concorde NAT tracks parsing incorrectly
+- Fixed some incorrect airways parsing bugs
