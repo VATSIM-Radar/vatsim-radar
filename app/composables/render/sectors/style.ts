@@ -11,6 +11,8 @@ import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import { ownATC } from '~/composables/vatsim/pilots';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style | Style[]> = {};
@@ -28,7 +30,7 @@ function getCachedFill(color: string) {
     return cachedFill;
 }
 
-function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate, labelType, transparent }: {
+function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate, labelType, transparent, atc }: {
     color: ColorsListRgb;
     settingsColor?: SettingsColorType;
     dashed: boolean;
@@ -39,6 +41,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     transparent?: boolean;
     labelCoordinate: Coordinate;
     labelType: boolean;
+    atc: VatsimShortenedController[];
 }) {
     let userColorRaw = settingsColor ? getSelectedColorFromSettings(settingsColor, true) : null;
     const userColorTransparency = settingsColor ? getSelectedColorTransparencyFromSettings(settingsColor) : null;
@@ -47,7 +50,9 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
         userColorRaw = getSelectedColorFromSettings('centerBookings', true) || getCurrentThemeRgbColor('lightGray100').join(',');
     }
 
-    const key = String(color) + String(settingsColor) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType) + String(transparent);
+    const getOwnAtc = ownATC().value;
+    const own = atc.some(x => getOwnAtc.includes(x.callsign));
+    const key = String(color) + String(settingsColor) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType) + String(transparent) + String(own);
 
     let cachedStyle = styleCache[key];
 
@@ -76,12 +81,19 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                         padding: [4, 1, 2, 4],
                         fill: hovered ? getCachedFill(radarColors.lightGray300Hex) : textFill,
                         backgroundFill: hovered ? sectorBg : textBg,
-                        backgroundStroke: new Stroke({
-                            color: `rgba(${ textFillRaw }, ${ transparent ? 0 : booking ? 0.1 : 0.2 })`,
-                            width: 1,
-                            lineCap: 'round',
-                            lineJoin: 'round',
-                        }),
+                        backgroundStroke: own
+                            ? new Stroke({
+                                color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ transparent ? 0 : 1 })`,
+                                width: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            })
+                            : new Stroke({
+                                color: `rgba(${ textFillRaw }, ${ transparent ? 0 : booking ? 0.1 : 0.2 })`,
+                                width: 1,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            }),
                         declutterMode: 'declutter',
                     })
                     : undefined,
@@ -107,7 +119,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                     : undefined,
                 stroke: new Stroke({
                     color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ strokeOpacity })`,
-                    width: 1,
+                    width: own ? 2 : 1,
                     lineDash: dashed ? [8, 5] : undefined,
                     lineJoin: 'round',
                 }),
@@ -135,7 +147,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
 
 const vatglassesLabelsEnabled = globalComputed(() => getKeyedValueFromSettings('map.visibility.vatglassesLabels'));
 
-const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProperties, transparent: boolean): Style => {
+const vatglassesStyle = ({ colour, max, positionId, atc }: FeatureAirportSectorVGProperties, transparent: boolean): Style => {
     let rgba: string;
 
     try {
@@ -146,7 +158,11 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
     }
 
     const labelsEnabled = vatglassesLabelsEnabled().value;
-    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }-${ String(labelsEnabled) }`;
+    const getOwnAtc = ownATC().value;
+    const own = atc.some(x => getOwnAtc.includes(x.callsign));
+    const key = `vatglasses-${ String(!!positionId) }-${ String(transparent) }-${ String(labelsEnabled) }-${ String(own) }`;
+
+    const borderColor = own ? (getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',')) : rgba;
 
     if (!styleCache[key]) {
         styleCache[key] = new Style({
@@ -169,8 +185,8 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
             zIndex: max,
             fill: getCachedFill(`rgba(${ rgba }, 0.2)`),
             stroke: new Stroke({
-                color: `rgba(${ rgba }, 0.6)`,
-                width: 1,
+                color: `rgba(${ borderColor }, ${ own ? 1 : 0.6 })`,
+                width: own ? 2 : 1,
             }),
         });
     }
@@ -181,7 +197,7 @@ const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProp
     }
 
     (styleCache[key] as Style).getFill()!.setColor(`rgba(${ rgba }, ${ transparent ? 0 : 0.2 })`);
-    (styleCache[key] as Style).getStroke()!.setColor(`rgba(${ rgba }, ${ transparent ? 0 : 0.6 })`);
+    (styleCache[key] as Style).getStroke()!.setColor(`rgba(${ borderColor }, ${ transparent ? 0 : 0.6 })`);
 
     return styleCache[key] as Style;
 };
@@ -207,6 +223,7 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
                 secondLine: properties.sectorType !== 'empty' ? properties.uir : undefined,
                 labelCoordinate: properties.label,
                 labelType,
+                atc: properties.atc,
             });
         }
 

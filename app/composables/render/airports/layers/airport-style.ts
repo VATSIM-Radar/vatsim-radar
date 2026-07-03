@@ -9,6 +9,7 @@ import type { MapAircraftList } from '~/types/map';
 import CircleStyle from 'ol/style/Circle.js';
 import { VatsimEventType } from '~/types/data/vatsim';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
+import { ownATC } from '~/composables/vatsim/pilots';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style> = {};
@@ -154,7 +155,11 @@ export function setAirportStyle(layer: VectorLayer) {
             if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
                 const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
                 const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
-                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isUir) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
+
+                const getOwnAtc = ownATC().value;
+                const own = properties.atc.some(x => getOwnAtc.includes(x.callsign));
+
+                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isUir) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }-${ String(own) }`;
 
                 if (!styleCache[key]) {
                     let fill: string | undefined;
@@ -181,8 +186,8 @@ export function setAirportStyle(layer: VectorLayer) {
                         stroke: new Stroke({
                             color: (store.bookingOverride || properties.isBooked)
                                 ? getSelectedColorFromSettings('approachBookings') || `rgba(${ mainColor }, ${ mainTransparency })`
-                                : ((isDuplicated ? undefined : getSelectedColorFromSettings('approach')) || `rgba(${ mainColor }, ${ mainTransparency })`),
-                            width: 2,
+                                : ((isDuplicated ? undefined : getSelectedColorFromSettings('approach')) || `rgba(${ mainColor }, ${ own ? 1 : mainTransparency })`),
+                            width: own ? 3 : 2,
                             lineDash: properties.isDuplicated ? [8, 5] : undefined,
                             lineJoin: 'round',
                         }),
@@ -197,7 +202,11 @@ export function setAirportStyle(layer: VectorLayer) {
                 const declutterMode = getDeclutterMode(0);
                 const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
                 const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
-                const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isUir) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
+
+                const getOwnAtc = ownATC().value;
+                const own = properties.atc.some(x => getOwnAtc.includes(x.callsign));
+
+                const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isUir) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode) + String(own);
 
                 if (!styleCache[strokeKey]) {
                     let defaultColor = getSelectedColorFromSettings('approach', true) || radarColors.citrus600Rgb.join(',');
@@ -219,13 +228,13 @@ export function setAirportStyle(layer: VectorLayer) {
                             text: '',
                             placement: 'point',
                             overflow: true,
-                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor })`),
-                            backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : own ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor })`),
+                            backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(getCurrentThemeHexColor('darkGray900')),
                             backgroundStroke: new Stroke({
                                 width: 2,
                                 lineDash: properties.isTWR ? [4, 8] : undefined,
                                 lineJoin: 'round',
-                                color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ defaultTransparency })`,
+                                color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ own ? 1 : defaultTransparency })`,
                             }),
                             declutterMode,
                             padding: [3, 1, 2, 3],

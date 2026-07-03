@@ -101,10 +101,11 @@
                 <view-header-theme-switcher/>
             </div>
             <div
-                v-else-if="route.path === '/'"
+                v-if="route.path === '/' && (isMobileOrTablet || favoriteLocation.value === 'header')"
                 class="header__sections_section"
             >
                 <ui-button
+                    v-if="isMobile"
                     size="S"
                     :type="store.searchActive ? 'primary' : 'secondary'"
                     @click="store.searchActive = !store.searchActive"
@@ -114,7 +115,7 @@
                     </template>
                 </ui-button>
                 <ui-button
-                    v-if="(store.friends.length || store.bookmarks.length) && isMobile"
+                    v-if="(store.friends.length || store.bookmarks.length) && (isMobile || favoriteLocation.value === 'header')"
                     class="header__friends"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
@@ -131,6 +132,22 @@
                         </ui-bubble>
                     </template>
                 </ui-button>
+                <popup-aside
+                    v-if="!isMobile && favoriteLocation.value === 'header'"
+                    v-model="store.menuFriendsOpen"
+                    center-by="center"
+                    center-by-offset="calc(-50% + 40px)"
+                    header-no-padding-bottom
+                    location="bottom"
+                    max-height="370px"
+                    width="480px"
+                >
+                    <template #title>
+                        Favorite
+                    </template>
+
+                    <navigation-favorite/>
+                </popup-aside>
             </div>
             <div
                 v-if="config.public.IS_DOWN !== 'true' && (store.user || !isIframe)"
@@ -268,6 +285,8 @@ import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '~/composables/vatsim/auth';
 import UiBurger from '~/components/ui/buttons/UiBurger.vue';
 import { useGoBack } from '~/composables/useGoBack';
+import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
+import PopupAside from '~/components/popups/PopupAside.vue';
 
 const { goBack } = useGoBack();
 
@@ -280,6 +299,7 @@ const config = useRuntimeConfig();
 
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
+const favoriteLocation = getSettingValue('map.preferences.favoriteLocation');
 
 const mobileMenuOpened = ref(false);
 </script>

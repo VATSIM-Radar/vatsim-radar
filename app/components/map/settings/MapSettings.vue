@@ -231,7 +231,7 @@ import FiltersIcon from '~/assets/icons/kit/filters.svg?component';
 import MapLayersIcon from '~/assets/icons/kit/layers.svg?component';
 import ImportIcon from '~/assets/icons/kit/import.svg?component';
 import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
-import SettingsIcon from '~/assets/icons/kit/settings.svg?component';
+import SettingsIcon from '~/assets/icons/kit/map.svg?component';
 import DebugIcon from '~/assets/icons/kit/debug.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';

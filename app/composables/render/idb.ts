@@ -53,7 +53,7 @@ class VatsimRadarDB extends Dexie {
 
     navigraphData!: Table<ClientNavigraphData[keyof ClientNavigraphData] | string, keyof ClientNavigraphData | 'version' | 'inserted'>;
 
-    navigraphDB!: Table<NavigraphNavDataShort['vhf'] | NavigraphNavDataShort['ndb'] | NavigraphNavDataShort['airways'] | NavigraphNavDataShort['waypoints'], string>;
+    navigraphDB!: Table<NavigraphNavDataShort['vhf'] | NavigraphNavDataShort['ndb'] | NavigraphNavDataShort['airways'] | NavigraphNavDataShort['waypoints'] | NavigraphNavDataShort['restrictedAirspace'] | NavigraphNavDataShort['controlledAirspace'], string>;
 }
 
 export let clientDB: VatsimRadarDB = undefined as any;

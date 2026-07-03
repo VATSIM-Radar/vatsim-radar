@@ -9,6 +9,7 @@ import { defineCronJob, readJsonFile } from '~/utils/server';
 import {
     ensureCycleCache,
     getCachedProcedurePath,
+    readCachedItemData,
     readCachedItem,
 } from '~/utils/server/navigraph/cache';
 import type { NavigraphCycleType, NavigraphProcedureGroup } from '~/utils/server/navigraph/cache';
@@ -85,6 +86,7 @@ async function updateNavigraph() {
 const router = createRouter<{ type: string }>();
 
 addRoute(router, 'GET', '/item/:type/:data/:key', { type: 'item' });
+addRoute(router, 'GET', '/item/:type/:data', { type: 'allItem' });
 addRoute(router, 'GET', '/data/:type', { type: 'data' });
 addRoute(router, 'GET', '/airport/:type/:airport', { type: 'allProcedures' });
 addRoute(router, 'GET', '/airport/:type/:airport/:group', { type: 'procedures' });
@@ -123,6 +125,22 @@ serve({
             const item = readCachedItem(root, data, key);
             if (!item) {
                 return handleError('Item not found for this key');
+            }
+
+            return new Response(JSON.stringify(item), {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
+
+        if (route.data.type === 'allItem') {
+            const { type, data } = route.params!;
+            const root = navigraphData.cachePath[type as NavigraphCycleType];
+
+            const item = readCachedItemData(root, data);
+            if (!item) {
+                return handleError('Item not found');
             }
 
             return new Response(JSON.stringify(item), {

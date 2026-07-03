@@ -35,7 +35,7 @@
             </div>
 
             <div
-                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700 && store.viewport.height > 500"
+                v-if="(store.friends.length || store.bookmarks.length) && store.viewport.width >= 700 && store.viewport.height > 500 && favoriteLocation.value === 'footer'"
                 class="map-footer_left_section"
             >
                 <ui-button
@@ -302,6 +302,8 @@ const curDate = ref(Date.now());
 
 const route = useRoute();
 const router = useRouter();
+
+const favoriteLocation = getSettingValue('map.preferences.favoriteLocation');
 
 const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;

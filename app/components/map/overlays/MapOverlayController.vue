@@ -134,8 +134,6 @@
             </div>
         </template>
         <template #pilots>
-            <small>Pilots connected to <ui-bubble type="primary-flat">{{ atc.frequency }}</ui-bubble> are shown here.</small><br><br>
-
             <div class="__info-sections">
                 <ui-text-block
                     v-for="pilot in pilots"
@@ -143,7 +141,6 @@
                     :bottom-items="[
                         pilot.departure && `from ${ pilot.departure }`,
                         pilot.arrival && `to ${ pilot.arrival }`,
-                        `Squawk ${ pilot.transponder ?? 'unknown' }`,
                     ]"
                     class="aircraft__pilot"
                     is-button
@@ -221,6 +218,7 @@ import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
+import { isPointInExtent } from '~/composables';
 
 const props = defineProps({
     overlay: {
@@ -243,14 +241,12 @@ const atc = computed(() => {
     return findAtcByCallsign(props.overlay?.data.callsign);
 });
 
-const pilots = computed(() => {
-    return dataStore.vatsim.data.pilots.value.filter(x => x.frequencies.some(x => atc.value?.frequency.startsWith(x))).sort((a, b) => a.callsign.localeCompare(b.callsign));
-});
-
 const getSections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [{ key: 'data' }, { key: 'atis' }];
 
     if (atc.value?.frequencies?.length) sections.splice(1, 0, { key: 'frequencies', title: 'Frequencies' });
+
+    if (pilots.value.length) sections.push({ key: 'pilots', title: 'Controlling aircraft', bubble: pilots.value.length });
 
     return sections;
 });
@@ -260,6 +256,14 @@ const airport = shallowRef<null | VatSpyAirport>(null);
 const feature = computed(() => {
     if (!atc.value) return null;
     return findATCSector(atc.value);
+});
+
+const pilots = computed(() => {
+    if (!feature.value) return [];
+
+    const frequenciesSet = new Set(atc.value?.frequencies ?? []);
+
+    return dataStore.vatsim.data.pilots.value.filter(pilot => pilot.frequencies.some(x => frequenciesSet.has(x) && isPointInExtent([pilot.longitude, pilot.latitude], feature.value!))).sort((a, b) => a.callsign.localeCompare(b.callsign));
 });
 
 function focusOnFeature() {

@@ -104,14 +104,14 @@
                     Open overlay for...
                 </template>
 
-                <ui-menu :items="multiSelectMenu"/>
+                <ui-menu class="select__overlay-menu" :items="multiSelectMenu"/>
             </popup-map-info>
         </map-html-overlay>
         <component
             :is="openedOverlay.component"
             v-else-if="openedOverlay"
             :payload="openedOverlay?.payload"
-            @close="openedOverlay = null"
+            @close="[openedOverlay = null, selectFeature(false)]"
             @id="openedOverlay && (openedOverlay.id = $event)"
         />
         <popup-fullscreen
@@ -234,8 +234,13 @@ const multiSelectMenu = computed<UIMenuItem[]>(() => {
         }
 
         if (isMapFeature('navigraph', properties)) {
+            const title = [
+                properties.dbType,
+                properties.name ?? properties.ident ?? properties.waypoint ?? properties.identifier ?? properties.key,
+            ].filter(Boolean).join(' / ');
+
             return {
-                title: `Navigraph feature (${ properties.dbType })`,
+                title: `Navigraph feature (${ title })`,
                 onClick: () => definition.click?.(payload),
             };
         }
@@ -326,9 +331,11 @@ type RadarEventAction = (payload: RadarEventPayload<any>) => void | boolean;
 type Definition = {
     featureTypes: MapFeaturesType[];
     disableMobileHoverFallback?: boolean;
+    multiSelectAll?: boolean;
 } & PartialRecord<EventType, RadarEventAction>;
 
 let previouslySelected: Feature | undefined;
+let previouslyOpened: Feature | undefined;
 
 function selectFeature(feature: false): void;
 function selectFeature(feature: Feature, selected: boolean): void;
@@ -337,6 +344,12 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
         const feature = previouslySelected;
         previouslySelected = undefined;
         selectFeature(feature, false);
+    }
+
+    if (previouslyOpened) {
+        const feature = previouslyOpened;
+        previouslyOpened = undefined;
+        feature.setProperties({ opened: false });
     }
 
     if (!feature) return;
@@ -401,7 +414,7 @@ function airportCounterOverlayOptions(counterType?: string): Parameters<typeof m
     }
 }
 
-const definitions = {
+const definitions: Record<SelectableFeatures, Definition> = {
     airportControllers: {
         featureTypes: ['airport'],
         hover: payload => {
@@ -577,17 +590,21 @@ const definitions = {
     },
     navigraph: {
         featureTypes: ['navigraph'],
+        multiSelectAll: true,
         hover: payload => {
             return !!payload.feature.getProperties().key;
         },
         click: payload => {
             if (!payload.feature.getProperties().key) return false;
 
+            payload.feature.setProperties({ opened: true });
+            previouslyOpened = payload.feature;
+
             return openOverlay('navigraph', payload, 'navigraph');
         },
         disableMobileHoverFallback: true,
     },
-} satisfies Record<SelectableFeatures, Definition>;
+};
 
 type SelectableFeatures =
     | 'airportControllers'
@@ -747,16 +764,28 @@ function createSelectHandler(type: EventType, select: Select) {
 
                     if (!(type in definition) && (!isMobileOrTablet.value || !definition.hover)) continue;
 
-                    const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
-                    if (!targetFeature) continue;
-
                     if (multiselect) {
-                        multiSelectFeatures.value.push({
-                            definition,
-                            feature: targetFeature.feature,
-                        });
+                        const targetFeatures = definition.multiSelectAll
+                            ? featuresWithProperties.filter(x => (definition.featureTypes as any[]).includes(x.properties.type))
+                            : featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
+
+                        if (Array.isArray(targetFeatures)) {
+                            multiSelectFeatures.value.push(...targetFeatures.map(({ feature }) => ({
+                                definition,
+                                feature,
+                            })));
+                        }
+                        else if (targetFeatures) {
+                            multiSelectFeatures.value.push({
+                                definition,
+                                feature: targetFeatures.feature,
+                            });
+                        }
                         continue;
                     }
+
+                    const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
+                    if (!targetFeature) continue;
 
                     const result = await featureAction(targetFeature.feature, definition);
 
@@ -903,5 +932,11 @@ onBeforeUnmount(() => {
 
 .select__menu {
     overflow: hidden;
+}
+
+.select__overlay-menu {
+    overflow: auto;
+    max-width: 600px;
+    max-height: 300px;
 }
 </style>
