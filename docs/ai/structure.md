@@ -189,7 +189,7 @@ Background tasks:
 
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
-  - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
+  - `parseCoordinates()` in this file normalizes Concorde Nattrak decimal-degree route strings into degrees+minutes route aliases such as `4824N01500W/SO15W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
