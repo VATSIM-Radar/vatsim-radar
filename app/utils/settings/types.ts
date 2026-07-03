@@ -162,6 +162,10 @@ export interface UserSettingsV2 {
                     showAirwaysLabel: boolean;
                     showWaypointsLabel: boolean;
                 }>;
+                airspace: {
+                    restricted: boolean;
+                    controlled: boolean;
+                };
             };
 
             airport: {

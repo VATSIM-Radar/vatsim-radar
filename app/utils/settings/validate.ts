@@ -266,6 +266,10 @@ const settingsSchema = partialObject({
                     showAirwaysLabel: booleanSchema,
                     showWaypointsLabel: booleanSchema,
                 }),
+                airspace: partialObject({
+                    restricted: booleanSchema,
+                    controlled: booleanSchema,
+                }),
             }),
             airport: partialObject({
                 enabled: booleanSchema,

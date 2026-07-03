@@ -55,6 +55,18 @@ export const settingsItemNavigraphLayers = globalComputed(() => makeSettingsItem
         value: getSettingValue('map.navigraph.layers.holdings'),
         onChange: value => setSettingByKey('map.navigraph.layers.holdings', value),
     },
+    restrictedAirspace: {
+        title: 'Restricted airspace',
+        type: 'toggle',
+        value: getSettingValue('map.navigraph.layers.airspace.restricted'),
+        onChange: value => setSettingByKey('map.navigraph.layers.airspace.restricted', value),
+    },
+    controlledAirspace: {
+        title: 'Controlled airspace',
+        type: 'toggle',
+        value: getSettingValue('map.navigraph.layers.airspace.controlled'),
+        onChange: value => setSettingByKey('map.navigraph.layers.airspace.controlled', value),
+    },
     ifrAuto: {
         title: 'Automatic IFR level',
         type: 'toggle',

@@ -51,11 +51,13 @@
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.airwaysEnabled"/>
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.ndb"/>
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.vordme"/>
+                    <ui-setting-item :item="settingsItems.layers.navigraph.layers.controlledAirspace"/>
                 </template>
                 <template #col2>
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.waypoints"/>
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.terminalWaypoints"/>
                     <ui-setting-item :item="settingsItems.layers.navigraph.layers.holdings"/>
+                    <ui-setting-item :item="settingsItems.layers.navigraph.layers.restrictedAirspace"/>
                 </template>
             </ui-columns-display>
         </template>

@@ -77,7 +77,7 @@
                     />
                     <map-distance v-if="distanceEnabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
-                    <navigraph-layers v-if="dataStore.navigraph.version"/>
+                    <navigraph-layers v-if="dataStore.navigraph.version" :key="String(dataStore.navigraph.version)"/>
                     <map-weather/>
                     <a
                         v-if="store.config.showCornerLogo"
