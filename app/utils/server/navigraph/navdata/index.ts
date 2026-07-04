@@ -47,8 +47,6 @@ export async function processDatabase(db: sqlite3.Database, version: string) {
         });
     }
 
-    runways.length = 0;
-
     const settings: Parameters<NavdataProcessFunction>[0] = {
         db,
         fullData,
@@ -87,10 +85,6 @@ export async function processDatabase(db: sqlite3.Database, version: string) {
 
     await processNavdataIap(settings);
     console.timeLog('navigraph get', 'iaps');
-
-    for (const key of Object.keys(runwaysByAirport)) {
-        delete runwaysByAirport[key];
-    }
 
     console.timeEnd('navigraph get');
 
