@@ -204,6 +204,8 @@ export async function materializeCycleCache({ type, version, db }: { type: Navig
 
 function runCycleCacheBuilder({ type, version, db }: { type: NavigraphCycleType; version: string; db: sqlite3.Database }) {
     return new Promise<void>((resolve, reject) => {
+        console.log(`Navigraph cache builder started for ${ type } ${ version }`);
+
         const child = spawn(process.execPath, [
             '--unhandled-rejections=warn-with-error-code',
             '--import=tsx',
@@ -217,7 +219,9 @@ function runCycleCacheBuilder({ type, version, db }: { type: NavigraphCycleType;
         });
 
         child.on('error', reject);
-        child.on('exit', code => {
+        child.on('close', code => {
+            console.log(`Navigraph cache builder finished for ${ type } ${ version } with code ${ code ?? 'unknown' }`);
+
             if (code === 0) {
                 resolve();
                 return;

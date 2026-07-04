@@ -18,6 +18,12 @@ try {
         db,
     });
 }
+catch (e) {
+    console.error(e);
+    process.exitCode = 1;
+}
 finally {
     db.close();
 }
+
+process.exit(process.exitCode ?? 0);
