@@ -133,6 +133,21 @@ function clearFullData(full: NavigraphNavDataFull) {
     }
 }
 
+function formatMemorySize(bytes: number) {
+    return `${ Math.round(bytes / 1024 / 1024) } MiB`;
+}
+
+function releaseNavigraphMemory(reason: string) {
+    const gc = (globalThis as typeof globalThis & { gc?: () => void }).gc;
+    if (!gc) return;
+
+    const before = process.memoryUsage();
+    gc();
+    const after = process.memoryUsage();
+
+    console.log(`Navigraph memory release after ${ reason }: heapUsed ${ formatMemorySize(before.heapUsed) } -> ${ formatMemorySize(after.heapUsed) }, rss ${ formatMemorySize(before.rss) } -> ${ formatMemorySize(after.rss) }`);
+}
+
 function isCacheReady(path: string) {
     if (!existsSync(join(path, 'ready')) || !existsSync(join(path, 'short.json'))) return false;
 
@@ -207,6 +222,7 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
     }
     finally {
         clearFullData(processed.full);
+        releaseNavigraphMemory(`${ type } ${ version } cache build`);
     }
 
     pruneOldCycleCaches(type, version);

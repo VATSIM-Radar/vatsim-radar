@@ -105,7 +105,7 @@
                 class="header__sections_section"
             >
                 <ui-button
-                    v-if="isMobile"
+                    v-if="isMobileOrTablet"
                     size="S"
                     :type="store.searchActive ? 'primary' : 'secondary'"
                     @click="store.searchActive = !store.searchActive"
