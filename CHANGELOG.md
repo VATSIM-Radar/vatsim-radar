@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-rc.1.1]
+
+## RC Changes
+
+- Fixed aircraft scale jumping every second after takeoff or landing
+
+## Features and Improvements
+
+- Updated default map layer from 04 Dec 2025 to 03 July 2026
+
 # [2.0.0-rc.1]
 
 This a Release Candidate release. No more significant features are expected to be added.

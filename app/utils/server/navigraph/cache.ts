@@ -120,10 +120,12 @@ function writeProcedureCache(path: string, full: NavigraphNavData) {
 }
 
 function writeItemCache(path: string, full: NavigraphNavDataFull) {
-    for (const [dataKey, data] of Object.entries(full)) {
+    for (const dataKey of Object.keys(full)) {
         if (procedureGroups.includes(dataKey as NavigraphProcedureGroup)) continue;
 
+        const data = full[dataKey as keyof NavigraphNavDataFull];
         writeJsonFile(join(path, 'item', `${ encodeCachePart(dataKey) }.json`), data);
+        delete (full as unknown as Record<string, unknown>)[dataKey];
     }
 }
 
@@ -131,6 +133,10 @@ function clearFullData(full: NavigraphNavDataFull) {
     for (const key of Object.keys(full)) {
         delete (full as unknown as Record<string, unknown>)[key];
     }
+}
+
+function clearFullDataKey(full: NavigraphNavDataFull, key: keyof NavigraphNavDataFull) {
+    delete (full as unknown as Record<string, unknown>)[key];
 }
 
 function formatMemorySize(bytes: number) {
@@ -154,6 +160,13 @@ function isCacheReady(path: string) {
     const version = readJsonFile<CacheVersionFile>(join(path, 'cache-version.json'));
 
     return version?.version === cacheVersion;
+}
+
+function readReadyCycleCache(path: string) {
+    return {
+        path,
+        short: readJsonFile<NavigraphNavDataShort>(join(path, 'short.json'))!,
+    };
 }
 
 function readCachedItemFile(path: string) {
@@ -198,12 +211,10 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
     if (isCacheReady(path)) {
         pruneOldCycleCaches(type, version);
 
-        return {
-            path,
-            short: readJsonFile<NavigraphNavDataShort>(join(path, 'short.json'))!,
-        };
+        return readReadyCycleCache(path);
     }
 
+    itemFileMemoryCache.clear();
     clearItemMemoryForRoot(path);
     rmSync(path, { recursive: true, force: true });
     mkdirSync(path, { recursive: true });
@@ -214,6 +225,9 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
     try {
         writeItemCache(path, processed.full);
         writeProcedureCache(path, processed.full);
+        clearFullDataKey(processed.full, 'stars');
+        clearFullDataKey(processed.full, 'sids');
+        clearFullDataKey(processed.full, 'approaches');
         writeJsonFile(join(path, 'short.json'), short);
         writeJsonFile(join(path, 'cache-version.json'), {
             version: cacheVersion,
@@ -227,10 +241,7 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
 
     pruneOldCycleCaches(type, version);
 
-    return {
-        path,
-        short,
-    };
+    return { path, short };
 }
 
 export function readCachedItem(root: string, data: string, key: string) {

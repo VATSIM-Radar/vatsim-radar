@@ -6,7 +6,7 @@ import greatCircle from '@turf/great-circle';
 import { isMapFeature } from '~/utils/map/entities';
 import type { MapFeatureProperties } from '~/utils/map/entities';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
-import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
+import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 
 interface Sample {
@@ -257,21 +257,12 @@ export function interpolateSamples(samples: Sample[], renderTime: number): Inter
 }
 
 function getDynamicScale(properties: MapFeatureProperties<'aircraft'>, lat: number) {
-    if (!isDynamicAircraftScale.value) return properties.scale;
-
-    const icon = properties.icon?.icon;
-    if (!icon || !(icon in radarIcons)) return properties.scale;
-
-    const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
-    const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
-
-    return +(baseScale * getZoomScaleMultiplier({
-        zoom: useMapStore().zoom,
-        baseScale,
-        iconPixelWidth: iconWidth,
+    return getAircraftDynamicScale({
+        icon: properties.icon?.icon,
         latitude: lat,
         isPilotOnGround: properties.onGround,
-    })).toFixed(3);
+        fallbackScale: properties.scale,
+    });
 }
 
 let rafId: number | null = null;
