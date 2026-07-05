@@ -288,7 +288,7 @@ export const duplicatingSettings = [
         mapping: {
             'Samara APP': 'UWWW_APP',
             'Ufa APP': 'UWUU_APP',
-            'Kazan APP': 'UWKD_APP'
+            'Kazan APP': 'UWKD_APP',
         },
     },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
