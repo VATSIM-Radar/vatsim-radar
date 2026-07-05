@@ -4,7 +4,7 @@ import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { allPilotsOnGround, ownFlight } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
-import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
+import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine, FeatureAircraftProperties } from '~/utils/map/entities';
@@ -45,16 +45,15 @@ export interface AircraftRenderState {
     tracksFeatures: FeatureAircraftLine[];
 }
 
-function getAircraftScale(pilot: VatsimShortenedAircraft | undefined, coordinates: Coordinate, icon: string) {
+function getAircraftScale(coordinates: Coordinate, icon: string, isPilotOnGround: boolean) {
     const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
-    if (!isDynamicAircraftScale.value || !pilot) return baseScale;
 
-    const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
-    const lat = coordinates[1];
-    const pilotStatus = pilot.status;
-    const isPilotOnGround = pilotStatus === 'depGate' || pilotStatus === 'depTaxi' || pilotStatus === 'arrTaxi' || pilotStatus === 'arrGate';
-
-    return +(baseScale * getZoomScaleMultiplier({ zoom: useMapStore().zoom, baseScale, iconPixelWidth: iconWidth, latitude: lat, isPilotOnGround })).toFixed(3);
+    return getAircraftDynamicScale({
+        icon,
+        latitude: coordinates[1],
+        isPilotOnGround,
+        fallbackScale: baseScale,
+    });
 }
 
 function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, isOnGround }: AircraftRenderState, airportsMap: PartialRecord<string, DataAirport>): MapAircraftStatus {
@@ -189,7 +188,7 @@ export async function setMapAircraft(settings: {
 
         renderState.status = status;
 
-        const scale = getAircraftScale(pilot, featureCoordinates, aircraft.icon);
+        const scale = getAircraftScale(featureCoordinates, aircraft.icon, isOnGround);
 
         const properties: FeatureAircraftProperties = {
             id: aircraft.cid,

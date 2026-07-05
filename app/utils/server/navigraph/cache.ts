@@ -1,5 +1,7 @@
+import { spawn } from 'node:child_process';
 import type sqlite3 from 'better-sqlite3';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { encodeCachePart, isObject } from '~/utils/shared';
 import { readJsonFile, writeJsonFile } from '~/utils/server';
@@ -23,6 +25,7 @@ export const navigraphCacheRoot = join(process.cwd(), 'app/data/navigraph-cache'
 const procedureGroups = ['stars', 'sids', 'approaches'] as const satisfies readonly NavigraphProcedureGroup[];
 const cacheVersion = 'items-by-type-v6';
 const itemMemoryTtl = 10 * 60 * 1000;
+const cacheBuilderPath = fileURLToPath(new URL('../worker/navigraph-cache-builder.ts', import.meta.url));
 
 type CacheVersionFile = {
     version: string;
@@ -127,33 +130,19 @@ function writeItemCache(path: string, full: NavigraphNavDataFull) {
     }
 }
 
-function clearFullData(full: NavigraphNavDataFull) {
-    for (const key of Object.keys(full)) {
-        delete (full as unknown as Record<string, unknown>)[key];
-    }
-}
-
-function formatMemorySize(bytes: number) {
-    return `${ Math.round(bytes / 1024 / 1024) } MiB`;
-}
-
-function releaseNavigraphMemory(reason: string) {
-    const gc = (globalThis as typeof globalThis & { gc?: () => void }).gc;
-    if (!gc) return;
-
-    const before = process.memoryUsage();
-    gc();
-    const after = process.memoryUsage();
-
-    console.log(`Navigraph memory release after ${ reason }: heapUsed ${ formatMemorySize(before.heapUsed) } -> ${ formatMemorySize(after.heapUsed) }, rss ${ formatMemorySize(before.rss) } -> ${ formatMemorySize(after.rss) }`);
-}
-
 function isCacheReady(path: string) {
     if (!existsSync(join(path, 'ready')) || !existsSync(join(path, 'short.json'))) return false;
 
     const version = readJsonFile<CacheVersionFile>(join(path, 'cache-version.json'));
 
     return version?.version === cacheVersion;
+}
+
+function readReadyCycleCache(path: string) {
+    return {
+        path,
+        short: readJsonFile<NavigraphNavDataShort>(join(path, 'short.json'))!,
+    };
 }
 
 function readCachedItemFile(path: string) {
@@ -192,17 +181,8 @@ function pruneOldCycleCaches(type: NavigraphCycleType, activeVersion: string) {
     }
 }
 
-export async function ensureCycleCache({ type, version, db }: { type: NavigraphCycleType; version: string; db: sqlite3.Database }) {
+export async function materializeCycleCache({ type, version, db }: { type: NavigraphCycleType; version: string; db: sqlite3.Database }) {
     const path = join(navigraphCacheRoot, `${ type }-${ version }`);
-
-    if (isCacheReady(path)) {
-        pruneOldCycleCaches(type, version);
-
-        return {
-            path,
-            short: readJsonFile<NavigraphNavDataShort>(join(path, 'short.json'))!,
-        };
-    }
 
     clearItemMemoryForRoot(path);
     rmSync(path, { recursive: true, force: true });
@@ -211,26 +191,58 @@ export async function ensureCycleCache({ type, version, db }: { type: NavigraphC
     const processed = await processDatabase(db, version);
     const short = processed.short;
 
-    try {
-        writeItemCache(path, processed.full);
-        writeProcedureCache(path, processed.full);
-        writeJsonFile(join(path, 'short.json'), short);
-        writeJsonFile(join(path, 'cache-version.json'), {
-            version: cacheVersion,
-        } satisfies CacheVersionFile);
-        writeFileSync(join(path, 'ready'), version);
-    }
-    finally {
-        clearFullData(processed.full);
-        releaseNavigraphMemory(`${ type } ${ version } cache build`);
+    writeItemCache(path, processed.full);
+    writeProcedureCache(path, processed.full);
+    writeJsonFile(join(path, 'short.json'), short);
+    writeJsonFile(join(path, 'cache-version.json'), {
+        version: cacheVersion,
+    } satisfies CacheVersionFile);
+    writeFileSync(join(path, 'ready'), version);
+
+    return { path, short };
+}
+
+function runCycleCacheBuilder({ type, version, db }: { type: NavigraphCycleType; version: string; db: sqlite3.Database }) {
+    return new Promise<void>((resolve, reject) => {
+        console.log(`Navigraph cache builder started for ${ type } ${ version }`);
+
+        const child = spawn(process.execPath, [
+            '--unhandled-rejections=warn-with-error-code',
+            '--import=tsx',
+            cacheBuilderPath,
+            type,
+            version,
+            db.name,
+        ], {
+            env: process.env,
+            stdio: 'inherit',
+        });
+
+        child.on('error', reject);
+        child.on('close', code => {
+            console.log(`Navigraph cache builder finished for ${ type } ${ version } with code ${ code ?? 'unknown' }`);
+
+            if (code === 0) {
+                resolve();
+                return;
+            }
+
+            reject(new Error(`Navigraph cache builder exited with code ${ code ?? 'unknown' }`));
+        });
+    });
+}
+
+export async function ensureCycleCache({ type, version, db }: { type: NavigraphCycleType; version: string; db: sqlite3.Database }) {
+    const path = join(navigraphCacheRoot, `${ type }-${ version }`);
+
+    if (!isCacheReady(path)) {
+        itemFileMemoryCache.clear();
+        await runCycleCacheBuilder({ type, version, db });
     }
 
     pruneOldCycleCaches(type, version);
 
-    return {
-        path,
-        short,
-    };
+    return readReadyCycleCache(path);
 }
 
 export function readCachedItem(root: string, data: string, key: string) {

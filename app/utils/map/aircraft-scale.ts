@@ -1,6 +1,7 @@
 // meters-per-pixel estimate for Web Mercator at given latitude and zoom
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import { useMapStore } from '~/store/map';
+import { isDynamicAircraftScale } from '~/composables/settings';
 
 const INITIAL_RESOLUTION = 156543.03392804097;
 
@@ -67,6 +68,34 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
     if (resultMultiplier < minMultNeeded) resultMultiplier = minMultNeeded;
 
     return resultMultiplier;
+}
+
+export function getAircraftDynamicScale({
+    icon,
+    latitude,
+    isPilotOnGround,
+    fallbackScale,
+}: {
+    icon?: string;
+    latitude: number;
+    isPilotOnGround: boolean;
+    fallbackScale?: number | null;
+}) {
+    const baseScale = getKeyedValueFromSettings('map.preferences.aircraft.scale');
+    const fallback = typeof fallbackScale === 'number' ? fallbackScale : baseScale;
+
+    if (!isDynamicAircraftScale.value) return fallback;
+    if (!icon || !(icon in radarIcons)) return fallback;
+
+    const iconWidth = radarIcons[icon as keyof typeof radarIcons].width;
+
+    return +(baseScale * getZoomScaleMultiplier({
+        zoom: useMapStore().zoom,
+        baseScale,
+        iconPixelWidth: iconWidth,
+        latitude,
+        isPilotOnGround,
+    })).toFixed(3);
 }
 
 export function getResolvedScale({ scale, width, height, onGround }: {

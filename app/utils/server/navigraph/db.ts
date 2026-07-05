@@ -1,7 +1,7 @@
 import sqlite3 from 'better-sqlite3';
-import { join } from 'path';
-import { readdirSync } from 'fs';
-import { existsSync, mkdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { Dirent } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/server/storage';
 import { unpack } from '7zip-min';
@@ -11,8 +11,6 @@ export let navigraphOutdatedDb: sqlite3.Database | null = null;
 
 const cwd = join(process.cwd(), 'app');
 const dirPath = join(cwd, 'data');
-const tempDir = join(dirPath, 'temp');
-const tempPath = join(dirPath, 'navigraph-temp.7z');
 
 export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; file: string }) {
     closeNavigraphDB(type);
@@ -65,23 +63,38 @@ interface File {
 }
 
 async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: string; path: string; filename: string }) {
-    // @ts-expect-error Types error
-    const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
-    writeFileSync(tempPath, Buffer.from(zip));
+    mkdirSync(dirPath, { recursive: true });
+
+    const tempDir = mkdtempSync(join(dirPath, 'navigraph-download-'));
+    const tempPath = join(tempDir, 'source.7z');
+    const unpackPath = join(tempDir, 'unpacked');
+    const finalPath = join(path, filename);
 
     try {
-        rmSync(tempDir, { recursive: true, force: true });
-        mkdirSync(tempDir);
+        // @ts-expect-error Types error
+        const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
+        writeFileSync(tempPath, Buffer.from(zip));
 
-        await unpack(tempPath, tempDir);
-        const dirList = readdirSync(tempDir);
-        renameSync(join(tempDir, dirList[0]), join(path, filename));
+        mkdirSync(unpackPath);
+        await unpack(tempPath, unpackPath);
+
+        const dirList = readdirSync(unpackPath);
+        if (!dirList[0]) throw new Error('Navigraph archive unpacked without files');
+
+        if (existsSync(finalPath)) return;
+
+        renameSync(join(unpackPath, dirList[0]), finalPath);
     }
     finally {
         rmSync(tempDir, { recursive: true, force: true });
-        if (existsSync(tempPath)) {
-            unlinkSync(tempPath);
-        }
+    }
+}
+
+function removeOldNavigraphFiles(files: Dirent<string>[], type: 'current' | 'outdated') {
+    for (const file of files) {
+        if (!file.isFile() || !file.name.includes(type) || !file.name.endsWith('.s3db')) continue;
+
+        rmSync(join(file.parentPath, file.name), { force: true });
     }
 }
 
@@ -126,8 +139,8 @@ export async function initNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ current.cycle }-${ current.revision }-2`;
-    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-2`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-10`;
+    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-10`;
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 
@@ -148,7 +161,7 @@ export async function initNavigraph() {
 
     if (!existsSync(currentPath)) {
         closeNavigraphDB('current');
-        filesInPath.filter(x => x.name.includes('current')).forEach(file => unlinkSync(`${ file.parentPath }/${ file.name }`));
+        removeOldNavigraphFiles(filesInPath, 'current');
 
         await downloadNavigraphFile({
             fileUrl: current.files[0].signed_url,
@@ -161,7 +174,7 @@ export async function initNavigraph() {
 
     if (!existsSync(outdatedPath)) {
         closeNavigraphDB('outdated');
-        filesInPath.filter(x => x.name.includes('outdated')).forEach(file => unlinkSync(`${ file.parentPath }/${ file.name }`));
+        removeOldNavigraphFiles(filesInPath, 'outdated');
 
         await downloadNavigraphFile({
             fileUrl: outdated.files[0].signed_url,

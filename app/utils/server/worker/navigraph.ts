@@ -13,6 +13,7 @@ import {
     readCachedItem,
 } from '~/utils/server/navigraph/cache';
 import type { NavigraphCycleType, NavigraphProcedureGroup } from '~/utils/server/navigraph/cache';
+import { isNext } from '~/utils/server/debug';
 
 const navigraphData: {
     versions: typeof cycles;
@@ -66,6 +67,14 @@ async function updateNavigraph() {
             navigraphData.short.outdated = outdated.short;
             navigraphData.cachePath.current = current.path;
             navigraphData.cachePath.outdated = outdated.path;
+
+            const memory = process.memoryUsage();
+
+            console.log({
+                heapTotal: `${ (memory.heapTotal / 1024 / 1024).toFixed(2) } MB`, // Memory allocated by V8
+                heapUsed: `${ (memory.heapUsed / 1024 / 1024).toFixed(2) } MB`, // Memory actually used by your objects
+                rss: `${ (memory.rss / 1024 / 1024).toFixed(2) } MB`, // Memory actually used by your objects
+            });
 
             setRedisSync('navigraph-ready', '1', 1000 * 60 * 60 * 24);
             defaultRedis.publish('update', 'navigraph-data');
@@ -246,7 +255,7 @@ serve({
     },
 });
 
-await defineCronJob('30 */2 * * *', async () => {
+await defineCronJob(`${ isNext() ? '45' : '15' } */2 * * *`, async () => {
     await initNavigraph();
     await updateNavigraph();
 });
