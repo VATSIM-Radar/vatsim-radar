@@ -360,6 +360,7 @@ export function setAirportStyle(layer: VectorLayer) {
                         image: new Icon({
                             src: `/icons/atc/${ key }.png?v=1`,
                             height: 5,
+                            color: (key === 'prefile' && store.getCurrentTheme === 'light') ? getCurrentThemeHexColor('lightGray200') : undefined,
                             displacement: [0, -0],
                             declutterMode: 'none',
                         }),

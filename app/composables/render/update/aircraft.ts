@@ -40,15 +40,13 @@ export function updateAircraft(context: DataUpdateContext) {
     const dataStore = useDataStore();
 
     for (const aircraft of dataStore.vatsim.data.pilots.value) {
-        if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, (aircraft.departure === aircraft.airport && aircraft.status === 'depTaxi') ? 'groundDep' : 'departures');
-        else if (aircraft.airport && aircraft.status === 'depTaxi') addAircraftToAirport(context, aircraft, aircraft.airport, 'groundDep');
+        if (aircraft.status === 'depTaxi' && aircraft.airport) addAircraftToAirport(context, aircraft, aircraft.airport, 'groundDep');
+        else if (aircraft.departure) addAircraftToAirport(context, aircraft, aircraft.departure, 'departures');
 
-        if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, aircraft.status === 'arrTaxi' ? 'groundArr' : 'arrivals');
-        else if (aircraft.airport && aircraft.status === 'arrTaxi') addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');
-
-        if (aircraft.airport && aircraft.departure && aircraft.airport !== aircraft.departure && aircraft.airport !== aircraft.arrival) {
-            addAircraftToAirport(context, aircraft, aircraft.airport, 'groundArr');
+        if (aircraft.status === 'arrTaxi' && (aircraft.airport || aircraft.arrival)) {
+            addAircraftToAirport(context, aircraft, aircraft.airport ?? aircraft.arrival!, 'groundArr');
         }
+        else if (aircraft.arrival) addAircraftToAirport(context, aircraft, aircraft.arrival, 'arrivals');
     }
 
     for (const prefile of dataStore.vatsim.data.prefiles.value) {

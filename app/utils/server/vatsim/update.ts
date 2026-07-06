@@ -174,7 +174,7 @@ async function updateVatsimExtendedPilots() {
         const arr = extendedPilot.flight_plan?.arrival && vatspy.data?.keyAirports.realIcao[extendedPilot.flight_plan.arrival];
 
         if (groundAirport?.icao) {
-            if (groundAirport.icao === extendedPilot.flight_plan?.departure) extendedPilot.status = 'depTaxi';
+            if (!extendedPilot.flight_plan || groundAirport.icao === extendedPilot.flight_plan.departure) extendedPilot.status = 'depTaxi';
             else extendedPilot.status = 'arrTaxi';
 
             extendedPilot.airport = groundAirport.icao;
