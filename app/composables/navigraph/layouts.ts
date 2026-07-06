@@ -192,7 +192,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         },
         serviceroad: new Style({
             fill: new Fill({
-                color: `rgba(${ themeStyles.apron1000 }, 0.2)`,
+                color: `rgba(${ themeStyles.apron1000[theme] }, 0.2)`,
             }),
             zIndex: 2,
         }),
