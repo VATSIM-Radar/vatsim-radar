@@ -60,10 +60,6 @@ export default defineConfig({
                         link: '/introduction/about',
                         items: [
                             {
-                                text: 'V2 Closed Beta',
-                                link: '/blog/v2-closed-beta',
-                            },
-                            {
                                 text: 'Year 2 of VATSIM Radar',
                                 link: '/blog/year-2-of-radar',
                             },
@@ -86,9 +82,18 @@ export default defineConfig({
                         link: '/changelog',
                     },
                     {
-                        text: 'V2 Preliminary Changelog',
-                        link: '/changelog-v2',
-                    },
+                        text: 'VATSIM Radar v2.0',
+                        items: [
+                            {
+                                text: 'V2 Preliminary Changelog',
+                                link: '/changelog-v2',
+                            },
+                            {
+                                text: 'V2 Public Preview',
+                                link: '/v2-public-preview',
+                            },
+                        ]
+                    }
                 ],
             },
             {

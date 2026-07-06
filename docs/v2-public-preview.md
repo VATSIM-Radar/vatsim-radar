@@ -1,4 +1,4 @@
-# VATSIM Radar V2 Closed Beta
+# VATSIM Radar V2 Public Preview
 
 ## What is VATSIM Radar V2?
 
@@ -6,18 +6,19 @@ VATSIM Radar version 2.0 is a partial overhaul of VATSIM Radar systems.
 
 Major included features:
 
-- Partial website redesign: total UI Kit refresh, new map look, new pilot overlay, and more
-- Settings page, replacing most of the previous settings, including map settings, layers, and user settings
-- Desktop Application
-- Render and data update rework with decreased network consumption and performance improvements
-- Interaction rework, including mobile version click info rework for a much better experience
-- A new way to work with overlays: collapse state
-- Map is now infinite
+- ⚙️ Settings Overhaul
+- ♾️️ Infinite Map
+- 💻 Desktop App
+- 🗺️ Map Interaction Rework
+- 👨‍✈️ Controller Dashboard 2.0
+- 🚀 Performance Improvements
+- ✨ Website Redesign
+- ✈️ New Features and Improvements
 - A lot of other changes and bug fixes listed in full [changelog](/changelog-v2)
 
 ## When will VATSIM Radar V2 be released?
 
-Release is planned for Summer 2026.
+Release is planned for July 2026.
 
 ## What is the "Next" version of VATSIM Radar?
 
@@ -26,13 +27,13 @@ Patreon supporters and members of the special Early Adopters program.
 
 You are expected to see bugs on Next, up to some screens crashing and not loading at all, or website freezes.
 
-### Authentication
+### How to access Next?
 
-Once you have access, you need to follow special steps to access this version.
+While Public Preview is active, no special steps are required.
 
-1. Open any channel in VR Discord
-2. Type `/qa-verify`
-3. Follow instructions
+### When will Public Preview end?
+
+Next will be closed to testers and supporters at approx. 18z, July 11
 
 ### Will my friends and settings be available on Next?
 
@@ -55,21 +56,25 @@ No, you will have to export your friends and settings to Next. In order to do so
 
 ### Will my friends and settings I created on Next transfer to main version?
 
-No, but you will get a chance to export them before it closes.
+No, but you will get a chance to export those before it closes.
 
 ## What are the phases of testing?
 
-### Phase 1 (Mid-June 2026) - Active
+### Phase 1 (Mid-June 2026) - Completed
 
 Access to Next is granted to those who applied for Early Adopters in early Summer 2026, but were not selected.
 
-### Phase 2 (June 2026) - Active
+### Phase 2 (Late-June 2026) - Completed
 
 Access to Next is granted to everyone who registered for the Closed Beta.
 
-### Phase 3 (July 2026)
+### Phase 3 (July 2026) - Active
 
-Access to Next is granted to everyone without the need to authenticate.
+Access to Next is granted to everyone without the need to authenticate for a limited time.
+
+### Why limited time?
+
+Because main developer will have vacation, and Next is unstable environment, so it will be closed before vacation starts.
 
 ## Is Next under NDA?
 
@@ -77,12 +82,14 @@ No. You are allowed to share everything you see on Next with everyone.
 
 ## Where do I report bugs and leave feedback?
 
-Until Phase 3 (Open Beta) launches, use `v2-feedback` channel in official VATSIM Radar Discord.
+Issues are reported on Github.
 
-## What will happen to my access after Phases 1/2 finish?
+- For bugs use [this link](https://github.com/VATSIM-Radar/vatsim-radar/issues/new?template=04-bug-report-next.yaml)
+- For feedback use [this link](https://github.com/VATSIM-Radar/vatsim-radar/issues/new?template=05-feedback-next.yaml)
 
-Access to Next will be revoked. Those who actively provide feedback and report bugs will be manually selected as Early
-Adopters for the development of v2.1.
+## What will happen to my access after Public Preview finish?
+
+Access to Next will be revoked.
 
 ## Preliminary Release Notes
 
