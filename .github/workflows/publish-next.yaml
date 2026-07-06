@@ -68,33 +68,6 @@ jobs:
           push: true
           file: .config/debug.Dockerfile
 
-  push-influx:
-    runs-on: ubuntu-latest
-    needs:
-      - check
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add .env file
-        run: |
-          printf '%s\n' "${{ secrets.ENV }}" > .env
-          printf '\nINFLUX_TOKEN=%s\n' "${{ secrets.INFLUX_TOKEN }}" >> .env
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          tags: ghcr.io/vatsim-radar/vatsim-radar/influx-v3:latest
-          context: .
-          push: true
-          file: .config/influx.Dockerfile
-
   deploy-app:
     runs-on: ubuntu-latest
     needs:
@@ -123,7 +96,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - push
-      - push-influx
     permissions:
       contents: read
     steps:
@@ -149,10 +121,10 @@ jobs:
         run: kubectl apply -f .config/k8s/next/db.yml
       - name: Validate DB
         run: kubectl rollout status deployment db-next
-      - name: Deploy Influx
-        run: kubectl apply -f .config/k8s/influx.yml
-      - name: Validate Influx
-        run: kubectl rollout status deployment influx-v3
+      - name: Deploy QuestDB
+        run: kubectl apply -f .config/k8s/questdb.yml
+      - name: Validate QuestDB
+        run: kubectl rollout status deployment questdb
 
   deploy-ingress:
     runs-on: ubuntu-latest

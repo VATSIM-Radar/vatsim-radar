@@ -1,11 +1,12 @@
 import { handleH3Error } from '~/utils/server/h3';
 
-import type { InfluxGeojson } from '~/utils/server/influx/converters';
+import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { radarStorage } from '~/utils/server/storage';
-import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/server/influx/converters';
+import { getQuestDBOnlineFlightTurnsGeojson } from '~/utils/server/questdb/converters';
+import { isQuestDBConfigured } from '~/utils/server/questdb/client';
 
-export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
-    if (!process.env.INFLUX_URL) return;
+export default defineEventHandler(async (event): Promise<QuestDBGeojson | null | undefined> => {
+    if (!isQuestDBConfigured()) return;
 
     try {
         const cid = getRouterParam(event, 'cid');
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         const start = getQuery(event).start;
 
         try {
-            const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined, getQuery(event).full === '1');
+            const geojson = await getQuestDBOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined, getQuery(event).full === '1');
 
             if (geojson) {
                 return Object.assign(geojson, {
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         }
         catch (e) {
             if ((e as any).code !== 'UNAVAILABLE') {
-                console.error('Failed to load Influx turns', e);
+                console.error('Failed to load QuestDB turns', e);
             }
 
             return {

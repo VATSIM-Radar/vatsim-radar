@@ -3117,20 +3117,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@influxdata/influxdb3-client@npm:2.3.0":
-  version: 2.3.0
-  resolution: "@influxdata/influxdb3-client@npm:2.3.0"
-  dependencies:
-    "@grpc/grpc-js": "npm:^1.9.9"
-    "@protobuf-ts/grpc-transport": "npm:^2.9.1"
-    "@protobuf-ts/grpcweb-transport": "npm:^2.9.1"
-    "@protobuf-ts/runtime-rpc": "npm:^2.9.1"
-    apache-arrow: "npm:^21.1.0"
-    grpc-web: "npm:^2.0.2"
-  checksum: 10c0/33fe8c89293516cd68d0187da7f45a4aea7265caeb2077231ead66ca3e0c5f3eed6d05e079b725223a25ab0883fa9324d780335d9362d85740fd09114dbd46e6
-  languageName: node
-  linkType: hard
-
 "@ioredis/commands@npm:1.10.0":
   version: 1.10.0
   resolution: "@ioredis/commands@npm:1.10.0"
@@ -17074,7 +17060,6 @@ __metadata:
   dependencies:
     7zip-min: "npm:3.0.1"
     "@aws-sdk/client-s3": "npm:3.1079.0"
-    "@influxdata/influxdb3-client": "npm:2.3.0"
     "@navigraph/amdb": "npm:1.1.0"
     "@nuxt/eslint": "npm:1.16.0"
     "@nuxt/image": "npm:2.0.0"

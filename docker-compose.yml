@@ -26,6 +26,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_started
+            questdb:
+                condition: service_started
         extra_hosts:
             - "host.docker.internal:host-gateway"
 
@@ -50,6 +52,8 @@ services:
                 condition: service_started
             frontend:
                 condition: service_healthy
+            questdb:
+                condition: service_started
         extra_hosts:
             - "host.docker.internal:host-gateway"
 
@@ -105,3 +109,14 @@ services:
         volumes:
             - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
             - ./.config/redis:/data
+
+    questdb:
+        image: questdb/questdb:9.4.3
+        container_name: vatsim-radar-questdb
+        ports:
+            - "9000:9000"
+            - "9009:9009"
+            - "8812:8812"
+            - "9003:9003"
+        volumes:
+            - ./.config/questdb:/var/lib/questdb

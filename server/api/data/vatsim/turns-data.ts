@@ -1,8 +1,8 @@
 import { validateDataReady } from '~/utils/server/h3';
-import { getShortInfluxDataForPilots } from '~/utils/server/influx/converters';
+import { getShortQuestDBDataForPilots } from '~/utils/server/questdb/converters';
 
 export default defineEventHandler(async event => {
     if (!(await validateDataReady(event))) return;
 
-    return getShortInfluxDataForPilots().join('\n');
+    return getShortQuestDBDataForPilots().join('\n');
 });

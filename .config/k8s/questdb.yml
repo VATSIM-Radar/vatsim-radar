@@ -1,17 +1,24 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: influx-v3
+  name: questdb
 spec:
   ports:
-    - port: 8181
+    - name: http
+      port: 9000
+    - name: ilp
+      port: 9009
+    - name: pg-wire
+      port: 8812
+    - name: health
+      port: 9003
   selector:
-    app: influx-v3
+    app: questdb
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: influx-v3
+  name: questdb
 spec:
   progressDeadlineSeconds: 600
   strategy:
@@ -19,25 +26,23 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: influx-v3
+      app: questdb
   template:
     metadata:
       labels:
-        app: influx-v3
+        app: questdb
     spec:
-      securityContext:
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx-v3
-      imagePullSecrets:
-        - name: ghcr-login-secret
+        doks.digitalocean.com/node-pool: questdb
       containers:
-        - name: influx-v3
-          image: ghcr.io/vatsim-radar/vatsim-radar/influx-v3
+        - name: questdb
+          image: questdb/questdb:9.4.3
           imagePullPolicy: Always
           ports:
-            - containerPort: 8181
+            - containerPort: 9000
+            - containerPort: 9009
+            - containerPort: 8812
+            - containerPort: 9003
           resources:
             requests:
               cpu: 300m
@@ -46,25 +51,26 @@ spec:
               cpu: 1800m
               memory: 3800Mi
           readinessProbe:
-            tcpSocket:
-              port: 8181
+            httpGet:
+              path: /status
+              port: 9003
             initialDelaySeconds: 5
             periodSeconds: 15
             successThreshold: 1
             failureThreshold: 30
             timeoutSeconds: 15
           volumeMounts:
-            - name: influx-data-v3
-              mountPath: /tmp/influxdb3
+            - name: questdb-data
+              mountPath: /var/lib/questdb
       volumes:
-        - name: influx-data-v3
+        - name: questdb-data
           persistentVolumeClaim:
-            claimName: radar-influx-v3
+            claimName: radar-questdb
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: radar-influx-v3
+  name: radar-questdb
 spec:
   accessModes:
     - ReadWriteOnce

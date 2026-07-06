@@ -1,10 +1,10 @@
 import type { Feature as GeoFeature, Point as GeoPoint } from 'geojson';
-import type { InfluxGeojson } from '~/utils/server/influx/converters';
+import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 
 export const aircraftState: Record<number, Partial<{
     updating: boolean;
     lastTurnsUpdate: number;
-    lastTurnsUpdateData: InfluxGeojson;
+    lastTurnsUpdateData: QuestDBGeojson;
     settingRoute: boolean;
     turnsTimestamp: string;
     turnsFirstGroupTimestamp: string;

@@ -15,7 +15,7 @@
 import type { PropType } from 'vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import { useStore } from '~/store';
-import type { InfluxGeojson } from '~/utils/server/influx/converters';
+import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import {
     Chart as ChartJS,
     Tooltip,
@@ -36,7 +36,7 @@ const props = defineProps({
 
 ChartJS.register(CategoryScale, PointElement, LineElement, LinearScale, Tooltip, Legend);
 
-const { data: tracks, refresh } = await useAsyncData(computed(() => `${ props.pilot.cid }-graph`), () => $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.pilot.cid }/turns?full=1`, {
+const { data: tracks, refresh } = await useAsyncData(computed(() => `${ props.pilot.cid }-graph`), () => $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.pilot.cid }/turns?full=1`, {
     timeout: 1000 * 5,
 }).catch(console.error));
 
