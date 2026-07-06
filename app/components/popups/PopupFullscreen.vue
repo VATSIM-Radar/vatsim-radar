@@ -31,7 +31,7 @@
                         content-padding="12px"
                         :disabled
                         :model-value="model"
-                        @update:modelValue="model = $event ?? false"
+                        @update:modelValue="$event === false && closePopup()"
                     >
                         <template
                             v-if="$slots.title"

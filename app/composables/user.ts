@@ -6,6 +6,7 @@ export const userNotifications = globalComputed(() => useCookie<Record<string, b
     sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
+    default: () => ({}),
 }));
 
 export function checkNotification(notification: UserMessageType | keyof typeof UserMessageType | null | undefined): boolean {

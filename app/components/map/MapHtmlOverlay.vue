@@ -6,9 +6,10 @@
         class="map-overlay-sheet"
         :handle="false"
         :max-height="sheetMaxHeight"
-        :open="model"
+        :open="sheetOpen"
         :theme="{ ...mapBottomSheetTheme, zIndex: 10 }"
-        @dismiss="emit('close')"
+        @dismiss="closeMobileSheet"
+        @update:open="!$event && closeMobileSheet()"
     >
         <template #default="{ dragHandleProps }">
             <div class="radar-vbs_handle-zone">
@@ -114,6 +115,8 @@ const isMobile = useIsMobile();
 const usesMobileSheet = computed(() => {
     return model.value && isMobile.value && !props.disableMobileInteraction && !props.persistent;
 });
+const mobileSheetDismissed = ref(false);
+const sheetOpen = computed(() => usesMobileSheet.value && !mobileSheetDismissed.value);
 
 const mapStore = useMapStore();
 
@@ -178,11 +181,32 @@ function removeOverlay() {
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
 }
 
+function closeMobileSheet() {
+    if (mobileSheetDismissed.value) return;
+
+    mobileSheetDismissed.value = true;
+    popup.value = false;
+    model.value = false;
+    if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
+    if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;
+    emit('close');
+}
+
 watch([model, popup, openOverlayId, overlayElement, usesMobileSheet], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     if (usesMobileSheet.value) {
         removeOverlay();
+        if (mobileSheetDismissed.value) return;
+
+        if (mapStore.openOverlayId && mapStore.openOverlayId !== id) {
+            closeMobileSheet();
+            return;
+        }
+
+        mapStore.openOverlayId = id ?? null;
         return;
     }
+
+    mobileSheetDismissed.value = false;
 
     if (!overlayElement.value) return;
     await nextTick();
