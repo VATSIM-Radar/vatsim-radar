@@ -181,7 +181,8 @@ const update: Update = {
             description: 'Visit <a href="https://docs.vatsim-radar.com/changelog-v2.html" target="_blank" class="__link">Preliminary Changelog</a> for more details',
             image: images['../../assets/update/changes.png'],
             list: [
-                'Huge performance improvements',
+                'Performance improvements',
+                'Smooth aircraft movement by psergienko',
                 'Website redesign',
                 'Overlays can now be minified',
                 'Events are now displayed on map',
@@ -194,6 +195,7 @@ const update: Update = {
                 'Added an ID for VATGlasses sectors',
                 'Significantly improved bookings on map correct display, added Booked Until',
                 'Fixed website reloading multiple times after update',
+                'Much more',
             ],
         },
     ],
