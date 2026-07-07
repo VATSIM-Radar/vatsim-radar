@@ -186,7 +186,7 @@ Nitro plugins:
 - `server/plugins/vatsim.ts`: subscribes to Redis `data` channel and updates `radarStorage.vatsim`.
 - `server/plugins/cron.ts`: starts Redis data fetch setup and scheduled Navigraph init.
 - `server/plugins/discord.ts`: Discord bot/client setup, slash command registration, and `radarVersion` request context.
-- `server/plugins/questdb.ts`: QuestDB client initialization. QuestDB HTTP SQL query helpers and ILP-over-TCP writes live in `app/utils/server/questdb/client.ts`.
+- `server/plugins/questdb.ts`: QuestDB client initialization. QuestDB HTTP SQL query helpers and official `@questdb/nodejs-client` write setup live in `app/utils/server/questdb/client.ts`.
 
 Background tasks:
 
@@ -199,7 +199,7 @@ Background tasks:
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
-- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables; `converters.ts` emits QuestDB-compatible ILP lines with nanosecond timestamps for ingestion.
+- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables; `converters.ts` emits structured write rows for the official QuestDB Node.js client and can serialize rows to ILP text for the debug data endpoint.
   - Public pilot track reads enter through `server/api/data/vatsim/pilot/[cid]/turns.ts`; each read resolves the current flight from the plans table and then reads turn points from the main tracks table.
   - Client-side aircraft track fetching is driven by `app/components/map/layers/MapAircraftList.vue` and `app/composables/render/aircraft/tracks.ts`. Airport/pilot overlays and hover can request full tracks; per-aircraft refresh is capped at 15 seconds in the browser state.
 

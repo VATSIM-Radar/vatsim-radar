@@ -1,4 +1,5 @@
 import type { FeatureCollection, Point } from 'geojson';
+import type { QuestDBWriteRow, QuestDBWriteValue } from '~/utils/server/questdb/client';
 import type { QuestDBFlight } from '~/utils/server/questdb/queries';
 import { getQuestDBOnlineFlightTurns } from '~/utils/server/questdb/queries';
 import { radarStorage } from '~/utils/server/storage';
@@ -129,13 +130,31 @@ export async function getQuestDBOnlineFlightTurnsGeojson(cid: string, start?: st
     return getGeojsonForData(rows.features, rows.flightPlanStart, !!start && !full);
 }
 
-function outputQuestDBValue(value: string | number | boolean, isFloat = false) {
+function outputQuestDBValue(value: QuestDBWriteValue, isFloat = false) {
     if (typeof value === 'string') return `"${ value.replaceAll('"', '\\"') }"`;
     if (typeof value === 'number') {
         if (!value.toString().includes('.') && !isFloat) return `${ value }i`;
         return value;
     }
     if (typeof value === 'boolean') return String(value);
+}
+
+function getQuestDBColumns(obj: Record<string, QuestDBWriteValue | null | undefined>) {
+    return Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined && value !== null)) as Record<string, QuestDBWriteValue>;
+}
+
+export function questDBRowsToLineProtocol(rows: QuestDBWriteRow[]) {
+    return rows.map(row => {
+        const symbols = Object.entries(row.symbols ?? {})
+            .map(([key, value]) => `${ key }=${ String(value).replaceAll(',', '\\,').replaceAll(' ', '\\ ') }`)
+            .join(',');
+        const fields = Object.entries(row.columns)
+            .map(([key, value]) => `${ key }=${ outputQuestDBValue(value, key === 'latitude' || key === 'longitude') }`)
+            .join(',');
+        const timestamp = BigInt(row.timestampMs) * BigInt(1000000);
+
+        return `${ row.table }${ symbols ? `,${ symbols }` : '' } ${ fields } ${ timestamp }`;
+    });
 }
 
 let previousPlanData: Record<number, VatsimPilot> = {};
@@ -148,7 +167,7 @@ let previousShortData: Record<number, PreviousPilot> = {};
 
 export function getPlanQuestDBDataForPilots() {
     const table = getQuestDBTableName(process.env.QUESTDB_TABLE_PLANS || 'vatsim_plans');
-    const date = BigInt(Date.now()) * 1000000n;
+    const date = Date.now();
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousPlanData[pilot.cid];
@@ -180,15 +199,18 @@ export function getPlanQuestDBDataForPilots() {
             previousPilot.flight_plan?.revision_id === obj.fpl_revision
         ) return;
 
-        const entries = Object.entries(obj)
-            .filter(([, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `${ key }=${ outputQuestDBValue(value!, key === 'latitude' || key === 'longitude') }`)
-            .join(',');
+        const columns = getQuestDBColumns(obj);
+        if (!Object.keys(columns).length) return;
 
-        if (!entries) return;
-
-        return `${ table },cid=${ pilot.cid } ${ entries } ${ date }`;
-    }).filter(x => !!x) as string[];
+        return {
+            table,
+            symbols: {
+                cid: pilot.cid,
+            },
+            columns,
+            timestampMs: date,
+        };
+    }).filter(x => !!x) as QuestDBWriteRow[];
 
     previousPlanData = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x]));
 
@@ -214,7 +236,7 @@ function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousA
 
 export function getShortQuestDBDataForPilots() {
     const table = getQuestDBTableName(process.env.QUESTDB_TABLE_MAIN || 'vatsim_tracks');
-    const date = BigInt(Date.now()) * 1000000n;
+    const date = Date.now();
 
     const newPilotsData: typeof previousShortData = {};
 
@@ -263,12 +285,11 @@ export function getShortQuestDBDataForPilots() {
             fpl_arrived_at: previousPilot.pilot.flight_plan?.arrived_at,
         };
 
-        const entries = Object.entries(obj)
-            .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value))
-            .map(([key, value]) => `${ key }=${ outputQuestDBValue(value!, key === 'latitude' || key === 'longitude') }`)
-            .join(',');
+        const changedObj = Object.fromEntries(Object.entries(obj)
+            .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value)));
+        const columns = getQuestDBColumns(changedObj);
 
-        if (!entries) return;
+        if (!Object.keys(columns).length) return;
 
         newPilotsData[pilot.cid] = {
             previousLogTime: Date.now(),
@@ -276,8 +297,15 @@ export function getShortQuestDBDataForPilots() {
             previousAltitude,
         };
 
-        return `${ table },cid=${ pilot.cid } ${ entries } ${ date }`;
-    }).filter(x => !!x) as string[];
+        return {
+            table,
+            symbols: {
+                cid: pilot.cid,
+            },
+            columns,
+            timestampMs: date,
+        };
+    }).filter(x => !!x) as QuestDBWriteRow[];
 
     previousShortData = newPilotsData;
     return data;

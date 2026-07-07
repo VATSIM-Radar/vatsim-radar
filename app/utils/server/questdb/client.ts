@@ -1,4 +1,4 @@
-import net from 'node:net';
+import { Sender } from '@questdb/nodejs-client';
 
 type QuestDBExecResponse = {
     columns?: {
@@ -11,6 +11,13 @@ type QuestDBExecResponse = {
 };
 
 export type QuestDBRow = Record<string, unknown>;
+export type QuestDBWriteValue = string | number | boolean;
+export type QuestDBWriteRow = {
+    table: string;
+    symbols?: Record<string, QuestDBWriteValue>;
+    columns: Record<string, QuestDBWriteValue>;
+    timestampMs: number;
+};
 
 function getQuestDBHost() {
     return process.env.QUESTDB_HOST || 'questdb';
@@ -23,16 +30,8 @@ function getQuestDBHttpUrl() {
     return `http://${ getQuestDBHost() }:${ port }`;
 }
 
-function getQuestDBIlpHost() {
-    return process.env.QUESTDB_ILP_HOST || getQuestDBHost();
-}
-
-function getQuestDBIlpPort() {
-    return Number(process.env.QUESTDB_ILP_PORT || 9009);
-}
-
 export function isQuestDBConfigured() {
-    return !!(process.env.QUESTDB_HTTP_URL || process.env.QUESTDB_HOST);
+    return !!(process.env.QUESTDB_CLIENT_CONF || process.env.QUESTDB_HTTP_URL || process.env.QUESTDB_HOST);
 }
 
 export function initQuestDB() {
@@ -68,33 +67,61 @@ export async function questDBQuery<T extends QuestDBRow = QuestDBRow>(query: str
     }
 }
 
-export async function questDBWrite(lines: string[]) {
-    if (!lines.length) return;
+let questDBSender: Promise<Sender> | undefined;
 
-    const host = getQuestDBIlpHost();
-    const port = getQuestDBIlpPort();
-    const timeoutMs = Number(process.env.QUESTDB_WRITE_TIMEOUT || 1000 * 30);
-    const payload = `${ lines.join('\n') }\n`;
+function getQuestDBSenderConfig() {
+    if (process.env.QUESTDB_CLIENT_CONF) return process.env.QUESTDB_CLIENT_CONF;
 
-    await new Promise<void>((resolve, reject) => {
-        const socket = net.createConnection({ host, port });
-        const timeout = setTimeout(() => {
-            socket.destroy(new Error(`QuestDB write timed out after ${ timeoutMs }ms`));
-        }, timeoutMs);
+    const url = new URL(getQuestDBHttpUrl());
+    const protocol = url.protocol === 'https:' ? 'https' : 'http';
+    const options = [
+        `${ protocol }::addr=${ url.host }`,
+        'auto_flush=off',
+        `request_timeout=${ Number(process.env.QUESTDB_WRITE_TIMEOUT || 1000 * 30) }`,
+        `retry_timeout=${ Number(process.env.QUESTDB_RETRY_TIMEOUT || 1000 * 10) }`,
+    ];
 
-        socket.once('connect', () => {
-            socket.end(payload);
-        });
+    if (process.env.QUESTDB_USERNAME) options.push(`username=${ process.env.QUESTDB_USERNAME }`);
+    if (process.env.QUESTDB_PASSWORD) options.push(`password=${ process.env.QUESTDB_PASSWORD }`);
+    if (process.env.QUESTDB_TOKEN) options.push(`token=${ process.env.QUESTDB_TOKEN }`);
 
-        socket.once('error', error => {
-            clearTimeout(timeout);
-            reject(error);
-        });
+    return options.join(';');
+}
 
-        socket.once('close', hadError => {
-            clearTimeout(timeout);
-            if (hadError) return;
-            resolve();
-        });
+async function getQuestDBSender() {
+    questDBSender ||= Sender.fromConfig(getQuestDBSenderConfig()).catch(error => {
+        questDBSender = undefined;
+        throw error;
     });
+
+    return questDBSender;
+}
+
+function addQuestDBColumn(sender: Sender, key: string, value: QuestDBWriteValue) {
+    if (typeof value === 'string') return sender.stringColumn(key, value);
+    if (typeof value === 'boolean') return sender.booleanColumn(key, value);
+    if (key === 'latitude' || key === 'longitude' || !Number.isInteger(value)) return sender.floatColumn(key, value);
+    return sender.intColumn(key, value);
+}
+
+export async function questDBWrite(rows: QuestDBWriteRow[]) {
+    if (!rows.length) return;
+
+    const sender = await getQuestDBSender();
+
+    for (const row of rows) {
+        sender.table(row.table);
+
+        for (const [key, value] of Object.entries(row.symbols ?? {})) {
+            sender.symbol(key, value);
+        }
+
+        for (const [key, value] of Object.entries(row.columns)) {
+            addQuestDBColumn(sender, key, value);
+        }
+
+        await sender.at(row.timestampMs, 'ms');
+    }
+
+    await sender.flush();
 }

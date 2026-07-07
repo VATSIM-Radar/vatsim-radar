@@ -34,6 +34,7 @@ logs
 
 .config/certs
 .config/redis
+.config/questdb
 .config/db
 
 dump.sql
