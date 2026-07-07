@@ -4789,7 +4789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@questdb/nodejs-client@npm:^4.2.0":
+"@questdb/nodejs-client@npm:4.2.0":
   version: 4.2.0
   resolution: "@questdb/nodejs-client@npm:4.2.0"
   dependencies:
@@ -16769,7 +16769,7 @@ __metadata:
     "@prisma/adapter-mariadb": "npm:7.8.0"
     "@prisma/client": "npm:7.8.0"
     "@protomaps/basemaps": "npm:5.7.2"
-    "@questdb/nodejs-client": "npm:^4.2.0"
+    "@questdb/nodejs-client": "npm:4.2.0"
     "@stylistic/eslint-plugin": "npm:5.10.0"
     "@stylistic/stylelint-plugin": "npm:5.2.1"
     "@turf/bearing": "npm:7.3.5"
