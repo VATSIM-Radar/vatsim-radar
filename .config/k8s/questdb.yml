@@ -43,6 +43,11 @@ spec:
             - containerPort: 9009
             - containerPort: 8812
             - containerPort: 9003
+          env:
+            - name: QDB_LOG_W_STDOUT_LEVEL
+              value: ERROR
+            - name: QDB_SHARED_WORKER_COUNT
+              value: "1"
           resources:
             requests:
               cpu: 300m

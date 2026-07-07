@@ -183,7 +183,8 @@ FROM ${ sqlIdentifier(getPlansTable()) }
 WHERE ${ sqlIdentifier(getTimestampColumn()) } >= ${ sqlTimestamp(new Date(startDate)) }
   AND ${ sqlIdentifier(getTimestampColumn()) } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
   AND ${ sqlIdentifier('cid') } = ${ sqlString(cid) }
-ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
+ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC
+LIMIT ${ limit * 10 }`;
 
     const rows = await getFlightRows(sqlQuery);
 
