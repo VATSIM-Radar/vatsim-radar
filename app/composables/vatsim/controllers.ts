@@ -47,8 +47,8 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
     const ids = useFacilitiesIds();
 
     if (facility === ids.ATIS) {
-        if (raw) return radarColors.orange600Rgb;
-        return radarColors.orange600;
+        if (raw) return radarColors.yellow600Rgb;
+        return radarColors.yellow600;
     }
 
     if (facility === ids.DEL) {
@@ -57,8 +57,8 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
     }
 
     if (facility === ids.TWR) {
-        if (raw) return radarColors.red600Rgb;
-        return radarColors.red600;
+        if (raw) return radarColors.red500Rgb;
+        return radarColors.red500;
     }
 
     if (facility === ids.GND) {
@@ -67,13 +67,13 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
     }
 
     if (facility === ids.APP) {
-        if (raw) return radarColors.citrus600Rgb;
-        return radarColors.citrus600;
+        if (raw) return radarColors.citrus500Rgb;
+        return radarColors.citrus500;
     }
 
     if (facility === ids.CTR || facility === ids.FSS) {
-        if (raw) return radarColors.teal500Rgb;
-        return radarColors.teal500;
+        if (raw) return radarColors.teal600Rgb;
+        return radarColors.teal600;
     }
 
     if (raw) return radarColors.darkGray200Rgb;

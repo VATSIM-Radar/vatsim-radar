@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-rc.1.2]
+
+## RC Changes
+
+- Updated color palette
+
 # [2.0.0-rc.1.1]
 
 ## RC Changes
