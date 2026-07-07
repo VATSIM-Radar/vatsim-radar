@@ -1,7 +1,7 @@
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
-import { influxDBQuery } from '~/utils/server/influx/influx';
+import { questDBQuery } from '~/utils/server/questdb/client';
 
-export type InfluxFlight = {
+export type QuestDBFlight = {
     [K in keyof Pick<VatsimPilot, 'altitude' | 'callsign' | 'cid' | 'groundspeed' | 'heading' | 'latitude' | 'longitude' | 'name' | 'qnh_mb' | 'transponder'>]?: VatsimPilot[K] | null
 } & {
     [K in keyof Pick<VatsimPilotFlightPlan, 'aircraft_short' | 'altitude' | 'arrival' | 'departure' | 'deptime' | 'enroute_time' | 'flight_rules' | 'route' | 'departed_at' | 'arrived_at'> as K extends 'deptime' ? 'fpl_departure_time' : `fpl_${ K }`]?: VatsimPilotFlightPlan[K] | null
@@ -12,7 +12,7 @@ export type InfluxFlight = {
     fpl_revision?: VatsimPilotFlightPlan['revision_id'] | null;
     disconnected?: boolean | null;
 };
-type InfluxFlightKey = Extract<keyof InfluxFlight, string>;
+type QuestDBFlightKey = Extract<keyof QuestDBFlight, string>;
 const flightKeys = Object.keys({
     _time: true,
     fpl_aircraft_short: true,
@@ -38,9 +38,9 @@ const flightKeys = Object.keys({
     fpl_route: true,
     time: true,
     transponder: true,
-} satisfies Record<InfluxFlightKey, true>) as InfluxFlightKey[];
+} satisfies Record<QuestDBFlightKey, true>) as QuestDBFlightKey[];
 
-const planFields: InfluxFlightKey[] = [
+const planFields: QuestDBFlightKey[] = [
     'callsign',
     'fpl_arrival',
     'fpl_departure',
@@ -52,7 +52,19 @@ const planFields: InfluxFlightKey[] = [
     'qnh_mb',
     'transponder',
 ];
-const turnsFields: InfluxFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude', 'fpl_departed_at', 'fpl_arrived_at'];
+const turnsFields: QuestDBFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude', 'fpl_departed_at', 'fpl_arrived_at'];
+
+function getMainTable() {
+    return process.env.QUESTDB_TABLE_MAIN || 'vatsim_tracks';
+}
+
+function getPlansTable() {
+    return process.env.QUESTDB_TABLE_PLANS || 'vatsim_plans';
+}
+
+function getTimestampColumn() {
+    return process.env.QUESTDB_TIMESTAMP_COLUMN || 'timestamp';
+}
 
 function sqlString(value: string | number) {
     return `'${ String(value).replaceAll('\'', '\'\'') }'`;
@@ -74,32 +86,36 @@ function sqlTimestamp(value: string | number | Date) {
     return sqlString(normalizeTimestamp(value));
 }
 
-function getFieldsSelect(fields: InfluxFlightKey[]) {
-    return ['time', 'cid', ...fields].map(sqlIdentifier).join(', ');
+function getFieldsSelect(fields: QuestDBFlightKey[]) {
+    return [`${ sqlIdentifier(getTimestampColumn()) } AS ${ sqlIdentifier('time') }`, sqlIdentifier('cid'), ...fields.map(sqlIdentifier)].join(', ');
 }
 
 function getCidFilter(cids: Array<string | number>) {
     return cids.map(cid => `${ sqlIdentifier('cid') } = ${ sqlString(cid) }`).join(' OR ');
 }
 
-function normalizeInfluxTime(value: unknown): string {
+function normalizeQuestDBTime(value: unknown): string {
     if (value instanceof Date) return value.toISOString();
     if (typeof value === 'number') return new Date(value).toISOString();
     if (typeof value === 'string' && /^\d+$/.test(value)) return new Date(Number(value)).toISOString();
+    if (typeof value === 'string') {
+        return value.replace(/\.(\d{3})\d+Z$/, '.$1Z');
+    }
 
     return String(value);
 }
 
-async function getFlightRows(query: string, database: string) {
-    const rows: InfluxFlight[] = [];
+async function getFlightRows(query: string) {
+    const rows: QuestDBFlight[] = [];
 
-    for await (const item of influxDBQuery.query(query, database, { type: 'sql' })) {
-        const _time = normalizeInfluxTime(item.time);
+    const items = await questDBQuery(query);
+    for (const item of items) {
+        const _time = normalizeQuestDBTime(item.time);
         const row = {
             _time,
             time: new Date(_time).getTime(),
             cid: String(item.cid),
-        } as InfluxFlight;
+        } as QuestDBFlight;
 
         for (const key of flightKeys) {
             if (key === '_time' || key === 'time' || key === 'cid') continue;
@@ -112,7 +128,7 @@ async function getFlightRows(query: string, database: string) {
     return rows.sort((a, b) => b.time! - a.time!);
 }
 
-function hasLowerRevisionWithSameCallsign(row: InfluxFlight, nextRow: InfluxFlight | undefined) {
+function hasLowerRevisionWithSameCallsign(row: QuestDBFlight, nextRow: QuestDBFlight | undefined) {
     return row.callsign &&
         row.callsign === nextRow?.callsign &&
         row.fpl_departure_time === nextRow?.fpl_departure_time &&
@@ -121,7 +137,7 @@ function hasLowerRevisionWithSameCallsign(row: InfluxFlight, nextRow: InfluxFlig
         row.fpl_revision > nextRow.fpl_revision;
 }
 
-export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
+export function filterRows(rows: QuestDBFlight[]): QuestDBFlight[] {
     return rows.filter((row, index) => {
         const nextRow = rows[index + 1];
 
@@ -148,7 +164,7 @@ export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
     });
 }
 
-export async function getInfluxFlightsForCid({
+export async function getQuestDBFlightsForCid({
     cid,
     limit,
     startDate,
@@ -161,23 +177,22 @@ export async function getInfluxFlightsForCid({
     offset?: number;
     onlineOnly?: boolean;
 }) {
-    const database = process.env.INFLUX_BUCKET_PLANS!;
     const sqlQuery =
         `SELECT ${ getFieldsSelect(planFields) }
-FROM ${ sqlIdentifier('data') }
-WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(new Date(startDate)) }
-  AND ${ sqlIdentifier('time') } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
+FROM ${ sqlIdentifier(getPlansTable()) }
+WHERE ${ sqlIdentifier(getTimestampColumn()) } >= ${ sqlTimestamp(new Date(startDate)) }
+  AND ${ sqlIdentifier(getTimestampColumn()) } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
   AND ${ sqlIdentifier('cid') } = ${ sqlString(cid) }
-ORDER BY ${ sqlIdentifier('time') } DESC`;
+ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
 
-    const rows = await getFlightRows(sqlQuery, database);
+    const rows = await getFlightRows(sqlQuery);
 
     return {
         rows: filterRows(rows).slice(0, limit),
     };
 }
 
-export async function getInfluxLatestFlightForCids({
+export async function getQuestDBLatestFlightForCids({
     cids,
     startDate,
     endDate,
@@ -186,20 +201,19 @@ export async function getInfluxLatestFlightForCids({
     startDate: number;
     endDate?: number;
 }) {
-    const database = process.env.INFLUX_BUCKET_PLANS!;
     const sqlQuery =
         `SELECT ${ getFieldsSelect(planFields) }
-FROM ${ sqlIdentifier('data') }
-WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(new Date(startDate)) }
-  AND ${ sqlIdentifier('time') } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
+FROM ${ sqlIdentifier(getPlansTable()) }
+WHERE ${ sqlIdentifier(getTimestampColumn()) } >= ${ sqlTimestamp(new Date(startDate)) }
+  AND ${ sqlIdentifier(getTimestampColumn()) } <= ${ endDate ? sqlTimestamp(new Date(endDate)) : 'now()' }
   AND (${ getCidFilter(cids) })
-ORDER BY ${ sqlIdentifier('time') } DESC`;
+ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
 
-    const rows = await getFlightRows(sqlQuery, database);
+    const rows = await getFlightRows(sqlQuery);
 
     const pilots: {
         cid: number;
-        row: InfluxFlight | undefined;
+        row: QuestDBFlight | undefined;
     }[] = [];
 
     for (const row of rows) {
@@ -215,8 +229,8 @@ ORDER BY ${ sqlIdentifier('time') } DESC`;
     return pilots.filter(x => x.row);
 }
 
-export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
-    const { rows: [row] } = await getInfluxFlightsForCid({
+export async function getQuestDBOnlineFlightTurns(cid: string, start?: string) {
+    const { rows: [row] } = await getQuestDBFlightsForCid({
         cid,
         limit: 1,
         onlineOnly: true,
@@ -225,17 +239,16 @@ export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
 
     if (!row) return null;
 
-    const database = process.env.INFLUX_BUCKET_MAIN!;
     const sqlQuery =
         `SELECT ${ getFieldsSelect(turnsFields) }
-FROM ${ sqlIdentifier('data') }
-WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(start || row._time) }
+FROM ${ sqlIdentifier(getMainTable()) }
+WHERE ${ sqlIdentifier(getTimestampColumn()) } >= ${ sqlTimestamp(start || row._time) }
   AND ${ sqlIdentifier('cid') } = ${ sqlString(cid) }
-ORDER BY ${ sqlIdentifier('time') } DESC`;
+ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
 
-    const rows = await getFlightRows(sqlQuery, database);
+    const rows = await getFlightRows(sqlQuery);
 
-    const features: InfluxFlight[] = rows;
+    const features: QuestDBFlight[] = rows;
 
     for (let i = features.length - 1; i >= 0; i--) {
         const row = features[i];
@@ -254,28 +267,27 @@ ORDER BY ${ sqlIdentifier('time') } DESC`;
     };
 }
 
-export async function getInfluxOnlineFlightsTurns(cids: number[]) {
-    const flights = await getInfluxLatestFlightForCids({
+export async function getQuestDBOnlineFlightsTurns(cids: number[]) {
+    const flights = await getQuestDBLatestFlightForCids({
         cids,
         startDate: new Date().getTime() - (1000 * 60 * 60 * 24),
     });
 
     if (!flights.length) return null;
 
-    const database = process.env.INFLUX_BUCKET_MAIN!;
     const sqlQuery =
         `SELECT ${ getFieldsSelect(turnsFields) }
-FROM ${ sqlIdentifier('data') }
-WHERE ${ sqlIdentifier('time') } >= ${ sqlTimestamp(flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time) }
-  AND ${ sqlIdentifier('time') } <= now() - INTERVAL '5 seconds'
+FROM ${ sqlIdentifier(getMainTable()) }
+WHERE ${ sqlIdentifier(getTimestampColumn()) } >= ${ sqlTimestamp(flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time) }
+  AND ${ sqlIdentifier(getTimestampColumn()) } <= ${ sqlTimestamp(Date.now() - 5000) }
   AND (${ getCidFilter(flights.map(x => x.cid)) })
-ORDER BY ${ sqlIdentifier('time') } DESC`;
+ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
 
-    const rows = await getFlightRows(sqlQuery, database);
+    const rows = await getFlightRows(sqlQuery);
 
     const pilots: {
         cid: number;
-        rows: InfluxFlight[];
+        rows: QuestDBFlight[];
     }[] = [];
 
     for (const row of rows) {

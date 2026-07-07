@@ -1,5 +1,5 @@
 import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft/index';
-import type { InfluxGeojson } from '~/utils/server/influx/converters';
+import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import { turfGeometryToOl } from '~/utils';
@@ -192,7 +192,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         let shortUpdate = !!updateState.turnsFirstGroupTimestamp;
 
-        const turns = await new Promise<InfluxGeojson | null | undefined>(async resolve => {
+        const turns = await new Promise<QuestDBGeojson | null | undefined>(async resolve => {
             if (track.show === 'short') {
                 resolve(null);
                 return;
@@ -206,7 +206,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             // requestIdleCallback was here, just in case
 
             const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
-            const data = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
+            const data = await $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
                 timeout: TURNS_REQUEST_TIMEOUT,
             }).catch(console.error) ?? null;
 

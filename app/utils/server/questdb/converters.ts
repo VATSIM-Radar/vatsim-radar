@@ -1,6 +1,7 @@
-import type { InfluxFlight } from '~/utils/server/influx/queries';
-import { getInfluxOnlineFlightTurns } from '~/utils/server/influx/queries';
 import type { FeatureCollection, Point } from 'geojson';
+import type { QuestDBWriteRow, QuestDBWriteValue } from '~/utils/server/questdb/client';
+import type { QuestDBFlight } from '~/utils/server/questdb/queries';
+import { getQuestDBOnlineFlightTurns } from '~/utils/server/questdb/queries';
 import { radarStorage } from '~/utils/server/storage';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { getFlightRowGroup } from '~/utils/shared/flight';
@@ -17,7 +18,7 @@ export interface VatsimPilotConnection {
     server: string;
 }
 
-export type InfluxGeojsonFeatureCollection = FeatureCollection<Point, {
+export type QuestDBGeojsonFeatureCollection = FeatureCollection<Point, {
     type: 'turn';
     timestamp?: string;
     color?: number | null;
@@ -26,22 +27,26 @@ export type InfluxGeojsonFeatureCollection = FeatureCollection<Point, {
     standing?: boolean;
 }>;
 
-export type InfluxGeojsonFeature = InfluxGeojsonFeatureCollection['features'][0];
+export type QuestDBGeojsonFeature = QuestDBGeojsonFeatureCollection['features'][0];
 
-export type InfluxGeojson = {
+export type QuestDBGeojson = {
     flightPlan?: string;
     flightPlanTime?: string;
     departedAt?: string | null;
     arrivedAt?: string | null;
-    features?: InfluxGeojsonFeatureCollection[];
+    features?: QuestDBGeojsonFeatureCollection[];
 };
 
-export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string, short = false): InfluxGeojson {
-    function getRowColor(row: InfluxFlight) {
+function getQuestDBTableName(table: string) {
+    return table.replaceAll(/[, \n\r\t]/g, '_');
+}
+
+export function getGeojsonForData(rows: QuestDBFlight[], flightPlanStart: string, short = false): QuestDBGeojson {
+    function getRowColor(row: QuestDBFlight) {
         return getFlightRowGroup(row.altitude);
     }
 
-    const geoRows: InfluxGeojsonFeature[] = [];
+    const geoRows: QuestDBGeojsonFeature[] = [];
     let depTime: string | null = null;
     let arrTime: string | null = null;
 
@@ -71,10 +76,10 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
                     row.latitude!,
                 ],
             },
-        } satisfies InfluxGeojsonFeature);
+        } satisfies QuestDBGeojsonFeature);
     }
 
-    const rowsGroups: InfluxGeojsonFeatureCollection[] = [];
+    const rowsGroups: QuestDBGeojsonFeatureCollection[] = [];
 
     for (const row of geoRows) {
         const lastGroup = rowsGroups[rowsGroups.length - 1];
@@ -118,20 +123,38 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string,
     };
 }
 
-export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: string, full = false): Promise<InfluxGeojson | null> {
-    const rows = await getInfluxOnlineFlightTurns(cid, start);
+export async function getQuestDBOnlineFlightTurnsGeojson(cid: string, start?: string, full = false): Promise<QuestDBGeojson | null> {
+    const rows = await getQuestDBOnlineFlightTurns(cid, start);
     if (!rows?.features.length) return null;
 
     return getGeojsonForData(rows.features, rows.flightPlanStart, !!start && !full);
 }
 
-function outputInfluxValue(value: string | number | boolean, isFloat = false) {
+function outputQuestDBValue(value: QuestDBWriteValue, isFloat = false) {
     if (typeof value === 'string') return `"${ value.replaceAll('"', '\\"') }"`;
     if (typeof value === 'number') {
         if (!value.toString().includes('.') && !isFloat) return `${ value }i`;
         return value;
     }
     if (typeof value === 'boolean') return String(value);
+}
+
+function getQuestDBColumns(obj: Record<string, QuestDBWriteValue | null | undefined>) {
+    return Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined && value !== null)) as Record<string, QuestDBWriteValue>;
+}
+
+export function questDBRowsToLineProtocol(rows: QuestDBWriteRow[]) {
+    return rows.map(row => {
+        const symbols = Object.entries(row.symbols ?? {})
+            .map(([key, value]) => `${ key }=${ String(value).replaceAll(',', '\\,').replaceAll(' ', '\\ ') }`)
+            .join(',');
+        const fields = Object.entries(row.columns)
+            .map(([key, value]) => `${ key }=${ outputQuestDBValue(value, key === 'latitude' || key === 'longitude') }`)
+            .join(',');
+        const timestamp = BigInt(row.timestampMs) * BigInt(1000000);
+
+        return `${ row.table }${ symbols ? `,${ symbols }` : '' } ${ fields } ${ timestamp }`;
+    });
 }
 
 let previousPlanData: Record<number, VatsimPilot> = {};
@@ -142,7 +165,8 @@ interface PreviousPilot {
 
 let previousShortData: Record<number, PreviousPilot> = {};
 
-export function getPlanInfluxDataForPilots() {
+export function getPlanQuestDBDataForPilots() {
+    const table = getQuestDBTableName(process.env.QUESTDB_TABLE_PLANS || 'vatsim_plans');
     const date = Date.now();
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
@@ -175,15 +199,18 @@ export function getPlanInfluxDataForPilots() {
             previousPilot.flight_plan?.revision_id === obj.fpl_revision
         ) return;
 
-        const entries = Object.entries(obj)
-            .filter(([key, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!, key === 'latitude' || key === 'longitude') }`)
-            .join(',');
+        const columns = getQuestDBColumns(obj);
+        if (!Object.keys(columns).length) return;
 
-        if (!entries) return;
-
-        return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
-    }).filter(x => !!x) as string[];
+        return {
+            table,
+            symbols: {
+                cid: pilot.cid,
+            },
+            columns,
+            timestampMs: date,
+        };
+    }).filter(x => !!x) as QuestDBWriteRow[];
 
     previousPlanData = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x]));
 
@@ -207,7 +234,8 @@ function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousA
     return true;
 }
 
-export function getShortInfluxDataForPilots() {
+export function getShortQuestDBDataForPilots() {
+    const table = getQuestDBTableName(process.env.QUESTDB_TABLE_MAIN || 'vatsim_tracks');
     const date = Date.now();
 
     const newPilotsData: typeof previousShortData = {};
@@ -257,12 +285,11 @@ export function getShortInfluxDataForPilots() {
             fpl_arrived_at: previousPilot.pilot.flight_plan?.arrived_at,
         };
 
-        const entries = Object.entries(obj)
-            .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value))
-            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!, key === 'latitude' || key === 'longitude') }`)
-            .join(',');
+        const changedObj = Object.fromEntries(Object.entries(obj)
+            .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value)));
+        const columns = getQuestDBColumns(changedObj);
 
-        if (!entries) return;
+        if (!Object.keys(columns).length) return;
 
         newPilotsData[pilot.cid] = {
             previousLogTime: Date.now(),
@@ -270,8 +297,15 @@ export function getShortInfluxDataForPilots() {
             previousAltitude,
         };
 
-        return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
-    }).filter(x => !!x) as string[];
+        return {
+            table,
+            symbols: {
+                cid: pilot.cid,
+            },
+            columns,
+            timestampMs: date,
+        };
+    }).filter(x => !!x) as QuestDBWriteRow[];
 
     previousShortData = newPilotsData;
     return data;

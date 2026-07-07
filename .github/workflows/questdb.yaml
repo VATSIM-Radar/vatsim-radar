@@ -1,0 +1,22 @@
+name: Publish QuestDB
+
+on:
+  push:
+    branches: [ questdb ]
+
+jobs:
+  deploy-questdb:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy QuestDB
+        run: kubectl apply -f .config/k8s/questdb.yml
+      - name: Validate QuestDB
+        run: kubectl rollout status deployment questdb

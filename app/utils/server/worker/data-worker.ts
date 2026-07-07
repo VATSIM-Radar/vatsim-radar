@@ -8,11 +8,11 @@ import updateVatsimExtendedPilots, {
     updateVatsimDataStorage,
     updateVatsimMandatoryDataStorage,
 } from '~/utils/server/vatsim/update';
-import { influxDB, influxDBWriteOptions, initInfluxDB } from '~/utils/server/influx/influx';
+import { initQuestDB, questDBWrite } from '~/utils/server/questdb/client';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/server/worker/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
-import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/server/influx/converters';
+import { getPlanQuestDBDataForPilots, getShortQuestDBDataForPilots } from '~/utils/server/questdb/converters';
 import { getRedis } from '~/utils/server/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/server';
 import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/server/tasks';
@@ -22,7 +22,7 @@ import type { RadarNotam } from '~/utils/shared/vatsim';
 import { getTransceiverData } from '~/utils/server/vatsim';
 
 initWebsocket();
-initInfluxDB();
+initQuestDB();
 
 await initWholeBunchOfBackendTasks();
 initKafka();
@@ -469,20 +469,15 @@ defineCronJob('* * * * * *', async () => {
 
         radarStorage.vatsim.notam = radarStorage.vatsimNotam ?? notams.find(x => (!x.activeTo || new Date(x.activeTo).getTime() > Date.now()) && (!x.activeFrom || new Date(x.activeFrom).getTime() < Date.now())) ?? null;
 
-        if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
+        if (String(process.env.QUESTDB_ENABLE_WRITE) === 'true') {
             try {
-                const plans = getPlanInfluxDataForPilots();
-                const pilots = getShortInfluxDataForPilots();
-                if (plans.length && process.env.INFLUX_BUCKET_PLANS) {
-                    await influxDB.write(plans, process.env.INFLUX_BUCKET_PLANS, undefined, influxDBWriteOptions);
-                }
-
-                if (pilots.length && process.env.INFLUX_BUCKET_MAIN) {
-                    await influxDB.write(pilots, process.env.INFLUX_BUCKET_MAIN, undefined, influxDBWriteOptions);
-                }
+                const plans = getPlanQuestDBDataForPilots();
+                const pilots = getShortQuestDBDataForPilots();
+                await questDBWrite(plans);
+                await questDBWrite(pilots);
             }
             catch (error) {
-                console.error('Influx write failed', error);
+                console.error('QuestDB write failed', error);
             }
         }
 
