@@ -212,7 +212,22 @@ export function findATCSector(atc: VatsimShortenedController) {
         ]);
     }
 
-    if (!features.length) {
+    let extent: Extent | null = null;
+
+    for (const feature of features) {
+        if (feature.atc.some(x => x.callsign === atc.callsign)) {
+            if (!extent) {
+                extent = feature.geometry?.getExtent() ?? null;
+            }
+            else {
+                const newExtent = feature.geometry?.getExtent();
+                if (!newExtent) continue;
+                extent = extend(extent, newExtent);
+            }
+        }
+    }
+
+    if (!extent) {
         const dataStore = useDataStore();
         const airport = atc.callsign.split('_')[0];
         const foundAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[airport] ??
@@ -227,21 +242,6 @@ export function findATCSector(atc: VatsimShortenedController) {
                 foundAirport.lon + 0.05,
                 foundAirport.lat + 0.05,
             ];
-        }
-    }
-
-    let extent: Extent | null = null;
-
-    for (const feature of features) {
-        if (feature.atc.some(x => x.callsign === atc.callsign)) {
-            if (!extent) {
-                extent = feature.geometry?.getExtent() ?? null;
-            }
-            else {
-                const newExtent = feature.geometry?.getExtent();
-                if (!newExtent) continue;
-                extent = extend(extent, newExtent);
-            }
         }
     }
 

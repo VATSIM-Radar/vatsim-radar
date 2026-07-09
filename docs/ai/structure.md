@@ -133,6 +133,13 @@ Reusable UI primitives are in `app/components/ui`:
 
 For new UI, prefer these primitives and existing feature/component patterns before adding new base components.
 
+## Color System
+
+- `app/utils/colors.ts` is the source for named color tokens (`colorsList`) and legacy color migration aliases (`legacyColorsList`).
+- `modules/styles.ts` uses those tokens to generate SCSS/CSS color variables in `app/scss/colors.scss`.
+- `app/scss/variables.scss` defines semantic SCSS aliases such as `$appColor`, `$brandPrimary`, and `$navigraphColor`.
+- User-facing map color defaults live in `app/composables/settings/v2/utils.ts`; some values can be explicit hex colors instead of named palette tokens.
+
 ## Client Composables
 
 Important composable groups:
