@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1079.0",
+    "@aws-sdk/client-s3": "3.1081.0",
     "@nuxt/image": "2.0.0",
     "@pinia/nuxt": "0.11.3",
     "@prisma/adapter-mariadb": "7.8.0",
@@ -74,7 +74,7 @@
     "ol-mapbox-style": "13.4.1",
     "pinia": "3.0.4",
     "prisma": "7.8.0",
-    "rou3": "0.9.0",
+    "rou3": "0.9.1",
     "sharp": "0.35.3",
     "srvx": "0.11.21",
     "svgo": "4.0.1",
@@ -85,7 +85,7 @@
     "vitepress": "1.6.4",
     "vue": "3.5.39",
     "vue-bottom-sheets": "0.4.0",
-    "vue-chartjs": "5.3.3",
+    "vue-chartjs": "5.3.4",
     "vue-draggable-plus": "0.6.1",
     "ws": "8.21.0"
   },
