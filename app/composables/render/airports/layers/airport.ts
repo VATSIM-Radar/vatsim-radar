@@ -21,10 +21,10 @@ function colorForAirport(airport: AirportListItem) {
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === airport.icao || x.data.pilot.flight_plan?.departure === airport.icao || x.data.pilot.flight_plan?.arrival === airport.icao));
     const event = useStore().eventsMap[airport.icao];
     const now = Date.now();
-    const eventStarted = event && new Date(event.start_time).getTime() > now;
+    const eventStarted = event && new Date(event.start_time).getTime() < now;
 
     if (event) {
-        if (eventStarted) return event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red400Hex;
+        if (eventStarted) return event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red300Hex;
     }
 
     if (!hasOverlay) {

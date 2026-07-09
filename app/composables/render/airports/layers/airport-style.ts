@@ -129,10 +129,10 @@ export function setAirportStyle(layer: VectorLayer) {
                     image: event
                         ? new CircleStyle({
                             radius: 4,
-                            fill: getCachedFill(eventStarted ? 'transparent' : event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red500Hex),
+                            fill: getCachedFill(eventStarted ? 'transparent' : event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red300Hex),
                             stroke: eventStarted
                                 ? new Stroke({
-                                    color: event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red500Hex,
+                                    color: event.type === VatsimEventType.Exam ? radarColors.teal500Hex : radarColors.red300Hex,
                                     width: 1,
                                 })
                                 : undefined,
@@ -325,7 +325,7 @@ export function setAirportStyle(layer: VectorLayer) {
 
                 if (properties.counterType === 'prefiles') textColor = getCachedFill(getCurrentThemeHexColor('lightGray900'));
                 if (properties.counterType === 'training') textColor = getCachedFill(getCurrentThemeHexColor('purple500'));
-                if (properties.counterType === 'groundArr') textColor = getCachedFill(getCurrentThemeHexColor('red500'));
+                if (properties.counterType === 'groundArr') textColor = getCachedFill(getCurrentThemeHexColor('red400'));
 
                 const cacheKey = String(properties.counterType);
                 const fakeCacheKey = `${ cacheKey }-fake`;
