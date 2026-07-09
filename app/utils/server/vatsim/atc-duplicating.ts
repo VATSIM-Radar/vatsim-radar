@@ -268,4 +268,15 @@ export const duplicatingSettings = [
             'CMH West': 'DAY_M_APP',
         },
     },
+    {
+        description: 'UWWW FIR APP Sectors',
+        authorCid: 1306046,
+        prefixes: ['UWWW'],
+        suffixes: ['CTR'],
+        mapping: {
+            'Samara APP': 'UWWW_APP',
+            'Ufa APP': 'UWUU_APP',
+            'Kazan APP': 'UWKD_APP',
+        },
+    },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
