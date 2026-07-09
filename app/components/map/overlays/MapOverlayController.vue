@@ -360,6 +360,7 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
         user-select: text;
 
         display: flex;
+        flex-wrap: wrap;
         gap: 4px;
 
         font-size: 12px;
