@@ -134,7 +134,6 @@ import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/settings
 import { hexColorRegex } from '~/utils/shared';
 import ColorBg from '~/assets/icons/basic/color-palette.svg';
 import ResetIcon from '~/assets/icons/kit/reset.svg?component';
-import { setCustomDefuMergeAsIs } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import type { ColorsList } from '~/utils/colors';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
