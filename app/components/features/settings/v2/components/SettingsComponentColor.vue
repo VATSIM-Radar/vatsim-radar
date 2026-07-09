@@ -5,7 +5,7 @@
         :model-value="value"
         setting="test"
         :transparency-only="item.mode === 'transparency'"
-        @update:modelValue="handleSettingChange(item, $event)"
+        @update:modelValue="handleSettingChange(item, $event === null ? undefined : $event)"
     />
 </template>
 

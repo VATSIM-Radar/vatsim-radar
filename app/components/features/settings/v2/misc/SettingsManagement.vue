@@ -33,7 +33,7 @@
                 :selected-preset="settingsStore.settings"
                 type="settings"
                 @create="createSettingsPreset"
-                @reset="settingsStore.autoSave ? undefined : [settingsStore.activeSettingsPreset = null, settingsStore.save({}, { overwrite: true })]"
+                @reset="[settingsStore.autoSave ? settingsStore.setAutoSave(false) : settingsStore.activeSettingsPreset = null, settingsStore.save({}, { overwrite: true })]"
                 @save="(event, id) => [settingsStore.setPreset(id), settingsStore.save(event, { overwrite: true, autoSave: false })]"
             />
         </ui-setting-display>

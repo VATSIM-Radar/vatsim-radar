@@ -600,14 +600,14 @@ onMounted(() => {
 
         @include mobileOnly {
             &--root {
-                position: absolute;
-                top: 40px;
-                right: 0;
+                position: relative;
+                top: 16px;
 
+                margin-bottom: 4px;
                 padding: 4px;
                 border-radius: 4px;
 
-                background: $darkGray900;
+                background: $black;
             }
         }
 

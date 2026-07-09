@@ -2,13 +2,13 @@
     <div
         ref="picker"
         class="color-picker"
-        tr
     >
         <div class="color-picker__input">
             <ui-input-text
                 :focused="isOpen"
                 :model-value="getHexColor"
                 :placeholder="themeColor ?? 'Custom hex'"
+                @actionClick="emit('update:modelValue', null)"
                 @change="hexColorRegex.test(($event.target as HTMLInputElement).value) && emit('update:modelValue', { ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
                 @update:focused="$event && (isOpen = $event)"
             >
@@ -37,17 +37,18 @@
                     <slot/>
                 </template>
 
+                <template v-if="modelValue && defaultColor && (modelValue.color !== defaultColor.color || modelValue.transparency !== defaultColor.transparency)"  #action>
+                    <reset-icon
+                        class="color-picker__input_reset"
+                        @click.stop="emit('update:modelValue', null)"
+                    />
+                </template>
+
                 <template
-                    v-if="(modelValue && defaultColor && (modelValue.color !== defaultColor.color || modelValue.transparency !== defaultColor.transparency)) || !transparencyOnly"
+                    v-if="!transparencyOnly"
                     #append
                 >
                     <div class="color-picker__input_append">
-                        <reset-icon
-                            v-if="modelValue && defaultColor && (modelValue.color !== defaultColor.color || modelValue.transparency !== defaultColor.transparency)"
-                            class="color-picker__input_reset"
-                            @click.stop="emit('update:modelValue', null)"
-                        />
-
                         <div
                             v-if="!transparencyOnly"
                             class="color-picker__input_color"
@@ -162,8 +163,6 @@ const props = defineProps({
 
 const emit = defineEmits({
     'update:modelValue'(data: Partial<UserMapSettingsColor> | null) {
-        // TODO this is not working
-        setCustomDefuMergeAsIs();
         return true;
     },
 });

@@ -210,7 +210,9 @@ export function setAirportStyle(layer: VectorLayer) {
 
                 if (!styleCache[strokeKey]) {
                     let defaultColor = getSelectedColorFromSettings('approach', true) || radarColors.citrus600Rgb.join(',');
-                    let defaultTransparency = 1;
+                    let defaultTransparency = getSelectedColorTransparencyFromSettings('approach') ?? 1;
+
+                    if (properties.isBooked) defaultTransparency = getSelectedColorTransparencyFromSettings('approachBookings') ?? 1;
 
                     if (isDuplicated) {
                         const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
@@ -228,13 +230,13 @@ export function setAirportStyle(layer: VectorLayer) {
                             text: '',
                             placement: 'point',
                             overflow: true,
-                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : own ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor })`),
+                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, ${ defaultTransparency < 0.3 ? 0.3 : defaultTransparency })` : own ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor }, ${ defaultTransparency < 0.3 ? 0.3 : defaultTransparency })`),
                             backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(getCurrentThemeHexColor('darkGray900')),
                             backgroundStroke: new Stroke({
                                 width: 2,
                                 lineDash: properties.isTWR ? [4, 8] : undefined,
                                 lineJoin: 'round',
-                                color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ own ? 1 : defaultTransparency })`,
+                                color: (store.bookingOverride || properties.isBooked) ? getSelectedColorFromSettings('approachBookings') || `rgb(${ radarColors.purple500Rgb.join(',') })` : `rgba(${ defaultColor }, ${ own ? 1 : defaultTransparency })`,
                             }),
                             declutterMode,
                             padding: [3, 1, 2, 3],

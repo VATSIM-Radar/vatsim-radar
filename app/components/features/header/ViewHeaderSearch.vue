@@ -314,7 +314,15 @@ const input = useTemplateRef('input');
 
 onMounted(() => {
     async function handleClick(event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && event.code === 'KeyF') {
+        if (
+            event.code === 'KeyF' &&
+            (
+                (event.metaKey && !event.ctrlKey) ||
+                (event.ctrlKey && !event.metaKey)
+            ) &&
+            !event.altKey &&
+            !event.shiftKey
+        ) {
             event.preventDefault();
             store.searchActive = true;
             await nextTick();

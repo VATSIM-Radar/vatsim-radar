@@ -57,7 +57,7 @@
             </ui-text>
             <div v-else class="__spacer"/>
             <ui-separator
-                v-if="max || $slots.append"
+                v-if="max || $slots.action || $slots.append"
                 distance="0"
                 full
             />
@@ -69,8 +69,17 @@
             >
                 {{model?.length ?? 0}} / {{max}}
             </ui-text>
+            <ui-text
+                v-else-if="$slots.action"
+                class="input_container_prepend input_container_prepend--action"
+                color="lightGray900"
+                type="2b-medium"
+                @click="emit('actionClick', { event: $event, input })"
+            >
+                <slot name="action"/>
+            </ui-text>
             <ui-separator
-                v-if="max && $slots.append"
+                v-if="(max || $slots.action) && $slots.append"
                 distance="0"
                 full
             />
@@ -138,6 +147,9 @@ const emit = defineEmits({
     prependClick(settings: { event: Event; input: HTMLInputElement | null }) {
         return true;
     },
+    actionClick(settings: { event: Event; input: HTMLInputElement | null }) {
+        return true;
+    },
     appendClick(settings: { event: Event; input: HTMLInputElement | null }) {
         return true;
     },
@@ -146,6 +158,7 @@ const emit = defineEmits({
 defineSlots<{
     default?: () => any;
     prepend?: () => any;
+    action?: () => any;
     append?: () => any;
     htmlContent?: () => any;
 }>();
@@ -203,7 +216,7 @@ watch(model, val => {
                 background: $darkGray800;
             }
 
-            &--append {
+            &--append, &--action {
                 cursor: pointer;
             }
 

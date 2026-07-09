@@ -334,10 +334,26 @@ type NavigraphCoordinateCandidate = {
     type: string;
 };
 
+const nmToIgnorePriority = 2;
+
+function getNavigraphCoordinatePriority(candidate: NavigraphCoordinateCandidate): number {
+    return candidate.kind === 'vhf' || candidate.kind === 'ndb' ? 0 : 1;
+}
+
 function sortNavigraphCoordinateCandidates<T extends NavigraphCoordinateCandidate>(candidates: T[], reference?: Coordinate): T[] {
     if (!reference) return candidates;
 
-    return candidates.toSorted((a, b) => waypointDiff(reference, a.coordinate) - waypointDiff(reference, b.coordinate));
+    return candidates.toSorted((a, b) => {
+        const aDistance = waypointDiff(reference, a.coordinate);
+        const bDistance = waypointDiff(reference, b.coordinate);
+        const distanceDiff = aDistance - bDistance;
+
+        if (Math.abs(distanceDiff) > nmToIgnorePriority) return distanceDiff;
+
+        const priorityDiff = getNavigraphCoordinatePriority(a) - getNavigraphCoordinatePriority(b);
+
+        return priorityDiff || distanceDiff;
+    });
 }
 
 function createNavigraphCoordinateCandidate(candidate: Omit<NavigraphCoordinateCandidate, 'coordinate'> & { coordinate: unknown[] }): NavigraphCoordinateCandidate | null {

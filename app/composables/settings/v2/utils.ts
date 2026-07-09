@@ -107,7 +107,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
-    'map.preferences.colors.default.approach': { color: 'citrus600' },
+    'map.preferences.colors.default.approach': { color: 'red300' },
     'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
     'map.preferences.colors.default.centerBookings': { color: 'lightGray400', transparency: 0.07 },
     'map.preferences.colors.default.staffedAirport': 1,
@@ -254,6 +254,8 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         let root: UserSettingsV2Partial = {};
         let result: Record<string, unknown> = root;
 
+        console.log(path, value);
+
         if (value === undefined) {
             root = settingsStore.settings;
             result = root;
@@ -283,7 +285,7 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
             const last = parts[parts.length - 1];
             result[last] = value as unknown;
 
-            if (value === null) setCustomDefuMergeAsIs();
+            // if (value === null) setCustomDefuMergeAsIs();
             return settingsStore.save(root);
         }
     }

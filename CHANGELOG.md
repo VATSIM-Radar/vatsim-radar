@@ -1,5 +1,19 @@
 # Changelog
 
+# [2.0.0-rc.1.3]
+
+## RC Changes
+
+- You can now deactivate preset - that disables auto save as well
+- Fixed CTRL+CMD+F not working on MacOS to open native search
+- Fixed some vhfs parsing as airports
+- Redesigned reset button for colors
+- Fixed color save resetting every other appearance setting
+- Fixed color reset resetting all settings
+- Fixed default approach color to be more familiar 
+- Fixed TRACON transparency settings not respected at all for labels
+- Slighly improved mobile airport overlay design
+
 # [2.0.0-rc.1.2]
 
 ## RC Changes
