@@ -41,12 +41,10 @@ export const duplicatingSettings = [
     {
         description: 'ZMA TRACON',
         authorCid: 1275389,
-        prefixes: ['MIA', 'ZMA', 'TPA', 'PBI', 'RSW', 'NQX', 'HST', 'ZMO'],
+        prefixes: ['ZMA', 'TPA', 'RSW', 'NQX', 'HST', 'ZMO'],
         suffixes: ['CTR', 'TMU', 'APP', 'DEP'],
         mapping: {
-            'MIA TRACON': 'MIA_D_DEP',
             'TPA TRACON': 'TPA_L_APP',
-            'PBI TRACON': 'PBI_B_DEP',
             'RSW TRACON': 'RSW_W_APP',
             'NQX RATCF': 'NQX_B_APP',
             'NQX RAPCON': 'NQX_B_APP',
@@ -146,6 +144,9 @@ export const duplicatingSettings = [
         mapping: {
             AGS: 'AGS_APP',
             GSO: 'GSO_APP',
+            AHN: 'AHN_APP',
+            CSG: 'CSG_APP',
+            MCN: 'MCN_APP',
         },
     },
     {
