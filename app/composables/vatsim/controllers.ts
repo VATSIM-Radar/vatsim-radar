@@ -1,5 +1,5 @@
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import { getHoursAndMinutes } from '~/utils';
+import { createCircle, getHoursAndMinutes } from '~/utils';
 import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
@@ -236,12 +236,7 @@ export function findATCSector(atc: VatsimShortenedController) {
             dataStore.vatspy.value?.data.keyAirports.iata[airport];
 
         if (foundAirport) {
-            return [
-                foundAirport.lon - 0.05,
-                foundAirport.lat - 0.05,
-                foundAirport.lon + 0.05,
-                foundAirport.lat + 0.05,
-            ];
+            return createCircle([foundAirport.lon, foundAirport.lat], 50000).getExtent();
         }
     }
 
