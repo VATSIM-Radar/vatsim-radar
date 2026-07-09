@@ -148,8 +148,8 @@ function findUirForCallsign(callsign: string, prefix: string) {
 
 function addSector(context: DataUpdateContext, sector: FirFindResult, controller: VatsimShortenedController | null, uir?: DataSector['uir']) {
     const sectorKey = !sector.fir
-        ? sector.feature.properties.id
-        : sector.fir.boundary;
+        ? sector.feature.properties.id + sector.feature.properties.oceanic
+        : sector.fir.boundary + sector.feature.properties.oceanic;
 
     const existingSector = context.sectors[sectorKey];
 

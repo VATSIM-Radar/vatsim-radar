@@ -50,7 +50,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
             ? (fir.uir && !fir.uirWithFir) ? 'uir' : 'fir'
             : 'empty';
 
-        const id: any = 'sector-' + String(fir.fir?.icao) + String(fir.fir?.callsign) + String(fir.feature.properties.id) + String(sectorType);
+        const id: any = 'sector-' + String(fir.fir?.icao) + String(fir.fir?.callsign) + String(fir.feature.properties.id) + String(fir.feature.properties.oceanic) + String(sectorType);
         if (sectorType === 'empty') emptyIds.add(id);
         else activeIds.add(id);
 
