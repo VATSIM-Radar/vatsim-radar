@@ -41,12 +41,10 @@ export const duplicatingSettings = [
     {
         description: 'ZMA TRACON',
         authorCid: 1275389,
-        prefixes: ['MIA', 'ZMA', 'TPA', 'PBI', 'RSW', 'NQX', 'HST', 'ZMO'],
+        prefixes: ['ZMA', 'TPA', 'RSW', 'NQX', 'HST', 'ZMO'],
         suffixes: ['CTR', 'TMU', 'APP', 'DEP'],
         mapping: {
-            'MIA TRACON': 'MIA_D_DEP',
             'TPA TRACON': 'TPA_L_APP',
-            'PBI TRACON': 'PBI_B_DEP',
             'RSW TRACON': 'RSW_W_APP',
             'NQX RATCF': 'NQX_B_APP',
             'NQX RAPCON': 'NQX_B_APP',
@@ -144,20 +142,11 @@ export const duplicatingSettings = [
         prefixes: ['ATL', 'A80', 'AHN', 'MCN', 'CSG'],
         suffixes: ['CTR', 'APP', 'DEP'],
         mapping: {
-            ATL: 'ATL_APP',
             AGS: 'AGS_APP',
+            GSO: 'GSO_APP',
             AHN: 'AHN_APP',
             CSG: 'CSG_APP',
             MCN: 'MCN_APP',
-            CLT: 'CLT_APP',
-            AVL: 'AVL_APP',
-            BHM: 'BHM_APP',
-            CHA: 'CHA_APP',
-            GSO: 'GSO_APP',
-            GSP: 'GSP_APP',
-            MGM: 'MGM_APP',
-            TYS: 'TYS_APP',
-            TRI: 'TRY_APP',
         },
     },
     {
@@ -278,6 +267,17 @@ export const duplicatingSettings = [
         mapping: {
             'CMH East': 'CMH_N_APP',
             'CMH West': 'DAY_M_APP',
+        },
+    },
+    {
+        description: 'UWWW FIR APP Sectors',
+        authorCid: 1306046,
+        prefixes: ['UWWW'],
+        suffixes: ['CTR'],
+        mapping: {
+            'Samara APP': 'UWWW_APP',
+            'Ufa APP': 'UWUU_APP',
+            'Kazan APP': 'UWKD_APP',
         },
     },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];

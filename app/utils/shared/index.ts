@@ -140,8 +140,41 @@ export function debounce<T extends (...args: any) => any>(func: T, delay: number
     };
 }
 
-const ipRegex = /^(?!https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})((https?:\/\/\d{1,3}(?:\.\d{1,3}){3}.*)|https?:\/\/localhost:\d{1,4})$/;
+export function isValidIPOrigin(input: string): boolean {
+    let url: URL;
 
-export function isValidIPOrigin(origin: string) {
-    return ipRegex.test(origin);
+    try {
+        url = new URL(input);
+    }
+    catch {
+        return false;
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        return false;
+    }
+
+    const hostname = url.hostname.toLowerCase();
+
+    if (hostname === 'localhost' || hostname.endsWith('.local')) {
+        return true;
+    }
+
+    return isIPv4(hostname);
+}
+
+function isIPv4(hostname: string): boolean {
+    const parts = hostname.split('.');
+
+    if (parts.length !== 4) {
+        return false;
+    }
+
+    return parts.every(part => {
+        if (!/^\d+$/.test(part)) return false;
+
+        const n = Number(part);
+
+        return n >= 0 && n <= 255 && String(n) === part;
+    });
 }
