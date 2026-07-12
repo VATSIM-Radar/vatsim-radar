@@ -367,14 +367,24 @@ export async function updateSectorsData() {
     const nzSectors = $fetch('https://raw.githubusercontent.com/vatSys/new-zealand-dataset/refs/heads/master/Sectors.xml', {
         responseType: 'text',
     });
+    const jpSectors = $fetch('https://vatjpn.org/media/external/vatsim-radar/Sectors.xml', {
+        responseType: 'text',
+    });
 
     const au = xmlParser.parse(await auSectors);
     const nz = xmlParser.parse(await nzSectors);
-    radarStorage.vatsim.sectorsDataset = [...au.Sectors.Sector, ...nz.Sectors.Sector].map((sector: Record<string, any>) => ({
+    const jp = xmlParser.parse(await jpSectors);
+
+    radarStorage.vatsim.sectorsDataset = [
+        ...au.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'AU' })),
+        ...nz.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'NZ' })),
+        ...jp.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'JP' })),
+    ].map((sector: Record<string, any>) => ({
         fullName: sector.FullName,
         name: sector.Name,
         callsign: sector.Callsign,
         frequency: sector.Frequency,
+        region: sector.region,
     }));
 }
 

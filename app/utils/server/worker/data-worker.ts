@@ -18,6 +18,7 @@ import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/server';
 import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/server/tasks';
 import { prisma } from '~/utils/server/prisma';
 
+import { getFacilityByCallsign } from '~/utils/shared/vatsim';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import { getTransceiverData } from '~/utils/server/vatsim';
 
@@ -293,9 +294,13 @@ defineCronJob('* * * * * *', async () => {
         });
 
         const length = radarStorage.vatsim.data!.controllers.length;
+        const onlineCallsigns = new Set(radarStorage.vatsim.data!.controllers.map(x => x.callsign));
 
         const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
         const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
+
+        const auNzSectors = allowedDuplicatingSectors.filter(x => x.region === 'AU' || x.region === 'NZ' || !x.region);
+        const jpSectors = allowedDuplicatingSectors.filter(x => x.region === 'JP');
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
@@ -330,7 +335,8 @@ defineCronJob('* * * * * *', async () => {
                 }
             }
 
-            const duplicatedSectors = allowedDuplicatingSectors.filter(x => {
+            // 1. Process AU/NZ duplication (Standard logic)
+            const duplicatedSectors = auNzSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
                 return controller.text_atis?.some(
@@ -354,6 +360,50 @@ defineCronJob('* * * * * *', async () => {
                     duplicated: true,
                     duplicatedBy: controller.callsign,
                 });
+            }
+
+            // VATJPN sector duplication
+            if (jpSectors.length > 0 && controller.text_atis?.length) {
+                const atisText = controller.text_atis.join(' ');
+                const mainFreqCanon = parseFloat(controller.frequency).toString();
+
+                const extendedJpSectors = jpSectors.filter(s => {
+                    const nameRegex = new RegExp(`\\b${ s.name }\\b`, 'i');
+                    return nameRegex.test(atisText);
+                });
+
+                if (extendedJpSectors.length > 0) {
+                    const validFrequencies = new Set(extendedJpSectors.map(s => parseFloat(s.frequency).toString()));
+                    validFrequencies.add(mainFreqCanon);
+
+                    for (const sector of extendedJpSectors) {
+                        const sectorFreqCanon = parseFloat(sector.frequency).toString();
+                        if (sectorFreqCanon === mainFreqCanon || sector.frequency === controller.frequency) {
+                            continue;
+                        }
+
+                        const pairRegex = new RegExp(`\\b${ sector.name }\\b\\s+\\b(1\\d{2}\\.\\d{1,3})\\b`, 'i');
+                        const match = atisText.match(pairRegex);
+
+                        if (match) {
+                            const atisFreq = match[1];
+                            const atisFreqCanon = parseFloat(atisFreq).toString();
+                            const targetFrequency = validFrequencies.has(atisFreqCanon) ? atisFreq : controller.frequency;
+
+                            if (sector.callsign === controller.callsign) continue;
+                            if (onlineCallsigns.has(sector.callsign)) continue;
+
+                            radarStorage.vatsim.data.controllers.push({
+                                ...controller,
+                                callsign: sector.callsign,
+                                frequency: targetFrequency,
+                                facility: getFacilityByCallsign(sector.callsign),
+                                duplicated: true,
+                                duplicatedBy: controller.callsign,
+                            });
+                        }
+                    }
+                }
             }
         }
 
