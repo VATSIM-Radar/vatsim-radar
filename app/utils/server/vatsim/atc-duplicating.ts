@@ -241,6 +241,15 @@ export const duplicatingSettings = [
         },
     },
     {
+        description: 'ZMP Center and TRACONs',
+        authorCid: 1240191,
+        prefixes: ['MSP'],
+        suffixes: ['CTR'],
+        mapping: {
+            DSM: 'DSM_APP',
+        },
+    },
+    {
         description: 'ACC Curitiba (SBCW)',
         authorCid: 1233530,
         prefixes: ['SBCW'],
