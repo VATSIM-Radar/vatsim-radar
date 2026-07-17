@@ -224,14 +224,18 @@ export function setAirportStyle(layer: VectorLayer) {
                         defaultTransparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs') ?? 1;
                     }
 
+                    const textColor = getSelectedColorFromSettings('approachText', true) || defaultColor;
+                    const textTransparency = getSelectedColorTransparencyFromSettings('approachText') ?? 1;
+                    const bgColor = getSelectedColorFromSettings('approachBg') ?? getCurrentThemeHexColor('darkGray900');
+
                     styleCache[strokeKey] = new Style({
                         text: new Text({
                             font: getTextFont('caption-medium'),
                             text: '',
                             placement: 'point',
                             overflow: true,
-                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, ${ defaultTransparency < 0.3 ? 0.3 : defaultTransparency })` : own ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor }, ${ isDuplicated ? 1 : defaultTransparency < 0.3 ? 0.3 : defaultTransparency })`),
-                            backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, ${ defaultTransparency < 0.3 ? 0.3 : defaultTransparency })` : own ? getCurrentThemeHexColor('lightGray200') : isDuplicated ? `rgba(${ defaultColor }, 1)` : `rgba(${ textColor }, ${ textTransparency })`),
+                            backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(bgColor),
                             backgroundStroke: new Stroke({
                                 width: 2,
                                 lineDash: properties.isTWR ? [4, 8] : undefined,

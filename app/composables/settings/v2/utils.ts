@@ -107,6 +107,8 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
     'map.preferences.colors.default.approach': { color: 'red300' },
+    'map.preferences.colors.default.approachText': { color: 'red300' },
+    'map.preferences.colors.default.approachBg': { color: 'darkGray900' },
     'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
     'map.preferences.colors.default.centerBookings': { color: 'lightGray400', transparency: 0.07 },
     'map.preferences.colors.default.staffedAirport': 1,

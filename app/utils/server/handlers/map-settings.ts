@@ -12,6 +12,8 @@ export interface UserMapSettingsColors {
     centerText?: UserMapSettingsColor;
     centerBg?: UserMapSettingsColor;
     approach?: UserMapSettingsColor;
+    approachText?: UserMapSettingsColor;
+    approachBg?: UserMapSettingsColor;
     staffedAirport?: number;
     defaultAirport?: number;
     approachBookings?: UserMapSettingsColor;
