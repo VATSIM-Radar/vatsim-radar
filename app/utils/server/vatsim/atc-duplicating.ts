@@ -41,9 +41,11 @@ export const duplicatingSettings = [
     {
         description: 'ZMA TRACON',
         authorCid: 1275389,
-        prefixes: ['ZMA', 'TPA', 'RSW', 'NQX', 'HST', 'ZMO'],
+        prefixes: ['MIA', 'ZMA', 'TPA', 'RSW', 'NQX', 'HST', 'ZMO'],
         suffixes: ['CTR', 'TMU', 'APP', 'DEP'],
         mapping: {
+            'MIA TRACON': 'MIA_D_DEP',
+            'PBI TRACON': 'PBI_B_DEP',
             'TPA TRACON': 'TPA_L_APP',
             'RSW TRACON': 'RSW_W_APP',
             'NQX RATCF': 'NQX_B_APP',
