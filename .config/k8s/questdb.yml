@@ -53,8 +53,8 @@ spec:
               cpu: 300m
               memory: 600Mi
             limits:
-              cpu: 1800m
-              memory: 3800Mi
+              cpu: 1600m
+              memory: 3600Mi
           readinessProbe:
             httpGet:
               path: /status
