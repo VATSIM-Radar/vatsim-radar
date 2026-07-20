@@ -6654,7 +6654,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/devtools-api@npm:^7.7.0, @vue/devtools-api@npm:^7.7.7":
+"@vue/devtools-api@npm:^7.7.0":
   version: 7.7.10
   resolution: "@vue/devtools-api@npm:7.7.10"
   dependencies:
@@ -13434,18 +13434,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pinia@npm:3.0.4":
-  version: 3.0.4
-  resolution: "pinia@npm:3.0.4"
+"pinia@npm:4.0.2":
+  version: 4.0.2
+  resolution: "pinia@npm:4.0.2"
   dependencies:
-    "@vue/devtools-api": "npm:^7.7.7"
+    nostics: "npm:^1.1.4"
   peerDependencies:
-    typescript: ">=4.5.0"
+    "@vue/devtools-api": ^8.1.5
+    typescript: ">=5.6.0"
     vue: ^3.5.11
   peerDependenciesMeta:
+    "@vue/devtools-api":
+      optional: false
     typescript:
       optional: true
-  checksum: 10c0/4123efbf28c6d11f3dd052dbcf08da7ef85747fd3499807b9ca1d32dcda7807b2e68f9a7e31a06148b05093a9ebcd0c3b26e6a31b62775c6421429bd03265949
+  checksum: 10c0/210f76c147cadf379437abc0150763add506e0328204f4f42adb14e74967bd60f3036eae5e06b572ee6666047bbfb9158db2f0cf9b9016c1f94c724eba4b30d4
   languageName: node
   linkType: hard
 
@@ -17366,7 +17369,7 @@ __metadata:
     ol: "npm:10.9.0"
     ol-ext: "npm:4.0.38"
     ol-mapbox-style: "npm:13.4.1"
-    pinia: "npm:3.0.4"
+    pinia: "npm:4.0.2"
     postcss: "npm:8.5.20"
     postcss-html: "npm:1.8.1"
     prisma: "npm:7.8.0"
