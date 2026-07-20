@@ -4377,14 +4377,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:0.11.3":
-  version: 0.11.3
-  resolution: "@pinia/nuxt@npm:0.11.3"
+"@pinia/nuxt@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@pinia/nuxt@npm:1.0.1"
   dependencies:
-    "@nuxt/kit": "npm:^4.2.0"
+    "@nuxt/kit": "npm:^4.4.8"
   peerDependencies:
-    pinia: ^3.0.4
-  checksum: 10c0/3aba259e997e0a332713c3a092339e5256f26325ec70640be438a225e7d3adc45443b03c4a36b37a5959d8610781fcd3a67d47dec3582aaef05e6579042240b7
+    pinia: ^4.0.2
+  checksum: 10c0/c52cc95daf26e48cd608aa8851971849e2f0b5eecaf14f7512e5736c8014cbd1a62414664ffd04775d35cfe3236173764ad834857aa593da95b0edfb5dec3fc3
   languageName: node
   linkType: hard
 
@@ -17249,7 +17249,7 @@ __metadata:
     "@nuxt/eslint": "npm:1.16.0"
     "@nuxt/image": "npm:2.0.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
-    "@pinia/nuxt": "npm:0.11.3"
+    "@pinia/nuxt": "npm:1.0.1"
     "@prisma/adapter-mariadb": "npm:7.8.0"
     "@prisma/client": "npm:7.8.0"
     "@protomaps/basemaps": "npm:5.7.2"
