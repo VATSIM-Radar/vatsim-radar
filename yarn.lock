@@ -7015,10 +7015,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"adm-zip@npm:0.5.18":
-  version: 0.5.18
-  resolution: "adm-zip@npm:0.5.18"
-  checksum: 10c0/9b734aa7126a01913baec02bf495d086b5d7e63315522b7087620e3fc8279c8ebd65109da4d99f16fcf873d87522ae6ffd913aef65449fd22c68777b772685e9
+"adm-zip@npm:0.6.0":
+  version: 0.6.0
+  resolution: "adm-zip@npm:0.6.0"
+  checksum: 10c0/440f37590c62255226f1db4cb1a5a618879347f5106ad5b9a24c67c20f9a54bd5b4efcd2b35af858e39c7885d05f4bd35f4c2f42378c98d13f779be380bc9ae4
   languageName: node
   linkType: hard
 
@@ -17281,7 +17281,7 @@ __metadata:
     "@vueuse/components": "npm:14.3.0"
     "@vueuse/core": "npm:14.3.0"
     "@vueuse/nuxt": "npm:14.3.0"
-    adm-zip: "npm:0.5.18"
+    adm-zip: "npm:0.6.0"
     better-sqlite3: "npm:12.11.1"
     chardet: "npm:2.2.0"
     chart.js: "npm:4.5.1"
