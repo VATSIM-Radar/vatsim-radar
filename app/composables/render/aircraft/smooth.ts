@@ -36,7 +36,6 @@ const DEFAULT_GAP = 4000;
 const STALL_GAP = 15000;
 const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
-const EXTRAP_CAP = 5000;
 const MOVING_THRESHOLD = 30;
 const MS_PER_HOUR = 1000 * 60 * 60;
 const NM_PER_DEGREE = 60;
@@ -50,9 +49,11 @@ const tracks = new Map<number, Track>();
 let lastServerTime = 0;
 let lastTimestampNum = 0;
 let lastSampleT = 0;
+let lastSampleWall = 0;
 let recentMaxGap = DEFAULT_GAP;
 let clockOffset = 0;
 let clockOffsetReady = false;
+let awaitingFreshSamples = false;
 
 export function isSmoothMovementEnabled() {
     return getKeyedValueFromSettings('map.traffic.smoothMovement') === true;
@@ -72,6 +73,9 @@ function computeDelay() {
 export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: number, timestampNum: number, now = Date.now()) {
     if (serverTime && serverTime <= lastServerTime) return;
 
+    lastSampleWall = now;
+    awaitingFreshSamples = false;
+
     const instantOffset = now - serverTime;
     if (!clockOffsetReady) {
         clockOffset = instantOffset;
@@ -83,6 +87,8 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     let t = serverTime ? serverTime + clockOffset : now;
     if (t <= lastSampleT) t = lastSampleT + 1;
+    const sampleGap = lastSampleT ? t - lastSampleT : 0;
+    const resetAfterInactiveGap = sampleGap >= INACTIVE_FRAME_GAP;
     lastSampleT = t;
 
     const seen = new Set<number>();
@@ -103,6 +109,15 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
                 aHeading: NaN,
                 applied: false,
             });
+            continue;
+        }
+
+        if (resetAfterInactiveGap) {
+            track.samples = [{ t, lon: pilot.longitude, lat: pilot.latitude, heading }];
+            track.aLon = NaN;
+            track.aLat = NaN;
+            track.aHeading = NaN;
+            track.applied = false;
             continue;
         }
 
@@ -226,7 +241,7 @@ export function interpolateSamples(samples: Sample[], renderTime: number): Inter
             return { lon: b.lon, lat: b.lat, heading: b.heading };
         }
 
-        const ext = Math.min(renderTime - b.t, EXTRAP_CAP);
+        const ext = renderTime - b.t;
         const lon = normalizeLon(b.lon + ((dLon / dt) * ext));
         const lat = b.lat + ((dLat / dt) * ext);
         return { lon, lat, heading: b.heading };
@@ -350,6 +365,11 @@ function frame() {
         if (LIMIT_SMOOTH_FRAME_RATE && lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
         lastSmoothFrameWall = now;
 
+        if (sinceLast >= INACTIVE_FRAME_GAP && (!lastSampleWall || now - lastSampleWall >= INACTIVE_FRAME_GAP)) {
+            awaitingFreshSamples = true;
+        }
+        if (awaitingFreshSamples) return;
+
         if (isSmoothMovementSuspendedForLoad()) return;
 
         const renderTime = now - computeDelay();
@@ -419,8 +439,10 @@ export function stopSmoothMovement() {
     lastServerTime = 0;
     lastTimestampNum = 0;
     lastSampleT = 0;
+    lastSampleWall = 0;
     lastSmoothFrameWall = 0;
     recentMaxGap = DEFAULT_GAP;
     clockOffset = 0;
     clockOffsetReady = false;
+    awaitingFreshSamples = false;
 }

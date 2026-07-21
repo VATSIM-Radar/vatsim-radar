@@ -12,11 +12,18 @@ Heavily experimental performance improvement in that build.
 - Fixed bookings page losing scroll functionality for some reason
 - Fixed some altitude flight plan values showing "не число ft" pilot overlay
 - Added mono font for Airport Dashboard clock so it doesn't jump
-- Added current time to events and improved page design a bit so it's more readable
+- Added tracks parsing settings to aircraft section of settings
+- Improved smooth aircraft so aircraft no longer freeze every 4 second
+- Improved smooth aircraft so aircraft no longer animate to position after no updates state happened
 
 ## Bug Fixes
 
 - Fixed rare issue when airway identifier parsed as coordinate
+
+## Features and improvements
+
+- Added current time to events page
+- Added a setting to disable dashed line/line to airport in case SIDSTAR parse failed
 
 ## Performance improvements
 

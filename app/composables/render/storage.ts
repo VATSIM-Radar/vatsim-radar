@@ -534,6 +534,7 @@ function initBookings() {
         ending: store.bookingOverride
             ? store.bookingsEndTime.getTime()
             : end.value,
+        includeContinuations: store.bookingOverride ? undefined : '1',
     }));
 
     async function updateBookings() {

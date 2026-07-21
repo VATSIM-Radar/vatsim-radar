@@ -246,6 +246,8 @@ const settingsSchema = partialObject({
                 enabledOnHover: booleanSchema,
                 airportOverlay: partialObject({
                     enabled: booleanSchema,
+                    dashedLine: booleanSchema,
+                    hideLineIfNoProcedure: booleanSchema,
                     sid: booleanSchema,
                     star: booleanSchema,
                     holds: booleanSchema,

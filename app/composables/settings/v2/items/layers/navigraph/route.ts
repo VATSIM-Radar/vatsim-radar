@@ -26,9 +26,24 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.enabled', value),
         disabled: computed(() => !getSettingValue('map.navigraph.routeParsing.enabled').value.value),
     },
+    dashedLine: {
+        title: 'Dashed line',
+        description: 'Shows dashed line to next waypoint',
+        type: 'toggle',
+        value: getSettingValue('map.navigraph.routeParsing.airportOverlay.dashedLine'),
+        onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.dashedLine', value),
+        disabled: airportOverlayDisabled,
+    },
+    hideLineIfNoProcedure: {
+        title: 'Hide line if no procedure',
+        description: 'Hides dashed line or line to an airport if SID/STAR is not specified, or failed to parse',
+        type: 'toggle',
+        value: getSettingValue('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure'),
+        onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure', value),
+        disabled: airportOverlayDisabled,
+    },
     airportOverlaySid: {
         title: 'Auto-SID parsing',
-        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.sid'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.sid', value),
@@ -36,7 +51,6 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayStar: {
         title: 'Auto-STAR parsing',
-        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.star'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.star', value),
@@ -44,7 +58,6 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayHolds: {
         title: 'Holdings',
-        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.holds'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.holds', value),
@@ -52,7 +65,6 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayLabels: {
         title: 'Labels',
-        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.labels'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.labels', value),
@@ -60,7 +72,6 @@ export const settingsItemNavigraphRoute = globalComputed(() => makeSettingsItems
     },
     airportOverlayWaypoints: {
         title: 'Waypoints',
-        hint: 'For dashboard/airport only',
         type: 'toggle',
         value: getSettingValue('map.navigraph.routeParsing.airportOverlay.waypoints'),
         onChange: value => setSettingByKey('map.navigraph.routeParsing.airportOverlay.waypoints', value),

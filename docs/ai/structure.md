@@ -155,6 +155,7 @@ Important composable groups:
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
+- `app/utils/shared/bookings.ts`: shared booking range/continuity helpers. It groups bookings by callsign, treats overlapping or exactly adjacent slots as one continuous chain, and selects the active/nearest chain for map display.
 - `app/composables/navigraph/*`: Navigraph data/layout helpers.
   - `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.

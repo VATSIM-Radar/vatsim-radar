@@ -141,6 +141,8 @@ export interface UserSettingsV2 {
 
                 airportOverlay: {
                     enabled: boolean;
+                    dashedLine: boolean;
+                    hideLineIfNoProcedure: boolean;
                     sid: boolean;
                     star: boolean;
                     holds: boolean;

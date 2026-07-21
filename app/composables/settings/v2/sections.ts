@@ -58,6 +58,16 @@ export const getSettingsSections = () => {
     const notLoggedIn = computed(() => !store.user);
 
     const items = getSettingsItems().value;
+    const routeParsingItems = [
+        items.layers.navigraph.route.airportOverlayEnabled,
+        items.layers.navigraph.route.dashedLine,
+        items.layers.navigraph.route.hideLineIfNoProcedure,
+        items.layers.navigraph.route.airportOverlaySid,
+        items.layers.navigraph.route.airportOverlayStar,
+        items.layers.navigraph.route.airportOverlayHolds,
+        items.layers.navigraph.route.airportOverlayLabels,
+        items.layers.navigraph.route.airportOverlayWaypoints,
+    ];
 
     return [
         {
@@ -219,7 +229,13 @@ export const getSettingsSections = () => {
                         {
                             key: 'tracks',
                             title: 'Tracks',
-                            items: [items.preferences.aircraft.tracksMode, items.preferences.aircraft.tracksShowLimit, items.preferences.aircraft.showOutOfBounds],
+                            items: [items.preferences.aircraft.tracksMode, items.preferences.aircraft.tracksShowLimit, items.preferences.aircraft.showOutOfBounds, items.appearance.colors.turns, items.appearance.colors.turnsTransparency],
+                        },
+                        {
+                            key: 'route',
+                            title: 'Tracks for Airport/Dashboard',
+                            description: 'Tracks settings for Airport Tracks or Dashboard',
+                            items: routeParsingItems,
                         },
                         {
                             key: 'overlays',
@@ -366,7 +382,7 @@ export const getSettingsSections = () => {
                             key: 'route',
                             title: 'Airport Traffic Route Parsing',
                             description: 'Settings for Airport Tracks or Dashboard',
-                            items: [items.layers.navigraph.route.airportOverlayEnabled, items.layers.navigraph.route.airportOverlaySid, items.layers.navigraph.route.airportOverlayStar, items.layers.navigraph.route.airportOverlayHolds, items.layers.navigraph.route.airportOverlayLabels, items.layers.navigraph.route.airportOverlayWaypoints],
+                            items: routeParsingItems,
                         },
                         {
                             key: 'layers',
