@@ -324,10 +324,12 @@ export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
     );
 }
 
-export function getColorValueByKey<K extends SettingsKeysWithDefault>(path: K) {
+export function getColorValueByKey<K extends SettingsKeysWithDefault>(path: K, noDefault?: boolean) {
     const colorPath = changeColorPath(path);
 
-    return getKeyedValueFromSettings(colorPath) ?? getKeyedValueFromSettings(path) ?? settingsDefaultValues[path];
+    const value = getKeyedValueFromSettings(colorPath, true) ?? getKeyedValueFromSettings(path, true);
+
+    return value ?? (noDefault ? undefined : settingsDefaultValues[path]);
 }
 
 export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {
