@@ -1,6 +1,19 @@
 <template>
-    <ui-page-container>
-        <template #title>VATSIM Events</template>
+    <ui-page-container container>
+        <template #title>
+            VATSIM Events
+        </template>
+
+        <template #append>
+            <div class="events_time">
+                <ui-text class="events_time_primary" type="h4">
+                    {{eventsLocalTimezone ? currentTime : utcTime}}
+                </ui-text>
+                <ui-text class="events_time_secondary" type="2b">
+                    {{eventsLocalTimezone ? utcTime : currentTime}}
+                </ui-text>
+            </div>
+        </template>
 
         <ui-setting-item align-left :item="settingsItems.preferences.eventsLocalTimezone"/>
 
@@ -29,6 +42,7 @@ import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
 import { getSettingsItems } from '~/composables/settings/v2/sections';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const { data, refresh } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
@@ -62,10 +76,28 @@ const currentDate = ref(Date.now());
 let interval: NodeJS.Timeout | undefined;
 let checkInterval: NodeJS.Timeout | undefined;
 
+const utcTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+});
+
+const currentTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+});
+
+const utcTime = computed(() => `${ utcTimeFormatter.format(currentDate.value) }z`);
+const currentTime = computed(() => currentTimeFormatter.format(currentDate.value));
+
 onMounted(() => {
     interval = setInterval(() => {
         currentDate.value = Date.now();
-    }, 1000 * 10);
+    }, 1000);
 
     checkInterval = setInterval(() => {
         refresh();
@@ -118,6 +150,24 @@ useHead({
 
     &:empty {
         display: none;
+    }
+}
+
+.events_time {
+    text-align: right;
+
+    & &_primary {
+        margin-bottom: 8px;
+        text-transform: none;
+    }
+
+    & &_secondary {
+        color: $typographySecondary;
+    }
+
+    & >*{
+        font-family: $robotoFont;
+        font-variant-numeric: tabular-nums;
     }
 }
 </style>

@@ -340,8 +340,8 @@ onMounted(() => {
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
     }
 
-    for (const ref of pilotsRefs.value) {
-        observer.observe(ref);
+    for (const el of pilotsRefs.value) {
+        observer.observe(el);
     }
 });
 
@@ -350,19 +350,19 @@ watch(showPilotStats, val => {
         stats.value = [];
     }
     else {
-        for (const ref of pilotsRefs.value) {
-            observer.unobserve(ref);
+        for (const el of pilotsRefs.value) {
+            observer.unobserve(el);
         }
 
-        for (const ref of pilotsRefs.value) {
-            observer.observe(ref);
+        for (const el of pilotsRefs.value) {
+            observer.observe(el);
         }
     }
 });
 
 onUpdated(() => {
-    for (const ref of pilotsRefs.value) {
-        observer.observe(ref);
+    for (const el of pilotsRefs.value) {
+        observer.observe(el);
     }
 });
 

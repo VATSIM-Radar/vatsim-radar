@@ -102,13 +102,13 @@ async function closePopup(pause = true) {
     model.value = false;
 }
 
-useHead({
+useHead(() => ({
     htmlAttrs: {
         class: {
-            'no-overflow': localValue,
+            'no-overflow': localValue.value,
         },
     },
-});
+}));
 
 watch(model, async () => {
     if (import.meta.client && !app.isHydrating) {

@@ -1,5 +1,27 @@
 # Changelog
 
+# [2.0.0-rc.2]
+
+Heavily experimental performance improvement in that build. 
+
+## RC Changes
+
+- Fixed aircraft list not showing in dashboard/airport
+- Fixed booking override not working when opened from bookings page
+- Fixed booking override causing all sectors to show white border, damaging your eyes
+- Fixed bookings page losing scroll functionality for some reason
+- Fixed some altitude flight plan values showing "не число ft" pilot overlay
+- Added mono font for Airport Dashboard clock so it doesn't jump
+- Added current time to events and improved page design a bit so it's more readable
+
+## Bug Fixes
+
+- Fixed rare issue when airway identifier parsed as coordinate
+
+## Performance improvements
+
+- Improved performance on initial loading
+
 # [2.0.0-rc.1.3]
 
 ## RC Changes

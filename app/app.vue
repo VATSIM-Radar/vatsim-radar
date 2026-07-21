@@ -38,13 +38,6 @@ watch(() => route.path, () => {
     flush: 'pre',
 });
 
-if (import.meta.server) {
-    await useAsyncData('iframe-header', async () => {
-        await useIframeHeader();
-        return true;
-    });
-}
-
 async function receiveMessage(event: MessageEvent) {
     const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     if (!data || typeof data !== 'object' || Array.isArray(event.data)) return;

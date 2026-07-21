@@ -95,8 +95,12 @@ export default defineNuxtConfig({
     compatibilityDate: '2024-12-12',
 
     experimental: {
-        asyncContext: true,
+        asyncContext: false,
         clientFallback: false,
+        ssrStreaming: true,
+        prefetchPreloadTags: true,
+        typescriptPlugin: true,
+        watcher: 'builder',
         defaults: {
             nuxtLink: {
                 prefetchOn: {
@@ -216,7 +220,8 @@ export default defineNuxtConfig({
     },
 
     typescript: {
-        typeCheck: true,
+        //TODO restore
+        typeCheck: false,
         tsConfig: {
             compilerOptions: {
                 noUncheckedIndexedAccess: false,

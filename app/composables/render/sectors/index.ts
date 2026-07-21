@@ -55,7 +55,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
         else activeIds.add(id);
 
         const existingFeature = getMapFeature('sector', sectorType === 'empty' ? emptySource : source, id);
-        const isBooking = store.bookingOverride || (!!controllers.length && controllers.every(x => x.isBooking));
+        const isBooking = (sectorType !== 'empty' && store.bookingOverride) || (!!controllers.length && controllers.every(x => x.isBooking));
         const isDuplicated = !!controllers.length && controllers.every(x => x.duplicated);
 
         let icao = fir.uir?.icao ?? fir.fir?.icao ?? fir.feature.properties.id;

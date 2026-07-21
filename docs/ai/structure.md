@@ -20,6 +20,12 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 
+Nuxt dev-server notes:
+
+- In development, `@nuxt/vite-builder` creates a Vite-node Unix socket under `/tmp/nuxt-vite-*/nuxt.sock`. `connect ENOENT` for that path means Nitro/Nuxt tried to reach the dev builder socket after it was removed, failed to start, or during a restart race.
+- Experimental `nuxt.config.ts` flags such as `vite.experimental.bundledDev`, top-level `experimental.watcher`, streaming, and async context settings can affect this dev-server path before application code runs.
+- SSR streaming warnings for `/` should start with global render paths: `app/layouts/default.vue` uses `useHead()` with a `bodyClose` Cloudflare script and reads `cookiePolicyStatus()`, while `app/plugins/init.ts` calls `useIframeHeader()` which sets the CSP response header through `app/composables/iframe.ts`.
+
 ## Runtime Topology
 
 The app has three main runtime layers:

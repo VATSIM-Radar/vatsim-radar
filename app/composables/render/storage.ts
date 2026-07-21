@@ -555,6 +555,7 @@ function initBookings() {
 
     watch(bookingsQueryParams, updateBookings);
     watch(bookingHours, updateEnd, { immediate: true });
+    if (store.bookingOverride) updateBookings();
 
     if (!bookingsInterval) {
         bookingsInterval = setInterval(() => {

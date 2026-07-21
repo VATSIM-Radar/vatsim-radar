@@ -1,5 +1,5 @@
 <template>
-    <ui-page-container v-if="data">
+    <ui-page-container v-if="data" container>
         <template #title>
             {{ data.name }}
         </template>
