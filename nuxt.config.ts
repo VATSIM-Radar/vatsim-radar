@@ -220,7 +220,7 @@ export default defineNuxtConfig({
     },
 
     typescript: {
-        //TODO restore
+        // TODO restore
         typeCheck: false,
         tsConfig: {
             compilerOptions: {

@@ -54,7 +54,6 @@ import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 import type { ThemesList } from '~/utils/colors';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
-import type { ResolvableScript } from '@unhead/vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
