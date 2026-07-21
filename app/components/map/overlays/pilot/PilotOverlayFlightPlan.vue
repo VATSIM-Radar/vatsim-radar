@@ -179,7 +179,7 @@ import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
-import { playSelcal } from '~/utils/shared/selcal-audio';
+import { playSelcal } from '~/utils/shared/selcal';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
 const props = defineProps({
