@@ -15,6 +15,8 @@ Heavily experimental performance improvement in that build.
 - Added tracks parsing settings to aircraft section of settings
 - Improved smooth aircraft so aircraft no longer freeze every 4 second
 - Improved smooth aircraft so aircraft no longer animate to position after no updates state happened
+- Improved booked until functionality so it combines multiple bookings
+- Improved booking in advance functionality so it includes bookings that ends after timeframe
 
 ## Bug Fixes
 
