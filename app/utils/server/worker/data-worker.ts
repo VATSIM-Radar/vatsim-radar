@@ -299,8 +299,16 @@ defineCronJob('* * * * * *', async () => {
         const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
         const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
 
-        const auNzSectors = allowedDuplicatingSectors.filter(x => x.region === 'AU' || x.region === 'NZ' || !x.region);
-        const jpSectors = allowedDuplicatingSectors.filter(x => x.region === 'JP');
+        const auNzSectors: typeof allowedDuplicatingSectors = [];
+        const jpSectors: typeof allowedDuplicatingSectors = [];
+
+        for (const sector of allowedDuplicatingSectors) {
+            if (sector.region === 'JP') {
+                jpSectors.push(sector);
+            } else if (sector.region === 'AU' || sector.region === 'NZ' || !sector.region) {
+                auNzSectors.push(sector);
+            }
+        }
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
