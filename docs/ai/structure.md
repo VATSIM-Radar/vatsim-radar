@@ -161,6 +161,7 @@ Important composable groups:
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
+- `app/components/map/navigraph/NavigraphRoute.vue`: renders cached Navigraph route features; its route cache key must include settings that change the augmented waypoint list.
 - `app/composables/errors.ts`: client error handling.
 - `app/composables/iframe.ts`: iframe/dashboard integration.
 

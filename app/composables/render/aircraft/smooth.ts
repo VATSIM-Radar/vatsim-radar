@@ -36,6 +36,7 @@ const DEFAULT_GAP = 4000;
 const STALL_GAP = 15000;
 const OFFSET_SMOOTH = 0.05;
 const MAX_SAMPLES = 16;
+const MAX_EXTRAPOLATION = 1000 * 10;
 const MOVING_THRESHOLD = 30;
 const MS_PER_HOUR = 1000 * 60 * 60;
 const NM_PER_DEGREE = 60;
@@ -241,7 +242,7 @@ export function interpolateSamples(samples: Sample[], renderTime: number): Inter
             return { lon: b.lon, lat: b.lat, heading: b.heading };
         }
 
-        const ext = renderTime - b.t;
+        const ext = Math.min(renderTime - b.t, MAX_EXTRAPOLATION);
         const lon = normalizeLon(b.lon + ((dLon / dt) * ext));
         const lat = b.lat + ((dLat / dt) * ext);
         return { lon, lat, heading: b.heading };

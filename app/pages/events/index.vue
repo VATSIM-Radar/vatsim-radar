@@ -5,14 +5,16 @@
         </template>
 
         <template #append>
-            <div class="events_time">
-                <ui-text class="events_time_primary" type="h4">
-                    {{eventsLocalTimezone ? currentTime : utcTime}}
-                </ui-text>
-                <ui-text class="events_time_secondary" type="2b">
-                    {{eventsLocalTimezone ? utcTime : currentTime}}
-                </ui-text>
-            </div>
+            <client-only>
+                <div class="events_time">
+                    <ui-text class="events_time_primary" type="h4">
+                        {{eventsLocalTimezone ? currentTime : utcTime}}
+                    </ui-text>
+                    <ui-text class="events_time_secondary" type="2b">
+                        {{eventsLocalTimezone ? utcTime : currentTime}}
+                    </ui-text>
+                </div>
+            </client-only>
         </template>
 
         <ui-setting-item align-left :item="settingsItems.preferences.eventsLocalTimezone"/>

@@ -43,6 +43,7 @@ interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coor
     departure: string | null | undefined;
     arrival: string;
     hasApproach: boolean;
+    hideLineIfNoProcedure: boolean;
     callsign: string;
     isLowSpeed: boolean;
     staticKeys: Set<string>;
@@ -65,6 +66,7 @@ function hasSameRoute(cache: RouteRenderCache, route: Omit<RouteRenderCache, 'st
         cache.departure === route.departure &&
         cache.arrival === route.arrival &&
         cache.hasApproach === route.hasApproach &&
+        cache.hideLineIfNoProcedure === route.hideLineIfNoProcedure &&
         cache.callsign === route.callsign &&
         cache.isLowSpeed === route.isLowSpeed;
 }
@@ -152,6 +154,7 @@ async function update() {
             } satisfies Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
 
             const arrival = _arrival!;
+            const hideLineIfNoProcedure = getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure');
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
 
@@ -171,6 +174,7 @@ async function update() {
                 departure,
                 arrival,
                 hasApproach,
+                hideLineIfNoProcedure,
                 callsign,
                 isLowSpeed: speed < 50,
             };
@@ -186,8 +190,6 @@ async function update() {
                     kind: 'enroute',
                 });
             }
-
-            const hideLineIfNoProcedure = getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure');
 
             if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !hasApproach && (!hideLineIfNoProcedure || extendedPilot)) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
