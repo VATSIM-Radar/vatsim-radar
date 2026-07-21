@@ -534,6 +534,7 @@ function initBookings() {
         ending: store.bookingOverride
             ? store.bookingsEndTime.getTime()
             : end.value,
+        includeContinuations: store.bookingOverride ? undefined : '1',
     }));
 
     async function updateBookings() {
@@ -555,6 +556,7 @@ function initBookings() {
 
     watch(bookingsQueryParams, updateBookings);
     watch(bookingHours, updateEnd, { immediate: true });
+    if (store.bookingOverride) updateBookings();
 
     if (!bookingsInterval) {
         bookingsInterval = setInterval(() => {

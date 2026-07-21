@@ -1,5 +1,36 @@
 # Changelog
 
+# [2.0.0-rc.2]
+
+Heavily experimental performance improvement in that build. 
+
+## RC Changes
+
+- Fixed aircraft list not showing in dashboard/airport
+- Fixed booking override not working when opened from bookings page
+- Fixed booking override causing all sectors to show white border, damaging your eyes
+- Fixed bookings page losing scroll functionality for some reason
+- Fixed some altitude flight plan values showing "не число ft" pilot overlay
+- Added mono font for Airport Dashboard clock so it doesn't jump
+- Added tracks parsing settings to aircraft section of settings
+- Improved smooth aircraft so aircraft no longer freeze every 4 second
+- Improved smooth aircraft so aircraft no longer animate to position after no updates state happened
+- Improved booked until functionality so it combines multiple bookings
+- Improved booking in advance functionality so it includes bookings that ends after timeframe
+
+## Bug Fixes
+
+- Fixed rare issue when airway identifier parsed as coordinate
+
+## Features and improvements
+
+- Added current time to events page
+- Added a setting to disable dashed line/line to airport in case SIDSTAR parse failed
+
+## Performance improvements
+
+- Improved performance on initial loading
+
 # [2.0.0-rc.1.3]
 
 ## RC Changes

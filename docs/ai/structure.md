@@ -20,6 +20,12 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 
+Nuxt dev-server notes:
+
+- In development, `@nuxt/vite-builder` creates a Vite-node Unix socket under `/tmp/nuxt-vite-*/nuxt.sock`. `connect ENOENT` for that path means Nitro/Nuxt tried to reach the dev builder socket after it was removed, failed to start, or during a restart race.
+- Experimental `nuxt.config.ts` flags such as `vite.experimental.bundledDev`, top-level `experimental.watcher`, streaming, and async context settings can affect this dev-server path before application code runs.
+- SSR streaming warnings for `/` should start with global render paths: `app/layouts/default.vue` uses `useHead()` with a `bodyClose` Cloudflare script and reads `cookiePolicyStatus()`, while `app/plugins/init.ts` calls `useIframeHeader()` which sets the CSP response header through `app/composables/iframe.ts`.
+
 ## Runtime Topology
 
 The app has three main runtime layers:
@@ -149,11 +155,13 @@ Important composable groups:
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
+- `app/utils/shared/bookings.ts`: shared booking range/continuity helpers. It groups bookings by callsign, treats overlapping or exactly adjacent slots as one continuous chain, and selects the active/nearest chain for map display.
 - `app/composables/navigraph/*`: Navigraph data/layout helpers.
   - `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
+- `app/components/map/navigraph/NavigraphRoute.vue`: renders cached Navigraph route features; its route cache key must include settings that change the augmented waypoint list.
 - `app/composables/errors.ts`: client error handling.
 - `app/composables/iframe.ts`: iframe/dashboard integration.
 

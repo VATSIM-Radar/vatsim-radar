@@ -880,17 +880,6 @@ export async function getFlightPlanWaypoints({
                 }
             }
 
-            const precise = getPreciseCoord(search);
-
-            if (precise) {
-                waypoints.push({
-                    identifier: split[1] || precise[1] || entry,
-                    coordinate: precise[0],
-                    kind: 'enroute',
-                });
-                continue;
-            }
-
             function previousWaypointCoordinate(waypoint: NavigraphNavDataEnrouteWaypointPartial): Coordinate | null {
                 if (!waypoint) {
                     if (!dataStore.vatspy.value?.data.keyAirports.realIcao[departure]) return null;
@@ -956,6 +945,17 @@ export async function getFlightPlanWaypoints({
 
             const nextEntry = entries[i + 1]?.split('/')[0];
             if (nextEntry && await getNavigraphParsedData('airways', nextEntry)) {
+                continue;
+            }
+
+            const precise = getPreciseCoord(search);
+
+            if (precise) {
+                waypoints.push({
+                    identifier: split[1] || precise[1] || entry,
+                    coordinate: precise[0],
+                    kind: 'enroute',
+                });
                 continue;
             }
 
@@ -1113,15 +1113,17 @@ export async function updateCachedProcedures() {
                 selectedAirport.approaches = await getCachedApproaches(procedures, value.arrival.icao!, value.arrival.approaches);
             }
 
-            if (
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.sids).length &&
+            if (dataStore.navigraphAircraftProcedures.value[cid]) {
+                if (
+                    !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.sids).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.stars).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.approaches).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.sids).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.stars).length &&
                 !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.approaches).length
-            ) {
-                delete dataStore.navigraphAircraftProcedures.value[cid];
+                ) {
+                    delete dataStore.navigraphAircraftProcedures.value[cid];
+                }
             }
         }
     }
