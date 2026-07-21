@@ -625,7 +625,7 @@ async function refreshWeather() {
         }
 
         &_clock {
-            font-family: $juraFont;
+            font-family: $robotoFont;
             font-size: 24px;
             font-weight: 600;
             font-variant-numeric: tabular-nums;

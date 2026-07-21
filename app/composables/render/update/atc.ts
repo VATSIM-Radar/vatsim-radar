@@ -9,6 +9,7 @@ import { checkForVATSpy } from '~/composables/init';
 import { debugBookings, debugControllers } from '~/composables/render/update/utils';
 import { duplicatingSettings } from '~/utils/server/vatsim/atc-duplicating';
 import { simawareCache } from '~/composables/render/airports';
+import { selectMapBookings } from '~/utils/shared/bookings';
 
 export const callsignSplitRegex = /_+/gm;
 
@@ -239,15 +240,10 @@ export async function updateControllers(context: DataUpdateContext) {
     let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings && !store.activeFilter) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
-        const now = new Date();
-        const timeInHours = new Date(now.getTime() + (getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000));
+        const now = Date.now();
+        const visibleUntil = now + (getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000);
 
-        bookings = bookings.filter(x => {
-            const start = new Date(x.start);
-            const end = new Date(x.end);
-
-            return !(start > timeInHours || now > end);
-        });
+        bookings = selectMapBookings(bookings, now, visibleUntil);
     }
 
     const realCallsigns = new Set(dataStore.vatsim.data.controllers.value.map(x => x.callsign));

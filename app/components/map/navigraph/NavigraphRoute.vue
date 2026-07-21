@@ -43,6 +43,7 @@ interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coor
     departure: string | null | undefined;
     arrival: string;
     hasApproach: boolean;
+    hideLineIfNoProcedure: boolean;
     callsign: string;
     isLowSpeed: boolean;
     staticKeys: Set<string>;
@@ -65,6 +66,7 @@ function hasSameRoute(cache: RouteRenderCache, route: Omit<RouteRenderCache, 'st
         cache.departure === route.departure &&
         cache.arrival === route.arrival &&
         cache.hasApproach === route.hasApproach &&
+        cache.hideLineIfNoProcedure === route.hideLineIfNoProcedure &&
         cache.callsign === route.callsign &&
         cache.isLowSpeed === route.isLowSpeed;
 }
@@ -152,6 +154,7 @@ async function update() {
             } satisfies Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
 
             const arrival = _arrival!;
+            const hideLineIfNoProcedure = getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure');
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
 
@@ -171,6 +174,7 @@ async function update() {
                 departure,
                 arrival,
                 hasApproach,
+                hideLineIfNoProcedure,
                 callsign,
                 isLowSpeed: speed < 50,
             };
@@ -187,7 +191,7 @@ async function update() {
                 });
             }
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !hasApproach) {
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !hasApproach && (!hideLineIfNoProcedure || extendedPilot)) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 
@@ -287,6 +291,8 @@ async function update() {
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
 
+            let i = 0;
+
             const onFirstWaypoint = (identifier: string, newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
                 if (firstWaypoint) return;
 
@@ -302,7 +308,9 @@ async function update() {
                     calculatedArrival.depDist -= appliedDistance;
                 }
 
-                if (pilot.groundspeed >= 50) {
+                if (pilot.groundspeed >= 50 && (getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.dashedLine') || extendedPilot) && (
+                    !hideLineIfNoProcedure || kind === 'sids' || kind === 'stars' || i > 1 || extendedPilot
+                )) {
                     addFeature(`enroute-${ callsign }`, () => ({
                         geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 16 })),
                         key: '',
@@ -319,7 +327,7 @@ async function update() {
                 firstWaypoint = true;
             };
 
-            for (let i = 0; i < waypoints.length; i++) {
+            for (i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
                 const nextWaypoint = waypoints[i + 1];
                 const nextCoordinate = nextWaypoint?.coordinate ?? [nextWaypoint?.airway?.value?.[2][0]?.[3], nextWaypoint?.airway?.value?.[2][0]?.[4]];

@@ -201,7 +201,7 @@
                                 {{Math.round(distance?.toGoDist ?? 0)}} NM
                             </template>
                         </ui-chip>
-                        <ui-chip v-if="distance?.toGoTime! && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time at Destination">
+                        <ui-chip v-if="distance?.toGoTime! && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time until Destination">
                             {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
                         </ui-chip>
                     </div>
@@ -236,7 +236,7 @@
                         v-if="distance?.toGoTime || distance?.toGoDist || arrivedAt"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip :title="arrivedAt ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime) ? 'Distance remaining' : 'Time at Destination'">
+                        <ui-chip :title="arrivedAt ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime) ? 'Distance remaining' : 'Time until Destination'">
                             <template v-if="arrivedAt">
                                 {{datetime.format(new Date(arrivedAt))}}z
                             </template>
@@ -281,7 +281,7 @@
                         v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip title="Time at Destination">
+                        <ui-chip title="Time until Destination">
                             {{ getTimeRemains(new Date(distance.toGoTime!)) }}
                         </ui-chip>
                     </div>

@@ -237,7 +237,7 @@ const flightPlanItems = computed(() => {
         { title: 'Fuel Time', text: `${ convertTime(props.flightPlan.fuel_time ?? '') }`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.fuel_time },
         { title: 'Aircraft Type', text: props.flightPlan.aircraft_faa, hide: !props.flightPlan.aircraft_faa },
         { title: 'Cruise TAS', text: `${ props.flightPlan.cruise_tas } kts`, hide: !props.flightPlan.cruise_tas },
-        { title: 'Cruise Altitude', text: `${ numberFormatter.format(props.flightPlan.altitude ? +props.flightPlan.altitude : 0) } ft`, hide: !props.flightPlan.altitude },
+        { title: 'Cruise Altitude', text: props.flightPlan.altitude && !isNaN(Number(props.flightPlan.altitude)) ? `${ numberFormatter.format(+props.flightPlan.altitude) } ft` : props.flightPlan.altitude, hide: !props.flightPlan.altitude },
         { title: 'Registration', text: registration.value, hide: !registration.value },
         { title: 'Alternate', text: alternates.value.alt, hide: !alternates.value.alt },
         { title: 'Voice Rules', text: commType.value, hide: commType.value === 'Voice' },

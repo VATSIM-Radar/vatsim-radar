@@ -379,14 +379,14 @@ onMounted(() => {
         collapsed.value = new Set(dashboardColumns.filter(column => !openColumns.value.includes(column)));
     }
 
-    for (const ref of pilotsRefs.value) {
-        observer.observe(ref);
+    for (const el of pilotsRefs.value) {
+        observer.observe(el);
     }
 });
 
 onUpdated(() => {
-    for (const ref of pilotsRefs.value) {
-        observer.observe(ref);
+    for (const el of pilotsRefs.value) {
+        observer.observe(el);
     }
 });
 

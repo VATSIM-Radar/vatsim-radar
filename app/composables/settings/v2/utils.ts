@@ -178,6 +178,8 @@ const _settingsDefaultValues = {
     'map.navigraph.routeParsing.enabled': true,
     'map.navigraph.routeParsing.enabledOnHover': true,
     'map.navigraph.routeParsing.airportOverlay.enabled': true,
+    'map.navigraph.routeParsing.airportOverlay.dashedLine': true,
+    'map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure': false,
     'map.navigraph.routeParsing.airportOverlay.sid': true,
     'map.navigraph.routeParsing.airportOverlay.star': true,
     'map.navigraph.routeParsing.airportOverlay.holds': true,
