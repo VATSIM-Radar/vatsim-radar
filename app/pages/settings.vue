@@ -155,12 +155,14 @@
                 v-if="mapPreview"
                 class="settings_preview"
             >
-                <iframe
-                    ref="iframe"
-                    class="settings_iframe"
-                    src="/?preset=settings"
-                    @load="iframeLoading = false"
-                />
+                <client-only>
+                    <iframe
+                        ref="iframe"
+                        class="settings_iframe"
+                        src="/?preset=settings"
+                        @load="iframeLoading = false"
+                    />
+                </client-only>
                 <transition name="settings_preview_loader--appear">
                     <div
                         v-if="iframeLoading"

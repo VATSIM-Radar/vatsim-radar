@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-rc.3]
+
+## RC Changes
+
+- Added close button to TWR overlay
+- Fixed mobile sheets closing when clicking anywhere inside of them
+- Fixed search history showing every letter you type and saving when there were no results
+- Fixed "Booked FIR" color not applied instantly
+- Fixed "Booked FIR" color not affecting opacity
+- Fixed map preview not loading after reload
+- Fixed mouse middle click moving in incorrect direction sometimes
+
 # [2.0.0-rc.2]
 
 ## RC Changes

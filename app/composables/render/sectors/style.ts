@@ -44,15 +44,16 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     atc: VatsimShortenedController[];
 }) {
     let userColorRaw = settingsColor ? getSelectedColorFromSettings(settingsColor, true) : null;
-    const userColorTransparency = settingsColor ? getSelectedColorTransparencyFromSettings(settingsColor) : null;
+    let userColorTransparency = settingsColor ? getSelectedColorTransparencyFromSettings(settingsColor) : null;
 
     if (booking) {
         userColorRaw = getSelectedColorFromSettings('centerBookings', true) || getCurrentThemeRgbColor('lightGray100').join(',');
+        userColorTransparency = getSelectedColorTransparencyFromSettings('centerBookings') || userColorTransparency;
     }
 
     const getOwnAtc = ownATC().value;
     const own = atc.some(x => getOwnAtc.includes(x.callsign));
-    const key = String(color) + String(settingsColor) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType) + String(transparent) + String(own);
+    const key = String(userColorRaw) + String(userColorTransparency) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType) + String(transparent) + String(own);
 
     let cachedStyle = styleCache[key];
 
@@ -101,7 +102,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             }));
         }
         else {
-            let fillOpacity = hovered ? 0.2 : booking ? 0.1 : (userColorTransparency ?? 0.07);
+            let fillOpacity = hovered ? 0.2 : booking ? (userColorTransparency ?? 0.1) : (userColorTransparency ?? 0.07);
             let strokeOpacity = (hovered || booking) ? 0.6 : 0.5;
 
             if (transparent) {
@@ -112,9 +113,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             cachedStyle.push(new Style({
                 fill: label
                     ? new Fill({
-                        color: booking
-                            ? `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`
-                            : (`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`),
+                        color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`,
                     })
                     : undefined,
                 stroke: new Stroke({

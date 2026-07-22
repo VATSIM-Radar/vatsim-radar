@@ -102,7 +102,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.counters.disableTraining': false,
     'map.preferences.airports.showLimit': 100,
 
-    'map.preferences.colors.default.firs': { color: 'green500', transparency: 0.1 },
+    'map.preferences.colors.default.firs': { color: 'green400', transparency: 0.1 },
     'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },

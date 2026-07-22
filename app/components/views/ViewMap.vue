@@ -278,6 +278,8 @@ const mapColorsKey = computed(() => JSON.stringify([
     getColorByKey('map.preferences.colors.default.aircraft.ground').value.value,
     getColorByKey('map.preferences.colors.default.approach').value.value,
     getColorByKey('map.preferences.colors.default.firs').value.value,
+    getColorByKey('map.preferences.colors.default.centerBookings').value.value,
+    getColorByKey('map.preferences.colors.default.approachBookings').value.value,
     getColorByKey('map.preferences.colors.default.gates').value.value,
     getColorByKey('map.preferences.colors.default.runways').value.value,
 ]));
@@ -940,31 +942,14 @@ await setupDataFetch({
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
             if (event.button === 1) {
-                const center = fromLonLat(mapStore.center);
-                const resolution = map.value!.getView().getResolution();
-                let increaseX = window.innerWidth / 2;
-                let increaseY = window.innerHeight / 2;
+                const currentMap = map.value!;
+                const center = currentMap.getEventCoordinate(event);
 
-                const halfWidth = target.width / 2;
-                const halfHeight = target.height / 2;
+                if (!center.every(Number.isFinite)) return;
 
-                const isLeft = event.clientX < halfWidth;
-                const isTop = event.clientY < halfHeight;
-
-                if (isLeft) increaseX *= 1 - (event.clientX / halfWidth);
-                else increaseX *= (event.clientX - halfWidth) / (target.width / 2);
-
-                if (isTop) increaseY *= 1 - (event.clientY / halfHeight);
-                else increaseY *= (event.clientY - halfHeight) / (target.height / 2);
-
-                if (isLeft) center[0] -= increaseX * resolution!;
-                else center[0] += increaseX * resolution!;
-                if (isTop) center[1] += increaseY * resolution!;
-                else center[1] -= increaseY * resolution!;
-
-                if (center.some(x => isNaN(x))) return;
-
-                map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
+                // The coordinate is already in the user projection (lon/lat) and
+                // accounts for the map element position, rotation, and pixel ratio.
+                currentMap.getView().animate({ center, duration: 300 });
             }
         };
         targetElement.addEventListener('mousedown', targetMouseDownHandler);

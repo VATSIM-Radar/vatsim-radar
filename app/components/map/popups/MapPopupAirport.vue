@@ -70,6 +70,7 @@
             :show-atis="type !== 'airport'"
             :show-facility="type === 'airport'"
             @click.stop
+            @close="$emit('close')"
             @overlay="$emit('close')"
         >
             <template #title>
