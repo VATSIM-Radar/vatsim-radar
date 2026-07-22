@@ -2,8 +2,6 @@
 
 # [2.0.0-rc.2]
 
-Heavily experimental performance improvement in that build. 
-
 ## RC Changes
 
 - Fixed aircraft list not showing in dashboard/airport
@@ -26,10 +24,6 @@ Heavily experimental performance improvement in that build.
 
 - Added current time to events page
 - Added a setting to disable dashed line/line to airport in case SIDSTAR parse failed
-
-## Performance improvements
-
-- Improved performance on initial loading
 
 # [2.0.0-rc.1.3]
 

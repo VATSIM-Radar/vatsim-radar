@@ -138,6 +138,16 @@ jobs:
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
+      - name: Apply Ingress resources
+        run: kubectl apply -f .config/k8s/ingress.yml
+      - name: Install F5 NGINX Ingress Controller
+        run: |
+          helm repo add nginx-stable https://helm.nginx.com/stable
+          helm repo update
+          helm upgrade --install f5-nginx-ingress nginx-stable/nginx-ingress \
+            --namespace ingress-nginx \
+            --create-namespace \
+            --values .config/k8s/f5-values.yml
       - name: Deploy Ingress
         run: kubectl apply -f .config/k8s/ingress.yml
 

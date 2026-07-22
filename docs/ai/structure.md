@@ -19,6 +19,8 @@ Important root files:
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
+- `.config/k8s/ingress.yml` defines public host/path routing for production and next.
+- `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller.
 
 Nuxt dev-server notes:
 

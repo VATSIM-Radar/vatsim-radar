@@ -1,5 +1,11 @@
 # AI Agent Decisions
 
+- Public Kubernetes ingress uses the official F5 NGINX Ingress Controller with ingress class `f5-nginx`. Its Helm-managed `LoadBalancer` service reuses the explicitly configured DigitalOcean load balancer ID, uses size unit `1`, schedules controller pods onto the `main` node pool, and uses `externalTrafficPolicy: Cluster` so DigitalOcean can health-check all worker nodes while kube-proxy routes traffic to the controller pod. Application services remain `ClusterIP`; only the ingress controller is externally exposed. The legacy controller/LB and custom error backend are not deleted automatically so the LB can be disowned and switched over safely.
+- The custom 503 HTML is served by F5 NGINX itself: the `custom-error-pages` ConfigMap is mounted into the controller and selected with `nginx.org/server-snippets`. Keep snippets enabled in the F5 Helm values when changing this path.
+- F5 ingress buffering explicitly uses `proxy-buffer-size: 16k`, `proxy-buffers: 4 16k`, and `proxy-busy-buffers-size: 32k`; these values must remain mathematically compatible because NGINX rejects a busy buffer size that is not smaller than the total proxy buffer pool minus one buffer.
+- F5 Ingress explicitly enables WebSocket upgrades for `worker-prod` and `worker-next` using `nginx.org/websocket-services`; keep the `/ws` routes ahead of the catch-all `/` routes.
+- During the F5 migration, keep the existing `default/ingress-default` resource untouched and create the F5 routing as `default/ingress-f5`. This allows the old ingress/controller configuration to remain available for rollback.
+
 - `NavigraphRoute` route-cache comparisons must include `hideLineIfNoProcedure`, because toggling it changes whether the synthetic arrival airport waypoint is inserted and stale cached connector features must be eligible for cleanup.
 
 - Ground aircraft without a `flight_plan` should get `depTaxi`, not `arrTaxi`. Planned aircraft on their filed departure are `depTaxi`; planned aircraft on any other ground airport are `arrTaxi`, including landing at an airport different from the filed arrival. Client airport lists should place `depTaxi`/`arrTaxi` by the current `aircraft.airport`, not by filed route endpoints.
