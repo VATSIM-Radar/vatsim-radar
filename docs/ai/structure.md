@@ -19,7 +19,7 @@ Important root files:
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
-- `.config/k8s/ingress.yml` defines public host/path routing for production and next.
+- `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller.
 
 Nuxt dev-server notes:
@@ -105,6 +105,7 @@ Core files:
 - Airport Approach/TRACON rendering has two fallback paths: `updateVATGlasses()` can add VG-owned controllers and mark them in `atcAddedDuringUpdate`, while `getRenderAirportsList()` uses that set to exclude controllers from SimAware TRACON matching; `setMapAirports()` renders a 50 km circle when no SimAware feature remains for an airport.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
 - `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
+- `app/composables/render/aircraft/tracks.ts` owns client turns fetching and rendering; its per-CID turns cache must be invalidated when `flightPlanTime` changes (a reconnect/new online flight).
 - `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 
