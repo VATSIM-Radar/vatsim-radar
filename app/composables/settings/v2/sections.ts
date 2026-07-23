@@ -194,6 +194,8 @@ export const getSettingsSections = () => {
                             items: [
                                 items.appearance.colors.approach,
                                 items.appearance.colors.approachBookings,
+                                items.appearance.colors.approachText,
+                                items.appearance.colors.approachBg,
                                 items.appearance.colors.firs,
                                 items.appearance.colors.centerBookings,
                                 items.appearance.colors.uirs,

@@ -58,6 +58,20 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
         value: colorValue('map.preferences.colors.default.approachBookings'),
         onChange: value => setColorByKey('map.preferences.colors.default.approachBookings', value as UserMapSettingsColor),
     },
+    approachText: {
+        type: 'color',
+        title: 'Approach label (text)',
+        defaultColor: colorDefault('map.preferences.colors.default.approachText'),
+        value: colorValue('map.preferences.colors.default.approachText'),
+        onChange: value => setColorByKey('map.preferences.colors.default.approachText', value as UserMapSettingsColor),
+    },
+    approachBg: {
+        type: 'color',
+        title: 'Approach label (background)',
+        defaultColor: colorDefault('map.preferences.colors.default.approachBg'),
+        value: colorValue('map.preferences.colors.default.approachBg'),
+        onChange: value => setColorByKey('map.preferences.colors.default.approachBg', value as UserMapSettingsColor),
+    },
     firs: {
         type: 'color',
         title: 'FIR (ARTCC)',

@@ -149,6 +149,8 @@ For new UI, prefer these primitives and existing feature/component patterns befo
 - `modules/styles.ts` uses those tokens to generate SCSS/CSS color variables in `app/scss/colors.scss`.
 - `app/scss/variables.scss` defines semantic SCSS aliases such as `$appColor`, `$brandPrimary`, and `$navigraphColor`.
 - User-facing map color defaults live in `app/composables/settings/v2/utils.ts`; some values can be explicit hex colors instead of named palette tokens.
+- Adding a user-customizable map color requires touching the whole chain: `UserMapSettingsColors` type in `app/utils/server/handlers/map-settings.ts`, `themeColorsSchema` in `app/utils/settings/validate.ts`, defaults in `app/composables/settings/v2/utils.ts`, the settings item in `app/composables/settings/v2/items/general/appearance/colors.ts`, its section entry in `app/composables/settings/v2/sections.ts`, and consumption at render time via `getSelectedColorFromSettings`/`getSelectedColorTransparencyFromSettings` (`app/composables/settings/colors.ts`). Defaults from `settingsDefaultValues` are applied at render via `getColorValueByKey`, so an unset user value falls back to the default, not to the render-side fallback.
+- Examples of render-side consumers: FIR/UIR sector + label styling in `app/composables/render/sectors/style.ts` (`centerText`/`centerBg`), tracon/approach circle + label styling in `app/composables/render/airports/layers/airport-style.ts` (`approach`/`approachText`/`approachBg`).
 
 ## Client Composables
 

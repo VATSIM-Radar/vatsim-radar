@@ -113,6 +113,8 @@ const themeColorsSchema = partialObject({
     centerText: colorSchema,
     centerBg: colorSchema,
     approach: colorSchema,
+    approachText: colorSchema,
+    approachBg: colorSchema,
     staffedAirport: transparencySchema,
     defaultAirport: transparencySchema,
     approachBookings: colorSchema,
