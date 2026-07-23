@@ -13,8 +13,8 @@
 
 ## Features and Improvements
 
-- Added new button to play synthesized SELCAL tone on click
-- You can now customize approach label separately from approach border
+- Added new button to play synthesized SELCAL tone on click by laurinbirchler
+- You can now customize approach label separately from approach border by laurinbirchler
 
 # [2.0.0-rc.3]
 
