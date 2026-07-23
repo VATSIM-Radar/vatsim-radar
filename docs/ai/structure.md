@@ -102,6 +102,7 @@ Core files:
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
+- Airport Approach/TRACON rendering has two fallback paths: `updateVATGlasses()` can add VG-owned controllers and mark them in `atcAddedDuringUpdate`, while `getRenderAirportsList()` uses that set to exclude controllers from SimAware TRACON matching; `setMapAirports()` renders a 50 km circle when no SimAware feature remains for an airport.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
 - `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
 - `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
@@ -114,6 +115,7 @@ Map component groups:
 - `app/components/map/overlays/*`: draggable/minified overlays for pilots, airports, ATC, etc.
 - `app/components/map/MapHtmlOverlay.vue`: shared OpenLayers HTML overlay wrapper. On mobile, non-persistent interactive popups render as bottom sheets; persistent coordinate overlays still use OpenLayers positioning.
 - `app/components/map/MapMobileWindow.vue`: mobile overlay window/sheet host. Featured Airports/Favorite mobile menus take priority over the active overlay bottom sheet.
+- `app/components/map/overlays/MapMinifiedOverlays.vue`: minimized overlay buttons; on touch devices the airport traffic-rate preview is triggered by long press while the same button still has the normal click-to-open handler.
 - `app/components/map/popups/*`: OpenLayers popup content.
 - `app/components/popups/PopupMapInfo.vue`: shared framed popup block used by map popups and as the inner content shell for fullscreen dialogs; its title close button only updates the block `modelValue`.
 - `app/components/popups/PopupFullscreen.vue`: fullscreen modal wrapper with backdrop/escape/top-right close handling; it embeds `PopupMapInfo` for title/content/actions layout.
@@ -313,6 +315,13 @@ Add a VATSIM data field:
 3. Update client data conversion in `app/composables/render/storage.ts`.
 4. Update types in `app/types/data/vatsim.ts`.
 5. Update render/UI consumers.
+
+Airport details/race-prone loading:
+
+- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`), then populated asynchronously from `/api/data/vatsim/airport/:icao` and `/notams`.
+- The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it also refreshes weather/controllers/NOTAM data on intervals and live-data updates.
+- The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
+- When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
 
 Add a persisted user setting or preset field:
 

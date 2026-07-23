@@ -255,8 +255,6 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         let root: UserSettingsV2Partial = {};
         let result: Record<string, unknown> = root;
 
-        console.log(path, value);
-
         if (value === undefined) {
             root = settingsStore.settings;
             result = root;

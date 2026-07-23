@@ -514,6 +514,9 @@ defineExpose({ combinedAircraft });
     }
 
     &_pilot {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 50px;
+
         &--bordered {
             border-left: 3px solid var(--airport-color);
         }

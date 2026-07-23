@@ -50,7 +50,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
             { value: 'rainViewer', text: 'RainViewer' },
         ],
         value: getSettingValue('map.layers.weather'),
-        onChange: value => setSettingByKey('map.layers.weather', value as MapWeatherLayer | null),
+        onChange: value => setSettingByKey('map.layers.weather', (value === null ? undefined : value) as MapWeatherLayer | null),
     },
     layer: {
         title: 'Map layer',

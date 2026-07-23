@@ -1,5 +1,21 @@
 # Changelog
 
+# [2.0.0-rc.4]
+
+## RC Changes
+
+- Improved performance of new dashboard when many aircraft cards are present
+- Fixed rare issues with approach not rendering, or rendering as a circle
+- Fixed CTAF click in ATC tab opening stats.vatsim.net with random numbers
+- Fixed that it is impossible to turn off weather layer
+- Fixed scale slider not saving when holding the range via mouse
+- Fixed scale slider ddosing server on each move, resulting in a possibility of cloudflare block
+
+## Features and Improvements
+
+- Added new button to play synthesized SELCAL tone on click
+- You can now customize approach label separately from approach border
+
 # [2.0.0-rc.3]
 
 ## RC Changes

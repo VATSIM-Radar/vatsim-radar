@@ -5,6 +5,7 @@ import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { Map } from 'ol';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
+import type { UseDataStore } from '~/composables/render/storage';
 import type VectorSource from 'ol/source/Vector.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { wrapAndSliceX } from 'ol/extent.js';
@@ -69,6 +70,24 @@ interface VisibleAirportsResult {
 export type AirportListItem = DataAirport;
 
 export const simawareCache: Record<string, SimAwareDataFeature[]> = {};
+let simawareCacheVersion: string | undefined;
+
+export async function getSimAwareFeatures(dataStore: UseDataStore, prefix: string): Promise<SimAwareDataFeature[]> {
+    const version = dataStore.versions.value?.simaware;
+
+    if (version && simawareCacheVersion !== version) {
+        for (const key in simawareCache) delete simawareCache[key];
+        simawareCacheVersion = version;
+    }
+
+    if (simawareCache[prefix]) return simawareCache[prefix];
+
+    // Do not cache an empty result: the IndexedDB dataset can still be updating during startup.
+    const features = await dataStore.simaware(prefix) ?? [];
+    if (features.length) simawareCache[prefix] = features;
+
+    return features;
+}
 
 export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     airports: MapAirportRender[];
@@ -125,8 +144,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
         const traconFeatures: SimAwareDataFeature[] = [];
 
         for (const callsign of callsigns) {
-            if (!simawareCache[callsign]) simawareCache[callsign] = await dataStore.simaware(callsign) ?? [];
-            traconFeatures.push(...simawareCache[callsign]);
+            traconFeatures.push(...await getSimAwareFeatures(dataStore, callsign));
             cached.add(callsign);
         }
 

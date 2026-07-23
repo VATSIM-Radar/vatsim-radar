@@ -8,7 +8,7 @@ import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { checkForVATSpy } from '~/composables/init';
 import { debugBookings, debugControllers } from '~/composables/render/update/utils';
 import { duplicatingSettings } from '~/utils/server/vatsim/atc-duplicating';
-import { simawareCache } from '~/composables/render/airports';
+import { getSimAwareFeatures } from '~/composables/render/airports';
 import { selectMapBookings } from '~/utils/shared/bookings';
 
 export const callsignSplitRegex = /_+/gm;
@@ -360,7 +360,7 @@ export async function updateControllers(context: DataUpdateContext) {
             const isApp = controller.facility === facilities.APP;
 
             // TWR is also supported in SimAware TRACON
-            const traconFeatures = (!isATIS && (isApp || controller.facility === facilities.TWR)) ? (simawareCache[prefix] as SimAwareDataFeature[] | undefined) ?? (simawareCache[prefix] = await dataStore.simaware(prefix) ?? '') : [];
+            const traconFeatures = (!isATIS && (isApp || controller.facility === facilities.TWR)) ? await getSimAwareFeatures(dataStore, prefix) : [];
 
             let feature: SimAwareDataFeature | undefined;
             let backupFeature: SimAwareDataFeature | undefined;

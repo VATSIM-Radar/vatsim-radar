@@ -96,6 +96,9 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
         };
     }
 
+    // TODO: remove
+    if (layer === 'SatelliteEsri') layer = 'Satellite';
+
     if (!(layer in externalLayers)) {
         const isGeneral = layer === 'protoGeneral';
         const isGrayscale = store.getCurrentTheme === 'default' ? false : getKeyedValueFromSettings('map.layers.layer') === 'protoDataGray';

@@ -1,5 +1,9 @@
 # AI Agent Decisions
 
+- On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.
+- VATGlasses-owned ATC controllers are excluded from SimAware fallback only when their matched VATGlasses position has rendered sector geometry. Empty or transiently unavailable VG geometry must leave the controller eligible for SimAware rendering.
+- SimAware lookup results must not permanently cache empty datasets, and the client cache is invalidated when the SimAware data version changes.
+
 - Public Kubernetes ingress uses the official F5 NGINX Ingress Controller with ingress class `f5-nginx`. Its Helm-managed `LoadBalancer` service reuses the explicitly configured DigitalOcean load balancer ID, uses size unit `1`, schedules controller pods onto the `main` node pool, and uses `externalTrafficPolicy: Cluster` so DigitalOcean can health-check all worker nodes while kube-proxy routes traffic to the controller pod. Application services remain `ClusterIP`; only the ingress controller is externally exposed. The legacy controller/LB and custom error backend are not deleted automatically so the LB can be disowned and switched over safely.
 - The custom 503 HTML is served by F5 NGINX itself: the `custom-error-pages` ConfigMap is mounted into the controller and selected with `nginx.org/server-snippets`. Keep snippets enabled in the F5 Helm values when changing this path.
 - F5 ingress buffering explicitly uses `proxy-buffer-size: 16k`, `proxy-buffers: 4 16k`, and `proxy-busy-buffers-size: 32k`; these values must remain mathematically compatible because NGINX rejects a busy buffer size that is not smaller than the total proxy buffer pool minus one buffer.

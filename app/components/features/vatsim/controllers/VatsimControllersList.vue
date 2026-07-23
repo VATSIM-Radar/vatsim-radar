@@ -120,6 +120,10 @@ const getControllers = computed(() => {
     flex-direction: column;
     gap: 0;
 
+    :deep(.popup-block_title) {
+        flex-wrap: nowrap;
+    }
+
     &-container {
         cursor: initial;
 

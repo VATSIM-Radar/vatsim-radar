@@ -21,13 +21,15 @@
             </ui-text>
             <div class="range_slider_input-container"  @wheel.prevent="handleWheel">
                 <input
-                    v-model="model"
                     class="range_slider_input"
                     :disabled
                     :max="max"
                     :min="min"
                     :step="step"
                     type="range"
+                    :value="model"
+                    @change="$emit('change', model)"
+                    @input="model = +($event.target as HTMLInputElement).value"
                     @wheel.stop.prevent="handleWheel"
                 >
             </div>
@@ -91,7 +93,14 @@ const props = defineProps({
     },
 });
 
+const emit = defineEmits({
+    change(model: number) {
+        return true;
+    },
+});
+
 defineSlots<{ default?(): any }>();
+
 const model = defineModel<number>({ type: Number, required: true });
 const percentFilled = computed(() => {
     const value = (model.value - props.min) / (props.max - props.min);
@@ -101,7 +110,7 @@ const percentFilled = computed(() => {
 });
 let lastScrollTime = 0;
 
-function handleWheel(e: WheelEvent) {
+async function handleWheel(e: WheelEvent) {
     const now = Date.now();
     const timeDiff = now - lastScrollTime;
     lastScrollTime = now;
@@ -113,6 +122,10 @@ function handleWheel(e: WheelEvent) {
     const change = delta * (props.step ?? 5) * stepMultiplier;
 
     model.value = +Math.min(props.max, Math.max(props.min, +(model.value ?? '0') + change)).toFixed((props.step && props.step < 1) ? props.step?.toString().split('.')[1]?.length ?? 0 : 0);
+    const val = model.value;
+    sleep(300).then(() => {
+        if (model.value === val) emit('change', model.value);
+    });
 }
 </script>
 
