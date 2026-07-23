@@ -255,7 +255,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 }
 
                 styleCache[strokeKey].getText()!.setText(properties.isTWR
-                    ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
+                    ? (!feature.getProperties()?.traconId) ? 'TWR' : properties.icao
                     : feature.getProperties()?.traconId || properties.icao);
                 styleCache[strokeKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1);
 
