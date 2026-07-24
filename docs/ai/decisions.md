@@ -1,5 +1,17 @@
 # AI Agent Decisions
 
+- On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.
+- VATGlasses-owned ATC controllers are excluded from SimAware fallback only when their matched VATGlasses position has rendered sector geometry. Empty or transiently unavailable VG geometry must leave the controller eligible for SimAware rendering.
+- SimAware lookup results must not permanently cache empty datasets, and the client cache is invalidated when the SimAware data version changes.
+
+- Public Kubernetes ingress uses the official F5 NGINX Ingress Controller with ingress class `f5-nginx`. Its Helm-managed `LoadBalancer` service reuses the explicitly configured DigitalOcean load balancer ID, uses size unit `1`, schedules controller pods onto the `main` node pool, and uses `externalTrafficPolicy: Cluster` so DigitalOcean can health-check all worker nodes while kube-proxy routes traffic to the controller pod. Application services remain `ClusterIP`; only the ingress controller is externally exposed. The legacy controller/LB and custom error backend are not deleted automatically so the LB can be disowned and switched over safely.
+- The custom 503 HTML is served by F5 NGINX itself: the `custom-error-pages` ConfigMap is mounted into the controller and selected with `nginx.org/server-snippets`. Keep snippets enabled in the F5 Helm values when changing this path.
+- The F5 controller can return `502` when an application Service has no usable pod endpoint, whereas the legacy ingress-nginx path returned `503` for the same outage. Error-page interception must therefore cover the status actually emitted by the active controller; intercepting only `503` does not handle F5's `502` response.
+- F5 ingress buffering explicitly uses `proxy-buffer-size: 16k`, `proxy-buffers: 4 16k`, and `proxy-busy-buffers-size: 32k`; these values must remain mathematically compatible because NGINX rejects a busy buffer size that is not smaller than the total proxy buffer pool minus one buffer.
+- F5 Ingress explicitly enables WebSocket upgrades for `worker-prod` and `worker-next` using `nginx.org/websocket-services`; keep the `/ws` routes ahead of the catch-all `/` routes.
+- During the F5 migration, keep the existing `default/ingress-default` resource untouched and create the F5 routing as `default/ingress-f5`. This allows the old ingress/controller configuration to remain available for rollback.
+- Aircraft turns cache is tied to the current online connection: when `flightPlanTime` changes, invalidate the cached response so the next client update performs a full turns request instead of reusing data from the previous connection.
+
 - `NavigraphRoute` route-cache comparisons must include `hideLineIfNoProcedure`, because toggling it changes whether the synthetic arrival airport waypoint is inserted and stale cached connector features must be eligible for cleanup.
 
 - Ground aircraft without a `flight_plan` should get `depTaxi`, not `arrTaxi`. Planned aircraft on their filed departure are `depTaxi`; planned aircraft on any other ground airport are `arrTaxi`, including landing at an airport different from the filed arrival. Client airport lists should place `depTaxi`/`arrTaxi` by the current `aircraft.airport`, not by filed route endpoints.

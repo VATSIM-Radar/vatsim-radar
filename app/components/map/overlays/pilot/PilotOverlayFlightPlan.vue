@@ -143,12 +143,22 @@
                 v-if="selcal"
                 #prepend
             >
-                <ui-text
-                    class="flight-plan__selcal"
-                    type="caption-light"
-                >
-                    SELCAL: {{selcal}}
-                </ui-text>
+                <div class="flight-plan__selcal">
+                    <ui-text type="caption-light">
+                        SELCAL: {{selcal}}
+                    </ui-text>
+                    <ui-button
+                        :aria-label="`Play SELCAL alert for ${ selcal }`"
+                        class="flight-plan__selcal_play"
+                        icon-width="18px"
+                        type="link"
+                        @click="playSelcal(selcal)"
+                    >
+                        <template #icon>
+                            <speaker-icon width="18"/>
+                        </template>
+                    </ui-button>
+                </div>
             </template>
         </ui-copy-info>
     </div>
@@ -169,6 +179,8 @@ import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
+import { playSelcal } from '~/utils/shared/selcal';
+import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
 const props = defineProps({
     flightPlan: {
@@ -320,6 +332,25 @@ const flightPlanItems = computed(() => {
                     &:hover {
                         color: $blue500;
                     }
+                }
+            }
+        }
+    }
+
+    &__selcal {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        &_play {
+            display: flex;
+            align-items: center;
+            height: 18px;
+            color: $whiteAlpha36;
+
+            @include hover {
+                &:hover {
+                    color: $blue500;
                 }
             }
         }

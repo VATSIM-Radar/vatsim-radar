@@ -102,11 +102,13 @@ const _settingsDefaultValues = {
     'map.preferences.airports.counters.disableTraining': false,
     'map.preferences.airports.showLimit': 100,
 
-    'map.preferences.colors.default.firs': { color: 'green500', transparency: 0.1 },
+    'map.preferences.colors.default.firs': { color: 'green400', transparency: 0.1 },
     'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
     'map.preferences.colors.default.approach': { color: 'red300' },
+    'map.preferences.colors.default.approachText': { color: 'red300' },
+    'map.preferences.colors.default.approachBg': { color: 'darkGray900' },
     'map.preferences.colors.default.approachBookings': { color: 'purple300', transparency: 0.7 },
     'map.preferences.colors.default.centerBookings': { color: 'lightGray400', transparency: 0.07 },
     'map.preferences.colors.default.staffedAirport': 1,
@@ -255,8 +257,6 @@ export function setSettingByKey<K extends DeepKeyOfSettings>(path: K, value: Dee
         let root: UserSettingsV2Partial = {};
         let result: Record<string, unknown> = root;
 
-        console.log(path, value);
-
         if (value === undefined) {
             root = settingsStore.settings;
             result = root;
@@ -322,10 +322,12 @@ export function getColorByKey<K extends SettingsKeysWithDefault>(path: K) {
     );
 }
 
-export function getColorValueByKey<K extends SettingsKeysWithDefault>(path: K) {
+export function getColorValueByKey<K extends SettingsKeysWithDefault>(path: K, noDefault?: boolean) {
     const colorPath = changeColorPath(path);
 
-    return getKeyedValueFromSettings(colorPath) ?? getKeyedValueFromSettings(path) ?? settingsDefaultValues[path];
+    const value = getKeyedValueFromSettings(colorPath, true) ?? getKeyedValueFromSettings(path, true);
+
+    return value ?? (noDefault ? undefined : settingsDefaultValues[path]);
 }
 
 export function setColorByKey<K extends DeepKeyOfSettings>(path: K, value: DeepValueOfSetting<UserSettingsV2, K> | undefined) {

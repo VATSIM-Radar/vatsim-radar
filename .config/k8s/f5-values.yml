@@ -1,0 +1,22 @@
+# Values for the official F5 NGINX Ingress Controller Helm chart.
+controller:
+  ingressClass:
+    name: f5-nginx
+    create: true
+    setAsDefaultIngress: false
+  enableSnippets: true
+  nodeSelector:
+    doks.digitalocean.com/node-pool: main
+  volumes:
+    - name: custom-error-pages
+      configMap:
+        name: custom-error-pages
+  volumeMounts:
+    - name: custom-error-pages
+      mountPath: /etc/nginx/error-pages
+  service:
+    type: LoadBalancer
+    externalTrafficPolicy: Cluster
+    annotations:
+      kubernetes.digitalocean.com/load-balancer-id: 3a826325-a46b-4d7d-a511-7d53d6a63552
+      service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"

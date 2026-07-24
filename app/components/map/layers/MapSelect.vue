@@ -303,8 +303,8 @@ const select = useTemplateRef('select');
 
 useClickOutside({
     element: select,
-    callback: () => {
-        if (!isMobileOrTablet.value || !map.value) return;
+    callback: el => {
+        if (!isMobileOrTablet.value || !map.value || (el.target as HTMLElement)?.closest('.vbs')) return;
         map.value!.getTargetElement().style.cursor = 'grab';
         openedOverlay.value = null;
         selectFeature(false);

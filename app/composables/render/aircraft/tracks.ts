@@ -188,6 +188,10 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         if (!tracksFeatures.length) {
             updateState.turnsFirstGroupTimestamp = '';
             updateState.turnsStart = '';
+            // No rendered history means this CID may have reconnected; do not reuse the previous session cache.
+            updateState.lastTurnsUpdate = 0;
+            updateState.lastTurnsUpdateData = undefined;
+            updateState.needsFullTurnsUpdate = true;
         }
 
         let shortUpdate = !!updateState.turnsFirstGroupTimestamp;
@@ -236,6 +240,9 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.turnsFirstGroupTimestamp = '';
             updateState.turnsSecondGroupPoint = null;
             updateState.turnsTimestamp = '';
+            // The cached response belongs to the previous connection and must not block the full reload.
+            updateState.lastTurnsUpdate = 0;
+            updateState.lastTurnsUpdateData = undefined;
             updateState.needsFullTurnsUpdate = true;
             shortUpdate = false;
         }

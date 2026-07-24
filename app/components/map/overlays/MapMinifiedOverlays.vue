@@ -11,7 +11,7 @@
             <ui-button
                 v-for="item in mapStore.overlays.filter(x => isTouch || x.minified)"
                 :key="item.id"
-                v-on-long-press="[() => isTouch && ((item.type !== 'airport' || hoveredAirport === item.data.icao) ? hoveredAirport = '' : (hoveredAirport = item.data.icao)), { delay: 200, modifiers: { prevent: true } }]"
+                v-on-long-press="[() => handleLongPress(item), { delay: 200, modifiers: { prevent: true } }]"
                 size="S"
                 :type="item.minified ? 'secondary-black' : 'primary'"
                 @click="itemClick(item)"
@@ -138,6 +138,7 @@ const airports = computed(() => {
 });
 
 const hoveredAirport = ref('');
+let ignoreNextClick = false;
 const scope = getCurrentScope();
 
 const airportAircraft = computed(() => hoveredAirport.value
@@ -146,7 +147,21 @@ const airportAircraft = computed(() => hoveredAirport.value
     }, ref<any>(null)).value)
     : null);
 
+function handleLongPress(item: StoreOverlay) {
+    if (!isTouch.value || item.type !== 'airport') return;
+
+    // The long-press preview and the button click share the same touch gesture.
+    // Consume the synthetic click that browsers emit after the preview is shown.
+    ignoreNextClick = true;
+    hoveredAirport.value = hoveredAirport.value === item.data.icao ? '' : item.data.icao;
+}
+
 function itemClick(item: StoreOverlay) {
+    if (ignoreNextClick) {
+        ignoreNextClick = false;
+        return;
+    }
+
     if (isMobile.value) {
         if (mapStore.activeMobileOverlay === item.id) {
             item.minified = true;

@@ -78,8 +78,8 @@ export function getSelectedColorTransparencyFromSettings(color: SettingsColorTyp
     return setting ? setting.transparency : null;
 }
 
-export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean) {
-    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any) as UserMapSettingsColor | null;
+export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean, noDefault?: boolean) {
+    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any, noDefault) as UserMapSettingsColor | null;
 
     return setting ? getColorFromSettings(setting, raw) : null;
 }

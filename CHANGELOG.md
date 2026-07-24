@@ -1,8 +1,34 @@
 # Changelog
 
-# [2.0.0-rc.2]
+# [2.0.0-rc.4]
 
-Heavily experimental performance improvement in that build. 
+## RC Changes
+
+- Improved performance of new dashboard when many aircraft cards are present
+- Fixed rare issues with approach not rendering, or rendering as a circle
+- Fixed CTAF click in ATC tab opening stats.vatsim.net with random numbers
+- Fixed that it is impossible to turn off weather layer
+- Fixed scale slider not saving when holding the range via mouse
+- Fixed scale slider ddosing server on each move, resulting in a possibility of cloudflare block
+
+## Features and Improvements
+
+- Added new button to play synthesized SELCAL tone on click by laurinbirchler
+- You can now customize approach label separately from approach border by laurinbirchler
+
+# [2.0.0-rc.3]
+
+## RC Changes
+
+- Added close button to TWR overlay
+- Fixed mobile sheets closing when clicking anywhere inside of them
+- Fixed search history showing every letter you type and saving when there were no results
+- Fixed "Booked FIR" color not applied instantly
+- Fixed "Booked FIR" color not affecting opacity
+- Fixed map preview not loading after reload
+- Fixed mouse middle click moving in incorrect direction sometimes
+
+# [2.0.0-rc.2]
 
 ## RC Changes
 
@@ -26,10 +52,6 @@ Heavily experimental performance improvement in that build.
 
 - Added current time to events page
 - Added a setting to disable dashed line/line to airport in case SIDSTAR parse failed
-
-## Performance improvements
-
-- Improved performance on initial loading
 
 # [2.0.0-rc.1.3]
 

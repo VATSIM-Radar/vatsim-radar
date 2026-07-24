@@ -236,9 +236,6 @@ watch([search, opened], async ([val]) => {
 
     const results: Partial<SearchResults> = {};
 
-    history.value.unshift(val);
-    history.value = Array.from(new Set(history.value.slice(0, 10)));
-
     exactAirportsMatch.value = false;
 
     if (canSearchBy('airports')) {
@@ -293,6 +290,16 @@ watch([search, opened], async ([val]) => {
         });
 
         if (flights.length) results.flights = flights;
+    }
+
+    if (
+        results.atc?.length ||
+        results.flights?.length ||
+        results.airports?.length
+    ) {
+        if (val.startsWith(history.value[0])) history.value.splice(0, 1);
+        history.value.unshift(val);
+        history.value = Array.from(new Set(history.value.slice(0, 10)));
     }
 
     searchResults.value = results;

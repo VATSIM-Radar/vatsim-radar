@@ -97,7 +97,8 @@ export default defineNuxtConfig({
     experimental: {
         asyncContext: false,
         clientFallback: false,
-        ssrStreaming: true,
+        ssrStreaming: false,
+        writeEarlyHints: true,
         prefetchPreloadTags: true,
         typescriptPlugin: true,
         watcher: 'builder',

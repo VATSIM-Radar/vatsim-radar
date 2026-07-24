@@ -207,6 +207,7 @@ const isATIS = computed(() => {
 
 const handleClick = () => {
     const callsign = props.controller?.duplicatedBy ?? props.controller?.callsign;
+    if (props.controller?.facility === -2) return;
 
     if (!findAtcByCallsign(callsign)) {
         window.open(`https://stats.vatsim.net/stats/${ props.controller.cid }`, '_blank');

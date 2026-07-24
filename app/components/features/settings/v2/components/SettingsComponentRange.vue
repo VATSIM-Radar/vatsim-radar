@@ -8,7 +8,7 @@
         :show-input="item.showInput"
         :show-labels="item.showLabels"
         :step="item.step"
-        @update:modelValue="handleSettingChange(item, $event)"
+        @change="handleSettingChange(item, $event)"
     >
         <template v-if="item.label" #default>
             {{item.label}}

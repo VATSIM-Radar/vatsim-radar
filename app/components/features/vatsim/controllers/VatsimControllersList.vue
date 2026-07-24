@@ -9,7 +9,9 @@
         <popup-map-info
             class="atc-popup"
             content-padding="0"
+            model-value
             :open-from
+            @update:modelValue="emit('close')"
         >
             <template
                 v-if="$slots.title"
@@ -80,6 +82,9 @@ const emit = defineEmits({
     overlay(controller: VatsimShortenedController) {
         return true;
     },
+    close() {
+        return true;
+    },
 });
 
 defineSlots<{
@@ -114,6 +119,10 @@ const getControllers = computed(() => {
     display: flex;
     flex-direction: column;
     gap: 0;
+
+    :deep(.popup-block_title) {
+        flex-wrap: nowrap;
+    }
 
     &-container {
         cursor: initial;

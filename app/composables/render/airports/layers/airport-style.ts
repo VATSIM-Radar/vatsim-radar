@@ -224,14 +224,23 @@ export function setAirportStyle(layer: VectorLayer) {
                         defaultTransparency = getSelectedColorTransparencyFromSettings(isUir ? 'uirs' : 'firs') ?? 1;
                     }
 
+                    const floorTransparency = defaultTransparency < 0.3 ? 0.3 : defaultTransparency;
+
+                    const approachTextColor = getSelectedColorFromSettings('approachText', true, true);
+                    const textColor = approachTextColor ?? defaultColor;
+                    const textTransparency = approachTextColor != null
+                        ? (getSelectedColorTransparencyFromSettings('approachText') ?? 1)
+                        : floorTransparency;
+                    const bgColor = getSelectedColorFromSettings('approachBg') ?? getCurrentThemeHexColor('darkGray900');
+
                     styleCache[strokeKey] = new Style({
                         text: new Text({
                             font: getTextFont('caption-medium'),
                             text: '',
                             placement: 'point',
                             overflow: true,
-                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, ${ defaultTransparency < 0.3 ? 0.3 : defaultTransparency })` : own ? getCurrentThemeHexColor('lightGray200') : `rgb(${ defaultColor }, ${ isDuplicated ? 1 : defaultTransparency < 0.3 ? 0.3 : defaultTransparency })`),
-                            backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                            fill: getCachedFill((store.bookingOverride || properties.isBooked) ? `rgba(${ getCurrentThemeRgbColor('lightGray200').join(',') }, ${ floorTransparency })` : own ? getCurrentThemeHexColor('lightGray200') : isDuplicated ? `rgba(${ defaultColor }, 1)` : `rgba(${ textColor }, ${ textTransparency })`),
+                            backgroundFill: own ? getCachedFill(`rgb(${ defaultColor })`) : getCachedFill(bgColor),
                             backgroundStroke: new Stroke({
                                 width: 2,
                                 lineDash: properties.isTWR ? [4, 8] : undefined,
@@ -246,7 +255,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 }
 
                 styleCache[strokeKey].getText()!.setText(properties.isTWR
-                    ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
+                    ? (!feature.getProperties()?.traconId) ? 'TWR' : properties.icao
                     : feature.getProperties()?.traconId || properties.icao);
                 styleCache[strokeKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1);
 
