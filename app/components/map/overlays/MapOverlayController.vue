@@ -97,6 +97,18 @@
         </template>
         <template #frequencies>
             <div class="__vertical-group-16">
+                <ui-button
+                    class="atc_speaker"
+                    :href="`https://listen.vatsim.net/live/${ atc.callsign }`"
+                    size="S"
+                    target="_blank"
+                    type="link"
+                >
+                    <template #icon>
+                        <speaker-icon/>
+                    </template>
+                    Listen as {{atc.callsign}}
+                </ui-button>
                 <ui-notification
                     remember-message="ATC_FREQUENCIES"
                     type="info"
@@ -219,6 +231,7 @@ import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
 import { isPointInExtent } from '~/composables';
+import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
 const props = defineProps({
     overlay: {

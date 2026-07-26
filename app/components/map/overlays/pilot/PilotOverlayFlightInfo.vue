@@ -306,7 +306,7 @@
                 :items="[
                     { key: 'squawk', title: 'Squawk' },
                     { key: 'ctaf', title: ctaf && !pilot.frequencies.some(x => x === ctaf) ? 'CTAF' : undefined },
-                    { title: pilot.frequencies[0] ? 'COM1' : undefined, text: pilot.frequencies[0] },
+                    { title: pilot.frequencies[0] ? 'COM1' : undefined, text: pilot.frequencies[0], key: 'com1' },
                     { title: pilot.frequencies[1] ? 'COM2' : undefined, text: pilot.frequencies[1] },
                 ]"
             >
@@ -315,6 +315,19 @@
                         circle-divider
                         :items="[{ text: pilot.transponder ?? '' }, { text: canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined }]"
                     />
+                </template>
+                <template #item-com1>
+                    <div class="flight-info__speaker-wrapper">
+                        {{pilot.frequencies[0]}}
+                        <a
+                            class="flight-info__speaker"
+                            :href="`https://listen.vatsim.net/live/${ pilot.callsign }`"
+                            target="_blank"
+                            :title="`Listen as ${ pilot.callsign }`"
+                        >
+                            <speaker-icon/>
+                        </a>
+                    </div>
                 </template>
                 <template #item-ctaf>
                     {{ctaf}}
@@ -353,6 +366,7 @@ import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
+import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
 const props = defineProps({
     pilot: {
@@ -598,6 +612,23 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
                 gap: 8px;
                 align-items: center;
             }
+        }
+    }
+
+    &__speaker {
+        width: 16px;
+        min-width: 16px;
+        color: $typographySecondary;
+        text-decoration: none;
+
+        svg {
+            width: 100%;
+        }
+
+        &-wrapper {
+            display: flex;
+            gap: 4px;
+            align-items: center;
         }
     }
 }
