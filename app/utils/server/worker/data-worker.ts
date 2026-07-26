@@ -211,7 +211,7 @@ defineCronJob('* * * * * *', async () => {
             rating: 1,
             server: '',
             visual_range: 1,
-            text_atis: ['RJDG_N 133.550', 'F04', 'F15 127.500'],
+            text_atis: ['RJBB 120.25'],
             last_updated: '',
             logon_time: '',
         });*/
@@ -414,7 +414,9 @@ defineCronJob('* * * * * *', async () => {
                         if (match) {
                             const atisFreq = match[1];
                             const atisFreqCanon = parseFloat(atisFreq).toString();
-                            const targetFrequency = validFrequencies.has(atisFreqCanon) ? atisFreq : controller.frequency;
+                            const targetFrequency = validFrequencies.has(atisFreqCanon)
+                                ? parseFloat(atisFreq).toFixed(3)
+                                : controller.frequency;
 
                             if (sector.callsign === controller.callsign) continue;
                             if (onlineCallsigns.has(sector.callsign)) continue;
