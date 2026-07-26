@@ -1,5 +1,5 @@
-import { getNavigraphCodeChallenge, getNavigraphCodeVerifier, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { prisma } from '~/utils/backend/prisma';
+import { getNavigraphCodeChallenge, getNavigraphCodeVerifier, getNavigraphRedirectUri } from '~/utils/server/navigraph';
+import { prisma } from '~/utils/server/prisma';
 import { randomUUID } from 'node:crypto';
 import { AuthType } from '#prisma';
 
@@ -7,7 +7,11 @@ export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     const verifier = getNavigraphCodeVerifier();
-    const state = randomUUID();
+    let state = randomUUID();
+    const app = getQuery(event).app;
+    const iframe = getQuery(event).iframe;
+    if (app) state += '-app';
+    if (iframe === '1') state += '-iframe';
 
     const url = new URL('https://identity.api.navigraph.com/connect/authorize');
     url.searchParams.set('client_id', config.NAVIGRAPH_CLIENT_ID);

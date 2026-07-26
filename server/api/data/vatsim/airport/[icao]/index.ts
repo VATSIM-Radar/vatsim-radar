@@ -1,15 +1,13 @@
-import { radarStorage } from '~/utils/backend/storage';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
-import { getAirportWeather } from '~/utils/backend/vatsim/weather';
-import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
+import { radarStorage } from '~/utils/server/storage';
+import type { VatsimAirportInfo } from '~/utils/server/vatsim';
+import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/server/vatsim';
+import { getAirportWeather } from '~/utils/server/vatsim/weather';
 import type { VatsimBooking } from '~/types/data/vatsim';
 
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
     vatInfo?: VatsimAirportInfo | null;
-    center: string[];
     bookings?: VatsimBooking[];
 }
 
@@ -17,7 +15,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     const validateAirport = await validateAirportIcao(event, true);
     if (!validateAirport) return;
 
-    const { icao, airport } = validateAirport;
+    const { icao } = validateAirport;
 
     const weatherOnly = getQuery(event).requestedDataType === '1';
     const controllersOnly = getQuery(event).requestedDataType === '2';
@@ -26,7 +24,6 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     const bookings = excludeBookings ? [] : radarStorage.vatsimStatic.bookings.filter(b => b.atc.callsign.split('_')[0] === icao);
 
     const data: VatsimAirportData = {
-        center: [],
         bookings: bookings,
     };
     const promises: PromiseLike<any>[] = [];
@@ -55,23 +52,6 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     }
 
     await Promise.allSettled(promises);
-
-    const list = await getFirsPolygons();
-
-    const firs = list.map(fir => {
-        return fir.polygon.intersectsCoordinate([airport.lon, airport.lat]) &&
-            radarStorage.vatsim.firs.filter(
-                x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.featureId) && x.controller,
-            )!;
-    }).filter(x => !!x);
-
-    if (firs.length) {
-        data.center = [...new Set(
-            firs
-                .flatMap(x => x ? x.map(x => x.controller?.callsign) : [])
-                .filter(x => !!x) as string[],
-        )];
-    }
 
     return data;
 });

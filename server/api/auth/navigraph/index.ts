@@ -1,14 +1,22 @@
 import { ofetch } from 'ofetch';
-import { prisma } from '~/utils/backend/prisma';
-import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { handleH3Exception } from '~/utils/backend/h3';
+import { prisma } from '~/utils/server/prisma';
+import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
+import { handleH3Exception } from '~/utils/server/h3';
+import { findUserByCookie } from '~/utils/server/user';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
-import { findUserByCookie } from '~/utils/backend/user';
+import { getRedirectURL } from '~/utils/server';
 
 export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
+        const state = query.state;
+
+        const redirectUrl = getRedirectURL(event);
+
+        if (typeof state === 'string' && state.endsWith('-app') && !query.webview) {
+            return sendRedirect(event, `vatsim-radar:///auth/navigraph?state=${ state }&code=${ query.code }`);
+        }
 
         const { id: verifierId, verifier } = await prisma.auth.findFirstOrThrow({
             select: {
@@ -16,7 +24,7 @@ export default defineEventHandler(async event => {
                 verifier: true,
             },
             where: {
-                state: query.state ?? '',
+                state: state ?? '',
                 NOT: {
                     verifier: null,
                 },
@@ -80,6 +88,8 @@ export default defineEventHandler(async event => {
             navigraphUser = null;
         }
         else if (navigraphUser?.user.vatsim?.id && !user) {
+            if (state?.endsWith('-iframe')) return sendRedirect(event, 'efbx://auth/vatsim');
+
             return sendRedirect(event, '/api/auth/vatsim/redirect');
         }
 
@@ -97,10 +107,7 @@ export default defineEventHandler(async event => {
                 },
             });
 
-            if (!user) {
-                await getDBUserToken(event, navigraphUser.user);
-            }
-            return sendRedirect(event, config.public.DOMAIN);
+            return sendRedirect(event, redirectUrl);
         }
 
         if (!user && !navigraphUser) {
@@ -120,7 +127,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        return sendRedirect(event, config.public.DOMAIN);
+        return sendRedirect(event, redirectUrl);
     }
     catch (e) {
         return handleH3Exception(event, e);

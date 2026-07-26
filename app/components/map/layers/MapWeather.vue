@@ -1,0 +1,170 @@
+<script setup lang="ts">
+import { useStore } from '~/store';
+import type { ShallowRef } from 'vue';
+import type { ImageTile, Map } from 'ol';
+import TileLayer from 'ol/layer/Tile.js';
+import { XYZ } from 'ol/source.js';
+import type { UrlFunction } from 'ol/Tile.js';
+import TileState from 'ol/TileState.js';
+import type { MapWeatherLayer } from '~/types/map';
+
+defineOptions({
+    render: () => null,
+});
+
+const store = useStore();
+
+const weather = computed(() => {
+    const item = getKeyedValueFromSettings('map.layers.weather');
+    if (!item || String(item) === 'false') return null;
+
+    return item;
+});
+
+const map = inject<ShallowRef<Map | null>>('map')!;
+let tileLayer: TileLayer<XYZ> | undefined;
+const rainviewerHost = ref<string>('');
+const rainviewerPath = ref<string>('');
+
+async function loadTimestamp() {
+    const result = (await $fetch<{
+        host: string;
+        radar: {
+            past: { time: number; path: string }[];
+        };
+    }>('https://api.rainviewer.com/public/weather-maps.json'));
+    rainviewerHost.value = result.host;
+    rainviewerPath.value = result.radar.past[result.radar.past.length - 1]?.path;
+}
+
+interface Layer {
+    attributions?: string;
+    minZoom?: number;
+    maxZoom?: number;
+    tileUrlFunction: UrlFunction;
+}
+
+function getLayer(id: MapWeatherLayer): Layer {
+    if (id === 'rainViewer') {
+        return {
+            attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
+            tileUrlFunction: coord => `${ rainviewerHost.value }${ rainviewerPath.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/2/1_1.png`,
+            maxZoom: 7,
+        };
+    }
+
+    if (id === 'PR0') {
+        const now = new Date();
+        const roundedMinutes = Math.floor(now.getMinutes() / 10) * 10;
+        now.setMinutes(roundedMinutes - 10, 0, 0);
+
+        return {
+            minZoom: 3,
+            maxZoom: 7,
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/radar/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb&tm=${ now.getTime() / 1000 }`,
+        };
+    }
+
+    if (id === 'RE') {
+        return {
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/relief/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb`,
+        };
+    }
+
+    if (id === 'PR0C') id = 'PR0';
+
+    let url = `https://maps.openweathermap.org/maps/2.0/weather/{op}/{z}/{x}/{y}?appid=a1d03b5fa17676270ee45e3b2b29bebb&opacity=1`;
+    if (id === 'CL' && store.theme === 'light') {
+        url += `&palette=0:00000000; 10:00000019; 20:00000026; 30:00000033; 40:0000004C; 50:00000066; 60:0000008C; 70:000000BF; 80:000000CC; 90:000000D8; 100:000000FF; 200:000000FF`;
+    }
+
+    if (id === 'WND' && store.theme === 'default') {
+        url += `&palette=1:FFFFE0A3; 5:FFDAD3A3; 15:FFB58CF4; 25:8672F5CC; 50:A082F7E6; 100:7D51FFFF; 200:595A8FFF`;
+    }
+
+    return {
+        tileUrlFunction: coord => {
+            let uri = url;
+            uri = uri
+                .replace('{z}', coord[0].toString())
+                .replace('{x}', coord[1].toString())
+                .replace('{y}', coord[2].toString())
+                .replace('{op}', id);
+
+            return uri;
+        },
+    };
+}
+
+async function initLayer() {
+    if (weather.value === 'rainViewer') await loadTimestamp();
+
+    if (tileLayer) {
+        map.value?.removeLayer(tileLayer);
+        tileLayer?.dispose();
+        tileLayer = undefined;
+    }
+
+    if (weather.value) {
+        let opacity = weather.value === 'CL' ? 0.3 : store.theme === 'light' ? weather.value === 'rainViewer' ? 0.5 : 0.6 : 0.4;
+        const transparency = store.theme === 'light'
+            ? getKeyedValueFromSettings('map.layers.transparency.weatherLight')
+            : getKeyedValueFromSettings('map.layers.transparency.weatherDark');
+        if (typeof transparency === 'number') opacity = transparency;
+
+        tileLayer = new TileLayer({
+            source: new XYZ({
+                ...getLayer(weather.value),
+                wrapX: true,
+                tileSize: 256,
+                tileLoadFunction(imageTile, src) {
+                    const image = (imageTile as ImageTile).getImage() as HTMLImageElement;
+                    const timer = setTimeout(() => {
+                        imageTile.setState(TileState.ERROR);
+                        console.log('Weather tile load failed by timeout');
+                    }, 5000);
+                    image.addEventListener('load', () => clearTimeout(timer));
+                    image.addEventListener('error', () => clearTimeout(timer));
+                    image.src = src;
+                },
+            }),
+            opacity,
+            zIndex: 1,
+        });
+        map.value?.addLayer(tileLayer);
+    }
+}
+
+watch(map, val => {
+    if (!val) return;
+
+    initLayer();
+}, {
+    immediate: true,
+});
+
+watch(weather, initLayer);
+const transparencySettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.layers.transparency.weatherDark'),
+    getKeyedValueFromSettings('map.layers.transparency.weatherLight'),
+]));
+watch(transparencySettings, initLayer);
+
+let interval: NodeJS.Timeout | undefined;
+
+onMounted(async () => {
+    interval = setInterval(() => {
+        initLayer();
+    }, 1000 * 60 * 5);
+});
+
+onBeforeUnmount(() => {
+    if (tileLayer) {
+        tileLayer.getSource()?.clear();
+        map.value?.removeLayer(tileLayer);
+        tileLayer.dispose();
+        tileLayer = undefined;
+    }
+    clearInterval(interval);
+});
+</script>

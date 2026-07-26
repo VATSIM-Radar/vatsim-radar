@@ -1,5 +1,5 @@
-import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
-import { findAndRefreshUserByCookie } from '~/utils/backend/user';
+import { handleH3Error, validateDataReady } from '~/utils/server/h3';
+import { findAndRefreshUserByCookie } from '~/utils/server/user';
 
 export default defineEventHandler(async event => {
     if (!await validateDataReady(event)) return;

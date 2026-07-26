@@ -1,4 +1,5 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from '~/utils/server/storage';
+import { filterBookingsByRange } from '~/utils/shared/bookings';
 
 export default defineEventHandler(async event => {
     const query = getQuery(event);
@@ -10,9 +11,7 @@ export default defineEventHandler(async event => {
             const end = new Date(parseInt(query.ending as string)).getTime();
 
             if (!isNaN(start) && !isNaN(end)) {
-                return bookings.filter(booking => (booking.start < start && booking.end >= start) ||
-                    (booking.end > end && booking.start <= end) ||
-                    (booking.start >= start && booking.end <= end));
+                return filterBookingsByRange(bookings, start, end, query.includeContinuations === '1');
             }
         }
         catch (error) {

@@ -1,4 +1,4 @@
-import { isDataReady } from '~/utils/backend/storage';
+import { isDataReady } from '~/utils/server/storage';
 
 export default defineEventHandler(() => {
     return {

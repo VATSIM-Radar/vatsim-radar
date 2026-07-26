@@ -1,0 +1,239 @@
+import PatreonIcon from 'assets/icons/basic/patreon.svg?component';
+import MapIcon from 'assets/icons/kit/map.svg?component';
+import StatsIcon from 'assets/icons/kit/stats.svg?component';
+import DataIcon from 'assets/icons/kit/data.svg?component';
+import EventsIcon from 'assets/icons/kit/event.svg?component';
+import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
+import BookingsIcon from 'assets/icons/kit/bookings.svg?component';
+import PathIcon from 'assets/icons/kit/path.svg?component';
+import { useStore } from '~/store';
+import { useRadarError } from '~/composables/errors';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
+
+export interface HeaderItem {
+    text: string;
+    active?: boolean;
+    action?: () => any;
+    path?: string;
+    disabled?: boolean;
+    hide?: boolean;
+    width?: string;
+    icon?: Component;
+    children?: Omit<HeaderItem, 'children' | 'minWidth'>[];
+}
+
+export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
+    const app = useNuxtApp();
+    const route = useRoute();
+    const store = useStore();
+    const isMobile = useIsMobile();
+    const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
+
+    const menu: HeaderItem[] = [
+        {
+            text: 'Map',
+            path: '/',
+            icon: MapIcon,
+            children: [
+                {
+                    text: 'Map',
+                    path: '/',
+                },
+                {
+                    text: 'SIGMETs',
+                    path: '/sigmets',
+                },
+            ],
+        },
+        {
+            text: 'Calendar',
+            icon: CalendarIcon,
+            path: '/events',
+            children: [
+                {
+                    text: 'Events',
+                    path: '/events',
+                    icon: EventsIcon,
+                },
+                {
+                    text: 'Bookings',
+                    path: '/bookings',
+                    icon: BookingsIcon,
+                },
+            ],
+        },
+        {
+            text: 'Dashboard',
+            icon: DataIcon,
+            path: '/dashboard',
+            children: seenDashboards.value.length
+                ? seenDashboards.value.map(x => ({
+                    text: x.name,
+                    path: `/dashboard/${ x.id }`,
+                }))
+                : undefined,
+        },
+        {
+            text: 'Stats',
+            icon: StatsIcon,
+            children: [
+                {
+                    text: 'Airports',
+                    path: '/stats/airports',
+                },
+                {
+                    text: 'Airlines',
+                    path: '/stats/airlines',
+                },
+                {
+                    text: 'Aircraft',
+                    path: '/stats/aircraft',
+                },
+                {
+                    text: 'Routes',
+                    path: '/stats/routes',
+                },
+                {
+                    text: 'Pilots',
+                    path: '/stats/pilots',
+                },
+                {
+                    text: 'ATC',
+                    path: '/stats/atc',
+                },
+                {
+                    text: 'Observers',
+                    path: '/stats/observers',
+                },
+            ],
+        },
+        {
+            text: 'Featured Airports',
+            active: !!store.featuredAirportsOpen,
+            hide: !isMobile.value || route.path !== '/',
+            action: () => store.featuredAirportsOpen = !store.featuredAirportsOpen,
+        },
+        {
+            text: 'About',
+            width: '150px',
+            children: [
+                {
+                    text: 'Roadmap',
+                    path: '/roadmap',
+                    icon: PathIcon,
+                },
+                {
+                    text: 'Support us',
+                    path: '/support-us',
+                    icon: PatreonIcon,
+                },
+                {
+                    text: 'Github',
+                    action: () => {
+                        return window.open('https://github.com/VATSIM-Radar/vatsim-radar');
+                    },
+                },
+                {
+                    text: 'Privacy Policy',
+                    path: '/privacy-policy',
+                },
+                {
+                    text: 'About Us',
+                    path: '/about',
+                },
+                {
+                    text: 'Customize Data Policy',
+                    action: () => {
+                        return store.cookieCustomize = true;
+                    },
+                },
+                {
+                    text: 'Install PWA',
+                    active: false,
+                    hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
+                    action: () => {
+                        return app.$pwa?.install().then(console.log).catch(useRadarError);
+                    },
+                },
+            ].filter(x => !x.hide),
+        },
+    ];
+
+    return menu.filter(x => !x.hide).map(x => {
+        return {
+            ...x,
+            active: x.active ?? (x.path === route.path || !!x.children?.some(x => x.path === route.path)),
+            children: x.children && x.children.map(x => ({
+                ...x,
+                active: x.active ?? x.path === route.path,
+            })),
+        } satisfies HeaderItem as HeaderItem;
+    });
+});
+
+let datetime: Intl.DateTimeFormat | undefined;
+
+export const useOnlineCounters = () => computed(() => {
+    const dataStore = useDataStore();
+    const timeFormat = getKeyedValueFromSettings('appearance.timeFormat');
+
+    datetime ||= new Intl.DateTimeFormat(['en-GB'], {
+        hourCycle: timeFormat === '12h' ? 'h12' : 'h23',
+        timeZone: 'UTC',
+        localeMatcher: 'best fit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    });
+
+    if (datetime.resolvedOptions().hourCycle === 'h12' && timeFormat === '24h') {
+        datetime = new Intl.DateTimeFormat(['en-GB'], {
+            timeZone: 'UTC',
+            localeMatcher: 'best fit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    }
+    else if (datetime.resolvedOptions().hourCycle === 'h23' && timeFormat === '12h') {
+        datetime = new Intl.DateTimeFormat(['en-GB'], {
+            hourCycle: 'h12',
+            timeZone: 'UTC',
+            localeMatcher: 'best fit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    }
+
+    const updateTimestamp = dataStore.vatsim.updateTime.value;
+
+    const date = updateTimestamp ? new Date(updateTimestamp) : null;
+
+    return {
+        inRadar: dataStore.vatsim.data.general?.value?.onlineWSUsers,
+        total: dataStore.vatsim.data.general.value?.unique_users,
+        controllers: dataStore.vatsim.data.controllers.value.filter(x => !x.duplicated).length,
+        atis: dataStore.vatsim.data.atis.value.length,
+        pilots: dataStore.vatsim.data.pilots.value.length,
+        sups: dataStore.vatsim.data.general.value?.sups?.length,
+        adm: dataStore.vatsim.data.general.value?.adm?.length,
+        lastUpdated: date && `${ datetime.format(date).toUpperCase() } Z`,
+    };
+});
+
+export function buildAttributions(attribution: string | false, link: string) {
+    let _attribution = `© <a href="https://openweathermap.org/" target="_blank">OpenWeather</a>`;
+
+    if (isVatGlassesActive.value) _attribution += ` © <a href="https://github.com/lennycolton/vatglasses-data" target="_blank">VATGlasses</a>`;
+
+    if (!attribution) return _attribution;
+
+    return `${ _attribution } © <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> © <a href="${ link }" target="_blank">${ attribution }</a>`;
+}
+
+export function injectMap() {
+    return inject<ShallowRef<Map | null>>('map')!;
+}

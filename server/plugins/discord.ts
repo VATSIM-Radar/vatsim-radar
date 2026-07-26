@@ -9,12 +9,12 @@ import {
     Routes,
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 import { AuthType, DiscordStrategy } from '#prisma';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
-import { getDiscordName } from '~/utils/backend/discord';
+import { getDiscordName } from '~/utils/server/discord';
 import type { UserPresetType } from '#prisma';
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -77,8 +77,8 @@ export default defineNitroPlugin(async app => {
             description: 'Share with everyone your Radar ID and stats!',
         },
         {
-            name: 'release',
-            description: 'Release latest changelog of VATSIM Radar',
+            name: 'dev-release',
+            description: 'Release dev changelog of VATSIM Radar',
             default_member_permissions: PermissionFlagsBits.ManageMessages.toString(),
         },
     ];
@@ -184,6 +184,7 @@ export default defineNitroPlugin(async app => {
 
         const presets: Record<UserPresetType, number> = {
             MAP_SETTINGS: 0,
+            MAP_SETTINGS_V2: 0,
             BOOKMARK: 0,
             DASHBOARD_BOOKMARK: 0,
             FILTER: 0,
@@ -273,6 +274,19 @@ export default defineNitroPlugin(async app => {
             if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && (interaction.commandName === 'next-stats' || interaction.commandName === 'next-hidden-stats')) {
                 await sendStats(interaction, interaction.commandName === 'next-hidden-stats', interaction.channelId!, true);
                 return;
+            }
+
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'dev-release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
+                const release = await discordClient.channels.fetch(discordReleasesChannelId);
+                if (release && 'send' in release) {
+                    await release.send({
+                        content: parseMarkdown()!,
+                    });
+                    await interaction.reply({
+                        content: 'OK',
+                        ephemeral: true,
+                    });
+                }
             }
 
             if (interaction.guildId !== discordServerId) return;
@@ -447,18 +461,6 @@ export default defineNitroPlugin(async app => {
                 await sendStats(interaction, interaction.commandName === 'hidden-stats', interaction.channelId!);
 
                 return;
-            }
-            else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
-                const release = await discordClient.channels.fetch(discordReleasesChannelId);
-                if (release && 'send' in release) {
-                    await release.send({
-                        content: parseMarkdown()!,
-                    });
-                    await interaction.reply({
-                        content: 'OK',
-                        ephemeral: true,
-                    });
-                }
             }
         });
 

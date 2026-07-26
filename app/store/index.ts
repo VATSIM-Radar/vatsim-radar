@@ -1,25 +1,34 @@
 import { defineStore } from 'pinia';
-import type { FullUser } from '~/utils/backend/user';
+import type { FullUser, UserMessage } from '~/utils/server/user';
 import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
-import type { ThemesList } from '~/utils/backend/styles';
+import type { ThemesList } from '~/utils/colors';
 import type { VatDataVersions } from '~/types/data';
-import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
-import { setVatsimDataStore } from '~/composables/data';
-import { useMapStore } from '~/store/map';
-import type { Coordinate } from 'ol/coordinate';
-import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
+import type {
+    VatsimActiveEvent,
+    VatsimBooking,
+    VatsimLiveCompactData, VatsimLiveCompactDataShort,
+    VatsimMandatoryData,
+} from '~/types/data/vatsim';
+import { setVatsimDataStore } from '~/composables/render/storage';
+import type { Coordinate } from 'ol/coordinate.js';
 import type {
     UserListLive,
     UserListLiveUser,
     UserListLiveUserPilot,
-} from '~/utils/backend/handlers/lists';
-import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
+} from '~/utils/server/handlers/lists';
+import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
-import { isFetchError } from '~/utils/shared';
-import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import type { UserMessageType } from '~/utils/shared';
+import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
+import type { UserDashboard } from '~/utils/server/handlers/dashboards';
+import type { DashboardSettings } from '~/utils/shared/dashboard';
 import { useIsDebug } from '~/composables';
+import { clientDB } from '~/composables/render/idb';
+import type { PartialRecord } from '~/types';
+import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
+import type { UserSettingsV2Partial } from '~/utils/settings/types';
+import type { DesktopAppResponse } from '~/utils/server/github';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -29,12 +38,15 @@ export interface SiteConfig {
     hideHeader?: boolean;
     hideFooter?: boolean;
     hideBookings?: boolean;
+    hidePaddings?: boolean;
 
     theme?: ThemesList;
     allAircraftGreen?: boolean;
 
     airports?: string[];
     airport?: string;
+    mainAtcCallsign?: string;
+    dashboardId?: string;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     onlyAirportsAircraft?: boolean;
@@ -49,28 +61,52 @@ export interface SiteConfig {
 export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
 export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
 
+export interface LocalNotification {
+    id?: number;
+    type: SnackbarType;
+    text: string;
+    timeout: number;
+    closable?: boolean;
+}
+
+export const isFilterActive = globalComputed(() => useCookie<boolean>('is-filter-active', {
+    maxAge: 60 * 60 * 24 * 365,
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+}));
+
 export const useStore = defineStore('index', {
     state: () => ({
         user: null as null | FullUser,
         version: '',
+        mounted: false,
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
-        mapSettings: {} as UserMapSettings,
-        mapPresets: [] as UserMapPreset[],
         mapPresetsFetched: false,
+
+        appVersion: null as null | string,
+
         filter: {} as UserFilter,
-        activeFilter: {} as UserFilter,
+        tempFilter: null as UserFilter | null,
+        isFilterActive: true,
+
         filterPresets: [] as UserFilterPreset[],
         bookmarks: [] as UserBookmarkPreset[],
+        dashboards: [] as UserDashboard[],
+        favoriteDashboards: [] as UserDashboard[],
+        activeDashboard: null as DashboardSettings | null,
         config: {} as SiteConfig,
+        desktopRelease: null as DesktopAppResponse | null,
 
+        events: [] as VatsimActiveEvent[],
         fetchedBookings: [] as VatsimBooking[],
         bookingsStartTime: new Date(),
         bookingsEndTime: new Date(Date.now() + (5 * 60 * 60 * 1000)),
         bookingOverride: false,
 
         presetImport: {
-            preset: null as UserMapSettings | false | null,
+            preset: null as UserSettingsV2Partial | false | null,
             name: '',
             save: null as (() => any) | null,
             error: false as false | (() => Promise<any>),
@@ -87,19 +123,18 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
-        cookieCustomize: false,
+        cookieCustomize: false as boolean | 'init',
 
         loginPopup: false,
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
-        settingsPopup: false,
-        settingsPopupTab: 'main' as 'main' | 'favorite',
         airacPopup: false,
         searchActive: false,
         metarRequest: false as boolean | string[],
 
         viewport: {
             width: 0,
+            height: 0,
         },
 
         isMobile: false,
@@ -109,6 +144,7 @@ export const useStore = defineStore('index', {
         isPCWide: false,
         scrollbarWidth: 0,
         device: 'desktop' as 'desktop' | 'mobile' | 'tablet',
+        touch: false,
         engine: '' as IEngine['name'],
 
         initStatus: {
@@ -119,16 +155,36 @@ export const useStore = defineStore('index', {
             vatglasses: false,
             updatesCheck: false,
             dataGet: false,
-            status: false,
         } as VRInitStatus,
+
+        bench: {
+            updateAircraft: 0,
+            updateRoute: 0,
+            updateVG: 0,
+            updateATC: 0,
+            aircraftRender: 0,
+            aircraftPrepare: 0,
+            airportsRender: 0,
+            airportsPrepare: 0,
+            sectorsRender: 0,
+            vgCombine: 0,
+        },
+
+        wsOpen: false,
+        wsCallsign: '',
+        localNotifications: [] as LocalNotification[],
     }),
     getters: {
+        activeFilter(): UserFilter | null {
+            if (this.tempFilter) return this.tempFilter;
+
+            if (!this.isFilterActive || Object.keys(this.filter).length === 0) return null;
+
+            return this.filter;
+        },
         bookings(): VatsimBooking[] {
             const dataStore = useDataStore();
             return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
-        },
-        fullAirportsUpdate(): boolean {
-            return (this.featuredAirportsOpen && !this.featuredVisibleOnly) || this.updateATCTracons;
         },
         datalistNotSupported(): boolean {
             return this.engine === 'Gecko';
@@ -137,11 +193,6 @@ export const useStore = defineStore('index', {
             return this.device !== 'desktop';
         },
         getCurrentTheme(): 'light' | 'default' {
-            switch (this.theme) {
-                case 'sa':
-                    return 'default';
-            }
-
             return this.theme;
         },
         lists(): UserListLive[] {
@@ -157,7 +208,7 @@ export const useStore = defineStore('index', {
                 lists.unshift({
                     id: 0,
                     name: 'Friends',
-                    color: 'success300',
+                    color: 'green500',
                     type: 'FRIENDS',
                     showInMenu: true,
                     users: [],
@@ -193,12 +244,21 @@ export const useStore = defineStore('index', {
                     }
                 }
 
-                for (const atc of dataStore.vatsim.data.locals.value) {
-                    if (atc.atc.isATIS || atc.atc.duplicated) continue;
-                    if (listsUsers.has(atc.atc.cid)) {
-                        foundUsers[atc.atc.cid] = {
+                for (const booking of this.bookings) {
+                    if (listsUsers.has(booking.atc.cid)) {
+                        foundUsers[booking.atc.cid] = {
+                            type: 'booking',
+                            data: booking,
+                        };
+                    }
+                }
+
+                for (const atc of dataStore.vatsim.data.controllers.value) {
+                    if (atc.duplicated) continue;
+                    if (listsUsers.has(atc.cid)) {
+                        foundUsers[atc.cid] = {
                             type: 'atc',
-                            data: atc.atc,
+                            data: atc,
                         };
                     }
                 }
@@ -212,16 +272,6 @@ export const useStore = defineStore('index', {
                                 data: atc,
                             };
                         }
-                    }
-                }
-
-                for (const atc of dataStore.vatsim.data.firs.value) {
-                    if (atc.controller.isATIS || atc.controller.duplicated) continue;
-                    if (listsUsers.has(atc.controller.cid)) {
-                        foundUsers[atc.controller.cid] = {
-                            type: atc.controller.rating === 1 ? 'sup' : 'atc',
-                            data: atc.controller,
-                        };
                     }
                 }
             }
@@ -262,6 +312,25 @@ export const useStore = defineStore('index', {
                 listName: x.name,
             })));
         },
+        userMessages(): PartialRecord<UserMessageType, UserMessage> {
+            if (!this.user) return {};
+            return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));
+        },
+        getEvents(): VatsimActiveEvent[] {
+            return this.events.filter(x => new Date(x.end_time).getTime() > useDataStore().time.value);
+        },
+        eventsMap(): Record<string, VatsimActiveEvent> {
+            const icaoMap: Record<string, VatsimActiveEvent> = {};
+
+            for (const event of this.getEvents) {
+                for (const { icao } of event.airports) {
+                    if (icaoMap[icao]) continue;
+                    icaoMap[icao] = event;
+                }
+            }
+
+            return icaoMap;
+        },
     },
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
@@ -269,7 +338,6 @@ export const useStore = defineStore('index', {
 
             const dataStore = useDataStore();
             const config = useRuntimeConfig();
-            const mapStore = useMapStore();
 
             try {
                 this.dataInProgress = true;
@@ -286,10 +354,10 @@ export const useStore = defineStore('index', {
                     dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
 
                     if (
-                        dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
+                        await clientDB.simaware.get('version') && dataStore.vatspy.value?.version &&
                         (
                             (dataStore.vatglasses.value && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value) ||
-                            dataStore.versions.value.simaware !== dataStore.simaware.value?.version ||
+                            dataStore.versions.value.simaware !== await clientDB.simaware.get('version') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
                     ) location.reload();
@@ -298,12 +366,13 @@ export const useStore = defineStore('index', {
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
                     if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
-                    const data = await $fetch<VatsimLiveData | VatsimLiveDataShort>(`/api/data/vatsim/data${ dataStore.vatsim.data.general.value?.connected_clients ? '/short' : '' }`, {
+                    const data = await $fetch<VatsimLiveCompactData | VatsimLiveCompactDataShort>(`/api/data/vatsim/data/compact${ dataStore.vatsim.data.general.value?.unique_users ? '/short' : '' }`, {
                         timeout: 1000 * 60,
                     });
                     await setVatsimDataStore(data);
+                    dataStore.vatsim.shortUpdateTime.value = Date.now();
 
-                    if (String(config.public.DISABLE_WEBSOCKETS) === 'true' || this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
+                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate') || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });
@@ -315,15 +384,6 @@ export const useStore = defineStore('index', {
                     }
 
                     await onFetch?.();
-
-                    if (!mapStore.localTurns.size) return;
-
-                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
-                        method: 'POST',
-                        body: [...mapStore.localTurns],
-                    });
-
-                    mapStore.localTurns.clear();
                 }
             }
             catch (e) {
@@ -360,36 +420,52 @@ export const useStore = defineStore('index', {
                 }
             };
 
-            try {
-                const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
-                    method: 'POST',
-                    body: 'id' in json
-                        ? json
-                        : {
-                            json,
-                        },
-                });
+            const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
+                method: 'POST',
+                body: 'id' in json
+                    ? json
+                    : {
+                        json,
+                    },
+            });
 
-                if (validation.status === 'ok') saveResult();
-            }
-            catch (e) {
-                if (!isFetchError(e) || e.statusCode !== 409) {
-                    throw e;
-                }
-                else {
-                    saveResult();
-                }
-            }
-        },
-        async fetchMapPresets() {
-            this.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
-            this.mapPresetsFetched = true;
+            if (validation.status === 'ok') saveResult();
         },
         async fetchFiltersPresets() {
             this.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
         },
         async fetchBookmarks() {
             this.bookmarks = await $fetch<UserFilterPreset[]>('/api/user/bookmarks');
+        },
+        addNotification(notification: LocalNotification) {
+            notification.id = Date.now();
+            this.localNotifications.push(notification);
+
+            setTimeout(() => {
+                this.localNotifications = this.localNotifications.filter(x => x.id !== notification.id);
+            }, notification.timeout);
+
+            return notification;
+        },
+        addError(text: string, timeout = 5000) {
+            console.log(this.addNotification({
+                type: 'error',
+                text,
+                timeout,
+            }));
+        },
+        setActiveFilter(val: boolean) {
+            isFilterActive().value.value = val;
+            this.isFilterActive = val;
+        },
+        async fetchDashboards() {
+            this.dashboards = await $fetch<UserDashboard[]>('/api/user/dashboards');
+        },
+        async fetchFavoriteDashboards() {
+            this.favoriteDashboards = await $fetch<UserDashboard[]>('/api/user/dashboards/favorite');
+        },
+        async fetchRelease() {
+            this.desktopRelease = await $fetch<DesktopAppResponse>('/api/data/releases');
         },
     },
 });

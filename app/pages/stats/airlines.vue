@@ -1,14 +1,14 @@
 <template>
-    <common-page-block container>
+    <ui-page-container container>
         <template #title>
             Airlines
         </template>
 
-        <view-stats-tabs/>
+        <stats-tabs/>
 
-        <common-table
+        <ui-table
             v-model:sort="sort"
-            :data="pilotSuggestions.airlines"
+            :data="pilotSuggestions"
             :headers="[
                 { key: 'place', name: 'Place', width: 40 },
                 { key: 'icao', name: 'ICAO', width: 60, sort: true },
@@ -48,16 +48,16 @@
                     Filter By
                 </a>
             </template>
-        </common-table>
-    </common-page-block>
+        </ui-table>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
-import type { TableSort } from '~/components/common/basic/CommonTable.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import type { RadarDataAirline } from '~/utils/backend/storage';
-import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import type { TableSort } from '~/components/ui/data/UiTable.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import type { RadarDataAirline } from '~/utils/server/storage';
+import StatsTabs from '~/components/views/StatsTabs.vue';
 
 const dataStore = useDataStore();
 
@@ -65,11 +65,13 @@ type Airline = RadarDataAirline & { count: number };
 
 const sort = ref<TableSort[]>([]);
 
-const pilotSuggestions = computed<{ airlines: Airline[] }>(() => {
+const pilotSuggestions = shallowRef<Airline[]>([]);
+
+const setPilotSuggestions = async () => {
     const airlines: Record<string, Airline> = {};
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        const airline = getAirlineFromCallsign(pilot.callsign);
+        const airline = await getAirlineFromCallsign(pilot.callsign);
 
         if (airline) {
             if (airlines[airline.icao]) airlines[airline.icao].count++;
@@ -82,8 +84,12 @@ const pilotSuggestions = computed<{ airlines: Airline[] }>(() => {
         }
     }
 
-    return {
-        airlines: Object.values(airlines).sort((a, b) => b.count - a.count),
-    };
+    pilotSuggestions.value = Object.values(airlines).sort((a, b) => b.count - a.count);
+};
+
+watch(dataStore.vatsim.data.pilots, () => {
+    setPilotSuggestions();
+}, {
+    immediate: true,
 });
 </script>

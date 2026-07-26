@@ -1,5 +1,5 @@
 <template>
-    <common-page-block
+    <ui-page-container
         class="airports"
         container
     >
@@ -7,9 +7,9 @@
             Airports
         </template>
 
-        <view-stats-tabs/>
+        <stats-tabs/>
 
-        <common-table
+        <ui-table
             v-model:sort="sort"
             clickable
             :data="airports"
@@ -45,9 +45,9 @@
                     View on map
                 </a>
             </template>
-        </common-table>
+        </ui-table>
 
-        <common-popup
+        <popup-fullscreen
             :model-value="!!overlayData"
             width="600px"
             @update:modelValue="!$event && (mapStore.overlays = [])"
@@ -57,62 +57,62 @@
             </template>
             <airport-controllers/>
             <airport-aircraft/>
-        </common-popup>
-    </common-page-block>
+        </popup-fullscreen>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
-import type { TableSort } from '~/components/common/basic/CommonTable.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import type { MapAirport } from '~/types/map';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import type { TableSort } from '~/components/ui/data/UiTable.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
-import { provideAirport } from '~/composables/airport';
-import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
-import AirportControllers from '~/components/views/airport/AirportControllers.vue';
-import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
+import { provideAirport } from '~/composables/vatsim/airport';
+import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
+import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
+import StatsTabs from '~/components/views/StatsTabs.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 mapStore.$reset();
 
-type Airport = MapAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; count: number };
+type Airport = DataAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; count: number };
 
 const sort = ref<TableSort[]>([]);
 const overlayData = computed(() => mapStore.overlays.find(x => x.type === 'airport')?.data);
 provideAirport(overlayData);
 
 const airports = computed<Airport[]>(() => {
-    return dataStore.vatsim.data.airports.value.map(x => ({
+    return Object.values(dataStore.airportsList.value).map(x => ({
         ...x,
-        ...dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao],
-        departed: x.aircraft.departures?.length ?? 0,
-        arriving: x.aircraft.arrivals?.length ?? 0,
-        departing: x.aircraft.groundDep?.length ?? 0,
-        arrived: x.aircraft.groundArr?.length ?? 0,
-        count: Object.values(x.aircraft).reduce((sum, a) => sum + a.length, 0),
-    })).filter(x => x.name).sort((a, b) => b.count - a.count) as unknown as Airport[];
+        ...dataStore.vatspy.value?.data.keyAirports.realIcao[x!.icao],
+        departed: x!.aircraft.departures?.length ?? 0,
+        arriving: x!.aircraft.arrivals?.length ?? 0,
+        departing: x!.aircraft.groundDep?.length ?? 0,
+        arrived: x!.aircraft.groundArr?.length ?? 0,
+        count: Object.values(x!.aircraft).reduce((sum, a) => sum + a.length, 0),
+    })).sort((a, b) => b.count - a.count) as unknown as Airport[];
 });
 </script>
 
 <style lang="scss" scoped>
 .airports {
     :deep(.table__data--type-departing) {
-        color: $success500;
+        color: $green500;
     }
 
     :deep(.table__data--type-arrived) {
-        color: $error300;
+        color: $red300;
     }
 
     :deep(.table__data--type-departed) {
-        color: $primary500;
+        color: $blue500;
     }
 
     :deep(.table__data--type-arriving) {
-        color: $warning500;
+        color: $orange500;
     }
 }
 </style>

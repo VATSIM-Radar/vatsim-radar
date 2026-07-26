@@ -1,3 +1,3 @@
-import { handleBookmarksEvent } from '~/utils/backend/handlers/bookmarks';
+import { handleBookmarksEvent } from '~/utils/server/handlers/bookmarks';
 
 export default defineEventHandler(handleBookmarksEvent);

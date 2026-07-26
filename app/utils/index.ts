@@ -6,11 +6,9 @@ import type {
     Polygon as GeoPolygon,
     Point as GeoPoint,
 } from 'geojson';
-import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom';
-import type { Coordinate } from 'ol/coordinate';
-import Polygon from 'ol/geom/Polygon';
-import type { VatsimBooking, VatsimBookingAtc, VatsimShortenedController } from '~/types/data/vatsim';
-import type { VatSpyDataFeature } from '~/types/data/vatspy';
+import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom.js';
+import type { Coordinate } from 'ol/coordinate.js';
+import Polygon from 'ol/geom/Polygon.js';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -58,6 +56,12 @@ export function serializeClass<T extends string | null | undefined>(className: T
     return className;
 }
 
+export function turfGeometryToOl(feature: Feature<GeoMultiPolygon>): MultiPolygon;
+export function turfGeometryToOl(feature: Feature<GeoPolygon>): Polygon;
+export function turfGeometryToOl(feature: Feature<GeoPoint>): Point;
+export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString>): LineString | MultiLineString;
+export function turfGeometryToOl(feature: Feature<GeoMultiLineString>): MultiLineString;
+export function turfGeometryToOl(feature: Feature<GeoLineString>): LineString;
 export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint | GeoPolygon | GeoMultiPolygon>) {
     if (feature.geometry.type === 'LineString') return new LineString(feature.geometry.coordinates);
     if (feature.geometry.type === 'MultiLineString') return new MultiLineString(feature.geometry.coordinates);
@@ -85,26 +89,4 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
     coords.push(coords[0]);
 
     return new Polygon([coords]);
-}
-
-export function makeFakeAtcFeatureFromBooking(atc: VatsimShortenedController, booking: VatsimBookingAtc): VatSpyDataFeature[] {
-    atc.booking = booking;
-    makeBookingLocalTime(booking);
-    return [{
-        controller: atc,
-        firs: [],
-    }];
-}
-
-export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
-    return {
-        cid: booking.atc.cid,
-        name: booking.atc.name,
-        callsign: booking.atc.callsign,
-        frequency: booking.atc.frequency,
-        facility: booking.atc.facility,
-        rating: booking.atc.rating,
-        logon_time: booking.atc.logon_time,
-        text_atis: booking.atc.text_atis,
-    };
 }

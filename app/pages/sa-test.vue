@@ -1,9 +1,9 @@
 <template>
-    <common-page-block class="oe-test">
+    <ui-page-container class="oe-test">
         <template #title>
             OE integration test
         </template>
-        <common-radio-group
+        <ui-radio-group
             v-model="airports"
             class="oe-test_inputs"
             :items="selects"
@@ -13,13 +13,13 @@
             class="oe-test_iframe"
             :src="getUrl"
         />
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
+import type { RadioItemGroup } from '~/components/ui/inputs/UiRadioGroup.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 
 type IframeVariants = 'all' | 'oedf' | 'oerk' | 'oema' | 'oejn';
 

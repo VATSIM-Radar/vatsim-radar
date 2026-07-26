@@ -1,30 +1,28 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-default
+  name: ingress-f5
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    nginx.ingress.kubernetes.io/server-snippet: |
+    nginx.org/proxy-buffer-size: 16k
+    nginx.org/proxy-buffers: "4 16k"
+    nginx.org/proxy-busy-buffers-size: 32k
+    nginx.org/proxy-read-timeout: "3600s"
+    nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/websocket-services: "worker-prod,worker-next"
+    nginx.org/server-snippets: |
+      error_page 502 =503 /503.html;
       error_page 503 /503.html;
 
       location = /503.html {
-          proxy_pass http://error-pages.ingress-nginx.svc.cluster.local;
+          root /etc/nginx/error-pages;
           internal;
       }
 spec:
+  ingressClassName: f5-nginx
   rules:
     - host: "next.vatsim-radar.com"
       http:
         paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: app-next
-                port:
-                  number: 3000
           - pathType: Prefix
             path: "/ws"
             backend:
@@ -32,16 +30,16 @@ spec:
                 name: worker-next
                 port:
                   number: 8880
-    - host: "vatsim-radar.com"
-      http:
-        paths:
           - pathType: Prefix
             path: "/"
             backend:
               service:
-                name: app-prod
+                name: app-next
                 port:
                   number: 3000
+    - host: "vatsim-radar.com"
+      http:
+        paths:
           - pathType: Prefix
             path: "/ws"
             backend:
@@ -49,6 +47,13 @@ spec:
                 name: worker-prod
                 port:
                   number: 8880
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-prod
+                port:
+                  number: 3000
     - host: "do.vatsim-radar.com"
       http:
         paths:
@@ -69,44 +74,6 @@ spec:
                 name: data
                 port:
                   number: 3000
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: error-pages
-  namespace: ingress-nginx
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: error-pages
-  template:
-    metadata:
-      labels:
-        app: error-pages
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:alpine
-          volumeMounts:
-            - name: error-pages
-              mountPath: /usr/share/nginx/html
-      volumes:
-        - name: error-pages
-          configMap:
-            name: custom-error-pages
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: error-pages
-  namespace: ingress-nginx
-spec:
-  ports:
-    - port: 80
-      targetPort: 80
-  selector:
-    app: error-pages
 ---
 apiVersion: v1
 kind: ConfigMap

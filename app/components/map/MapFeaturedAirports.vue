@@ -1,6 +1,6 @@
 <template>
     <div class="__info-sections featured-airports">
-        <common-tabs
+        <ui-tabs
             v-model="featuredTab"
             mobile-vertical
             :tabs="{
@@ -18,64 +18,61 @@
         </small>
 
         <div class="__info-sections featured-airports_list">
-            <common-airport-card
+            <navigation-featured-airport
                 v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
-                :key="airport.airport.icao + index"
+                :key="airport.icao + index"
                 :airport="airport"
                 :position="index + 1"
             />
         </div>
 
         <div class="featured-airports_footer">
-            <common-toggle
-                :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
-                @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
-            >
-                Show total departures
-                <template #description>
-                    Including airborne
-                </template>
-            </common-toggle>
-            <common-toggle v-model="store.featuredVisibleOnly">
-                Visible only
-                <template #description>
-                    Filter by current map area
-                </template>
-            </common-toggle>
+            <ui-setting-item :item="getSettingByItem(settingsItems.preferences.showTotalDeparturesInFeaturedAirports, { title: 'Total departures', description: '' })"/>
+            <!-- @vue-ignore -->
+            <ui-setting-item :item="{ type: 'toggle', title: 'Visible only', value: featuredVisibleOnly, onChange: (val) => store.featuredVisibleOnly = !!val }"/>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
-import CommonTabs from '~/components/common/basic/CommonTabs.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import NavigationFeaturedAirport from '~/components/features/navigation/NavigationFeaturedAirport.vue';
+import UiTabs from '~/components/ui/data/UiTabs.vue';
 import { useStore } from '~/store';
 import distance from '@turf/distance';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import type { SettingValueType } from '~/composables/settings/v2/utils';
 
 const featuredTab = ref('popular');
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const settingsItems = getSettingsItems().value;
+const featuredVisibleOnly: SettingValueType<boolean> = computed(() => ({
+    value: store.featuredVisibleOnly,
+    isSet: false,
+}));
 
 const popularAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value.filter(x => !x.airport.isPseudo && x.aircraftCids.length).slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
+    return dataStore.vatsim.parsedAirportsList.value.filter(x => x.airport && x.aircraftCount && (!store.featuredVisibleOnly || x.visible)).slice().sort((a, b) => b.aircraftCount - a.aircraftCount).slice(0, store.featuredVisibleOnly ? 10 : 25);
 });
 
 const quietAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value
-        .filter(x => !x.airport.isPseudo && (x.aircraftCids.length || x.localAtc.some(x => x.isATIS)) && (x.arrAtc.length || x.localAtc.some(x => !x.isATIS)))
+    const facilities = useFacilitiesIds();
+
+    return dataStore.vatsim.parsedAirportsList.value
+        .filter(x => x.airport && (!x.airport.isPseudo || x.aircraftCount) && (!store.featuredVisibleOnly || x.visible) && (x.aircraftCount || x.atc.some(x => x.isATIS)) && x.atc.filter(x => !x.isATIS && !x.booking && !x.duplicated && x.facility !== facilities.FSS && x.facility !== facilities.CTR).length)
         .slice()
         .sort((a, b) => {
-            const aArrivals = (a.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
-            const bArrivals = (b.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
+            const aArrivals = (a.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
+            const bArrivals = (b.aircraft.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
 
-            const aSum = aArrivals.length + (a.aircraftList.groundDep?.length ?? 0);
-            const bSum = bArrivals.length + (b.aircraftList.groundDep?.length ?? 0);
+            const aSum = aArrivals.length + (a.aircraft.groundDep?.length ?? 0);
+            const bSum = bArrivals.length + (b.aircraft.groundDep?.length ?? 0);
 
             const diff = aSum - bSum;
 
-            if (diff === 0) {
+            if (diff === 0 && a.airport && b.airport) {
                 const aCoord = [a.airport.lon, a.airport.lat];
                 const bCoord = [b.airport.lon, b.airport.lat];
 
@@ -107,21 +104,23 @@ div.featured-airports {
         padding: 8px;
         border-radius: 4px;
 
-        background: $darkgray950;
+        background: $darkGray800;
 
-        &::before {
-            content: '';
+        @include pc {
+            &::before {
+                content: '';
 
-            position: absolute;
-            left: calc(50% - 6px);
+                position: absolute;
+                left: calc(50% - 6px);
 
-            display: block;
-            align-self: center;
+                display: block;
+                align-self: center;
 
-            width: 1px;
-            height: 24px;
+                width: 1px;
+                height: 24px;
 
-            background: varToRgba('lightgray150', 0.15);
+                background: varToRgba('lightGray500', 0.15);
+            }
         }
 
         >* {
@@ -130,5 +129,4 @@ div.featured-airports {
     }
 }
 </style>
-
 

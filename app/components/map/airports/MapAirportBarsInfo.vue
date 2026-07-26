@@ -1,8 +1,8 @@
 <template>
     <div class="bars">
-        <common-notification
+        <ui-notification
             class="bars_title"
-            cookie-name="bars-in-use"
+            remember-message="BARS_IN_USE"
             type="info"
         >
             BARS integration is active for this airport.<br> <a
@@ -10,7 +10,7 @@
                 href="https://vats.im/bars"
                 target="_blank"
             >Learn more</a>
-        </common-notification>
+        </ui-notification>
         <div class="bars_list __info-sections">
             <div
                 v-for="item in data"
@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { BARSShortItem } from '~/utils/backend/storage';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import type { BARSShortItem } from '~/utils/server/storage';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 defineProps({
     data: {
@@ -56,13 +56,13 @@ defineProps({
     &_list {
         &_item {
             padding: 8px;
-            border: 1px solid varToRgba('lightgray125', 0.15);
+            border: 1px solid varToRgba('lightGray400', 0.15);
             border-radius: 8px;
 
             &_runway {
                 font-size :14px;
                 font-weight: 600;
-                color: $primary300;
+                color: $blue300;
             }
 
         }
@@ -80,12 +80,12 @@ defineProps({
 
             font-size: 12px;
             font-weight: 600;
-            color: $success500;
+            color: $green500;
 
-            background: $darkgray875;
+            background: $darkGray600;
 
             &--up {
-                color: $error500;
+                color: $red500;
             }
         }
     }

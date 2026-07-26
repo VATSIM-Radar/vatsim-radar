@@ -1,10 +1,10 @@
 <template>
-    <common-page-block class="achievements">
-        <template #title>VATSIM Achievements</template>
+    <ui-page-container class="achievements">
+        <template #title>Achievements</template>
 
-        <common-notification
+        <ui-notification
             class="achievements_notification"
-            cookie-name="achievements-link"
+            remember-message="ACHIEVEMENTS_LINK"
             type="info"
         >
             <a
@@ -14,7 +14,7 @@
             >
                 Learn more about achievements
             </a>
-        </common-notification>
+        </ui-notification>
 
         <div class="achievements_list">
             <div
@@ -22,9 +22,9 @@
                 :key
                 class="achievements_list_group"
             >
-                <common-block-title class="achievements_list_group_title">
+                <ui-block-title class="achievements_list_group_title">
                     {{key}}
-                </common-block-title>
+                </ui-block-title>
                 <div class="achievements_list_items">
                     <div
                         v-for="(achievement,index) in items"
@@ -45,15 +45,16 @@
                 </div>
             </div>
         </div>
-        <common-popup-achievement v-model="selectedAchievement"/>
-    </common-page-block>
+        <popup-achievement v-model="selectedAchievement"/>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { VatsimAchievementList } from '~/types/data/vatsim';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import PopupAchievement from '~/components/popups/PopupAchievement.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
+import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 
 const selectedAchievement = shallowRef<VatsimAchievementList | null>(null);
 
@@ -86,12 +87,11 @@ const groups = computed(() => {
         margin-bottom: 16px;
 
         .__link {
-            color: $lightgray200;
+            color: $lightGray600;
         }
     }
 
     &_list {
-        --block-title-background: #{$darkgray950};
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -117,12 +117,12 @@ const groups = computed(() => {
 
         width: 200px;
         padding: 16px;
-        border: 1px solid $darkgray800;
+        border: 1px solid $darkGray400;
         border-radius: 8px;
 
         text-align: center;
 
-        background: $darkgray1000;
+        background: $darkGray900;
 
         @include mobileOnly {
             width: auto;
@@ -132,7 +132,7 @@ const groups = computed(() => {
             width: 100%;
             padding: 8px;
             border-radius: 8px;
-            background-color: $darkgray1000;
+            background-color: $darkGray900;
 
             &_item {
                 aspect-ratio: $achievementAspectRatio;

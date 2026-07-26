@@ -1,100 +1,43 @@
 <template>
     <div class="ipfs-info">
-        <div
-            class="ipfs-info__cols"
-            :class="{ 'ipfs-info__cols--rows': blocks.length >= 4 }"
-        >
-            <common-info-block
-                v-for="(block, index) in blocks"
-                :key="block.title"
-                :bottom-items="[block.value]"
-                text-align="center"
-                :top-items="[block.title]"
-            >
-                <template #top="{ item }">
-                    <div class="ipfs-info__info">
-                        <span>{{item}}</span>
-                        <common-tooltip
-                            v-if="block.hint"
-                            :location="getTooltipLocation(index)"
-                            width="250px"
-                        >
-                            <template #activator>
-                                <div class="radio__hint">
-                                    <question-icon width="16"/>
-                                </div>
-                            </template>
-                            {{block.hint}}
-                        </common-tooltip>
-                    </div>
-                </template>
-            </common-info-block>
-        </div>
-        <div
-            v-if="status || ipfs.cdmData.depInfo || ipfs.aobt"
-            class="ipfs-info__cols"
-        >
-            <common-info-block
-                v-if="status"
-                :bottom-items="[status]"
-                text-align="center"
-                :top-items="['Status']"
-            >
-                <template #top="{ item }">
-                    <div class="ipfs-info__info">
-                        <span>{{item}}</span>
-                        <common-tooltip
-                            v-if="statusHint"
-                            :location="(ipfs.cdmData.depInfo || ipfs.aobt) ? 'right' : 'bottom'"
-                            width="250px"
-                        >
-                            <template #activator>
-                                <div class="radio__hint">
-                                    <question-icon width="16"/>
-                                </div>
-                            </template>
-                            {{statusHint}}
-                        </common-tooltip>
-                    </div>
-                </template>
-            </common-info-block>
-            <common-info-block
+        <ui-data-container>
+            <template #icon>
+                <plane-icon/>
+            </template>
+
+            <ui-data-list
+                :grid-columns="3"
+                :items="[...blocks, ...secondBlocks].map((x, index) => ({ title: x.title, text: x.value, tooltip: x.hint, tooltipWidth: '150px', tooltipLocation: 'right' }))"
+            />
+
+            <ui-data-list
                 v-if="ipfs.cdmData.depInfo"
-                :bottom-items="[ipfs.cdmData.depInfo.split('/').join(' | ')]"
-                text-align="center"
-                :top-items="['Departure info']"
+                :grid-columns="1"
+                :items="[{
+                    title: 'Departure info',
+                    text: props.ipfs.cdmData.depInfo.split('/').join(' | '),
+                }]"
             />
-            <common-info-block
-                v-if="ipfs.cdmSts === ViffStatus.REA && ipfs.atfcmStatus !== ViffStatus.REA"
-                :bottom-items="['Ready']"
-                text-align="center"
-                :top-items="['Ready status']"
-            />
-            <common-info-block
-                v-else-if="ipfs.aobt"
-                :bottom-items="[`${ ipfs.aobt.slice(0,4) }z`]"
-                text-align="center"
-                :top-items="['AOBT']"
-            />
-        </div>
-        <common-notification
+        </ui-data-container>
+
+        <ui-notification
             v-if="ipfs.cdmData.reason"
             type="info"
         >
             Reason for the CTOT: {{ ipfs.cdmData.reason }}
-        </common-notification>
+        </ui-notification>
         <div
             v-if="store.user?.cid === props.pilot.cid.toString() && ipfs.atfcmStatus !== ViffStatus.ATC_ACTIV && !ipfs.aobt"
             class="ipfs-info_obt"
         >
-            <common-block-title
+            <ui-block-title
                 class="ipfs-info_obt_title"
                 remove-margin
             >
                 Target Off-Block time
 
                 <template #append>
-                    <common-tooltip
+                    <ui-tooltip
                         location="left"
                         width="250px"
                     >
@@ -106,66 +49,66 @@
                         OBT – Off-Blocks Time<br><br>
 
                         The time your aircraft is expected to be ready for start-up and pushback.
-                    </common-tooltip>
+                    </ui-tooltip>
                 </template>
-            </common-block-title>
+            </ui-block-title>
 
-            <common-notification type="info">
+            <ui-notification type="info">
                 More information about your flight: <a
                     class="__link"
                     href="https://vats.im/vdgs"
                     target="_blank"
                 >VDGS Panel</a>
-            </common-notification>
+            </ui-notification>
 
-            <common-notification
+            <ui-notification
                 v-if="props.ipfs?.atfcmStatus.startsWith('FLS')"
                 type="error"
             >
                 Your flight has been suspended. Please, update your OBT
-            </common-notification>
+            </ui-notification>
 
             <div class="ipfs-info__cols">
-                <common-input-number
+                <ui-input-number
                     v-model="hrs"
                     :input-attrs="{ max: 23, min: 0 }"
                     placeholder="HH"
                 >
                     Hours
-                </common-input-number>
-                <common-input-number
+                </ui-input-number>
+                <ui-input-number
                     v-model="mins"
                     :input-attrs="{ max: 59, min: 0 }"
                     placeholder="MM"
                 >
                     Minutes
-                </common-input-number>
-                <common-button
+                </ui-input-number>
+                <ui-button
                     class="ipfs-info_obt_btn"
                     :disabled="saving"
                     size="M"
                     @click="saveEstimate"
                 >
                     Save
-                </common-button>
+                </ui-button>
             </div>
-            <common-button
+            <ui-button
                 v-if="ipfs.ctot && ipfs.atfcmStatus !== ViffStatus.REA && ipfs.cdmSts !== ViffStatus.REA"
                 size="S"
                 @click="readyPopup = true"
             >
                 Ready now
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 v-else-if="ipfs.atfcmStatus === ViffStatus.REA || ipfs.cdmSts === ViffStatus.REA"
                 size="S"
                 type="secondary"
                 @click="setReadyStatus(false)"
             >
                 Not ready
-            </common-button>
+            </ui-button>
         </div>
-        <common-popup
+        <popup-fullscreen
             v-model="readyPopup"
             :disabled="saving"
         >
@@ -191,21 +134,21 @@
             Proceed only if above conditions are met.
 
             <template #actions>
-                <common-button
+                <ui-button
                     :disabled="saving"
                     type="secondary"
                     @click="readyPopup = false"
                 >
                     Cancel that please
-                </common-button>
-                <common-button
+                </ui-button>
+                <ui-button
                     :disabled="saving"
                     @click="setReadyStatus(true)"
                 >
                     Set REA(DY) status
-                </common-button>
+                </ui-button>
             </template>
-        </common-popup>
+        </popup-fullscreen>
     </div>
 </template>
 
@@ -213,15 +156,16 @@
 import type { PropType } from 'vue';
 import { ViffRegulationType, ViffStatus } from '~/types/data/vatsim';
 import type { IpfsUser, VatsimExtendedPilot } from '~/types/data/vatsim';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
-import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import type { TooltipLocation } from '~/components/common/basic/CommonTooltip.vue';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import CommonInputNumber from '~/components/common/basic/CommonInputNumber.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
+import UiTooltip from '~/components/ui/data/UiTooltip.vue';
+import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiDataContainer from '~/components/ui/data/UiDataContainer.vue';
+import PlaneIcon from '~/assets/icons/kit/plane.svg?component';
+import QuestionIcon from '~/assets/icons/basic/question.svg?component';
 
 const props = defineProps({
     pilot: {
@@ -247,20 +191,6 @@ interface Block {
     title: string;
     value: string;
     hint?: string;
-}
-
-function getTooltipLocation(index: number): TooltipLocation {
-    if (blocks.value.length === 2 || blocks.value.length === 4) {
-        return index % 2 === 0 ? 'right' : 'left';
-    }
-
-    if (blocks.value.length === 3) {
-        if (index === 0) return 'right';
-        if (index === 1) return 'bottom';
-        if (index === 2) return 'left';
-    }
-
-    return 'bottom';
 }
 
 const blocks = computed(() => {
@@ -324,6 +254,34 @@ const blocks = computed(() => {
             title: 'REGUL',
             value: props.ipfs.cdmData.mostPenalisingRegulation,
             hint,
+        });
+    }
+
+    return items;
+});
+
+const secondBlocks = computed(() => {
+    const items: Block[] = [];
+
+    if (status.value) {
+        items.push({
+            title: 'Status',
+            value: status.value,
+            hint: statusHint.value,
+        });
+    }
+
+    if (props.ipfs.cdmSts === ViffStatus.REA && props.ipfs.atfcmStatus !== ViffStatus.REA) {
+        items.push({
+            title: 'Ready status',
+            value: `Ready`,
+        });
+    }
+
+    if (props.ipfs.aobt) {
+        items.push({
+            title: 'AOBT',
+            value: `${ props.ipfs.aobt.slice(0, 4) }z`,
         });
     }
 

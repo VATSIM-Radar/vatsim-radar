@@ -1,6 +1,6 @@
-import { handleH3Exception } from '~/utils/backend/h3';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
+import { handleH3Exception } from '~/utils/server/h3';
+import type { VatsimAirportInfo } from '~/utils/server/vatsim';
+import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/server/vatsim';
 
 export default defineEventHandler(async (event): Promise<VatsimAirportInfo | null | undefined> => {
     const icao = await validateAirportIcao(event);

@@ -1,6 +1,6 @@
-import { findUserByCookie } from '~/utils/backend/user';
-import { freezeH3Request, handleH3Error, unfreezeH3Request } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
+import { findUserByCookie } from '~/utils/server/user';
+import { freezeH3Request, handleH3Error, unfreezeH3Request } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
 
 export default defineEventHandler(async event => {
     const user = await findUserByCookie(event);

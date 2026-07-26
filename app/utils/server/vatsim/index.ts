@@ -1,0 +1,186 @@
+import { ofetch } from 'ofetch';
+import type { H3Event } from 'h3';
+import { createError } from 'h3';
+import { radarStorage } from '~/utils/server/storage';
+import type { IVatsimTransceiver } from '~/types/data/vatsim';
+import { handleH3Error } from '~/utils/server/h3';
+import type { VatSpyData } from '~/types/data/vatspy';
+import { getVATSIMIdentHeaders } from '~/utils/server';
+
+export function getVatsimRedirectUri() {
+    return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
+}
+
+export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
+    const config = useRuntimeConfig();
+
+    const settings: Record<string, any> = {
+        grant_type: type === 'refresh' ? 'refresh_token' : 'authorization_code',
+        client_id: config.VATSIM_CLIENT_ID,
+        client_secret: config.VATSIM_CLIENT_SECRET,
+        redirect_uri: getVatsimRedirectUri(),
+        scope: ['full_name'],
+    };
+
+    if (type === 'refresh') {
+        settings.refresh_token = code;
+    }
+    else {
+        settings.code = code;
+    }
+
+    return ofetch<{
+        access_token: string;
+        expires_in: number;
+        token_type: 'Bearer';
+        refresh_token: string;
+        scopes: string[];
+    }>(`${ config.VATSIM_ENDPOINT }/oauth/token`, {
+        method: 'POST',
+        body: settings,
+    });
+}
+
+export interface VatsimUser {
+    cid: string;
+    personal: {
+        name_first: string;
+        name_last: string;
+        name_full: string;
+    };
+    oauth: {
+        token_valid: 'true' | 'false';
+    };
+}
+
+export async function vatsimGetUser(token: string) {
+    const result = (await ofetch<{ data: VatsimUser }>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
+        headers: {
+            Authorization: `Bearer ${ token }`,
+        },
+    })).data;
+
+    if (result?.oauth?.token_valid !== 'true') {
+        throw createError({
+            statusCode: 401,
+            data: 'Token is not valid',
+        });
+    }
+
+    return result;
+}
+
+export interface VatsimAirportInfo {
+    icao?: string;
+    iata?: string;
+    name?: string;
+    altitude_m?: number;
+    altitude_ft?: number;
+    transition_alt?: number;
+    transition_level?: string;
+    transition_level_by_atc?: boolean;
+    city?: number;
+    country?: string;
+    division_id?: string;
+    ctafFreq?: string;
+}
+
+export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo | null> {
+    const airportData = await $fetch<{
+        data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
+    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`, { headers: getVATSIMIdentHeaders() }).catch(() => {});
+
+    if (!airportData?.data.icao) return null;
+
+    return {
+        icao: airportData?.data.icao,
+        iata: airportData?.data.iata,
+        name: airportData?.data.name,
+        altitude_m: airportData?.data.altitude_m,
+        altitude_ft: airportData?.data.altitude_ft,
+        transition_alt: airportData?.data.transition_alt,
+        transition_level: airportData?.data.transition_level,
+        transition_level_by_atc: airportData?.data.transition_level_by_atc,
+        city: airportData?.data.city,
+        country: airportData?.data.country,
+        division_id: airportData?.data.division_id,
+        ctafFreq: airportData?.data.stations?.find(x => x.ctaf)?.frequency,
+    };
+}
+
+export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
+    const transceiver = radarStorage.vatsim.transceivers[callsign];
+
+    if (!transceiver || transceiver?.length === 0) {
+        return {
+            frequencies: [],
+        };
+    }
+
+    const frequencies = transceiver.map(x => {
+        let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
+
+        if (radarStorage.vatsimStatic.aliases[x.frequency]) {
+            frequency = parseFloat((radarStorage.vatsimStatic.aliases[x.frequency].frequencyAlias / 1000000).toFixed(3)).toString();
+        }
+
+        if (!frequency.includes('.')) {
+            if (frequency.length < 3) {
+                for (let i = 0; i < 3 - frequency.length; i++) {
+                    frequency += '0';
+                }
+            }
+
+            frequency += '.';
+        }
+
+        return `${ (`${ frequency }000`).slice(0, 7) }`;
+    });
+
+    return {
+        frequencies: [...new Set(frequencies)],
+        groundAlt: transceiver[0].heightAglM,
+        seaAlt: transceiver[0].heightMslM,
+    };
+}
+
+export async function validateAirportIcao(event: H3Event, detailed: true): Promise<{
+    airport: VatSpyData['airports'][0];
+    icao: string;
+} | undefined>;
+export async function validateAirportIcao(event: H3Event, detailed?: false): Promise<string | undefined>;
+export async function validateAirportIcao(event: H3Event, detailed?: boolean): Promise<string | {
+    airport: VatSpyData['airports'][0];
+    icao: string;
+} | undefined> {
+    const vatspy = (radarStorage.vatspy)!;
+
+    const icao = getRouterParam(event, 'icao')?.toUpperCase();
+    if (icao?.length !== 4) {
+        handleH3Error({
+            event,
+            statusCode: 400,
+            data: 'Invalid ICAO',
+        });
+        return;
+    }
+
+    const airport = vatspy.data?.keyAirports.icao[icao];
+    if (!airport) {
+        handleH3Error({
+            event,
+            statusCode: 404,
+            data: 'Airport not found',
+        });
+        return;
+    }
+
+    if (detailed) {
+        return {
+            airport,
+            icao,
+        };
+    }
+
+    return icao;
+}

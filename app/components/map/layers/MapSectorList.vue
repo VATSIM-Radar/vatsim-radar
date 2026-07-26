@@ -1,0 +1,201 @@
+<script setup lang="ts">
+import VectorSource from 'ol/source/Vector.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import { FEATURES_Z_INDEX } from '~/composables/render';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
+import { useStore } from '~/store';
+import type { VatsimBooking } from '~/types/data/vatsim';
+import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
+import { setMapSectors } from '~/composables/render/sectors';
+import { updateControllersRender } from '~/composables/render/update';
+import { globalMapEntities } from '~/utils/map/entities';
+import { logBench } from '~/composables';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
+
+defineOptions({
+    render: () => null,
+});
+
+let vectorLayer: VectorLayer<any>;
+let vectorImageLayer: VectorImageLayer<any>;
+let vectorSource: VectorSource;
+let vectorImageSource: VectorSource;
+
+let labelsLayer: VectorLayer<any>;
+let lastSectorsUpdateId = 0;
+let offlineSectorsRendered = false;
+let atcWasHidden = false;
+
+const map = inject<ShallowRef<Map | null>>('map')!;
+const dataStore = useDataStore();
+const store = useStore();
+
+const hideAtc = computed(() => isHideAtcType('firs'));
+
+export interface MapFir {
+    booking?: VatsimBooking;
+    fir: VatSpyData['firs'][number];
+    atc: VatSpyDataFeature[];
+}
+
+onMounted(async () => {
+    if (!map.value) throw new Error('Map is not initialized');
+    lastSectorsUpdateId = 0;
+    offlineSectorsRendered = false;
+    atcWasHidden = false;
+
+    vectorSource = new VectorSource<any>({
+        features: [],
+        wrapX: true,
+    });
+
+    vectorImageSource = new VectorSource<any>({
+        features: [],
+        wrapX: true,
+    });
+
+    globalMapEntities.sectors = vectorSource;
+
+    vectorLayer = new VectorLayer<any>({
+        source: vectorSource,
+        zIndex: FEATURES_Z_INDEX.SECTORS,
+        declutter: 'airports',
+        properties: {
+            type: 'sectors-list',
+        },
+    });
+
+    vectorImageLayer = new VectorImageLayer<any>({
+        source: vectorImageSource,
+        zIndex: FEATURES_Z_INDEX.SECTORS_EMPTY,
+        declutter: false,
+        properties: {
+            type: 'sectors-empty',
+        },
+    });
+
+    labelsLayer = new VectorLayer<any>({
+        source: vectorSource,
+        zIndex: FEATURES_Z_INDEX.SECTORS_LABEL,
+        declutter: 'airports',
+        properties: {
+            type: 'sectors-labels',
+        },
+    });
+
+    map.value.addLayer(vectorLayer);
+    map.value.addLayer(vectorImageLayer);
+    map.value.addLayer(labelsLayer);
+
+    async function renderOfflineSectors() {
+        if (offlineSectorsRendered || !dataStore.vatspy.value) return;
+
+        // Offline VATSpy sectors do not depend on live controller updates. Render them once,
+        // then let OpenLayers retain the projected geometry instead of keeping GeoJSON in RAM.
+        const offlineSectors = await dataStore.vatspyBoundaries();
+        if (!map.value) return;
+
+        setMapSectors({
+            source: vectorSource,
+            layer: vectorLayer,
+            emptyLayer: vectorImageLayer,
+            emptySource: vectorImageSource,
+            labelsLayer,
+            firs: offlineSectors.map(feature => ({ feature, atc: [], persistent: true })),
+        });
+        offlineSectorsRendered = true;
+    }
+
+    const mapSettings = computed(() => JSON.stringify([
+        getKeyedValueFromSettings('map.vatglasses.active'),
+        getKeyedValueFromSettings('map.vatglasses.combined'),
+        getKeyedValueFromSettings('map.visibility.atc.firs'),
+    ]));
+    const mapLevel = computed(() => {
+        const level = store.localSettings.vatglassesLevel;
+        return typeof level === 'number' && Number.isFinite(level) ? level : 999;
+    });
+
+    const debouncedUpdate = useThrottleFn(async () => {
+        if (hideAtc.value) {
+            vectorSource.clear();
+            vectorImageSource.clear();
+            offlineSectorsRendered = false;
+            atcWasHidden = true;
+        }
+        else {
+            await renderOfflineSectors();
+            if (atcWasHidden) {
+                atcWasHidden = false;
+                await updateControllersRender();
+            }
+        }
+
+        if (!hideAtc.value && lastSectorsUpdateId !== dataStore.sectorsUpdateId.value) {
+            const log = logBench('sectorsRender');
+            setMapSectors({
+                source: vectorSource,
+                layer: vectorLayer,
+
+                emptyLayer: vectorImageLayer,
+                emptySource: vectorImageSource,
+
+                labelsLayer,
+
+                firs: dataStore.sectorsList.value,
+            });
+            lastSectorsUpdateId = dataStore.sectorsUpdateId.value;
+            dataStore.sectorsList.value = [];
+            log();
+        }
+        else if (!hideAtc.value) {
+            // Settings can change VATGlasses geometry without a live ATC update.
+            // Keep the already projected VATSpy sectors while rebuilding only dynamic data.
+            setMapSectors({
+                source: vectorSource,
+                layer: vectorLayer,
+                emptyLayer: vectorImageLayer,
+                emptySource: vectorImageSource,
+                labelsLayer,
+                firs: [],
+                preserveSectors: true,
+            });
+        }
+    }, 500, true);
+
+    dataStore.sectorsUpdateId.value = 0;
+    dataStore.sectorsList.value = [];
+
+    watch(dataStore.vatspy, async () => {
+        if (hideAtc.value) return;
+        vectorSource.clear();
+        vectorImageSource.clear();
+        offlineSectorsRendered = false;
+        await renderOfflineSectors();
+        await updateControllersRender();
+    });
+
+    watchThrottled([dataStore.sectorsUpdateId, mapSettings, mapLevel, dataStore.vatglassesActivePositions], debouncedUpdate, {
+        immediate: true,
+    });
+
+    await updateControllersRender();
+
+    await renderOfflineSectors();
+});
+
+onBeforeUnmount(() => {
+    vectorLayer?.dispose();
+    vectorSource?.clear();
+    vectorImageSource?.clear();
+    globalMapEntities.sectors = null;
+
+    labelsLayer?.dispose();
+    vectorImageLayer?.dispose();
+
+    map.value?.removeLayer(vectorLayer);
+    map.value?.removeLayer(labelsLayer);
+    map.value?.removeLayer(vectorImageLayer);
+});
+</script>

@@ -1,5 +1,5 @@
-import { findAndRefreshUserByCookie } from '~/utils/backend/user';
-import { handleH3Error } from '~/utils/backend/h3';
+import { findAndRefreshUserByCookie } from '~/utils/server/user';
+import { handleH3Error } from '~/utils/server/h3';
 
 export default defineEventHandler(async event => {
     const user = await findAndRefreshUserByCookie(event, false, true);

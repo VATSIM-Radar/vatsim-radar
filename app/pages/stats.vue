@@ -19,23 +19,27 @@ if (route.path === '/stats') {
 <style scoped lang="scss">
 .stats {
     :deep(.stats__place) {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+
         display: flex;
         align-items: center;
         justify-content: center;
 
         width: 32px;
+        min-width: 32px;
         height: 32px;
-        margin: -8px 0;
         border-radius: 100%;
 
         &.stats__place--0, &.stats__place--1, &.stats__place--2 {
-            color: $lightgray100Orig;
-            background: $primary500;
+            color: $brandPrimary;
+            background: $blue500Alpha12;
         }
     }
 
     :deep(.stats__virtual--active) {
-        color: $primary400;
+        color: $blue400;
     }
 
     :deep(.stats__action) {

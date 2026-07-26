@@ -2,6 +2,21 @@
 
 VATSIM Radar provides ways to debug [Data](./data) Debugging.
 
+## Fake ATC
+
+To test how controllers are displayed, you can add fake ATC:
+
+1. CID: auto-generated, you can change it on creation (once)
+2. Name: any controller name, defaults to CID
+3. Callsign: controller's callsign, no validation here, be careful
+4. Frequency: can be random unless you need to test VATGlasses
+5. Facility/Rating: can be random
+6. ATIS lines: optional
+
+Hit `Save` button - controller will appear on map shortly.
+
+To enable this functionality, you can open Map Settings -> Scroll to the bottom -> Debug Mode (Next only).
+
 ## Setting up prebuilt
 
 This section will help you to reduce load on your machine, skipping whole development server setup. 
@@ -36,19 +51,6 @@ You have 2 options:
 ### VATGlasses
 
 Minify whole repo to `anyname.zip` file and upload it.
-
-### Fake ATC
-
-To test how controllers are displayed, you can add fake ATC:
-
-1. CID: auto-generated, you can change it on creation (once)
-2. Name: any controller name, defaults to CID
-3. Callsign: controller's callsign, no validation here, be careful
-4. Frequency: can be random unless you need to test VATGlasses
-5. Facility/Rating: can be random
-6. ATIS lines: optional
-
-Hit `Save` button - controller will appear on map shortly.
 
 ## Pull Requests Debugging
 

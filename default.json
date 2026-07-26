@@ -6,6 +6,9 @@
   "enabledManagers": [
     "yarn"
   ],
+  "toolSettings": {
+    "nodeMaxMemory": 8096
+  },
   "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "commitMessageAction": "chore(deps): Update",
@@ -14,12 +17,6 @@
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "osvVulnerabilityAlerts": true,
   "packageRules": [
-    {
-      "matchPackageNames": [
-        "tsx"
-      ],
-      "allowedVersions": "4.6.12"
-    },
     {
       "matchPackageNames": [
         "@nuxtjs/stylelint-module"
@@ -58,7 +55,6 @@
       "matchPackageNames": [
         "vue"
       ],
-      "rangeStrategy": "bump",
       "groupName": "Vue",
       "separateMultipleMinor": true,
       "separateMinorPatch": true
@@ -68,7 +64,6 @@
         "@vue/language-server",
         "vue-tsc"
       ],
-      "rangeStrategy": "pin",
       "groupName": "Volar"
     },
     {
@@ -76,7 +71,6 @@
         "nuxt",
         "@nuxt/kit"
       ],
-      "rangeStrategy": "bump",
       "groupName": "Nuxt",
       "separateMultipleMinor": true,
       "separateMinorPatch": true
@@ -105,12 +99,13 @@
     ":dependencyDashboard",
     "group:recommended"
   ],
-  "rangeStrategy": "bump",
+  "rangeStrategy": "pin",
   "npm": {
     "commitMessageTopic": "{{prettyDepType}} {{depName}}"
   },
   "constraints": {
-    "node": "^22 || ^24"
+    "node": "^24.16.0"
   },
+  "minimumReleaseAge": "1 day",
   "updateLockFiles": true
 }

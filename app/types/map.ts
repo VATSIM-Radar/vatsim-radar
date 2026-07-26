@@ -1,33 +1,28 @@
-import type { PartialRecord } from '~/types/index';
+import type { PartialRecord, RecursivePartial } from '~/types/index';
 import type {
     VatsimNattrak,
     VatsimShortenedAircraft,
     VatsimShortenedController,
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type { VatSpyAirport } from '~/types/data/vatspy';
-import type { Units } from 'ol/control/ScaleLine';
+import type { Units } from 'ol/control/ScaleLine.js';
+import type { DataAirport } from '~/composables/render/storage';
 
-export interface MapAirport {
-    icao: string;
-    iata?: string;
-    isPseudo: boolean;
-    isSimAware: boolean;
-    aircraft: Partial<{
-        groundDep: number[];
-        groundArr: number[];
-        prefiles: number[];
-        departures: number[];
-        arrivals: number[];
-    }>;
+export interface MapAirportRender {
+    airport: DataAirport;
+    visible: boolean;
 }
 
-export type MapAircraftKeys = keyof MapAirport['aircraft'];
-export type MapAircraftList = MapAirport['aircraft'];
-export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
+export type MapAircraftKeys = keyof DataAirport['aircraft'];
+export type MapAircraftList = DataAirport['aircraft'];
+export type MapAircraftMode = 'all' | 'ground' | 'airborne' | MapAircraftKeys;
 
-export type MapAircraft = PartialRecord<Exclude<keyof MapAirport['aircraft'], 'prefiles'>, VatsimShortenedAircraft[]> & {
+/**
+ * @deprecated
+ */
+export type MapAircraft = PartialRecord<Exclude<keyof DataAirport['aircraft'], 'prefiles'>, VatsimShortenedAircraft[]> & {
     prefiles?: VatsimShortenedPrefile[];
 };
 
@@ -41,8 +36,8 @@ export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions;
 export interface UserLayersTransparencySettings {
     satellite?: number;
     osm?: number;
-    weatherDark?: number;
-    weatherLight?: number;
+    weatherDark?: number | null;
+    weatherLight?: number | null;
     sigmets?: number;
 }
 
@@ -52,6 +47,7 @@ export interface SearchResults {
     flights: (VatsimShortenedAircraft | VatsimShortenedPrefile)[];
     airports: VatSpyAirport[];
     atc: VatsimShortenedController[];
+    history?: string[];
 }
 
 export type SearchFilter = keyof SearchResults;
@@ -62,6 +58,34 @@ interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
     vatglassesLevel: number;
+    sigmetsDate: string;
+
+    app: {
+        presence?: {
+            /**
+             * True means show when piloting
+             * @default false
+             */
+            modes: {
+                pilot?: boolean;
+                atc?: boolean;
+                observer?: boolean;
+                offline?: boolean;
+            } | null;
+        };
+    };
+}
+
+export type UserLocalSettings = RecursivePartial<IUserLocalSettings>;
+
+interface IUserLegacyLocalSettings {
+    // Keep
+    location: Coordinate;
+    zoom: number;
+    vatglassesLevel: number;
+    sigmetsDate: string;
+
+    debugMode: boolean;
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
     eventsLocalTimezone: boolean;
@@ -95,7 +119,6 @@ interface IUserLocalSettings {
             weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
             layerLabels?: boolean;
-            layerVector?: boolean;
             relativeIndicator?: boolean | Units;
             terminator?: boolean;
             terminatorDayNightLine?: boolean;
@@ -105,7 +128,6 @@ interface IUserLocalSettings {
                 disabled?: SigmetType[];
                 showAirmets?: boolean;
                 raw?: boolean;
-                showGAirmets?: boolean;
             };
             transparencySettings?: UserLayersTransparencySettings;
         };
@@ -124,4 +146,4 @@ interface IUserLocalSettings {
     };
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>;
+export type UserLegacyLocalSettings = Partial<IUserLegacyLocalSettings>;

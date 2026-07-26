@@ -41,9 +41,9 @@ useRadarError(props.error);
 
     padding-top: 25dvh;
 
-    font-family: $openSansFont;
+
     font-size: 2vw;
-    color: $error500;
+    color: $red500;
     text-align: center;
     text-transform: uppercase;
 
@@ -62,7 +62,7 @@ useRadarError(props.error);
         font-weight: 700;
 
         opacity: 0.2;
-        background: linear-gradient(180deg, rgb(203, 66, 28, 0) 0%, #{$error500} 100%);
+        background: linear-gradient(180deg, rgb(203, 66, 28, 0) 0%, #{$red500} 100%);
         background-clip: text;
 
         -webkit-text-fill-color: transparent;

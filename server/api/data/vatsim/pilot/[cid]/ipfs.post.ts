@@ -1,7 +1,7 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { radarStorage } from '~/utils/backend/storage';
+import { handleH3Error } from '~/utils/server/h3';
+import { radarStorage } from '~/utils/server/storage';
 import type { IpfsUser } from '~/types/data/vatsim';
-import { findAndRefreshUserByCookie } from '~/utils/backend/user';
+import { findAndRefreshUserByCookie } from '~/utils/server/user';
 
 const obtRegex = /^\d{4}$/;
 

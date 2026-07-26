@@ -1,5 +1,5 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
+import { handleH3Error } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
 import { randomUUID } from 'node:crypto';
 import { isValidIPOrigin } from '~/utils/shared';
 

@@ -1,5 +1,5 @@
-import { getServerVatsimLiveShortData } from '~/utils/backend/storage';
-import { validateDataReady } from '~/utils/backend/h3';
+import { getServerVatsimLiveShortData } from '~/utils/server/storage';
+import { validateDataReady } from '~/utils/server/h3';
 
 export default cachedEventHandler(async event => {
     if (!(await validateDataReady(event))) return;

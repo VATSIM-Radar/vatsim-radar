@@ -7,7 +7,10 @@
 <script setup lang="ts">
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
-import type LayerGroup from 'ol/layer/Group';
+import type LayerGroup from 'ol/layer/Group.js';
+import { logout } from '~/composables/vatsim/auth';
+import { updateCachedProcedures } from '~/composables/navigraph';
+import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
 
 const route = useRoute();
 
@@ -35,15 +38,9 @@ watch(() => route.path, () => {
     flush: 'pre',
 });
 
-if (import.meta.server) {
-    await useAsyncData('iframe-header', async () => {
-        await useIframeHeader();
-        return true;
-    });
-}
-
 async function receiveMessage(event: MessageEvent) {
     const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if (!data || typeof data !== 'object' || Array.isArray(event.data)) return;
 
     if (data && 'vatsimToken' in data) {
         await $fetch('/api/auth/vatsim/token', {
@@ -55,10 +52,45 @@ async function receiveMessage(event: MessageEvent) {
         location.reload();
     }
 
-    if (data && 'action' in data) {
-        if (data.action === 'logout') {
-            document.location.href = '/api/user/logout';
+    if (data && 'action' in data && data.action === 'logout') {
+        logout();
+    }
+
+    if ((event.source === window && data.type !== 'efbX') || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
+
+    const settingsStore = useSettingsStore();
+    const mapStore = useMapStore();
+    const store = useStore();
+
+    if ('selectedPilot' in data) {
+        if (data.selectedPilot === null) {
+            mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot');
         }
+        else {
+            mapStore.addPilotOverlay(data.selectedPilot.toString());
+        }
+
+        return;
+    }
+
+    if ('proceduresUpdate' in data) {
+        updateCachedProcedures();
+
+        return;
+    }
+
+    if (data.type === 'efbX') {
+        store.isTabVisible = event.data.action === 'resume';
+        if (store.isTabVisible) store.getVATSIMData(true);
+        return;
+    }
+
+    if (data.type === 'settings') {
+        settingsStore.save(data.settings, { autoSave: false, overwrite: true, dontSave: true });
+    }
+
+    if (data.type === 'navigraph-waypoints') {
+        useDataStore().navigraphWaypoints.value = data.waypoints;
     }
 }
 
@@ -66,6 +98,8 @@ onMounted(() => {
     window.addEventListener('message', receiveMessage);
 
     window.parent.postMessage({ status: 'ready' }, '*');
+
+    initDiscordPresenceUpdate();
 });
 
 onBeforeUnmount(() => {

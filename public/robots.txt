@@ -3,4 +3,5 @@ Disallow: /api
 Disallow: /airport
 Disallow: /sa-test
 Disallow: /mats
+Disallow: /demo
 Disallow: /pilots

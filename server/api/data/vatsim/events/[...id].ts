@@ -1,6 +1,6 @@
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
+import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { getVATSIMIdentHeaders } from '~/utils/server';
 
 export default defineEventHandler(async (event): Promise<VatsimEvent | undefined> => {
     const id = getRouterParam(event, 'id');

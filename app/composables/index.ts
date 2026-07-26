@@ -1,22 +1,25 @@
-import type { Coordinate } from 'ol/coordinate';
-import { containsCoordinate } from 'ol/extent';
+import type { Coordinate } from 'ol/coordinate.js';
+import { containsCoordinate } from 'ol/extent.js';
 import { useStore } from '~/store';
-import type { ShallowRef } from 'vue';
+import { getCurrentScope } from 'vue';
+import type { ComputedGetter, DebuggerOptions, ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
-import type { Style } from 'ol/style';
-import type { ColorsList } from '~/utils/backend/styles';
-import type { Pixel } from 'ol/pixel';
+import type { Style } from 'ol/style.js';
+import type { ColorsList, ColorsListRgb } from '~/utils/colors';
+import type { Pixel } from 'ol/pixel.js';
 import { createDefu } from 'defu';
 import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
-import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { RadarDataAirline } from '~/utils/server/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
-import { GeoJSON } from 'ol/format';
+import { GeoJSON } from 'ol/format.js';
+import type { WatchOptions } from '@vue/runtime-core';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
+    if (!point[0] || !point[1]) return false;
     return containsCoordinate(extent, point);
 }
 
@@ -28,7 +31,7 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
-export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsList): T {
+export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsListRgb): T {
     const store = useStore();
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Rgb`] as T;
@@ -142,6 +145,9 @@ export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feat
     return feature.getStyle() as T | null;
 }
 
+/**
+ * @deprecated
+ */
 export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
     const store = useStore();
@@ -161,6 +167,27 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
             setUpdate();
         });
     }
+}
+
+const mapExtent = globalComputed(() => useMapStore().extent);
+const mapZoom = globalComputed(() => useMapStore().zoom);
+const mapCenter = globalComputed(() => useMapStore().center);
+
+export function useUpdateCallback<T extends 'short' | 'mandatory' | 'extent' | 'zoom' | 'center' | Ref, A extends T[]>(conditions: A, callback: (newValue: A, oldValue?: undefined | A) => any, options?: WatchOptions) {
+    if (!getCurrentScope()) throw new Error('Vue instance is unavailable in useUpdateCallback');
+    const dataStore = useDataStore();
+
+    const watchers: Ref[] = [];
+    for (const condition of conditions) {
+        if (condition === 'short') watchers.push(dataStore.vatsim.shortUpdateTime);
+        else if (condition === 'mandatory') watchers.push(dataStore.vatsim.localUpdateTime);
+        else if (condition === 'extent') watchers.push(mapExtent());
+        else if (condition === 'zoom') watchers.push(mapZoom());
+        else if (condition === 'center') watchers.push(mapCenter());
+        else watchers.push(condition);
+    }
+
+    watch(watchers as unknown as any, callback, options);
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {
@@ -183,6 +210,7 @@ export function useScrollExists(element: Ref<Element | null | undefined>): Ref<b
 }
 
 export const useIsMobile = () => computed(() => useStore().isMobile);
+export const useIsTouch = () => computed(() => useStore().isTouch && useStore().isMobileOrTablet);
 export const useIsPC = () => computed(() => useStore().isPC);
 export const useIsTablet = () => computed(() => useStore().isTablet);
 export const useIsMobileOrTablet = () => computed(() => useStore().isMobileOrTablet);
@@ -217,16 +245,18 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
     return collapsingWithOverlay;
 };
 
-export function getAirlineFromCallsign(callsign: string, remarks?: string): RadarDataAirline | null {
+export async function getAirlineFromCallsign(callsign: string, remarks?: string): Promise<RadarDataAirline | null> {
     const icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = useDataStore().airlines.value.all[icao] as RadarDataAirline | undefined;
+    const airline = await useDataStore().airlines(icao);
 
     if (!airline && !remarks) return airline ?? null;
 
-    const vaCallsign = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVACallsign(remarks) : null;
-    const website = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVAWebsite(remarks) : null;
+    const virtualAirline = remarks ? await useDataStore().airlines(icao, true) : undefined;
+
+    const vaCallsign = (remarks && virtualAirline) ? getVACallsign(remarks) : null;
+    const website = (remarks && virtualAirline) ? getVAWebsite(remarks) : null;
 
     if (!vaCallsign && !airline) return null;
 
@@ -241,15 +271,31 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string): Rada
     };
 }
 
+let customDefuMergeAsIs = false;
+
+/**
+ * @description one-time setter to merge object as is
+ */
+export function setCustomDefuMergeAsIs() {
+    customDefuMergeAsIs = true;
+}
+
 export const customDefu = createDefu((obj, key, value) => {
     if (Array.isArray(obj[key]) && Array.isArray(value)) {
         obj[key] = value;
         return true;
     }
 
-    if (value === null) {
-        // @ts-expect-error Dunno why it says that
-        obj[key] = null;
+    if (value === null || value === undefined) {
+        obj[key] = value;
+        return true;
+    }
+
+    if (customDefuMergeAsIs && typeof value === 'object' && obj[key]) {
+        Object.assign(obj[key], value);
+        setTimeout(() => {
+            customDefuMergeAsIs = false;
+        }, 0);
         return true;
     }
 });
@@ -342,9 +388,78 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = false;
+export const updatePopupActive: false | string = 'v2.0.0-rc';
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 
+export function isServer() {
+    return typeof window === 'undefined';
+}
+
+export function safeRef<T = any>(value: T): Ref<T> {
+    if (isServer()) {
+        return {
+            value,
+            __v_isRef: true,
+        } as unknown as Ref<T>;
+    }
+
+    return ref<T>(value) as Ref<T>;
+}
+
+export function safeComputed<T>(
+    getter: ComputedGetter<T>,
+    debugOptions?: DebuggerOptions,
+): ComputedRef<T> {
+    if (isServer()) {
+        return {
+            get value() {
+                return getter();
+            },
+            __v_isRef: true,
+        } as unknown as ComputedRef<T>;
+    }
+
+    return computed<T>(getter, debugOptions) as ComputedRef<T>;
+}
+
+export function globalComputed<T>(
+    getter: ComputedGetter<T>,
+    debugOptions?: DebuggerOptions,
+): () => ComputedRef<T> {
+    if (isServer()) return () => safeComputed(() => getter());
+
+    const _computed = computed<T>(getter, debugOptions) as ComputedRef<T>;
+    return () => _computed;
+}
+
+const iframeCookie = globalComputed(() => useCookie<boolean>('efbx-iframe', {
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+    default: () => false,
+}));
+
 export const isIframe = computed(() => {
-    return useRoute().query.iframe;
+    const iframeQuery = useRoute().query.iframe;
+
+    if (iframeQuery && !iframeCookie().value.value) iframeCookie().value.value = true;
+
+    return iframeCookie().value.value;
 });
+
+export const isApp = computed(() => {
+    return useStore().appVersion;
+});
+
+export function logBench(key: keyof ReturnType<typeof useStore>['bench']) {
+    const start = Date.now();
+    return () => {
+        useStore().bench[key] = Date.now() - start;
+    };
+}
+
+export function useColorFromProp(prop: string | ColorsList | undefined): string | undefined {
+    if (!prop) return;
+    if (prop in radarColors) return radarColors[prop as ColorsList];
+    return prop;
+}

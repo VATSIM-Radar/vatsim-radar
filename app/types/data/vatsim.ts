@@ -1,20 +1,16 @@
-import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
-import type { MapAirport } from '~/types/map';
 import type { AircraftIcon } from '~/utils/icons';
-import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
-import type { BARSShort } from '~/utils/backend/storage';
+import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
+import type { BARSShort } from '~/utils/server/storage';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 
 export interface VatsimGeneral {
-    version: number;
+    version?: number;
     update_timestamp: string;
-    connected_clients: number;
+    connected_clients?: number;
     unique_users: number;
     sups: VatsimController[];
     adm: VatsimController[];
-    supsCount: number;
-    admCount: number;
     onlineWSUsers: number;
 }
 
@@ -39,6 +35,7 @@ export interface VatsimPilot {
     frequencies: string[];
     sim?: string;
     icon?: AircraftIcon;
+    vertical_speed?: number;
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -48,7 +45,6 @@ export interface VatsimExtendedPilot extends VatsimPilot {
     toGoDist?: number;
     toGoPercent?: number;
     toGoTime?: number;
-    firs?: string[];
     airport?: string;
     stepclimbs?: {
         waypoint: string;
@@ -79,6 +75,8 @@ export type VatsimPilotFlightPlan = Partial<{
     diverted?: boolean;
     diverted_arrival?: string;
     diverted_origin?: string;
+    departed_at?: string;
+    arrived_at?: string;
 }>;
 
 export interface VatsimController {
@@ -98,7 +96,6 @@ export interface VatsimController {
     duplicated?: boolean;
     duplicatedBy?: string;
     frequencies?: string[];
-    isTWR?: boolean;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -198,7 +195,7 @@ export type VatsimShortenedData = {
     pilots: Array<
         Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated'> &
         Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'diverted' | 'diverted_arrival' | 'diverted_origin' | 'flight_rules'>> &
-        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>> & {
+        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist' | 'airport'>> & {
             filteredColor?: UserMapSettingsColor;
             filteredOpacity?: number;
         }
@@ -215,14 +212,12 @@ export type VatsimMandatoryData = {
     timestampNum: number;
     serverTime: number;
     pilots: [cid: VatsimPilot['cid'], longitude: VatsimPilot['longitude'], latitude: VatsimPilot['latitude'], icon: AircraftIcon, heading: number][];
-    controllers: [VatsimController['cid'], VatsimController['callsign'], VatsimController['frequency'], VatsimController['facility']][];
-    atis: VatsimMandatoryData['controllers'];
+    // controllers: [VatsimController['cid'], VatsimController['callsign'], VatsimController['frequency'], VatsimController['facility']][];
+    // atis: VatsimMandatoryData['controllers'];
 };
 
 export type VatsimMandatoryConvertedData = {
     pilots: Required<Pick<VatsimPilot, 'cid' | 'longitude' | 'latitude' | 'icon' | 'heading'>>[];
-    controllers: Pick<VatsimController, 'cid' | 'callsign' | 'frequency' | 'facility'>[];
-    atis: VatsimMandatoryConvertedData['controllers'];
 };
 
 export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0];
@@ -230,17 +225,106 @@ export type VatsimShortenedPrefile = VatsimShortenedData['prefiles'][0];
 export type VatsimShortenedController = VatsimShortenedData['atis'][0];
 
 export type VatsimMandatoryPilot = VatsimMandatoryConvertedData['pilots'][0];
-export type VatsimMandatoryController = VatsimMandatoryConvertedData['controllers'][0];
 
-export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {
-    locals: VatSpyDataLocalATC[];
-    firs: VatSpyDataFeature[];
-    airports: MapAirport[];
-    keyedPilots?: Record<string, VatsimShortenedData['pilots'][0]>;
+export type VatsimLiveData = VatsimShortenedData & {
+    keyedPilots?: Record<string, VatsimShortenedAircraft>;
+    keyedPrefiles?: Record<string, VatsimShortenedPrefile>;
     notam: RadarNotam | null;
 };
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars' | 'notam'>;
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam'>;
+
+export type VatsimLiveCompactData = Omit<VatsimShortenedData, 'pilots' | 'controllers' | 'observers' | 'atis' | 'prefiles'> & VatsimLiveDataMap & {
+    keyedPilots?: Record<string, VatsimShortenedAircraft>;
+    keyedPrefiles?: Record<string, VatsimShortenedPrefile>;
+    notam: RadarNotam | null;
+};
+
+export type VatsimLiveCompactDataShort = Pick<VatsimLiveCompactData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam' | 'map'>;
+
+export type VatsimLiveDataMap = {
+    map: {
+        aircraft_faa: NonNullable<VatsimPilot['flight_plan']>['aircraft_faa'][];
+        aircraft_short: NonNullable<VatsimPilot['flight_plan']>['aircraft_short'][];
+        airports: string[];
+        frequencies: VatsimPilot['frequencies'];
+        status: VatsimExtendedPilot['status'][];
+        codes: string[];
+    };
+    pilots: {
+        ci: VatsimPilot['cid'];
+        n: VatsimPilot['name'];
+        ca: VatsimPilot['callsign'];
+        rp: VatsimPilot['pilot_rating'];
+        rm: VatsimPilot['military_rating'];
+        la: VatsimPilot['latitude'];
+        lo: VatsimPilot['longitude'];
+        al: VatsimPilot['altitude'];
+        gs: VatsimPilot['groundspeed'];
+        ts: VatsimPilot['transponder'];
+        hd: VatsimPilot['heading'];
+        qn: VatsimPilot['qnh_mb'];
+        vs: VatsimPilot['vertical_speed'];
+        frq: number[];
+        sim?: VatsimPilot['sim'];
+        // aircraft faa map
+        tfa?: number;
+        // aircraft short
+        tsh?: number;
+        // departure
+        dep?: number;
+        // arrival
+        arr?: number;
+        // diverted
+        dv?: boolean;
+        // diverted arrival
+        dva?: number;
+        // diverted origin
+        dvo?: number;
+        // status
+        s?: number;
+        dpd?: VatsimExtendedPilot['depDist'];
+        dpg?: VatsimExtendedPilot['toGoDist'];
+        // current airport
+        ap?: number;
+        rl?: VatsimPilotFlightPlan['flight_rules'];
+        lg: VatsimPilot['logon_time'];
+    }[];
+    controllers: {
+        ci: VatsimShortenedController['cid'];
+        n: VatsimShortenedController['name'];
+        ca: VatsimShortenedController['callsign'];
+        fa: VatsimShortenedController['facility'];
+        ra: VatsimShortenedController['rating'];
+        atis: VatsimShortenedController['text_atis'];
+        lg: VatsimShortenedController['logon_time'];
+        bk?: VatsimShortenedController['booking'];
+        isBk?: VatsimShortenedController['isBooking'];
+        dp?: VatsimShortenedController['duplicated'];
+        dpBy?: VatsimShortenedController['duplicatedBy'];
+        fr?: number;
+        frq?: number[];
+    }[];
+    observers: Pick<VatsimLiveDataMap['controllers'][0], 'ci' | 'n' | 'ca' | 'frq' | 'lg'>[];
+    atis: Array<VatsimLiveDataMap['controllers'][0] & {
+        // ATIS code map
+        co?: number;
+    }>;
+    prefiles: {
+        ci: VatsimPrefile['cid'];
+        n: VatsimPrefile['name'];
+        ca: VatsimPrefile['callsign'];
+        // aircraft faa map
+        tfa?: number;
+        // aircraft short
+        tsh?: number;
+        // departure
+        dep?: number;
+        // arrival
+        arr?: number;
+        rl?: VatsimPilotFlightPlan['flight_rules'];
+    }[];
+};
 
 export interface VatsimDivision {
     id: string;
@@ -293,6 +377,8 @@ export interface VatsimEvent {
     description: string;
     banner: string;
 }
+
+export type VatsimActiveEvent = Pick<VatsimEvent, 'id' | 'type' | 'name' | 'airports' | 'start_time' | 'end_time'>;
 
 export type VatsimMemberStats = Record<
     | 'id'
@@ -411,4 +497,16 @@ export interface IpfsUser {
         // Comma-separated
         regulations: string;
     };
+}
+
+export interface PlaneSpottersPhoto {
+    id: string;
+    thumbnail: {
+        src: string;
+    };
+    thumbnail_large: {
+        src: string;
+    };
+    link: string;
+    photographer: string;
 }

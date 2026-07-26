@@ -1,5 +1,5 @@
 <template>
-    <common-page-block
+    <ui-page-container
         v-if="data"
         class="support"
     >
@@ -42,19 +42,19 @@
                 </div>
             </div>
             <div  class="support_hero_cta">
-                <common-button
+                <ui-button
                     href="https://patreon.com/vatsimradar24"
                     target="_blank"
                 >
                     Become a Supporter on Patreon
-                </common-button>
-                <common-button
+                </ui-button>
+                <ui-button
                     href="https://boosty.to/vatsimradar24"
                     target="_blank"
-                    type="secondary-875"
+                    type="secondary"
                 >
                     Support us on Boosty
-                </common-button>
+                </ui-button>
             </div>
         </div>
         <div class="support_list">
@@ -70,9 +70,9 @@
                         :class="[`support__list_item--type-${ feature.key }`]"
                     >
                         <div class="support__list_item_title">
-                            <common-bubble class="support__list_item_title_count">
+                            <ui-bubble class="support__list_item_title_count">
                                 {{feature.patrons.value.length}}
-                            </common-bubble>
+                            </ui-bubble>
                             <div class="support__list_item_title_text">
                                 {{feature.title}}
                             </div>
@@ -125,13 +125,13 @@
                     </div>
                 </div>
             </div>
-        </div></common-page-block>
+        </div></ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiBubble from '~/components/ui/data/UiBubble.vue';
 import { useStore } from '~/store';
 import type { PatreonInfo } from '~/types/data/patreon';
 import { useRadarError } from '~/composables/errors';
@@ -216,7 +216,7 @@ const features: Feature[] = [
         padding: 48px;
         border-radius: 8px;
 
-        color: $lightgray125;
+        color: $lightGray400;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
 
@@ -232,12 +232,11 @@ const features: Feature[] = [
         &_title, &_text {
             span {
                 font-weight: 700;
-                color: $primary500;
+                color: $blue500;
             }
         }
 
         &_title {
-            font-family: $openSansFont;
             font-size: 40px;
             font-weight: 700;
 
@@ -274,7 +273,7 @@ const features: Feature[] = [
                         width: 1px;
                         height: 24px;
 
-                        background: varToRgba('lightgray150', 0.15);
+                        background: varToRgba('lightGray500', 0.15);
                     }
                 }
 
@@ -284,7 +283,7 @@ const features: Feature[] = [
                     font-size: 42px;
                     font-weight: 700;
                     line-height: 100%;
-                    color: $primary500;
+                    color: $blue500;
 
                     @include mobile {
                         font-size: 24px;
@@ -323,7 +322,6 @@ const features: Feature[] = [
 
         &_title {
             margin-bottom: 32px;
-            font-family: $openSansFont;
             font-size: 32px;
             font-weight: 700;
 
@@ -372,7 +370,7 @@ const features: Feature[] = [
                     width: 1px;
                     height: 100%;
 
-                    background: varToRgba('lightgray150', 0.15);
+                    background: varToRgba('lightGray500', 0.15);
                 }
             }
         }
@@ -384,7 +382,7 @@ const features: Feature[] = [
             font-size: 15px;
             font-weight: 600;
 
-            background: $darkgray900;
+            background: $darkGray700;
 
             @include mobileOnly {
                 font-size: 13px;
@@ -392,22 +390,22 @@ const features: Feature[] = [
 
             &--type-instructor {
                 --gradient: linear-gradient(90deg, #984EF9 0%, #DA5525 60%, #EAC453 100%);
-                --color: #{$info300};
+                --color: #{$purple300};
             }
 
             &--type-examiner {
                 --gradient: linear-gradient(90deg, #ECD15B 0%, #DA5525 100%);
-                --color: #{$warning700};
+                --color: #{$orange700};
             }
 
             &--type-commercial {
                 --gradient: linear-gradient(90deg, #05AD5C 0%, #006649 100%);
-                --color: #{$success500};
+                --color: #{$green500};
             }
 
             &--type-private {
                 --gradient: linear-gradient(90deg, #3B6CEC 0%, #174ACF 100%);
-                --color: #{$primary500};
+                --color: #{$blue500};
             }
 
             &_title {
@@ -417,7 +415,7 @@ const features: Feature[] = [
 
                 margin-bottom: 16px;
                 padding-bottom: 16px;
-                border-bottom: 1px solid $darkgray850;
+                border-bottom: 1px solid $darkGray500;
 
                 & .bubble {
                     background: var(--color);

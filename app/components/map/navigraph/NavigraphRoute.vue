@@ -1,56 +1,147 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
-import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import turfBearing from '@turf/bearing';
-import { debounce } from '~/utils/shared';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { ObjectWithGeometry } from 'ol/Feature';
-import { ownFlight } from '~/composables/pilots';
+import { ownFlight } from '~/composables/vatsim/pilots';
+import {
+    createMapFeature,
+    getMapFeature,
+} from '~/utils/map/entities';
+import type { FeatureNavigraphItemProperties } from '~/utils/map/entities';
+import type { ObjectWithGeometry } from 'ol/Feature.js';
+import type {
+    NavigraphNavDataEnrouteWaypointPartial,
+} from '~/utils/server/navigraph/navdata/types';
+import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
+import { logBench } from '~/composables';
+import { setSmoothNavigraphRouteSource } from '~/composables/render/aircraft/smooth';
 
-defineSlots<{ default: () => any }>();
+defineOptions({
+    render: () => null,
+});
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-let features: Feature[] = [];
-
 let skipUpdate = false;
 
+if (source) {
+    watch(source, value => setSmoothNavigraphRouteSource(value), { immediate: true });
+    onBeforeUnmount(() => setSmoothNavigraphRouteSource(null));
+}
+
+interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coordinates'> {
+    departure: string | null | undefined;
+    arrival: string;
+    hasApproach: boolean;
+    hideLineIfNoProcedure: boolean;
+    callsign: string;
+    isLowSpeed: boolean;
+    staticKeys: Set<string>;
+    nextWaypoint?: {
+        identifier: string;
+        coordinate: Coordinate;
+        kind: NavigraphNavDataEnrouteWaypointPartial['kind'];
+    };
+}
+
+const routeRenderCache = new Map<number, RouteRenderCache>();
+
+type RouteWaypointCandidate = [identifier: string, coordinate: Coordinate, bearing: number, altitude: number | null];
+
+function hasSameRoute(cache: RouteRenderCache, route: Omit<RouteRenderCache, 'staticKeys' | 'nextWaypoint'>) {
+    return cache.waypoints === route.waypoints &&
+        cache.full === route.full &&
+        cache.disableLabels === route.disableLabels &&
+        cache.disableWaypoints === route.disableWaypoints &&
+        cache.departure === route.departure &&
+        cache.arrival === route.arrival &&
+        cache.hasApproach === route.hasApproach &&
+        cache.hideLineIfNoProcedure === route.hideLineIfNoProcedure &&
+        cache.callsign === route.callsign &&
+        cache.isLowSpeed === route.isLowSpeed;
+}
+
+function hasSameNextWaypoint(cache: RouteRenderCache, waypoint: RouteWaypointCandidate | undefined) {
+    return !!waypoint && !!cache.nextWaypoint &&
+        cache.nextWaypoint.identifier === waypoint[0] &&
+        cache.nextWaypoint.coordinate[0] === waypoint[1][0] &&
+        cache.nextWaypoint.coordinate[1] === waypoint[1][1];
+}
+
+function cleanup() {
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type.startsWith('enroute')) {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+
+    routeRenderCache.clear();
+}
+
 async function update() {
-    const newFeatures: Record<string, Feature> = {};
     let currentFlight = false;
 
-    function addFeature(id: string, feature: () => ObjectWithGeometry) {
-        if (newFeatures[id]) {
-            if (currentFlight) {
-                newFeatures[id].setProperties({
-                    ...newFeatures[id].getProperties(),
+    const keys = new Set<string>();
+    const currentFlightKeys = new Set<string>();
+    const visibleRouteCids = new Set<number>();
+    let routeKeys: Set<string> | null = null;
+
+    function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
+        const existingFeature = getMapFeature('navigraph', source!.value, id);
+        keys.add(id);
+        routeKeys?.add(id);
+
+        if (currentFlight) {
+            currentFlightKeys.add(id);
+        }
+
+        if (existingFeature) {
+            const properties = existingFeature.getProperties();
+
+            if (properties.self) {
+                const properties = feature();
+                existingFeature.setProperties(properties);
+                existingFeature.setGeometry(properties.geometry);
+            }
+
+            if (currentFlight && !properties.currentFlight) {
+                existingFeature.setProperties({
+                    currentFlight,
+                });
+            }
+            else if (!currentFlightKeys.has(id) && properties.currentFlight) {
+                existingFeature.setProperties({
                     currentFlight,
                 });
             }
             return;
         }
-        newFeatures[id] = new Feature(Object.assign(feature(), { id, currentFlight }));
+
+        source?.value?.addFeature(createMapFeature('navigraph', Object.assign(feature(), { id, currentFlight })));
     }
 
     try {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
 
+        const log = logBench('updateRoute');
+
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints, coordinates: coordinate } of pilots) {
-            const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
+            const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, departure, callsign } = pilot;
+
             currentFlight = cid === ownFlight.value?.cid;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -63,19 +154,49 @@ async function update() {
             } satisfies Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
 
             const arrival = _arrival!;
+            const hideLineIfNoProcedure = getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.hideLineIfNoProcedure');
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
 
+            if (!waypoints.length || arrived) {
+                routeRenderCache.delete(cid);
+                continue;
+            }
+
+            visibleRouteCids.add(cid);
+
+            const hasApproach = !!Object.keys(dataStore.navigraphProcedures.value[arrival]?.approaches ?? {}).length;
+            const route = {
+                waypoints,
+                full,
+                disableLabels,
+                disableWaypoints,
+                departure,
+                arrival,
+                hasApproach,
+                hideLineIfNoProcedure,
+                callsign,
+                isLowSpeed: speed < 50,
+            };
+            const cachedRoute = routeRenderCache.get(cid);
+
             waypoints = waypoints.slice(0);
 
-            if (!waypoints.length || arrived) continue;
+            if (departure && dataStore.vatspy.value?.data.keyAirports.realIcao[departure]) {
+                waypoints.unshift({
+                    identifier: '',
+                    description: ' Y  ',
+                    coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[departure]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[departure]?.lat],
+                    kind: 'enroute',
+                });
+            }
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !hasApproach && (!hideLineIfNoProcedure || extendedPilot)) {
                 const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 
                 waypoints.splice(index + 1, 0, {
-                    identifier: '',
+                    identifier: ' ',
                     description: ' Y  ',
                     coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lat],
                     kind: 'enroute',
@@ -128,9 +249,24 @@ async function update() {
 
             rawWaypoints = rawWaypoints.slice(0, 1);
 
+            // The static route only changes when its parsed waypoints or display settings do.
+            // Reuse it only if the unchanged full selector picked the same next waypoint.
+            if (cachedRoute && hasSameRoute(cachedRoute, route) && hasSameNextWaypoint(cachedRoute, rawWaypoints[0])) {
+                for (const id of cachedRoute.staticKeys) {
+                    keys.add(id);
+                    if (currentFlight) currentFlightKeys.add(id);
+                }
+
+                routeKeys = new Set(cachedRoute.staticKeys);
+            }
+            else {
+                routeKeys = new Set<string>();
+            }
+
             let foundWaypoint = speed < 50;
 
             let firstWaypoint = false;
+            let nextWaypoint: RouteRenderCache['nextWaypoint'];
 
             function checkAircraftStepclimb(waypoint: string) {
                 if (!foundWaypoint && calculatedArrival.stepclimbs.length) calculatedArrival.stepclimbs = calculatedArrival.stepclimbs.filter(x => x.waypoint !== waypoint);
@@ -155,8 +291,16 @@ async function update() {
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
 
-            const onFirstWaypoint = (newCoordinate: Coordinate, kind: string) => {
+            let i = 0;
+
+            const onFirstWaypoint = (identifier: string, newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
                 if (firstWaypoint) return;
+
+                nextWaypoint = {
+                    identifier,
+                    coordinate: newCoordinate,
+                    kind,
+                };
 
                 const appliedDistance = applyAircraftDistance(coordinate, newCoordinate);
 
@@ -164,27 +308,31 @@ async function update() {
                     calculatedArrival.depDist -= appliedDistance;
                 }
 
-                if (pilot.groundspeed >= 50) {
+                if (pilot.groundspeed >= 50 && (getKeyedValueFromSettings('map.navigraph.routeParsing.airportOverlay.dashedLine') || extendedPilot) && (
+                    !hideLineIfNoProcedure || kind === 'sids' || kind === 'stars' || i > 1 || extendedPilot
+                )) {
                     addFeature(`enroute-${ callsign }`, () => ({
                         geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 16 })),
                         key: '',
                         identifier: '',
-                        type: 'airways',
+                        type: 'navigraph',
+                        featureType: 'enroute-airways',
                         dataType: 'navdata',
                         self: true,
                         kind,
+                        dbType: kind,
                     }));
                 }
 
                 firstWaypoint = true;
             };
 
-            for (let i = 0; i < waypoints.length; i++) {
+            for (i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
                 const nextWaypoint = waypoints[i + 1];
                 const nextCoordinate = nextWaypoint?.coordinate ?? [nextWaypoint?.airway?.value?.[2][0]?.[3], nextWaypoint?.airway?.value?.[2][0]?.[4]];
 
-                if (waypoint.kind !== 'airway') {
+                if (waypoint.kind !== 'airways') {
                     checkAircraftStepclimb(waypoint.identifier);
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
@@ -199,27 +347,29 @@ async function update() {
                     }
 
                     if (!disableWaypoints) {
-                        addFeature(waypoint.identifier, () => ({
+                        addFeature(`enroute-${ waypoint.identifier }`, () => ({
                             geometry: new Point(waypoint.coordinate!),
                             identifier: disableLabels ? '' : waypoint.identifier,
                             waypoint: disableLabels ? '' : waypoint.identifier,
                             kind: waypoint.kind,
                             key: waypoint.key,
-                            type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
+                            featureType: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
                             usage: waypoint.type,
                             description: waypoint.description,
-                            dataType: 'navdata',
+                            type: 'navigraph',
 
                             altitude: disableLabels ? undefined : waypoint.altitude,
                             altitude1: disableLabels ? undefined : waypoint.altitude1,
                             altitude2: disableLabels ? undefined : waypoint.altitude2,
                             speed: disableLabels ? undefined : waypoint.speed,
                             speedLimit: disableLabels ? undefined : waypoint.speedLimit,
+
+                            dbType: waypoint.kind,
                         }));
                     }
 
                     if (foundWaypoint) {
-                        onFirstWaypoint(waypoint.coordinate!, waypoint.kind);
+                        onFirstWaypoint(waypoint.identifier, waypoint.coordinate!, waypoint.kind);
                     }
 
                     if (typeof nextCoordinate[0] !== 'number') continue;
@@ -228,13 +378,14 @@ async function update() {
                         applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
                     }
 
-                    addFeature(`${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
+                    addFeature(`enroute-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         identifier: disableLabels ? '' : waypoint.title ?? '',
-                        type: 'airways',
-                        dataType: 'navdata',
+                        featureType: 'enroute-airways',
+                        type: 'navigraph',
                         kind: nextWaypoint.kind,
+                        dbType: nextWaypoint.kind,
                     }));
                 }
                 else {
@@ -262,11 +413,11 @@ async function update() {
                         }
 
                         if (foundWaypoint) {
-                            onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
+                            onFirstWaypoint(currWaypoint[0], [currWaypoint[3], currWaypoint[4]], waypoint.kind);
                         }
 
                         if (!disableWaypoints) {
-                            let type = 'airway-waypoint';
+                            let type: FeatureNavigraphItemProperties['featureType'] = 'enroute-airways-waypoint';
 
                             const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? '').find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
                             const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? '').find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
@@ -279,13 +430,15 @@ async function update() {
                                 type = 'enroute-vhf';
                             }
 
-                            addFeature(currWaypoint[0], () => ({
+                            addFeature(`enroute-${ currWaypoint[0] }`, () => ({
                                 geometry: new Point([currWaypoint[3], currWaypoint[4]]),
                                 identifier: disableLabels ? '' : currWaypoint[0],
                                 flightLevel: currWaypoint[5],
                                 waypoint: disableLabels ? '' : currWaypoint[0],
-                                type,
-                                dataType: 'navdata',
+                                featureType: type,
+                                dbType: ndb ? 'ndb' : vhf ? 'vhf' : null,
+                                kind: ndb ? 'ndb' : vhf ? 'vhf' : undefined,
+                                type: 'navigraph',
                                 usage: currWaypoint[6],
 
                                 altitude: waypoint.altitude,
@@ -312,9 +465,10 @@ async function update() {
                                     key: '',
                                     id: `enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`,
                                     identifier: '',
-                                    type: 'airways',
-                                    dataType: 'navdata',
+                                    featureType: 'enroute-airways',
+                                    type: 'navigraph',
                                     kind: waypoint.kind,
+                                    dbType: waypoint.kind,
                                     altitude: waypoint.altitude,
                                     altitude1: waypoint.altitude1,
                                     altitude2: waypoint.altitude2,
@@ -336,9 +490,10 @@ async function update() {
                             outbound: currWaypoint[2],
                             waypoint: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
-                            type: 'airways',
-                            dataType: 'navdata',
+                            featureType: 'enroute-airways',
+                            type: 'navigraph',
                             kind: waypoint.kind,
+                            dbType: waypoint.kind,
                         }));
                     }
                 }
@@ -350,27 +505,71 @@ async function update() {
                     toGoDist: calculatedArrival.toGoDist,
                     toGoTime: Date.now() + calculatedArrival.toGoTime,
                     toGoPercent: (calculatedArrival.depDist / (calculatedArrival.depDist + calculatedArrival.toGoDist)) * 100,
-                    stepclimbs: calculatedArrival.stepclimbs,
+                    stepclimbs: toRaw(calculatedArrival.stepclimbs),
                 };
+            }
+
+            const staticKeys = routeKeys!;
+            staticKeys.delete(`enroute-${ callsign }`);
+            routeRenderCache.set(cid, {
+                ...route,
+                staticKeys,
+                nextWaypoint,
+            });
+            routeKeys = null;
+        }
+
+        for (const cid of routeRenderCache.keys()) {
+            if (!visibleRouteCids.has(cid)) routeRenderCache.delete(cid);
+        }
+
+        const features = source?.value.getFeatures() ?? [];
+
+        const waypoints: Record<string, PilotNavigraphWaypoints> = {};
+
+        for (const pilot in dataStore.navigraphWaypoints.value) {
+            const arrival = dataStore.navigraphWaypoints.value[pilot];
+            waypoints[pilot] = {
+                pilot: toRaw(arrival.pilot),
+                coordinates: arrival.coordinates,
+                calculatedArrival: {
+                    ...arrival.calculatedArrival,
+                    stepclimbs: arrival.calculatedArrival?.stepclimbs?.map(x => toRaw(x)),
+                },
+                full: arrival.full,
+                waypoints: [],
+            };
+        }
+
+        const targetOrigin = useRuntimeConfig().public.DOMAIN;
+        window.parent.postMessage({
+            type: 'navigraph-waypoints',
+            waypoints,
+        }, targetOrigin);
+
+        for (const feature of features) {
+            const type = feature.getProperties().featureType;
+            if (type.startsWith('enroute') && !keys.has(feature.getId() as string)) {
+                source?.value.removeFeature(feature);
+                feature.dispose();
+            }
+            else if (type.startsWith('enroute') && feature.getProperties().currentFlight !== currentFlightKeys.has(feature.getId() as string)) {
+                feature.setProperties({
+                    currentFlight: currentFlightKeys.has(feature.getId() as string),
+                });
             }
         }
 
-        source?.value.removeFeatures(features);
-        features.forEach(x => x.dispose());
-
-        features = Object.values(newFeatures);
-
-        source?.value.addFeatures(features);
-
         skipUpdate = true;
         triggerRef(dataStore.navigraphWaypoints);
+        log();
     }
     catch (e) {
         console.error(e);
     }
 }
 
-const debouncedUpdate = debounce(update, 500);
+const debouncedUpdate = useThrottleFn(update, 500, true);
 
 watch(dataStore.navigraphWaypoints, () => {
     if (skipUpdate) {
@@ -382,7 +581,5 @@ watch(dataStore.navigraphWaypoints, () => {
     immediate: true,
 });
 
-onBeforeUnmount(() => {
-    source?.value.removeFeatures(features);
-});
+onBeforeUnmount(cleanup);
 </script>

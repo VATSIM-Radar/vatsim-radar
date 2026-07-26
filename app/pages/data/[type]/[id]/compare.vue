@@ -1,78 +1,82 @@
 <template>
-    <view-map mode="map">
-        <common-info-popup
-            class="compare"
-            disabled
-            max-height="100%"
-            model-value
-            :sections="[{ key: 'content' }]"
-        >
-            <template #title>
-                Settings
-            </template>
-            <template #content>
-                <common-radio-group
-                    v-model="showConfig"
-                    :items="[{ value: 'all' }, { value: 'previous' }, { value: 'changed' }, { value: 'added' }, { value: 'removed' }]"
-                />
-                <common-toggle v-model="hideUnchanged">
-                    Hide unchanged
-                </common-toggle>
-            </template>
-        </common-info-popup>
-        <map-overlay
-            v-if="openProps"
-            :settings="{ position: openProps.pixel, stopEvent: true }"
-            :z-index="5"
-            @update:modelValue="openProps = null"
-        >
-            <common-popup-block
-                class="props"
-                @mouseleave="openProps = null"
+    <client-only>
+        <view-map mode="map">
+            <popup-overlay
+                class="compare"
+                disabled
+                max-height="100%"
+                model-value
+                :sections="[{ key: 'content' }]"
             >
                 <template #title>
-                    Properties
+                    Settings
                 </template>
-                <div class="props_list">
-                    <div
-                        v-for="(props, index) in openProps.properties"
-                        :key="index"
-                        class="props__item"
-                    >
+                <template #content>
+                    <ui-radio-group
+                        v-model="showConfig"
+                        :items="[{ value: 'all' }, { value: 'previous' }, { value: 'changed' }, { value: 'added' }, { value: 'removed' }]"
+                    />
+                    <ui-toggle v-model="hideUnchanged">
+                        Hide unchanged
+                    </ui-toggle>
+                </template>
+            </popup-overlay>
+            <map-html-overlay
+                v-if="openProps"
+                :settings="{ position: openProps.pixel, stopEvent: true }"
+                :z-index="5"
+                @update:modelValue="openProps = null"
+            >
+                <popup-map-info
+                    class="props"
+                    @mouseleave="openProps = null"
+                >
+                    <template #title>
+                        Properties
+                    </template>
+                    <div class="props_list">
                         <div
-                            v-for="[key, value] in Object.entries(props).filter(x => x[0] !== 'geometry' && x[0] !== 'fill')"
-                            :key
-                            class="__grid-info-sections __grid-info-sections--vertical"
+                            v-for="(props, index) in openProps.properties"
+                            :key="index"
+                            class="props__item"
                         >
-                            <div class="__grid-info-sections_title">
-                                {{ key }}
+                            <div
+                                v-for="[key, value] in Object.entries(props).filter(x => x[0] !== 'geometry' && x[0] !== 'fill')"
+                                :key
+                                class="__grid-info-sections __grid-info-sections--vertical"
+                            >
+                                <div class="__grid-info-sections_title">
+                                    {{ key }}
+                                </div>
+                                <span>
+                                    {{ value }}
+                                </span>
                             </div>
-                            <span>
-                                {{ value }}
-                            </span>
                         </div>
                     </div>
-                </div>
-            </common-popup-block>
-        </map-overlay>
-    </view-map>
+                </popup-map-info>
+            </map-html-overlay>
+        </view-map>
+    </client-only>
 </template>
 
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
+import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { ShallowRef } from 'vue';
 import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
-import VectorImageLayer from 'ol/layer/VectorImage';
-import VectorSource from 'ol/source/Vector';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
+import VectorSource from 'ol/source/Vector.js';
 import type { FeatureCollection } from 'geojson';
-import type { ColorsList } from '~/utils/backend/styles';
-import { Fill, Stroke, Style, Text } from 'ol/style';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import type { Coordinate } from 'ol/coordinate';
-import { Point } from 'ol/geom';
+import type { ColorsListRgb } from '~/utils/colors';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import type { Coordinate } from 'ol/coordinate.js';
+import { Point } from 'ol/geom.js';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 
@@ -95,7 +99,8 @@ const source = shallowRef<VectorSource | undefined>();
 const type = computed(() => route.params.type as string);
 const id = computed(() => +route.params.id);
 
-const { data: geojson } = useAsyncData(() => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+const { data: geojson } = useAsyncData(`compare-data-${ type.value }-${ id.value }`, () => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
     watch: [type, id],
     server: false,
 });
@@ -111,26 +116,26 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
             if (!x.properties!.fill) return true;
 
             if (showConfig.value === 'all') return true;
-            if (showConfig.value === 'changed') return x.properties!.fill === 'primary500';
-            if (showConfig.value === 'previous') return x.properties!.fill === 'info500';
-            if (showConfig.value === 'added') return x.properties!.fill === 'success500';
-            if (showConfig.value === 'removed') return x.properties!.fill === 'error500';
+            if (showConfig.value === 'changed') return x.properties!.fill === 'blue500';
+            if (showConfig.value === 'previous') return x.properties!.fill === 'purple500';
+            if (showConfig.value === 'added') return x.properties!.fill === 'green500';
+            if (showConfig.value === 'removed') return x.properties!.fill === 'red500';
             return false;
         }),
     });
 
     source.value?.clear();
     source.value?.addFeatures(features);
-    source.value?.addFeatures(features.filter(x => x.getProperties().fill).map(x => new Feature({
+    source.value?.addFeatures(features.filter(x => x.getProperties().fill && (x.getProperties().label_lon || x.getProperties().label)).map(x => new Feature({
         ...x.getProperties(),
         type: 'text',
-        geometry: new Point([x.getProperties().label_lon, x.getProperties().label_lat]),
+        geometry: new Point(x.getProperties().label_lon ? [x.getProperties().label_lon, x.getProperties().label_lat] : x.getProperties().label),
     })));
 }, {
     immediate: true,
 });
 
-function buildStyle(color: ColorsList, fillOpacity = 0.2, strokeOpacity = 1) {
+function buildStyle(color: ColorsListRgb, fillOpacity = 0.2, strokeOpacity = 1) {
     return new Style({
         fill: new Fill({ color: `rgba(${ radarColors[`${ color }Rgb`].join(',') }, ${ fillOpacity })` }),
         stroke: new Stroke({
@@ -157,11 +162,11 @@ watch(map, val => {
     if (!val || layer) return;
 
     const themes = {
-        primary500: buildStyle('primary500'),
-        success500: buildStyle('success500'),
-        error500: buildStyle('error500'),
-        info500: buildStyle('info500'),
-        default: buildStyle('lightgray200', 0.05, 0.2),
+        blue500: buildStyle('blue500'),
+        green500: buildStyle('green500'),
+        red500: buildStyle('red500'),
+        purple500: buildStyle('purple500'),
+        default: buildStyle('lightGray600', 0.05, 0.2),
     };
 
     val.on('singleclick', handleMapClick);
@@ -176,15 +181,15 @@ watch(map, val => {
                 return new Style({
                     text: new Text({
                         text: properties.id,
-                        font: 'bold 12px Montserrat',
+                        font: 'bold 12px LibreFranklin',
                         fill: new Fill({
-                            color: `rgba(${ radarColors[`${ properties.fill as ColorsList }Rgb`].join(',') }, 0.5)`,
+                            color: `rgba(${ radarColors[`${ properties.fill as ColorsListRgb }Rgb`].join(',') }, 0.5)`,
                         }),
                         backgroundFill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('darkGray800').join(',') }, 1)`,
                         }),
                         backgroundStroke: new Stroke({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightGray400').join(',') }, 0.15)`,
                         }),
                         padding: [2, 0, 2, 2],
                     }),
@@ -243,7 +248,7 @@ onBeforeUnmount(() => {
         font-size: 13px;
         overflow-wrap: anywhere;
 
-        background: $darkgray900;
+        background: $darkGray700;
 
         @include mobileOnly {
             max-width: 70dvw;
@@ -253,7 +258,7 @@ onBeforeUnmount(() => {
             gap: 0 !important;
             padding: 8px;
             border-radius: 8px;
-            background: $darkgray850;
+            background: $darkGray500;
         }
     }
 }

@@ -121,7 +121,7 @@ export default withNuxt([
             'stylistic/space-in-parens': 'error',
             'stylistic/space-infix-ops': 'error',
             'stylistic/space-unary-ops': 'error',
-            'stylistic/spaced-comment': 'error',
+            'stylistic/spaced-comment': ['error', 'always', { markers: ['#region', '#endregion'] }],
             'stylistic/switch-colon-spacing': 'error',
             'stylistic/type-annotation-spacing': 'error',
             'stylistic/type-generic-spacing': 'error',
@@ -157,6 +157,9 @@ export default withNuxt([
                 },
             ],
             'vue/no-unused-refs': 'error',
+            'vue/no-undef-components': ['error', {
+                ignorePatterns: ['nuxt', 'client-only'],
+            }],
             'vue/no-v-html': 'off',
             'vue/require-default-prop': 'off',
             'vue/html-closing-bracket-spacing': [
@@ -317,6 +320,9 @@ export default withNuxt([
                 ],
             }],
             'vue/max-attributes-per-line': ['error', {
+                singleline: {
+                    max: 2,
+                },
                 multiline: {
                     max: 1,
                 },

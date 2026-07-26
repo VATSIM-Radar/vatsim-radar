@@ -1,24 +1,32 @@
 <template>
-    <common-page-block>
-        <template #title>VATSIM Events</template>
+    <ui-page-container container>
+        <template #title>
+            VATSIM Events
+        </template>
+
+        <template #append>
+            <client-only>
+                <div class="events_time">
+                    <ui-text class="events_time_primary" type="h4">
+                        {{eventsLocalTimezone ? currentTime : utcTime}}
+                    </ui-text>
+                    <ui-text class="events_time_secondary" type="2b">
+                        {{eventsLocalTimezone ? utcTime : currentTime}}
+                    </ui-text>
+                </div>
+            </client-only>
+        </template>
+
+        <ui-setting-item align-left :item="settingsItems.preferences.eventsLocalTimezone"/>
 
         <client-only>
-            <common-toggle
-                v-if="offset"
-                align-left
-                :model-value="!!store.localSettings.eventsLocalTimezone"
-                @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
-            >
-                Use Zulu time instead of  {{ timezone.format(new Date()).slice(4, 100) }}
-            </common-toggle>
-
             <template
                 v-for="(events, day) in groupedEventData"
-                :key="day+String(store.localSettings.eventsLocalTimezone)"
+                :key="day+String(!eventsLocalTimezone)"
             >
                 <h2 class="common-event__title">{{ getDate(events![0].start_time) }}</h2>
 
-                <common-event-card
+                <event-card
                     v-for="event in events"
                     :key="event.id"
                     class="common-event"
@@ -26,25 +34,25 @@
                 />
             </template>
         </client-only>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonEventCard from '~/components/common/vatsim/CommonEventCard.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import EventCard from '~/components/features/events/EventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import { useStore } from '~/store';
+import { getSettingsItems } from '~/composables/settings/v2/sections';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const { data, refresh } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
-const store = useStore();
-
-const timeZone = computed(() => store.localSettings.eventsLocalTimezone ? 'UTC' : undefined);
-const offset = new Date().getTimezoneOffset();
+const eventsLocalTimezone = useSettingValueFromFunc('appearance.eventsLocalTimezone');
+const settingsItems = getSettingsItems().value;
+const timeZone = computed(() => !eventsLocalTimezone.value ? 'UTC' : undefined);
 
 const datetime = computed(() => new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
     localeMatcher: 'best fit',
@@ -65,20 +73,33 @@ function getDate(_date: string) {
     return `${ weekday.value.format(date) }, ${ datetime.value.format(date) }`;
 }
 
-const timezone = new Intl.DateTimeFormat(['de-DE'], {
-    day: '2-digit',
-    timeZoneName: 'shortOffset',
-});
-
 const currentDate = ref(Date.now());
 
 let interval: NodeJS.Timeout | undefined;
 let checkInterval: NodeJS.Timeout | undefined;
 
+const utcTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+});
+
+const currentTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+});
+
+const utcTime = computed(() => `${ utcTimeFormatter.format(currentDate.value) }z`);
+const currentTime = computed(() => currentTimeFormatter.format(currentDate.value));
+
 onMounted(() => {
     interval = setInterval(() => {
         currentDate.value = Date.now();
-    }, 1000 * 10);
+    }, 1000);
 
     checkInterval = setInterval(() => {
         refresh();
@@ -96,7 +117,7 @@ const groupedEventData = computed(() => {
     data.value?.events.forEach(event => {
         if (new Date(event.end_time).getTime() < currentDate.value) return;
         const date = new Date(event.start_time);
-        const key = store.localSettings.eventsLocalTimezone
+        const key = !eventsLocalTimezone.value
             ? parseInt(date.getUTCFullYear().toString() + `0${ date.getUTCMonth() }`.slice(-2) + `0${ date.getUTCDate() }`.slice(-2))
             : parseInt(date.getFullYear().toString() + `0${ date.getMonth() }`.slice(-2) + `0${ date.getDate() }`.slice(-2));
 
@@ -122,7 +143,7 @@ useHead({
 
         font-size: 20px;
         font-weight: 500;
-        color: $primary500;
+        color: $blue500;
     }
 }
 
@@ -131,6 +152,24 @@ useHead({
 
     &:empty {
         display: none;
+    }
+}
+
+.events_time {
+    text-align: right;
+
+    & &_primary {
+        margin-bottom: 8px;
+        text-transform: none;
+    }
+
+    & &_secondary {
+        color: $typographySecondary;
+    }
+
+    & >*{
+        font-family: $robotoFont;
+        font-variant-numeric: tabular-nums;
     }
 }
 </style>

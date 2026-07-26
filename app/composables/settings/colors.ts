@@ -1,0 +1,85 @@
+import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/server/handlers/map-settings';
+import { getCurrentThemeRgbColor } from '~/composables';
+import { getColorValueByKey } from '~/composables/settings/v2/utils';
+
+export function shortHexToLong(hex: string) {
+    return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+}
+
+export function hexToHexa(hex: string, alpha: number): string {
+    hex = shortHexToLong(hex);
+
+    if (alpha === 1) return hex;
+
+    const alphaHex = Math.round(alpha * 255)
+        .toString(16)
+        .padStart(2, '0');
+
+    return `${ hex }${ alphaHex }`;
+}
+
+export function hexToRgb(hex: string): string {
+    if (hex.startsWith('rgb')) {
+        return `${ hex.split('(')[1].split(')')[0].split(',').slice(0, 3) }`;
+    }
+
+    if (!hex.startsWith('#')) return hex;
+
+    // Remove the hash at the start if it's there
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(shortHexToLong(hex.slice(0, 7)));
+    if (!result) throw new Error(`Failed to convert color ${ hex } from hex to rgb`);
+
+    // Return the RGB color
+    return `${ parseInt(result[1], 16) },${ parseInt(result[2], 16) },${ parseInt(result[3], 16) }`;
+}
+
+export function componentToHex(component: number) {
+    const hex = component.toString(16);
+    return hex.length === 1 ? `0${ hex }` : hex;
+}
+
+export function rgbToHex(...colors: number[]): `#${ string }`;
+export function rgbToHex(r: number, g: number, b: number): `#${ string }`;
+export function rgbToHex(r: number, g: number, b: number): `#${ string }` {
+    return `#${ componentToHex(r) }${ componentToHex(g) }${ componentToHex(b) }`;
+}
+
+export function getColorFromSettings(setting: UserMapSettingsColor, raw?: boolean) {
+    if (!setting?.color) return '#000';
+
+    let color = setting.color;
+    if (color.startsWith('#')) color = hexToRgb(setting.color);
+
+    const rgb = getCurrentThemeRgbColor(color as any) ?? color.split(',').map(x => +x) as [number, number, number];
+    if (rgb.length !== 3 || rgb.some(x => isNaN(x))) throw new Error(`Color ${ color } contains invalid rgb ${ rgb }`);
+
+    if (raw) return rgb.join(',');
+
+    return `rgba(${ rgb.join(',') }, ${ setting.transparency ?? 1 })`;
+}
+
+export function getStringColorFromSettings(setting: string | null | undefined, raw?: boolean) {
+    if (!setting) return '#000';
+    const rgb = getCurrentThemeRgbColor(setting as any) ?? setting.split(',').map(x => +x) as [number, number, number];
+    if (rgb.length !== 3 || rgb.some(x => isNaN(x))) throw new Error(`Color ${ setting } contains invalid rgb`);
+
+    if (raw) return rgb.join(',');
+
+    return `rgb(${ rgb.join(',') })`;
+}
+
+export type SettingsColorType = Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>;
+
+export function getSelectedColorTransparencyFromSettings(color: SettingsColorType) {
+    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any) as UserMapSettingsColor | null;
+
+    return setting ? setting.transparency : null;
+}
+
+export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean, noDefault?: boolean) {
+    const setting = getColorValueByKey(`map.preferences.colors.default.${ color }` as any, noDefault) as UserMapSettingsColor | null;
+
+    return setting ? getColorFromSettings(setting, raw) : null;
+}

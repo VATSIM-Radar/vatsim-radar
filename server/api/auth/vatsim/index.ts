@@ -1,16 +1,23 @@
-import { prisma } from '~/utils/backend/prisma';
-import { handleH3Exception } from '~/utils/backend/h3';
+import { prisma } from '~/utils/server/prisma';
+import { handleH3Exception } from '~/utils/server/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
-import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
-import { findUserByCookie } from '~/utils/backend/user';
+import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/server/vatsim';
+import { findUserByCookie } from '~/utils/server/user';
 import { discordClient } from '~~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
-import { getDiscordName } from '~/utils/backend/discord';
+import { getDiscordName } from '~/utils/server/discord';
+import { getRedirectURL } from '~/utils/server';
 
 export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
+
+        let redirectUrl = getRedirectURL(event);
+
+        if (typeof query.state === 'string' && query.state.endsWith('-app') && !query.webview) {
+            return sendRedirect(event, `vatsim-radar:///auth/vatsim?state=${ query.state }&code=${ query.code }`);
+        }
 
         const { id: verifierId, discordId, discordStrategy } = await prisma.auth.findFirstOrThrow({
             select: {
@@ -70,8 +77,11 @@ export default defineEventHandler(async event => {
             }
         }
 
-        let redirectDomain = config.public.DOMAIN;
-        if (discordId) redirectDomain = `${ redirectDomain }?discord=1`;
+        if (discordId) {
+            const url = new URL(redirectUrl);
+            url.searchParams.set('discord', '1');
+            redirectUrl = url.toString();
+        }
 
         if (vatsimUserClient) {
             await prisma.vatsimUser.update({
@@ -100,7 +110,7 @@ export default defineEventHandler(async event => {
             if (!user) {
                 await getDBUserToken(event, vatsimUserClient.user);
             }
-            return sendRedirect(event, redirectDomain);
+            return sendRedirect(event, redirectUrl);
         }
 
         if (!user) {
@@ -119,7 +129,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        return sendRedirect(event, redirectDomain);
+        return sendRedirect(event, redirectUrl);
     }
     catch (e) {
         return handleH3Exception(event, e);

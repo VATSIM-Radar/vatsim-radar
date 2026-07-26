@@ -1,18 +1,17 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import { Feature } from 'ol';
+import type VectorSource from 'ol/source/Vector.js';
+import type { Feature } from 'ol';
 import { buildNATWaypoints } from '~/composables/navigraph';
 import greatCircle from '@turf/great-circle';
-import { Point } from 'ol/geom';
+import { Point } from 'ol/geom.js';
+import { createMapFeature } from '~/utils/map/entities';
 
-defineSlots<{ default: () => any }>();
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
-const store = useStore();
 const dataStore = useDataStore();
 let features: Feature[] = [];
 
@@ -20,13 +19,15 @@ watch(dataStore.vatsim.tracks, async () => {
     source?.value.removeFeatures(features);
     features = [];
 
-    for (const track of dataStore.vatsim.tracks.value.filter(x => x.active || (store.localSettings.natTrak?.showConcorde && x.concorde))) {
-        if (!store.localSettings.natTrak?.showConcorde && track.concorde) continue;
-        if (store.localSettings.natTrak?.showConcorde && !track.concorde) continue;
-        if (store.localSettings.natTrak?.direction) {
-            if (store.localSettings.natTrak?.direction === 'west' && track.direction !== 'west') continue;
-            if (store.localSettings.natTrak?.direction === 'east' && track.direction !== 'east') continue;
-            if (store.localSettings.natTrak?.direction === 'both' && track.direction !== null) continue;
+    const showConcorde = getKeyedValueFromSettings('map.layers.natTrak.concorde');
+    const direction = getKeyedValueFromSettings('map.layers.natTrak.direction');
+    for (const track of dataStore.vatsim.tracks.value.filter(x => x.active || (showConcorde && x.concorde))) {
+        if (!showConcorde && track.concorde) continue;
+        if (showConcorde && !track.concorde) continue;
+        if (direction) {
+            if (direction === 'west' && track.direction !== 'west') continue;
+            if (direction === 'east' && track.direction !== 'east') continue;
+            if (direction === 'both' && track.direction !== null) continue;
         }
         const waypoints = await buildNATWaypoints(track);
 
@@ -35,26 +36,30 @@ watch(dataStore.vatsim.tracks, async () => {
             const nextWaypoint = waypoints[i + 1];
             if (!waypoint.coordinate) continue;
 
-            features.push(new Feature({
+            features.push(createMapFeature('navigraph', {
                 geometry: new Point(waypoint.coordinate!),
                 identifier: waypoint.identifier,
-                id: waypoint.identifier,
+                id: `nat-${ waypoint.identifier }`,
                 waypoint: waypoint.identifier,
                 key: waypoint.identifier,
-                type: 'nat-waypoint',
-                dataType: 'navdata',
+                featureType: 'nat-waypoint',
+                type: 'navigraph',
+                dbType: null,
+                direction: track.direction,
             }));
 
             if (nextWaypoint?.coordinate) {
-                features.push(new Feature({
+                features.push(createMapFeature('navigraph', {
                     ...track,
                     geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 })),
-                    key: '',
-                    id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
+                    key: 'nat',
+                    id: `nat-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,
-                    type: 'airways',
-                    dataType: 'navdata',
+                    featureType: 'airways',
+                    type: 'navigraph',
                     kind: 'nat',
+                    dbType: null,
+                    direction: track.direction,
                 }));
             }
         }

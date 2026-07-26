@@ -307,11 +307,13 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     return Math.round(size);
 }
 
-type AircraftIcons = {
-    [K in AircraftIcon]: {
-        icon: K;
-        width: number;
-    }
+export interface AircraftIconType<K extends AircraftIcon = AircraftIcon> {
+    icon: K;
+    width: number;
+}
+
+export type AircraftIcons = {
+    [K in AircraftIcon]: AircraftIconType<K>
 };
 
 export const aircraftIcons: AircraftIcons = {
@@ -1485,7 +1487,7 @@ export const aircraftIcons: AircraftIcons = {
     },
 };
 
-export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
+export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | VatsimPilot): {
     icon: AircraftIcon;
     width: number;
 } {

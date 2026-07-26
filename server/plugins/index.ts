@@ -1,9 +1,9 @@
-import { isDataReady } from '~/utils/backend/storage';
-import { prisma } from '~/utils/backend/prisma';
-import { defaultRedis, getRedisSync } from '~/utils/backend/redis';
+import { isDataReady } from '~/utils/server/storage';
+import { prisma } from '~/utils/server/prisma';
+import { defaultRedis, getRedisSync } from '~/utils/server/redis';
 import { UserPresetType } from '#prisma';
-import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
-import { toLonLat } from 'ol/proj';
+import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
+import { toLonLat } from 'ol/proj.js';
 
 export default defineNitroPlugin(async app => {
     app.hooks.hook('request', async event => {

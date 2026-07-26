@@ -1,6 +1,6 @@
-import { handleH3Exception } from '~/utils/backend/h3';
-import { validateAirportIcao } from '~/utils/backend/vatsim';
-import { getAirportWeather } from '~/utils/backend/vatsim/weather';
+import { handleH3Exception } from '~/utils/server/h3';
+import { validateAirportIcao } from '~/utils/server/vatsim';
+import { getAirportWeather } from '~/utils/server/vatsim/weather';
 
 export default defineEventHandler(async event => {
     const icao = await validateAirportIcao(event);

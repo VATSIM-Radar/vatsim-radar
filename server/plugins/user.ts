@@ -1,10 +1,10 @@
-import type { FullUser } from '~/utils/backend/user';
-import { findAndRefreshUserByCookie } from '~/utils/backend/user';
+import type { FullUser } from '~/utils/server/user';
+import { findAndRefreshUserByCookie } from '~/utils/server/user';
 import { discordClient } from '~~/server/plugins/discord';
 import type { GuildMemberRoleManager } from 'discord.js';
 import { getQuery, getRequestHeader } from 'h3';
 import { isValidIPOrigin } from '~/utils/shared';
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 
 export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();

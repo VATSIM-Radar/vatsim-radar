@@ -5,8 +5,5 @@ services:
     worker:
         image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
 
-    vatglasses-worker:
-        image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
-
     navigraph:
         image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest

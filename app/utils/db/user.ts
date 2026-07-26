@@ -1,4 +1,4 @@
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 import { randomUUID } from 'node:crypto';
 import type { H3Event } from 'h3';
 import { setCookie } from 'h3';

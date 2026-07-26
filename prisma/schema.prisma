@@ -14,20 +14,23 @@ enum DiscordStrategy {
 }
 
 model User {
-  id                   Int                @id @default(autoincrement())
+  id                   Int                        @id @default(autoincrement())
   navigraph            NavigraphUser?
   vatsim               VatsimUser?
   discordId            String?
   discordStrategy      DiscordStrategy?
-  showFriendsInProfile Boolean            @default(false)
-  privateMode          Boolean            @default(false)
+  showFriendsInProfile Boolean                    @default(false)
+  privateMode          Boolean                    @default(false)
   privateUntil         DateTime?
-  isSup                Boolean            @default(false)
+  isSup                Boolean                    @default(false)
   tokens               UserToken[]
-  settings             Json?              @default("{}")
+  settings             Json?                      @default("{}")
   presets              UserPreset[]
+  dashboards           Dashboard[]
   requests             UserRequest[]
   lists                UserTrackingList[]
+  messages             UserAcknowledgedMessages[]
+  favoriteDashboards   FavoriteDashboard[]
 }
 
 model UserToken {
@@ -54,8 +57,19 @@ model UserRequest {
   createdAt DateTime @default(now())
 }
 
+model UserAcknowledgedMessages {
+  id        Int      @id @default(autoincrement())
+  message   String
+  userId    Int
+  user      User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([message, userId])
+}
+
 enum UserPresetType {
   MAP_SETTINGS
+  MAP_SETTINGS_V2
   FILTER
   BOOKMARK
   DASHBOARD_BOOKMARK
@@ -70,6 +84,9 @@ model UserPreset {
   userId Int
   user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])
   lists  UserPresetList[]
+
+  @@index([userId, type])
+  @@index([type])
 }
 
 model UserPresetList {
@@ -98,6 +115,30 @@ model UserTrackingList {
   userId     Int
   user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
   presets    UserPresetList[]
+
+  @@index([color])
+}
+
+model Dashboard {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  public             Boolean             @default(false)
+  json               Json
+  userId             Int
+  user               User                @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt          DateTime            @default(now())
+  favoriteDashboards FavoriteDashboard[]
+}
+
+model FavoriteDashboard {
+  id          Int       @id @default(autoincrement())
+  dashboardId Int
+  dashboard   Dashboard @relation(onDelete: Cascade, fields: [dashboardId], references: [id])
+  userId      Int
+  user        User      @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([dashboardId, userId])
 }
 
 enum AuthType {

@@ -60,6 +60,10 @@ export default defineConfig({
                         link: '/introduction/about',
                         items: [
                             {
+                                text: 'Year 2 of VATSIM Radar',
+                                link: '/blog/year-2-of-radar',
+                            },
+                            {
                                 text: 'State of Radar 2025',
                                 link: '/blog/state-of-radar-2025',
                             },
@@ -76,7 +80,7 @@ export default defineConfig({
                     {
                         text: 'Changelog',
                         link: '/changelog',
-                    },
+                    }
                 ],
             },
             {

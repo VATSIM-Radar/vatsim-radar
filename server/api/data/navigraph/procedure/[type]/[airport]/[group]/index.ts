@@ -1,4 +1,4 @@
-import { getNavDataProcedure } from '~/utils/backend/navigraph/navdata';
+import { getNavDataProcedure } from '~/utils/server/navigraph/navdata';
 
 export default defineEventHandler(async event => {
     return getNavDataProcedure(event, 'short');

@@ -1,9 +1,36 @@
 @use "sass:math";
+@use "./colors" as *;
 
-$defaultFont: Montserrat, Arial, sans-serif;
-$openSansFont: OpenSans, Arial, sans-serif;
+$defaultFont: LibreFranklin, Arial, sans-serif;
+$robotoFont: RobotoMono, Arial, sans-serif;
+$juraFont: Jura, Arial, sans-serif;
 $defaultPageHeight: calc(32px + 56px);
 $achievementAspectRatio: math.div(1280, 1024);
+
+$strokeDefault: $darkGray400;
+$strokeSecondary: $darkGray200;
+$navigraphColor: #da2f2b;
+$typographyPrimary: $lightGray200;
+$typographyPrimaryOrig: $lightGray200Orig;
+$typographySecondary: $lightGray900;
+
+$brandPrimary: $blue400;
+$brandPrimaryStroke: $blue500;
+$errorPrimaryStroke: $red500;
+$warningPrimaryStroke: $orange500;
+$successPrimaryStroke: $green500;
+
+$backgroundLevel1: $darkGray900;
+$backgroundLevel2: $darkGray800;
+$backgroundLevel4: $darkGray600;
+$backgroundLevel5: $darkGray500;
+
+$delColor: $blue400;
+$gndColor: $green600;
+$twrColor: $red500;
+$atisColor: $orange600;
+$ctrColor: $teal500;
+$appColor: $citrus600;
 
 @mixin mobile(){
     @media all and (max-width: 1365px) {
@@ -12,13 +39,13 @@ $achievementAspectRatio: math.div(1280, 1024);
 }
 
 @mixin mobileOnly() {
-    @media all and (max-width: 699px) {
+    @media all and ((max-width: 699px) or ((max-width: 1365px) and (max-height: 500px))) {
         @content;
     }
 }
 
 @mixin tablet() {
-    @media all and (min-width: 700px) and (max-width: 1365px) {
+    @media all and (min-width: 700px) and (min-height: 500px) and (max-width: 1365px) {
         @content;
     }
 }
@@ -51,6 +78,20 @@ $achievementAspectRatio: math.div(1280, 1024);
     @include mobileOnly() {
         @supports (-webkit-hyphens:none) {
             @content;
+        }
+    }
+}
+
+@mixin boxShadowActiveProp($color: $blue500Alpha32) {
+    box-shadow: 0 0 0 3px $color;
+}
+
+@mixin boxShadowActive($color: $blue500Alpha32) {
+    @include boxShadowActiveProp(transparent);
+
+    @include hover {
+        &:active {
+            @include boxShadowActiveProp($color);
         }
     }
 }

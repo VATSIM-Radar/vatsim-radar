@@ -1,13 +1,13 @@
 <template>
     <div class="runways-container">
-        <common-notification
-            cookie-name="vatglasses-runways"
+        <ui-notification
+            remember-message="VATGLASSES_RUNWAYS"
             type="info"
         >
             In this block you can select active runway config<br> for VatGlasses sectors
-        </common-notification>
+        </ui-notification>
         <div
-            v-if="runways?.potential.length"
+            v-if="airport?.vgRunways?.length"
             class="runways"
         >
             <div
@@ -15,7 +15,7 @@
                 :key="runway.key"
                 class="runways_runway"
                 :class="{ 'runways_runway--active': runway.active }"
-                @click="setAirportActiveRunway(airport, runway.key)"
+                @click="setActiveRunway(runway.key)"
             >
                 <div
                     v-for="number in runway.runways"
@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { getAirportRunways, setAirportActiveRunway } from '~/utils/data/vatglasses-front';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
+import { runwaysState } from '~/composables/render/update/vatglasses';
 
 const props = defineProps({
     airport: {
@@ -46,15 +46,24 @@ interface Runway {
     runways: string[];
 }
 
-const runways = computed(() => getAirportRunways(props.airport));
+const dataStore = useDataStore();
+
+const airport = computed(() => dataStore.airportsList.value[props.airport]);
+
+function setActiveRunway(runway: string) {
+    runwaysState.value = {
+        ...runwaysState.value,
+        [props.airport]: runway,
+    };
+}
 
 const getRunways = computed<Runway[]>(() => {
-    if (!runways.value) return [];
+    if (!airport.value || !airport.value?.vgRunways) return [];
 
-    return runways.value.potential.map(runway => {
+    return airport.value.vgRunways.map(runway => {
         return {
             key: runway,
-            active: runways.value!.active === runway,
+            active: airport.value!.activeRunway === runway,
             runways: runway.split(',').map(x => x.trim()),
         };
     });
@@ -69,7 +78,7 @@ const getRunways = computed<Runway[]>(() => {
 }
 
 .runways {
-    --background: #{$darkgray800};
+    --background: #{$darkGray400};
     display: flex;
     gap: 8px;
 
@@ -96,18 +105,18 @@ const getRunways = computed<Runway[]>(() => {
             content: '';
             position: absolute;
             width: 100%;
-            border: 1px dashed varToRgba('lightgray150', 0.5);
+            border: 1px dashed varToRgba('lightGray500', 0.5);
         }
 
         @include hover {
             &:hover {
-                border-color: $primary300;
+                border-color: $blue300;
             }
         }
 
         &--active {
             cursor: default;
-            border-color: $primary500 !important;
+            border-color: $blue500 !important;
         }
 
         &_number {
@@ -116,10 +125,10 @@ const getRunways = computed<Runway[]>(() => {
 
             padding: 4px;
 
-            font-family: $openSansFont;
+
             font-size: 14px;
             font-weight: 600;
-            color: $lightgray0;
+            color: $lightGray100;
 
             background: var(--background);
         }

@@ -1,12 +1,12 @@
 <template>
     <transition name="mobile-window--item-appear">
         <div
-            v-if="store.featuredAirportsOpen || store.menuFriendsOpen || (overlay && !overlay.collapsed)"
+            v-if="store.featuredAirportsOpen || store.menuFriendsOpen"
             class="mobile-window"
             :class="{ 'mobile-window--procedures': hasProcedures }"
-            :style="{ '--collapsed-height': `${ overlaysHeight }px` }"
+            :style="{ '--minified-height': `${ overlaysHeight }px` }"
         >
-            <common-info-popup
+            <popup-overlay
                 v-if="store.featuredAirportsOpen"
                 max-height="unset"
                 model-value
@@ -19,8 +19,8 @@
                 <template #content>
                     <map-featured-airports/>
                 </template>
-            </common-info-popup>
-            <common-info-popup
+            </popup-overlay>
+            <popup-overlay
                 v-else-if="store.menuFriendsOpen"
                 max-height="unset"
                 model-value
@@ -31,108 +31,104 @@
                     Favorite
                 </template>
                 <template #content>
-                    <view-favorite/>
+                    <navigation-favorite/>
                 </template>
-            </common-info-popup>
-            <map-popup
-                v-else-if="overlay && !overlay.collapsed"
-                class="mobile-window_popup"
-                max-height="auto"
-                :overlay
-            />
+            </popup-overlay>
         </div>
     </transition>
-    <div
-        v-if="mapStore.overlays.length"
-        class="mobile-overlays"
-        :class="{ 'mobile-overlays--procedures': hasProcedures }"
+
+    <bottom-sheet
+        ref="sheet"
+        aria-label="Overlay details"
+        :blocking="false"
+        class="map-mobile-window-sheet mobile-sheet"
+        :default-snap="({ snapPoints: points }) => points[1]"
+        :handle="false"
+        :max-height="sheetMaxHeight"
+        :open="sheetOpen"
+        :snap-points="snapPoints"
+        :theme="{ ...mapBottomSheetTheme, zIndex: 6 }"
+        @dismiss="closeSheet"
+        @snap="onSnap"
     >
-        <transition-group name="mobile-overlays--appear">
-            <common-button
-                v-for="item in mapStore.overlays"
-                :key="item.id"
-                size="S"
-                :type="item.collapsed ? 'secondary' : 'primary'"
-                @click="mapStore.activeMobileOverlay === item.id ? [item.collapsed = true, mapStore.activeMobileOverlay = null] : [mapStore.overlays.forEach(x => x.collapsed = true), item.collapsed = false, mapStore.activeMobileOverlay = item.id]"
-            >
-                <div
-                    class="mobile-overlays__collapsed-btn"
-                    :class="[`mobile-overlays__collapsed-btn--${ item.type }`]"
-                >
-                    <span class="mobile-overlays__collapsed-btn_text">
-                        <template v-if="item.type === 'pilot'">
-                            {{ item.data.pilot.callsign }}
-                        </template>
-                        <template v-else-if="item.type === 'prefile'">
-                            {{ item.data.prefile.callsign }}
-                        </template>
-                        <template v-else-if="item.type === 'atc'">
-                            {{ item.data.callsign }}
-                        </template>
-                        <template v-else-if="item.type === 'airport'">
-                            {{ item.data.icao }}
-                        </template>
-                    </span>
-
+        <template #default="{ dragHandleProps }">
+            <template v-if="overlay && !overlay.minified">
+                <div class="radar-vbs_handle-zone">
                     <div
-                        v-if="item.type === 'airport' && airports[item.data.icao] && item.collapsed"
-                        class="mobile-overlays__counters"
-                    >
-                        <div
-                            v-for="(counter, key) in airports[item.data.icao]"
-                            :key="key"
-                            class="mobile-overlays__counters_counter"
-                            :class="[`mobile-overlays__counters_counter--${ key }`]"
-                        >
-                            {{ counter }}
-                        </div>
-                    </div>
-
-                    <div
-                        class="mobile-overlays__collapsed-btn_close"
-                        @click="mapStore.overlays = mapStore.overlays.filter(x => x.id !== item.id)"
-                    >
-                        <close-icon width="12"/>
-                    </div>
+                        class="radar-vbs_handle"
+                        v-bind="dragHandleProps"
+                    />
                 </div>
-            </common-button>
-        </transition-group>
-    </div>
+                <map-overlays
+                    class="radar-vbs_popup"
+                    max-height="unset"
+                    :overlay
+                />
+            </template>
+        </template>
+    </bottom-sheet>
 </template>
 
 <script setup lang="ts">
+import { BottomSheet } from 'vue-bottom-sheets';
+import { mapBottomSheetTheme, useSheetMaxHeight } from '~/composables/map/bottom-sheet';
+import { injectMap } from '~/composables/map';
 import { useMapStore } from '~/store/map';
-import MapPopup from '~/components/map/popups/MapPopup.vue';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
+import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import { useStore } from '~/store';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CloseIcon from 'assets/icons/basic/close.svg?component';
-import ViewFavorite from '~/components/views/ViewFavorite.vue';
+import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
+import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
+const sheetMaxHeight = useSheetMaxHeight();
+
+const sheet = useTemplateRef<InstanceType<typeof BottomSheet>>('sheet');
+const map = injectMap();
+
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
-const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
+const mobileMenuOpen = computed(() => store.featuredAirportsOpen || store.menuFriendsOpen);
+const sheetOpen = computed(() => !!overlay.value && !overlay.value.minified && !mobileMenuOpen.value);
 
-onMounted(() => {
-    const uncollapsed = mapStore.overlays.find(x => !x.collapsed);
+function setMapBottomPadding(bottom: number) {
+    const view = map.value?.getView();
+    if (view) view.padding = [0, 0, bottom, 0];
+}
 
-    watch(() => mapStore.overlays.length, (val, oldVal) => {
-        if (val && !oldVal) mapStore.activeMobileOverlay = mapStore.overlays.find(x => !x.collapsed)?.id ?? null;
-    }, {
-        once: true,
-    });
+function onSnap(height: number) {
+    if (sheetOpen.value && height <= 0) closeSheet();
+    setMapBottomPadding(sheetOpen.value ? height : 0);
+}
 
-    if (uncollapsed) {
-        mapStore.activeMobileOverlay = uncollapsed.id;
-        mapStore.overlays = mapStore.overlays.map(x => ({
-            ...x,
-            collapsed: x.id !== uncollapsed.id,
-        }));
-    }
+watch(() => sheetOpen.value, open => {
+    // Seed padding with the default (mid) snap height on open; @snap refines it.
+    setMapBottomPadding(open ? Math.round(sheetMaxHeight.value * 0.6) : 0);
 });
+
+onBeforeUnmount(() => setMapBottomPadding(0));
+
+watch(() => mapStore.mobileSheetCollapse, () => {
+    sheet.value?.snapTo(({ snapPoints: points, height }) => {
+        const mid = points[1];
+        return height > mid ? mid : height;
+    });
+});
+
+const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures.value).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
+
+const snapPoints = ({ maxHeight, minHeight }: { maxHeight: number; minHeight: number }) => [
+    Math.min(minHeight, Math.round(maxHeight * 0.3)),
+    Math.round(maxHeight * 0.65),
+    maxHeight,
+];
+
+function closeSheet() {
+    if (overlay.value) overlay.value.minified = true;
+    mapStore.activeMobileOverlay = null;
+}
 
 const overlaysHeight = computed(() => {
     const btnHeight = 32;
@@ -142,31 +138,6 @@ const overlaysHeight = computed(() => {
     const rows = Math.ceil(mapStore.overlays.length / perRow);
 
     return (rows * btnHeight) + (gap * (rows - 1)) + 8;
-});
-
-const airports = computed(() => {
-    return mapStore.overlays.filter(x => x.type === 'airport').map(airport => {
-        const vatAirport = dataStore.vatsim.data.airports.value.find(x => 'icao' in airport.data && x.icao === airport.data.icao);
-        if (vatAirport) {
-            return {
-                icao: 'icao' in airport.data && airport.data.icao,
-                departures: vatAirport.aircraft.departures?.length ?? 0,
-                ground: (vatAirport.aircraft.groundDep?.length ?? 0) + (vatAirport.aircraft.groundArr?.length ?? 0),
-                arrivals: vatAirport.aircraft.arrivals?.length ?? 0,
-            };
-        }
-
-        return null;
-    }).filter(x => !!x).reduce((obj, item) => {
-        const icao = item!.icao as string;
-        // @ts-expect-error we are ok with that
-        delete item!.icao;
-
-        return {
-            ...obj,
-            [icao]: item,
-        };
-    }, {} as Record<string, Record<string, any> | null>);
 });
 </script>
 
@@ -181,10 +152,10 @@ const airports = computed(() => {
     justify-content: flex-end;
 
     width: calc(100% - 40px - 8px - 8px - 16px);
-    height: calc(100% - 48px - var(--collapsed-height));
+    height: calc(100% - 48px - var(--minified-height));
 
     &--procedures {
-        height: calc(100% - 32px - var(--collapsed-height) - 40px);
+        height: calc(100% - 32px - var(--minified-height) - 40px);
     }
 
     &_popup {
@@ -204,81 +175,34 @@ const airports = computed(() => {
         }
     }
 }
+</style>
 
-.mobile-overlays {
-    position: absolute;
-    z-index: 7;
-    bottom: 24px;
-    left: 16px + 32px + 8px;
-
-    display: grid;
-    grid-template-columns: repeat(2, calc(50% - 8px));
-    gap: 8px;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    width: calc(100% - 16px - 32px - 8px - 8px);
-
-    transition: 0.3s;
-
-    &--procedures {
-        bottom: 40px + 16px;
+<style lang="scss">
+.map-mobile-window-sheet {
+    .vbs__content {
+        overscroll-behavior: none;
     }
 
-    &__collapsed-btn {
+    .vbs__content-inner {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        &--airport {
-            display: flex;
-            gap: 2px;
-            align-items: center;
-            justify-content: space-between;
-
-            width: 100%;
-        }
-
-        &_close {
-            padding: 4px;
-        }
+        flex-direction: column;
+        min-height: 100%;
+        padding: 0;
     }
 
-    &__counters {
-        position: relative;
-        display: flex;
-        gap: 4px;
-        font-size: 10px;
-
-        &_counter {
-            &--departures {
-                color: $success300;
-            }
-
-            &--ground {
-                color: $lightgray100;
-            }
-
-            &--arrivals {
-                color: $error500;
-            }
-        }
+    .vbs__content-inner .info-popup {
+        scrollbar-gutter: auto;
+        overflow: visible;
+        max-width: none;
+        max-height: none;
     }
 
-    &--appear {
-        &-enter-active,
-        &-leave-active {
-            overflow: hidden;
-            transition: 0.3s
-        }
+    .vbs__content-inner .info-popup_content {
+        justify-content: flex-start;
+    }
 
-        &-enter-from,
-        &-leave-to {
-            height: 0;
-            max-height: 0;
-            margin-top: -16px;
-            opacity: 0;
-        }
+    .vbs__content-inner .info-popup__section:not(.info-popup__section--actions) {
+        flex-grow: 0;
     }
 }
 </style>

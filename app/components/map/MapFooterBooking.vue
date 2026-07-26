@@ -1,56 +1,56 @@
 <template>
     <div class="footer-time-popup__content">
-        <common-date-picker
+        <ui-date-picker
             :model-value="bookingRange"
-            :use-local="store.mapSettings.bookingsLocalTimezone"
+            :use-local="bookingsLocalTimezone"
         />
         <div class="footer-time-popup__arrows">
-            <common-button
+            <ui-button
                 size="S"
                 @click="shiftRange(-24, 'hour')"
             >
                 - 24h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(-6, 'hour')"
             >
                 - 6h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(-1, 'hour')"
             >
                 - 1h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 class="footer-time-popup__apply"
-                :hover-color="bookingChanged ? 'warning400' : 'primary400'"
-                :primary-color="bookingChanged ? 'warning500' : 'primary500'"
+                :hover-color="bookingChanged ? 'orange400' : 'blue400'"
+                :primary-color="bookingChanged ? 'orange500' : 'blue500'"
                 size="M"
                 type="primary"
                 @click="applyBookingTimes"
             >
                 Apply
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(1, 'hour')"
             >
                 + 1h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(6, 'hour')"
             >
                 + 6h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(24, 'hour')"
             >
                 + 24h
-            </common-button>
+            </ui-button>
         </div>
     </div>
 </template>
@@ -59,9 +59,9 @@
 import { reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from '~/store';
-// import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
+// import PopupAside from '~/components/common/blocks/PopupAside.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiDatePicker from '~/components/ui/inputs/UiDatePicker.vue';
 
 // const props = defineProps({
 //     show: Boolean,
@@ -70,6 +70,7 @@ import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
 
 
 const store = useStore();
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const route = useRoute();
 const bookingRange = reactive({
     from: store.bookingsStartTime && !isNaN(Number(store.bookingsStartTime))
@@ -98,8 +99,9 @@ onMounted(() => {
     // Otherwise, set to now and now + bookingHours (or 30 min)
     const now = new Date();
     let addMs = 30 * 60 * 1000; // default 30 min
-    if (store.mapSettings.bookingHours) {
-        addMs = Number(store.mapSettings.bookingHours) * 60 * 60 * 1000;
+    const bookingHours = getKeyedValueFromSettings('map.bookings.hours');
+    if (bookingHours) {
+        addMs = Number(bookingHours) * 60 * 60 * 1000;
         if (isNaN(addMs) || addMs <= 0) addMs = 30 * 60 * 1000;
     }
     store.bookingsStartTime = new Date(now);

@@ -1,5 +1,5 @@
 <template>
-    <common-popup
+    <popup-fullscreen
         v-if="!store.config.hideHeader && update.active !== false"
         model-value
         @update:modelValue="close"
@@ -79,13 +79,14 @@
                 </div>
             </div>
         </div>
-    </common-popup>
+    </popup-fullscreen>
 </template>
 
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
 import { showUpdatePopup, updatePopupActive } from '~/composables';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 interface UpdateFeature {
     title: string;
@@ -110,20 +111,91 @@ const title = useTemplateRef('title');
 
 const update: Update = {
     name: String(updatePopupActive),
-    type: 'minor',
+    type: 'major',
+    height: '650px',
     features: [
         {
-            title: 'Welcome to newest VATSIM Radar update!',
-            description: 'This update adds new features and fixes many issues. Visit <a href="https://docs.vatsim-radar.com/changelog" target="_blank">docs</a> for a full changelog',
+            title: 'Welcome to VATSIM Radar v2.0 Public Preview!',
+            description: 'This is a major VATSIM Radar update. Read <a href="https://docs.vatsim-radar.com/changelog.html" target="_blank" class="__link">Full Changelog</a> for more details',
             image: images['../../assets/update/presentation.png'],
             imageRatio: '1920 / 1080',
             list: [
-                'Added (and enabled by default) long requested dynamic aircraft scaling by psergienko',
-                'Headings/great circle on distance tool by psergienko',
-                'Fast self flight updating when on ground',
-                'About page/Privacy Policy redesign/updated icons in menu by 1769455',
-                'Various improvements on route parsing and display',
-                'A lot of bug fixes and improvements',
+                'Settings v2.0',
+                'Desktop App',
+                'Infinite map',
+                'Map Interaction Rework',
+                'Controller Dashboard 2.0',
+                'Performance Improvements',
+                'Website Redesign',
+                'New Features and Improvements',
+            ],
+        },
+        {
+            title: 'Settings 2.0',
+            image: images['../../assets/update/settings.png'],
+            imageRatio: '1920 / 1080',
+            list: [
+                'Settings page is now standalone',
+                'You can search and preview settings on map',
+                'All your settings have been migrated',
+                'Settings are now auto saved',
+                'Settings can be exported and imported',
+            ],
+        },
+        {
+            title: 'Desktop App',
+            image: images['../../assets/update/app.png'],
+            list: [
+                'Standalone PC application',
+                'Auto updates (Windows only)',
+                'Discord Rich Presence support in Settings',
+            ],
+        },
+        {
+            title: 'Interaction Rework',
+            image: images['../../assets/update/map.png'],
+            imageRatio: '1920 / 1080',
+            list: [
+                'All hovers and clicks have priority now',
+                'Mobile clicks have been reworked',
+                'Context menu is now supported',
+                'Map is now infinite',
+                'Hovering should be much smoother in general',
+            ],
+        },
+        {
+            title: 'Controller Dashboard 2.0',
+            description: 'Developed by psergienko',
+            image: images['../../assets/update/dashboard.png'],
+            imageRatio: '1920 / 1080',
+            list: [
+                'Multiple airports',
+                'Separate page',
+                'Public and private airports with saved settings',
+                'Traffic prediction',
+                'Enroute traffic',
+            ],
+        },
+        {
+            title: 'Other Features and Improvements',
+            description: 'Visit <a href="https://docs.vatsim-radar.com/changelog.html" target="_blank" class="__link">Full Changelog</a> for more details',
+            image: images['../../assets/update/changes.png'],
+            list: [
+                'Performance improvements',
+                'Smooth aircraft movement by psergienko',
+                'Website redesign',
+                'Overlays can now be minified',
+                'Events are now displayed on map',
+                'Departed and landed time are now saved',
+                'You can now open aircraft photo if reg is correct',
+                'Added vertical speed',
+                'Navigraph AIRAC now updates in background',
+                'Improved speed/altitude graph smoothness',
+                'Filters UX improvements',
+                'Added an ID for VATGlasses sectors',
+                'Significantly improved bookings on map correct display, added Booked Until',
+                'Fixed website reloading multiple times after update',
+                'Much more',
             ],
         },
     ],
@@ -166,10 +238,10 @@ const close = async () => {
         gap: 0.3em;
         align-items: center;
 
-        font-family: $openSansFont;
+
         font-size: 17px;
         line-height: 100%;
-        color: $lightgray150;
+        color: $lightGray500;
 
         @include mobileOnly {
             flex-wrap: wrap;
@@ -178,7 +250,7 @@ const close = async () => {
 
         span {
             font-weight: 700;
-            color: $primary500;
+            color: $blue500;
         }
     }
 
@@ -197,19 +269,18 @@ const close = async () => {
 
         @include mobileOnly {
             width: 80dvw;
-            height: auto;
+            min-height: auto;
         }
 
         &_title {
-            font-family: $openSansFont;
             font-size: 14px;
             font-weight: 700;
-            color: $lightgray150;
+            color: $lightGray500;
         }
 
         &_image {
             height: 200px;
-            border: 2px solid $darkgray800;
+            border: 2px solid $darkGray400;
             border-radius: 8px;
             background: no-repeat top / cover;
 
@@ -224,7 +295,7 @@ const close = async () => {
             gap: 4px;
 
             font-size: 13px;
-            color: $lightgray150;
+            color: $lightGray500;
         }
 
         &_navigation {
@@ -244,13 +315,13 @@ const close = async () => {
                     height: 8px;
                     border-radius: 100%;
 
-                    background: $darkgray800;
+                    background: $darkGray400;
 
                     transition: 0.3s;
 
                     &--active {
                         cursor: default;
-                        background: $primary500;
+                        background: $blue500;
                     }
                 }
             }
@@ -262,13 +333,13 @@ const close = async () => {
 
                 width: 12px;
 
-                color: $primary400;
+                color: $blue400;
 
                 transition: 0.3s;
 
                 @include hover {
                     &:hover {
-                        color: $primary600;
+                        color: $blue600;
                     }
                 }
 
@@ -279,7 +350,7 @@ const close = async () => {
                 &--disabled {
                     pointer-events: none;
                     cursor: default;
-                    color: $darkgray800;
+                    color: $darkGray400;
                 }
             }
         }

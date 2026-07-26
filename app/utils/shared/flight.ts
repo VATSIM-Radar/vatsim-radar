@@ -1,6 +1,6 @@
-import type { Coordinate } from 'ol/coordinate';
-import { toRadians } from 'ol/math';
-import type { UserMapSettingsTurns } from '~/utils/backend/handlers/map-settings';
+import type { Coordinate } from 'ol/coordinate.js';
+import { toRadians } from 'ol/math.js';
+import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function calculateDistanceInNauticalMiles([lon1, lat1]: Coordinate, [lon2, lat2]: Coordinate): number {
     const earthRadiusInNauticalMiles = 3440.065;
@@ -31,7 +31,7 @@ export function calculateProgressPercentage(current: Coordinate, dep: Coordinate
 
 export function calculateArrivalTime(current: Coordinate, dest: Coordinate, groundSpeed: number): Date {
     const distance = calculateDistanceInNauticalMiles(current, dest);
-    const timeInHours = distance / groundSpeed;
+    const timeInHours = distance / (groundSpeed || 1);
 
     const currentTime = new Date();
 

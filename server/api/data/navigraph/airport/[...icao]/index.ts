@@ -1,6 +1,6 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { findAndRefreshUserByCookie } from '~/utils/backend/user';
-import { getNavigraphGates, getNavigraphLayout, getNavigraphRunways } from '~/utils/backend/navigraph';
+import { handleH3Error } from '~/utils/server/h3';
+import { findAndRefreshUserByCookie } from '~/utils/server/user';
+import { getNavigraphGates, getNavigraphLayout, getNavigraphRunways } from '~/utils/server/navigraph';
 import type {
     NavigraphAirportData,
     NavigraphGate,
@@ -12,7 +12,7 @@ import type { PartialRecord } from '~/types';
 import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
-import { isDebug } from '~/utils/backend/debug';
+import { isDebug } from '~/utils/server/debug';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],

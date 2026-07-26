@@ -1,7 +1,7 @@
 import { useStore } from '~/store';
 import { toRaw } from 'vue';
 import { isFetchError } from '~/utils/shared';
-import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import type { Map } from 'ol';
 
 export async function sendUserPreset<T extends Record<string, any>>(name: string, json: T, prefix: string, retryMethod: () => Promise<any>) {
@@ -30,13 +30,12 @@ export async function sendUserPreset<T extends Record<string, any>>(name: string
 export const showBookmark = async (bookmark: UserBookmark, map: Map | null) => {
     const zoom = bookmark.zoom ?? 14;
     const dataStore = useDataStore();
-    const store = useStore();
 
     if (bookmark.icao) {
-        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.realIcao[bookmark.icao]!, map, zoom, !store.localSettings.skipBookmarkAnimation);
+        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.realIcao[bookmark.icao]!, map, zoom, !getKeyedValueFromSettings('map.preferences.skipBookmarkAnimation'));
     }
     else if (bookmark.coords) {
-        if (store.localSettings.skipBookmarkAnimation) {
+        if (getKeyedValueFromSettings('map.preferences.skipBookmarkAnimation')) {
             map?.getView()?.setCenter(bookmark.coords);
             map?.getView()?.setZoom(zoom);
         }

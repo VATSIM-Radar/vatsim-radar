@@ -1,9 +1,10 @@
 <template>
-    <view-map @map="$emit('map', $event)"/>
+    <client-only>
+        <view-map @map="$emit('map', $event)"/>
+    </client-only>
 </template>
 
 <script setup lang="ts">
-import ViewMap from '~/components/views/ViewMap.vue';
 import type { MapEvent } from '~/app.vue';
 
 defineEmits({
@@ -11,6 +12,8 @@ defineEmits({
         return true;
     },
 });
+
+const ViewMap = defineAsyncComponent(() => import('~/components/views/ViewMap.vue'));
 
 const config = useRuntimeConfig();
 

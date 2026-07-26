@@ -1,8 +1,8 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { getLocalText, isDebug, saveLocalFile } from '~/utils/backend/debug';
-import { getDiffPolygons, getSimAwareData, getVatSpyCompiledData, getVatSpyData } from '~/utils/backend/debug/data-get';
+import { handleH3Error } from '~/utils/server/h3';
+import { isDebug, saveLocalFile } from '~/utils/server/debug';
+import { getDiffPolygons, getSimAwareData, getVatSpyCompiledData, getVatSpyData } from '~/utils/server/debug/data-get';
 import type { VatsimController } from '~/types/data/vatsim';
-import { compileVatSpy, vatspyDataToGeojson } from '~/utils/backend/vatsim/vatspy';
+import { compileVatSpy, vatspyDataToGeojson } from '~/utils/server/vatsim/vatspy';
 
 export default defineEventHandler(async event => {
     const { type, id } = getRouterParams(event);
@@ -25,7 +25,7 @@ export default defineEventHandler(async event => {
         saveLocalFile(JSON.stringify(data), 'simaware.geojson');
         const changedData = getDiffPolygons(data, 'simaware');
 
-        const changedControllers = (await changedData).features.filter(x => x.properties!.fill === 'success500' || x.properties!.fill === 'primary500').flatMap(x => {
+        return (await changedData).features.filter(x => x.properties!.fill === 'green500' || x.properties!.fill === 'blue500').flatMap(x => {
             const properties = x.properties!;
 
             const controllers: VatsimController[] = [];
@@ -49,10 +49,6 @@ export default defineEventHandler(async event => {
 
             return controllers;
         });
-
-        const existingControllers: VatsimController[] = JSON.parse(getLocalText('controllers.json') ?? '[]');
-
-        saveLocalFile(JSON.stringify([...existingControllers, ...changedControllers.filter(x => !existingControllers.some(y => y.callsign === x.callsign))]), 'controllers.json');
     }
     else {
         const data = await getVatSpyData(+id, true);
@@ -62,13 +58,13 @@ export default defineEventHandler(async event => {
         saveLocalFile(dat, 'vatspy.dat');
         const changedData = getDiffPolygons(vatspyDataToGeojson(compiled), 'vatspy');
 
-        let changedControllers: VatsimController[] = (await changedData).features.filter(x => x.properties!.fill === 'success500' || x.properties!.fill === 'primary500').flatMap(x => {
+        const changedControllers: VatsimController[] = (await changedData).features.filter(x => x.properties!.fill === 'green500' || x.properties!.fill === 'blue500').flatMap(x => {
             const properties = x.properties!;
-            const neededFir = compiled.firs.find(x => x.feature.properties!.id === properties!.id);
-            if (!neededFir?.callsign) return [] as VatsimController[];
+            const neededFirs = compiled.firs.filter(x => x.boundary === properties!.id);
+            if (!neededFirs?.length) return [] as VatsimController[];
 
-            return {
-                callsign: `${ neededFir.callsign }_CTR`,
+            return neededFirs.map(x => ({
+                callsign: `${ x.callsign }_CTR`,
                 cid: Date.now() + Number(Math.random().toFixed(6).toString().replace('.', '')),
                 facility: 2,
                 frequency: '122.122',
@@ -79,13 +75,9 @@ export default defineEventHandler(async event => {
                 server: '',
                 text_atis: ['test'],
                 visual_range: 0,
-            } satisfies VatsimController as VatsimController;
+            } satisfies VatsimController as VatsimController));
         });
 
-        changedControllers = changedControllers.filter((x, xIndex) => !changedControllers.find((y, yIndex) => x.callsign === y.callsign && xIndex > yIndex));
-
-        const existingControllers: VatsimController[] = JSON.parse(getLocalText('controllers.json') ?? '[]');
-
-        saveLocalFile(JSON.stringify([...existingControllers, ...changedControllers.filter(x => !existingControllers.some(y => y.callsign === x.callsign))]), 'controllers.json');
+        return changedControllers.filter((x, xIndex) => !changedControllers.find((y, yIndex) => x.callsign === y.callsign && xIndex > yIndex));
     }
 });

@@ -1,18 +1,17 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
-import { Feature } from 'ol';
+import type { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import { LineString, Point } from 'ol/geom';
-import type { Coordinate } from 'ol/coordinate';
+import type VectorSource from 'ol/source/Vector.js';
+import { LineString, Point } from 'ol/geom.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import greatCircle from '@turf/great-circle';
-import type { NavigraphNavDataAirportWaypoint } from '~/utils/backend/navigraph/navdata/types';
-import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { NavigraphNavDataAirportWaypoint } from '~/utils/server/navigraph/navdata/types';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
+import { createMapFeature } from '~/utils/map/entities';
 
-defineSlots<{ default: () => any }>();
+defineOptions({
+    render: () => null,
+});
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
@@ -32,31 +31,36 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
         if (circle.geometry.type === 'LineString') coords = circle.geometry.coordinates;
         else coords = circle.geometry.coordinates.flatMap(x => x);
 
-        newFeatures.push(new Feature({
+        newFeatures.push(createMapFeature('navigraph', {
             geometry: new LineString(coords),
-            dataType: 'navdata',
             procedure,
             name,
-            type: 'enroute',
+            type: 'navigraph',
+            featureType: 'procedure',
+            id: `enroute-${ procedure }-${ name }-${ waypoint.identifier }`,
+            dbType: null,
         }));
+    }
 
-        if (constraints) {
-            newFeatures.push(...waypoints.map(x => new Feature({
-                geometry: new Point(x.coordinate),
-                dataType: 'navdata',
-                key: x.identifier,
-                waypoint: x.identifier,
-                description: x.description,
-                usage: x.type,
-                type: 'enroute-waypoint',
+    if (constraints) {
+        newFeatures.push(...waypoints.map(x => createMapFeature('navigraph', {
+            geometry: new Point(x.coordinate),
+            key: x.identifier,
+            waypoint: x.identifier,
+            description: x.description,
+            usage: x.type,
+            featureType: 'procedure-waypoint',
+            type: 'navigraph',
+            id: `procedure-waypoint-${ x.identifier }`,
 
-                altitude: x.altitude,
-                altitude1: x.altitude1,
-                altitude2: x.altitude2,
-                speed: x.speed,
-                speedLimit: x.speedLimit,
-            })));
-        }
+            altitude: x.altitude,
+            altitude1: x.altitude1,
+            altitude2: x.altitude2,
+            speed: x.speed,
+            speedLimit: x.speedLimit,
+
+            dbType: null,
+        })));
     }
 }
 
@@ -75,10 +79,10 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
     enrouteTransitions.forEach(x => addWaypoints(newFeatures, x.waypoints, constraints, type));
 }
 
-watch(() => dataStore.navigraphProcedures, () => {
+watch(dataStore.navigraphProcedures, () => {
     const newFeatures: Feature[] = [];
 
-    for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures as Record<string, DataStoreNavigraphProceduresAirport>)) {
+    for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures.value as Record<string, DataStoreNavigraphProceduresAirport>)) {
         for (const item of Object.values(sids)) {
             processSidOrStar(newFeatures, item, 'sid', runways);
         }
@@ -103,7 +107,6 @@ watch(() => dataStore.navigraphProcedures, () => {
     source?.value.addFeatures(features);
 }, {
     immediate: true,
-    deep: 4,
 });
 
 onBeforeUnmount(() => {

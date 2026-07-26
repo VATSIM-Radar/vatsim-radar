@@ -1,9 +1,9 @@
-import { prisma } from '~/utils/backend/prisma';
-import { vatsimGetUser } from '~/utils/backend/vatsim';
+import { prisma } from '~/utils/server/prisma';
+import { vatsimGetUser } from '~/utils/server/vatsim';
 import { readBody } from 'h3';
-import { handleH3Error } from '~/utils/backend/h3';
+import { handleH3Error } from '~/utils/server/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
-import { findUserByCookie } from '~/utils/backend/user';
+import { findUserByCookie } from '~/utils/server/user';
 
 export default defineEventHandler(async event => {
     const body = await readBody<{ token: string }>(event);

@@ -11,29 +11,17 @@
                 <view-update-popup v-if="!hasObs() && showUpdatePopup"/>
                 <view-metar v-if="store.metarRequest"/>
             </client-only>
-            <nuxt-loading-indicator color="rgb(var(--primary500))"/>
+            <nuxt-loading-indicator color="rgb(var(--blue500))"/>
             <slot/>
         </div>
-        <common-popup
-            v-if="store.updateRequired || $pwa?.needRefresh"
-            v-model="updateRequired"
-            disabled
-        >
-            <template #title>Page Reload Needed</template>
-
-            A new VATSIM Radar update is available! Please reload the page to apply the update.
-
-            <template #actions>
-                <common-button @click="reload">
-                    Apply and reload
-                </common-button>
-            </template>
-        </common-popup>
+        <layout-migration/>
+        <layout-update-popup/>
+        <layout-preset-import/>
         <div
             v-if="!store.config.hideFooter"
             class="app_footer"
         >
-            <view-map-footer v-if="route.path === '/'"/>
+            <view-footer v-if="route.path === '/'"/>
             <div
                 v-else
                 class="app_footer_info"
@@ -44,120 +32,13 @@
             </div>
         </div>
         <client-only>
-            <div
-                v-if="!policy.accepted || policy.accepted <= 0"
-                class="app_consent"
-            >
-                <div class="app_consent_introduction __info-sections">
-                    <div class="app_consent_title">
-                        Data Policy
-                    </div>
-                    <div class="app_consent_description">
-                        Uh oh! VATSIM Radar wants to share some little data with 3rd party. What do we do?
-                    </div>
-                </div>
-                <div class="app_consent_actions">
-                    <common-button
-                        type="secondary-875"
-                        @click="consentChoose = true"
-                    >
-                        Customize
-                    </common-button>
-                    <common-button @click="policy.accepted = 1">
-                        Accept All
-                    </common-button>
-                </div>
-            </div>
+            <layout-consent v-if="!store.config.dashboardId"/>
+            <layout-distance-tutorial/>
         </client-only>
-        <common-popup
-            :model-value="consentChoose || store.cookieCustomize"
-            @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
-        >
-            <template #title>
-                Choose privacy policy settings
-            </template>
-
-            <div class="app_consent_things __info-sections">
-                <div class="app_consent_item app_consent_item--enabled app_consent_item--disabled">
-                    <common-checkbox
-                        class="app_consent_item_checkbox"
-                        model-value
-                    >
-                        Required Data
-                    </common-checkbox>
-                    <div class="app_consent_item_text">
-                        Cookies, storage. Learn more:
-                        <a
-                            class="__link"
-                            href="/privacy-policy"
-                            target="_blank"
-                        >Privacy Policy</a>.
-
-                        This one is required for us to work correctly.
-                    </div>
-                </div>
-                <div
-                    class="app_consent_item"
-                    :class="{ 'app_consent_item--enabled': policy.rum }"
-                    @click="policy.rum = !policy.rum"
-                >
-                    <common-checkbox
-                        v-model="policy.rum"
-                        class="app_consent_checkbox"
-                        @click.stop
-                    >
-                        CloudFlare Beacon
-                    </common-checkbox>
-                    <div class="app_consent_item_text">
-                        Privacy-focused script to collect page load performance -
-                        <a
-                            class="__link"
-                            href="https://developers.cloudflare.com/web-analytics/data-metrics/"
-                            target="_blank"
-                            @click.stop
-                        >Learn More</a>.
-                    </div>
-                </div>
-                <div
-                    class="app_consent_item"
-                    :class="{ 'app_consent_item--enabled': policy.sentry }"
-                    @click="policy.sentry = !policy.sentry"
-                >
-                    <common-checkbox
-                        v-model="policy.sentry"
-                        class="app_consent_checkbox app_consent_checkbox--disabled"
-                        @click.stop
-                    >
-                        Sentry Error Reporting
-                    </common-checkbox>
-                    <div class="app_consent_item_text">
-                        This setting allows us to also send your VATSIM CID and request IP address to Sentry, as well as browser performance data. Error reporting is always enabled - but anonymous if this is not selected
-                    </div>
-                </div>
-            </div>
-
-            <template #actions>
-                <common-button
-                    v-if="store.cookieCustomize"
-                    @click="store.cookieCustomize = false"
-                >
-                    Save
-                </common-button>
-                <template v-else>
-                    <common-button
-                        type="secondary"
-                        @click="consentChoose = false"
-                    >
-                        Cancel
-                    </common-button>
-                    <common-button @click="[policy.accepted = 1, consentChoose = false]">
-                        Agree
-                    </common-button>
-                </template>
-            </template>
-        </common-popup>
+        <layout-consent-popup/>
+        <layout-notifications/>
     </div>
-    <restricted-auth
+    <view-restricted-auth
         v-else
         v-once
     />
@@ -165,41 +46,34 @@
 
 <script lang="ts" setup>
 import { useStore } from '~/store';
-import ViewHeader from '~/components/views/header/ViewHeader.vue';
-import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
-import { checkAndSetMapPreset } from '~/composables/presets';
-import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
+import ViewHeader from '~/components/features/header/ViewHeader.vue';
+import ViewFooter from '~/components/features/footer/ViewFooter.vue';
+import { checkAndSetMapPreset } from '~/composables/map/presets';
+import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
-import type { ThemesList } from '~/utils/backend/styles';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { ThemesList } from '~/utils/colors';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
-import type { ResolvableScript } from '@unhead/vue';
-import * as Sentry from '@sentry/nuxt';
-import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
+import LayoutNotifications from '~/components/features/layout/LayoutNotifications.vue';
+import LayoutUpdatePopup from '~/components/features/layout/LayoutUpdatePopup.vue';
+import LayoutConsent from '~/components/features/layout/LayoutConsent.vue';
+import LayoutConsentPopup from '~/components/features/layout/LayoutConsentPopup.vue';
+import LayoutDistanceTutorial from '~/components/features/layout/LayoutDistanceTutorial.vue';
+import { setAircraftDefaultColors } from '~/composables/settings/v2/utils';
+import LayoutPresetImport from '~/components/features/layout/LayoutPresetImport.vue';
+import LayoutMigration from '~/components/features/layout/LayoutMigration.vue';
 
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
+const settingsStore = useSettingsStore();
 const route = useRoute();
-const updateRequired = ref(true);
-const consentChoose = ref(false);
-const { $pwa } = useNuxtApp();
 
 const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/ViewUpdatePopup.vue'));
-const ViewMetar = defineAsyncComponent(() => import('~/components/views/ViewMetar.vue'));
-
-const reload = () => {
-    if ($pwa?.needRefresh) {
-        $pwa.updateServiceWorker();
-    }
-    else {
-        location.reload();
-    }
-};
+const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
@@ -208,9 +82,9 @@ const theme = useCookie<ThemesList>('theme', {
     maxAge: 60 * 60 * 24 * 360,
 });
 
-store.theme = theme.value ?? 'default';
+store.theme = theme.value ?? settingsStore?.settings.appearance?.theme ?? 'default';
 
-checkAndSetMapPreset();
+await checkAndSetMapPreset();
 
 defineRouteRules({
     prerender: true,
@@ -235,14 +109,16 @@ onMounted(() => {
     });
 
     if (!theme.value && !route.query.preset) {
-        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
-            theme.value = 'light';
+        if (settingsStore.settings?.appearance?.theme) {
+            theme.value = settingsStore.settings?.appearance.theme;
         }
         else {
-            theme.value = 'default';
-        }
+            if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+                theme.value = 'light';
+            }
 
-        store.theme = theme.value;
+            store.theme = theme.value ?? 'default';
+        }
     }
 
     if (store.user?.isSup) {
@@ -262,9 +138,7 @@ onMounted(() => {
     }
 });
 
-const policy = cookiePolicyStatus();
-
-watch(() => policy.value.sentry, val => {
+/* watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {
         Sentry.setUser({ id: store.user.cid });
     }
@@ -273,78 +147,8 @@ watch(() => policy.value.sentry, val => {
     }
 }, {
     immediate: true,
-});
+});*/
 
-const themeColor = getCurrentThemeHexColor('darkgray1000');
-
-useHead(() => {
-    const theme = store.theme ?? 'default';
-    const css = Object
-        .entries({
-            ...radarColors,
-            ...(theme === 'default' ? {} : radarThemes[theme]),
-        })
-        .filter(([key]) => key.endsWith('Rgb'))
-        .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
-        .join(';');
-
-    const script: ResolvableScript[] = [];
-
-    if (policy.value.accepted && policy.value.rum) {
-        script.push({
-            tagPosition: 'bodyClose',
-            defer: true,
-            src: 'https://static.cloudflareinsights.com/beacon.min.js',
-            'data-cf-beacon': '{"token": "e82abe7cc5a0420982b5e7d6b849bb79"}',
-        });
-    }
-
-    return {
-        titleTemplate(title) {
-            if (!title) return 'VATSIM Radar';
-            return `${ title } | VATSIM Radar`;
-        },
-        meta: [
-            {
-                name: 'og:site_name',
-                content: 'VATSIM Radar',
-            },
-            {
-                name: 'og:type',
-                content: 'website',
-            },
-            {
-                name: 'og:locale',
-                content: 'en_US',
-            },
-            {
-                name: 'description',
-                content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
-            },
-            {
-                name: 'og:description',
-                content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
-            },
-            {
-                name: 'msapplication-TileColor',
-                content: themeColor,
-            },
-            {
-                name: 'theme-color',
-                content: themeColor,
-            },
-        ],
-        htmlAttrs: {
-            lang: 'en',
-            class: [`theme-${ store.theme ?? 'default' }`, store.config.hideHeader ? `iframe` : ''],
-        },
-        style: [{
-            key: 'radarStyles',
-            innerHTML: `:root {${ css }}`,
-        }],
-        script,
-    };
-});
 
 let parser: UAParser | undefined;
 
@@ -372,13 +176,14 @@ async function getEngine(uaParser = parser) {
 }
 
 function setWindowStore() {
-    store.isMobile = window.innerWidth < 700;
-    store.isMobileOrTablet = window.innerWidth < 1466;
-    store.isTablet = window.innerWidth < 1466 && window.innerWidth >= 700;
-    store.isPC = window.innerWidth >= 1466;
+    store.isMobile = window.innerWidth < 700 || (window.innerWidth < 1365 && window.innerHeight < 500);
+    store.isMobileOrTablet = window.innerWidth < 1365;
+    store.isTablet = window.innerWidth < 1365 && window.innerWidth >= 700 && window.innerHeight > 500;
+    store.isPC = window.innerWidth >= 1365;
     store.isPCWide = window.innerWidth >= 1900;
     store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
     store.viewport.width = window.innerWidth;
+    store.viewport.height = window.innerHeight;
 }
 
 const listener = () => {
@@ -395,6 +200,7 @@ onNuxtReady(async () => {
     windowInterval = setInterval(setWindowStore, 500);
     store.device = await getDeviceType() ?? 'desktop';
     store.engine = await getEngine();
+    store.touch = matchMedia('(hover: none)').matches;
 });
 
 onBeforeUnmount(() => {
@@ -431,6 +237,19 @@ await useAsyncData('default-init', async () => {
 
     return true;
 });
+
+await useAsyncData('map-presets', async () => {
+    setAircraftDefaultColors();
+    await settingsStore.fetchPresets().catch(console.error);
+    return true;
+}, {
+    server: false,
+});
+
+await useAsyncData('desktop-releases', async () => {
+    await store.fetchRelease().catch(console.error);
+    return true;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -455,87 +274,8 @@ await useAsyncData('default-init', async () => {
         opacity: 0.5;
 
         &, * {
-            color: $lightgray150;
+            color: $lightGray500;
             text-decoration-skip-ink: none;
-        }
-    }
-}
-
-.app_consent {
-    position: fixed;
-    z-index: 10;
-    bottom: 56px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-
-    width: 650px;
-    max-width: 90%;
-    padding: 16px;
-    border-radius: 8px;
-
-    background: $darkgray950;
-
-    @include mobileOnly {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    &_title {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    &_description {
-        font-size: 14px;
-    }
-
-    &_actions {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    &_introduction {
-        align-self: stretch;
-        justify-content: space-evenly;
-    }
-
-    &_item {
-        cursor: pointer;
-        user-select: none;
-
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        padding: 8px;
-        border: 1px solid varToRgba('lightgray125', 0.15);
-        border-radius: 8px;
-
-        background: $darkgray900;
-
-        transition: 0.3s;
-
-        &--disabled {
-            cursor: default;
-
-            .app_consent_item_checkbox {
-                pointer-events: none;
-                opacity: 0.8;
-            }
-        }
-
-        &--enabled {
-            border-color: $primary300;
-        }
-
-        &_text {
-            font-size: 14px;
         }
     }
 }
@@ -551,11 +291,17 @@ html, body {
     padding: 0;
 
     font-family: $defaultFont;
-    color: $lightgray150;
+    color: $lightGray500;
     text-size-adjust: 100%;
 
     color-scheme: dark;
-    background: $darkgray1000;
+    background: $black;
+
+    -webkit-tap-highlight-color: transparent;
+
+    &.hide-paddings .app_content {
+        padding: 0;
+    }
 
     &:not(.iframe) {
         scrollbar-gutter: stable;
@@ -585,7 +331,7 @@ img {
 *,
 *::before,
 *::after {
-    scrollbar-color: $darkgray800 var(--bg-color, $darkgray1000);
+    scrollbar-color: $darkGray200 var(--bg-color, $darkGray900);
     scrollbar-width: thin;
     box-sizing: border-box;
 }
@@ -598,13 +344,13 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        border: 3px solid var(--bg-color, $darkgray1000);
+        border: 3px solid var(--bg-color, $darkGray900);
         border-radius: 10px;
-        background: $darkgray800;
+        background: $darkGray200;
     }
 
     &::-webkit-scrollbar-track {
-        background: var(--bg-color, $darkgray1000);
+        background: var(--bg-color, $darkGray900);
     }
 }
 
@@ -615,7 +361,7 @@ img {
 
     &_title {
         padding-top: 8px;
-        border-top: 1px solid varToRgba('lightgray150', 0.15);
+        border-top: 1px solid $whiteAlpha12;
         font-size: 13px;
         font-weight: 600;
     }
@@ -623,6 +369,30 @@ img {
     &--gap-16 {
         gap: 16px;
     }
+}
+
+.__vertical-group-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.__horizontal-group-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.__horizontal-group-16 {
+    @extend .__horizontal-group-4;
+    gap: 16px;
+}
+
+.__vertical-group-16 {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .__grid-info-sections {
@@ -729,7 +499,7 @@ img {
 .__small-title {
     font-size: 13px;
     font-weight: 600;
-    color: $lightgray150;
+    color: $lightGray500;
 }
 
 .__spacer {
@@ -737,14 +507,14 @@ img {
 }
 
 .__link {
-    color: $primary500;
+    color: var(--text-primary-color, #{$blue500});
     text-decoration: underline;
 
     @include hover {
         transition: 0.3s;
 
         &:hover {
-            color: $primary400;
+            color: var(--text-hover-color, #{$blue400});
         }
     }
 }
@@ -799,6 +569,53 @@ img {
         width: 56px;
         min-width: 56px;
         max-width: 56px;
+    }
+}
+
+.radar-vbs {
+    &_popup {
+        flex: 1 0 auto;
+        width: 100%;
+    }
+
+    &_handle-zone {
+        position: sticky;
+        z-index: 9;
+        top: 0;
+
+        overflow: visible;
+
+        height: 0;
+    }
+
+    &_handle {
+        cursor: grab;
+
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 64px;
+        height: 16px;
+
+        &::after {
+            content: '';
+
+            width: 36px;
+            height: 4px;
+            border-radius: 999px;
+
+            background: var(--vbs-handle);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
     }
 }
 </style>

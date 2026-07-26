@@ -90,10 +90,6 @@ jobs:
         run: kubectl rollout restart deployment app-prod
       - name: Validate App
         run: kubectl rollout status deployment app-prod
-      - name: Apply VG
-        run: kubectl rollout restart deployment vatglasses
-      - name: Validate VG
-        run: kubectl rollout status deployment vatglasses
 
   deploy-db-redis:
     runs-on: ubuntu-latest
@@ -126,10 +122,10 @@ jobs:
         run: kubectl apply -f .config/k8s/main/db.yml
       - name: Validate DB
         run: kubectl rollout status deployment db
-#      - name: Deploy Influx
-#        run: kubectl apply -f .config/k8s/influx.yml
-#      - name: Validate Influx
-#        run: kubectl rollout status deployment influx-v2
+#      - name: Deploy QuestDB
+#        run: kubectl apply -f .config/k8s/questdb.yml
+#      - name: Validate QuestDB
+#        run: kubectl rollout status deployment questdb
 
   deploy-ingress:
     runs-on: ubuntu-latest
@@ -143,6 +139,16 @@ jobs:
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
+      - name: Apply Ingress resources
+        run: kubectl apply -f .config/k8s/ingress.yml
+      - name: Install F5 NGINX Ingress Controller
+        run: |
+          helm repo add nginx-stable https://helm.nginx.com/stable
+          helm repo update
+          helm upgrade --install f5-nginx-ingress nginx-stable/nginx-ingress \
+            --namespace ingress-nginx \
+            --create-namespace \
+            --values .config/k8s/f5-values.yml
       - name: Deploy Ingress
         run: kubectl apply -f .config/k8s/ingress.yml
 

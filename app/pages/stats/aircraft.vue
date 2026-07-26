@@ -1,12 +1,12 @@
 <template>
-    <common-page-block container>
+    <ui-page-container container>
         <template #title>
             Aircraft
         </template>
 
-        <view-stats-tabs/>
+        <stats-tabs/>
 
-        <common-table
+        <ui-table
             v-model:sort="sort"
             :data="pilotSuggestions"
             :headers="[
@@ -38,15 +38,15 @@
                     Filter By
                 </a>
             </template>
-        </common-table>
-    </common-page-block>
+        </ui-table>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
-import type { TableSort } from '~/components/common/basic/CommonTable.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import type { TableSort } from '~/components/ui/data/UiTable.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import StatsTabs from '~/components/views/StatsTabs.vue';
 
 const dataStore = useDataStore();
 

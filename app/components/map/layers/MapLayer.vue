@@ -1,0 +1,373 @@
+<script setup lang="ts">
+import { useStore } from '~/store';
+import type { MapLayoutLayerExternal } from '~/types/map';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
+import TileLayer from 'ol/layer/Tile.js';
+import type { TileJSON } from 'ol/source.js';
+import { XYZ } from 'ol/source.js';
+import type { PartialRecord } from '~/types';
+import { applyStyle } from 'ol-mapbox-style';
+import VectorTileLayer from 'ol/layer/VectorTile.js';
+import { layers, namedFlavor } from '@protomaps/basemaps';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { buildAttributions } from '~/composables/map';
+
+defineOptions({
+    render: () => null,
+});
+
+const store = useStore();
+
+interface Layer {
+    attribution?: {
+        title: string;
+        url: string;
+    };
+    size?: number;
+    url: string;
+    lightThemeUrl?: string;
+    vector?: false;
+    pm?: false;
+}
+
+type IVectorLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
+    vector: true;
+    pm?: false;
+};
+
+type IPMLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
+    pm: true;
+    vector?: false;
+    theme: 'black' | 'dark' | 'grayscale' | 'light' | 'white';
+};
+
+const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
+    Satellite: {
+        url: `https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}`,
+        attribution: {
+            title: 'USGS',
+            url: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits',
+        },
+    },
+    SatelliteEsri: {
+        url: `/layers/esri/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
+    },
+    OSM: {
+        attribution: {
+            title: 'OpenStreetMaps',
+            url: 'https://openstreetmap.org/',
+        },
+        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    },
+};
+
+/* enum InternalThemes {
+    darkSatelliteL = 'clxpxzi3300ld01qqb343fuv8',
+    darkSatelliteNL = 'clxpygplc00my01qwasza7aft',
+    darkL = 'clxpvwey9006j01r08g6fdwtp',
+    darkNL = 'clxpxxj6w00lc01qqh0dc2d4i',
+
+    lightSatelliteL = 'clxpysco700n001qw2a9u61ar',
+    lightSatelliteNL = 'clxpyxm4700nk01pc3nttg9g4',
+    lightL = 'clxpypp7d00mz01qwe0gefqi7',
+    lightNL = 'clxpykjoh00nj01pcgmrudq8q',
+}*/
+
+const isLabels = useSettingValueFromFunc('map.layers.layerLabels');
+
+const route = useRoute();
+
+const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
+    if (route.path.startsWith('/data') && route.path.endsWith('/compare')) {
+        return {
+            url: 'basic',
+        };
+    }
+
+    let layer = getKeyedValueFromSettings('map.layers.layer');
+
+    if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
+
+    if (layer === 'basic') {
+        return {
+            url: 'basic',
+        };
+    }
+
+    // TODO: remove
+    if (layer === 'SatelliteEsri') layer = 'Satellite';
+
+    if (!(layer in externalLayers)) {
+        const isGeneral = layer === 'protoGeneral';
+        const isGrayscale = store.getCurrentTheme === 'default' ? false : getKeyedValueFromSettings('map.layers.layer') === 'protoDataGray';
+
+        let theme: IPMLayer['theme'];
+
+        if (isGeneral) {
+            theme = store.getCurrentTheme === 'default' ? 'dark' : 'light';
+        }
+        else if (isGrayscale) {
+            theme = 'grayscale';
+        }
+        else {
+            theme = store.getCurrentTheme === 'default' ? 'black' : 'white';
+        }
+
+        return {
+            attribution: {
+                title: 'Protomaps',
+                url: 'https://github.com/protomaps/basemaps',
+            },
+            url: '/tiles.json?v=2.0',
+            pm: true,
+            theme,
+        };
+    }
+
+    const external = externalLayers[layer as MapLayoutLayerExternal]!;
+
+    if (layer === 'Satellite' && isLabels.value) {
+        return {
+            ...external,
+            url: external.url.replace('USGSImageryOnly', 'USGSImageryTopo'),
+        };
+    }
+
+    return external;
+});
+const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl + ('theme' in layer.value ? layer.value.theme : ''));
+
+const transparencySettings = computed(() => JSON.stringify([
+    getKeyedValueFromSettings('map.layers.transparency.osm'),
+    getKeyedValueFromSettings('map.layers.transparency.satellite'),
+]));
+
+const opacity = computed(() => {
+    switch (getKeyedValueFromSettings('map.layers.layer')) {
+        case 'OSM':
+            return getKeyedValueFromSettings('map.layers.transparency.osm');
+        case 'Satellite':
+        case 'SatelliteEsri':
+            return getKeyedValueFromSettings('map.layers.transparency.satellite');
+        default:
+            return 1;
+    }
+});
+
+const theme = computed(() => store.theme);
+
+const map = inject<ShallowRef<Map | null>>('map')!;
+const tileLayer = shallowRef<TileLayer<XYZ | TileJSON> | VectorTileLayer | null>();
+let attributionLayer: TileLayer<XYZ> | null = null;
+
+useHead(() => ({
+    htmlAttrs: {
+        class: {
+            '--dark-matter-vector': tileLayer.value instanceof VectorTileLayer && store.getCurrentTheme !== 'light',
+            '--positron-vector': tileLayer.value instanceof VectorTileLayer && store.getCurrentTheme === 'light',
+            '--basic-layer': layerUrl.value.startsWith('basic'),
+        },
+    },
+}));
+
+const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
+
+async function initLayer() {
+    if (tileLayer.value) {
+        tileLayer.value.getSource()?.clear();
+        map.value?.removeLayer(tileLayer.value);
+    }
+    tileLayer.value?.dispose();
+
+    if (attributionLayer) map.value?.removeLayer(attributionLayer);
+    attributionLayer?.dispose();
+
+    if (layer.value.url === 'basic') {
+        tileLayer.value = new TileLayer({
+            source: new XYZ({
+                url: store.theme === 'light' ? 'https://r2.vatsim-radar.com/basic/light/{z}/{x}/{y}.png' : 'https://r2.vatsim-radar.com/basic/dark/{z}/{x}/{y}.png',
+                wrapX: true,
+                tileSize: 256,
+                minZoom: 2,
+                crossOrigin: 'anonymous',
+                maxZoom: 9,
+            }),
+            zIndex: 0,
+            cacheSize: 32,
+        });
+        map.value?.addLayer(tileLayer.value);
+
+        return;
+    }
+
+    if (layer.value.vector) {
+        tileLayer.value = new VectorTileLayer({
+            declutter: 'vectorLayer',
+            updateWhileAnimating: false,
+            updateWhileInteracting: false,
+            renderMode: 'hybrid',
+            zIndex: 0,
+            cacheSize: 32,
+        });
+
+        const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
+        const json = await $fetch<Record<string, any>>(store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url);
+        json.id = url;
+
+        if (json.layers) {
+            json.layers = json.layers.filter((layer: Record<string, any>) => allowedLayers.test(layer.id));
+        }
+
+        await applyStyle(tileLayer.value, json);
+
+        map.value?.addLayer(tileLayer.value);
+        attributionLayer = new TileLayer({
+            source: new XYZ({
+                attributions: buildAttributions(false, ''),
+            }),
+        });
+        map.value?.addLayer(attributionLayer);
+
+        return;
+    }
+
+    if (layer.value.pm) {
+        const glStyle = {
+            version: 8,
+            glyphs: 'https://cdn.protomaps.com/fonts/pbf/{fontstack}/{range}.pbf',
+            sources: {
+                protomaps: {
+                    type: 'vector',
+                    url: layer.value.url,
+                },
+            },
+            layers: layers('protomaps', namedFlavor(layer.value.theme), { lang: isLabels.value ? 'en' : undefined }),
+        };
+
+        tileLayer.value = new VectorTileLayer({
+            declutter: 'pm',
+            updateWhileAnimating: false,
+            updateWhileInteracting: false,
+            renderMode: 'hybrid',
+            zIndex: 0,
+            cacheSize: 32,
+            // @ts-expect-error wrong types
+            renderOrder: null,
+        });
+
+        const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
+
+        const excludedLayers = [
+            'roads_labels_minor',
+            'roads_labels_major',
+            'water_waterway_label',
+            'landuse_park',
+            'landuse_zoo',
+            'address_label',
+            'roads_other',
+            'pois',
+        ];
+
+        const excludedRegex: RegExp[] = [
+            /roads_tunnels/,
+            /roads_bridges_(?!(major|highway))/,
+        ];
+
+        if (!isDetailed) {
+            excludedLayers.push(
+                'landuse_urban_green',
+                'landuse_hospital',
+                'landuse_industrial',
+                'landuse_school',
+                'landuse_beach',
+                'water_river',
+                'landuse_pedestrian',
+                'landuse_pier',
+                'places_subplace',
+                'places_locality',
+                'buildings',
+                'water_label_lakes',
+                'roads_shields',
+                'roads_oneway',
+            );
+
+            excludedRegex.push(
+                /roads_minor/,
+                /roads_major/,
+                /boundaries/,
+            );
+        }
+
+
+        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
+
+        await applyStyle(tileLayer.value, glStyle);
+
+        attributionLayer = new TileLayer({
+            source: new XYZ({
+                attributions: buildAttributions(layer.value.attribution?.title || false, layer.value.attribution?.url ?? ''),
+            }),
+            zIndex: 0,
+        });
+        map.value?.addLayer(attributionLayer);
+        map.value?.addLayer(tileLayer.value);
+
+        return;
+    }
+
+    tileLayer.value = new TileLayer({
+        source: new XYZ({
+            attributions: layer.value.attribution ? buildAttributions(layer.value.attribution.title, layer.value.attribution.url) : undefined,
+            url: store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url,
+            wrapX: true,
+            tileSize: layer.value.size ?? 256,
+        }),
+        opacity: opacity.value,
+        zIndex: 0,
+        cacheSize: 32,
+    });
+    map.value?.addLayer(tileLayer.value);
+}
+
+watch(map, val => {
+    if (!val) return;
+
+    initLayer();
+}, {
+    immediate: true,
+});
+
+const vatglassesEnabled = isVatGlassesActive;
+
+watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], initLayer);
+
+onBeforeUnmount(() => {
+    if (tileLayer.value) {
+        tileLayer.value.getSource()?.clear();
+        map.value?.removeLayer(tileLayer.value);
+        tileLayer.value.dispose();
+        tileLayer.value = null;
+    }
+    if (attributionLayer) {
+        map.value?.removeLayer(attributionLayer);
+        attributionLayer.dispose();
+        attributionLayer = null;
+    }
+});
+</script>
+
+<style lang="scss">
+.--dark-matter-vector .app_content > .map {
+    background: $darkGray700;
+}
+
+.--positron-vector .app_content > .map {
+    background: rgb(253, 253, 250);
+}
+
+.--basic-layer .app_content > .map {
+    background: $darkGray500;
+}
+</style>

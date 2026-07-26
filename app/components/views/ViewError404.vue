@@ -34,8 +34,8 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
 
     padding: 23.5dvh 0 10dvh;
 
-    font-family: $openSansFont;
-    color: $error500;
+
+    color: $red500;
     text-align: center;
 
     &::before {
@@ -48,7 +48,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         font-weight: 700;
 
         opacity: 0.2;
-        background: linear-gradient(180deg, rgb(203, 66, 28, 0) 0%, #{$error500} 100%);
+        background: linear-gradient(180deg, rgb(203, 66, 28, 0) 0%, #{$red500} 100%);
         background-clip: text;
 
         -webkit-text-fill-color: transparent;
@@ -69,7 +69,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         height: 100%;
 
         :deep(path) {
-            fill: $darkgray1000;
+            fill: $darkGray900;
         }
 
         @include mobileOnly {
@@ -95,7 +95,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         z-index: 1;
 
         padding: 4px 104px;
-        border: 1px solid $warning500;
+        border: 1px solid $orange500;
         border-radius: 1px;
 
         font-size: 24px;

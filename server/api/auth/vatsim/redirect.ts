@@ -1,12 +1,13 @@
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 import { randomUUID } from 'node:crypto';
 import { AuthType } from '#prisma';
-import { getVatsimRedirectUri } from '~/utils/backend/vatsim';
+import { getVatsimRedirectUri } from '~/utils/server/vatsim';
 
 export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     let queryState = getQuery(event).state;
+    const app = getQuery(event).app;
     if (typeof queryState === 'string') {
         const existingState = await prisma.auth.findFirst({
             where: {
@@ -19,7 +20,8 @@ export default defineEventHandler(async event => {
         queryState = '';
     }
 
-    const state = queryState || randomUUID();
+    let state = queryState || randomUUID();
+    if (app) state += '-app';
 
     if (!queryState) {
         await prisma.auth.create({

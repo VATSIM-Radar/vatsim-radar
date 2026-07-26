@@ -1,7 +1,7 @@
-import { findUserByCookie } from '~/utils/backend/user';
-import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
-import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { findUserByCookie } from '~/utils/server/user';
+import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
+import { getVATSIMIdentHeaders } from '~/utils/server';
 
 export default defineEventHandler(async event => {
     const user = await findUserByCookie(event);

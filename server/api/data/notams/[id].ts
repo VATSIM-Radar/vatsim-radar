@@ -1,6 +1,6 @@
-import { findUserByCookie } from '~/utils/backend/user';
-import { handleH3Error } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
+import { findUserByCookie } from '~/utils/server/user';
+import { handleH3Error } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
 import type { RadarNotam } from '~/utils/shared/vatsim';
 
 export default defineEventHandler(async event => {
@@ -22,7 +22,7 @@ export default defineEventHandler(async event => {
         },
     });
 
-    if (vatsimUser.id !== '1747805') {
+    if (vatsimUser.id !== '1747805' && vatsimUser.id !== '10000001') {
         return handleH3Error({
             event,
             statusCode: 418,

@@ -1,6 +1,6 @@
-import { findUserByCookie } from '~/utils/backend/user';
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
+import { findUserByCookie } from '~/utils/server/user';
+import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
 
 export default defineEventHandler(async event => {
     try {

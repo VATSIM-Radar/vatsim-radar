@@ -1,5 +1,5 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { getLocalText, isDebug, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/backend/debug';
+import { handleH3Error } from '~/utils/server/h3';
+import { isDebug, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/server/debug';
 
 export default defineEventHandler(async event => {
     if (!isDebug()) {
@@ -18,8 +18,6 @@ export default defineEventHandler(async event => {
     }
 
     const method = event.method;
-
-    if (method === 'GET' && key === 'controllers') return JSON.parse(getLocalText('controllers.json') ?? '[]');
 
     if (method === 'DELETE') {
         if (key === 'vatspy') {

@@ -11,6 +11,7 @@ services:
             - 8080
             - 9229
         command: /radar/.config/command.sh
+        restart: unless-stopped
         ports:
             - "8080:8080"
             - "9229:9229"
@@ -75,28 +76,6 @@ services:
                 condition: service_healthy
         extra_hosts:
             - "host.docker.internal:host-gateway"
-
-    vatglasses-worker:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.1
-        env_file:
-            - ./.env
-        container_name: vatsim-radar-vg-worker
-        command: /radar/.config/vatglasses-worker.sh
-        volumes:
-            - ".:/radar:rw"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        depends_on:
-            db:
-                condition: service_healthy
-            redis:
-                condition: service_started
-            frontend:
-                condition: service_healthy
 
     db:
         image: mysql
