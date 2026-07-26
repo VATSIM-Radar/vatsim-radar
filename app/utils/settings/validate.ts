@@ -7,7 +7,7 @@ const colorNames = Object.keys(colorsList);
 
 const atcVisibilityKeys = ['firs', 'approach', 'ground'] as const;
 const groundTrafficModeKeys = ['always', 'lowZoom', 'never'] as const;
-const airportsModeKeys = ['staffedOnly', 'staffedAndGroundTraffic', 'all'] as const;
+const airportsModeKeys = ['staffedOnly', 'staffedAndGroundTraffic', 'all', 'allExisting'] as const;
 const airportsDeclutterKeys = ['unstaffed', 'all', 'none'] as const;
 const counterModeKeys = ['total', 'totalMoving', 'totalLanded', 'airborne', 'ground', 'groundMoving', 'hide'] as const;
 const horizontalCounterModeKeys = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'] as const;

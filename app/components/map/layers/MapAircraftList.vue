@@ -63,7 +63,7 @@ const getShownPilots = computed(() => {
 
     for (const icao in dataStore.airportsList.value) {
         const airport = dataStore.airportsList.value[icao];
-        if (!airport || airport.icao === arrivalAirport) continue;
+        if (!airport || airport.icao === arrivalAirport || airportOverlays.value.includes(icao)) continue;
 
         if (me && !getKeyedValueFromSettings('map.preferences.airports.groundTraffic.excludeMyLocation')) {
             const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);

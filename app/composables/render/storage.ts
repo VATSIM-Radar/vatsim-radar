@@ -22,7 +22,11 @@ import { View } from 'ol';
 import { clientDB } from '~/composables/render/idb';
 import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
-import { isSmoothMovementEnabled, recordSmoothSamples } from '~/composables/render/aircraft/smooth';
+import {
+    isSmoothMovementEnabled,
+    isSmoothMovementSuspendedForLoad,
+    recordSmoothSamples,
+} from '~/composables/render/aircraft/smooth';
 import { useStore } from '~/store';
 import {
     isVatGlassesActive,
@@ -515,7 +519,7 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 
-    if (isSmoothMovementEnabled()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
+    if (isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;
@@ -674,7 +678,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             // Every 5 minutes
             const needToUpdate = dataStore.time.value - lastListsUpdate > 1000 * 60 * 5;
 
-            if (!needToUpdate) return;
+            if (!needToUpdate || !store.user?.cid) return;
             store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
             lastListsUpdate = Date.now();
         }, 1000 * 60);

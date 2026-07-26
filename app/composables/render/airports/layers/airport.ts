@@ -14,6 +14,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { MapAircraftKeys } from '~/types/map';
 import { getAirportCounters } from '~/composables/vatsim/airport';
 import { setAirportStyle } from '~/composables/render/airports/layers/airport-style';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils.ts';
 
 function colorForAirport(airport: AirportListItem) {
     const mapStore = useMapStore();
@@ -62,6 +63,8 @@ export function setMapAirports({ source, airports, layer }: {
     const map: Record<string, DataAirport> = {};
 
     for (const airport of airports) {
+        if (getKeyedValueFromSettings('map.preferences.airports.showMode') === 'allExisting' && !airport.visible) continue;
+
         map[airport.icao] = airport;
 
         // Locals

@@ -11,6 +11,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import { wrapAndSliceX } from 'ol/extent.js';
 import { transformExtent } from 'ol/proj.js';
 import { callsignSplitRegex } from '~/composables/render/update/atc';
+import { useMapStore } from '~/store/map.ts';
 
 export interface AirportTraconFeature {
     id: string;
@@ -204,7 +205,10 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     const visibleMap = Object.fromEntries(visibleAirports.map(x => [x.icao, x]));
 
     const overlays = airportOverlays().value;
-    airportsArr = airportsArr.filter(x => x.atc.length || x.aircraftCount || overlays.includes(x.icao));
+
+    if (getKeyedValueFromSettings('map.preferences.airports.showMode') !== 'allExisting' || useMapStore().zoom < 5) {
+        airportsArr = airportsArr.filter(x => x.atc.length || x.aircraftCount || overlays.includes(x.icao));
+    }
     dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, Object.assign(x, { visible: !!visibleMap[x.icao] })]));
 
     for (const key in simawareCache) {

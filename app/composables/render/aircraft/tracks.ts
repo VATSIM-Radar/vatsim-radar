@@ -1,4 +1,4 @@
-import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft/index';
+import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft';
 import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';

@@ -296,6 +296,7 @@ import MapPopupIpfs from '~/components/map/popups/MapPopupIpfs.vue';
 import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
+import { enrouteAircraftPath } from '~/composables/navigraph';
 
 const props = defineProps({
     overlay: {
@@ -344,6 +345,38 @@ const ctafFrequency = computed(() => {
 });
 
 const pilot = computed(() => props.overlay.data.pilot);
+
+const flightPlanKey = computed(() => {
+    const flightPlan = pilot.value.flight_plan;
+    if (!flightPlan) return null;
+
+    return JSON.stringify({
+        revision_id: flightPlan.revision_id,
+        flight_rules: flightPlan.flight_rules,
+        aircraft: flightPlan.aircraft,
+        aircraft_faa: flightPlan.aircraft_faa,
+        aircraft_short: flightPlan.aircraft_short,
+        departure: flightPlan.departure,
+        arrival: flightPlan.arrival,
+        alternate: flightPlan.alternate,
+        deptime: flightPlan.deptime,
+        altitude: flightPlan.altitude,
+        route: flightPlan.route,
+        remarks: flightPlan.remarks,
+    });
+});
+
+watch(flightPlanKey, (value, previousValue) => {
+    if (value === previousValue) return;
+
+    const cid = pilot.value.cid.toString();
+    delete dataStore.navigraphAircraftProcedures.value[cid];
+    if (enrouteAircraftPath.value) delete enrouteAircraftPath.value[cid];
+
+    triggerRef(dataStore.navigraphAircraftProcedures);
+    triggerRef(enrouteAircraftPath);
+});
+
 const airportInfo = computed(() => {
     return props.overlay.data.airport;
 });

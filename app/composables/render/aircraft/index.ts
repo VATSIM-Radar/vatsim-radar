@@ -43,6 +43,7 @@ export interface AircraftRenderState {
     isOnGround: boolean;
     status: MapAircraftStatus;
     tracksFeatures: FeatureAircraftLine[];
+    color: string;
 }
 
 function getAircraftScale(coordinates: Coordinate, icon: string, isPilotOnGround: boolean) {
@@ -182,10 +183,12 @@ export async function setMapAircraft(settings: {
             status: 'default',
             tracksFeatures: linesFeaturesMap[aircraft.cid] ?? [],
             coordinates: featureCoordinates,
+            color: '',
         };
 
         const status = getAircraftStatus(renderState, dataStore.airportsList.value);
 
+        renderState.color = getAircraftStatusColor(status, aircraft.cid);
         renderState.status = status;
 
         const scale = getAircraftScale(featureCoordinates, aircraft.icon, isOnGround);
@@ -202,6 +205,7 @@ export async function setMapAircraft(settings: {
             scale,
             onGround: isOnGround,
             coordinates: featureCoordinates,
+            color: renderState.color,
         };
 
         if (existingFeature) {

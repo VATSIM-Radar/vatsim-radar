@@ -1,5 +1,26 @@
 # Changelog
 
+# [2.0.0-rc.5]
+
+## RC Changes
+
+- Significantly improved aircraft render performance. You should observe more fps when zoomed out
+- Fixed smooth aircraft running calculations even when zoomed out
+- Added high quality support for atc and aircraft icons - they will look noticeably better on MacOS and other retina
+  displays with no performance cost
+- Fixed booked delivery icon being too black
+- OH MY GOD! OKAY! ATC icons are now rounded. Honestly I like it more that way too. I was just lazy to do icon variants.
+- Added airport cleanup
+
+## Features and Improvements
+
+- You can now view all airports on map via Display Mode setting
+
+## Bug fixes
+
+- Ground traffic will now always show for airport that has airport overlay opened
+- Fixed map settings positioning on low width and height of device
+
 # [2.0.0-rc.4]
 
 ## RC Changes
@@ -63,7 +84,7 @@
 - Redesigned reset button for colors
 - Fixed color save resetting every other appearance setting
 - Fixed color reset resetting all settings
-- Fixed default approach color to be more familiar 
+- Fixed default approach color to be more familiar
 - Fixed TRACON transparency settings not respected at all for labels
 - Slighly improved mobile airport overlay design
 
@@ -169,11 +190,13 @@ This a Release Candidate release. No more significant features are expected to b
 - Add ZDV mapping for ATC Duplication
 - Fixed map settings impossible to save or import if counters were disabled at some point
 - Fixed map settings impossible to save or import if Navigraph Terminal Waypoints were enabled or disabled at some point
-- Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot (for example, 1.35)
+- Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot
+  (for example, 1.35)
 - Fixed some airways not showing as intended
 - Add ZAU Center and TRACONs to ATC duplication
 - Migrated to new FAA NMS API for NOTAMs
-- To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is available and pilot is not tuned up to CTAF frequency
+- To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is
+  available and pilot is not tuned up to CTAF frequency
 
 # [1.2.4-6]
 
@@ -227,10 +250,12 @@ This release is focused on a small bug fixes and improvements, including Navigra
 - Added missing helipads to Navigraph Layouts
 - Added apron names for Navigraph Layouts
 - Deicing pads are now less bright in Navigraph Layouts
-- Fixed an issue when distance flown was bigger than intended, leading to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
+- Fixed an issue when distance flown was bigger than intended, leading
+  to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
 - Distance tool layer will now have priority over route line
 - Fixed "infinite" Navigraph Data updating once and for all
-- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are not accepted until further notice, but existing will be supported now)
+- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
+  not accepted until further notice, but existing will be supported now)
 - Fixed pilot encoding being incorrect in some places by 1849614
 - Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
 - Fixed deicing pads overlapping with taxiway labels
@@ -279,7 +304,8 @@ This was supposed to be a small update. I have failed. Again.
 - Aircraft icon will now move together with map, not fall behind
 - Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends
   lists, or for next users
-- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when applicable
+- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when
+  applicable
 - You can now hover precisely on aircraft even in "crowded" space
 - All boundaries have been removed from "light" layer
 - It's now much easier to click on aircraft that is close to airport name
@@ -355,10 +381,8 @@ patient - that saves you dozens MBs of memory.
 
 ## Highlights
 
-📊 Airport Dashboard enhancements
-🛩️ Registration, alternates and voice rules in pilot overlay
-⚡ Performance and memory usage improvements
-✨ Bug fixes and quality of life improvements
+📊 Airport Dashboard enhancements 🛩️ Registration, alternates and voice rules in pilot overlay ⚡ Performance and memory
+usage improvements ✨ Bug fixes and quality of life improvements
 
 ## Features and improvements
 
@@ -536,12 +560,8 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 ## Highlights
 
 🧭️ Navigational Data on map (provided by Jeppesen and Navigraph)
-✈️ Predicted aircraft route
-📅 Bookings improvements
-📏 Distance measurement tool
-👨‍✈️ Shared cockpit support
-🌦️ Weather request
-🗺️ New map layers
+✈️ Predicted aircraft route 📅 Bookings improvements 📏 Distance measurement tool 👨‍✈️ Shared cockpit support 🌦️ Weather
+request 🗺️ New map layers
 
 ### Navigational Data
 
@@ -736,11 +756,7 @@ community.
 ## Highlights
 
 🌩️ SIGMETs / AIRMETs (US)
-📅 ATC Bookings
-📊 Live Stats
-📥 Friends Import
-📂 Presets Sorting
-✅ UI/UX Improvements and bug fixes
+📅 ATC Bookings 📊 Live Stats 📥 Friends Import 📂 Presets Sorting ✅ UI/UX Improvements and bug fixes
 
 ### SIGMETs
 
@@ -1202,9 +1218,9 @@ Big thanks to Felix and DotWallop for making this release possible!
 ### New aircraft icons
 
 - Updated helicopter icons matching
-- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172,
-  C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10,
-  A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37 (8,9)M, BCS1, C152, C17,
+  C172, C208, C25C, DA40, DC10, DC3, DH8 (A,B,C,D), DHC (2,6,7), EC45, EH10, F (14,15,16,18,22,35), GLID, KODI, SHIP,
+  BALL, A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
 
 ### Arrival rate
 
@@ -1273,8 +1289,8 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed a rare issue when runway text could stay when zooming out
 - Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
 - Fixed an issue when midflight arrival change caused flight path disappear
-- Fixed airport track line disappearing for midflight connections
-  Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
+- Fixed airport track line disappearing for midflight connections Fixed an issue with approach TRACONs could sometimes
+  lead to duplicate empty airport shown on map
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - Improved great circle support for transoceanic flights that had disconnects
 

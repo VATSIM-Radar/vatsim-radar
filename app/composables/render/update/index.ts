@@ -35,6 +35,21 @@ export async function updateControllersRender() {
         airports[airport].features = [];
     }
 
+    if (getKeyedValueFromSettings('map.preferences.airports.showMode') === 'allExisting') {
+        for (const airport of Object.values(dataStore.vatspy.value?.data.keyAirports.realIcao ?? {})) {
+            airports[airport.icao] = {
+                aircraftCount: 0,
+                atc: [],
+                atis: {},
+                icao: airport.icao,
+                airport,
+                aircraft: {},
+            };
+
+            context.airportsAdded.add(airport.icao);
+        }
+    }
+
     updateAircraft(context);
 
     log();

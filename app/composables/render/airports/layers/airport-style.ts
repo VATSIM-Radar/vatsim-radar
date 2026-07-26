@@ -306,9 +306,20 @@ export function setAirportStyle(layer: VectorLayer) {
                         });
                     }
                     else {
+                        let iconWidth = 14;
+                        if (properties.selected) iconWidth = 16;
+
+                        iconWidth *= window.devicePixelRatio;
+
+                        let variant = '';
+
+                        if (properties.index === 0) variant = '-variant-left';
+                        else if (properties.index === properties.totalCount - 1) variant = '-variant-right';
+                        if (properties.totalCount === 1) variant = '-variant-full';
+
                         styleCache[styleCacheKey] = new Style({
                             image: new Icon({
-                                src: `/icons/atc/${ letter ?? 'A' }${ booked ? '-booked' : '' }${ properties.selected ? '-hovered' : '' }.png?v=8`,
+                                src: `/_ipx/w_${ Math.ceil(iconWidth) },quality_100,f_webp/icons/atc/${ letter ?? 'A' }${ booked ? '-booked' : '' }${ variant }.png`,
                                 width: width + (properties.selected ? 2 : 0),
                                 displacement: [offsetX, -width],
                                 declutterMode: 'none',

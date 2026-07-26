@@ -81,7 +81,8 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
         description: 'Controls which airports are shown on the map',
         type: 'select',
         items: [
-            { text: 'All', value: 'all' },
+            { text: 'All with at least one aircraft or ATC', value: 'all' },
+            { text: 'All existing airports', value: 'allExisting' },
             { text: 'Staffed only', value: 'staffedOnly' },
             { text: 'Staffed or has ground traffic', value: 'staffedAndGroundTraffic' },
         ],

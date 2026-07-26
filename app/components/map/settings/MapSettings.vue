@@ -392,10 +392,6 @@ const importPreset = async () => {
             position: relative;
             display: flex;
 
-            @include mobileOnly {
-                position: unset;
-            }
-
             &--location {
                 margin-top: 8px;
 
@@ -426,10 +422,14 @@ const importPreset = async () => {
                 transform: rotate(-45deg) translate(-2px, 2px);
             }
 
-            &_content {
+            & &_content {
                 @include mobileOnly {
                     top: 0;
                 }
+            }
+
+            @media all and ((max-width: 699px) or ((max-width: 1365px) and (max-height: 500px)) or (max-height: 630px)) {
+                position: unset;
             }
         }
 
@@ -437,7 +437,20 @@ const importPreset = async () => {
             flex-direction: row;
 
             .control-block {
-                max-width: calc(100dvw - 200px - 48px) !important;
+                top: calc(100% + 8px);
+                left: 0;
+
+                overflow: auto;
+
+                width: calc(100dvw - 24px);
+                max-width: calc(100dvw - 48px) !important;
+                min-height: unset;
+                max-height: calc(100dvh - 56px - 36px - 32px - 96px - 16px);
+
+                @include fromTablet {
+                    left: 40px;
+                    max-width: calc(100dvw - 48px - 40px) !important;
+                }
             }
         }
     }

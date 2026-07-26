@@ -107,6 +107,7 @@ Core files:
 - `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
 - `app/composables/render/aircraft/tracks.ts` owns client turns fetching and rendering; its per-CID turns cache must be invalidated when `flightPlanTime` changes (a reconnect/new online flight).
 - `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
+- `setAircraftStyle()` in `app/composables/render/aircraft/style.ts` installs a layer-level OpenLayers style callback; it is therefore on the per-feature render path and should keep its work/cache lookups cheap.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 
 Map component groups:
@@ -165,6 +166,7 @@ Important composable groups:
 - `app/utils/shared/bookings.ts`: shared booking range/continuity helpers. It groups bookings by callsign, treats overlapping or exactly adjacent slots as one continuous chain, and selects the active/nearest chain for map display.
 - `app/composables/navigraph/*`: Navigraph data/layout helpers.
   - `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
+  - `app/components/map/overlays/pilot/MapPilotOverlay.vue` clears the CID-keyed selected procedure state in memory and in `localStorage` when the pilot receives a new flight plan.
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.

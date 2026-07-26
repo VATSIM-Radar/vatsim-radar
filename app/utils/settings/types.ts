@@ -62,7 +62,7 @@ export interface UserSettingsV2 {
             airports: {
                 defaultZoomLevel: number;
                 shortView: boolean | 'never';
-                showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
+                showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all' | 'allExisting';
                 declutterIf: 'unstaffed' | 'all' | 'none';
                 ATISAsUnstaffed: boolean;
                 groundTraffic: {

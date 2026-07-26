@@ -158,6 +158,7 @@ export interface FeatureAircraftProperties {
     cid: number;
     selected?: boolean;
     onGround: boolean;
+    color: string;
 }
 
 export interface FeatureAircraftLineProperties {
