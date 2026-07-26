@@ -1,5 +1,9 @@
 # Values for the official F5 NGINX Ingress Controller Helm chart.
 controller:
+  config:
+    entries:
+      worker-connections: "4096"
+      access-log-off: "true"
   ingressClass:
     name: f5-nginx
     create: true

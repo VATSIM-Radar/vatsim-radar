@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.0-1]
+
+## Bug Fixes
+
+- Fixed WebSocket never reconnecting
+- Fixed VATGlasses not working on first open
+- Fixed auto zoom not zooming correctly when you are on ground
+- Fixed system theme not selecting in settings
+
 # [2.0.0]
 
 ### Highlights

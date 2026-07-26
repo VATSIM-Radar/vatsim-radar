@@ -20,7 +20,7 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
-- `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller.
+- `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
 Nuxt dev-server notes:
 
@@ -159,6 +159,7 @@ For new UI, prefer these primitives and existing feature/component patterns befo
 Important composable groups:
 
 - `app/composables/init.ts`: startup/version checks and IndexedDB population for static datasets.
+  - VATGlasses startup is gated by `isVatGlassesActive`; `checkForVG()` can be called both by the initial startup sequence and by the watcher in `setupDataFetch()` when the active state changes.
 - `app/composables/fetchers/*`: user preset/settings/filter/bookmark fetch/save helpers.
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
@@ -220,6 +221,7 @@ Background tasks:
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
+- `app/utils/server/vatsim/ws.ts` owns the server-side websocket registry: `wssPilots` maps callsigns to registered sockets, registration messages can move a socket between callsigns, and Kafka position events fan out through this registry.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.

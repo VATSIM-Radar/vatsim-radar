@@ -35,8 +35,6 @@ export function initDataWebsocket(): () => void {
         store.wsOpen = false;
         store.wsCallsign = '';
         dataStore.vatsim.selfCoordinate.value = null;
-
-        clearInterval(interval);
     });
     websocket.addEventListener('error', console.error);
 
@@ -123,6 +121,8 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
             closeSocket?.();
             if (!isTabVisible()) return;
             closeSocket = initDataWebsocket();
+            clearInterval(interval);
+            interval = setInterval(checkForSocket, 5000);
         }
     }
 

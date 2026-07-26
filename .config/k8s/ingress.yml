@@ -3,11 +3,12 @@ kind: Ingress
 metadata:
   name: ingress-f5
   annotations:
-    nginx.org/proxy-buffer-size: 16k
-    nginx.org/proxy-buffers: "4 16k"
-    nginx.org/proxy-busy-buffers-size: 32k
+    nginx.org/proxy-buffer-size: 32k
+    nginx.org/proxy-buffers: "4 64k"
+    nginx.org/proxy-busy-buffers-size: 128k
     nginx.org/proxy-read-timeout: "3600s"
     nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/max-fails: "3"
     nginx.org/websocket-services: "worker-prod,worker-next"
     nginx.org/server-snippets: |
       error_page 502 =503 /503.html;

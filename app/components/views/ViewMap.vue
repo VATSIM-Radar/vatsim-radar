@@ -220,6 +220,7 @@ import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.v
 import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
 import MapLayer from '~/components/map/layers/MapLayer.vue';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
+import { updateControllersRender } from '~/composables/render/update';
 
 defineProps({
     mode: {
@@ -955,6 +956,7 @@ await setupDataFetch({
         targetElement.addEventListener('mousedown', targetMouseDownHandler);
 
         await nextTick();
+        await updateControllersRender();
         popupsHeight.value = popups.value?.clientHeight ?? 0;
 
         let popupsResizeObserver: ResizeObserver | undefined;
