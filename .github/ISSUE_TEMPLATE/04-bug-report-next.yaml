@@ -1,5 +1,5 @@
-name: Bug report (V2)
-description: Report found issue on v2.0 version of Radar
+name: Bug report (Next)
+description: Report found issue on Next version of Radar
 labels: [ "bug", "next", "pending triage" ]
 assignees: ["daniluk4000"]
 type: "Bug"

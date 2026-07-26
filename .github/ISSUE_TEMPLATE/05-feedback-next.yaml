@@ -1,5 +1,5 @@
-name: Feedback (V2)
-description: Suggest feedback to v2.0 version of Radar
+name: Feedback (Next)
+description: Suggest feedback to Next version of Radar
 labels: [ "enhancement", "next", "pending triage" ]
 assignees: ["daniluk4000"]
 type: "Feature"

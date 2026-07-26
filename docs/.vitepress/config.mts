@@ -80,19 +80,6 @@ export default defineConfig({
                     {
                         text: 'Changelog',
                         link: '/changelog',
-                    },
-                    {
-                        text: 'VATSIM Radar v2.0',
-                        items: [
-                            {
-                                text: 'V2 Preliminary Changelog',
-                                link: '/changelog-v2',
-                            },
-                            {
-                                text: 'V2 Public Preview',
-                                link: '/v2-public-preview',
-                            },
-                        ]
                     }
                 ],
             },
