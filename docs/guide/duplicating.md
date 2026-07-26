@@ -14,6 +14,16 @@ followed.
 In such case, controller is duplicated as-is, excluding **callsign** and **frequency** - those are changed to target
 sector.
 
+## Japan
+
+- Data is fetched from Sectors.xml: https://vatjpn.org/media/external/vatsim-radar/Sectors.xml
+- Rules are only applied to _CTR, _APP and _DEP
+- Controller's ATIS should include: `Name` and `Frequency` of duplicated sector separated by spaces. For example, `N47 133.55` or `Extending N47 133.550`
+- The written frequency must match either the controller's primary frequency or the default frequency of any duplicated sector that is also explicitly being extended. If it doesn't match, it falls back to the controller's primary frequency.
+
+In such case, controller is duplicated as-is, excluding **callsign** and **frequency** - those are changed to target sector.
+However, duplication will be skipped if the frequency of the duplicated sector matches the controller's primary frequency to prevent duplicate overlays.
+
 ## Hardcoded data
 
 Data is hard coded - extending is allowed for specified callsigns. Controller ATIS should include text of sections below

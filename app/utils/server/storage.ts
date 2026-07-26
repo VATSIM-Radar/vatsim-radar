@@ -148,6 +148,7 @@ export interface DatasetSector {
     fullName: string;
     frequency: string;
     callsign: string;
+    region?: string;
 }
 
 export interface RadarDataAirline {
