@@ -157,6 +157,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.layers.weather', (localSettings.filters?.layers?.weather2 === false || localSettings.filters?.layers?.weather2 === 'false') ? null : localSettings.filters?.layers?.weather2);
     setValue(settings, 'map.layers.layer', localSettings.filters?.layers?.layer);
     setValue(settings, 'map.layers.layerLabels', localSettings.filters?.layers?.layerLabels);
+    if (localSettings.filters?.layers?.relativeIndicator === true) localSettings.filters.layers.relativeIndicator = 'metric';
     setValue(settings, 'map.layers.relativeIndicator', localSettings.filters?.layers?.relativeIndicator);
     setValue(settings, 'map.layers.terminator', localSettings.filters?.layers?.terminator);
     setValue(settings, 'map.layers.transparency', normalizeTransparencyValues(localSettings.filters?.layers?.transparencySettings));
