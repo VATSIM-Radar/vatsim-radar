@@ -714,12 +714,12 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             }
         });
 
+        store.initStatus.status = true;
+
         initControllersUpdate();
 
         initBookings();
         initEvents();
-
-        store.initStatus.status = true;
 
         if (!store.initStatus.dataGet) {
             await checkForUpdates();

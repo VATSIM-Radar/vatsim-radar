@@ -126,8 +126,10 @@ export async function updateControllersRender() {
 }
 
 export function initControllersUpdate() {
+    const store = useStore();
     const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
     useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
+        if (store.initStatus.status !== false) return;
         updateControllersRender();
     });
 }

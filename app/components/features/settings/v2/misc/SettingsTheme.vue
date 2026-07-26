@@ -83,6 +83,7 @@ const value = computed({
         return getKeyedValueFromSettings('appearance.theme');
     },
     set(value) {
+        if (value === null) value = undefined;
         setSettingByKey('appearance.theme', value);
     },
 });

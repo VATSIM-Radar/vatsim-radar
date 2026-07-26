@@ -57,6 +57,8 @@ export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExte
     mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
     await nextTick();
 
+    console.log(isPilotOnGround(pilot));
+
     view?.animate({
         center: [pilot.longitude, pilot.latitude],
         zoom: zoom ?? (isPilotOnGround(pilot) ? 17 : 7),

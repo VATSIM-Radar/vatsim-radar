@@ -185,7 +185,8 @@ export const vgPositionsCache: Record<string, VatglassesPosition[]> = {};
 export const vgCountriesCache: VatglassesData = {};
 
 export async function updateVATGlasses(context: DataUpdateContext) {
-    if (!isVatGlassesActive.value) return;
+    const store = useStore();
+    if (!isVatGlassesActive.value || store.initStatus.vatglasses === 'loading') return;
 
     const dataStore = useDataStore();
     const positionsPrefixes = new Set<string>();
