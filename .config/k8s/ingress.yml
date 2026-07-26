@@ -10,6 +10,7 @@ metadata:
     nginx.org/proxy-send-timeout: "3600s"
     nginx.org/websocket-services: "worker-prod,worker-next"
     nginx.org/server-snippets: |
+      error_page 502 =503 /503.html;
       error_page 503 /503.html;
 
       location = /503.html {

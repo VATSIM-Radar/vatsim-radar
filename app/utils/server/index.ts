@@ -61,6 +61,11 @@ export function readJsonFile<T>(path: string): T | null {
 
 export function getRedirectURL(event: H3Event) {
     const config = useRuntimeConfig();
+    const query = getQuery(event) as Record<string, string>;
+
+    if (typeof query.state === 'string' && query.state.endsWith('-iframe')) {
+        return `efbx://app/open?id=vatsimradar&refresh=1`;
+    }
 
     const redirectCookie = getCookie(event, 'redirect');
     if (redirectCookie) {

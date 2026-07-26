@@ -150,11 +150,11 @@
                 </popup-aside>
             </div>
             <div
-                v-if="config.public.IS_DOWN !== 'true' && (store.user || !isIframe)"
+                v-if="config.public.IS_DOWN !== 'true'"
                 class="header__sections_section"
             >
                 <ui-button
-                    v-if="!store.user && !isIframe"
+                    v-if="!store.user"
                     size="S"
                     @click="vatsimAuth"
                 >
@@ -279,7 +279,6 @@ import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import { isIframe } from '~/composables';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import { vatsimAuth } from '~/composables/vatsim/auth';

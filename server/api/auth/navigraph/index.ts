@@ -10,11 +10,12 @@ export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
+        const state = query.state;
 
         const redirectUrl = getRedirectURL(event);
 
-        if (typeof query.state === 'string' && query.state.endsWith('-app') && !query.webview) {
-            return sendRedirect(event, `vatsim-radar:///auth/navigraph?state=${ query.state }&code=${ query.code }`);
+        if (typeof state === 'string' && state.endsWith('-app') && !query.webview) {
+            return sendRedirect(event, `vatsim-radar:///auth/navigraph?state=${ state }&code=${ query.code }`);
         }
 
         const { id: verifierId, verifier } = await prisma.auth.findFirstOrThrow({
@@ -23,7 +24,7 @@ export default defineEventHandler(async event => {
                 verifier: true,
             },
             where: {
-                state: query.state ?? '',
+                state: state ?? '',
                 NOT: {
                     verifier: null,
                 },
@@ -87,6 +88,8 @@ export default defineEventHandler(async event => {
             navigraphUser = null;
         }
         else if (navigraphUser?.user.vatsim?.id && !user) {
+            if (state?.endsWith('-iframe')) return sendRedirect(event, 'efbx://auth/vatsim');
+
             return sendRedirect(event, '/api/auth/vatsim/redirect');
         }
 
