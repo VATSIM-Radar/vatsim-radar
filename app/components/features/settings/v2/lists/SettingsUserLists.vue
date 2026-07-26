@@ -68,7 +68,7 @@
                             v-for="list in store.lists"
                             :key="list.id"
                             class="lists__list"
-                            :style="{ '--color': list.color in radarColors ? radarColors[list.color as ColorsList] : list.color }"
+                            :style="{ '--color': list.color in radarColors ? radarColors[list.color as ColorsList] : `rgb(${ list.color })` }"
                             @click="router.push({ query: { list: list.id } })"
                         >
                             <ui-text

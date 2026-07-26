@@ -141,7 +141,7 @@ export async function handleSettingsEvent(event: H3Event) {
                             },
                         });
                     }
-                    else {
+                    else if (!isValidate) {
                         return handleH3Error({
                             event,
                             statusCode: 409,
