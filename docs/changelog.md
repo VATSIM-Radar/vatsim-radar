@@ -10,7 +10,7 @@ outline: [2, 3]
 
 ## v2.0.0
 
-![Main icons](/presentation.png)
+![Highlights](/presentation.png)
 
 ### Highlights
 
