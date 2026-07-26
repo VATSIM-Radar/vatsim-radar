@@ -45,8 +45,8 @@ export const duplicatingSettings = [
         suffixes: ['CTR', 'TMU', 'APP', 'DEP'],
         mapping: {
             'MIA TRACON': 'MIA_D_DEP',
-            'PBI TRACON': 'PBI_B_DEP',
             'TPA TRACON': 'TPA_L_APP',
+            'PBI TRACON': 'PBI_B_DEP',
             'RSW TRACON': 'RSW_W_APP',
             'NQX RATCF': 'NQX_B_APP',
             'NQX RAPCON': 'NQX_B_APP',
