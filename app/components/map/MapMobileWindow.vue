@@ -121,7 +121,7 @@ const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures
 
 const snapPoints = ({ maxHeight, minHeight }: { maxHeight: number; minHeight: number }) => [
     Math.min(minHeight, Math.round(maxHeight * 0.3)),
-    Math.round(maxHeight * 0.8),
+    Math.round(maxHeight * 0.65),
     maxHeight,
 ];
 
