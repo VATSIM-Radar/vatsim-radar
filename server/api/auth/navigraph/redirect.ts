@@ -11,7 +11,7 @@ export default defineEventHandler(async event => {
     const app = getQuery(event).app;
     const iframe = getQuery(event).iframe;
     if (app) state += '-app';
-    if (iframe) state += '-iframe';
+    if (iframe === '1') state += '-iframe';
 
     const url = new URL('https://identity.api.navigraph.com/connect/authorize');
     url.searchParams.set('client_id', config.NAVIGRAPH_CLIENT_ID);
