@@ -390,7 +390,7 @@ watch(map, val => {
         vectorLayer = new VectorLayer<any>({
             source: vectorSource,
             updateWhileAnimating: false,
-            updateWhileInteracting: true,
+            updateWhileInteracting: false,
             declutter: 'aircraft',
             properties: {
                 type: 'aircraft',
