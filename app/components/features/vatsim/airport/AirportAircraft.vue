@@ -429,6 +429,11 @@ defineExpose({
 
         background: $darkGray800;
 
+        @include mobileOnly {
+            overflow: auto;
+            max-height: 50dvh;
+        }
+
         &__filter {
             cursor: pointer;
 

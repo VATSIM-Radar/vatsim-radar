@@ -121,7 +121,7 @@ const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures
 
 const snapPoints = ({ maxHeight, minHeight }: { maxHeight: number; minHeight: number }) => [
     Math.min(minHeight, Math.round(maxHeight * 0.3)),
-    Math.round(maxHeight * 0.6),
+    Math.round(maxHeight * 0.8),
     maxHeight,
 ];
 
@@ -203,12 +203,6 @@ const overlaysHeight = computed(() => {
 
     .vbs__content-inner .info-popup__section:not(.info-popup__section--actions) {
         flex-grow: 0;
-    }
-
-    .vbs__content-inner .info-popup__section--actions {
-        position: sticky;
-        bottom: 0;
-        margin-top: auto;
     }
 }
 </style>

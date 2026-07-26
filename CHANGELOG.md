@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-rc.5.1]
+
+## RC Changes
+
+- All big overlays on mobile now take 80% of screen instead of 50%
+- Unpinned buttons in mobile overlays
+- Added a scroll and limited height to mobile aircraft overlay list and dashboard
+- Removed huge top margin in airport mobile overlay
+- Fixed terrible realization of aircraft counts in mobile overlay
+
 # [2.0.0-rc.5]
 
 ## RC Changes

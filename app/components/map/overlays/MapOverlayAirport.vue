@@ -36,126 +36,8 @@
         <template #action-sticky>
             <map-overlay-pin-icon :overlay="overlay"/>
         </template>
-        <template #action-counts>
-            <div
-                class="airport__counts airport__counts--root"
-                :class="{ 'airport__counts--ground_departures': listGroundDepartures }"
-            >
-                <ui-tooltip
-                    location="bottom"
-                    :open-method="(overlay.collapsed || departureCountTooltipSeen) ? 'disabled' : 'mouseOver'"
-                    width="120px"
-                    @click="departureCountTooltipSeen = true"
-                >
-                    <template #activator>
-                        <div
-                            class="airport__counts_counter"
-                            :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
-                            @click="setSettingByKey('map.preferences.airports.departuresCountInOverlay', !listGroundDepartures)"
-                        >
-                            <template v-if="!listGroundDepartures">
-                                <departing-icon
-                                    class="airport__counts_counter_icon"
-                                />
-                                <div
-                                    class="airport__counts_counter_icon_text"
-                                >
-                                    {{ aircraft?.departures.length ?? 0 }}
-                                </div>
-                            </template>
-                            <template v-else>
-                                <ground-icon
-                                    class="airport__counts_counter_icon"
-                                />
-                                <div
-                                    class="airport__counts_counter_icon_text"
-                                >
-                                    {{ aircraft?.groundDep.length ?? 0 }}
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                    With a click you can switch between "already airborne departures", which is the default, and "departures on the ground".
-                </ui-tooltip>
-                <ui-tooltip
-                    class="detailed_counts"
-                    :class="{ 'detailed_counts--ground_departures': listGroundDepartures }"
-                    :close-method="arrivalCountTooltipCloseMethod"
-                    location="bottom"
-                    :open-method="overlay.collapsed ? 'disabled' : 'mouseOver'"
-                    @click="arrivalCountTooltipCloseMethod = arrivalCountTooltipCloseMethod === 'mouseLeave' ? 'click' : 'mouseLeave'"
-                >
-                    <template #activator>
-                        <div
-                            class="airport__counts"
-                        >
-                            <div
-                                v-if="!listGroundDepartures"
-                                class="airport__counts_counter"
-                                :style="{ '--color': `rgb(var(--lightGray500))` }"
-                            >
-                                <ground-icon class="airport__counts_counter_icon"/>
-                                <div class="airport__counts_counter_icon_text">
-                                    {{ (aircraft?.groundArr.length ?? 0) + (aircraft?.groundDep.length ?? 0) }}
-                                </div>
-                            </div>
-                            <div
-                                class="airport__counts_counter"
-                                :style="{ '--color': `rgb(var(--${ getPilotStatus('arrTaxi').color }))` }"
-                            >
-                                <arriving-icon class="airport__counts_counter_icon"/>
-                                <div class="airport__counts_counter_icon_text">
-                                    {{ (aircraft?.arrivals.length ?? 0) }}
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                    <div
-                        class="airport__counts-tooltip_column airport__counts-tooltip_column--first"
-                    >
-                        <div class="airport__counts-tooltip_column_counts">
-
-                            <div
-                                class="airport__counts-tooltip_counts airport__counts-tooltip_counts--groundDep"
-                            >
-                                {{ aircraft?.groundDep?.length ?? 0 }}
-                            </div>
-                            <div
-                                class="airport__counts-tooltip_counts airport__counts-tooltip_counts--prefiles"
-                            >
-                                {{ aircraft?.prefiles?.length ?? 0 }}
-                            </div>
-                            <div
-                                class="airport__counts-tooltip_counts airport__counts-tooltip_counts--groundArr"
-                            >
-                                {{ aircraft?.groundArr?.length ?? 0 }}
-                            </div>
-                            <ui-tooltip
-                                class="airport__counts-tooltip_question"
-                                location="bottom"
-                                width="150px"
-                            >
-                                <template #activator>
-                                    <div>
-                                        <question-icon width="14"/>
-                                    </div>
-                                </template>
-                                - The left column shows the aircraft on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
-                            </ui-tooltip>
-                        </div>
-                    </div>
-                    <div
-                        class="airport__counts-tooltip_column"
-                    >
-                        <vatsim-traffic-rate
-                            :aircraft="aircraft"
-                            :icon-color="radarColors.lightGray600"
-                            :text-color="radarColors.red500"
-                            use-opacity
-                        />
-                    </div>
-                </ui-tooltip>
-            </div>
+        <template v-if="!isMobile" #action-counts>
+            <map-overlay-airport-counts :aircraft :overlay/>
         </template>
         <template
             v-if="data?.metar"
@@ -228,6 +110,12 @@
             />
         </template>
         <template #aircraft>
+            <map-overlay-airport-counts
+                v-if="isMobile"
+                :aircraft
+                :overlay
+            />
+
             <div
                 v-if="dataAirport?.aircraft.arrivals?.length"
                 class="airport__aircraft-toggles"
@@ -283,16 +171,11 @@ import type { PropType, ShallowRef } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
-import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
 import { getNavigraphAirportProcedures, sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupContent } from '~/components/popups/PopupOverlay.vue';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
-import GroundIcon from '@/assets/icons/airport/ground.svg?component';
-import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
-import { getPilotStatus } from '~/composables/vatsim/pilots';
 import { useStore } from '~/store';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/vatsim/airport';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
@@ -306,9 +189,6 @@ import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import AirportIcon from '@/assets/icons/kit/airport-dest.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
-import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import type { TooltipCloseMethod } from '~/components/ui/data/UiTooltip.vue';
 import type { Map } from 'ol';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
@@ -321,7 +201,7 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
-import { useSettingValueFromFunc } from '~/composables/settings/v2/utils';
+import MapOverlayAirportCounts from '~/components/map/overlays/MapOverlayAirportCounts.vue';
 
 const props = defineProps({
     overlay: {
@@ -329,6 +209,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+const isMobile = useIsMobile();
 
 const overlayData = computed(() => props.overlay.data);
 provideAirport(overlayData);
@@ -347,14 +229,11 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const copy = useCopyText();
 const config = useRuntimeConfig();
-const departureCountTooltipSeen = useLocalStorage('map-airport-popup-departure-count-seen', false);
 
 const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.overlay.data.icao]);
 const dataAirport = computed(() => dataStore.airportsList.value[props.overlay.data.icao]);
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
-const listGroundDepartures = useSettingValueFromFunc('map.preferences.airports.departuresCountInOverlay');
-const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures-lazy`, () => getNavigraphAirportProcedures(props.overlay.key));
@@ -569,12 +448,6 @@ onMounted(() => {
         }
     }
 
-    @include mobileOnly {
-        :deep(.info-popup_content_tabs) {
-            margin-top: 20px;
-        }
-    }
-
     &__name {
         font-size: 12px;
         font-weight: 600;
@@ -586,44 +459,6 @@ onMounted(() => {
         &--hidden {
             pointer-events: none;
             opacity: 0.2;
-        }
-    }
-
-    &__counts {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 100%;
-
-        @include mobileOnly {
-            &--root {
-                position: relative;
-                top: 16px;
-
-                margin-bottom: 4px;
-                padding: 4px;
-                border-radius: 4px;
-
-                background: $black;
-            }
-        }
-
-        &--ground_departures {
-            gap: 14px;
-        }
-
-        &_counter {
-            display: flex;
-            gap: 2px;
-            align-items: center;
-            color: var(--color);
-
-            &_icon {
-                width: 16px;
-            }
         }
     }
 
@@ -659,102 +494,6 @@ onMounted(() => {
         &_title {
             font-size: 13px;
             font-weight: 600;
-        }
-    }
-}
-
-
-:deep(.detailed_counts > .tooltip_container) {
-    cursor: initial;
-    margin-left: 5px;
-
-    & .tooltip_container_content_text {
-        display: flex;
-        gap: 15px;
-    }
-}
-
-:deep(.detailed_counts--ground_departures > .tooltip_container) {
-    margin-left: -18px;
-}
-
-.detailed_counts.tooltip {
-    .airport__counts-tooltip {
-        &_column {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-
-            width: 35px;
-
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 100%;
-
-            &--first{
-                align-items: flex-end;
-            }
-
-            &_counts {
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-            }
-        }
-
-        &_question {
-            align-self: flex-start;
-            margin-top: 3px;
-        }
-
-        &_counts {
-            display: flex;
-            gap: 3px;
-            justify-content: space-between;
-            font-weight: 600;
-
-            &::before {
-                content: '';
-                position: relative;
-                display: block;
-            }
-
-            &--groundDep {
-                color: $green500;
-
-                &::before {
-                    top: -2px;
-
-                    border-top: 6px solid transparent;
-                    border-right: 6px solid transparent;
-                    border-bottom: 6px solid currentColor;
-                    border-left: 6px solid transparent;
-                }
-            }
-
-            &--prefiles {
-                color: $lightGray600;
-
-                &::before {
-                    top: 3px;
-                    width: 11px;
-                    height: 5px;
-                    background: currentColor;
-                }
-            }
-
-            &--groundArr {
-                color: $red300;
-
-                &::before {
-                    top: 2px;
-
-                    border-top: 6px solid currentColor;
-                    border-right: 6px solid transparent;
-                    border-bottom: 6px solid transparent;
-                    border-left: 6px solid transparent;
-                }
-            }
         }
     }
 }

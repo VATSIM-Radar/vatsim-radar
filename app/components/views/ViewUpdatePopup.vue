@@ -116,7 +116,7 @@ const update: Update = {
     features: [
         {
             title: 'Welcome to VATSIM Radar v2.0 Public Preview!',
-            description: 'This is a major VATSIM Radar update. Visit <a href="http://localhost:5173/blog/v2-closed-beta.html" class="__link" target="_blank">Preview FAQ</a> and read <a href="https://docs.vatsim-radar.com/changelog-v2.html" target="_blank" class="__link">Preliminary Changelog</a> for more details',
+            description: 'This is a major VATSIM Radar update. Read <a href="https://docs.vatsim-radar.com/changelog.html" target="_blank" class="__link">Full Changelog</a> for more details',
             image: images['../../assets/update/presentation.png'],
             imageRatio: '1920 / 1080',
             list: [
@@ -178,7 +178,7 @@ const update: Update = {
         },
         {
             title: 'Other Features and Improvements',
-            description: 'Visit <a href="https://docs.vatsim-radar.com/changelog-v2.html" target="_blank" class="__link">Preliminary Changelog</a> for more details',
+            description: 'Visit <a href="https://docs.vatsim-radar.com/changelog.html" target="_blank" class="__link">Full Changelog</a> for more details',
             image: images['../../assets/update/changes.png'],
             list: [
                 'Performance improvements',
