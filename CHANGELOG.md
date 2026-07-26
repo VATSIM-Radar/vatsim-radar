@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.0-final]
+# [2.0.0]
 
 ### Highlights
 
