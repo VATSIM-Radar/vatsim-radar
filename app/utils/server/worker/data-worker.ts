@@ -1,6 +1,7 @@
 import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
 import type {
+    VatsimBookingAtc,
     VatsimData,
     VatsimLiveDataMap,
 } from '~/types/data/vatsim';
@@ -201,6 +202,20 @@ defineCronJob('* * * * * *', async () => {
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 
+        /*        radarStorage.vatsim.data!.controllers.push({
+            cid: 123,
+            name: 'Test',
+            callsign: 'RJDG_CTR',
+            frequency: '122.800',
+            facility: 1,
+            rating: 1,
+            server: '',
+            visual_range: 1,
+            text_atis: ['RJDG_N 133.550', 'F04', 'F15 127.500'],
+            last_updated: '',
+            logon_time: '',
+        });*/
+
         delete radarStorage.vatsim.data.general.version;
         delete radarStorage.vatsim.data.general.connected_clients;
 
@@ -305,7 +320,8 @@ defineCronJob('* * * * * *', async () => {
         for (const sector of allowedDuplicatingSectors) {
             if (sector.region === 'JP') {
                 jpSectors.push(sector);
-            } else if (sector.region === 'AU' || sector.region === 'NZ' || !sector.region) {
+            }
+            else if (sector.region === 'AU' || sector.region === 'NZ' || !sector.region) {
                 auNzSectors.push(sector);
             }
         }
@@ -355,19 +371,21 @@ defineCronJob('* * * * * *', async () => {
                     );
             });
 
-            if (!duplicatedSectors) continue;
+            if (duplicatedSectors?.length) {
+                for (const sector of duplicatedSectors) {
+                    const freq = parseFloat(sector.frequency).toString();
+                    if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
 
-            for (const sector of duplicatedSectors) {
-                const freq = parseFloat(sector.frequency).toString();
-                if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
+                    radarStorage.vatsim.data.controllers.push({
+                        ...controller,
+                        callsign: sector.callsign,
+                        frequency: sector.frequency,
+                        duplicated: true,
+                        duplicatedBy: controller.callsign,
+                    });
+                }
 
-                radarStorage.vatsim.data.controllers.push({
-                    ...controller,
-                    callsign: sector.callsign,
-                    frequency: sector.frequency,
-                    duplicated: true,
-                    duplicatedBy: controller.callsign,
-                });
+                continue;
             }
 
             // VATJPN sector duplication
