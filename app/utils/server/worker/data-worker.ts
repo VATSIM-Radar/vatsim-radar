@@ -1,7 +1,6 @@
 import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
 import type {
-    VatsimBookingAtc,
     VatsimData,
     VatsimLiveDataMap,
 } from '~/types/data/vatsim';
