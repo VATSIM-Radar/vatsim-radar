@@ -63,7 +63,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
             { value: 'basic', text: 'Basic' },
             { value: 'Satellite', text: 'Satellite (USA only)' },
             { value: 'SatelliteEsri', text: 'Satellite (Esri)' },
-            { value: 'OSM', text: 'OSM' },
+            { value: 'OSM', text: 'OSM (Light theme only)' },
         ].filter(x => !isProductionMode() || x.value !== 'SatelliteEsri'),
         value: getSettingValue('map.layers.layer'),
         onChange: value => setSettingByKey('map.layers.layer', value as MapLayoutLayerWithOptions),
