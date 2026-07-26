@@ -79,10 +79,13 @@ function scrollToHash() {
     if (item) {
         const containerRect = 'getBoundingClientRect' in scrollContainer ? scrollContainer.getBoundingClientRect() : undefined;
         const itemRect = item.getBoundingClientRect();
+        let top = ('getBoundingClientRect' in scrollContainer ? scrollContainer.scrollTop : scrollContainer.scrollY) + itemRect.top - (containerRect?.top ?? 0) - 16;
+
+        if (!isMobile.value) top -= 56;
 
         scrollContainer.scrollTo({
             behavior: 'smooth',
-            top: ('getBoundingClientRect' in scrollContainer ? scrollContainer.scrollTop : scrollContainer.scrollY) + itemRect.top - (containerRect?.top ?? 0) - 16,
+            top,
         });
     }
     else {
