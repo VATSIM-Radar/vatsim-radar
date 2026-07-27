@@ -66,7 +66,7 @@ export const favoritesMap = globalComputed(() => {
     for (const list of store.user?.lists ?? []) {
         for (const user of list.users) {
             if (user.private && !store.user?.isSup) continue;
-            map[user.cid] = list;
+            if (map[user.cid] === undefined) map[user.cid] = list;
         }
     }
 
