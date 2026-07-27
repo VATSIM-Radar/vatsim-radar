@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "dockerComposeFile": ["./docker-compose.yml"],
+  "dockerComposeFile": ["./docker-compose.devcontainer.yml"],
   "service": "frontend",
   "overrideCommand": true,
   "workspaceFolder": "/workspaces/radar",

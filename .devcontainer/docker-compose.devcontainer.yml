@@ -10,11 +10,17 @@ services:
     expose:
       - 8080
       - 9229
+    command: /radar/.config/command.sh
     restart: unless-stopped
     ports:
       - "8080:8080"
       - "9229:9229"
-    command: /radar/.config/command.sh
+    volumes:
+      - ".:/radar:rw"
+    healthcheck:
+      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
+      interval: 1s
+      retries: 360
     depends_on:
       db:
         condition: service_healthy
@@ -37,7 +43,7 @@ services:
     ports:
       - 8880:8880
     volumes:
-      - ../:/radar
+      - ".:/radar:rw"
     depends_on:
       db:
         condition: service_healthy
@@ -58,11 +64,11 @@ services:
       - ../.env.example
     container_name: vatsim-radar-navigraph
     command: sleep infinity
-#    command: /radar/.config/navigraph.sh
+    # command: /radar/.config/navigraph.sh
     ports:
       - 3000:3000
     volumes:
-      - ../:/radar
+      - ".:/radar:rw"
     depends_on:
       db:
         condition: service_healthy
