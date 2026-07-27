@@ -8,7 +8,8 @@ metadata:
     nginx.org/proxy-busy-buffers-size: 128k
     nginx.org/proxy-read-timeout: "3600s"
     nginx.org/proxy-send-timeout: "3600s"
-    nginx.org/max-fails: "3"
+    nginx.org/max-fails: "10"
+    nginx.org/fail-timeout: "30s"
     nginx.org/websocket-services: "worker-prod,worker-next"
     nginx.org/server-snippets: |
       error_page 502 =503 /503.html;

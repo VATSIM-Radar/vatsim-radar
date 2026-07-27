@@ -262,7 +262,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'display',
                             title: 'Display Options',
-                            items: [items.preferences.airports.showMode, items.preferences.airports.declutterIf, items.preferences.airports.ATISAsUnstaffed, items.preferences.airports.showLimit],
+                            items: [items.preferences.airports.showMode, items.preferences.airports.declutterIf, items.preferences.airports.ATISAsUnstaffed, items.preferences.airports.voiceButton, items.preferences.airports.showLimit],
                         },
                         {
                             key: 'traffic',

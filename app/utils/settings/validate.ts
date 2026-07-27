@@ -171,6 +171,7 @@ const settingsSchema = partialObject({
                 showMode: list(airportsModeKeys, `must be one of: ${ airportsModeKeys.join(', ') }`),
                 declutterIf: list(airportsDeclutterKeys, `must be one of: ${ airportsDeclutterKeys.join(', ') }`),
                 ATISAsUnstaffed: booleanSchema,
+                voiceButton: booleanSchema,
                 groundTraffic: partialObject({
                     hide: list(groundTrafficModeKeys, `must be one of: ${ groundTrafficModeKeys.join(', ') }`),
                     excludeMyArrival: booleanSchema,

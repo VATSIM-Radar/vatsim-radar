@@ -88,4 +88,4 @@
 - F5 NGINX Ingress Controller uses `controller.config.entries.worker-connections: "4096"` to raise the per-worker connection capacity for long-lived WebSocket traffic; this is managed through the Helm values file rather than an Ingress annotation.
 - F5 NGINX access logging is disabled with `access-log-off: "true"` to remove high-volume successful request logs while retaining NGINX error logs and controller process logs for incident diagnostics.
 - F5 Ingress proxy buffers use the moderate `32k` header buffer, `4 64k` response buffers, and `128k` busy-buffer limit to reduce temporary-file buffering for large API responses without adopting the much larger 128k/4x256k configuration.
-- F5 upstreams use `nginx.org/max-fails: "3"` while retaining the default `fail_timeout=10s`, so one transient backend reset does not immediately remove a pod from rotation.
+- F5 upstreams use `nginx.org/max-fails: "10"` and `nginx.org/fail-timeout: "30s"`, so short transient backend failures do not immediately remove a pod from rotation; revisit these values if they hide sustained backend failures.

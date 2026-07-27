@@ -87,6 +87,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.showMode': 'staffedAndGroundTraffic',
     'map.preferences.airports.declutterIf': 'unstaffed',
     'map.preferences.airports.ATISAsUnstaffed': false,
+    'map.preferences.airports.voiceButton': true,
 
     'map.preferences.airports.groundTraffic.hide': 'lowZoom',
     'map.preferences.airports.groundTraffic.excludeMyArrival': true,

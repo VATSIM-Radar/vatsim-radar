@@ -65,6 +65,7 @@ export interface UserSettingsV2 {
                 showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all' | 'allExisting';
                 declutterIf: 'unstaffed' | 'all' | 'none';
                 ATISAsUnstaffed: boolean;
+                voiceButton: boolean;
                 groundTraffic: {
                     hide: 'always' | 'lowZoom' | 'never';
                     excludeMyArrival: boolean;
