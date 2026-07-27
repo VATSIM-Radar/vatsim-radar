@@ -14,8 +14,6 @@ services:
     ports:
       - "8080:8080"
       - "9229:9229"
-    volumes:
-      - ".:/radar:rw"
     command: /radar/.config/command.sh
     depends_on:
       db:
@@ -38,7 +36,7 @@ services:
     ports:
       - 8880:8880
     volumes:
-      - ".:/radar:rw"
+      - ..:/radar:rw
     depends_on:
       db:
         condition: service_healthy
@@ -62,7 +60,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ".:/radar:rw"
+      - ..:/radar:rw
     depends_on:
       db:
         condition: service_healthy
