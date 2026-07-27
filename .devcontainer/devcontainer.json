@@ -1,0 +1,13 @@
+{
+  "name": "vatsim-radar",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "frontend",
+  "workspaceFolder": "/radar",
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {
+      "theme": "agnoster"
+    },
+    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+  }
+}
