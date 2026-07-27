@@ -5,22 +5,17 @@ services:
       dockerfile: .config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env
+      - ./.env.example
     container_name: vatsim-radar
     expose:
       - 8080
       - 9229
-    command: /radar/.config/command.sh
     restart: unless-stopped
     ports:
       - "8080:8080"
       - "9229:9229"
     volumes:
       - ".:/radar:rw"
-    healthcheck:
-      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
-      interval: 1s
-      retries: 360
     depends_on:
       db:
         condition: service_healthy
@@ -36,7 +31,7 @@ services:
       dockerfile: .config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env
+      - ./.env.example
     container_name: vatsim-radar-worker
     command: /radar/.config/worker.sh
     ports:
@@ -60,7 +55,7 @@ services:
       dockerfile: .config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env
+      - ./.env.example
     container_name: vatsim-radar-navigraph
     command: /radar/.config/navigraph.sh
     ports:
