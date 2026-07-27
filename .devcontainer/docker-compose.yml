@@ -5,7 +5,7 @@ services:
       dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env.example
+      - ../.env.example
     container_name: vatsim-radar
     expose:
       - 8080
@@ -31,7 +31,7 @@ services:
       dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env.example
+      - ../.env.example
     container_name: vatsim-radar-worker
     command: /radar/.config/worker.sh
     ports:
@@ -44,7 +44,7 @@ services:
       redis:
         condition: service_started
       frontend:
-        condition: service_healthy
+        condition: service_started
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -55,7 +55,7 @@ services:
       dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
-      - ./.env.example
+      - ../.env.example
     container_name: vatsim-radar-navigraph
     command: /radar/.config/navigraph.sh
     ports:
@@ -68,7 +68,7 @@ services:
       redis:
         condition: service_started
       frontend:
-        condition: service_healthy
+        condition: service_started
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
