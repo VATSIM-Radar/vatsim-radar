@@ -16,6 +16,7 @@ services:
       - "9229:9229"
     volumes:
       - ".:/radar:rw"
+    command: /radar/.config/command.sh
     depends_on:
       db:
         condition: service_healthy

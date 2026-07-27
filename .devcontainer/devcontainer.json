@@ -2,6 +2,7 @@
   "name": "vatsim-radar",
   "dockerComposeFile": ["./docker-compose.yml"],
   "service": "frontend",
+  "overrideCommand": true,
   "workspaceFolder": "/radar",
   "shutdownAction": "stopCompose",
   "features": {
