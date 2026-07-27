@@ -1,5 +1,7 @@
 # AI Agent Decisions
 
+- Favorite-list filtering builds a per-data-pass CID `Set` from the raw selected lists and passes it into `filterUser`; do not introduce a long-lived cache for this path. `store.lists` should use short-lived per-getter maps for CID and shared-observer lookups instead of nested list scans.
+
 - On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.
 - VATGlasses-owned ATC controllers are excluded from SimAware fallback only when their matched VATGlasses position has rendered sector geometry. Empty or transiently unavailable VG geometry must leave the controller eligible for SimAware rendering.
 - SimAware lookup results must not permanently cache empty datasets, and the client cache is invalidated when the SimAware data version changes.
@@ -88,4 +90,4 @@
 - F5 NGINX Ingress Controller uses `controller.config.entries.worker-connections: "4096"` to raise the per-worker connection capacity for long-lived WebSocket traffic; this is managed through the Helm values file rather than an Ingress annotation.
 - F5 NGINX access logging is disabled with `access-log-off: "true"` to remove high-volume successful request logs while retaining NGINX error logs and controller process logs for incident diagnostics.
 - F5 Ingress proxy buffers use the moderate `32k` header buffer, `4 64k` response buffers, and `128k` busy-buffer limit to reduce temporary-file buffering for large API responses without adopting the much larger 128k/4x256k configuration.
-- F5 upstreams use `nginx.org/max-fails: "3"` while retaining the default `fail_timeout=10s`, so one transient backend reset does not immediately remove a pod from rotation.
+- F5 upstreams use `nginx.org/max-fails: "10"` and `nginx.org/fail-timeout: "30s"`, so short transient backend failures do not immediately remove a pod from rotation; revisit these values if they hide sustained backend failures.

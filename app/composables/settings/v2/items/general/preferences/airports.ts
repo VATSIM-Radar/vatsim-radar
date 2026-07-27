@@ -109,6 +109,13 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
         value: getSettingValue('map.preferences.airports.ATISAsUnstaffed'),
         onChange: value => setSettingByKey('map.preferences.airports.ATISAsUnstaffed', value),
     },
+    voiceButton: {
+        title: 'Show "Listen to callsign" button in on-hover info',
+        searchKeywords: ['listen', 'voice', 'icon'],
+        type: 'toggle',
+        value: getSettingValue('map.preferences.airports.voiceButton'),
+        onChange: value => setSettingByKey('map.preferences.airports.voiceButton', value),
+    },
     groundTrafficHide: {
         title: 'Ground traffic mode',
         description: 'Controls when ground traffic is hidden on the map',

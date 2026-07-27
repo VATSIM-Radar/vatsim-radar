@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "2.0.0-1",
+  "version": "2.0.0-2-final",
   "private": true,
   "type": "module",
   "scripts": {
@@ -71,7 +71,7 @@
     "nuxt": "4.5.0",
     "ol": "10.9.0",
     "ol-ext": "4.0.38",
-    "ol-mapbox-style": "13.4.1",
+    "ol-mapbox-style": "13.4.2",
     "pinia": "4.0.2",
     "prisma": "7.9.0",
     "rou3": "0.9.1",

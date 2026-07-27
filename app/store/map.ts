@@ -92,6 +92,7 @@ export const useMapStore = defineStore('map', {
         hoveredPilot: null as number | null,
         renderedAirports: null as null | string[],
         renderedPilots: null as null | number[],
+        shownPilots: 0,
 
         overlays: [] as StoreOverlay[],
         openingOverlay: false,
@@ -122,6 +123,11 @@ export const useMapStore = defineStore('map', {
         },
     }),
     getters: {
+        getRenderedPilotsCount(): number {
+            if (getKeyedValueFromSettings('map.traffic.declutter') !== false) return this.shownPilots || this.renderedPilots?.length || 0;
+
+            return this.renderedPilots?.length ?? 0;
+        },
         canShowOverlay(): boolean {
             return !this.moving && !this.distance.pixel;
         },

@@ -232,10 +232,10 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
     return color;
 };
 
-export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number) {
+export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number, color?: string) {
     const store = useStore();
 
-    const color = getAircraftStatusColor(status, cid);
+    color ??= getAircraftStatusColor(status, cid);
 
     let iconContent = svg
         .replaceAll('\n', '')

@@ -15,13 +15,13 @@ import {
     reColorSvg,
 } from '~/composables/vatsim/pilots';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
-import type { UserList } from '~/utils/server/handlers/lists';
 import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import type { WatchHandle } from 'vue';
 import { globalComputed } from '~/composables';
 import { getColorValueByKey, useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
+import { favoritesMap } from '~/composables/fetchers/lists.ts';
 
 let styleImageCache: Record<string, Icon> = {};
 let hitboxImageCache: Record<string, RegularShape> = {};
@@ -71,21 +71,6 @@ function schedulePngIconForFetch(src: string) {
     return null;
 }
 
-const favoritesMap = computed(() => {
-    const store = useStore();
-
-    const map: Record<number, UserList> = {};
-
-    for (const list of store.user?.lists ?? []) {
-        for (const user of list.users) {
-            if (user.private && !store.user?.isSup) continue;
-            map[user.cid] = list;
-        }
-    }
-
-    return map;
-});
-
 function getMaxRotatedHeight(width: number, height: number): number {
     return Math.sqrt((width * width) + (height * height));
 }
@@ -100,7 +85,7 @@ function svgToDataURI(svg: string) {
 function getCachedAircraftSvgSrc(icon: AircraftIcon, status: MapAircraftStatus, cid: number, theme: string, color: string, svg: string) {
     const key = `${ icon }|${ status }|${ cid }|${ theme }|${ color }`;
 
-    return svgSrcCache[key] ??= svgToDataURI(reColorSvg(svg, status, cid));
+    return svgSrcCache[key] ??= svgToDataURI(reColorSvg(svg, status, cid, color));
 }
 
 function getColorAlpha(color: string) {
@@ -143,7 +128,8 @@ function getAircraftPngWidth(renderedWidth: number) {
 let watcher: WatchHandle | undefined = undefined;
 
 export function isPilotOverlayParked(overlay: { minified: boolean; sticky: boolean }): boolean {
-    return useStore().isMobile && overlay.minified && !overlay.sticky;
+    // return useStore().isMobile && overlay.minified && !overlay.sticky;
+    return false;
 }
 
 export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
@@ -164,6 +150,7 @@ export function setAircraftStyle(layer: VectorLayer) {
     const aircraftShowLimit = useSettingValueFromFunc('map.preferences.aircraft.showLimit');
     const heatmap = useSettingValueFromFunc('map.layers.heatmap');
     const overlays = aircraftOverlays();
+    const favorites = favoritesMap();
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
@@ -204,7 +191,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache[textKey] = textStyle;
             }
 
-            const list = favoritesMap.value[cid];
+            const list = favorites.value[cid];
 
             const filter = getFilteredAircraftSettings(cid);
             let filterColor: string | undefined;
@@ -226,7 +213,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
 
             const hideText = !overlays.value.includes(cid) && ownFlight.value?.cid !== cid &&
-                (!pilotLabels.value || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.renderedPilots.length === 0 || mapStore.renderedPilots.length > aircraftShowLimit.value);
+                (!pilotLabels.value || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.getRenderedPilotsCount === 0 || mapStore.renderedPilots.length > aircraftShowLimit.value);
             let offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;
@@ -275,7 +262,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             const declutter = getKeyedValueFromSettings('map.traffic.declutter');
             const shouldDeclutter = declutter === 'always'
                 ? true
-                : declutter ? (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit.value) : false;
+                : declutter ? (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) : false;
 
             const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
             const svgColor = svg || !pngImage ? aircraftColor : undefined;
@@ -307,6 +294,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 shouldDeclutter,
                 svgSrc ? store.theme : undefined,
                 svgSrc ? svgColor : pngSrc,
+                aircraftColor,
                 svgSrc ? Number(!heatmap.value) : iconColor,
                 svgSrc ? undefined : iconOpacity,
                 svgSrc ? undefined : !!png,
@@ -333,7 +321,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache[styleKey].setImage(styleImageCache[imageStyleKey]);
             }
 
-            if (mapStore.renderedPilots && mapStore.renderedPilots.length > aircraftShowLimit.value) return styleCache[styleKey];
+            if (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) return styleCache[styleKey];
 
             return [getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight)), styleCache[styleKey], styleCache[textKey]];
         }
@@ -341,7 +329,7 @@ export function setAircraftStyle(layer: VectorLayer) {
 
     watcher?.();
 
-    watcher = watch(() => mapStore.renderedPilots?.length, val => {
+    watcher = watch(() => mapStore.getRenderedPilotsCount, val => {
         // Zoomed in, we can clean some stuff
         if (val && Object.values(fetchedPngIcons).length > val) {
             if (useIsDebug()) console.log(Object.values(fetchedPngIcons).length, Object.values(styleImageCache).length, 'aircraft cleanup');

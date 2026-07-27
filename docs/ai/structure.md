@@ -49,6 +49,13 @@ The app has three main runtime layers:
    - Cron/data jobs in `app/utils/server/tasks.ts` and `server/plugins/cron.ts`.
    - VATSIM-specific data enrichment in `app/utils/server/vatsim/*`.
 
+PWA and browser-cache behavior:
+
+- `nuxt.config.ts` configures `@vite-pwa/nuxt` with prompted service-worker updates, periodic update checks, Workbox precaching for JS/CSS/fonts/SVG/webmanifest assets, and a `static-assets` runtime cache for other static files.
+- `app/components/features/layout/LayoutUpdatePopup.vue` applies a pending service-worker update or reloads the page when the app reports a new version.
+- `app/plugins/db.client.ts` initializes the browser-side Dexie database through `app/composables/render/idb.ts`; several dataset-update handlers in `app/composables/init.ts` delete the database and call `location.reload()` after IndexedDB failures. A persistent browser-cache/service-worker or IndexedDB failure can therefore appear as a page refresh loop.
+- The Dexie database is named `vatsim-radar-db`; the cleanup call in `initClientDB()` targets the legacy name `vatsim-radar`, so it does not remove the current database.
+
 ## Data Flow
 
 High-level data path:
@@ -82,7 +89,13 @@ There are two different state layers:
 
 - Pinia stores:
   - `app/store/index.ts` (`useStore`) owns user/session state, UI flags, settings/presets/bookmarks, init status, events/bookings, device flags, and high-level VATSIM data fetch actions.
-  - `app/store/map.ts` (`useMapStore`) owns map view state, overlays, selected aircraft, distance tool state, rendered IDs, and Navigraph update progress.
+- `app/store/map.ts` (`useMapStore`) owns map view state, overlays, selected aircraft, distance tool state, rendered IDs, and Navigraph update progress.
+
+Favorite-list performance path:
+
+- `useStore().lists` in `app/store/index.ts` is an enriched getter, not a raw-list lookup: it scans current VATSIM pilots/prefiles/controllers/bookings and rebuilds/sorts every list user.
+- `setVatsimDataStore()` calls the list-aware filters on each live-data update; `app/composables/settings/filter.ts` invokes `store.lists` while checking each pilot/controller when a list filter is active. The total work therefore grows with both live-data volume and favorite-list membership.
+- `app/composables/render/aircraft/style.ts` uses the raw `user.lists` for the aircraft style path via `favoritesMap`; this is separate from the heavier enriched `store.lists` getter.
 
 - Module-level reactive data store:
   - `app/composables/render/storage.ts` exposes `useDataStore()`.

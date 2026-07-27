@@ -96,6 +96,8 @@ function normalizeTransparencyValues<T>(value: T): T {
     const result: Record<string, unknown> = {};
 
     for (const [key, item] of Object.entries(value)) {
+        if (item === '') continue;
+
         result[key] = normalizeTransparencyValues(item);
     }
 

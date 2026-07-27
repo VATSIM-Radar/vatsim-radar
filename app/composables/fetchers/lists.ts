@@ -58,9 +58,23 @@ export async function deleteUserList(list: Partial<UserList> & { id: number }) {
     return result;
 }
 
-export function getUserList(cid: number): UserList | null {
+export const favoritesMap = globalComputed(() => {
     const store = useStore();
-    return store.user?.lists.find(x => x.users.some(x => x.cid === cid && (!x.private || store.user?.isSup))) ?? null;
+
+    const map: Record<number, UserList> = {};
+
+    for (const list of store.user?.lists ?? []) {
+        for (const user of list.users) {
+            if (user.private && !store.user?.isSup) continue;
+            if (map[user.cid] === undefined) map[user.cid] = list;
+        }
+    }
+
+    return map;
+});
+
+export function getUserList(cid: number): UserList | null {
+    return favoritesMap().value[cid];
 }
 
 export function sortList(users: UserListLiveUser[]) {

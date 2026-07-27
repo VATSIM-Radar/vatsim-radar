@@ -4,6 +4,21 @@ import { parseFilterAltitude } from '~/utils/shared';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { IUserFilterOthers } from '~/utils/server/handlers/filters';
 
+type ListFilterCids = Set<number> | null;
+
+function getListFilterCids(store: ReturnType<typeof useStore>): ListFilterCids {
+    const listIds = store.activeFilter?.users?.lists;
+    if (!listIds?.length) return null;
+
+    const cids = new Set<number>();
+    for (const list of store.user?.lists ?? []) {
+        if (!listIds.includes(list.id)) continue;
+        for (const user of list.users) cids.add(user.cid);
+    }
+
+    return cids;
+}
+
 export function hasActivePilotFilter() {
     const store = useStore();
     if (Object.keys(store.config).length || !store.activeFilter) return false;
@@ -23,7 +38,7 @@ export function hasActivePilotFilter() {
     return true;
 }
 
-function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort['prefiles'][0] | VatsimShortenedController): boolean {
+function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort['prefiles'][0] | VatsimShortenedController, listFilterCids: ListFilterCids = null): boolean {
     const field = 'frequency' in user ? 'atc' : 'pilots';
     const store = useStore();
 
@@ -41,9 +56,7 @@ function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort
     }
 
     if (store.activeFilter.users?.lists?.length && (!callsignFiltered || strategy === 'or')) {
-        const lists = store.lists.filter(x => store.activeFilter!.users!.lists!.includes(x.id));
-
-        cidFiltered = !lists.some(x => x.users.some(x => x.cid === user.cid));
+        cidFiltered = !listFilterCids?.has(user.cid);
     }
 
     if (store.activeFilter.users?.cids?.length && (!callsignFiltered || strategy === 'or')) {
@@ -70,6 +83,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 
     const routes = store.activeFilter.airports?.routes?.map(x => x.split('-'));
     const altitude = store.activeFilter.flights?.altitude?.map(x => parseFilterAltitude(x));
+    const listFilterCids = getListFilterCids(store);
 
     let filteredPilots = pilots.filter((pilot, index) => {
         if (!store.activeFilter) return true;
@@ -78,7 +92,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 
         if (store.activeFilter.flights?.diverted && (!('diverted' in pilot) || !pilot.diverted)) return false;
 
-        if (!filterUser(pilot)) return false;
+        if (!filterUser(pilot, listFilterCids)) return false;
 
         const airportsFilter: Record<'departure' | 'arrival' | 'departurePrefix' | 'arrivalPrefix' | 'routes', boolean | null> = {
             departure: null,
@@ -214,11 +228,11 @@ export function hasActiveATCFilter() {
     return true;
 }
 
-function filterController(atc: VatsimShortenedController): boolean {
+function filterController(atc: VatsimShortenedController, listFilterCids: ListFilterCids): boolean {
     const store = useStore();
     if (!store.activeFilter) return true;
 
-    if (!filterUser(atc)) return false;
+    if (!filterUser(atc, listFilterCids)) return false;
     if (store.activeFilter.atc?.notTunedUp && (atc.frequencies?.some(x => x === atc.frequency) || atc.isATIS)) return false;
     if (store.activeFilter.atc?.ratings?.length && !store.activeFilter.atc.ratings.some(x => atc.rating === x)) return false;
     if (store.activeFilter.atc?.facilities?.length && !store.activeFilter.atc.facilities.some(x => atc.facility === x || (atc.isATIS && x === -1))) return false;
@@ -234,8 +248,10 @@ export function filterVatsimControllers(controllers: VatsimLiveDataShort['contro
 
     if (!hasActiveATCFilter() || !store.activeFilter) return { controllers, atis };
 
-    let filteredControllers = controllers.filter(local => filterController(local));
-    let filteredAtis = atis.filter(local => filterController(local));
+    const listFilterCids = getListFilterCids(store);
+
+    let filteredControllers = controllers.filter(local => filterController(local, listFilterCids));
+    let filteredAtis = atis.filter(local => filterController(local, listFilterCids));
 
     if (store.activeFilter.invert) {
         filteredControllers = controllers.filter(x => !filteredControllers.some(y => y.cid === x.cid));

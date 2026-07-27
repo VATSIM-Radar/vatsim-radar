@@ -87,6 +87,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.showMode': 'staffedAndGroundTraffic',
     'map.preferences.airports.declutterIf': 'unstaffed',
     'map.preferences.airports.ATISAsUnstaffed': false,
+    'map.preferences.airports.voiceButton': true,
 
     'map.preferences.airports.groundTraffic.hide': 'lowZoom',
     'map.preferences.airports.groundTraffic.excludeMyArrival': true,
@@ -95,7 +96,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.departuresCountInOverlay': false,
 
     'map.preferences.airports.counters.enabled': true,
-    'map.preferences.airports.counters.syncDeparturesArrivals': true,
+    'map.preferences.airports.cozunters.syncDeparturesArrivals': true,
     'map.preferences.airports.counters.departuresMode': 'ground',
     'map.preferences.airports.counters.arrivalsMode': 'ground',
     'map.preferences.airports.counters.horizontalCounter': 'prefiles',

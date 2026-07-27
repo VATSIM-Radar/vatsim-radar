@@ -1,6 +1,22 @@
 # Changelog
 
-# [2.0.0-1]
+# [2.0.0-2-final]
+
+## Features and improvements
+
+- 🔊 Added something to listen to
+
+## Bug Fixes
+
+- Fixed collapsed mobile overlay not showing tracks on map
+- Fixed aircraft flickering when declutter is on
+- Fixed regression that kills VATSIM Radar's performance depending on how much friends/users you've added to favorite
+  lists. Claude note, delete before release: since developer's friends left him after they saw new v2 font, he could not
+  encounter this during development
+- Fixed friend aircraft color not changing on hover
+- Fixed NAT Tracks not showing on map
+
+# [2.0.0-1-final]
 
 ## Bug Fixes
 
@@ -40,13 +56,16 @@ Due to internal refactor, map is now infinite horizontally. I've been asked to a
 
 You can now download VATSIM Radar and install it on your PC!
 
-This feature has limitations - for example, on MacOS you'll have to disable quarantine for Radar to install it, and on Windows you'll see a SmartScreen warning.
+This feature has limitations - for example, on MacOS you'll have to disable quarantine for Radar to install it, and on
+Windows you'll see a SmartScreen warning.
 
-Still, if you manage to install it, you can use it as any desktop app - you can even enable Rich Presence in Settings -> Application Settings.
+Still, if you manage to install it, you can use it as any desktop app - you can even enable Rich Presence in Settings ->
+Application Settings.
 
 #### Map Interaction Rework
 
-Ever found yourself hovering or clicking something you didn't want to hover or click? Now, each map interaction has a priority for your actions.
+Ever found yourself hovering or clicking something you didn't want to hover or click? Now, each map interaction has a
+priority for your actions.
 
 That also leads to performance improvements, and a MUCH better experience on mobile devices.
 
@@ -54,19 +73,24 @@ That also leads to performance improvements, and a MUCH better experience on mob
 
 Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
 
-Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic
+Prediction window has been added.
 
-You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even
+share all of these with your ATC colleagues by making dashboard public.
 
 #### Performance Improvements
 
-Map has received a LOT of performance improvements due to internal refactors, and should work much better on any devices. Freezes are still expected when map is zoomed out and multiple words are shown, especially in busy hours.
+Map has received a LOT of performance improvements due to internal refactors, and should work much better on any
+devices. Freezes are still expected when map is zoomed out and multiple words are shown, especially in busy hours.
 
-In case that will not be enough for some, Settings have received a "Performance preset" page, containing settings that affect performance the most, with a way to apply them in one click.
+In case that will not be enough for some, Settings have received a "Performance preset" page, containing settings that
+affect performance the most, with a way to apply them in one click.
 
 #### Website Redesign
 
-Whole website has received a new look - from logo, to fonts. We hope that you love it, and we'll continue to improve design in future.
+Whole website has received a new look - from logo, to fonts. We hope that you love it, and we'll continue to improve
+design in future.
 
 And that are just the highlights! Full changelog is available below.
 

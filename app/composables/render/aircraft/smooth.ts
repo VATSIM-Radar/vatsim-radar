@@ -61,10 +61,10 @@ export function isSmoothMovementEnabled() {
 }
 
 export function isSmoothMovementSuspendedForLoad() {
-    const renderedPilots = useMapStore().renderedPilots;
-    if (!renderedPilots) return false;
+    const mapStore = useMapStore();
+    if (!mapStore.renderedPilots) return false;
 
-    return renderedPilots.length > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || useMapStore().zoom < 6;
+    return mapStore.getRenderedPilotsCount > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || useMapStore().zoom < 6;
 }
 
 function computeDelay() {

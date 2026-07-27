@@ -104,9 +104,9 @@ export function checkForVATSpy() {
                 await clientDB.vatspyBoundaries.clear();
                 await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
                 await clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
-            }).catch(e => {
+            }).catch(async e => {
                 console.error(e);
-                clientDB.delete();
+                await clientDB.delete();
                 location.reload();
             });
 
@@ -186,7 +186,7 @@ export function checkForSimAware() {
                 await clientDB.simaware.put(data.version, 'version');
             }
             catch {
-                clientDB.delete();
+                await clientDB.delete();
                 location.reload();
             }
             notRequired = false;
@@ -219,8 +219,8 @@ export function checkForVG() {
 
         if (!vatglasses || !vatglassesVersion || vatglasses.version !== dataStore.versions.value?.vatglasses || vatglassesVersion !== dataStore.versions.value?.vatglasses) {
             vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
-            await clientDB.data.put(vatglasses, 'vatglasses').catch(() => {
-                clientDB.delete();
+            await clientDB.data.put(vatglasses, 'vatglasses').catch(async () => {
+                await clientDB.delete();
                 location.reload();
             });
 
@@ -353,6 +353,7 @@ async function updateNavigraph() {
         mapStore.isNavigraphUpdating = false;
     }
     catch {
+        await clientDB.delete();
         location.reload();
     }
 }
@@ -397,7 +398,7 @@ export function checkForAirlines() {
                 await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version');
             }
             catch {
-                clientDB.delete();
+                await clientDB.delete();
                 location.reload();
             }
 
