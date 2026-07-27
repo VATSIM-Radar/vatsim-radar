@@ -110,6 +110,8 @@ function setVisiblePilots() {
         return null;
     }).filter(x => x));
 
+    mapStore.shownPilots = visibleFeatures.size;
+
     // All are "visible" by default
     dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots ?? [];
 

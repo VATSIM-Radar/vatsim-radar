@@ -16,6 +16,7 @@ import type {
     UserListLive,
     UserListLiveUser,
     UserListLiveUserPilot,
+    UserListUser,
 } from '~/utils/server/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
@@ -200,6 +201,12 @@ export const useStore = defineStore('index', {
 
             const lists = this.user.lists.slice(0);
             const listsUsers = new Set(lists.flatMap(x => x.users.map(x => x.cid)));
+            const usersByCid = new Map<number, UserListUser>();
+            for (const list of lists) {
+                for (const user of list.users) {
+                    if (!usersByCid.has(user.cid)) usersByCid.set(user.cid, user);
+                }
+            }
             const foundUsers: Record<number, Omit<UserListLiveUser, 'name' | 'cid'>> = {};
 
             const dataStore = useDataStore();
@@ -215,13 +222,22 @@ export const useStore = defineStore('index', {
                 });
             }
 
-            const friendsObservers: UserListLiveUserPilot['sharedPilots'] = dataStore.vatsim.data.observers.value
-                .filter(x => listsUsers.has(x.cid))
-                .map(x => ({
-                    ...lists.find(y => y.users.some(y => y.cid === x.cid))?.users.find(y => y.cid === x.cid),
-                    data: x,
-                } as UserListLiveUserPilot['sharedPilots'][0]))
-                .filter(x => 'name' in x);
+            const friendsObserversByCallsign = new Map<string, UserListLiveUserPilot['sharedPilots']>();
+            for (const observer of dataStore.vatsim.data.observers.value) {
+                if (!listsUsers.has(observer.cid)) continue;
+
+                const user = usersByCid.get(observer.cid);
+                if (!user) continue;
+
+                const sharedPilot = {
+                    ...user,
+                    data: observer,
+                } as UserListLiveUserPilot['sharedPilots'][0];
+                const callsign = observer.callsign.slice(0, observer.callsign.length - 1);
+                const sharedPilots = friendsObserversByCallsign.get(callsign) ?? [];
+                sharedPilots.push(sharedPilot);
+                friendsObserversByCallsign.set(callsign, sharedPilots);
+            }
 
             if (listsUsers.size) {
                 for (const pilot of dataStore.vatsim.data.pilots.value) {
@@ -229,7 +245,7 @@ export const useStore = defineStore('index', {
                         foundUsers[pilot.cid] = {
                             type: 'pilot',
                             // @ts-expect-error not working because ts is stupid
-                            sharedPilots: friendsObservers.filter(x => x.data.callsign.slice(0, x.data.callsign.length - 1) === pilot.callsign),
+                            sharedPilots: friendsObserversByCallsign.get(pilot.callsign) ?? [],
                             data: pilot,
                         };
                     }

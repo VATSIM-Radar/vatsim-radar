@@ -115,7 +115,7 @@ const update: Update = {
     height: '650px',
     features: [
         {
-            title: 'Welcome to VATSIM Radar v2.0 Public Preview!',
+            title: 'Welcome to VATSIM Radar v2.0!',
             description: 'This is a major VATSIM Radar update. Read <a href="https://docs.vatsim-radar.com/changelog.html" target="_blank" class="__link">Full Changelog</a> for more details',
             image: images['../../assets/update/presentation.png'],
             imageRatio: '1920 / 1080',

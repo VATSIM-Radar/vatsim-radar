@@ -1,5 +1,7 @@
 # AI Agent Decisions
 
+- Favorite-list filtering builds a per-data-pass CID `Set` from the raw selected lists and passes it into `filterUser`; do not introduce a long-lived cache for this path. `store.lists` should use short-lived per-getter maps for CID and shared-observer lookups instead of nested list scans.
+
 - On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.
 - VATGlasses-owned ATC controllers are excluded from SimAware fallback only when their matched VATGlasses position has rendered sector geometry. Empty or transiently unavailable VG geometry must leave the controller eligible for SimAware rendering.
 - SimAware lookup results must not permanently cache empty datasets, and the client cache is invalidated when the SimAware data version changes.

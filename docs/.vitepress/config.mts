@@ -78,6 +78,10 @@ export default defineConfig({
                         link: '/introduction/features/',
                     },
                     {
+                        text: 'V2 FAQ',
+                        link: '/guide/v2',
+                    },
+                    {
                         text: 'Changelog',
                         link: '/changelog',
                     }

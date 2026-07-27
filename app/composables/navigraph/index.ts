@@ -413,15 +413,16 @@ async function getSmallestNavigraphCoordinate(search: string, reference?: Coordi
 
 function getNatRouteWaypointToken(token: string): { identifier: string; coordinate: Coordinate | null } {
     const split = token.split('/');
+    const defaultCoord = getPreciseCoord(token)?.[0];
 
-    if (split.length === 2) {
+    if (!defaultCoord && split.length !== 2) {
         return {
-            identifier: split[1],
-            coordinate: getPreciseCoord(split[0])?.[0] ?? null,
+            identifier: token,
+            coordinate: null,
         };
     }
 
-    return { identifier: token, coordinate: getPreciseCoord(token)?.[0] ?? null };
+    return { identifier: defaultCoord ? token : split[1], coordinate: defaultCoord ?? getPreciseCoord(split[0])?.[0] ?? null };
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;

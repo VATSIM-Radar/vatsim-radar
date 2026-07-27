@@ -89,7 +89,13 @@ There are two different state layers:
 
 - Pinia stores:
   - `app/store/index.ts` (`useStore`) owns user/session state, UI flags, settings/presets/bookmarks, init status, events/bookings, device flags, and high-level VATSIM data fetch actions.
-  - `app/store/map.ts` (`useMapStore`) owns map view state, overlays, selected aircraft, distance tool state, rendered IDs, and Navigraph update progress.
+- `app/store/map.ts` (`useMapStore`) owns map view state, overlays, selected aircraft, distance tool state, rendered IDs, and Navigraph update progress.
+
+Favorite-list performance path:
+
+- `useStore().lists` in `app/store/index.ts` is an enriched getter, not a raw-list lookup: it scans current VATSIM pilots/prefiles/controllers/bookings and rebuilds/sorts every list user.
+- `setVatsimDataStore()` calls the list-aware filters on each live-data update; `app/composables/settings/filter.ts` invokes `store.lists` while checking each pilot/controller when a list filter is active. The total work therefore grows with both live-data volume and favorite-list membership.
+- `app/composables/render/aircraft/style.ts` uses the raw `user.lists` for the aircraft style path via `favoritesMap`; this is separate from the heavier enriched `store.lists` getter.
 
 - Module-level reactive data store:
   - `app/composables/render/storage.ts` exposes `useDataStore()`.
