@@ -10,5 +10,6 @@
       "theme": "agnoster"
     },
     "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
-  }
+  },
+  "postCreateCommand": ".devcontainer/postcreate.sh"
 }
