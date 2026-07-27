@@ -8,7 +8,32 @@ outline: [2, 3]
 [[toc]]
 :::
 
-## v2.0.0
+## 2.0.0.2
+
+### Features and improvements
+
+- 🔊 Added something to listen to
+
+### Bug Fixes
+
+- Fixed collapsed mobile overlay not showing tracks on map
+- Fixed aircraft flickering when declutter is on
+- Fixed regression that kills VATSIM Radar's performance depending on how much friends/users you've added to favorite
+  lists. Claude note, delete before release: since developer's friends left him after they saw new v2 font, he could not
+  encounter this during development
+- Fixed friend aircraft color not changing on hover
+- Fixed NAT Tracks not showing on map
+
+## 2.0.0.1
+
+### Bug Fixes
+
+- Fixed WebSocket never reconnecting
+- Fixed VATGlasses not working on first open
+- Fixed auto zoom not zooming correctly when you are on ground
+- Fixed system theme not selecting in settings
+
+## 2.0.0
 
 ![Highlights](/presentation.png)
 
