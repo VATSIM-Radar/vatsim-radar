@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: .config/dev.Dockerfile
+      dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
       - ./.env.example
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .config/dev.Dockerfile
+      dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
       - ./.env.example
@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .config/dev.Dockerfile
+      dockerfile: ../.config/dev.Dockerfile
     image: vr-1.1.1
     env_file:
       - ./.env.example
