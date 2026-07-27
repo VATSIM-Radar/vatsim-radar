@@ -49,6 +49,13 @@ The app has three main runtime layers:
    - Cron/data jobs in `app/utils/server/tasks.ts` and `server/plugins/cron.ts`.
    - VATSIM-specific data enrichment in `app/utils/server/vatsim/*`.
 
+PWA and browser-cache behavior:
+
+- `nuxt.config.ts` configures `@vite-pwa/nuxt` with prompted service-worker updates, periodic update checks, Workbox precaching for JS/CSS/fonts/SVG/webmanifest assets, and a `static-assets` runtime cache for other static files.
+- `app/components/features/layout/LayoutUpdatePopup.vue` applies a pending service-worker update or reloads the page when the app reports a new version.
+- `app/plugins/db.client.ts` initializes the browser-side Dexie database through `app/composables/render/idb.ts`; several dataset-update handlers in `app/composables/init.ts` delete the database and call `location.reload()` after IndexedDB failures. A persistent browser-cache/service-worker or IndexedDB failure can therefore appear as a page refresh loop.
+- The Dexie database is named `vatsim-radar-db`; the cleanup call in `initClientDB()` targets the legacy name `vatsim-radar`, so it does not remove the current database.
+
 ## Data Flow
 
 High-level data path:

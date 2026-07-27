@@ -233,14 +233,6 @@ export default defineNuxtConfig({
 
     pwa: {
         registerType: 'prompt',
-        includeAssets: [
-            'favicon.ico',
-            'favicon.svg',
-            'favicon-*.png',
-            'apple-touch-icon.png',
-            'web-app-manifest-*.png',
-            'icons/**/*',
-        ],
         client: {
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
@@ -248,6 +240,7 @@ export default defineNuxtConfig({
         injectRegister: isDebug() ? false : 'auto',
         selfDestroying: isDebug(),
         workbox: {
+            cleanupOutdatedCaches: true,
             globPatterns: [
                 '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
             ],
@@ -261,7 +254,7 @@ export default defineNuxtConfig({
                     },
                     handler: 'CacheFirst',
                     options: {
-                        cacheName: 'static-assets',
+                        cacheName: 'static-assets-v2',
                         expiration: {
                             maxEntries: 500,
                             maxAgeSeconds: 60 * 60 * 24 * 30,
