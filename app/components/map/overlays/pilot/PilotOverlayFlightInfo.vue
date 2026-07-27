@@ -316,7 +316,7 @@
                         :items="[{ text: pilot.transponder ?? '' }, { text: canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined }]"
                     />
                 </template>
-                <template #item-com1>
+                <template v-if="!isOffline" #item-com1>
                     <div class="flight-info__speaker-wrapper">
                         {{pilot.frequencies[0]}}
                         <a
