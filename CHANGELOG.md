@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.0-3-rc.1]
+
+## Bug Fixes
+
+- Fixed booking not displayed sometimes when another facility was online
+- Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present
+
 # [2.0.0-2-final]
 
 ## Features and improvements

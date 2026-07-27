@@ -294,13 +294,14 @@ export function setMapAirports({ source, airports, layer }: {
                     const existingTraconLabel = getMapFeature('airport-tracon-label', source, `${ existingTraconId }Label`);
 
                     isDuplicated = feature.controllers.every(x => x.duplicated);
+                    const filteredControllers = feature.controllers.filter(x => isDuplicated || !x.duplicated);
+                    const isTWR = filteredControllers.every(x => x.facility !== facilitiesIds.APP);
 
                     const controllers = [
-                        ...feature.controllers.filter(x => isDuplicated || !x.duplicated),
-                        ...leftAtc.filter(x => isDuplicated || !x.duplicated),
+                        ...filteredControllers,
+                        ...(isTWR ? [] : leftAtc.filter(x => isDuplicated || !x.duplicated)),
                     ];
 
-                    const isTWR = controllers.every(x => x.facility !== facilitiesIds.APP);
                     isDuplicated = controllers.every(x => x.duplicated);
                     isBooked = controllers.every(x => x.isBooking);
 
