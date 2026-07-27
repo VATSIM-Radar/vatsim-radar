@@ -42,9 +42,10 @@
                 <a
                     v-if="showSpeaker"
                     class="atc_speaker"
-                    :href="`https://listen.vatsim.net/live/${ controller.callsign }`"
+                    :href="`https://listen.vatsim.net/live/${ controller.duplicatedBy ?? controller.callsign }`"
                     target="_blank"
-                    :title="`Listen as ${ controller.callsign }`"
+                    :title="`Listen as ${ controller.duplicatedBy ?? controller.callsign }`"
+                    @click.stop
                 >
                     <speaker-icon/>
                 </a>

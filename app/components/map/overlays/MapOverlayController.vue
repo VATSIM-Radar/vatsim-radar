@@ -99,7 +99,7 @@
             <div class="__vertical-group-16">
                 <ui-button
                     class="atc_speaker"
-                    :href="`https://listen.vatsim.net/live/${ atc.callsign }`"
+                    :href="`https://listen.vatsim.net/live/${ atc.duplicatedBy ?? atc.callsign }`"
                     size="S"
                     target="_blank"
                     type="link"
@@ -107,7 +107,7 @@
                     <template #icon>
                         <speaker-icon/>
                     </template>
-                    Listen as {{atc.callsign}}
+                    Listen as {{atc.duplicatedBy ?? atc.callsign}}
                 </ui-button>
                 <ui-notification
                     remember-message="ATC_FREQUENCIES"
