@@ -4,8 +4,6 @@ import { fileURLToPath } from 'node:url';
 
 const _dirname = dirname(fileURLToPath(import.meta.url));
 const appDataIgnorePatterns = [
-    'data',
-    'data/**',
     'app/data',
     'app/data/**',
     '**/app/data',
