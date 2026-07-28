@@ -56,6 +56,12 @@ async function receiveMessage(event: MessageEvent) {
         logout();
     }
 
+    if ((event.source === window && data.type === "get-bookmarks"))
+    {
+        console.log("Sending bookmarks to parent window");
+        window.parent.postMessage({ type: "bookmarks", data: { bookmarks: ["test1", "test2"] }}, "*");
+    }
+
     if ((event.source === window && data.type !== 'efbX') || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
