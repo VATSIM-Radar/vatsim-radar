@@ -11,6 +11,7 @@ import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
+import { message } from 'valibot';
 
 const route = useRoute();
 
@@ -56,7 +57,7 @@ async function receiveMessage(event: MessageEvent) {
         logout();
     }
 
-    const ipcEvents = ['efbX', 'get-bookmarks'];
+    const ipcEvents = ['efbX', 'get-bookmarks', 'activate-bookmark', 'get-dashboards', 'activate-dashboard'];
     if ((event.source === window && !ipcEvents.includes(data.type)) || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
@@ -86,15 +87,58 @@ async function receiveMessage(event: MessageEvent) {
         return;
     }
 
-    if ((event.source === window && data.type === "get-bookmarks"))
+    if (data.type === "get-bookmarks")
     {
         const bookmarkData = store.bookmarks.map((bookmark) => ({
             label: bookmark.name,
-            value: bookmark.id,
+            id: bookmark.id,
             order: bookmark.order
         }));
         console.log(`Sending bookmarks to parent window: ${JSON.stringify(bookmarkData)}`);
         window.parent.postMessage({ type: "bookmarks", data: { bookmarks: bookmarkData}}, "*");
+    }
+
+    if (data.type === "get-dashboards")
+    {
+        const dashboardData = store.dashboards.map((dashboard) => ({
+            label: dashboard.name,
+            id: dashboard.id
+        }));
+
+        console.log(`Sending dashboards to parent window: ${JSON.stringify(dashboardData)}`);
+        window.parent.postMessage({ type: "dashboards", data: { dashboards: dashboardData}});
+    }
+
+    if (data.type === "activate-bookmark")
+    {
+        const id = event.data.data.id;
+        console.log(`Activating bookmark ${id}`);
+
+        // Find the bookmark
+        const bookmark = store.bookmarks.find((bookmark) => bookmark.id === id);
+
+        if (!bookmark) {
+            console.warn(`No bookmark matching id ${id} found`);
+            return;
+        }
+        
+        console.log(`Found matching bookmark ${JSON.stringify(bookmark)}`);
+    }
+    
+    if (data.type === "activate-dashboard")
+    {
+        const id = event.data.data.id;
+        console.log(`Activating dashboard ${id}`);
+
+        // Find the bookmark
+        const dashboard = store.dashboards.find((dashboard) => dashboard.id === id);
+
+        if (!dashboard) {
+            console.warn(`No dashboard matching id ${id} found`);
+            return;
+        }
+        
+        console.log(`Found matching dashboard ${JSON.stringify(dashboard)}`);
     }
 
     if (data.type === 'settings') {
