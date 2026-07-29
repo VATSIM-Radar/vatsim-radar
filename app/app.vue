@@ -11,6 +11,7 @@ import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
+import { JSONInput$ } from '@aws-sdk/client-s3';
 
 const route = useRoute();
 
@@ -56,7 +57,7 @@ async function receiveMessage(event: MessageEvent) {
         logout();
     }
 
-    const ipcEvents = ['efbX', 'get-bookmarks'];
+    const ipcEvents = ['efbX', 'get-bookmarks', 'activate-bookmark'];
     if ((event.source === window && !ipcEvents.includes(data.type)) || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
@@ -86,7 +87,7 @@ async function receiveMessage(event: MessageEvent) {
         return;
     }
 
-    if ((event.source === window && data.type === "get-bookmarks"))
+    if (data.type === 'get-bookmarks')
     {
         const bookmarkData = store.bookmarks.map((bookmark) => ({
             label: bookmark.name,
@@ -95,6 +96,20 @@ async function receiveMessage(event: MessageEvent) {
         }));
         console.log(`Sending bookmarks to parent window: ${JSON.stringify(bookmarkData)}`);
         window.parent.postMessage({ type: "bookmarks", data: { bookmarks: bookmarkData}}, "*");
+    }
+
+    if (data.type === 'activate-bookmark')
+    {
+        const requestedId = event.data.data.id;
+        const bookmark = store.bookmarks.find((bookmark) => bookmark.id === requestedId);
+
+        if (!bookmark)
+        {
+            console.warn(`No bookmark found with id ${requestedId}`);
+            return;
+        }
+
+        console.log(`Activating bookmark ${bookmark?.id} (${bookmark?.name})`)
     }
 
     if (data.type === 'settings') {
