@@ -11,7 +11,6 @@ import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
-import { message } from 'valibot';
 
 const route = useRoute();
 
@@ -87,7 +86,7 @@ async function receiveMessage(event: MessageEvent) {
         return;
     }
 
-    if (data.type === "get-bookmarks")
+    if (data.type === 'get-bookmarks')
     {
         const bookmarkData = store.bookmarks.map((bookmark) => ({
             label: bookmark.name,
@@ -130,7 +129,7 @@ async function receiveMessage(event: MessageEvent) {
         const id = event.data.data.id;
         console.log(`Activating dashboard ${id}`);
 
-        // Find the bookmark
+        // Find the dashboard
         const dashboard = store.dashboards.find((dashboard) => dashboard.id === id);
 
         if (!dashboard) {
@@ -139,6 +138,20 @@ async function receiveMessage(event: MessageEvent) {
         }
         
         console.log(`Found matching dashboard ${JSON.stringify(dashboard)}`);
+    }
+
+    if (data.type === 'activate-bookmark')
+    {
+        const requestedId = event.data.data.id;
+        const bookmark = store.bookmarks.find((bookmark) => bookmark.id === requestedId);
+
+        if (!bookmark)
+        {
+            console.warn(`No bookmark found with id ${requestedId}`);
+            return;
+        }
+
+        console.log(`Activating bookmark ${bookmark?.id} (${bookmark?.name})`)
     }
 
     if (data.type === 'settings') {
