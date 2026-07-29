@@ -56,13 +56,8 @@ async function receiveMessage(event: MessageEvent) {
         logout();
     }
 
-    if ((event.source === window && data.type === "get-bookmarks"))
-    {
-        console.log("Sending bookmarks to parent window");
-        window.parent.postMessage({ type: "bookmarks", data: { bookmarks: ["test1", "test2"] }}, "*");
-    }
-
-    if ((event.source === window && data.type !== 'efbX') || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
+    const ipcEvents = ['efbX', 'get-bookmarks'];
+    if ((event.source === window && !ipcEvents.includes(data.type)) || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
     const mapStore = useMapStore();
@@ -89,6 +84,17 @@ async function receiveMessage(event: MessageEvent) {
         store.isTabVisible = event.data.action === 'resume';
         if (store.isTabVisible) store.getVATSIMData(true);
         return;
+    }
+
+    if ((event.source === window && data.type === "get-bookmarks"))
+    {
+        const bookmarkData = store.bookmarks.map((bookmark) => ({
+            label: bookmark.name,
+            value: bookmark.id,
+            order: bookmark.order
+        }));
+        console.log(`Sending bookmarks to parent window: ${JSON.stringify(bookmarkData)}`);
+        window.parent.postMessage({ type: "bookmarks", data: { bookmarks: bookmarkData}}, "*");
     }
 
     if (data.type === 'settings') {
