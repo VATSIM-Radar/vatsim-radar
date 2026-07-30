@@ -1,10 +1,10 @@
 <template>
     <nuxt-layout>
-        <nuxt-page @map="setMap"/>
+        <nuxt-page @map='setMap'/>
     </nuxt-layout>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
 import type LayerGroup from 'ol/layer/Group.js';
@@ -96,10 +96,10 @@ async function receiveMessage(event: MessageEvent) {
             id: bookmark.id,
             order: bookmark.order
         }));
-        window.parent.postMessage({ type: "bookmarks", data: { bookmarks: bookmarkData}}, "*");
+        window.parent.postMessage({ type: 'bookmarks', data: { bookmarks: bookmarkData}}, '*');
     }
 
-    if (data.type === "get-dashboards")
+    if (data.type === 'get-dashboards')
     {
         // This only returns the properties required for an external application to display a list
         // of dashboards then activate one.
@@ -107,10 +107,10 @@ async function receiveMessage(event: MessageEvent) {
             label: dashboard.name,
             id: dashboard.id
         }));
-        window.parent.postMessage({ type: "dashboards", data: { dashboards: dashboardData}});
+        window.parent.postMessage({ type: 'dashboards', data: { dashboards: dashboardData}});
     }
 
-    if (data.type === "activate-bookmark")
+    if (data.type === 'activate-bookmark')
     {
         // The ID of the bookmark to activate.
         const id = event.data.data.id;
@@ -130,7 +130,7 @@ async function receiveMessage(event: MessageEvent) {
         await showBookmark(bookmark.json, mapRef.value);
     }
     
-    if (data.type === "activate-dashboard")
+    if (data.type === 'activate-dashboard')
     {
         // The ID of the dashboard to activate.
         const id = event.data.data.id;
