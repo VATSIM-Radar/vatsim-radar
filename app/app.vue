@@ -121,6 +121,7 @@ async function receiveMessage(event: MessageEvent) {
         }
         
         console.log(`Activating bookmark ${JSON.stringify(bookmark)}`);
+        await navigateTo({ path: '/'});
         await showBookmark(bookmark.json, mapRef.value);
     }
     
