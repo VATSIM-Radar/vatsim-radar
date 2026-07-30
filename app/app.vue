@@ -101,6 +101,12 @@ async function receiveMessage(event: MessageEvent) {
 
     if (data.type === 'get-dashboards')
     {
+        // Dashboards may not be loaded into the store when this is called. Force them to load
+        // before responding to the request.
+        if (!store.dashboards.length) {
+            await store.fetchDashboards().catch(console.error);
+        }
+
         // This only returns the properties required for an external application to display a list
         // of dashboards then activate one.
         const dashboardData = store.dashboards.map((dashboard) => ({
