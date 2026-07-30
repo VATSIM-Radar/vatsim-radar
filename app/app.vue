@@ -56,8 +56,9 @@ async function receiveMessage(event: MessageEvent) {
         logout();
     }
 
-    const ipcEvents = ['efbX', 'get-bookmarks', 'activate-bookmark', 'get-dashboards', 'activate-dashboard'];
-    if ((event.source === window && !ipcEvents.includes(data.type)) || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
+    // Verify the incoming IPC event is a supported event before processing it.
+    const allowedIpcEvents = new Set<string>(['efbX', 'get-bookmarks', 'activate-bookmark', 'get-dashboards', 'activate-dashboard']);
+    if ((event.source === window && !allowedIpcEvents.has(data.type)) || event.origin !== useRuntimeConfig().public.DOMAIN) return; // the message is from the same window, so we ignore it
 
     const settingsStore = useSettingsStore();
     const mapStore = useMapStore();
@@ -88,56 +89,60 @@ async function receiveMessage(event: MessageEvent) {
 
     if (data.type === 'get-bookmarks')
     {
+        // This only returns the properties required for an external application to display a list
+        // of bookmarks then activate one.
         const bookmarkData = store.bookmarks.map((bookmark) => ({
             label: bookmark.name,
             id: bookmark.id,
             order: bookmark.order
         }));
-        console.log(`Sending bookmarks to parent window: ${JSON.stringify(bookmarkData)}`);
         window.parent.postMessage({ type: "bookmarks", data: { bookmarks: bookmarkData}}, "*");
     }
 
     if (data.type === "get-dashboards")
     {
+        // This only returns the properties required for an external application to display a list
+        // of dashboards then activate one.
         const dashboardData = store.dashboards.map((dashboard) => ({
             label: dashboard.name,
             id: dashboard.id
         }));
-
-        console.log(`Sending dashboards to parent window: ${JSON.stringify(dashboardData)}`);
         window.parent.postMessage({ type: "dashboards", data: { dashboards: dashboardData}});
     }
 
     if (data.type === "activate-bookmark")
     {
+        // The ID of the bookmark to activate.
         const id = event.data.data.id;
 
-        // Find the bookmark
+        // Verify the bookmark exists before attempting to activate it.
         const bookmark = store.bookmarks.find((bookmark) => bookmark.id === id);
 
         if (!bookmark) {
             console.warn(`No bookmark matching id ${id} found`);
             return;
         }
-        
-        console.log(`Activating bookmark ${JSON.stringify(bookmark)}`);
+
+        // The navigation to / ensures the map page is visible before attempting to move to the bookmark.
+        // Without it, the user could be on the Dashboard, Events, etc. page and the activate request
+        // would wind up doing nothing.
         await navigateTo({ path: '/'});
         await showBookmark(bookmark.json, mapRef.value);
     }
     
     if (data.type === "activate-dashboard")
     {
+        // The ID of the dashboard to activate.
         const id = event.data.data.id;
 
-        // Find the dashboard
+        // Verify the dashboard exists before attempting to activate it.
         const dashboard = store.dashboards.find((dashboard) => dashboard.id === id);
 
         if (!dashboard) {
             console.warn(`No dashboard matching id ${id} found`);
             return;
         }
-        
-        console.log(`Activating dashboard ${JSON.stringify(dashboard)}`);
+
         await navigateTo(`/dashboard/${dashboard.id}`);
     }
 
