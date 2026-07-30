@@ -122,6 +122,7 @@ async function receiveMessage(event: MessageEvent) {
         }
         
         console.log(`Found matching bookmark ${JSON.stringify(bookmark)}`);
+        await showBookmark(bookmark.json, mapRef.value);
     }
     
     if (data.type === "activate-dashboard")
@@ -138,6 +139,7 @@ async function receiveMessage(event: MessageEvent) {
         }
         
         console.log(`Found matching dashboard ${JSON.stringify(dashboard)}`);
+        await navigateTo(`/dashboard/${dashboard.id}`);
     }
 
     if (data.type === 'activate-bookmark')
