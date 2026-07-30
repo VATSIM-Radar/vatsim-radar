@@ -141,20 +141,6 @@ async function receiveMessage(event: MessageEvent) {
         await navigateTo(`/dashboard/${dashboard.id}`);
     }
 
-    if (data.type === 'activate-bookmark')
-    {
-        const requestedId = event.data.data.id;
-        const bookmark = store.bookmarks.find((bookmark) => bookmark.id === requestedId);
-
-        if (!bookmark)
-        {
-            console.warn(`No bookmark found with id ${requestedId}`);
-            return;
-        }
-
-        console.log(`Activating bookmark ${bookmark?.id} (${bookmark?.name})`)
-    }
-
     if (data.type === 'settings') {
         settingsStore.save(data.settings, { autoSave: false, overwrite: true, dontSave: true });
     }
