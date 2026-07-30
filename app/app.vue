@@ -111,7 +111,6 @@ async function receiveMessage(event: MessageEvent) {
     if (data.type === "activate-bookmark")
     {
         const id = event.data.data.id;
-        console.log(`Activating bookmark ${id}`);
 
         // Find the bookmark
         const bookmark = store.bookmarks.find((bookmark) => bookmark.id === id);
@@ -121,14 +120,13 @@ async function receiveMessage(event: MessageEvent) {
             return;
         }
         
-        console.log(`Found matching bookmark ${JSON.stringify(bookmark)}`);
+        console.log(`Activating bookmark ${JSON.stringify(bookmark)}`);
         await showBookmark(bookmark.json, mapRef.value);
     }
     
     if (data.type === "activate-dashboard")
     {
         const id = event.data.data.id;
-        console.log(`Activating dashboard ${id}`);
 
         // Find the dashboard
         const dashboard = store.dashboards.find((dashboard) => dashboard.id === id);
@@ -138,7 +136,7 @@ async function receiveMessage(event: MessageEvent) {
             return;
         }
         
-        console.log(`Found matching dashboard ${JSON.stringify(dashboard)}`);
+        console.log(`Activating dashboard ${JSON.stringify(dashboard)}`);
         await navigateTo(`/dashboard/${dashboard.id}`);
     }
 
