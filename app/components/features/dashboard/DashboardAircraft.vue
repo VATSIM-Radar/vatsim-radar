@@ -434,8 +434,12 @@ defineExpose({ combinedAircraft });
             min-width: 240px;
 
             .dashboard-aircraft_col_body {
-                flex-direction: column;
                 max-height: 260px;
+            }
+
+            .dashboard-aircraft_pilot {
+                width: 100%;
+                flex: 1 0 max-content;
             }
         }
 
