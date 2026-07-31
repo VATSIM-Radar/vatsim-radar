@@ -417,7 +417,7 @@ defineExpose({ combinedAircraft });
         &--horizontal {
             overflow-x: auto;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: stretch;
             padding-bottom: 4px;
         }
     }
@@ -438,8 +438,7 @@ defineExpose({ combinedAircraft });
             }
 
             .dashboard-aircraft_pilot {
-                width: 100%;
-                flex: 1 0 max-content;
+                flex: 1 0 fit-content;
             }
         }
 
@@ -456,8 +455,6 @@ defineExpose({ combinedAircraft });
 
             background: $darkGray900;
 
-            transition: 0.3s;
-
             @include hover {
                 &:hover {
                     border-color: $blue500;
@@ -469,15 +466,36 @@ defineExpose({ combinedAircraft });
                 width: 12px;
                 min-width: 12px;
                 transition: 0.3s;
+                aspect-ratio: 1;
 
                 &--collapsed {
-                    transform: rotate(180deg);
+                    transform: rotate(90deg);
                 }
             }
 
             &_title {
                 flex-grow: 1;
                 color: var(--color);
+            }
+        }
+
+        &--collapsed {
+            .dashboard-aircraft_columns--horizontal & {
+                min-width: 0;
+                max-width: 32px;
+                flex: 0 0 auto;
+
+                .dashboard-aircraft_col_head {
+                    flex-direction: column-reverse;
+                    padding: 8px 6px;
+                    height: 100%;
+                }
+
+                .dashboard-aircraft_col_head_title,
+                .dashboard-aircraft_rate {
+                    writing-mode: vertical-rl;
+                    transform: rotate(180deg);
+                }
             }
         }
 
@@ -520,6 +538,7 @@ defineExpose({ combinedAircraft });
     &_pilot {
         content-visibility: auto;
         contain-intrinsic-size: auto 50px;
+        min-width: 0;
 
         &--bordered {
             border-left: 3px solid var(--airport-color);
