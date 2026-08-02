@@ -89,7 +89,7 @@
                         <span style="display: inline-flex; align-items: center; gap: 6px;">
                             {{ item.text }}
                             <img
-                                v-if="country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
+                                v-if="showRegistrationFlags && country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
                                 :src="getFlagUrl(country.countryCode)"
                                 :alt="country.name || country.countryCode"
                                 :title="`${country.name || country.countryCode} (${country.prefix})`"
@@ -213,6 +213,10 @@ const props = defineProps({
     country: {
         type: Object as PropType<CountryCodeEntry | null>,
         default: null,
+    },
+    showRegistrationFlags: {
+        type: Boolean,
+        default: true,
     },
 });
 

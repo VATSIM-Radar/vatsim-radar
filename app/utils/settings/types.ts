@@ -125,6 +125,7 @@ export interface UserSettingsV2 {
             highlightEmergency: boolean;
             showAirlineLogos: boolean;
             showCountryFlags: boolean;
+            showRegistrationFlags: boolean;
         };
 
         vatglasses: {

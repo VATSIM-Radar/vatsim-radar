@@ -53,7 +53,6 @@
                         alt="Airline logo"
                         class="pilot_airline_logo"
                     />
-                    <span v-else-if="!showAirlineLogos" class="pilot_airline_dot" />
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -220,6 +219,7 @@
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
                 :country="country"
+                :show-registration-flags="showRegistrationFlags"
             />
         </template>
         <template #actions>
@@ -354,6 +354,7 @@ const store = useStore();
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const showAirlineLogos = useSettingValueFromFunc('map.traffic.showAirlineLogos');
 const showCountryFlags = useSettingValueFromFunc('map.traffic.showCountryFlags');
+const showRegistrationFlags = useSettingValueFromFunc('map.traffic.showRegistrationFlags');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();

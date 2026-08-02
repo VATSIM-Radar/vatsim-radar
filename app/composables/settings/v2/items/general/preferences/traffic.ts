@@ -79,4 +79,11 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.showCountryFlags'),
         onChange: value => setSettingByKey('map.traffic.showCountryFlags', value),
     },
+    showRegistrationFlags: {
+        title: 'Show registration flags',
+        description: 'Displays country flag next to aircraft registration in flight plan',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showRegistrationFlags'),
+        onChange: value => setSettingByKey('map.traffic.showRegistrationFlags', value),
+    },
 })));

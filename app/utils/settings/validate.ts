@@ -234,6 +234,7 @@ const settingsSchema = partialObject({
             highlightEmergency: booleanSchema,
             showAirlineLogos: booleanSchema,
             showCountryFlags: booleanSchema,
+            showRegistrationFlags: booleanSchema,
         }),
 
         vatglasses: partialObject({

@@ -172,6 +172,7 @@ const _settingsDefaultValues = {
     'map.traffic.highlightEmergency': false,
     'map.traffic.showAirlineLogos': true,
     'map.traffic.showCountryFlags': true,
+    'map.traffic.showRegistrationFlags': true,
 
     'map.vatglasses.active': false,
     'map.vatglasses.autoEnable': true,
