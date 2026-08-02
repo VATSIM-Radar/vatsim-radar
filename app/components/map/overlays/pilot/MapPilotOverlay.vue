@@ -383,7 +383,7 @@ watch(() => pilot.value?.callsign, (newCallsign) => {
     }
     const urls = getAirlineLogoUrls(newCallsign);
     airlineLogoUrl.value = urls[0] ?? '';
-});
+}, { immediate: true });
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
