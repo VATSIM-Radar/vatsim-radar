@@ -65,4 +65,18 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.highlightEmergency'),
         onChange: value => setSettingByKey('map.traffic.highlightEmergency', value),
     },
+    showAirlineLogos: {
+        title: 'Show airline logos',
+        description: 'Displays airline logo next to aircraft callsign in overlay header',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showAirlineLogos'),
+        onChange: value => setSettingByKey('map.traffic.showAirlineLogos', value),
+    },
+    showCountryFlags: {
+        title: 'Show country flags',
+        description: 'Displays country flag next to aircraft callsign in overlay header',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showCountryFlags'),
+        onChange: value => setSettingByKey('map.traffic.showCountryFlags', value),
+    },
 })));

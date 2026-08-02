@@ -1,2 +1,3 @@
 *
 !.gitignore
+!country_codes.json

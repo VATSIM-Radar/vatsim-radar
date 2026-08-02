@@ -38,7 +38,22 @@
                     :color="radarColors[getStatus.color]"
                     :type="isOffline ? 'offline' : 'online'"
                 />
+                <img 
+                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules !== 'I'" 
+                    :src="getFlagUrl(country.countryCode)" 
+                    :alt="country.name || country.countryCode"
+                    :title="`${country.name || country.countryCode} (${country.prefix})`"
+                    class="pilot_flag" 
+                />
                 <div class="pilot-header_title">
+                    <img
+                        v-if="showAirlineLogos && airlineLogoUrl"
+                        :src="airlineLogoUrl"
+                        @error="airlineLogoUrl = airlineLogoUrls[(airlineLogoUrls.indexOf(airlineLogoUrl) + 1)] || ''"
+                        alt="Airline logo"
+                        class="pilot_airline_logo"
+                    />
+                    <span v-else-if="!showAirlineLogos" class="pilot_airline_dot" />
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -204,6 +219,7 @@
                 :flight-plan="pilot.flight_plan ?? null"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
+                :country="country"
             />
         </template>
         <template #actions>
@@ -256,6 +272,7 @@
 
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
+import { ref, watch } from 'vue';
 import { useStore } from '~/store';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
@@ -297,6 +314,8 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
+import { useVfrCountry, usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
+import { getAirlineLogoUrls } from '~/utils/shared/airline-logos';
 
 const props = defineProps({
     overlay: {
@@ -333,6 +352,8 @@ const copy = useCopyText();
 
 const store = useStore();
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
+const showAirlineLogos = useSettingValueFromFunc('map.traffic.showAirlineLogos');
+const showCountryFlags = useSettingValueFromFunc('map.traffic.showCountryFlags');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
@@ -345,6 +366,24 @@ const ctafFrequency = computed(() => {
 });
 
 const pilot = computed(() => props.overlay.data.pilot);
+
+const country = usePilotCountry(pilot);
+
+const airlineLogoUrls = computed(() => {
+    if (!pilot.value) return [];
+    return getAirlineLogoUrls(pilot.value.callsign);
+});
+
+const airlineLogoUrl = ref('');
+
+watch(() => pilot.value?.callsign, (newCallsign) => {
+    if (!newCallsign) {
+        airlineLogoUrl.value = '';
+        return;
+    }
+    const urls = getAirlineLogoUrls(newCallsign);
+    airlineLogoUrl.value = urls[0] ?? '';
+});
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
@@ -750,11 +789,44 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .pilot {
+    &_flag {
+        height: 14px;
+        width: auto;
+        border-radius: 2px;
+        object-fit: contain;
+    }
+
+    &_airline_logo {
+        height: 24px;
+        width: 24px;
+        margin-right: 6px;
+        border-radius: 2px;
+        object-fit: contain;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+    }
+
+    &_airline_dot {
+        width: 8px;
+        height: 8px;
+        margin-right: 6px;
+        border-radius: 2px;
+        background: var(--status-color);
+        flex-shrink: 0;
+        opacity: 0.8;
+    }
+
     &_header {
         display: flex;
         gap: 8px;
         align-items: center;
         color: var(--status-color);
+    }
+
+    &-header_title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     &__content {
