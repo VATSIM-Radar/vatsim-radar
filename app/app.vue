@@ -87,20 +87,18 @@ async function receiveMessage(event: MessageEvent) {
         return;
     }
 
-    if (data.type === 'get-bookmarks')
-    {
+    if (data.type === 'get-bookmarks') {
         // This only returns the properties required for an external application to display a list
         // of bookmarks then activate one.
-        const bookmarkData = store.bookmarks.map((bookmark) => ({
+        const bookmarkData = store.bookmarks.map(bookmark => ({
             label: bookmark.name,
             id: bookmark.id,
-            order: bookmark.order
+            order: bookmark.order,
         }));
-        window.parent.postMessage({ type: 'bookmarks', data: { bookmarks: bookmarkData}}, '*');
+        window.parent.postMessage({ type: 'bookmarks', data: { bookmarks: bookmarkData } }, '*');
     }
 
-    if (data.type === 'get-dashboards')
-    {
+    if (data.type === 'get-dashboards') {
         // Dashboards may not be loaded into the store when this is called. Force them to load
         // before responding to the request.
         if (!store.dashboards.length) {
@@ -109,47 +107,55 @@ async function receiveMessage(event: MessageEvent) {
 
         // This only returns the properties required for an external application to display a list
         // of dashboards then activate one.
-        const dashboardData = store.dashboards.map((dashboard) => ({
+        const dashboardData = store.dashboards.map(dashboard => ({
             label: dashboard.name,
-            id: dashboard.id
+            id: dashboard.id,
         }));
-        window.parent.postMessage({ type: 'dashboards', data: { dashboards: dashboardData}});
+        window.parent.postMessage({ type: 'dashboards', data: { dashboards: dashboardData } });
     }
 
-    if (data.type === 'activate-bookmark')
-    {
+    if (data.type === 'activate-bookmark') {
         // The ID of the bookmark to activate.
         const id = event.data.data.id;
 
         // Verify the bookmark exists before attempting to activate it.
-        const bookmark = store.bookmarks.find((bookmark) => bookmark.id === id);
+        const bookmark = store.bookmarks.find(bookmark => bookmark.id === id);
 
         if (!bookmark) {
-            console.warn(`No bookmark matching id ${id} found`);
+            console.warn(`No bookmark matching id ${ id } found`);
             return;
         }
 
-        // The navigation to / ensures the map page is visible before attempting to move to the bookmark.
-        // Without it, the user could be on the Dashboard, Events, etc. page and the activate request
-        // would wind up doing nothing.
-        await navigateTo({ path: '/'});
-        await showBookmark(bookmark.json, mapRef.value);
+        // If the bookmark was already activated by the query string and the user moved the map,
+        // it needs to be cleared from the query string before activating it again otherwise
+        // the route doesn't change and the map won't move.
+        const current = String(route.query.bookmark ?? '');
+        if (current === String(bookmark.id)) {
+            await navigateTo({
+                path: '/',
+                query: {
+                    ...route.query,
+                    bookmark: undefined,
+                },
+            });
+        }
+
+        await navigateTo({ path: '/', query: { bookmark: bookmark.id } });
     }
-    
-    if (data.type === 'activate-dashboard')
-    {
+
+    if (data.type === 'activate-dashboard') {
         // The ID of the dashboard to activate.
         const id = event.data.data.id;
 
         // Verify the dashboard exists before attempting to activate it.
-        const dashboard = store.dashboards.find((dashboard) => dashboard.id === id);
+        const dashboard = store.dashboards.find(dashboard => dashboard.id === id);
 
         if (!dashboard) {
-            console.warn(`No dashboard matching id ${id} found`);
+            console.warn(`No dashboard matching id ${ id } found`);
             return;
         }
 
-        await navigateTo(`/dashboard/${dashboard.id}`);
+        await navigateTo(`/dashboard/${ dashboard.id }`);
     }
 
     if (data.type === 'settings') {
