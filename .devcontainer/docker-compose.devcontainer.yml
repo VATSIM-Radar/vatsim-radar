@@ -39,7 +39,7 @@ services:
       - ../.env.example
     container_name: vatsim-radar-worker
     command: sleep infinity
-#    command: /radar/.config/worker.sh
+    #    command: /radar/.config/worker.sh
     ports:
       - 8880:8880
     volumes:
