@@ -16,7 +16,7 @@ services:
       - "8080:8080"
       - "9229:9229"
     volumes:
-      - ".:/radar:rw"
+      - "..:/radar:rw"
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
       interval: 1s
@@ -39,11 +39,11 @@ services:
       - ../.env.example
     container_name: vatsim-radar-worker
     command: sleep infinity
-#    command: /radar/.config/worker.sh
+    #    command: /radar/.config/worker.sh
     ports:
       - 8880:8880
     volumes:
-      - ".:/radar:rw"
+      - "..:/radar:rw"
     depends_on:
       db:
         condition: service_healthy
@@ -68,7 +68,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ".:/radar:rw"
+      - "..:/radar:rw"
     depends_on:
       db:
         condition: service_healthy
