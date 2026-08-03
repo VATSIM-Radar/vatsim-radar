@@ -55,11 +55,12 @@ export function getFlagUrl(countryCode: string): string {
 export function formatRegistration(registration: string | null | undefined, country: CountryCodeEntry | null): string {
     if (!registration || !country?.prefix) return registration || '';
 
-    const prefixWithoutDash = country.prefix.replace(/-/g, '');
-    if (prefixWithoutDash.length >= registration.length) return registration;
-    if (!country.prefix.includes('-')) return registration;
+    const clean = registration.replace(/-/g, '');
+    const dashIndex = country.prefix.indexOf('-');
+    if (dashIndex === -1) return clean;
+    if (clean.length <= dashIndex) return clean;
 
-    return `${ prefixWithoutDash }-${ registration.slice(prefixWithoutDash.length) }`;
+    return `${ clean.slice(0, dashIndex) }-${ clean.slice(dashIndex) }`;
 }
 
 export function usePilotCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
