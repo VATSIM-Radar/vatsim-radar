@@ -57,6 +57,7 @@ export function formatRegistration(registration: string | null | undefined, coun
 
     const prefixWithoutDash = country.prefix.replace(/-/g, '');
     if (prefixWithoutDash.length >= registration.length) return registration;
+    if (!country.prefix.includes('-')) return registration;
 
     return `${ prefixWithoutDash }-${ registration.slice(prefixWithoutDash.length) }`;
 }

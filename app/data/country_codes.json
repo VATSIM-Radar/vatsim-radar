@@ -24,7 +24,7 @@
     "countryCode": "BT"
   },
   {
-    "prefix": "A6-",
+    "prefix": "A6",
     "oldPrefix": "",
     "country": "United Arab Emirates",
     "countryCode": "AE"
@@ -398,7 +398,7 @@
     "countryCode": "VA"
   },
   {
-    "prefix": "HZ-",
+    "prefix": "HZ",
     "oldPrefix": "UH-",
     "country": "Saudi Arabia",
     "countryCode": "SA"
@@ -632,7 +632,7 @@
     "countryCode": "SR"
   },
   {
-    "prefix": "RA-",
+    "prefix": "RA",
     "oldPrefix": "CCCP-",
     "country": "Russian Federation",
     "countryCode": "RU"
@@ -1352,7 +1352,7 @@
     "countryCode": "BI"
   },
   {
-    "prefix": "9V-",
+    "prefix": "9V",
     "oldPrefix": "VR-S",
     "country": "Singapore",
     "countryCode": "SG"
