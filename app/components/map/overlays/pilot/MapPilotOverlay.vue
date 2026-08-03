@@ -376,10 +376,10 @@ watch(() => pilot.value?.callsign, async newCallsign => {
         airlineLogoUrl.value = '';
         return;
     }
-    const urls = getAirlineLogoUrls(newCallsign);
-    for (const url of urls) {
+    const logos = getAirlineLogoUrls(newCallsign);
+    for (const { url, invert } of logos) {
         try {
-            const thresholded = await createThresholdedImageUrl(url, 64, 24, 24, 128);
+            const thresholded = await createThresholdedImageUrl(url, 64, 24, 24, 128, invert);
             airlineLogoUrl.value = thresholded;
             return;
         }
