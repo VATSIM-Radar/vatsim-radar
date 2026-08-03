@@ -4,6 +4,7 @@
   "service": "frontend",
   "overrideCommand": true,
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "initializeCommand": ".devcontainer/gen-docker-compose-workspace-env.sh --container-workspace-folder '${containerWorkspaceFolder}' --local-workspace-folder '${localWorkspaceFolder}'",
   "shutdownAction": "stopCompose",
   "postCreateCommand": ".devcontainer/postcreate.sh"
 }

@@ -7,6 +7,8 @@ services:
     env_file:
       - ../.env.example
     container_name: vatsim-radar
+    volumes:
+      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
     expose:
       - 8080
       - 9229
@@ -40,7 +42,7 @@ services:
     ports:
       - 8880:8880
     volumes:
-      - .:/radar:cached
+      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
     depends_on:
       db:
         condition: service_healthy
@@ -64,7 +66,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - .:/radar:cached
+      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
     depends_on:
       db:
         condition: service_healthy
@@ -103,3 +105,11 @@ services:
     volumes:
       - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
       - ./.config/redis:/data
+
+volumes:
+  # $WORKSPACE_SOURCE is "devcontainer-volume" when the workspace is in a
+  # volume, and devcontainer-volume is an alias for the actual external volume.
+  # In bind-mount workspaces, it's an empty, unused volume created by compose.
+  devcontainer-volume:
+    name: ${WORKSPACE_CONTAINER_VOLUME_SOURCE:-not-used-in-bind-mount-workspace}
+    external: ${WORKSPACE_IS_CONTAINER_VOLUME:?}
