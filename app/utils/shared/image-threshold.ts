@@ -1,18 +1,21 @@
 export function createThresholdedImageUrl(
     imageUrl: string,
     threshold = 64,
-    maxSize = 64,
+    displayWidth = 24,
+    displayHeight = 24,
+    maxProcessSize = 128,
 ): Promise<string> {
     return new Promise((resolve, reject) => {
         const img = new window.Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
             const canvas = document.createElement('canvas');
+
             let width = img.naturalWidth;
             let height = img.naturalHeight;
 
-            if (Math.max(width, height) > maxSize) {
-                const ratio = Math.min(maxSize / width, maxSize / height);
+            if (Math.max(width, height) > maxProcessSize) {
+                const ratio = Math.min(maxProcessSize / width, maxProcessSize / height);
                 width = Math.round(width * ratio);
                 height = Math.round(height * ratio);
             }
@@ -31,12 +34,16 @@ export function createThresholdedImageUrl(
                 const r = data[i];
                 const g = data[i + 1];
                 const b = data[i + 2];
-                const brightness = (0.299 * r) + (0.587 * g) + (0.114 * b);
+                const a = data[i + 3];
 
-                if (brightness < threshold) {
-                    data[i] = 255;
-                    data[i + 1] = 255;
-                    data[i + 2] = 255;
+                if (a > 0) {
+                    const brightness = (0.299 * r) + (0.587 * g) + (0.114 * b);
+
+                    if (brightness < threshold) {
+                        data[i] = 255;
+                        data[i + 1] = 255;
+                        data[i + 2] = 255;
+                    }
                 }
             }
 
