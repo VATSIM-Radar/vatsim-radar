@@ -38,21 +38,20 @@
                     :color="radarColors[getStatus.color]"
                     :type="isOffline ? 'offline' : 'online'"
                 />
-                <img 
-                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')" 
-                    :src="getFlagUrl(country.countryCode)" 
+                <img
+                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')"
                     :alt="country.name || country.countryCode"
-                    :title="`${country.name || country.countryCode} (${country.prefix})`"
-                    class="pilot_flag" 
-                />
+                    class="pilot_flag"
+                    :src="getFlagUrl(country.countryCode)"
+                    :title="`${ country.name || country.countryCode } (${ country.prefix })`"
+                >
                 <div class="pilot-header_title">
                     <img
                         v-if="showAirlineLogos && airlineLogoUrl"
-                        :src="airlineLogoUrl"
-                        @error="airlineLogoUrl = airlineLogoUrls[(airlineLogoUrls.indexOf(airlineLogoUrl) + 1)] || ''"
                         alt="Airline logo"
                         class="pilot_airline_logo"
-                    />
+                        :src="airlineLogoUrl"
+                    >
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -215,13 +214,12 @@
         <template #flightplan>
             <pilot-overlay-flight-plan
                 class="pilot__content"
+                :country="country"
                 :flight-plan="pilot.flight_plan ?? null"
+                :show-registration-flags="showRegistrationFlags"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
-                :country="country"
-                :show-registration-flags="showRegistrationFlags"
-            />
-        </template>
+            /></template>
         <template #actions>
             <ui-button-group>
                 <ui-button
@@ -314,8 +312,9 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
-import { useVfrCountry, usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
+import { usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
 import { getAirlineLogoUrls } from '~/utils/shared/airline-logos';
+import { createThresholdedImageUrl } from '~/utils/shared/image-threshold';
 
 const props = defineProps({
     overlay: {
@@ -370,20 +369,25 @@ const pilot = computed(() => props.overlay.data.pilot);
 
 const country = usePilotCountry(pilot);
 
-const airlineLogoUrls = computed(() => {
-    if (!pilot.value) return [];
-    return getAirlineLogoUrls(pilot.value.callsign);
-});
-
 const airlineLogoUrl = ref('');
 
-watch(() => pilot.value?.callsign, (newCallsign) => {
+watch(() => pilot.value?.callsign, async newCallsign => {
     if (!newCallsign) {
         airlineLogoUrl.value = '';
         return;
     }
     const urls = getAirlineLogoUrls(newCallsign);
-    airlineLogoUrl.value = urls[0] ?? '';
+    for (const url of urls) {
+        try {
+            const thresholded = await createThresholdedImageUrl(url);
+            airlineLogoUrl.value = thresholded;
+            return;
+        }
+        catch {
+            continue;
+        }
+    }
+    airlineLogoUrl.value = '';
 }, { immediate: true });
 
 const flightPlanKey = computed(() => {
@@ -791,30 +795,33 @@ onMounted(() => {
 <style scoped lang="scss">
 .pilot {
     &_flag {
-        height: 14px;
         width: auto;
+        height: 14px;
         border-radius: 2px;
         object-fit: contain;
     }
 
     &_airline_logo {
-        height: 24px;
+        flex-shrink: 0;
+
         width: 24px;
+        height: 24px;
         margin-right: 6px;
         border-radius: 2px;
+
         object-fit: contain;
-        flex-shrink: 0;
-        filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
     }
 
     &_airline_dot {
+        flex-shrink: 0;
+
         width: 8px;
         height: 8px;
         margin-right: 6px;
         border-radius: 2px;
-        background: var(--status-color);
-        flex-shrink: 0;
+
         opacity: 0.8;
+        background: var(--status-color);
     }
 
     &_header {
@@ -826,8 +833,8 @@ onMounted(() => {
 
     &-header_title {
         display: flex;
-        align-items: center;
         gap: 6px;
+        align-items: center;
     }
 
     &__content {

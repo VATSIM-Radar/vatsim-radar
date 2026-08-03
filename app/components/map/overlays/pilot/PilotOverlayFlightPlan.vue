@@ -86,15 +86,15 @@
                     :items="flightPlanItems"
                 >
                     <template #item-registration="{ item }">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="registration_wrapper">
                             {{ item.text }}
                             <img
                                 v-if="showRegistrationFlags && country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
-                                :src="getFlagUrl(country.countryCode)"
                                 :alt="country.name || country.countryCode"
-                                :title="`${country.name || country.countryCode} (${country.prefix})`"
                                 class="registration_flag"
-                            />
+                                :src="getFlagUrl(country.countryCode)"
+                                :title="`${ country.name || country.countryCode } (${ country.prefix })`"
+                            >
                         </span>
                     </template>
                 </ui-data-list>
@@ -379,9 +379,15 @@ const flightPlanItems = computed(() => {
         }
     }
 
+    .registration_wrapper {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+    }
+
     .registration_flag {
-        height: 14px;
         width: auto;
+        height: 14px;
         border-radius: 2px;
         object-fit: contain;
     }
