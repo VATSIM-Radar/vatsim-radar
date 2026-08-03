@@ -1,6 +1,14 @@
 {
     "AFR": {
-        "url": "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/avcodes_banners/AFR.png",
+        "url": "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/radarbox_logos/AFR.png",
+        "invert": false
+    },
+    "GAF": {
+        "url": "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/radarbox_logos/GAF.png",
+        "invert": false
+    },
+    "BAW": {
+        "url": "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/flightaware_logos/BAW.png",
         "invert": false
     }
 }
