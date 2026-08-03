@@ -87,7 +87,7 @@
                 >
                     <template #item-registration="{ item }">
                         <span class="registration_wrapper">
-                            {{ item.text }}
+                            {{ showRegistrationDashes ? formatRegistration(item.text, props.country) : item.text }}
                             <img
                                 v-if="showRegistrationFlags && country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
                                 :alt="country.name || country.countryCode"
@@ -181,7 +181,7 @@
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import type { CountryCodeEntry } from '~/utils/shared/country-codes';
-import { getFlagUrl } from '~/utils/shared/country-codes';
+import { getFlagUrl, formatRegistration } from '~/utils/shared/country-codes';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
@@ -215,6 +215,10 @@ const props = defineProps({
         default: null,
     },
     showRegistrationFlags: {
+        type: Boolean,
+        default: true,
+    },
+    showRegistrationDashes: {
         type: Boolean,
         default: true,
     },

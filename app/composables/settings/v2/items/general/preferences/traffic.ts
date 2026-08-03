@@ -86,4 +86,11 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.showRegistrationFlags'),
         onChange: value => setSettingByKey('map.traffic.showRegistrationFlags', value),
     },
+    showRegistrationDashes: {
+        title: 'Show registration dashes',
+        description: 'Adds dash separators to aircraft registration based on country prefix (e.g. B203B → B-203B)',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showRegistrationDashes'),
+        onChange: value => setSettingByKey('map.traffic.showRegistrationDashes', value),
+    },
 })));

@@ -52,6 +52,15 @@ export function getFlagUrl(countryCode: string): string {
     return `https://flagcdn.com/w160/${ countryCode.toLowerCase() }.png`;
 }
 
+export function formatRegistration(registration: string | null | undefined, country: CountryCodeEntry | null): string {
+    if (!registration || !country?.prefix) return registration || '';
+
+    const prefixWithoutDash = country.prefix.replace(/-/g, '');
+    if (prefixWithoutDash.length >= registration.length) return registration;
+
+    return `${ prefixWithoutDash }-${ registration.slice(prefixWithoutDash.length) }`;
+}
+
 export function usePilotCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
     return computed<CountryCodeEntry | null>(() => {
         if (!pilot.value) return null;

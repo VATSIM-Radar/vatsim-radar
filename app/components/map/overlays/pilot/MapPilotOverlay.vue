@@ -216,6 +216,7 @@
                 class="pilot__content"
                 :country="country"
                 :flight-plan="pilot.flight_plan ?? null"
+                :show-registration-dashes="showRegistrationDashes"
                 :show-registration-flags="showRegistrationFlags"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
@@ -354,6 +355,7 @@ const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.
 const showAirlineLogos = useSettingValueFromFunc('map.traffic.showAirlineLogos');
 const showCountryFlags = useSettingValueFromFunc('map.traffic.showCountryFlags');
 const showRegistrationFlags = useSettingValueFromFunc('map.traffic.showRegistrationFlags');
+const showRegistrationDashes = useSettingValueFromFunc('map.traffic.showRegistrationDashes');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
