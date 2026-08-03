@@ -2,17 +2,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug VATSIM Radar",
       "type": "node",
-      "request": "attach",
-      "address": "localhost",
-      "port": 9229,
-      "restart": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "preLaunchTask": "Nuxt: Debug",
-      "timeout": 20000
-    }
+      "request": "launch",
+      "name": "client: edge",
+      // this should point to your Nuxt `srcDir`, which is `app` by default
+      "serverReadyAction": {
+        "pattern": ".*Vite client warmed up.*",
+        "uriFormat": "http://localhost:8080/",
+        "action": "debugWithEdge",
+        "webRoot": "${workspaceFolder}/app",
+      },
+      "preLaunchTask": "Nuxt: Debug"
+    },  
   ]
 }
