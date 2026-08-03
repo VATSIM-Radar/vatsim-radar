@@ -38,8 +38,7 @@ services:
     env_file:
       - ../.env.example
     container_name: vatsim-radar-worker
-    command: sleep infinity
-    #    command: /radar/.config/worker.sh
+    command: /radar/.config/worker.sh
     ports:
       - 8880:8880
     volumes:
@@ -63,8 +62,7 @@ services:
     env_file:
       - ../.env.example
     container_name: vatsim-radar-navigraph
-    command: sleep infinity
-    # command: /radar/.config/navigraph.sh
+    command: /radar/.config/navigraph.sh
     ports:
       - 3000:3000
     volumes:
