@@ -3,7 +3,7 @@
   "dockerComposeFile": ["./docker-compose.devcontainer.yml"],
   "service": "frontend",
   "overrideCommand": true,
-  "workspaceFolder": "/workspaces/radar",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "shutdownAction": "stopCompose",
   "features": {
     "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {
