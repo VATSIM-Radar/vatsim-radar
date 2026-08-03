@@ -95,7 +95,7 @@ services:
       interval: 5s
       retries: 40
     volumes:
-      - .config/db:/var/lib/mysql
+      - ../.config/db:/var/lib/mysql
 
   redis:
     image: redis
@@ -105,5 +105,5 @@ services:
     environment:
       - REDIS_APPLICATION_MODE=master
     volumes:
-      - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
-      - ./.config/redis:/data
+      - ../.config/redis.conf:/usr/local/etc/redis/redis.conf
+      - ../.config/redis:/data

@@ -3,7 +3,7 @@
   "dockerComposeFile": ["./docker-compose.devcontainer.yml"],
   "service": "frontend",
   "overrideCommand": true,
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/radar",
   "shutdownAction": "stopCompose",
   "postCreateCommand": ".devcontainer/postcreate.sh"
 }
