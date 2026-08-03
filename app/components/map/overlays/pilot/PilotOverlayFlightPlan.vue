@@ -387,3 +387,4 @@ const flightPlanItems = computed(() => {
     }
 }
 </style>
+

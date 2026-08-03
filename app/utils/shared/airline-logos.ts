@@ -16,8 +16,3 @@ export function getAirlineLogoUrls(callsign: string): string[] {
     return LOGO_SOURCES.map(base => `${ base }/${ code }.png`);
 }
 
-export function getAirlineDomain(callsign: string): string | null {
-    const code = extractAirlineCode(callsign);
-    if (!code) return null;
-    return code;
-}

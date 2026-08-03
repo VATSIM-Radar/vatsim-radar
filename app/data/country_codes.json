@@ -138,12 +138,6 @@
     "countryCode": "CU"
   },
   {
-    "prefix": "CX",
-    "oldPrefix": "",
-    "country": "Christmas Islands",
-    "countryCode": "CX"
-  },
-  {
     "prefix": "CX-",
     "oldPrefix": "",
     "country": "Uruguay",
@@ -298,12 +292,6 @@
     "oldPrefix": "",
     "country": "Guadeloupe",
     "countryCode": "GP"
-  },
-  {
-    "prefix": "F-OG",
-    "oldPrefix": "",
-    "country": "Martinique",
-    "countryCode": "MQ"
   },
   {
     "prefix": "F-OH",
@@ -1016,7 +1004,7 @@
   {
     "prefix": "YU-",
     "oldPrefix": "UN-",
-    "country": "Serbria",
+    "country": "Serbia",
     "countryCode": "RS"
   },
   {

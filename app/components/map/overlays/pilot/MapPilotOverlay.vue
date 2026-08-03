@@ -39,7 +39,7 @@
                     :type="isOffline ? 'offline' : 'online'"
                 />
                 <img 
-                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules !== 'I'" 
+                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')" 
                     :src="getFlagUrl(country.countryCode)" 
                     :alt="country.name || country.countryCode"
                     :title="`${country.name || country.countryCode} (${country.prefix})`"

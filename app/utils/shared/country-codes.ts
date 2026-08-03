@@ -45,40 +45,24 @@ export function getFlagUrl(countryCode: string): string {
   return `https://flagcdn.com/w160/${countryCode.toLowerCase()}.png`;
 }
 
-export function useIsVfr(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
-  return computed(() => {
-    if (!pilot.value || !('flight_plan' in pilot.value) || !pilot.value.flight_plan) {
-      return false;
-    }
-    const rules = pilot.value.flight_plan.flight_rules?.toUpperCase() || '';
-    return rules.startsWith('V');
-  });
-}
-
 export function usePilotCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
   return computed<CountryCodeEntry | null>(() => {
     if (!pilot.value) return null;
 
     const flightPlan = 'flight_plan' in pilot.value ? pilot.value.flight_plan : undefined;
-    const isIfr = flightPlan?.flight_rules?.toUpperCase() === 'I';
-    const registration = isIfr ? getFlightPlanParam(flightPlan?.remarks, 'REG') : null;
+    const rules = flightPlan?.flight_rules?.toUpperCase();
 
-    const target = registration || pilot.value.callsign;
+    if (rules === 'I') {
+      const registration = getFlightPlanParam(flightPlan?.remarks, 'REG');
+      if (!registration) return null;
+      return getCountryFromCallsignOrReg(registration);
+    }
 
-    return getCountryFromCallsignOrReg(target);
+    if (rules === 'V') {
+      return getCountryFromCallsignOrReg(pilot.value.callsign);
+    }
+
+    return null;
   });
 }
 
-export function useVfrCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
-  const isVfr = useIsVfr(pilot);
-
-  return computed<CountryCodeEntry | null>(() => {
-    if (!isVfr.value || !pilot.value) return null;
-
-    const target = ('flight_plan' in pilot.value && pilot.value.flight_plan?.aircraft)
-      ? pilot.value.flight_plan.aircraft
-      : pilot.value.callsign;
-
-    return getCountryFromCallsignOrReg(target);
-  });
-}
