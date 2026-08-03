@@ -187,7 +187,7 @@ async function vatsimTasks() {
                 notam = {
                     id: new Date(current.started ?? new Date().toISOString()).getTime(),
                     type: NotamType.ANNOUNCEMENT,
-                    text: `VATSIM outage has been resolved, team is monitoring. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information.`,
+                    text: `VATSIM outage is currently being monitored. The team is continuing to assess service stability. Visit the <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
                     active: true,
                     activeFrom: null,
                     activeTo: null,
