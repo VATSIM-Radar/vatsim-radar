@@ -380,6 +380,7 @@ watch(() => pilot.value?.callsign, async newCallsign => {
     for (const { url, invert } of logos) {
         try {
             const thresholded = await createThresholdedImageUrl(url, 64, 24, 24, 128, invert);
+            if (pilot.value?.callsign !== newCallsign) return;
             airlineLogoUrl.value = thresholded;
             return;
         }
@@ -387,6 +388,7 @@ watch(() => pilot.value?.callsign, async newCallsign => {
             continue;
         }
     }
+    if (pilot.value?.callsign !== newCallsign) return;
     airlineLogoUrl.value = '';
 }, { immediate: true });
 
@@ -810,18 +812,6 @@ onMounted(() => {
         border-radius: 2px;
 
         object-fit: contain;
-    }
-
-    &_airline_dot {
-        flex-shrink: 0;
-
-        width: 8px;
-        height: 8px;
-        margin-right: 6px;
-        border-radius: 2px;
-
-        opacity: 0.8;
-        background: var(--status-color);
     }
 
     &_header {
