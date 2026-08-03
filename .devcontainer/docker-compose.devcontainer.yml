@@ -15,8 +15,6 @@ services:
     ports:
       - "8080:8080"
       - "9229:9229"
-    volumes:
-      - ../..:/workspaces:cached
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
       interval: 1s
@@ -42,7 +40,7 @@ services:
     ports:
       - 8880:8880
     volumes:
-      - "..:/radar:cached"
+      - .:/radar:cached
     depends_on:
       db:
         condition: service_healthy
@@ -66,7 +64,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - "..:/radar:cached"
+      - .:/radar:cached
     depends_on:
       db:
         condition: service_healthy
@@ -93,7 +91,7 @@ services:
       interval: 5s
       retries: 40
     volumes:
-      - ../.config/db:/var/lib/mysql
+      - ./.config/db:/var/lib/mysql
 
   redis:
     image: redis
@@ -103,5 +101,5 @@ services:
     environment:
       - REDIS_APPLICATION_MODE=master
     volumes:
-      - ../.config/redis.conf:/usr/local/etc/redis/redis.conf
-      - ../.config/redis:/data
+      - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./.config/redis:/data
