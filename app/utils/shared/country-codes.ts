@@ -8,6 +8,7 @@ export interface CountryCodeEntry {
     prefix: string;
     countryCode: string;
     name?: string;
+    afterPrefixLength?: number;
 }
 
 interface PreparedPrefix {
@@ -34,9 +35,14 @@ export function getCountryFromCallsignOrReg(input?: string | null): CountryCodeE
     const searchInput = input.replace(/-/g, '').trim().toUpperCase();
 
     for (const entry of PREPARED_CODES) {
-        if (searchInput.startsWith(entry.cleanPrefix)) {
-            return entry.original;
+        if (!searchInput.startsWith(entry.cleanPrefix)) continue;
+
+        const afterLength = entry.original.afterPrefixLength;
+        if (afterLength !== undefined && searchInput.length - entry.cleanPrefix.length !== afterLength) {
+            continue;
         }
+
+        return entry.original;
     }
 
     return null;
