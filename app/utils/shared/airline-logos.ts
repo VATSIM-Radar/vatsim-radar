@@ -1,3 +1,5 @@
+import airlineLogoOverrides from '~/utils/shared/airline-logo-overrides.json';
+
 const LOGO_SOURCES = [
     'https://raw.githubusercontent.com/Jxck-S/airline-logos/main/flightaware_logos',
     'https://raw.githubusercontent.com/Jxck-S/airline-logos/main/fr24_banners',
@@ -13,6 +15,11 @@ function extractAirlineCode(callsign: string): string | null {
 export function getAirlineLogoUrls(callsign: string): string[] {
     const code = extractAirlineCode(callsign);
     if (!code) return [];
+
+    const override = airlineLogoOverrides[code];
+    if (override) {
+        return [override, ...LOGO_SOURCES.map(base => `${ base }/${ code }.png`)];
+    }
+
     return LOGO_SOURCES.map(base => `${ base }/${ code }.png`);
 }
-
