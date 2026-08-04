@@ -5373,12 +5373,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/better-sqlite3@npm:7.6.13":
-  version: 7.6.13
-  resolution: "@types/better-sqlite3@npm:7.6.13"
+"@types/better-sqlite3@npm:9.6.0":
+  version: 9.6.0
+  resolution: "@types/better-sqlite3@npm:9.6.0"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10c0/c4336e7b92343eb0e988ded007c53fa9887b98a38d61175226e86124a1a2c28b1a4e3892873c5041e350b7bfa2901f85c82db1542c4f0eed1d3a899682c92106
+  checksum: 10c0/630273028a281addb0df36d204d0edcd0ab000f55ed89fdc742536a6ead4d4404287ebfb1714f5c58ec2f08fd508baf810e1d8f093ff9d480b9f3fb6495d141a
   languageName: node
   linkType: hard
 
@@ -16784,7 +16784,7 @@ __metadata:
     "@turf/nearest-point-on-line": "npm:7.3.5"
     "@turf/union": "npm:7.3.5"
     "@types/adm-zip": "npm:0.5.8"
-    "@types/better-sqlite3": "npm:7.6.13"
+    "@types/better-sqlite3": "npm:9.6.0"
     "@types/deep-equal": "npm:1.0.4"
     "@types/geojson": "npm:7946.0.16"
     "@types/jsonwebtoken": "npm:9.0.10"
