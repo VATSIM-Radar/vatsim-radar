@@ -5,7 +5,7 @@
 The easiest way to get started is to use VSCode development containers, which will create a development environment pre-configured with all dependencies and extensions installed and dependent services running.
 
 1. [Follow the instructions](https://code.visualstudio.com/docs/devcontainers/tutorial) to set up VSCode with the dev containers extension.
-2. In VSCode, open the Command Palette and select **Clone Repository in Container volume...*
+2. In VSCode, open the Command Palette and select **Clone Repository in Container volume...**
 3. Point it to this repo
 4. If prompted, trust the workspace files
 
