@@ -4,12 +4,23 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "client: edge",
-      // this should point to your Nuxt `srcDir`, which is `app` by default
+      "name": "Debug client (Edge)",
       "serverReadyAction": {
         "pattern": ".*Vite client warmed up.*",
         "uriFormat": "http://localhost:8080/",
         "action": "debugWithEdge",
+        "webRoot": "${workspaceFolder}/app",
+      },
+      "preLaunchTask": "Nuxt: Debug"
+    },  
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug client (Chrome)",
+      "serverReadyAction": {
+        "pattern": ".*Vite client warmed up.*",
+        "uriFormat": "http://localhost:8080/",
+        "action": "debugWithChrome",
         "webRoot": "${workspaceFolder}/app",
       },
       "preLaunchTask": "Nuxt: Debug"
