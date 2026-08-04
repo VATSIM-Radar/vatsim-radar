@@ -123,10 +123,6 @@ export interface UserSettingsV2 {
             smoothMovement: boolean;
             declutter: boolean | 'always';
             highlightEmergency: boolean;
-            showAirlineLogos: boolean;
-            showCountryFlags: boolean;
-            showRegistrationFlags: boolean;
-            showRegistrationDashes: boolean;
         };
 
         vatglasses: {

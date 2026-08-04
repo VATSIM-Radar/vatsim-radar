@@ -49,7 +49,7 @@ export function getCountryFromCallsignOrReg(input?: string | null): CountryCodeE
 }
 
 export function getFlagUrl(countryCode: string): string {
-    return `https://flagcdn.com/w160/${ countryCode.toLowerCase() }.png`;
+    return `/flags/${ countryCode.toLowerCase() }.png`;
 }
 
 export function formatRegistration(registration: string | null | undefined, country: CountryCodeEntry | null): string {

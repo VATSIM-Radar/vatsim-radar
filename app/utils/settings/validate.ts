@@ -232,10 +232,6 @@ const settingsSchema = partialObject({
             smoothMovement: booleanSchema,
             declutter: v.union([booleanSchema, v.literal('always')], 'must be true, false or always'),
             highlightEmergency: booleanSchema,
-            showAirlineLogos: booleanSchema,
-            showCountryFlags: booleanSchema,
-            showRegistrationFlags: booleanSchema,
-            showRegistrationDashes: booleanSchema,
         }),
 
         vatglasses: partialObject({

@@ -65,32 +65,4 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.highlightEmergency'),
         onChange: value => setSettingByKey('map.traffic.highlightEmergency', value),
     },
-    showAirlineLogos: {
-        title: 'Show airline logos',
-        description: 'Displays airline logo next to aircraft callsign in overlay header',
-        type: 'toggle',
-        value: getSettingValue('map.traffic.showAirlineLogos'),
-        onChange: value => setSettingByKey('map.traffic.showAirlineLogos', value),
-    },
-    showCountryFlags: {
-        title: 'Show country flags',
-        description: 'Displays country flag next to aircraft callsign in overlay header',
-        type: 'toggle',
-        value: getSettingValue('map.traffic.showCountryFlags'),
-        onChange: value => setSettingByKey('map.traffic.showCountryFlags', value),
-    },
-    showRegistrationFlags: {
-        title: 'Show registration flags',
-        description: 'Displays country flag next to aircraft registration in flight plan',
-        type: 'toggle',
-        value: getSettingValue('map.traffic.showRegistrationFlags'),
-        onChange: value => setSettingByKey('map.traffic.showRegistrationFlags', value),
-    },
-    showRegistrationDashes: {
-        title: 'Show registration dashes',
-        description: 'Adds dash separators to aircraft registration based on country prefix (e.g. B203B → B-203B)',
-        type: 'toggle',
-        value: getSettingValue('map.traffic.showRegistrationDashes'),
-        onChange: value => setSettingByKey('map.traffic.showRegistrationDashes', value),
-    },
 })));

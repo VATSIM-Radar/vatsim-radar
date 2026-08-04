@@ -87,9 +87,9 @@
                 >
                     <template #item-registration="{ item }">
                         <span class="registration_wrapper">
-                            {{ showRegistrationDashes ? formatRegistration(item.text, props.country) : item.text }}
+                            {{ formatRegistration(item.text, props.country) }}
                             <img
-                                v-if="showRegistrationFlags && country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
+                                v-if="country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
                                 :alt="country.name || country.countryCode"
                                 class="registration_flag"
                                 :src="getFlagUrl(country.countryCode)"
@@ -213,14 +213,6 @@ const props = defineProps({
     country: {
         type: Object as PropType<CountryCodeEntry | null>,
         default: null,
-    },
-    showRegistrationFlags: {
-        type: Boolean,
-        default: true,
-    },
-    showRegistrationDashes: {
-        type: Boolean,
-        default: true,
     },
 });
 

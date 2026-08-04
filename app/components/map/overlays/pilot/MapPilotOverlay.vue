@@ -39,7 +39,7 @@
                     :type="isOffline ? 'offline' : 'online'"
                 />
                 <img
-                    v-if="showCountryFlags && country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')"
+                    v-if="country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')"
                     :alt="country.name || country.countryCode"
                     class="pilot_flag"
                     :src="getFlagUrl(country.countryCode)"
@@ -47,7 +47,7 @@
                 >
                 <div class="pilot-header_title">
                     <img
-                        v-if="showAirlineLogos && airlineLogoUrl"
+                        v-if="airlineLogoUrl"
                         alt="Airline logo"
                         class="pilot_airline_logo"
                         :src="airlineLogoUrl"
@@ -216,8 +216,6 @@
                 class="pilot__content"
                 :country="country"
                 :flight-plan="pilot.flight_plan ?? null"
-                :show-registration-dashes="showRegistrationDashes"
-                :show-registration-flags="showRegistrationFlags"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
             /></template>
@@ -314,8 +312,7 @@ import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
 import { usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
-import { getAirlineLogoUrls } from '~/utils/shared/airline-logos';
-import { createThresholdedImageUrl } from '~/utils/shared/image-threshold';
+import { getAirlineLogoUrl } from '~/utils/shared/airline-logos';
 
 const props = defineProps({
     overlay: {
@@ -352,10 +349,6 @@ const copy = useCopyText();
 
 const store = useStore();
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
-const showAirlineLogos = useSettingValueFromFunc('map.traffic.showAirlineLogos');
-const showCountryFlags = useSettingValueFromFunc('map.traffic.showCountryFlags');
-const showRegistrationFlags = useSettingValueFromFunc('map.traffic.showRegistrationFlags');
-const showRegistrationDashes = useSettingValueFromFunc('map.traffic.showRegistrationDashes');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
@@ -371,28 +364,7 @@ const pilot = computed(() => props.overlay.data.pilot);
 
 const country = usePilotCountry(pilot);
 
-const airlineLogoUrl = ref('');
-
-watch(() => pilot.value?.callsign, async newCallsign => {
-    if (!newCallsign) {
-        airlineLogoUrl.value = '';
-        return;
-    }
-    const logos = getAirlineLogoUrls(newCallsign);
-    for (const { url, invert } of logos) {
-        try {
-            const thresholded = await createThresholdedImageUrl(url, 64, 24, 24, 128, invert);
-            if (pilot.value?.callsign !== newCallsign) return;
-            airlineLogoUrl.value = thresholded;
-            return;
-        }
-        catch {
-            continue;
-        }
-    }
-    if (pilot.value?.callsign !== newCallsign) return;
-    airlineLogoUrl.value = '';
-}, { immediate: true });
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value?.callsign));
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
