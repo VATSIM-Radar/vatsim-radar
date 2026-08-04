@@ -126,3 +126,4 @@ volumes:
     external: ${WORKSPACE_IS_CONTAINER_VOLUME:?}
   db-data:
   redis-data:
+  
