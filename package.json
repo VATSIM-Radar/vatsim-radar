@@ -107,7 +107,7 @@
     "eslint": "10.8.0",
     "fast-xml-parser": "5.10.1",
     "postcss": "8.5.25",
-    "postcss-html": "1.8.1",
+    "postcss-html": "2.0.0",
     "sass-embedded": "1.100.0",
     "stylelint": "17.14.1",
     "stylelint-config-clean-order": "10.0.0",
