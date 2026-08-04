@@ -13,7 +13,11 @@ services:
     expose:
       - 8080
       - 9229
-    command: /radar/.config/command.sh
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -33,6 +37,11 @@ services:
     container_name: vatsim-radar-worker
     # command: sleep infinity
     command: /radar/.config/worker.sh
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - 8880:8880
     volumes:
@@ -44,6 +53,69 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  navigraph:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ../.config/dev.Dockerfile
+    image: vr-1.1.1
+    env_file:
+      - ../.env.example
+      - .env
+    container_name: vatsim-radar-navigraph
+    command: /radar/.config/navigraph.sh
+    ports:
+      - 3000:3000
+    volumes:
+      - type: volume
+        source: ${WORKSPACE_SOURCE:?}
+        target: /radar
+        volume:
+          subpath: vatsim-radar 
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      frontend:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: mysql
+    cap_add:
+      - SYS_NICE
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=radar
+      - MYSQL_ROOT_PASSWORD=localhost
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      interval: 5s
+      retries: 40
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis
+    command: redis-server /radar/.config/redis.conf --requirepass RADAR
+    expose:
+      - 6379
+    environment:
+      - REDIS_APPLICATION_MODE=master
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+      - type: volume
+        source: ${WORKSPACE_SOURCE:?}
+        target: /radar
+        volume:
+          subpath: vatsim-radar 
 
 volumes:
   # $WORKSPACE_SOURCE is "devcontainer-volume" when the workspace is in a
@@ -52,3 +124,5 @@ volumes:
   devcontainer-volume:
     name: ${WORKSPACE_CONTAINER_VOLUME_SOURCE:-not-used-in-bind-mount-workspace}
     external: ${WORKSPACE_IS_CONTAINER_VOLUME:?}
+  db-data:
+  redis-data:
