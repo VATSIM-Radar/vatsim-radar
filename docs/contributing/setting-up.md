@@ -1,17 +1,28 @@
 # Setting Up
 
-In order to get started with developing VATSIM Radar, please follow those steps. 
+## Visual Studio Code development container
+
+The easiest way to get started is to use VSCode development containers, which will create a development environment pre-configured with all dependencies and extensions installed and dependent services running.
+
+1. [Follow the instructions](https://code.visualstudio.com/docs/devcontainers/tutorial) to set up VSCode with the dev containers extension.
+2. In VSCode, open the Command Palette and select **Clone Repository in Container volume...*
+3. Point it to this repo
+4. If prompted, trust the workspace files
+
+VSCode will pull down the repo, create the necessary Docker containers, start up all the services, and open the frontend code for development. To start debugging, simply press **F5**.
 
 ## Preliminary preparation
+
+To set up development without using development containers, follow these steps.
 
 ### Node.JS
 
 1. Install Node.JS following this guide: `https://nodejs.org/en/download` (for Windows use Linux instead as platform since you need to be using WSL. You can install it for Windows if you use prebuilt image)
 2. Install Yarn `npm i -g yarn` or `sudo npm i -g yarn`
 
-### Windows
+## Windows
 
-Using Windows? I am too, very sorry for us all.
+Developing on Windows inside WSL is not recommended. Use the VSCode devcontainer method instead for better performance and simpler configuration.
 
 1. Install WSL 2.0. There is no other way for you
 2. Install Docker Desktop
