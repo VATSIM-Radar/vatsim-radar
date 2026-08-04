@@ -59,7 +59,7 @@
     "deep-equal": "2.2.3",
     "dexie": "4.4.4",
     "discord.js": "14.27.0",
-    "ioredis": "5.11.1",
+    "ioredis": "6.0.0",
     "jsonwebtoken": "9.0.3",
     "jwks-rsa": "4.1.0",
     "kafkajs": "2.2.4",
