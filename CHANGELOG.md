@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-3-rc.2]
+
+## Features and Improvements
+
+- Horizontal dashboard layout has become usable by ncls-alien
+
 # [2.0.0-3-rc.1]
 
 ## Bug Fixes

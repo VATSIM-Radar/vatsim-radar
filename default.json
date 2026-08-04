@@ -25,6 +25,24 @@
     },
     {
       "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7"
+    },
+    {
+      "matchPackageNames": [
+        "better-sqlite3"
+      ],
+      "allowedVersions": "<13"
+    },
+    {
+      "matchPackageNames": [
+        "@types/better-sqlite3"
+      ],
+      "allowedVersions": "<9"
+    },
+    {
+      "matchPackageNames": [
         "node",
         "arm64v8/node"
       ],

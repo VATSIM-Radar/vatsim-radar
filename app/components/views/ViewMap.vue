@@ -747,7 +747,7 @@ const pixelRatio = computed(() => {
     const value = getKeyedValueFromSettings('map.preferences.highRatio');
     if (value === 'low') return 1;
 
-    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : window.devicePixelRatio;
+    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : Math.min(window.devicePixelRatio, 2);
 });
 
 await setupDataFetch({

@@ -417,7 +417,7 @@ defineExpose({ combinedAircraft });
         &--horizontal {
             overflow-x: auto;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: stretch;
             padding-bottom: 4px;
         }
     }
@@ -434,8 +434,11 @@ defineExpose({ combinedAircraft });
             min-width: 240px;
 
             .dashboard-aircraft_col_body {
-                flex-direction: column;
                 max-height: 260px;
+            }
+
+            .dashboard-aircraft_pilot {
+                flex: 1 0 fit-content;
             }
         }
 
@@ -452,8 +455,6 @@ defineExpose({ combinedAircraft });
 
             background: $darkGray900;
 
-            transition: 0.3s;
-
             @include hover {
                 &:hover {
                     border-color: $blue500;
@@ -462,18 +463,41 @@ defineExpose({ combinedAircraft });
 
             &_chevron {
                 transform: rotate(0deg);
+
+                aspect-ratio: 1;
                 width: 12px;
                 min-width: 12px;
+
                 transition: 0.3s;
 
                 &--collapsed {
-                    transform: rotate(180deg);
+                    transform: rotate(90deg);
                 }
             }
 
             &_title {
                 flex-grow: 1;
                 color: var(--color);
+            }
+        }
+
+        &--collapsed {
+            .dashboard-aircraft_columns--horizontal & {
+                flex: 0 0 auto;
+                min-width: 0;
+                max-width: 32px;
+
+                .dashboard-aircraft_col_head {
+                    flex-direction: column-reverse;
+                    height: 100%;
+                    padding: 8px 6px;
+                }
+
+                .dashboard-aircraft_col_head_title,
+                .dashboard-aircraft_rate {
+                    transform: rotate(180deg);
+                    writing-mode: vertical-rl;
+                }
             }
         }
 
@@ -516,6 +540,7 @@ defineExpose({ combinedAircraft });
     &_pilot {
         content-visibility: auto;
         contain-intrinsic-size: auto 50px;
+        min-width: 0;
 
         &--bordered {
             border-left: 3px solid var(--airport-color);
