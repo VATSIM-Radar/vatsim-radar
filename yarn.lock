@@ -5216,7 +5216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/better-sqlite3@npm:^7.6.13":
+"@types/better-sqlite3@npm:7.6.13":
   version: 7.6.13
   resolution: "@types/better-sqlite3@npm:7.6.13"
   dependencies:
@@ -7109,7 +7109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^12.11.1":
+"better-sqlite3@npm:12.11.1":
   version: 12.11.1
   resolution: "better-sqlite3@npm:12.11.1"
   dependencies:
@@ -16692,7 +16692,7 @@ __metadata:
     "@turf/nearest-point-on-line": "npm:7.3.5"
     "@turf/union": "npm:7.3.5"
     "@types/adm-zip": "npm:0.5.8"
-    "@types/better-sqlite3": "npm:^7.6.13"
+    "@types/better-sqlite3": "npm:7.6.13"
     "@types/deep-equal": "npm:1.0.4"
     "@types/geojson": "npm:7946.0.16"
     "@types/jsonwebtoken": "npm:9.0.10"
@@ -16705,7 +16705,7 @@ __metadata:
     "@vueuse/core": "npm:14.4.0"
     "@vueuse/nuxt": "npm:14.4.0"
     adm-zip: "npm:0.6.0"
-    better-sqlite3: "npm:^12.11.1"
+    better-sqlite3: "npm:12.11.1"
     chardet: "npm:2.2.0"
     chart.js: "npm:4.5.1"
     chokidar: "npm:5.0.0"
