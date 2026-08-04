@@ -562,6 +562,27 @@ useLazyAsyncData('bookmarks', async () => {
     server: false,
 });
 
+function fetchAndShowBookmark(bookmarkId: number) {
+    return $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId }`).then(bookmark => {
+        if (bookmark) {
+            showBookmark(bookmark.json, map.value);
+        }
+    }).catch(console.error);
+}
+
+// Handles the case where the desktop app is requesting a bookmark. Without this, the bookmark will never
+// trigger because there is no page reload, only a query string change.
+watch(
+    () => route.query.bookmark,
+    async bookmarkQuery => {
+        if (!map.value || !bookmarkQuery) return;
+
+        const bookmarkId = +bookmarkQuery;
+        fetchAndShowBookmark(bookmarkId);
+    },
+    { immediate: true },
+);
+
 watch([isMobile, popups], () => {
     visibleOverlays.value.forEach(x => x._maxHeight = undefined);
     popupsHeight.value = popups.value?.clientHeight ?? 0;
@@ -1021,11 +1042,7 @@ await setupDataFetch({
         }
 
         if (bookmarkId.value) {
-            const bookmark = await $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId.value }`).catch(() => {
-            });
-            if (bookmark) {
-                showBookmark(bookmark.json, map.value);
-            }
+            fetchAndShowBookmark(bookmarkId.value);
         }
 
         success = true;

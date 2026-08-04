@@ -29,7 +29,14 @@ export default defineNuxtPlugin(async () => {
 
         const script: ResolvableScript[] = [];
 
-        if (policy.value.accepted && policy.value.rum) {
+        // Don't inject the tracking code if this is run in local development. This prevents
+        // CORS errors when attempting to navigate to /?bookmark={id} in local develompment.
+        const isLocalOrigin = import.meta.dev ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.endsWith('.local');
+
+        if (policy.value.accepted && policy.value.rum && !isLocalOrigin) {
             script.push({
                 tagPosition: 'bodyClose',
                 defer: true,
