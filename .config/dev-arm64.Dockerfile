@@ -1,4 +1,4 @@
-FROM arm64v8/node:24-slim
+FROM arm64v8/node:26-slim
 WORKDIR /radar
 
 RUN apt-get update
