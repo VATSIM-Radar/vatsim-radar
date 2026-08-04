@@ -316,7 +316,7 @@ Main app routes:
 - `/bookings`: ATC bookings.
 - `/stats` and `/stats/*`: stats dashboards.
 - `/pilots`, `/sigmets`, `/notams`, `/achievements`, `/support-us`, `/about`, `/roadmap`, `/privacy-policy`.
-- `/data/[type]/[id]/compare`: data debugging comparison UI.
+- `/data/[type]/[id]/compare`: data debugging comparison UI. Keep this page outside any broad `data` ignore glob: an unanchored ignore pattern can also exclude `app/pages/data` and remove the generated client route.
 - `/demo/*`: UI primitive/demo pages.
 
 ## Common Change Paths
