@@ -6,6 +6,7 @@ services:
     image: vr-1.1.1
     env_file:
       - ../.env.example
+      - .env
     container_name: vatsim-radar
     volumes:
       - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
@@ -17,15 +18,6 @@ services:
     ports:
       - "8080:8080"
       - "9229:9229"
-    healthcheck:
-      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
-      interval: 1s
-      retries: 360
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -37,74 +29,21 @@ services:
     image: vr-1.1.1
     env_file:
       - ../.env.example
+      - .env
     container_name: vatsim-radar-worker
+    # command: sleep infinity
     command: /radar/.config/worker.sh
     ports:
       - 8880:8880
     volumes:
-      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      frontend:
-        condition: service_started
+      - type: volume
+        source: ${WORKSPACE_SOURCE:?}
+        target: /radar
+        volume:
+          subpath: vatsim-radar 
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  navigraph:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ../.config/dev.Dockerfile
-    image: vr-1.1.1
-    env_file:
-      - ../.env.example
-    container_name: vatsim-radar-navigraph
-    command: /radar/.config/navigraph.sh
-    ports:
-      - 3000:3000
-    volumes:
-      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      frontend:
-        condition: service_started
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  db:
-    image: mysql
-    cap_add:
-      - SYS_NICE
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=radar
-      - MYSQL_ROOT_PASSWORD=localhost
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 5s
-      interval: 5s
-      retries: 40
-    volumes:
-      - ./.config/db:/var/lib/mysql
-
-  redis:
-    image: redis
-    command: redis-server /usr/local/etc/redis/redis.conf --requirepass RADAR
-    expose:
-      - 6379
-    environment:
-      - REDIS_APPLICATION_MODE=master
-    volumes:
-      - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
-      - ./.config/redis:/data
 
 volumes:
   # $WORKSPACE_SOURCE is "devcontainer-volume" when the workspace is in a
