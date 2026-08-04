@@ -463,10 +463,12 @@ defineExpose({ combinedAircraft });
 
             &_chevron {
                 transform: rotate(0deg);
+
+                aspect-ratio: 1;
                 width: 12px;
                 min-width: 12px;
+
                 transition: 0.3s;
-                aspect-ratio: 1;
 
                 &--collapsed {
                     transform: rotate(90deg);
@@ -481,20 +483,20 @@ defineExpose({ combinedAircraft });
 
         &--collapsed {
             .dashboard-aircraft_columns--horizontal & {
+                flex: 0 0 auto;
                 min-width: 0;
                 max-width: 32px;
-                flex: 0 0 auto;
 
                 .dashboard-aircraft_col_head {
                     flex-direction: column-reverse;
-                    padding: 8px 6px;
                     height: 100%;
+                    padding: 8px 6px;
                 }
 
                 .dashboard-aircraft_col_head_title,
                 .dashboard-aircraft_rate {
-                    writing-mode: vertical-rl;
                     transform: rotate(180deg);
+                    writing-mode: vertical-rl;
                 }
             }
         }
