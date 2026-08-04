@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Nuxt: Debug",
+      "type": "shell",
+      "command": "yarn dev:debug --qr=false",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "owner": "nuxt",
+          "severity": "info",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".*Nuxt.*",
+            "endsPattern": ".*Local:\\s+http://localhost:8080/.*"
+          },
+          "pattern": {
+            "regexp": "^(.*)$",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}
