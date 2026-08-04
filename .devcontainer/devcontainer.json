@@ -8,12 +8,6 @@
   "initializeCommand": ".devcontainer/gen-docker-compose-workspace-env.sh --container-workspace-folder '${containerWorkspaceFolder}' --local-workspace-folder '${localWorkspaceFolder}'",
   "shutdownAction": "stopCompose",
   "postCreateCommand": ".devcontainer/postcreate.sh",
-  "features":{
-     "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {
-      "theme": "agnoster"
-    },
-    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
-  },
   "customizations": {
     "vscode": {
       "extensions": [
