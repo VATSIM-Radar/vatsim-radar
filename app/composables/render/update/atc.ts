@@ -463,7 +463,7 @@ export async function updateControllers(context: DataUpdateContext) {
             if (!dataAirport) continue;
 
             // Booking ATC are added last, so that makes sense
-            if (controller.isBooking && dataAirport.atc.some(x => x.facility === controller.facility)) {
+            if (controller.isBooking && dataAirport.atc.some(x => x.facility === controller.facility && !x.isATIS)) {
                 const similar = dataAirport.atc.find(x => x.callsign === controller.callsign && !x.isBooking);
 
                 if (similar) similar.booking = controller.booking;

@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-3-final]
+
+## Features and Improvements
+
+- Horizontal dashboard layout has become usable by ncls-alien
+
+## Bug Fixes
+
+- Fixed booking not displayed sometimes when another facility was online
+- Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present
+
 # [2.0.0-2]
 
 ## Features and improvements
