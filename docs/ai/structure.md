@@ -73,6 +73,7 @@ Fast live updates:
 - Client websocket management lives in `app/composables/render/ws.ts`.
 - Server websocket implementation lives in `app/utils/server/vatsim/ws.ts`.
 - Websocket updates currently focus on own-flight/self-coordinate fast updates and tab coordination.
+- Client reconnects are timer-driven: `checkForWSData()` checks the last server `check` timestamp every 5 seconds and does not reconnect directly from the socket `close` handler. Its cleanup closes the socket indirectly (via the `radar-socket-closed` localStorage marker) and clears the shared reconnect interval; if the socket is closed while the tab is hidden, visibility handling does not restart that websocket check until the owning component is mounted again or its setting watcher runs.
 
 ## Client Entry Points
 
