@@ -19,7 +19,11 @@ import { transformExtent } from 'ol/proj.js';
 import { isMapFeature } from '~/utils/map/entities';
 import { setMapAircraft } from '~/composables/render/aircraft';
 import type { TrackData } from '~/composables/render/aircraft';
-import { disposeAircraftStyle, isPilotOverlayParked } from '~/composables/render/aircraft/style';
+import {
+    disposeAircraftStyle,
+    isPilotOverlayParked,
+    pruneAircraftStyleCache,
+} from '~/composables/render/aircraft/style';
 import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
 
 defineOptions({
@@ -342,6 +346,7 @@ const debouncedUpdate = useThrottleFn(() => {
     if (!canRender.value) {
         vectorSource.clear();
         linesSource.clear();
+        pruneAircraftStyleCache(new Set<number>());
     }
     else {
         const log = logBench('aircraftRender');

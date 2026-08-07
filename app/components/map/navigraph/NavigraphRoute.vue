@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
+import type { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector.js';
 import { Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
@@ -94,6 +95,8 @@ function cleanup() {
 
 async function update() {
     let currentFlight = false;
+    const featuresToAdd: Feature[] = [];
+    const pendingFeatures = new Map<string, Feature>();
 
     const keys = new Set<string>();
     const currentFlightKeys = new Set<string>();
@@ -101,7 +104,7 @@ async function update() {
     let routeKeys: Set<string> | null = null;
 
     function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
-        const existingFeature = getMapFeature('navigraph', source!.value, id);
+        const existingFeature = getMapFeature('navigraph', source!.value, id) ?? pendingFeatures.get(id);
         keys.add(id);
         routeKeys?.add(id);
 
@@ -131,7 +134,9 @@ async function update() {
             return;
         }
 
-        source?.value?.addFeature(createMapFeature('navigraph', Object.assign(feature(), { id, currentFlight })));
+        const createdFeature = createMapFeature('navigraph', Object.assign(feature(), { id, currentFlight }));
+        pendingFeatures.set(id, createdFeature);
+        featuresToAdd.push(createdFeature);
     }
 
     try {
@@ -560,6 +565,8 @@ async function update() {
             }
         }
 
+        if (featuresToAdd.length) source?.value.addFeatures(featuresToAdd);
+
         skipUpdate = true;
         triggerRef(dataStore.navigraphWaypoints);
         log();
@@ -569,7 +576,7 @@ async function update() {
     }
 }
 
-const debouncedUpdate = useThrottleFn(update, 500, true);
+const debouncedUpdate = useThrottleFn(update, 1000, true);
 
 watch(dataStore.navigraphWaypoints, () => {
     if (skipUpdate) {

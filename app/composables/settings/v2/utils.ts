@@ -84,7 +84,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.defaultZoomLevel': 14,
 
     'map.preferences.airports.shortView': false,
-    'map.preferences.airports.showMode': 'staffedAndGroundTraffic',
+    'map.preferences.airports.showMode': 'all',
     'map.preferences.airports.declutterIf': 'unstaffed',
     'map.preferences.airports.ATISAsUnstaffed': false,
     'map.preferences.airports.voiceButton': true,
@@ -134,6 +134,7 @@ const _settingsDefaultValues = {
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,
+    'map.preferences.hoverInteraction': 'default',
     'map.preferences.featuredDefaultBookmarks': false,
     'map.preferences.skipBookmarkAnimation': false,
     'map.preferences.showTotalDeparturesInFeaturedAirports': false,

@@ -1,5 +1,39 @@
 # Changelog
 
+# [2.0.1-beta.1]
+
+## Features and Improvements
+
+- Based on community feedback, all airports with at least one traffic anywhere will now show by default
+- Updated font for controller information
+- Updated font for flight and atc hours
+- Updated hit detection to be zero for hover and 2 pixels for right click and click
+- Re-enabled hover interaction for tablets. It can now be force enabled for mobile, and force disabled for any device
+- Improved smoothness when switching between DGTA icons
+- Animation to open map on-hover elements is slightly faster now
+- You can now import and export bookmarks
+- Default airport page will now only show this airport traffic only, like it did before
+- `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
+- New dashboard setting: "Airports traffic only" (false by default)
+- Restored EOBT, Time Enroute and Fuel Time in Prefile window
+
+## Performance improvements
+
+- Smooth aircraft update has been capped to 30fps
+- Smooth aircraft movement will now be stopped immediately if you zoom out
+- Smooth aircraft movement will now be stopped if you are moving map
+- Postrender update will now be limited to once per second
+- Hover will no longer affect mobile devices if it is disabled in settings 
+- Significantly improved performance for all Navigraph layers
+- Removed unneeded calculations for aircraft when map is moving
+
+## Bug fixes
+
+- Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
+- Fixed vhf or ndb displaying as airport in some cases
+- Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
+- Fixed favorite button disappeared sometimes
+
 # [2.0.0-3-final]
 
 ## Features and Improvements

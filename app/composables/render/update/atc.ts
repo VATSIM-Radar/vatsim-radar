@@ -427,8 +427,6 @@ export async function updateControllers(context: DataUpdateContext) {
 
             let dataAirport: DataAirport | undefined;
 
-            if (isApp && !feature && airport?.isPseudo) continue;
-
             if (!airport && feature) {
                 const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);

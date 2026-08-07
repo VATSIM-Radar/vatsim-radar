@@ -26,7 +26,7 @@ interface Track {
 
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
-const LIMIT_SMOOTH_FRAME_RATE = false;
+const LIMIT_SMOOTH_FRAME_RATE = true;
 const DELAY_GAPS = 1.3;
 const DELAY_EXTRA = 500;
 const MIN_DELAY = 1500;
@@ -62,9 +62,10 @@ export function isSmoothMovementEnabled() {
 
 export function isSmoothMovementSuspendedForLoad() {
     const mapStore = useMapStore();
+    if (mapStore.moving) return true;
     if (!mapStore.renderedPilots) return false;
 
-    return mapStore.getRenderedPilotsCount > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || useMapStore().zoom < 6;
+    return mapStore.getRenderedPilotsCount > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || mapStore.preciseZoom < 6;
 }
 
 function computeDelay() {

@@ -200,8 +200,8 @@ export const settingsItemPreferencesAirports = globalComputed(() => makeSettings
         disabled: computed(() => !getSettingValue('map.preferences.airports.counters.enabled').value.value),
     },
     showLimit: {
-        title: 'Max Counters to Show',
-        description: 'Limits max airport counters shown on the map',
+        title: 'Show Limit',
+        description: 'Removes dots, counters and other stuff if airports on map exceed this value',
         type: 'select',
         items: airportLimitItems,
         value: getSettingValue('map.preferences.airports.showLimit'),

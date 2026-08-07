@@ -24,7 +24,6 @@ import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
 import {
     isSmoothMovementEnabled,
-    isSmoothMovementSuspendedForLoad,
     recordSmoothSamples,
 } from '~/composables/render/aircraft/smooth';
 import { useStore } from '~/store';
@@ -519,7 +518,9 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 
-    if (isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
+    // Keep the interpolation timeline fresh while rendering is suspended. Otherwise a
+    // regular aircraft update can jump to server time and smoothing resumes from stale samples.
+    if (isSmoothMovementEnabled()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;

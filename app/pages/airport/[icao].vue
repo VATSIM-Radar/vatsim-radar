@@ -148,7 +148,7 @@
                 v-if="ready && mounted"
                 ref="airportMapFrame"
                 class="airport_map_iframe"
-                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }`"
+                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }&airportAircraft=1`"
             />
             <transition name="airport_map_pilot--appear">
                 <airport-pilot

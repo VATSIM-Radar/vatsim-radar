@@ -171,7 +171,8 @@ import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
-import { useIsTouch } from '~/composables';
+import { useIsMobile, useIsPC, useIsTouch } from '~/composables';
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import WeatherIcon from '~/assets/icons/kit/weather.svg?component';
@@ -360,6 +361,23 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 }
 
 const isMobileOrTablet = useIsTouch();
+const isMobile = useIsMobile();
+const isPC = useIsPC();
+const hoverInteractionSetting = useSettingValueFromFunc('map.preferences.hoverInteraction');
+
+const isHoverInteractionEnabled = computed(() => {
+    switch (hoverInteractionSetting.value) {
+        case 'trueForAll':
+            return true;
+        case 'falseForTablets':
+            return isPC.value;
+        case 'falseForAll':
+            return false;
+        case 'default':
+        default:
+            return !isMobile.value;
+    }
+});
 
 watch(() => mapStore.activeMobileOverlay, id => {
     if (id || !isMobileOrTablet.value) return;
@@ -659,7 +677,40 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
     },
 };
 
-let hoverAwaiting = false;
+let hoverRequestId = 0;
+let hoverFilter: FilterFunction | undefined;
+
+function syncHoverInteraction() {
+    if (!map.value) return;
+
+    if (isHoverInteractionEnabled.value) {
+        if (hoverSelect) return;
+
+        hoverSelect = new Select({
+            condition: pointerMove,
+            multi: true,
+            style: null,
+            hitTolerance: 0,
+            filter: hoverFilter,
+        });
+
+        hoverSelect.on('select', createSelectHandler('hover', hoverSelect));
+        map.value.addInteraction(hoverSelect);
+        return;
+    }
+
+    if (!hoverSelect) return;
+
+    // Invalidate pending hover callbacks before removing the interaction.
+    hoverRequestId++;
+    hoverSelect.clearSelection();
+    hoverSelect.dispose();
+    map.value.removeInteraction(hoverSelect);
+    hoverSelect = undefined;
+    map.value.getTargetElement().style.cursor = 'grab';
+    openedOverlay.value = null;
+    selectFeature(false);
+}
 
 watch(contextMenu, val => {
     if (!val) rightClickSelect?.clearSelection();
@@ -670,8 +721,7 @@ function createSelectHandler(type: EventType, select: Select) {
         try {
             if (!map.value) return;
             const selected = (arg.mapBrowserEvent && type !== 'hover') ? arg.selected : select.getFeatures().getArray();
-
-            if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
+            const currentHoverRequestId = type === 'hover' ? ++hoverRequestId : undefined;
             states[type].selectedFeatures.value = selected.slice(0);
 
             if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
@@ -683,6 +733,9 @@ function createSelectHandler(type: EventType, select: Select) {
                 openedOverlay.value = null;
                 if (type === 'hover' || isMobileOrTablet.value) {
                     sleep(100).then(() => {
+                        // A newer pointer position owns the hover state now.
+                        if (type === 'hover' && currentHoverRequestId !== hoverRequestId) return;
+
                         if (!select.getFeatures().getArray().length) {
                             if (map.value) {
                                 map.value!.getTargetElement().style.cursor = 'grab';
@@ -714,9 +767,10 @@ function createSelectHandler(type: EventType, select: Select) {
                 }
 
                 if (type === 'hover' && !isMobileOrTablet.value) {
-                    hoverAwaiting = true;
                     await sleep(50);
-                    hoverAwaiting = false;
+
+                    // Do not let a delayed hover action overwrite a newer one.
+                    if (currentHoverRequestId !== hoverRequestId) return;
 
                     if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
 
@@ -807,6 +861,8 @@ function createSelectHandler(type: EventType, select: Select) {
                 }
             }
 
+            if (type === 'hover' && currentHoverRequestId !== hoverRequestId) return;
+
             if (!tookAction) {
                 if (type === 'hover') {
                     if (map.value) {
@@ -841,21 +897,15 @@ watch(map, val => {
         return selectable || (type?.startsWith('airports') && featureType !== 'airport-tracon' && featureType !== 'airport-circle') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
     };
 
-    hoverSelect = new Select({
-        condition: pointerMove,
-        multi: true,
-        style: null,
-        hitTolerance: isMobileOrTablet.value ? 5 : 2,
-        filter,
-    });
-
-    hoverSelect.on('select', createSelectHandler('hover', hoverSelect));
-
-    map.value?.addInteraction(hoverSelect);
+    hoverFilter = (feature, layer) => {
+        if (isMobileOrTablet.value && feature.getProperties().type === 'navigraph') return false;
+        return filter(feature, layer);
+    };
+    syncHoverInteraction();
 
     clickSelect = new Select({
         condition: singleClick,
-        hitTolerance: isMobileOrTablet.value ? 5 : 2,
+        hitTolerance: 2,
         multi: true,
         style: null,
         toggleCondition: always,
@@ -872,7 +922,7 @@ watch(map, val => {
 
     rightClickSelect = new Select({
         condition: rightClickCondition,
-        hitTolerance: 5,
+        hitTolerance: 2,
         multi: true,
         style: null,
         toggleCondition: always,
@@ -896,10 +946,17 @@ watch(map, val => {
     immediate: true,
 });
 
+watch([isHoverInteractionEnabled, map], syncHoverInteraction, {
+    immediate: true,
+});
+
 onBeforeUnmount(() => {
     if (hoverSelect) {
-        hoverSelect?.dispose();
+        hoverRequestId++;
+        hoverSelect.clearSelection();
+        hoverSelect.dispose();
         map.value?.removeInteraction(hoverSelect);
+        hoverSelect = undefined;
     }
 
     if (clickSelect) {

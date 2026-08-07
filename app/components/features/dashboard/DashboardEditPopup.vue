@@ -40,6 +40,9 @@
                         <ui-toggle v-model="payload.json.showArrivalTracks">
                             Show Arrival Tracks
                         </ui-toggle>
+                        <ui-toggle v-model="payload.json.airportTrafficOnly">
+                            Airports traffic only
+                        </ui-toggle>
 
                         <ui-select
                             :items="columnItems"
@@ -413,7 +416,7 @@ function colorModelToHex(color: Partial<UserMapSettingsColor> | null): string | 
 function emptyAirport(icao: string | null = null): DashboardPayload['json']['airports'][number] {
     return {
         icao: icao ?? '',
-        showInTrafficPrediction: false,
+        showInTrafficPrediction: true,
         aircraftColor: null,
     };
 }

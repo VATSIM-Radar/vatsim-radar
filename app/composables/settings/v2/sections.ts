@@ -150,7 +150,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'position',
                             title: 'Position & URL',
-                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate],
+                            items: [items.preferences.autoFollow, items.preferences.autoZoom, items.preferences.enableQueryUpdate, items.preferences.hoverInteraction],
                         },
                         {
                             key: 'favorite',

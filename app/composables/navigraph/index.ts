@@ -334,7 +334,7 @@ type NavigraphCoordinateCandidate = {
     type: string;
 };
 
-const nmToIgnorePriority = 2;
+const nmToIgnorePriority = 5;
 
 function getNavigraphCoordinatePriority(candidate: NavigraphCoordinateCandidate): number {
     return candidate.kind === 'vhf' || candidate.kind === 'ndb' ? 0 : 1;

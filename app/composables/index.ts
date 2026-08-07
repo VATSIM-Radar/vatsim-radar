@@ -19,7 +19,7 @@ import { GeoJSON } from 'ol/format.js';
 import type { WatchOptions } from '@vue/runtime-core';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
-    if (!point[0] || !point[1]) return false;
+    if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) return false;
     return containsCoordinate(extent, point);
 }
 
