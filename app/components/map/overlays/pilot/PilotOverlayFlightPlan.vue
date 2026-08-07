@@ -84,7 +84,20 @@
                 <ui-data-list
                     :grid-columns="flightPlanItems.length > 9 ? 4 : flightPlanItems.length % 4 === 0 ? 4 : flightPlanItems.length % 3 === 0 ? 3 : flightPlanItems.length % 2 === 0 ? 2 : 3"
                     :items="flightPlanItems"
-                />
+                >
+                    <template #item-registration="{ item }">
+                        <span class="registration_wrapper">
+                            {{ formatRegistration(item.text, props.country) }}
+                            <img
+                                v-if="country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
+                                :alt="country.name || country.countryCode"
+                                class="registration_flag"
+                                :src="getFlagUrl(country.countryCode)"
+                                :title="`${ country.name || country.countryCode } (${ country.prefix })`"
+                            >
+                        </span>
+                    </template>
+                </ui-data-list>
             </ui-data-container>
 
             <template v-if="stepclimbs?.length">
@@ -167,6 +180,8 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
+import type { CountryCodeEntry } from '~/utils/shared/country-codes';
+import { getFlagUrl, formatRegistration } from '~/utils/shared/country-codes';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
@@ -193,6 +208,10 @@ const props = defineProps({
     },
     status: {
         type: String as PropType<VatsimExtendedPilot['status'] | null>,
+        default: null,
+    },
+    country: {
+        type: Object as PropType<CountryCodeEntry | null>,
         default: null,
     },
 });
@@ -250,7 +269,7 @@ const flightPlanItems = computed(() => {
         { title: 'Aircraft Type', text: props.flightPlan.aircraft_faa, hide: !props.flightPlan.aircraft_faa },
         { title: 'Cruise TAS', text: `${ props.flightPlan.cruise_tas } kts`, hide: !props.flightPlan.cruise_tas },
         { title: 'Cruise Altitude', text: props.flightPlan.altitude && !isNaN(Number(props.flightPlan.altitude)) ? `${ numberFormatter.format(+props.flightPlan.altitude) } ft` : props.flightPlan.altitude, hide: !props.flightPlan.altitude },
-        { title: 'Registration', text: registration.value, hide: !registration.value },
+        { title: 'Registration', text: registration.value, key: 'registration', hide: !registration.value },
         { title: 'Alternate', text: alternates.value.alt, hide: !alternates.value.alt },
         { title: 'Voice Rules', text: commType.value, hide: commType.value === 'Voice' },
         ...alternates.value.takeoff?.map(x => ({ title: 'Takeoff Alternate', text: x })) ?? [],
@@ -355,5 +374,19 @@ const flightPlanItems = computed(() => {
             }
         }
     }
+
+    .registration_wrapper {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .registration_flag {
+        width: auto;
+        height: 14px;
+        border-radius: 2px;
+        object-fit: contain;
+    }
 }
 </style>
+

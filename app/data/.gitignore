@@ -1,2 +1,4 @@
 *
 !.gitignore
+!country_codes.json
+!airline-logo-overrides.json

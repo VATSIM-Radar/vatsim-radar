@@ -96,7 +96,7 @@ const _settingsDefaultValues = {
     'map.preferences.airports.departuresCountInOverlay': false,
 
     'map.preferences.airports.counters.enabled': true,
-    'map.preferences.airports.cozunters.syncDeparturesArrivals': true,
+    'map.preferences.airports.counters.syncDeparturesArrivals': true,
     'map.preferences.airports.counters.departuresMode': 'ground',
     'map.preferences.airports.counters.arrivalsMode': 'ground',
     'map.preferences.airports.counters.horizontalCounter': 'prefiles',
