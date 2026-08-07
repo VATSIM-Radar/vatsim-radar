@@ -52,10 +52,10 @@ export function getFlagUrl(countryCode: string): string {
     return `/flags/${ countryCode.toLowerCase() }.png`;
 }
 
-export function formatRegistration(registration: string | null | undefined, country: CountryCodeEntry | null): string {
-    if (!registration || !country?.prefix) return registration || '';
+export function formatRegistration(registration: string | number | null | undefined, country: CountryCodeEntry | null): string {
+    if (registration == null || !country?.prefix) return registration == null ? '' : String(registration);
 
-    const clean = registration.replace(/-/g, '');
+    const clean = String(registration).replace(/-/g, '');
     const dashIndex = country.prefix.indexOf('-');
     if (dashIndex === -1) return clean;
     if (clean.length <= dashIndex) return clean;
@@ -63,23 +63,46 @@ export function formatRegistration(registration: string | null | undefined, coun
     return `${ clean.slice(0, dashIndex) }-${ clean.slice(dashIndex) }`;
 }
 
+export interface PilotCountry {
+    country: CountryCodeEntry | null;
+    isVfr: boolean;
+    isIfr: boolean;
+}
+
 export function usePilotCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile | undefined>) {
-    return computed<CountryCodeEntry | null>(() => {
-        if (!pilot.value) return null;
+    return computed<PilotCountry>(() => {
+        if (!pilot.value) {
+            return {
+                country: null,
+                isVfr: false,
+                isIfr: false,
+            };
+        }
 
         const flightPlan = 'flight_plan' in pilot.value ? pilot.value.flight_plan : undefined;
         const rules = flightPlan?.flight_rules?.toUpperCase();
 
         if (rules === 'I') {
             const registration = getFlightPlanParam(flightPlan?.remarks, 'REG');
-            if (!registration) return null;
-            return getCountryFromCallsignOrReg(registration);
+            return {
+                country: registration ? getCountryFromCallsignOrReg(registration) : null,
+                isVfr: false,
+                isIfr: true,
+            };
         }
 
         if (rules === 'V') {
-            return getCountryFromCallsignOrReg(pilot.value.callsign);
+            return {
+                country: getCountryFromCallsignOrReg(pilot.value.callsign),
+                isVfr: true,
+                isIfr: false,
+            };
         }
 
-        return null;
+        return {
+            country: null,
+            isVfr: false,
+            isIfr: false,
+        };
     });
 }

@@ -89,7 +89,7 @@
                         <span class="registration_wrapper">
                             {{ formatRegistration(item.text, props.country) }}
                             <img
-                                v-if="country && props.flightPlan?.flight_rules?.toUpperCase() === 'I'"
+                                v-if="country && props.isIfr"
                                 :alt="country.name || country.countryCode"
                                 class="registration_flag"
                                 :src="getFlagUrl(country.countryCode)"
@@ -213,6 +213,10 @@ const props = defineProps({
     country: {
         type: Object as PropType<CountryCodeEntry | null>,
         default: null,
+    },
+    isIfr: {
+        type: Boolean,
+        default: false,
     },
 });
 

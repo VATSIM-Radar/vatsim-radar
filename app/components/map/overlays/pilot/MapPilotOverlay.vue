@@ -39,11 +39,11 @@
                     :type="isOffline ? 'offline' : 'online'"
                 />
                 <img
-                    v-if="country && pilot.flight_plan?.flight_rules?.toUpperCase()?.startsWith('V')"
-                    :alt="country.name || country.countryCode"
+                    v-if="country.country && country.isVfr"
+                    :alt="country.country.name || country.country.countryCode"
                     class="pilot_flag"
-                    :src="getFlagUrl(country.countryCode)"
-                    :title="`${ country.name || country.countryCode } (${ country.prefix })`"
+                    :src="getFlagUrl(country.country.countryCode)"
+                    :title="`${ country.country.name || country.country.countryCode } (${ country.country.prefix })`"
                 >
                 <div class="pilot-header_title">
                     <img
@@ -214,8 +214,9 @@
         <template #flightplan>
             <pilot-overlay-flight-plan
                 class="pilot__content"
-                :country="country"
+                :country="country.country"
                 :flight-plan="pilot.flight_plan ?? null"
+                :is-ifr="country.isIfr"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
             /></template>
