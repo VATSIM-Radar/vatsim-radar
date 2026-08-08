@@ -148,6 +148,12 @@ export const useStore = defineStore('index', {
         touch: false,
         engine: '' as IEngine['name'],
 
+        ownAtc: {
+            pilotsAll: 0,
+            pilotsControlling: 0,
+            date: 0,
+        },
+
         initStatus: {
             vatspy: false,
             simaware: false,

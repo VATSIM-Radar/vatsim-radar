@@ -33,6 +33,7 @@
 - Fixed vhf or ndb displaying as airport in some cases
 - Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
 - Fixed favorite button disappeared sometimes
+- Fixed ATC Discord Presence showing incorrect area for CTR/Approach if any page except for main map is opened (ex. dashboard)
 
 # [2.0.0-3-final]
 

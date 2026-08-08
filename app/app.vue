@@ -92,6 +92,10 @@ async function receiveMessage(event: MessageEvent) {
     if (data.type === 'navigraph-waypoints') {
         useDataStore().navigraphWaypoints.value = data.waypoints;
     }
+
+    if (data.type === 'atc-counter') {
+        useStore().ownAtc = data;
+    }
 }
 
 onMounted(() => {
