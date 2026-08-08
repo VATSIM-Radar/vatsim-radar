@@ -16,6 +16,7 @@
 - `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
 - New dashboard setting: "Airports traffic only" (false by default)
 - Restored EOBT, Time Enroute and Fuel Time in Prefile window
+- Added support for correct ATC count in Discord Presence when inside Dashboard
 
 ## Performance improvements
 
@@ -33,7 +34,6 @@
 - Fixed vhf or ndb displaying as airport in some cases
 - Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
 - Fixed favorite button disappeared sometimes
-- Fixed ATC Discord Presence showing incorrect area for CTR/Approach if any page except for main map is opened (ex. dashboard)
 
 # [2.0.0-3-final]
 

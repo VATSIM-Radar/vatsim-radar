@@ -208,6 +208,7 @@ Important composable groups:
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
+- `app/composables/vatsim/controllers.ts`: shared controller lookup, airport/sector extent resolution, and map navigation helpers. `findATCSector()` returns geographic extents with a small look-ahead gap for controller navigation.
 - `app/composables/render/update/vatglasses.ts`: first VATGlasses render scans live controllers, resolves position/country records from IndexedDB, constructs GeoJSON sector polygons, and optionally runs split/combine geometry work in a Web Worker for combined mode; the first render is awaited inside `updateControllersRender()`.
 - `app/components/map/navigraph/NavigraphRoute.vue`: renders cached Navigraph route features; its route cache key must include settings that change the augmented waypoint list.
 - `app/composables/errors.ts`: client error handling.

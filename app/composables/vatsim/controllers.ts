@@ -240,7 +240,20 @@ export function findATCSector(atc: VatsimShortenedController) {
         }
     }
 
-    return extent;
+    if (!extent) return null;
+
+    const center: [number, number] = [
+        (extent[0] + extent[2]) / 2,
+        (extent[1] + extent[3]) / 2,
+    ];
+    const gapExtent = createCircle(center, 10 * 1609.344).getExtent();
+
+    return [
+        extent[0] - (center[0] - gapExtent[0]),
+        extent[1] - (center[1] - gapExtent[1]),
+        extent[2] + (gapExtent[2] - center[0]),
+        extent[3] + (gapExtent[3] - center[1]),
+    ];
 }
 
 export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {

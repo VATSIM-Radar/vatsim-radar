@@ -134,6 +134,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Map Overlays And Selection
 
+- `findATCSector()` adds a 10-mile geographic buffer to extents collected from rendered sector/airport features, so users can see and contact the controller area in advance. The airport fallback circle remains unchanged. The buffer is calculated in meters through the existing geographic `createCircle()` helper rather than as a fixed degree offset.
 - Mobile `MapHtmlOverlay` bottom sheets are only for non-persistent interactive info popups. Persistent coordinate overlays, such as distance measurement labels and selection context menus, must keep using OpenLayers overlay positioning on mobile so `settings.position` remains anchored to map coordinates.
 - `MapHtmlOverlay` keeps `.map-overlay-block` as a hidden technical mount wrapper. OpenLayers moves the inner `overlayElement` into its overlay container; the wrapper itself must not become visible or it can briefly render coordinate overlays outside the map overlay layer.
 - `MapMobileWindow` must treat Featured Airports and Favorite mobile menus as higher-priority than active overlay sheets. While either menu is open, the overlay bottom sheet stays closed and map bottom padding is cleared.
