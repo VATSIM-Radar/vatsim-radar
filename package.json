@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1104.0",
+    "@aws-sdk/client-s3": "3.1105.0",
     "@nuxt/image": "2.1.0",
     "@pinia/nuxt": "1.0.1",
     "@prisma/adapter-mariadb": "7.9.1",
@@ -87,7 +87,7 @@
     "vue-bottom-sheets": "0.4.0",
     "vue-chartjs": "5.3.4",
     "vue-draggable-plus": "0.6.1",
-    "ws": "8.21.2"
+    "ws": "8.21.3"
   },
   "devDependencies": {
     "@navigraph/amdb": "1.1.1",
@@ -117,7 +117,7 @@
     "stylelint-config-recommended-vue": "2.0.0",
     "stylelint-config-standard": "40.0.0",
     "stylelint-order": "8.1.1",
-    "tsx": "4.23.9",
+    "tsx": "4.23.11",
     "typescript": "6.0.3",
     "vite-plugin-eslint2": "5.3.0",
     "vue-tsc": "3.3.9"
