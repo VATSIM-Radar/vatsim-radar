@@ -153,5 +153,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Popups And Bookings
 
+- Featured Airport controller badges must use the same controller enrichment as airport details: merge `DataAirport.atc` with controllers from rendered airport/TRACON/sector features covering the airport coordinates, then deduplicate by callsign. Callsign-only attribution misses nonstandard and sector-owned positions and can leave only ATIS visible.
+
 - `PopupFullscreen` must route close events from its inner `PopupMapInfo` title close button through `closePopup()`, not direct model assignment, so one-way `model-value` usages still update fullscreen `localValue`, animation, overflow state, and external emits consistently with backdrop, Escape, and top-right close.
 - Map booking lookahead (`map.bookings.hours`) limits which booking starts are shown, not the displayed end of an already selected booking. For one callsign, an active booking takes priority over later bookings in the lookahead window, and overlapping or exactly adjacent bookings form one continuous `Booked until` interval even when their controller CIDs differ.

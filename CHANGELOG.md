@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.1-beta.2]
+
+## Bug Fixes
+
+- Fixed positions displayed incorrectly in Featured Airports
+- Fixed counters click on mobile opening airport instead of aircraft list
+- Fixed header display for tablet mode
+
 # [2.0.1-beta.1]
 
 ## Features and Improvements

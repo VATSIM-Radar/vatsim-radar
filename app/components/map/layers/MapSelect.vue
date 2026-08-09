@@ -473,7 +473,6 @@ const definitions: Record<SelectableFeatures, Definition> = {
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
-        disableMobileHoverFallback: true,
         hover: payload => {
             return openOverlay('airportCounter', payload, 'airportCounter');
         },
