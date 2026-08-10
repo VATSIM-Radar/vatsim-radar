@@ -469,7 +469,9 @@ export async function updateControllers(context: DataUpdateContext) {
                 continue;
             }
 
-            dataAirport.atc.push({ ...controller, isATIS });
+            if (!dataAirport.atc.some(x => x.cid === controller.cid && x.callsign === controller.callsign)) {
+                dataAirport.atc.push({ ...controller, isATIS });
+            }
         }
     }
 

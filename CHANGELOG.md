@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.1-beta.4]
+
+## Bug fixes
+
+- Fixed facilities chip text color in light theme
+- Fixed some TWR controllers displaying twice when VATGlasses is enabled
+
 # [2.0.1-beta.3]
 
 ## Next fixes
