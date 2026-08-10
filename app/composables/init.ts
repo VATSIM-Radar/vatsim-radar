@@ -106,10 +106,11 @@ export function checkForVATSpy() {
             const { features, ...metadata } = vatspy.data as VatSpyAPIData['data'];
             const boundaries = Object.entries(features);
 
-            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, async () => {
-                await clientDB.vatspyBoundaries.clear();
-                await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
-                await clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
+            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, () => {
+                // Queue every request synchronously so IndexedDB cannot auto-commit between async continuations.
+                clientDB.vatspyBoundaries.clear();
+                clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
+                clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
             });
 
             vatspy = { ...vatspy, data: metadata };
