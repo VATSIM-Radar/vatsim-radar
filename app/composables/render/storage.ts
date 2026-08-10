@@ -24,6 +24,7 @@ import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
 import {
     isSmoothMovementEnabled,
+    isSmoothMovementSuspendedForLoad,
     recordSmoothSamples,
 } from '~/composables/render/aircraft/smooth';
 import { useStore } from '~/store';
@@ -66,14 +67,6 @@ const navigraphVersion = ref<string | null>(null);
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
-const visiblePilotsObj = shallowRef<Record<string, VatsimMandatoryPilot>>({});
-
-if (typeof window !== 'undefined') {
-    watch(visiblePilots, () => {
-        visiblePilotsObj.value = Object.fromEntries(visiblePilots.value.map(pilot => [pilot.cid.toString(), pilot]));
-    });
-}
-
 const notam = ref<RadarNotam | null>(null);
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
@@ -275,7 +268,6 @@ export interface UseDataStore {
 
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     visiblePilots: ShallowRef<VatsimMandatoryPilot[]>;
-    visiblePilotsObj: ShallowRef<Record<string, VatsimMandatoryPilot>>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
@@ -331,7 +323,6 @@ const dataStore: UseDataStore = {
     stats,
     time,
     visiblePilots,
-    visiblePilotsObj,
     sigmets,
     airlines: (icao, virtual?: boolean) => {
         return clientDB.airlines.get(`${ icao }${ virtual ? '-virtual' : '' }`) as Promise<RadarDataAirline>;
@@ -494,7 +485,7 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     vatsim.localUpdateTime.value = Date.now();
     vatsim.updateTime.value = mandatoryData.timestampNum;
 
-    if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
+    if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(([cid]) => data.keyedPilots.value[cid.toString()] !== undefined);
 
     vatsim.mandatoryData.value = {
         pilots: mandatoryData.pilots.map(([cid, lon, lat, icon, heading]) => {
@@ -518,9 +509,12 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 
-    // Keep the interpolation timeline fresh while rendering is suspended. Otherwise a
-    // regular aircraft update can jump to server time and smoothing resumes from stale samples.
-    if (isSmoothMovementEnabled()) recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
+    // Avoid accumulating samples when smoothing is suspended because the current load
+    // makes interpolation too expensive. Map movement itself is ignored here because
+    // samples remain useful while the viewport is being dragged.
+    if (isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad(true)) {
+        recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
+    }
 }
 
 let bookingsInterval: NodeJS.Timeout | undefined;

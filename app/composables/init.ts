@@ -16,6 +16,7 @@ import type { UseDataStore } from '~/composables/render/storage';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';
+import { ensureVatglassesCombinedCacheVersion } from '~/composables/render/vatglasses-cache';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
     store: ReturnType<typeof useStore>;
@@ -80,6 +81,7 @@ export function checkForUpdates() {
         if (!dataStore.versions.value) {
             dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
             dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+            await ensureVatglassesCombinedCacheVersion(dataStore.versions.value.vatglasses).catch(error => console.error(error));
         }
     });
 }
@@ -251,6 +253,11 @@ export function checkForVG() {
 
             await clientDB.vatglasses.bulkPut(Object.values(vgPositions), Object.keys(vgPositions));
             await clientDB.vatglasses.put(dataStore.versions.value!.vatglasses, 'version');
+        }
+
+        const currentVatglassesVersion = dataStore.versions.value?.vatglasses;
+        if (currentVatglassesVersion) {
+            await ensureVatglassesCombinedCacheVersion(currentVatglassesVersion).catch(error => console.error(error));
         }
 
         dataStore.vatglasses.value = vatglasses.version;

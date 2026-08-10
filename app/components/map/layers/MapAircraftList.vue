@@ -23,8 +23,10 @@ import {
     disposeAircraftStyle,
     isPilotOverlayParked,
     pruneAircraftStyleCache,
+    resetAircraftStyleCache,
 } from '~/composables/render/aircraft/style';
 import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
+import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 defineOptions({
     render: () => null,
@@ -87,6 +89,33 @@ const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type 
 const activePilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
 const airportOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'airport' && x.data.showTracks).map(x => x.key));
 const renderedPilots = computed(() => useMapStore().renderedPilots?.length);
+
+const aircraftStyleSettings = computed(() => JSON.stringify([
+    store.theme,
+    getKeyedValueFromSettings('map.visibility.pilotLabels'),
+    getKeyedValueFromSettings('map.preferences.aircraft.showLimit'),
+    getKeyedValueFromSettings('map.layers.heatmap'),
+    getKeyedValueFromSettings('map.traffic.declutter'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.ground'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.active'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.green'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.hover'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.landed'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.arriving'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.departing'),
+    getColorValueByKey('map.preferences.colors.default.aircraft.main'),
+    store.activeDashboard?.airports.map(x => [x.icao, x.aircraftColor]),
+    store.user?.isSup,
+    store.user?.lists.map(x => [x.id, x.color, x.users.map(user => [user.cid, user.private])]),
+    activePilotsOverlays.value,
+    ownFlight.value?.cid,
+    !!mapStore.renderedPilots,
+    mapStore.renderedPilots?.length,
+]));
+
+watch(aircraftStyleSettings, () => {
+    if (vectorLayer) resetAircraftStyleCache(vectorLayer);
+});
 
 function setVisiblePilots() {
     if (!map.value) return;

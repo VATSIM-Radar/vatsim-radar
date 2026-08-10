@@ -10,9 +10,10 @@ function getListFilterCids(store: ReturnType<typeof useStore>): ListFilterCids {
     const listIds = store.activeFilter?.users?.lists;
     if (!listIds?.length) return null;
 
+    const selectedLists = new Set(listIds);
     const cids = new Set<number>();
     for (const list of store.user?.lists ?? []) {
-        if (!listIds.includes(list.id)) continue;
+        if (!selectedLists.has(list.id)) continue;
         for (const user of list.users) cids.add(user.cid);
     }
 
@@ -38,7 +39,7 @@ export function hasActivePilotFilter() {
     return true;
 }
 
-function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort['prefiles'][0] | VatsimShortenedController, listFilterCids: ListFilterCids = null): boolean {
+function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort['prefiles'][0] | VatsimShortenedController, listFilterCids: ListFilterCids = null, userFilterCids: Set<number> | null = null): boolean {
     const field = 'frequency' in user ? 'atc' : 'pilots';
     const store = useStore();
 
@@ -60,7 +61,7 @@ function filterUser(user: VatsimLiveDataShort['pilots'][0] | VatsimLiveDataShort
     }
 
     if (store.activeFilter.users?.cids?.length && (!callsignFiltered || strategy === 'or')) {
-        const match = !store.activeFilter.users?.cids?.some(x => x === user.cid);
+        const match = !userFilterCids?.has(user.cid);
         if (match) {
             cidFiltered = true;
         }
@@ -84,6 +85,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
     const routes = store.activeFilter.airports?.routes?.map(x => x.split('-'));
     const altitude = store.activeFilter.flights?.altitude?.map(x => parseFilterAltitude(x));
     const listFilterCids = getListFilterCids(store);
+    const userFilterCids = store.activeFilter.users?.cids?.length ? new Set(store.activeFilter.users.cids) : null;
 
     let filteredPilots = pilots.filter((pilot, index) => {
         if (!store.activeFilter) return true;
@@ -92,7 +94,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 
         if (store.activeFilter.flights?.diverted && (!('diverted' in pilot) || !pilot.diverted)) return false;
 
-        if (!filterUser(pilot, listFilterCids)) return false;
+        if (!filterUser(pilot, listFilterCids, userFilterCids)) return false;
 
         const airportsFilter: Record<'departure' | 'arrival' | 'departurePrefix' | 'arrivalPrefix' | 'routes', boolean | null> = {
             departure: null,
@@ -194,17 +196,22 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
         return true;
     });
 
-    if (store.activeFilter.invert) filteredPilots = pilots.filter(x => !filteredPilots.some(y => y.cid === x.cid));
+    const filteredPilotCids = new Set(filteredPilots.map(x => x.cid));
+
+    if (store.activeFilter.invert) filteredPilots = pilots.filter(x => !filteredPilotCids.has(x.cid));
 
     if (typeof store.activeFilter.others === 'object' && (typeof store.activeFilter.others.othersOpacity === 'number' || store.activeFilter.others.ourColor)) {
         const others = store.activeFilter.others as IUserFilterOthers;
 
-        pilots.map(pilot => {
-            if (!('pilot_rating' in pilot)) return;
-            const excluded = !filteredPilots.some(x => x.cid === pilot.cid);
-            if (excluded && typeof others.othersOpacity === 'number') pilot.filteredOpacity = others.othersOpacity;
-            if (!excluded && others.ourColor) pilot.filteredColor = others.ourColor;
-        });
+        for (const pilot of pilots) {
+            if (!('pilot_rating' in pilot)) continue;
+            const filteredPilot = pilot as VatsimShortenedAircraft;
+            const excluded = store.activeFilter!.invert
+                ? filteredPilotCids.has(pilot.cid)
+                : !filteredPilotCids.has(pilot.cid);
+            if (excluded && typeof others.othersOpacity === 'number') filteredPilot.filteredOpacity = others.othersOpacity;
+            if (!excluded && others.ourColor) filteredPilot.filteredColor = others.ourColor;
+        }
 
         return pilots;
     }
@@ -228,11 +235,11 @@ export function hasActiveATCFilter() {
     return true;
 }
 
-function filterController(atc: VatsimShortenedController, listFilterCids: ListFilterCids): boolean {
+function filterController(atc: VatsimShortenedController, listFilterCids: ListFilterCids, userFilterCids: Set<number> | null): boolean {
     const store = useStore();
     if (!store.activeFilter) return true;
 
-    if (!filterUser(atc, listFilterCids)) return false;
+    if (!filterUser(atc, listFilterCids, userFilterCids)) return false;
     if (store.activeFilter.atc?.notTunedUp && (atc.frequencies?.some(x => x === atc.frequency) || atc.isATIS)) return false;
     if (store.activeFilter.atc?.ratings?.length && !store.activeFilter.atc.ratings.some(x => atc.rating === x)) return false;
     if (store.activeFilter.atc?.facilities?.length && !store.activeFilter.atc.facilities.some(x => atc.facility === x || (atc.isATIS && x === -1))) return false;
@@ -249,13 +256,16 @@ export function filterVatsimControllers(controllers: VatsimLiveDataShort['contro
     if (!hasActiveATCFilter() || !store.activeFilter) return { controllers, atis };
 
     const listFilterCids = getListFilterCids(store);
+    const userFilterCids = store.activeFilter.users?.cids?.length ? new Set(store.activeFilter.users.cids) : null;
 
-    let filteredControllers = controllers.filter(local => filterController(local, listFilterCids));
-    let filteredAtis = atis.filter(local => filterController(local, listFilterCids));
+    let filteredControllers = controllers.filter(local => filterController(local, listFilterCids, userFilterCids));
+    let filteredAtis = atis.filter(local => filterController(local, listFilterCids, userFilterCids));
 
     if (store.activeFilter.invert) {
-        filteredControllers = controllers.filter(x => !filteredControllers.some(y => y.cid === x.cid));
-        filteredAtis = atis.filter(x => !filteredAtis.some(y => y.cid === x.cid));
+        const controllerCids = new Set(filteredControllers.map(x => x.cid));
+        const atisCids = new Set(filteredAtis.map(x => x.cid));
+        filteredControllers = controllers.filter(x => !controllerCids.has(x.cid));
+        filteredAtis = atis.filter(x => !atisCids.has(x.cid));
     }
 
     return { controllers: filteredControllers, atis: filteredAtis };

@@ -11,6 +11,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import type { AircraftIconType } from '../icons';
 import type { HeadingPair } from '~/utils/map/distance';
+import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import type {
     NavDataFlightLevel,
     NavigraphNavDataAirportWaypointConstraints, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
@@ -159,6 +160,10 @@ export interface FeatureAircraftProperties {
     selected?: boolean;
     onGround: boolean;
     color: string;
+    departure?: string;
+    arrival?: string;
+    filteredStyle?: UserMapSettingsColor | number;
+    styleCacheKey?: string;
 }
 
 export interface FeatureAircraftLineProperties {

@@ -1,6 +1,7 @@
 import type VectorLayer from 'ol/layer/Vector.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
+import type { FeatureAircraft } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
 import RegularShape from 'ol/style/RegularShape.js';
 import { useStore } from '~/store';
@@ -9,7 +10,7 @@ import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import {
     fetchAircraftPngIcon,
     fetchAircraftSvgIcon,
-    getAircraftStatusColor, getFilteredAircraftSettings,
+    getAircraftStatusColor,
     getFlightRowColor,
     ownFlight,
     reColorSvg,
@@ -34,7 +35,6 @@ const fetchedIcons: PartialRecord<AircraftIcon, string | Promise<string>> = {};
 const fetchedPngIcons = new Map<string, HTMLImageElement | Promise<HTMLImageElement>>();
 let refreshAircraftStyle: (() => void) | undefined;
 let refreshAircraftStyleFrame: number | null = null;
-
 function scheduleAircraftStyleRefresh() {
     if (!refreshAircraftStyle || refreshAircraftStyleFrame !== null) return;
 
@@ -160,9 +160,13 @@ function getAircraftHitboxStyle(size: number) {
 }
 
 function getAircraftPngWidth(renderedWidth: number) {
-    const pixelRatio = typeof globalThis.devicePixelRatio === 'number' ? Math.min(Math.ceil(globalThis.devicePixelRatio), 3) : 1;
+    const pixelRatio = getAircraftPixelRatio();
 
     return Math.ceil((renderedWidth * pixelRatio) / 10) * 10;
+}
+
+function getAircraftPixelRatio() {
+    return typeof globalThis.devicePixelRatio === 'number' ? Math.min(Math.ceil(globalThis.devicePixelRatio), 3) : 1;
 }
 
 export function isPilotOverlayParked(overlay: { minified: boolean; sticky: boolean }): boolean {
@@ -172,6 +176,13 @@ export function isPilotOverlayParked(overlay: { minified: boolean; sticky: boole
 
 export const aircraftOverlays = globalComputed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
 
+export function resetAircraftStyleCache(layer: VectorLayer) {
+    for (const feature of layer.getSource()?.getFeatures() ?? []) {
+        feature.set('styleCacheKey', undefined, true);
+    }
+    layer.changed();
+}
+
 export function setAircraftStyle(layer: VectorLayer) {
     styleCache = {};
     hitboxImageCache = {};
@@ -180,9 +191,7 @@ export function setAircraftStyle(layer: VectorLayer) {
     aircraftStyleCids = new Set();
     const store = useStore();
     const mapStore = useMapStore();
-    refreshAircraftStyle = () => {
-        layer.changed();
-    };
+    refreshAircraftStyle = () => resetAircraftStyleCache(layer);
 
     const airports = computed(() => Object.fromEntries(store.activeDashboard?.airports.filter(x => x.aircraftColor).map(x => [x.icao, x.aircraftColor]) ?? []));
 
@@ -195,16 +204,14 @@ export function setAircraftStyle(layer: VectorLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft', properties)) {
-            let { rotation, icon, scale, status, color: aircraftColor, cid, callsign, onGround, selected } = properties;
+            let { rotation, icon, scale, status, cid, callsign, onGround, selected, departure, arrival, filteredStyle } = properties;
             const hovered = mapStore.hoveredPilot === cid;
 
             if (hovered) {
                 status = 'hover';
-                aircraftColor = getAircraftStatusColor('hover');
             }
             else if (selected) {
                 status = 'active';
-                aircraftColor = getAircraftStatusColor('active');
             }
 
             if (icon.icon === 'ball') rotation = 0;
@@ -212,7 +219,30 @@ export function setAircraftStyle(layer: VectorLayer) {
             const aircraftKey = String(properties.cid);
             const styleKey = `aircraft-${ aircraftKey }`;
             const textKey = `${ styleKey }-text`;
+            const hitboxKey = `${ styleKey }-hitbox`;
             aircraftStyleCids.add(cid);
+
+            const filteredColor = filteredStyle && typeof filteredStyle === 'object' ? filteredStyle.color : undefined;
+            const filteredTransparency = filteredStyle && typeof filteredStyle === 'object' ? filteredStyle.transparency : undefined;
+            const filteredOpacity = typeof filteredStyle === 'number' ? filteredStyle : undefined;
+            const styleCacheKey = [
+                status,
+                icon.icon,
+                scale,
+                callsign,
+                Number(onGround),
+                departure,
+                arrival,
+                filteredColor,
+                filteredTransparency,
+                filteredOpacity,
+                getAircraftPixelRatio(),
+            ].join('|');
+            const cachedImageStyle = styleCache[styleKey];
+
+            if (cachedImageStyle && rotation !== cachedImageStyle.getImage()?.getRotation()) {
+                cachedImageStyle.getImage()?.setRotation(rotation);
+            }
 
             if (mapStore.moving) {
                 if (!styleCache[styleKey]) return undefined;
@@ -224,6 +254,13 @@ export function setAircraftStyle(layer: VectorLayer) {
                 return [styleCache[styleKey], styleCache[textKey]];
             }
 
+            if (properties.styleCacheKey === styleCacheKey && cachedImageStyle) {
+                if (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) return cachedImageStyle;
+                if (styleCache[hitboxKey] && styleCache[textKey]) return [styleCache[hitboxKey], cachedImageStyle, styleCache[textKey]];
+            }
+
+            const aircraftColor = getAircraftStatusColor(status, cid);
+
             let color = getColorValueByKey(status === 'ground'
                 ? 'map.preferences.colors.default.aircraft.ground'
                 : 'map.preferences.colors.default.aircraft.main');
@@ -232,14 +269,13 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             const list = favorites.value[cid];
 
-            const filter = getFilteredAircraftSettings(cid);
             let filterColor: string | undefined;
             let filterOpacity: number | undefined;
 
-            if (filter) {
-                if (typeof filter === 'number') filterOpacity = filter;
+            if (filteredStyle) {
+                if (typeof filteredStyle === 'number') filterOpacity = filteredStyle;
                 else {
-                    filterColor = getColorFromSettings(filter);
+                    filterColor = getColorFromSettings(filteredStyle);
                 }
             }
 
@@ -249,15 +285,13 @@ export function setAircraftStyle(layer: VectorLayer) {
                 onGround,
                 scale,
             });
-            const aircraft = useDataStore().vatsim.data.keyedPilots.value[cid];
-
             const pngImage = (status === 'default' || status === 'ground') && !list;
 
             if (!styleCache[styleKey]) {
                 styleCache[styleKey] = new Style();
             }
 
-            const airportColor = airports.value[aircraft?.arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
+            const airportColor = airports.value[arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
             const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
             const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ getAircraftPngWidth(scaledWidth) },quality_85,f_webp/aircraft/${ icon.icon }${ suffix }.png`;
@@ -308,9 +342,9 @@ export function setAircraftStyle(layer: VectorLayer) {
                 svgSrc ? undefined : !!png,
             ].join('|');
 
-            let cachedImageStyle = aircraftImageStyleCache.get(cid);
-            if (!cachedImageStyle || cachedImageStyle.key !== imageStyleKey) {
-                cachedImageStyle = {
+            let cachedAircraftImage = aircraftImageStyleCache.get(cid);
+            if (!cachedAircraftImage || cachedAircraftImage.key !== imageStyleKey) {
+                cachedAircraftImage = {
                     key: imageStyleKey,
                     pngSrc: pngImage ? pngSrc : undefined,
                     image: new Icon({
@@ -324,9 +358,9 @@ export function setAircraftStyle(layer: VectorLayer) {
                         rotateWithView: true,
                     }),
                 };
-                aircraftImageStyleCache.set(cid, cachedImageStyle);
+                aircraftImageStyleCache.set(cid, cachedAircraftImage);
             }
-            const imageStyle = cachedImageStyle.image;
+            const imageStyle = cachedAircraftImage.image;
 
             if (rotation !== imageStyle.getRotation()) {
                 imageStyle.setRotation(rotation);
@@ -336,7 +370,10 @@ export function setAircraftStyle(layer: VectorLayer) {
                 styleCache[styleKey].setImage(imageStyle);
             }
 
-            if (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) return styleCache[styleKey];
+            if (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) {
+                (feature as FeatureAircraft).set('styleCacheKey', styleCacheKey, true);
+                return styleCache[styleKey];
+            }
 
             let textStyle = styleCache[textKey];
             if (!textStyle) {
@@ -381,7 +418,9 @@ export function setAircraftStyle(layer: VectorLayer) {
                 text.getFill()!.setColor(aircraftColor);
             }
 
-            return [getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight)), styleCache[styleKey], styleCache[textKey]];
+            styleCache[hitboxKey] = getAircraftHitboxStyle(Math.max(scaledWidth, scaledHeight));
+            (feature as FeatureAircraft).set('styleCacheKey', styleCacheKey, true);
+            return [styleCache[hitboxKey], styleCache[styleKey], styleCache[textKey]];
         }
     });
 }
@@ -392,6 +431,7 @@ export function pruneAircraftStyleCache(activeCids: ReadonlySet<number>) {
 
         delete styleCache[`aircraft-${ cid }`];
         delete styleCache[`aircraft-${ cid }-text`];
+        delete styleCache[`aircraft-${ cid }-hitbox`];
         aircraftImageStyleCache.delete(cid);
         svgSrcCache.delete(cid);
         aircraftStyleCids.delete(cid);

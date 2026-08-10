@@ -4,7 +4,7 @@ import type { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector.js';
 import { Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
-import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
+import { getNavigraphParsedDataBulk, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
 import turfBearing from '@turf/bearing';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
@@ -19,6 +19,7 @@ import type { FeatureNavigraphItemProperties } from '~/utils/map/entities';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type {
     NavigraphNavDataEnrouteWaypointPartial,
+    NavigraphNavDataShort,
 } from '~/utils/server/navigraph/navdata/types';
 import type { PilotNavigraphWaypoints } from '~/composables/render/storage';
 import { logBench } from '~/composables';
@@ -33,7 +34,7 @@ const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-let skipUpdate = false;
+let triggeringNavigraphWaypointOutputs = false;
 
 if (source) {
     watch(source, value => setSmoothNavigraphRouteSource(value), { immediate: true });
@@ -221,7 +222,7 @@ async function update() {
                     if (aDiff > 180) aDiff = 360 - aDiff;
 
                     let bDiff = Math.abs(b[2] - bearing);
-                    if (bDiff > 180) bDiff = 360 - aDiff;
+                    if (bDiff > 180) bDiff = 360 - bDiff;
 
                     return aDiff - bDiff;
                 }
@@ -256,7 +257,10 @@ async function update() {
 
             // The static route only changes when its parsed waypoints or display settings do.
             // Reuse it only if the unchanged full selector picked the same next waypoint.
-            if (cachedRoute && hasSameRoute(cachedRoute, route) && hasSameNextWaypoint(cachedRoute, rawWaypoints[0])) {
+            const hasCachedStaticFeatures = cachedRoute && Array.from(cachedRoute.staticKeys).every(id => !!getMapFeature('navigraph', source!.value, id));
+            const staticCacheHit = !!cachedRoute && hasSameRoute(cachedRoute, route) && hasSameNextWaypoint(cachedRoute, rawWaypoints[0]) && hasCachedStaticFeatures;
+
+            if (staticCacheHit) {
                 for (const id of cachedRoute.staticKeys) {
                     keys.add(id);
                     if (currentFlight) currentFlightKeys.add(id);
@@ -295,6 +299,20 @@ async function update() {
             }
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
+
+            let airwayNdbByIdentifier = new Map<string, NavigraphNavDataShort['ndb'] | null>();
+            let airwayVhfByIdentifier = new Map<string, NavigraphNavDataShort['vhf'] | null>();
+
+            if (!staticCacheHit && !disableWaypoints) {
+                const airwayWaypointIdentifiers = waypoints.flatMap(waypoint => waypoint.kind === 'airways'
+                    ? waypoint.airway!.value[2].map(airwayWaypoint => airwayWaypoint[0])
+                    : []);
+
+                [airwayNdbByIdentifier, airwayVhfByIdentifier] = await Promise.all([
+                    getNavigraphParsedDataBulk('ndb', airwayWaypointIdentifiers),
+                    getNavigraphParsedDataBulk('vhf', airwayWaypointIdentifiers),
+                ]);
+            }
 
             let i = 0;
 
@@ -351,7 +369,7 @@ async function update() {
                         continue;
                     }
 
-                    if (!disableWaypoints) {
+                    if (!disableWaypoints && !staticCacheHit) {
                         addFeature(`enroute-${ waypoint.identifier }`, () => ({
                             geometry: new Point(waypoint.coordinate!),
                             identifier: disableLabels ? '' : waypoint.identifier,
@@ -383,15 +401,17 @@ async function update() {
                         applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
                     }
 
-                    addFeature(`enroute-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
-                        geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
-                        key: '',
-                        identifier: disableLabels ? '' : waypoint.title ?? '',
-                        featureType: 'enroute-airways',
-                        type: 'navigraph',
-                        kind: nextWaypoint.kind,
-                        dbType: nextWaypoint.kind,
-                    }));
+                    if (!staticCacheHit) {
+                        addFeature(`enroute-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
+                            geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
+                            key: '',
+                            identifier: disableLabels ? '' : waypoint.title ?? '',
+                            featureType: 'enroute-airways',
+                            type: 'navigraph',
+                            kind: nextWaypoint.kind,
+                            dbType: nextWaypoint.kind,
+                        }));
+                    }
                 }
                 else {
                     for (let k = 0; k < waypoint.airway!.value[2].length; k++) {
@@ -421,11 +441,11 @@ async function update() {
                             onFirstWaypoint(currWaypoint[0], [currWaypoint[3], currWaypoint[4]], waypoint.kind);
                         }
 
-                        if (!disableWaypoints) {
+                        if (!disableWaypoints && !staticCacheHit) {
                             let type: FeatureNavigraphItemProperties['featureType'] = 'enroute-airways-waypoint';
 
-                            const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? '').find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
-                            const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? '').find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
+                            const ndb = Object.entries(airwayNdbByIdentifier.get(currWaypoint[0]) ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const vhf = Object.entries(airwayVhfByIdentifier.get(currWaypoint[0]) ?? {}).find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
 
                             if (ndb) {
                                 type = 'enroute-ndb';
@@ -455,7 +475,7 @@ async function update() {
                                 name: ndb?.[1][1] ?? vhf?.[1][1],
                                 ident: ndb?.[1][0] ?? vhf?.[1][0],
                                 dme: vhf?.[1][2],
-                                frequency: ndb?.[1][2] ?? vhf?.[1][2],
+                                frequency: ndb?.[1][2] ?? vhf?.[1][3],
                                 key: ndb?.[0] ?? vhf?.[0],
                             }));
                         }
@@ -465,41 +485,45 @@ async function update() {
                             if (nextCoordinate?.[0]) {
                                 applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
 
-                                addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`, () => ({
-                                    geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
-                                    key: '',
-                                    id: `enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`,
-                                    identifier: '',
-                                    featureType: 'enroute-airways',
-                                    type: 'navigraph',
-                                    kind: waypoint.kind,
-                                    dbType: waypoint.kind,
-                                    altitude: waypoint.altitude,
-                                    altitude1: waypoint.altitude1,
-                                    altitude2: waypoint.altitude2,
-                                    speed: waypoint.speed,
-                                    speedLimit: waypoint.speedLimit,
-                                }));
+                                if (!staticCacheHit) {
+                                    addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`, () => ({
+                                        geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
+                                        key: '',
+                                        id: `enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`,
+                                        identifier: '',
+                                        featureType: 'enroute-airways',
+                                        type: 'navigraph',
+                                        kind: waypoint.kind,
+                                        dbType: waypoint.kind,
+                                        altitude: waypoint.altitude,
+                                        altitude1: waypoint.altitude1,
+                                        altitude2: waypoint.altitude2,
+                                        speed: waypoint.speed,
+                                        speedLimit: waypoint.speedLimit,
+                                    }));
+                                }
                             }
                             continue;
                         }
 
                         applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]]);
 
-                        addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`, () => ({
-                            geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]], { npoints: 8 })),
-                            key: waypoint.airway!.key,
-                            id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`,
-                            identifier: disableLabels ? '' : waypoint.airway!.value[0],
-                            inbound: currWaypoint[1],
-                            outbound: currWaypoint[2],
-                            waypoint: disableLabels ? '' : currWaypoint[0],
-                            flightLevel: currWaypoint[5],
-                            featureType: 'enroute-airways',
-                            type: 'navigraph',
-                            kind: waypoint.kind,
-                            dbType: waypoint.kind,
-                        }));
+                        if (!staticCacheHit) {
+                            addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`, () => ({
+                                geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]], { npoints: 8 })),
+                                key: waypoint.airway!.key,
+                                id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`,
+                                identifier: disableLabels ? '' : waypoint.airway!.value[0],
+                                inbound: currWaypoint[1],
+                                outbound: currWaypoint[2],
+                                waypoint: disableLabels ? '' : currWaypoint[0],
+                                flightLevel: currWaypoint[5],
+                                featureType: 'enroute-airways',
+                                type: 'navigraph',
+                                kind: waypoint.kind,
+                                dbType: waypoint.kind,
+                            }));
+                        }
                     }
                 }
             }
@@ -567,8 +591,13 @@ async function update() {
 
         if (featuresToAdd.length) source?.value.addFeatures(featuresToAdd);
 
-        skipUpdate = true;
-        triggerRef(dataStore.navigraphWaypoints);
+        triggeringNavigraphWaypointOutputs = true;
+        try {
+            triggerRef(dataStore.navigraphWaypoints);
+        }
+        finally {
+            triggeringNavigraphWaypointOutputs = false;
+        }
         log();
     }
     catch (e) {
@@ -579,13 +608,11 @@ async function update() {
 const debouncedUpdate = useThrottleFn(update, 1000, true);
 
 watch(dataStore.navigraphWaypoints, () => {
-    if (skipUpdate) {
-        skipUpdate = false;
-        return;
-    }
+    if (triggeringNavigraphWaypointOutputs) return;
     debouncedUpdate();
 }, {
     immediate: true,
+    flush: 'sync',
 });
 
 onBeforeUnmount(cleanup);

@@ -148,6 +148,63 @@ function findIntersectionPoints(line1: TurfFeature<LineString>, line2: TurfFeatu
     return intersections.features;
 }
 
+type PolygonBounds = [minX: number, minY: number, maxX: number, maxY: number];
+
+function getPolygonBounds(feature: TurfFeature<TurfPolygon | TurfMultiPolygon>): PolygonBounds {
+    const polygons = feature.geometry.type === 'Polygon'
+        ? [feature.geometry.coordinates]
+        : feature.geometry.coordinates;
+    const bounds: PolygonBounds = [Infinity, Infinity, -Infinity, -Infinity];
+
+    for (const polygon of polygons) {
+        for (const ring of polygon) {
+            for (const [x, y] of ring) {
+                bounds[0] = Math.min(bounds[0], x);
+                bounds[1] = Math.min(bounds[1], y);
+                bounds[2] = Math.max(bounds[2], x);
+                bounds[3] = Math.max(bounds[3], y);
+            }
+        }
+    }
+
+    return bounds;
+}
+
+function boundsIntersect(first: PolygonBounds, second: PolygonBounds) {
+    return first[0] <= second[2] && first[2] >= second[0] && first[1] <= second[3] && first[3] >= second[1];
+}
+
+function pointWithinBounds(point: TurfFeature<Point>, bounds: PolygonBounds) {
+    const [x, y] = point.geometry.coordinates;
+    const tolerance = 0.01;
+    return x >= bounds[0] - tolerance && x <= bounds[2] + tolerance && y >= bounds[1] - tolerance && y <= bounds[3] + tolerance;
+}
+
+function groupIntersectingBounds(bounds: PolygonBounds[]) {
+    const remaining = new Set(bounds.map((_, index) => index));
+    const groups: number[][] = [];
+
+    while (remaining.size) {
+        const first = remaining.values().next().value!;
+        const group = [first];
+        remaining.delete(first);
+
+        // Include transitive bbox neighbours so disconnected geographic groups are swept independently.
+        for (let cursor = 0; cursor < group.length; cursor++) {
+            const current = group[cursor];
+            for (const candidate of [...remaining]) {
+                if (!boundsIntersect(bounds[current], bounds[candidate])) continue;
+                group.push(candidate);
+                remaining.delete(candidate);
+            }
+        }
+
+        groups.push(group);
+    }
+
+    return groups;
+}
+
 /**
  * Adds intersection points to a LineString.
  * @param line The LineString to add points to.
@@ -222,48 +279,49 @@ const isPointOnSegment = (p1: number[], p2: number[], p: number[], tolerance: nu
  */
 function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): TurfFeature<TurfPolygon>[] {
     const modifiedPolygons: TurfFeature<TurfPolygon>[] = [];
-    const intersectionPointsMap = new Map<string, TurfFeature<Point>[]>();
     const preparedPolygons = polygons.map(polygon => removeDuplicateCoords(polygon));
     const lineStrings = preparedPolygons.map(polygon => polygonToLineString(polygon));
+    const polygonBounds = preparedPolygons.map(polygon => getPolygonBounds(polygon));
+    const intersectionPoints = preparedPolygons.map(() => [] as TurfFeature<Point>[]);
+
+    for (const group of groupIntersectingBounds(polygonBounds)) {
+        if (group.length < 2) continue;
+
+        try {
+            // Turf can sweep a connected sector group once instead of rebuilding a sweep for every polygon pair.
+            const groupedLines = group.map(index => lineStrings[index]);
+            const allPoints = lineIntersect(featureCollection<LineString>(groupedLines), featureCollection<LineString>([])).features;
+            for (const index of group) {
+                intersectionPoints[index] = allPoints.filter(point => pointWithinBounds(point, polygonBounds[index]));
+            }
+        }
+        catch (e) {
+            if (VGdebugMode) console.error(e);
+
+            // Keep a pairwise fallback for malformed datasets, while still avoiding impossible bbox pairs.
+            for (let i = 0; i < group.length; i++) {
+                for (let j = i + 1; j < group.length; j++) {
+                    const first = group[i];
+                    const second = group[j];
+                    if (!boundsIntersect(polygonBounds[first], polygonBounds[second])) continue;
+                    const points = findIntersectionPoints(lineStrings[first], lineStrings[second]);
+                    intersectionPoints[first].push(...points);
+                    intersectionPoints[second].push(...points);
+                }
+            }
+        }
+    }
 
     for (let i = 0; i < polygons.length; i++) {
         try {
             if (insertfailed) break;
             const polygon1 = preparedPolygons[i];
             const line1 = lineStrings[i];
-            let intersectionPoints: TurfFeature<Point>[] = [];
-
-            for (let j = 0; j < polygons.length; j++) {
-                if (i === j) continue;
-
-                const line2 = lineStrings[j];
-
-                // Check if intersection points are already in the map
-                let points: TurfFeature<Point>[];
-
-                const mapKey1 = `${ i }-${ j }`;
-                const mapKey2 = `${ j }-${ i }`;
-                const points1 = intersectionPointsMap.get(mapKey1);
-                const points2 = intersectionPointsMap.get(mapKey2);
-                if (points1) {
-                    points = points1;
-                }
-                else if (points2) {
-                    points = points2;
-                }
-                else {
-                // Find intersection points between the current polygon and all other polygons
-                    points = findIntersectionPoints(line1, line2);
-                    intersectionPointsMap.set(mapKey1, points);
-                    intersectionPointsMap.set(mapKey2, points);
-                }
-
-                intersectionPoints.push(...points);
-            }
+            let currentIntersectionPoints = intersectionPoints[i];
 
             // Ensure intersection points are unique
             const uniqueIntersectionPointKeys = new Set<string>();
-            intersectionPoints = intersectionPoints.filter(point => {
+            currentIntersectionPoints = currentIntersectionPoints.filter(point => {
                 const key = `${ point.geometry.coordinates[0] },${ point.geometry.coordinates[1] }`;
                 if (uniqueIntersectionPointKeys.has(key)) {
                     return false;
@@ -274,7 +332,7 @@ function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): 
             });
 
             // Add all collected intersection points to the current polygon
-            const modifiedLine1 = addPointsToLine(line1, intersectionPoints);
+            const modifiedLine1 = addPointsToLine(line1, currentIntersectionPoints);
             const modifiedPolygon1 = lineStringToPolygon(modifiedLine1);
             modifiedPolygon1.properties = structuredClone(polygon1.properties);
 
@@ -372,6 +430,11 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             let remainingOfCurrentPolygon: TurfFeature<TurfPolygon | TurfMultiPolygon> | null = currentPolygon;
             for (const resultPolygon of resultPolygons) {
                 if (!remainingOfCurrentPolygon) {
+                    newResultPolygons.push(resultPolygon);
+                    continue;
+                }
+
+                if (!boundsIntersect(getPolygonBounds(remainingOfCurrentPolygon), getPolygonBounds(resultPolygon))) {
                     newResultPolygons.push(resultPolygon);
                     continue;
                 }

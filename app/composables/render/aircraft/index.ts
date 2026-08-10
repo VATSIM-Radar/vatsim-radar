@@ -199,6 +199,7 @@ export async function setMapAircraft(settings: {
         renderState.status = status;
 
         const scale = getAircraftScale(featureCoordinates, aircraft.icon, isOnGround);
+        const filteredStyle = getFilteredAircraftSettings(aircraft.cid);
 
         const properties: FeatureAircraftProperties = {
             id: aircraft.cid,
@@ -213,6 +214,9 @@ export async function setMapAircraft(settings: {
             onGround: isOnGround,
             coordinates: featureCoordinates,
             color: renderState.color,
+            departure: pilot?.departure,
+            arrival: pilot?.arrival,
+            filteredStyle,
         };
 
         if (existingFeature) {

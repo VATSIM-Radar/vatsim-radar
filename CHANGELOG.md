@@ -1,5 +1,25 @@
 # Changelog
 
+# [2.0.1-beta.3]
+
+## Next fixes
+
+- Disabled smooth calculations on low zoom levels and on many pilots
+
+## Performance improvements
+
+- Improved aircraft render performance
+- Improved smooth aircraft performance
+- Significantly reduced CPU load when using filter
+- Improved Navigraph Route performance
+- Significantly improved VATGlasses Combined performance
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as cache grows
+
+## Bug fixes
+
+- Fixed VHF frequency lookup in airway routes
+- Fixed bearing-difference calculation when selecting the closest Navigraph waypoint
+
 # [2.0.1-beta.2]
 
 ## Bug Fixes
