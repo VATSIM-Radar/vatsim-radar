@@ -4,6 +4,10 @@ Hey all. VATSIM Radar v2 has released 2 weeks ago as I'm writing this post.
 
 Let's talk about your feedback and answer some questions.
 
+TL;DR:
+- Font for ATIS/Controller info will be changed
+- Performance will be improved
+
 ## General Feedback
 
 I've conducted a poll about v2. Unfortunately, only 150 responses were received, while I hoped this number to be at or
