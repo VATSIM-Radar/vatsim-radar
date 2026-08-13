@@ -167,7 +167,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
     const restrictedAirspaceStyle = new Style({
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.3)`,
             width: 1,
         }),
         text: new Text({
@@ -186,11 +186,11 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
     const restrictedAirspaceStyleSelected = new Style({
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.3)`,
             width: 1,
         }),
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.07)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.1)`,
         }),
         text: new Text({
             font: getTextFont('caption'),
@@ -232,7 +232,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
             width: 1,
         }),
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.07)`,
+            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.1)`,
         }),
         text: new Text({
             font: getTextFont('caption'),
