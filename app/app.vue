@@ -88,6 +88,12 @@ async function receiveMessage(event: MessageEvent) {
     }
 
     if (data.type === 'get-bookmarks') {
+        // Bookmarks may not be loaded into the store when this is called. Force them to load
+        // before responding to the request.
+        if (!store.bookmarks.length) {
+            await store.fetchBookmarks().catch(console.error);
+        }
+
         // This only returns the properties required for an external application to display a list
         // of bookmarks then activate one.
         const bookmarkData = store.bookmarks.map(bookmark => ({
@@ -116,7 +122,7 @@ async function receiveMessage(event: MessageEvent) {
 
     if (data.type === 'activate-bookmark') {
         // The ID of the bookmark to activate.
-        const id = event.data.data.id;
+        const id = data.data.id;
 
         // Verify the bookmark exists before attempting to activate it.
         const bookmark = store.bookmarks.find(bookmark => bookmark.id === id);
@@ -145,7 +151,7 @@ async function receiveMessage(event: MessageEvent) {
 
     if (data.type === 'activate-dashboard') {
         // The ID of the dashboard to activate.
-        const id = event.data.data.id;
+        const id = data.data.id;
 
         // Verify the dashboard exists before attempting to activate it.
         const dashboard = store.dashboards.find(dashboard => dashboard.id === id);

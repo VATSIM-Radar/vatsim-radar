@@ -31,10 +31,12 @@ export default defineNuxtPlugin(async () => {
 
         // Don't inject the tracking code if this is run in local development. This prevents
         // CORS errors when attempting to navigate to /?bookmark={id} in local develompment.
-        const isLocalOrigin = import.meta.dev ||
+        // The hostname checks only happen on the client side.
+        const isLocalOrigin = import.meta.dev || (import.meta.client && (
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1' ||
-            window.location.hostname.endsWith('.local');
+            window.location.hostname.endsWith('.local')
+        ));
 
         if (policy.value.accepted && policy.value.rum && !isLocalOrigin) {
             script.push({
