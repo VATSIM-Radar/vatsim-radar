@@ -93,6 +93,19 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
         value: getSettingValue('map.preferences.debugMode'),
         onChange: value => setSettingByKey('map.preferences.debugMode', value),
     },
+    hoverInteraction: {
+        title: 'Hover interaction',
+        description: 'Allows you to hover over elements on map',
+        type: 'radio',
+        items: [
+            { value: 'default', text: 'PC and Tablets' },
+            { value: 'falseForTablets', text: 'PC only' },
+            { value: 'trueForAll', text: 'Force enable everywhere' },
+            { value: 'falseForAll', text: 'Force disable everywhere' },
+        ],
+        value: getSettingValue('map.preferences.hoverInteraction'),
+        onChange: value => setSettingByKey('map.preferences.hoverInteraction', value),
+    },
     featuredDefaultBookmarks: {
         title: 'Default to Bookmarks in Favorite',
         description: 'Opens Bookmarks tab by default instead of Favorite airports in Favorite popup',

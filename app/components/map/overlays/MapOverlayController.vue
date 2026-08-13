@@ -77,17 +77,17 @@
                             </template>
                             <template #item-total="{ item }">
                                 <span class="atc__chip">
-                                    <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                    <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
                                 </span>
                             </template>
                             <template #item-on-rating="{ item }">
                                 <span class="atc__chip">
-                                    <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                                    <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
                                 </span>
                             </template>
                             <template #item-time-online="{ item }">
                                 <span class="atc__chip">
-                                    <ui-chip text-type="3b-medium-alt">{{item.text}}</ui-chip>
+                                    <ui-chip text-type="caption">{{item.text}}</ui-chip>
                                 </span>
                             </template>
                         </ui-data-list>

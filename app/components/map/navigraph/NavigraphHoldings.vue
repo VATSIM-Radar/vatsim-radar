@@ -7,7 +7,9 @@ import { useMapStore } from '~/store/map';
 import type { NavDataFlightLevel, NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
-import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
+import { createMapFeature } from '~/utils/map/entities';
+import type { FeatureNavigraph } from '~/utils/map/entities';
+import { createSpatialGridIndex } from '~/utils/map/spatial-index';
 import { getNavigraphParsedData } from '~/composables/navigraph';
 
 defineOptions({
@@ -174,53 +176,84 @@ const debouncedUpdate = useThrottleFn(() => {
             }));
         }
     }
-}, 500, true);
+}, 1000, true);
 
-watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures, extent], debouncedUpdate, {
+watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUpdate, {
     immediate: true,
 });
 
 let holdings: [string, NavigraphNavDataShort['holdings'][string]][] | null = null;
+let holdingsIndex: ReturnType<typeof createSpatialGridIndex<[string, NavigraphNavDataShort['holdings'][string]]>> | null = null;
+let dataVersion: string | null = null;
+const holdingFeatures = new Map<string, FeatureNavigraph>();
+const holdingTextFeatures = new Map<string, FeatureNavigraph>();
+let updateInProgress = false;
+let updatePending = false;
+let updateGeneration = 0;
+let processedGeneration = -1;
+let disposed = false;
 
-function cleanup() {
-    const features = source?.value.getFeatures() ?? [];
+function removeFeature(features: Map<string, FeatureNavigraph>, key: string) {
+    const feature = features.get(key);
+    if (!feature) return;
 
-    for (const feature of features) {
-        const type = feature.getProperties().featureType;
-        if (type.startsWith('holdings')) {
-            source?.value.removeFeature(feature);
-            feature.dispose();
-        }
-    }
+    source?.value.removeFeature(feature);
+    feature.dispose();
+    features.delete(key);
 }
 
-watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoint], async ([enabled, extent]) => {
+function cleanup() {
+    for (const key of holdingFeatures.keys()) removeFeature(holdingFeatures, key);
+    for (const key of holdingTextFeatures.keys()) removeFeature(holdingTextFeatures, key);
+}
+
+async function updateHoldings(generation: number) {
+    const enabled = isEnabled.value;
+    const currentExtent = extent.value;
+    const version = dataStore.navigraph.version.value;
+
+    if (dataVersion !== version) {
+        cleanup();
+        holdings = null;
+        holdingsIndex = null;
+        dataVersion = version;
+    }
+
     if (!enabled && !setAnyWaypoint.value) {
         holdings = null;
+        holdingsIndex = null;
         cleanup();
         return;
     }
 
     if (!enabled && holdings) {
         holdings = null;
+        holdingsIndex = null;
     }
 
     if (!holdings && enabled) {
         holdings = Object.entries(await dataStore.navigraph.data('holdings') ?? {});
+        if (disposed || generation !== updateGeneration) return;
+        holdingsIndex = createSpatialGridIndex({
+            getExtent: ([, value]) => [value[5], value[6], value[5], value[6]],
+        });
+        for (const item of holdings) holdingsIndex.add(item);
     }
 
-    const list = holdings ?? [];
+    const list = enabled && holdingsIndex ? holdingsIndex.query(currentExtent).slice() : [];
 
     for (const [waypoint, coordinate] of Object.entries(starWaypoints.value)) {
         const items = await getNavigraphParsedData('holdings', waypoint) ?? {};
+        if (disposed || generation !== updateGeneration) return;
         const item = Object.entries(items).find(x => x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
-        if (item) list.push(item);
+        if (item && !list.some(x => x[0] === item[0])) list.push(item);
     }
 
     for (const [waypoint, coordinate] of Object.entries(aircraftWaypoints.value)) {
         const items = await getNavigraphParsedData('holdings', waypoint) ?? {};
+        if (disposed || generation !== updateGeneration) return;
         const item = Object.entries(items).find(x => x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
-        if (item) list.push(item);
+        if (item && !list.some(x => x[0] === item[0])) list.push(item);
     }
 
     if (!list.length) {
@@ -228,24 +261,20 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoin
     }
 
     const added = new Set<string>();
+    const featuresToAdd: FeatureNavigraph[] = [];
 
-    for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of list) {
+    for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, , minLat, maxLat]] of list) {
         const id = `holding-${ key }`;
         const textId = `${ id }-text`;
-        const existingFeature = getMapFeature('navigraph', source!.value, id);
-        const existingTextFeature = getMapFeature('navigraph', source!.value, textId);
+        const existingFeature = holdingFeatures.get(id);
+        const existingTextFeature = holdingTextFeatures.get(textId);
 
-        if ((!enabled || type !== 'ENRT') && !starWaypoints.value[waypoint] && !aircraftWaypoints.value[waypoint]) {
+        // When the layer is enabled, all indexed holdings in the viewport are valid.
+        // The optional tuple type is not populated consistently across AIRAC cycles.
+        if (!enabled && !starWaypoints.value[waypoint] && !aircraftWaypoints.value[waypoint]) {
             if (existingFeature || existingTextFeature) {
-                if (existingFeature) {
-                    source?.value?.removeFeature(existingFeature);
-                    existingFeature.dispose();
-                }
-
-                if (existingTextFeature) {
-                    source?.value?.removeFeature(existingTextFeature);
-                    existingTextFeature.dispose();
-                }
+                if (existingFeature) removeFeature(holdingFeatures, id);
+                if (existingTextFeature) removeFeature(holdingTextFeatures, textId);
             }
 
             continue;
@@ -258,15 +287,13 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoin
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
-        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], extent) || (!enabled && !existingWaypoint)) {
+        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], currentExtent) || (!enabled && !existingWaypoint)) {
             if (existingFeature) {
-                source?.value?.removeFeature(existingFeature);
-                existingFeature.dispose();
+                removeFeature(holdingFeatures, id);
             }
 
             if (existingTextFeature) {
-                source?.value?.removeFeature(existingTextFeature);
-                existingTextFeature.dispose();
+                removeFeature(holdingTextFeatures, textId);
             }
 
             continue;
@@ -278,7 +305,7 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoin
         time ??= 0;
 
         if (!existingFeature) {
-            source?.value.addFeature(createMapFeature('navigraph', {
+            const feature = createMapFeature('navigraph', {
                 geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
                 key,
                 turns,
@@ -289,17 +316,18 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoin
                 id,
                 dbType: 'holdings',
                 pointCoordinate: [longitude, latitude],
-            }));
+            });
+            holdingFeatures.set(id, feature);
+            featuresToAdd.push(feature);
         }
 
         if (existingWaypoint) {
             if (existingTextFeature) {
-                source?.value?.removeFeature(existingTextFeature);
-                existingTextFeature.dispose();
+                removeFeature(holdingTextFeatures, textId);
             }
         }
         else if (!existingTextFeature) {
-            source?.value.addFeature(createMapFeature('navigraph', {
+            const feature = createMapFeature('navigraph', {
                 geometry: new Point([longitude, latitude]),
                 key,
                 turns,
@@ -310,24 +338,55 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoin
                 dbType: 'holdings',
                 waypoint,
                 id: textId,
-            }));
+            });
+            holdingTextFeatures.set(textId, feature);
+            featuresToAdd.push(feature);
         }
     }
 
-    const features = source?.value.getFeatures() ?? [];
-
-    for (const feature of features) {
-        const properties = feature.getProperties();
-        if (isMapFeature('navigraph', properties)) {
-            if (properties.dbType === 'holdings' && !added.has(properties.key ?? '')) {
-                source?.value.removeFeature(feature);
-                feature.dispose();
-            }
-        }
+    for (const [id, feature] of holdingFeatures) {
+        if (!added.has(feature.get('key') ?? '')) removeFeature(holdingFeatures, id);
     }
+    for (const [id, feature] of holdingTextFeatures) {
+        if (!added.has(feature.get('key') ?? '')) removeFeature(holdingTextFeatures, id);
+    }
+    if (featuresToAdd.length) source?.value.addFeatures(featuresToAdd);
+}
+
+async function runHoldingsUpdate() {
+    if (disposed || processedGeneration === updateGeneration) return;
+    if (updateInProgress) {
+        updatePending = true;
+        return;
+    }
+
+    updateInProgress = true;
+    try {
+        do {
+            updatePending = false;
+            const generation = updateGeneration;
+            await updateHoldings(generation);
+            processedGeneration = generation;
+        } while (!disposed && (updatePending || processedGeneration !== updateGeneration));
+    }
+    finally {
+        updateInProgress = false;
+    }
+}
+
+const updateHoldingsThrottled = useThrottleFn(runHoldingsUpdate, 1000, true);
+
+watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints, setAnyWaypoint, dataStore.navigraph.version], () => {
+    updateGeneration++;
+    if (updateInProgress) updatePending = true;
+    updateHoldingsThrottled();
 }, {
     immediate: true,
 });
 
-onBeforeUnmount(cleanup);
+onBeforeUnmount(() => {
+    disposed = true;
+    updateGeneration++;
+    cleanup();
+});
 </script>

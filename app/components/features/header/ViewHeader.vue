@@ -36,10 +36,7 @@
                             >
                                 <component :is="button.icon"/>
                             </div>
-                            <div
-                                v-if="!isMobileOrTablet || button.children?.length"
-                                class="header__btn_content"
-                            >
+                            <div class="header__btn_content">
                                 <div class="header__btn_content_text">
                                     {{ button.text }}
                                 </div>
@@ -158,7 +155,7 @@
                     size="S"
                     @click="vatsimAuth"
                 >
-                    <template v-if="isMobile">
+                    <template v-if="isMobileOrTablet">
                         Login
                     </template>
                     <template v-else>

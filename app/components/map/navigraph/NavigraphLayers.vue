@@ -302,7 +302,9 @@ function isNat(activeFeature: ActiveFeature<any>): activeFeature is NatFeature {
 const showAirwaysLabels = computed(() => getKeyedValueFromSettings('map.navigraph.layers.airways.showAirwaysLabel') !== false);
 const showWaypointsLabels = computed(() => getKeyedValueFromSettings('map.navigraph.layers.airways.showWaypointsLabel') !== false);
 
-watch([showAirwaysLabels, showWaypointsLabels], () => navigraphSource.value?.changed());
+const updateNavigraphLabels = useThrottleFn(() => navigraphSource.value?.changed(), 1000, true);
+
+watch([showAirwaysLabels, showWaypointsLabels], () => updateNavigraphLabels());
 
 async function handleMapClick(event: MapBrowserEvent<any>) {
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 21, layerFilter: val => val === navigraphLayer });

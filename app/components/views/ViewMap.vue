@@ -643,13 +643,19 @@ watch([visibleOverlays, popupsHeight, isMobile], async () => {
 let moving = true;
 let success = false;
 
+function updateMapExtent(view: View) {
+    const nextExtent = view.calculateExtent(map.value!.getSize());
+    if (nextExtent.every((value, index) => value === mapStore.extent[index])) return;
+    mapStore.extent = nextExtent;
+}
+
 async function handleMoveEnd() {
     if (!success) return;
     moving = false;
     const view = map.value!.getView();
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-    mapStore.extent = view.calculateExtent(map.value!.getSize());
+    updateMapExtent(view);
 
     mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 
@@ -681,7 +687,7 @@ async function handleMoveEnd() {
     mapStore.moving = false;
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-    mapStore.extent = view.calculateExtent(map.value!.getSize());
+    updateMapExtent(view);
 
     mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 }
@@ -954,9 +960,12 @@ await setupDataFetch({
 
             saveData(airports, aircraft);
         };
-        map.value.on('postrender', postrenderHandler);
 
-        mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+        const throttlePostrenderHandler = useThrottleFn(postrenderHandler, 1000, true);
+
+        map.value.on('postrender', throttlePostrenderHandler);
+
+        updateMapExtent(map.value!.getView());
         mapStore.center = map.value!.getView().getCenter()!;
 
         const targetMouseDownHandler = (event: MouseEvent) => {
@@ -1016,7 +1025,7 @@ await setupDataFetch({
             popupsResizeObserver?.disconnect();
             targetElement.removeEventListener('mousedown', targetMouseDownHandler);
             currentMap.un('pointerdrag', pointerDragHandler);
-            currentMap.un('postrender', postrenderHandler);
+            currentMap.un('postrender', throttlePostrenderHandler);
             currentMap.un('movestart', moveStartHandler);
             currentMap.un('moveend', moveEndHandler);
             currentMap.getView().un('change:resolution', resolutionChangeHandler);

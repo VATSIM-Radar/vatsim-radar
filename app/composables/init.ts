@@ -16,6 +16,7 @@ import type { UseDataStore } from '~/composables/render/storage';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';
+import { ensureVatglassesCombinedCacheVersion } from '~/composables/render/vatglasses-cache';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
     store: ReturnType<typeof useStore>;
@@ -80,6 +81,7 @@ export function checkForUpdates() {
         if (!dataStore.versions.value) {
             dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
             dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+            await ensureVatglassesCombinedCacheVersion(dataStore.versions.value.vatglasses).catch(error => console.error(error));
         }
     });
 }
@@ -100,14 +102,11 @@ export function checkForVATSpy() {
             const { features, ...metadata } = vatspy.data as VatSpyAPIData['data'];
             const boundaries = Object.entries(features);
 
-            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, async () => {
-                await clientDB.vatspyBoundaries.clear();
-                await clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
-                await clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
-            }).catch(async e => {
-                console.error(e);
-                await clientDB.delete();
-                location.reload();
+            await clientDB.transaction('rw', clientDB.data, clientDB.vatspyBoundaries, () => {
+                // Queue every request synchronously so IndexedDB cannot auto-commit between async continuations.
+                clientDB.vatspyBoundaries.clear();
+                clientDB.vatspyBoundaries.bulkPut(boundaries.map(([, boundary]) => boundary), boundaries.map(([key]) => key));
+                clientDB.data.put({ ...vatspy, data: metadata as any } as any, 'vatspy');
             });
 
             vatspy = { ...vatspy, data: metadata };
@@ -254,6 +253,11 @@ export function checkForVG() {
 
             await clientDB.vatglasses.bulkPut(Object.values(vgPositions), Object.keys(vgPositions));
             await clientDB.vatglasses.put(dataStore.versions.value!.vatglasses, 'version');
+        }
+
+        const currentVatglassesVersion = dataStore.versions.value?.vatglasses;
+        if (currentVatglassesVersion) {
+            await ensureVatglassesCombinedCacheVersion(currentVatglassesVersion).catch(error => console.error(error));
         }
 
         dataStore.vatglasses.value = vatglasses.version;

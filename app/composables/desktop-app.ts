@@ -164,20 +164,26 @@ export function getDiscordPresence() {
         if (atc) {
             presence.details = atc.callsign;
 
-            const sector = findATCSector(atc);
-
-            const frequenciesSet = new Set(atc.frequencies ?? []);
-
             let pilotsAll = 0;
             let pilotsControlling = 0;
-            const dataStore = useDataStore();
 
-            if (sector) {
-                for (const pilot of dataStore.vatsim.data.pilots.value) {
-                    if (!isPointInExtent([pilot.longitude, pilot.latitude], sector)) continue;
+            if (store.ownAtc.date + (1000 * 60) > Date.now()) {
+                pilotsAll = store.ownAtc.pilotsAll;
+                pilotsControlling = store.ownAtc.pilotsControlling;
+            }
+            else {
+                const sector = findATCSector(atc);
 
-                    pilotsAll++;
-                    if (pilot.frequencies.some(x => frequenciesSet.has(x))) pilotsControlling++;
+                const frequenciesSet = new Set(atc.frequencies ?? []);
+                const dataStore = useDataStore();
+
+                if (sector) {
+                    for (const pilot of dataStore.vatsim.data.pilots.value) {
+                        if (!isPointInExtent([pilot.longitude, pilot.latitude], sector)) continue;
+
+                        pilotsAll++;
+                        if (pilot.frequencies.some(x => frequenciesSet.has(x))) pilotsControlling++;
+                    }
                 }
             }
 

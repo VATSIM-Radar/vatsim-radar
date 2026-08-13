@@ -15,7 +15,7 @@ const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const dataStore = useDataStore();
 let features: Feature[] = [];
 
-watch(dataStore.vatsim.tracks, async () => {
+async function updateNatTracks() {
     source?.value.removeFeatures(features);
     features = [];
 
@@ -66,7 +66,11 @@ watch(dataStore.vatsim.tracks, async () => {
     }
 
     source?.value.addFeatures(features);
-}, {
+}
+
+const updateNatTracksThrottled = useThrottleFn(updateNatTracks, 1000, true);
+
+watch(dataStore.vatsim.tracks, () => updateNatTracksThrottled(), {
     immediate: true,
 });
 

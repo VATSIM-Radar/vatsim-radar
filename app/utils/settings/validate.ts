@@ -142,6 +142,7 @@ const settingsSchema = partialObject({
             autoFollow: booleanSchema,
             autoZoom: booleanSchema,
             debugMode: booleanSchema,
+            hoverInteraction: list(['default', 'trueForAll', 'falseForTablets', 'falseForAll'], 'incorrect hoverInteraction value'),
             featuredDefaultBookmarks: booleanSchema,
             skipBookmarkAnimation: booleanSchema,
             showTotalDeparturesInFeaturedAirports: booleanSchema,

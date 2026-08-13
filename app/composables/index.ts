@@ -19,7 +19,7 @@ import { GeoJSON } from 'ol/format.js';
 import type { WatchOptions } from '@vue/runtime-core';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
-    if (!point[0] || !point[1]) return false;
+    if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) return false;
     return containsCoordinate(extent, point);
 }
 
@@ -388,7 +388,7 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = 'v2.0.0';
+export const updatePopupActive: false | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 
 export function isServer() {
