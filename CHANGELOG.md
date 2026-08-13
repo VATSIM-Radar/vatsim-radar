@@ -4,7 +4,6 @@
 
 ### Features and Improvements
 
-- Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
 - Added model matching: CL35 -> CL30, EC75-H175 -> H160, A337 -> A3ST, T38-F5 -> F16, F50 -> F27
 - Added model matching: M346-A29-AMX-T27 -> L159, C550 -> C510, SUCO -> H64 (AH64), P3-L188 -> DC6, MRF1 -> MIR2
 - Added model matching: DA50 -> DA40, R135 -> B703, R722 -> B722, C680 -> C700, GLF4 -> GLF5, B314 -> SHIP
