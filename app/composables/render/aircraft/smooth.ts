@@ -57,6 +57,7 @@ let recentMaxGap = DEFAULT_GAP;
 let clockOffset = 0;
 let clockOffsetReady = false;
 let awaitingFreshSamples = false;
+let resumingFromLoadSuspension = false;
 
 export function isSmoothMovementEnabled() {
     return getKeyedValueFromSettings('map.traffic.smoothMovement') === true;
@@ -400,6 +401,36 @@ function frame() {
         if (LIMIT_SMOOTH_FRAME_RATE && lastSmoothFrameWall && sinceLast < SMOOTH_FRAME_INTERVAL) return;
         lastSmoothFrameWall = now;
 
+        if (isSmoothMovementSuspendedForLoad(true)) {
+            resumingFromLoadSuspension = true;
+            return;
+        }
+
+        if (resumingFromLoadSuspension) {
+            // Mandatory renders update feature geometry directly during load suspension. Seed
+            // interpolation from that displayed position so resuming cannot pull it backwards.
+            for (const feature of source.getFeatures()) {
+                const properties = feature.getProperties();
+                if (!isMapFeature('aircraft', properties)) continue;
+
+                const track = tracks.get(properties.cid);
+                const geometry = feature.getGeometry() as Point | undefined;
+                if (!track || !geometry) continue;
+
+                const [lon, lat] = geometry.getCoordinates();
+                const heading = properties.heading ?? 0;
+                track.samples = [{ t: lastSampleT || now, lon, lat, heading }];
+                track.aLon = lon;
+                track.aLat = lat;
+                track.aHeading = heading;
+                track.applied = true;
+            }
+
+            lastSampleWall = now;
+            awaitingFreshSamples = false;
+            resumingFromLoadSuspension = false;
+        }
+
         if (sinceLast >= INACTIVE_FRAME_GAP && (!lastSampleWall || now - lastSampleWall >= INACTIVE_FRAME_GAP)) {
             awaitingFreshSamples = true;
         }
@@ -480,4 +511,5 @@ export function stopSmoothMovement() {
     clockOffset = 0;
     clockOffsetReady = false;
     awaitingFreshSamples = false;
+    resumingFromLoadSuspension = false;
 }

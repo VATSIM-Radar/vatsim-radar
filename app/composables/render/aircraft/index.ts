@@ -20,7 +20,10 @@ import {
     setAircraftStyle,
 } from '~/composables/render/aircraft/style';
 import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
-import { isSmoothMovementEnabled } from '~/composables/render/aircraft/smooth';
+import {
+    isSmoothMovementEnabled,
+    isSmoothMovementSuspendedForLoad,
+} from '~/composables/render/aircraft/smooth';
 import { aircraftState } from './state';
 import type { DataAirport } from '~/composables/render/storage';
 import type { PartialRecord } from '~/types';
@@ -120,9 +123,10 @@ export async function setMapAircraft(settings: {
     const dataStore = useDataStore();
     const mapStore = useMapStore();
 
-    // Suspension pauses applying interpolated coordinates, but smoothing still owns the
-    // existing feature geometry so a regular data update cannot snap it to server time.
     const smoothMovementEnabled = isSmoothMovementEnabled();
+    // Map movement keeps the interpolated geometry until movement ends. Low zoom and excessive
+    // aircraft load use mandatory coordinates directly so the performance fallback still moves.
+    const useDirectCoordinates = smoothMovementEnabled && isSmoothMovementSuspendedForLoad(true);
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
 
     const linesFeatures = linesSource.getFeatures().slice(0);
@@ -172,7 +176,7 @@ export async function setMapAircraft(settings: {
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
-        const smoothFeatureProperties = smoothMovementEnabled && existingFeature
+        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && existingFeature
             ? existingFeature.getProperties()
             : undefined;
         const featureCoordinates = smoothFeatureProperties
@@ -220,7 +224,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled) existingFeature.getGeometry()!.setCoordinates(coordinates);
+            if (!smoothMovementEnabled || useDirectCoordinates) existingFeature.getGeometry()!.setCoordinates(coordinates);
             existingFeature.setProperties(properties);
         }
         else {
