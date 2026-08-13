@@ -528,14 +528,19 @@ async function update() {
                 }
             }
 
-            if (calculatedArrival.toGoDist > 0 && dataStore.navigraphWaypoints.value[cid.toString()]) {
-                dataStore.navigraphWaypoints.value[cid.toString()].calculatedArrival = {
+            const navigraphWaypoint = dataStore.navigraphWaypoints.value[cid.toString()];
+
+            if (calculatedArrival.toGoDist > 0 && navigraphWaypoint) {
+                navigraphWaypoint.calculatedArrival = {
                     depDist: calculatedArrival.depDist,
                     toGoDist: calculatedArrival.toGoDist,
                     toGoTime: Date.now() + calculatedArrival.toGoTime,
                     toGoPercent: (calculatedArrival.depDist / (calculatedArrival.depDist + calculatedArrival.toGoDist)) * 100,
                     stepclimbs: toRaw(calculatedArrival.stepclimbs),
                 };
+            }
+            else if (navigraphWaypoint?.calculatedArrival) {
+                delete navigraphWaypoint.calculatedArrival;
             }
 
             const staticKeys = routeKeys!;
