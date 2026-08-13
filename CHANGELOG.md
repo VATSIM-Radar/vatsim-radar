@@ -1,19 +1,87 @@
 # Changelog
 
-# [2.0.0-3-rc.2]
+# [2.0.1-beta.4]
+
+## Bug fixes
+
+- Fixed facilities chip text color in light theme
+- Fixed some TWR controllers displaying twice when VATGlasses is enabled
+
+# [2.0.1-beta.3]
+
+## Next fixes
+
+- Disabled smooth calculations on low zoom levels and on many pilots
+
+## Performance improvements
+
+- Improved aircraft render performance
+- Improved smooth aircraft performance
+- Significantly reduced CPU load when using filter
+- Improved Navigraph Route performance
+- Significantly improved VATGlasses Combined performance
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as cache grows
+
+## Bug fixes
+
+- Fixed VHF frequency lookup in airway routes
+- Fixed bearing-difference calculation when selecting the closest Navigraph waypoint
+
+# [2.0.1-beta.2]
+
+## Bug Fixes
+
+- Fixed positions displayed incorrectly in Featured Airports
+- Fixed counters click on mobile opening airport instead of aircraft list
+- Fixed header display for tablet mode
+
+# [2.0.1-beta.1]
+
+## Features and Improvements
+
+- Based on community feedback, all airports with at least one traffic anywhere will now show by default
+- Updated font for controller information
+- Updated font for flight and atc hours
+- Updated hit detection to be zero for hover and 2 pixels for right click and click
+- Re-enabled hover interaction for tablets. It can now be force enabled for mobile, and force disabled for any device
+- Improved smoothness when switching between DGTA icons
+- Animation to open map on-hover elements is slightly faster now
+- You can now import and export bookmarks
+- Default airport page will now only show this airport traffic only, like it did before
+- `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
+- New dashboard setting: "Airports traffic only" (false by default)
+- Restored EOBT, Time Enroute and Fuel Time in Prefile window
+- Added support for correct ATC count in Discord Presence when inside Dashboard
+
+## Performance improvements
+
+- Smooth aircraft update has been capped to 30fps
+- Smooth aircraft movement will now be stopped immediately if you zoom out
+- Smooth aircraft movement will now be stopped if you are moving map
+- Postrender update will now be limited to once per second
+- Hover will no longer affect mobile devices if it is disabled in settings 
+- Significantly improved performance for all Navigraph layers
+- Removed unneeded calculations for aircraft when map is moving
+
+## Bug fixes
+
+- Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
+- Fixed vhf or ndb displaying as airport in some cases
+- Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
+- Fixed favorite button disappeared sometimes
+
+# [2.0.0-3-final]
 
 ## Features and Improvements
 
 - Horizontal dashboard layout has become usable by ncls-alien
-
-# [2.0.0-3-rc.1]
 
 ## Bug Fixes
 
 - Fixed booking not displayed sometimes when another facility was online
 - Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present
 
-# [2.0.0-2-final]
+# [2.0.0-2]
 
 ## Features and improvements
 

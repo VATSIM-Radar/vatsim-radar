@@ -427,8 +427,6 @@ export async function updateControllers(context: DataUpdateContext) {
 
             let dataAirport: DataAirport | undefined;
 
-            if (isApp && !feature && airport?.isPseudo) continue;
-
             if (!airport && feature) {
                 const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);
@@ -471,7 +469,9 @@ export async function updateControllers(context: DataUpdateContext) {
                 continue;
             }
 
-            dataAirport.atc.push({ ...controller, isATIS });
+            if (!dataAirport.atc.some(x => x.cid === controller.cid && x.callsign === controller.callsign)) {
+                dataAirport.atc.push({ ...controller, isATIS });
+            }
         }
     }
 

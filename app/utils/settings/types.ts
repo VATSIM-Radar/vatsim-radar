@@ -33,6 +33,8 @@ export interface UserSettingsV2 {
             autoZoom: boolean;
             debugMode: boolean;
 
+            hoverInteraction: 'trueForAll' | 'falseForTablets' | 'falseForAll' | 'default';
+
             featuredDefaultBookmarks: boolean;
             skipBookmarkAnimation: boolean;
 

@@ -79,7 +79,7 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
     enrouteTransitions.forEach(x => addWaypoints(newFeatures, x.waypoints, constraints, type));
 }
 
-watch(dataStore.navigraphProcedures, () => {
+function updateProcedures() {
     const newFeatures: Feature[] = [];
 
     for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures.value as Record<string, DataStoreNavigraphProceduresAirport>)) {
@@ -105,7 +105,11 @@ watch(dataStore.navigraphProcedures, () => {
     source?.value.removeFeatures(features);
     features = newFeatures;
     source?.value.addFeatures(features);
-}, {
+}
+
+const updateProceduresThrottled = useThrottleFn(updateProcedures, 1000, true);
+
+watch(dataStore.navigraphProcedures, () => updateProceduresThrottled(), {
     immediate: true,
 });
 

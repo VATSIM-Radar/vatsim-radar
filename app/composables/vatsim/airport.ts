@@ -10,6 +10,20 @@ import { debounce } from '~/utils/shared';
 import type { PartialRecord } from '~/types';
 import { getControllersForPosition } from '~/composables/render';
 
+export function getAirportControllers(icao: string, controllers: VatsimShortenedController[] = []) {
+    const dataStore = useDataStore();
+    const list = controllers.slice();
+    const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[icao];
+
+    if (airport) {
+        for (const controller of getControllersForPosition([airport.lon, airport.lat])) {
+            if (!list.some(x => x.callsign === controller.callsign)) list.push(controller);
+        }
+    }
+
+    return sortControllersByPosition(list);
+}
+
 /**
  * @note data must be reactive object or a computed
  */
@@ -40,17 +54,7 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data'] | null>) 
 
         const dataStore = useDataStore();
 
-        let list = dataStore.airportsList.value[data.value.icao]?.atc?.slice() ?? [];
-
-        const vatspyAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.icao];
-
-        if (vatspyAirport) {
-            for (const controller of getControllersForPosition([vatspyAirport.lon, vatspyAirport.lat])) {
-                if (!list.some(x => x.callsign === controller.callsign)) list.push(controller);
-            }
-        }
-
-        list = sortControllersByPosition(list);
+        const list = getAirportControllers(data.value.icao, dataStore.airportsList.value[data.value.icao]?.atc);
 
         if (!list.length && data.value.airport?.vatInfo?.ctafFreq) {
             atc.value = [

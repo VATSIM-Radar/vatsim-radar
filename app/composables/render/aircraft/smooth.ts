@@ -1,10 +1,12 @@
 import type VectorSource from 'ol/source/Vector.js';
+import type { EventsKey } from 'ol/events.js';
+import { unByKey } from 'ol/Observable.js';
 import type { Point } from 'ol/geom.js';
 import { LineString, MultiLineString } from 'ol/geom.js';
 import { degreesToRadians, point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import { isMapFeature } from '~/utils/map/entities';
-import type { MapFeatureProperties } from '~/utils/map/entities';
+import type { FeatureAircraftLine, MapFeatureProperties } from '~/utils/map/entities';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -26,7 +28,7 @@ interface Track {
 
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
-const LIMIT_SMOOTH_FRAME_RATE = false;
+const LIMIT_SMOOTH_FRAME_RATE = true;
 const DELAY_GAPS = 1.3;
 const DELAY_EXTRA = 500;
 const MIN_DELAY = 1500;
@@ -60,11 +62,12 @@ export function isSmoothMovementEnabled() {
     return getKeyedValueFromSettings('map.traffic.smoothMovement') === true;
 }
 
-export function isSmoothMovementSuspendedForLoad() {
+export function isSmoothMovementSuspendedForLoad(ignoreMapMoving = false) {
     const mapStore = useMapStore();
+    if (!ignoreMapMoving && mapStore.moving) return true;
     if (!mapStore.renderedPilots) return false;
 
-    return mapStore.getRenderedPilotsCount > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || useMapStore().zoom < 6;
+    return mapStore.getRenderedPilotsCount > getKeyedValueFromSettings('map.preferences.aircraft.showLimit') || mapStore.preciseZoom < 6;
 }
 
 function computeDelay() {
@@ -283,9 +286,10 @@ function getDynamicScale(properties: MapFeatureProperties<'aircraft'>, lat: numb
 
 let rafId: number | null = null;
 let activeSource: VectorSource | null = null;
-let activeLinesSource: VectorSource | null = null;
 let activeNavigraphRouteSource: VectorSource | null = null;
 let lastSmoothFrameWall = 0;
+const aircraftLineFeatures = new Map<number, Set<FeatureAircraftLine>>();
+let aircraftLineListeners: EventsKey[] = [];
 
 export function setSmoothNavigraphRouteSource(source: VectorSource | null) {
     activeNavigraphRouteSource = source;
@@ -309,12 +313,42 @@ function getLineGeometry(from: Coordinate, to: Coordinate, npoints = 8) {
     return turfGeometryToOl(greatCircle(point(from), point(to), { npoints }));
 }
 
-function updateAircraftLineFeatures(cid: number, coordinate: Coordinate) {
-    if (!activeLinesSource) return;
+function setSmoothLinesSource(source: VectorSource | null) {
+    unByKey(aircraftLineListeners);
+    aircraftLineListeners = [];
+    aircraftLineFeatures.clear();
+    if (!source) return;
 
-    for (const feature of activeLinesSource.getFeatures()) {
+    const updateIndex = (feature: FeatureAircraftLine | undefined, add: boolean) => {
+        if (!feature) return;
         const properties = feature.getProperties();
-        if (!isMapFeature('aircraft-line', properties) || properties.cid !== cid) continue;
+        if (!isMapFeature('aircraft-line', properties)) return;
+
+        const features = aircraftLineFeatures.get(properties.cid) ?? new Set<FeatureAircraftLine>();
+        if (add) {
+            features.add(feature);
+            aircraftLineFeatures.set(properties.cid, features);
+        }
+        else {
+            features.delete(feature);
+            if (!features.size) aircraftLineFeatures.delete(properties.cid);
+        }
+    };
+
+    for (const feature of source.getFeatures()) updateIndex(feature as FeatureAircraftLine, true);
+    aircraftLineListeners = [
+        source.on('addfeature', event => updateIndex(event.feature as FeatureAircraftLine | undefined, true)),
+        source.on('removefeature', event => updateIndex(event.feature as FeatureAircraftLine | undefined, false)),
+    ];
+}
+
+function updateAircraftLineFeatures(cid: number, coordinate: Coordinate) {
+    const features = aircraftLineFeatures.get(cid);
+    if (!features) return;
+
+    for (const feature of features) {
+        const properties = feature.getProperties();
+        if (!isMapFeature('aircraft-line', properties)) continue;
 
         const geometry = feature.getGeometry();
         if (!(geometry instanceof LineString) && !(geometry instanceof MultiLineString)) continue;
@@ -427,7 +461,7 @@ function frame() {
 
 export function startSmoothMovement(source: VectorSource, linesSource?: VectorSource) {
     activeSource = source;
-    activeLinesSource = linesSource ?? null;
+    setSmoothLinesSource(linesSource ?? null);
     if (rafId === null) rafId = requestAnimationFrame(frame);
 }
 
@@ -435,7 +469,7 @@ export function stopSmoothMovement() {
     if (rafId !== null) cancelAnimationFrame(rafId);
     rafId = null;
     activeSource = null;
-    activeLinesSource = null;
+    setSmoothLinesSource(null);
     tracks.clear();
     lastServerTime = 0;
     lastTimestampNum = 0;

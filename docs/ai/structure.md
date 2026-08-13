@@ -1,8 +1,24 @@
 # VATSIM Radar Architecture Map
 
-This document is an orientation map for AI agents working in this repository. It is intentionally biased toward "where should I look next?" rather than exhaustive API documentation.
+This is a routing map for agents, optimized for answering **"where should I look next?"**. It describes ownership and data flow, not implementation invariants. Before changing a subsystem, open the matching section here and then check [`decisions.md`](./decisions.md) for constraints.
 
-## Project Shape
+## How To Use This Map
+
+1. Start with [System Overview](#system-overview) when the affected runtime or data owner is unclear.
+2. Jump to [Frontend](#frontend), [Backend And Data](#backend-and-data), or [Repository Workflow](#repository-workflow).
+3. Use [Common Change Paths](#common-change-paths) for cross-layer work.
+4. Search `decisions.md` by subsystem or file name before changing established behavior.
+
+Keep this file structural:
+
+- Record directory ownership, entry points, data flow, and common change paths here.
+- Record behavioral invariants and chosen tradeoffs in `decisions.md`.
+- Do not append incident history, temporary debugging notes, or facts already obvious from one file.
+- Update an existing section instead of adding an isolated note at the end.
+
+## System Overview
+
+### Project Shape
 
 VATSIM Radar is a Nuxt 4 application with:
 
@@ -28,7 +44,7 @@ Nuxt dev-server notes:
 - Experimental `nuxt.config.ts` flags such as `vite.experimental.bundledDev`, top-level `experimental.watcher`, streaming, and async context settings can affect this dev-server path before application code runs.
 - SSR streaming warnings for `/` should start with global render paths: `app/layouts/default.vue` uses `useHead()` with a `bodyClose` Cloudflare script and reads `cookiePolicyStatus()`, while `app/plugins/init.ts` calls `useIframeHeader()` which sets the CSP response header through `app/composables/iframe.ts`.
 
-## Runtime Topology
+### Runtime Topology
 
 The app has three main runtime layers:
 
@@ -52,11 +68,12 @@ The app has three main runtime layers:
 PWA and browser-cache behavior:
 
 - `nuxt.config.ts` configures `@vite-pwa/nuxt` with prompted service-worker updates, periodic update checks, Workbox precaching for JS/CSS/fonts/SVG/webmanifest assets, and a `static-assets` runtime cache for other static files.
+- PWA manifest `handle_links: 'not-preferred'` only controls whether an installed PWA prefers handling links to its own origin; it does not make external anchors open in new tabs. External links must use `target="_blank"` (or `window.open`) at their individual call sites.
 - `app/components/features/layout/LayoutUpdatePopup.vue` applies a pending service-worker update or reloads the page when the app reports a new version.
 - `app/plugins/db.client.ts` initializes the browser-side Dexie database through `app/composables/render/idb.ts`; several dataset-update handlers in `app/composables/init.ts` delete the database and call `location.reload()` after IndexedDB failures. A persistent browser-cache/service-worker or IndexedDB failure can therefore appear as a page refresh loop.
 - The Dexie database is named `vatsim-radar-db`; the cleanup call in `initClientDB()` targets the legacy name `vatsim-radar`, so it does not remove the current database.
 
-## Data Flow
+### Data Flow
 
 High-level data path:
 
@@ -73,8 +90,11 @@ Fast live updates:
 - Client websocket management lives in `app/composables/render/ws.ts`.
 - Server websocket implementation lives in `app/utils/server/vatsim/ws.ts`.
 - Websocket updates currently focus on own-flight/self-coordinate fast updates and tab coordination.
+- Client reconnects are timer-driven: `checkForWSData()` checks the last server `check` timestamp every 5 seconds and does not reconnect directly from the socket `close` handler. Its cleanup closes the socket indirectly (via the `radar-socket-closed` localStorage marker) and clears the shared reconnect interval; if the socket is closed while the tab is hidden, visibility handling does not restart that websocket check until the owning component is mounted again or its setting watcher runs.
 
-## Client Entry Points
+## Frontend
+
+### Client Entry Points
 
 - `app/app.vue` is the Nuxt app root. It provides OpenLayers `map` and `layer-group` refs to descendants and handles iframe postMessage auth/logout integration.
 - `app/layouts/default.vue` is the main shell. It mounts header/footer, init/update popups, data policy UI, theme selection, supervisor checks, and route content.
@@ -83,7 +103,7 @@ Fast live updates:
 
 The main page is mostly client-only because the map and OpenLayers state are browser-bound.
 
-## State Model
+### State Model
 
 There are two different state layers:
 
@@ -104,7 +124,7 @@ Favorite-list performance path:
 
 When adding general UI/session state, use Pinia. When adding large map/datafeed state used by render loops, check `useDataStore()` first.
 
-## Map And Rendering
+### Map And Rendering
 
 Core files:
 
@@ -117,9 +137,10 @@ Core files:
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
 - Airport Approach/TRACON rendering has two fallback paths: `updateVATGlasses()` can add VG-owned controllers and mark them in `atcAddedDuringUpdate`, while `getRenderAirportsList()` uses that set to exclude controllers from SimAware TRACON matching; `setMapAirports()` renders a 50 km circle when no SimAware feature remains for an airport.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
-- `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate.
+- Navigraph static-layer rendering is coordinated by `app/components/map/navigraph/NavigraphLayers.vue`. Most Navigraph feature kinds share one `VectorImageLayer`/`VectorSource`; NDB/VHF use a separate `VectorLayer`. Waypoints, airways, navaids, holdings, and airspace use the longitude/latitude grid in `app/utils/map/spatial-index.ts` to query viewport candidates instead of scanning complete AIRAC collections after every extent change. Airspace uses bounded cached, client-generated polygon geometries. The shared style callback is `app/composables/render/navigraph/style.ts` and updates cached OpenLayers styles plus decluttering.
+- `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples while smoothing is not suspended by low zoom or an excessive rendered-pilot count, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate. `setMapAircraft()` preserves existing geometry whenever smoothing is enabled so a suspended interval cannot snap to server time and then roll back on resume.
 - `app/composables/render/aircraft/tracks.ts` owns client turns fetching and rendering; its per-CID turns cache must be invalidated when `flightPlanTime` changes (a reconnect/new online flight).
-- `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling.
+- `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling. Async icon completions batch layer refreshes through one animation frame; current SVG/icon variants are retained per CID and pruned with the aircraft source, while decoded PNGs use a bounded shared cache.
 - `setAircraftStyle()` in `app/composables/render/aircraft/style.ts` installs a layer-level OpenLayers style callback; it is therefore on the per-feature render path and should keep its work/cache lookups cheap.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
 
@@ -135,11 +156,13 @@ Map component groups:
 - `app/components/popups/PopupMapInfo.vue`: shared framed popup block used by map popups and as the inner content shell for fullscreen dialogs; its title close button only updates the block `modelValue`.
 - `app/components/popups/PopupFullscreen.vue`: fullscreen modal wrapper with backdrop/escape/top-right close handling; it embeds `PopupMapInfo` for title/content/actions layout.
 - `app/components/map/layers/MapSelect.vue`: central OpenLayers hover/click/right-click selection interaction. It applies priority ordering, opens feature popups, and owns the click multiselect menu for lower-priority overlapping features such as SIGMET, VATGlasses, and Navigraph.
+- `MapSelect` invalidates delayed hover actions with a request id so stale `pointerMove` handlers cannot overwrite the current cursor, selection, or overlay state.
+- `MapSelect` synchronizes the presence of its OpenLayers hover `Select` interaction with `map.preferences.hoverInteraction` and the current device/layout class; click and context-menu interactions remain persistent.
 - `app/components/map/settings/*`: map filters and quick settings panels.
 - `app/components/map/navigraph/*`: Navigraph visual layers and procedures.
 - `app/components/map/airports/*`: airport counters/runway/traffic subviews.
 
-## Feature Components
+### Feature Components
 
 Feature-level UI lives under `app/components/features`:
 
@@ -158,7 +181,7 @@ Reusable UI primitives are in `app/components/ui`:
 
 For new UI, prefer these primitives and existing feature/component patterns before adding new base components.
 
-## Color System
+### Color System
 
 - `app/utils/colors.ts` is the source for named color tokens (`colorsList`) and legacy color migration aliases (`legacyColorsList`).
 - `modules/styles.ts` uses those tokens to generate SCSS/CSS color variables in `app/scss/colors.scss`.
@@ -167,30 +190,40 @@ For new UI, prefer these primitives and existing feature/component patterns befo
 - Adding a user-customizable map color requires touching the whole chain: `UserMapSettingsColors` type in `app/utils/server/handlers/map-settings.ts`, `themeColorsSchema` in `app/utils/settings/validate.ts`, defaults in `app/composables/settings/v2/utils.ts`, the settings item in `app/composables/settings/v2/items/general/appearance/colors.ts`, its section entry in `app/composables/settings/v2/sections.ts`, and consumption at render time via `getSelectedColorFromSettings`/`getSelectedColorTransparencyFromSettings` (`app/composables/settings/colors.ts`). Defaults from `settingsDefaultValues` are applied at render via `getColorValueByKey`, so an unset user value falls back to the default, not to the render-side fallback.
 - Examples of render-side consumers: FIR/UIR sector + label styling in `app/composables/render/sectors/style.ts` (`centerText`/`centerBg`), tracon/approach circle + label styling in `app/composables/render/airports/layers/airport-style.ts` (`approach`/`approachText`/`approachBg`).
 
-## Client Composables
+### Client Composables
 
 Important composable groups:
 
 - `app/composables/init.ts`: startup/version checks and IndexedDB population for static datasets.
   - VATGlasses startup is gated by `isVatGlassesActive`; `checkForVG()` can be called both by the initial startup sequence and by the watcher in `setupDataFetch()` when the active state changes.
+  - VATGlasses initialization first downloads the full dataset when its cached version is absent/stale, rebuilds the `vatglasses` IndexedDB stores with `bulkPut`, then separately fetches the dynamic ownership version and payload. Both dynamic requests have a 60-second timeout.
+  - Combined VATGlasses geometry is cached separately in the `vatglassesCombined` IndexedDB table. `app/composables/render/vatglasses-cache.ts` owns cache keys and version cleanup; both the VATGlasses data version and the cache-format version participate in invalidation.
 - `app/composables/fetchers/*`: user preset/settings/filter/bookmark fetch/save helpers.
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
+- `app/composables/vatsim/airport.ts`: airport controller lists merge controllers directly attributed to the airport with controllers from rendered airport/TRACON/sector features covering its coordinates; both airport details and Featured Airport cards use this path.
 - `app/utils/shared/bookings.ts`: shared booking range/continuity helpers. It groups bookings by callsign, treats overlapping or exactly adjacent slots as one continuous chain, and selects the active/nearest chain for map display.
 - `app/composables/navigraph/*`: Navigraph data/layout helpers.
-  - `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
+- `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
+  - Airway parsing keeps one session-local graph per airway identifier, shared across pilots and expired by inactivity alongside the existing short Navigraph data cache. Resolved `from -> to` paths are not cached.
+  - `getNavigraphParsedDataBulk` resolves unique short-data identifier buckets from the in-memory cache and fetches remaining buckets with one IndexedDB `bulkGet`; `NavigraphRoute.vue` uses it for airway NDB/VHF enrichment.
   - `app/components/map/overlays/pilot/MapPilotOverlay.vue` clears the CID-keyed selected procedure state in memory and in `localStorage` when the pilot receives a new flight plan.
   - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
+- `app/composables/vatsim/controllers.ts`: shared controller lookup, airport/sector extent resolution, and map navigation helpers. `findATCSector()` returns geographic extents with a small look-ahead gap for controller navigation.
+- `app/composables/render/update/vatglasses.ts`: first VATGlasses render scans live controllers, resolves position/country records from IndexedDB, constructs GeoJSON sector polygons, and optionally runs split/combine geometry work through the bounded worker pool in `app/composables/render/combination-pool.ts`; each worker executes the complete split-and-combine pipeline for one position. The first render is awaited inside `updateControllersRender()`.
+- `app/utils/data/vatglasses-helper.ts`: combined geometry preprocessing groups intersecting polygon bounding boxes, performs one boundary sweep per connected group, and skips boolean operations for disjoint result fragments before preserving altitude ranges with Turf intersection/difference/union operations.
 - `app/components/map/navigraph/NavigraphRoute.vue`: renders cached Navigraph route features; its route cache key must include settings that change the augmented waypoint list.
 - `app/composables/errors.ts`: client error handling.
 - `app/composables/iframe.ts`: iframe/dashboard integration.
 
 Nuxt auto-imports composables from `app/composables/**` because `nuxt.config.ts` sets `imports.dirs`.
 
-## Server API
+## Backend And Data
+
+### Server API
 
 Route files mirror URL paths under `server/api`.
 
@@ -215,7 +248,7 @@ Common server helpers:
 - `app/utils/server/storage.ts`: server data storage types and read helpers.
 - `app/utils/server/redis.ts`: Redis helpers.
 
-## Server Plugins And Background Work
+### Server Plugins And Background Work
 
 Nitro plugins:
 
@@ -242,7 +275,7 @@ Background tasks:
   - Public pilot track reads enter through `server/api/data/vatsim/pilot/[cid]/turns.ts`; each read resolves the current flight from the plans table and then reads turn points from the main tracks table.
   - Client-side aircraft track fetching is driven by `app/components/map/layers/MapAircraftList.vue` and `app/composables/render/aircraft/tracks.ts`. Airport/pilot overlays and hover can request full tracks; per-aircraft refresh is capped at 15 seconds in the browser state.
 
-## Persistence
+### Persistence
 
 Prisma schema:
 
@@ -258,7 +291,7 @@ Prisma schema:
 
 Prisma client output is generated into `.nuxt/prisma` and imported via the `#prisma` alias configured in `nuxt.config.ts`.
 
-## Types And Shared Utilities
+### Types And Shared Utilities
 
 Types:
 
@@ -278,7 +311,9 @@ Shared utility split:
 - `app/utils/icons.ts`: aircraft icon mapping and icon metadata used by both build tooling and rendering.
 - `app/utils/colors.ts`: theme color definitions.
 
-## Build-Time Modules And Assets
+## Repository Workflow
+
+### Build-Time Modules And Assets
 
 Custom Nuxt modules:
 
@@ -296,7 +331,7 @@ Assets:
 
 Do not hand-edit generated files under `.nuxt` or public generated icon outputs unless the generation pipeline is also updated.
 
-## Documentation Site
+### Documentation Site
 
 The public docs site is VitePress:
 
@@ -306,7 +341,7 @@ The public docs site is VitePress:
 
 Use `yarn docs:dev`, `yarn docs:build`, and `yarn docs:preview` for documentation workflows.
 
-## Routing Landmarks
+### Routing Landmarks
 
 Main app routes:
 
@@ -319,7 +354,7 @@ Main app routes:
 - `/data/[type]/[id]/compare`: data debugging comparison UI. Keep this page outside any broad `data` ignore glob: an unanchored ignore pattern can also exclude `app/pages/data` and remove the generated client route.
 - `/demo/*`: UI primitive/demo pages.
 
-## Common Change Paths
+### Common Change Paths
 
 Add or change a map visual layer:
 
@@ -371,21 +406,21 @@ Add docs:
 1. Add Markdown under `docs/**`.
 2. Update `docs/.vitepress/config.mts` sidebar/nav if the page should be discoverable.
 
-## Testing And Verification
+### Testing And Verification
 
 Available commands:
 
-- `yarn lint`: stylelint plus ESLint.
-- `yarn lint:ts`: ESLint only.
-- `yarn stylelint`: SCSS/CSS/Vue style checks.
+- The project runtime is Docker-based; do not direct users to start it with `yarn dev`.
+- `yarn lint`: the complete lint pass; separate ESLint/stylelint runs are unnecessary.
 - `yarn typecheck`: Nuxt/Vue typecheck.
 - `yarn build`: production build.
-- `yarn dev`: Nuxt dev server on port `8080`.
 - `yarn docs:build`: VitePress docs build.
+
+If lint or typecheck fails with a permission error in `node_modules` or `.nuxt`, ask the user to fix those directory permissions before retrying.
 
 There is no obvious dedicated unit test suite in `package.json`; rely on lint/typecheck/build and targeted manual verification for changed flows.
 
-## Cautions For AI Agents
+### Cautions For AI Agents
 
 - Many files are auto-imported by Nuxt. Absence of explicit imports does not mean a symbol is global JavaScript; check Nuxt composables/stores/plugins.
 - `useDataStore()` is a singleton reactive object, not a Pinia store.

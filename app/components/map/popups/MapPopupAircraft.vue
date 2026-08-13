@@ -42,7 +42,7 @@
             >
                 <ui-bubble
                     class="aircraft-hover__frequency"
-                    :text-type="isShortInfo ? 'caption-light' : undefined"
+                    :text-type="isShortInfo ? 'caption' : undefined"
                     type="primary-flat"
                 >
                     {{ pilot.frequencies[0] }}
@@ -50,6 +50,7 @@
                 <ui-bubble
                     v-if="pilot.frequencies[1] && store.config.airport"
                     class="aircraft-hover__frequency"
+                    text-type="caption"
                     type="primary-flat"
                 >
                     {{ pilot.frequencies[1] }}
@@ -57,6 +58,7 @@
                 <ui-bubble
                     v-if="pilot.transponder && store.config.airport"
                     class="aircraft-hover__frequency"
+                    text-type="caption"
                     type="primary-flat"
                 >
                     {{ pilot.transponder }}

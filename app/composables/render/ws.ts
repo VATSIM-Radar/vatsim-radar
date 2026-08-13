@@ -13,16 +13,27 @@ export function isTabVisible() {
     const item = localStorage.getItem('radar-visibility-check');
     if (!item) return false;
 
-    return (Date.now() - +item) < 1000 * 60 * 10;
+    return (Date.now() - +item) < 1000 * 60 * 5;
 }
 
-export function initDataWebsocket(): () => void {
+export function initDataWebsocket(): (clear?: boolean) => void {
     const store = useStore();
     const dataStore = useDataStore();
-    clearInterval(interval);
 
     const url = useIsDebug() ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
     const websocket = new WebSocket(url);
+
+    function close(clear = true) {
+        wsRegistered = false;
+        store.wsOpen = false;
+        store.wsCallsign = '';
+        dataStore.vatsim.selfCoordinate.value = null;
+        websocket.close();
+
+        if (clear) {
+            clearInterval(interval);
+        }
+    }
 
     websocket.addEventListener('open', () => {
         console.info('WebSocket was opened', new Date().toISOString());
@@ -42,12 +53,12 @@ export function initDataWebsocket(): () => void {
         if (localStorage.getItem('radar-socket-closed')) {
             localStorage.removeItem('radar-socket-closed');
             localStorage.removeItem('radar-socket-date');
-            websocket.close();
+            close(false);
             return;
         }
 
         if (!isTabVisible()) {
-            websocket.close();
+            close(false);
             return;
         }
 
@@ -96,33 +107,33 @@ export function initDataWebsocket(): () => void {
         dataStore.vatsim.updateTimestamp.value = date;*/
     });
 
-    return () => {
-        wsRegistered = false;
-        store.wsOpen = false;
-        store.wsCallsign = '';
-        dataStore.vatsim.selfCoordinate.value = null;
-        websocket.close();
-        clearInterval(interval);
-    };
+    return close;
 }
 
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
     const config = useRuntimeConfig();
 
-    let closeSocket: (() => void) | undefined;
+    let closeSocket: ReturnType<typeof initDataWebsocket> | undefined;
 
     function checkForSocket() {
         if (getKeyedValueFromSettings('map.traffic.disableFastUpdate') || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
-        // 20 seconds gap for receiving data
-        if (!socketDate || +socketDate + (1000 * 20) < date) {
+
+        if (!isTabVisible()) {
+            if (typeof closeSocket !== 'undefined') {
+                closeSocket(false);
+                closeSocket = undefined;
+            }
+
+            return;
+        }
+
+        // 40 seconds gap for receiving data
+        if (!socketDate || +socketDate + (1000 * 40) < date) {
             localStorage.setItem('radar-socket-date', Date.now().toString());
-            closeSocket?.();
-            if (!isTabVisible()) return;
+            closeSocket?.(false);
             closeSocket = initDataWebsocket();
-            clearInterval(interval);
-            interval = setInterval(checkForSocket, 5000);
         }
     }
 
@@ -153,6 +164,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     });
 
     return () => {
+        closeSocket?.();
         localStorage.setItem('radar-socket-closed', '1');
         localStorage.removeItem('radar-socket-date');
         clearInterval(interval);

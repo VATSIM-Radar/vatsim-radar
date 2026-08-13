@@ -18,6 +18,23 @@
 
         <map-filters v-if="tab === 'filters'"/>
         <template v-else-if="tab === 'bookmarks'">
+            <ui-button-group>
+                <ui-button size="S" @click="exportBookmarks">
+                    Export Bookmarks
+                </ui-button>
+                <ui-button size="S" @click="bookmarksImport?.click()">
+                    Import Bookmarks
+                </ui-button>
+            </ui-button-group>
+
+            <input
+                v-show="false"
+                ref="bookmarksImport"
+                accept="application/json"
+                type="file"
+                @input="[importBookmarks()]"
+            >
+
             <map-filters-presets
                 :key="String(bookmarkSaveTick)"
                 create-collapse
@@ -87,6 +104,9 @@ import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
+import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
+import { useFileDownload } from '~/composables/settings';
+import { useRadarError } from '~/composables/errors.ts';
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -122,6 +142,7 @@ const createBookmark = async (name: string, json: UserBookmark) => {
     activeBookmark.value = defaultBookmark();
 };
 
+const bookmarksImport = useTemplateRef<HTMLInputElement>('bookmarksImport');
 const defaultBookmark = () => ({ zoom: 14, internal: true } as UserBookmark);
 const activeBookmark = ref<UserBookmark>(defaultBookmark());
 const bookmarkSaveTick = ref(0);
@@ -133,6 +154,55 @@ const applyBookmark = async (bookmark: UserBookmark) => {
     activeBookmark.value = bookmark;
     await sleep(2000);
     activeBookmark.value = defaultBookmark();
+};
+
+const exportBookmarks = () => {
+    useFileDownload({
+        fileName: `vatsim-radar-bookmarks-${ Date.now() }.json`,
+        mime: 'application/json',
+        blob: new Blob([JSON.stringify(store.bookmarks.map(x => ({
+            name: x.name,
+            json: x.json,
+        })))], { type: 'application/json' }),
+    });
+};
+
+const importBookmarks = async () => {
+    const file = bookmarksImport.value?.files?.[0];
+    if (!file) return;
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.addEventListener('load', async () => {
+                const result = JSON.parse(reader.result as string);
+                for (const bookmark of result) {
+                    await $fetch(`/api/user/bookmarks`, {
+                        method: 'POST',
+                        body: {
+                            name: bookmark.name,
+                            json: bookmark.json,
+                        },
+                    }).catch(e => {
+                        console.error(e);
+                        store.addError(`Failed to import bookmark ${ bookmark.name }`, 3000);
+                    });
+                }
+                await store.fetchBookmarks();
+                resolve();
+            });
+
+            reader.addEventListener('error', e => {
+                reject(e);
+            });
+
+            reader.readAsText(file);
+        });
+    }
+    catch (e) {
+        useRadarError(e);
+    }
 };
 
 watch(customUrl, val => {

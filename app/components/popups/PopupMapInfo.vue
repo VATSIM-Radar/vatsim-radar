@@ -177,7 +177,7 @@ onMounted(() => {
             &-enter-active,
             &-leave-active {
                 inset: 0;
-                transition: 0.3s;
+                transition: 0.2s ease-in-out;
             }
 
             &-enter-from,
@@ -185,24 +185,24 @@ onMounted(() => {
                 opacity: 0;
 
                 @include mobileOnly {
-                    top: -5px;
+                    top: -10px;
                 }
 
                 @include fromTablet {
                     &[class*=' popup-block--open-from-top'] {
-                        top: -5px;
+                        top: -10px;
                     }
 
                     &[class*=' popup-block--open-from-bottom'] {
-                        top: 5px;
+                        top: 10px;
                     }
 
                     &[class*=' popup-block--open-from-center-right'] {
-                        left: 5px;
+                        left: 10px;
                     }
 
                     &[class*=' popup-block--open-from-center-left'] {
-                        left: -5px;
+                        left: -10px;
                     }
                 }
             }

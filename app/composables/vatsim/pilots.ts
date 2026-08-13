@@ -401,6 +401,15 @@ export const ownFlight = computed(() => {
     return dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ?? null;
 });
 
+export const ownAtc = globalComputed(() => {
+    const _cid = useStore().user?.cid;
+    if (!_cid) return null;
+
+    const cid = +_cid;
+    const atc = useDataStore().vatsim.data.controllers.value.find(x => x.cid === cid);
+    return atc ?? null;
+});
+
 const ownHighlight = globalComputed(() => getKeyedValueFromSettings('map.preferences.aircraft.ownAtcHighlight'));
 
 export const ownATC = globalComputed(() => {

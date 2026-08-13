@@ -71,12 +71,12 @@
             >
                 <template #item-hours="{ item }">
                     <span class="flight-info__chip">
-                        Flight Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                        Flight Hours: <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
                     </span>
                 </template>
                 <template #item-atc-hours="{ item }">
                     <span class="flight-info__chip">
-                        ATC Hours: <ui-chip text-type="3b-medium-alt">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                        ATC Hours: <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
                     </span>
                 </template>
             </ui-data-list>

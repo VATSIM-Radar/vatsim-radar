@@ -7,6 +7,18 @@ const LINE_POINTS = 64;
 const ARC_POINTS = 96;
 const CIRCLE_POINTS = 144;
 
+export interface AirspaceGeometryOptions {
+    linePoints?: number;
+    arcPoints?: number;
+    circlePoints?: number;
+}
+
+const defaultGeometryOptions: Required<AirspaceGeometryOptions> = {
+    linePoints: LINE_POINTS,
+    arcPoints: ARC_POINTS,
+    circlePoints: CIRCLE_POINTS,
+};
+
 /**
  * ARINC Boundary Via code. The current record defines how to draw from its point to the next record point.
  */
@@ -182,9 +194,9 @@ function normalizeArcRadius(start: AirspaceBoundaryPoint, end?: AirspaceBoundary
 /**
  * Boundary Via G. Government sources normally use this for straight geodesic segments.
  */
-function getGreatCircleCoordinates(start: AirspaceCoordinate, end: AirspaceCoordinate) {
+function getGreatCircleCoordinates(start: AirspaceCoordinate, end: AirspaceCoordinate, options: Required<AirspaceGeometryOptions>) {
     try {
-        const line = greatCircle(point(start), point(end), { npoints: LINE_POINTS });
+        const line = greatCircle(point(start), point(end), { npoints: options.linePoints });
         if (line.geometry.type === 'LineString') return line.geometry.coordinates as AirspaceCoordinate[];
         if (line.geometry.type === 'MultiLineString') return (line.geometry.coordinates as AirspaceCoordinate[][]).flat();
     }
@@ -198,7 +210,7 @@ function getGreatCircleCoordinates(start: AirspaceCoordinate, end: AirspaceCoord
 /**
  * Boundary Via H. A rhumb line keeps a constant bearing, so interpolation is done in Mercator space.
  */
-function getRhumbLineCoordinates(start: AirspaceCoordinate, end: AirspaceCoordinate) {
+function getRhumbLineCoordinates(start: AirspaceCoordinate, end: AirspaceCoordinate, options: Required<AirspaceGeometryOptions>) {
     const startLat = Math.max(Math.min(toRadians(start[1]), (Math.PI / 2) - 1e-12), (-Math.PI / 2) + 1e-12);
     const endLat = Math.max(Math.min(toRadians(end[1]), (Math.PI / 2) - 1e-12), (-Math.PI / 2) + 1e-12);
     const startMercator = Math.log(Math.tan((Math.PI / 4) + (startLat / 2)));
@@ -210,8 +222,8 @@ function getRhumbLineCoordinates(start: AirspaceCoordinate, end: AirspaceCoordin
 
     const coordinates: AirspaceCoordinate[] = [];
 
-    for (let i = 0; i <= LINE_POINTS; i++) {
-        const fraction = i / LINE_POINTS;
+    for (let i = 0; i <= options.linePoints; i++) {
+        const fraction = i / options.linePoints;
         const mercator = startMercator + ((endMercator - startMercator) * fraction);
         const lat = toDegrees((2 * Math.atan(Math.exp(mercator))) - (Math.PI / 2));
         const lon = normalizeLongitude(start[0] + ((endLon - start[0]) * fraction));
@@ -222,15 +234,15 @@ function getRhumbLineCoordinates(start: AirspaceCoordinate, end: AirspaceCoordin
     return coordinates;
 }
 
-function getArcCoordinates(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPoint, clockwise: boolean | null) {
+function getArcCoordinates(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPoint, clockwise: boolean | null, options: Required<AirspaceGeometryOptions>) {
     const center = start.arcOrigin ?? end.arcOrigin;
 
     // If arc metadata is incomplete, preserve the boundary by falling back to a geodesic segment.
-    if (!isCoordinate(center)) return getGreatCircleCoordinates(start.coordinate, end.coordinate);
+    if (!isCoordinate(center)) return getGreatCircleCoordinates(start.coordinate, end.coordinate, options);
 
     const radius = normalizeArcRadius(start, end);
 
-    if (!radius) return getGreatCircleCoordinates(start.coordinate, end.coordinate);
+    if (!radius) return getGreatCircleCoordinates(start.coordinate, end.coordinate, options);
 
     const startBearing = bearingBetween(center, start.coordinate);
     const endBearing = bearingBetween(center, end.coordinate);
@@ -240,7 +252,7 @@ function getArcCoordinates(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPo
     const delta = clockwise === null
         ? (clockwiseDelta <= 180 ? clockwiseDelta : counterClockwiseDelta)
         : (clockwise ? clockwiseDelta : counterClockwiseDelta);
-    const steps = Math.max(2, Math.ceil((Math.abs(delta) / 360) * ARC_POINTS));
+    const steps = Math.max(2, Math.ceil((Math.abs(delta) / 360) * options.arcPoints));
     const coordinates: AirspaceCoordinate[] = [];
 
     for (let i = 0; i <= steps; i++) {
@@ -254,7 +266,7 @@ function getArcCoordinates(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPo
  * Boundary Via C. A circle record may have only one boundary point, so the arc bearing defines where
  * the generated ring starts when the source provides it.
  */
-function getCircleCoordinates(airspacePoint: AirspaceBoundaryPoint) {
+function getCircleCoordinates(airspacePoint: AirspaceBoundaryPoint, options: Required<AirspaceGeometryOptions>) {
     const center = airspacePoint.arcOrigin;
 
     if (!isCoordinate(center)) return [airspacePoint.coordinate];
@@ -266,8 +278,8 @@ function getCircleCoordinates(airspacePoint: AirspaceBoundaryPoint) {
     const startBearing = typeof airspacePoint.arcBearing === 'number' && Number.isFinite(airspacePoint.arcBearing) ? airspacePoint.arcBearing : bearingBetween(center, airspacePoint.coordinate);
     const coordinates: AirspaceCoordinate[] = [];
 
-    for (let i = 0; i <= CIRCLE_POINTS; i++) {
-        coordinates.push(destinationPoint(center, startBearing + ((360 * i) / CIRCLE_POINTS), radius));
+    for (let i = 0; i <= options.circlePoints; i++) {
+        coordinates.push(destinationPoint(center, startBearing + ((360 * i) / options.circlePoints), radius));
     }
 
     return coordinates;
@@ -276,22 +288,24 @@ function getCircleCoordinates(airspacePoint: AirspaceBoundaryPoint) {
 /**
  * Connect two already-decoded boundary points according to ARINC Boundary Via.
  */
-export function connectAirspaceBoundaryPoints(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPoint, boundaryVia: AirspaceBoundaryVia): AirspaceCoordinate[] {
+export function connectAirspaceBoundaryPoints(start: AirspaceBoundaryPoint, end: AirspaceBoundaryPoint, boundaryVia: AirspaceBoundaryVia, geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): AirspaceCoordinate[] {
+    const options = { ...defaultGeometryOptions, ...geometryOptions };
+
     switch (normalizeBoundaryVia(boundaryVia)) {
         case 'A':
-            return getArcCoordinates(start, end, null);
+            return getArcCoordinates(start, end, null, options);
         case 'C':
-            return getCircleCoordinates(start);
+            return getCircleCoordinates(start, options);
         case 'H':
-            return getRhumbLineCoordinates(start.coordinate, end.coordinate);
+            return getRhumbLineCoordinates(start.coordinate, end.coordinate, options);
         case 'L':
-            return getArcCoordinates(start, end, false);
+            return getArcCoordinates(start, end, false, options);
         case 'R':
-            return getArcCoordinates(start, end, true);
+            return getArcCoordinates(start, end, true, options);
         case 'E':
         case 'G':
         default:
-            return getGreatCircleCoordinates(start.coordinate, end.coordinate);
+            return getGreatCircleCoordinates(start.coordinate, end.coordinate, options);
     }
 }
 
@@ -329,7 +343,8 @@ function getRestrictiveAirspaceProperties(record: RestrictiveAirspaceRecord): Re
     };
 }
 
-function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[]): Polygon | null {
+function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[], geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Polygon | null {
+    const options = { ...defaultGeometryOptions, ...geometryOptions };
     const boundaryPoints: { point: RestrictiveAirspacePoint; boundaryPoint: AirspaceBoundaryPoint }[] = [];
 
     for (const point of points) {
@@ -354,7 +369,7 @@ function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[]): Po
     if (!boundaryPoints.length) return null;
 
     if (boundaryPoints.length === 1 && normalizeBoundaryVia(boundaryPoints[0].point.boundaryVia) === 'C') {
-        const ring = getCircleCoordinates(boundaryPoints[0].boundaryPoint);
+        const ring = getCircleCoordinates(boundaryPoints[0].boundaryPoint, options);
 
         return ring.length >= 4 ? { type: 'Polygon', coordinates: [ring] } : null;
     }
@@ -367,7 +382,7 @@ function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[]): Po
     for (let i = 0; i < boundaryPoints.length; i++) {
         const start = boundaryPoints[i];
         const end = boundaryPoints[i + 1] ?? boundaryPoints[0];
-        const segment = connectAirspaceBoundaryPoints(start.boundaryPoint, end.boundaryPoint, start.point.boundaryVia);
+        const segment = connectAirspaceBoundaryPoints(start.boundaryPoint, end.boundaryPoint, start.point.boundaryVia, options);
 
         for (const coordinate of segment) {
             if (ring.length && sameCoordinate(ring[ring.length - 1], coordinate)) continue;
@@ -387,8 +402,8 @@ function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[]): Po
  * Convert one grouped restrictive airspace into one GeoJSON feature. This is the preferred helper
  * when data already comes from the Navigraph worker as `{ airspace, points }`.
  */
-export function restrictiveAirspaceFeatureToGeoJSON(feature: RestrictiveAirspaceFeatureData): Feature<Polygon, RestrictiveAirspaceProperties> | null {
-    const geometry = buildRestrictiveAirspacePolygon(feature.points);
+export function restrictiveAirspaceFeatureToGeoJSON(feature: RestrictiveAirspaceFeatureData, geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Feature<Polygon, RestrictiveAirspaceProperties> | null {
+    const geometry = buildRestrictiveAirspacePolygon(feature.points, geometryOptions);
 
     if (!geometry) return null;
 
