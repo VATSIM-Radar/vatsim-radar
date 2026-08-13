@@ -1538,6 +1538,63 @@ export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | Vat
             return aircraftIcons.f18;
         case 'C30J':
             return aircraftIcons.c130;
+        case 'A337':
+            return aircraftIcons.a3st;
+        case 'CL35':
+            return aircraftIcons.cl30;
+        case 'EC75':
+        case 'H175':
+            return aircraftIcons.h160;
+        case 'T38':
+        case 'F5':
+            return aircraftIcons.f16;
+        case 'F50':
+            return aircraftIcons.f27;
+        case 'M346':
+        case 'A29':
+        case 'AMX':
+        case 'T27':
+            return aircraftIcons.l159;
+        case 'C550':
+            return aircraftIcons.c510;
+        case 'SUCO':
+            return aircraftIcons.h64;
+        case 'P3':
+        case 'L188':
+            return aircraftIcons.dc6;
+        case 'MRF1':
+            return aircraftIcons.mir2;
+        case 'DA50':
+            return aircraftIcons.da40;
+        case 'R135':
+            return aircraftIcons.b703;
+        case 'R722':
+            return aircraftIcons.b722;
+        case 'C680':
+            return aircraftIcons.c700;
+        case 'GLF4':
+            return aircraftIcons.glf5;
+        case 'B314':
+            return aircraftIcons.ship;
+        case 'T34P':
+        case 'T34T':
+            return aircraftIcons.be35;
+        case 'E45X':
+            return aircraftIcons.e145;
+        case 'U20T':
+            return aircraftIcons.c208;
+        case 'E390':
+            return aircraftIcons.c130;
+        case 'E110':
+            return aircraftIcons.c46;
+        case 'C295':
+            return aircraftIcons.c160;
+        case 'MG21':
+            return aircraftIcons.g91;
+        case 'AC11':
+            return aircraftIcons.aa5;
+        case 'COL4':
+            return aircraftIcons.sr22;
         case 'VF35':
             return aircraftIcons.f35;
         case 'C207':
