@@ -97,8 +97,8 @@ async function receiveMessage(event: MessageEvent) {
         // This only returns the properties required for an external application to display a list
         // of bookmarks then activate one.
         const bookmarkData = store.bookmarks.map(bookmark => ({
-            label: bookmark.name,
             id: bookmark.id,
+            label: bookmark.name,
             order: bookmark.order,
         }));
         window.parent.postMessage({ type: 'bookmarks', data: { bookmarks: bookmarkData } }, '*');
@@ -114,8 +114,8 @@ async function receiveMessage(event: MessageEvent) {
         // This only returns the properties required for an external application to display a list
         // of dashboards then activate one.
         const dashboardData = store.dashboards.map(dashboard => ({
-            label: dashboard.name,
             id: dashboard.id,
+            label: dashboard.name,
         }));
         window.parent.postMessage({ type: 'dashboards', data: { dashboards: dashboardData } });
     }
