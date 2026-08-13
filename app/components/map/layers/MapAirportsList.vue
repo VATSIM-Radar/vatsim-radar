@@ -207,6 +207,7 @@ onMounted(() => {
         getKeyedValueFromSettings('map.preferences.airports.counters.arrivalsMode'),
         getKeyedValueFromSettings('map.preferences.airports.counters.horizontalCounter'),
         getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals'),
+        getKeyedValueFromSettings('map.preferences.airports.showZoomLimit'),
     ]));
     const mapRender = computed(() => !mapStore.renderedAirports?.length);
 

@@ -3,9 +3,9 @@ import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import type { Feature } from 'ol';
 import { buildNATWaypoints } from '~/composables/navigraph';
-import greatCircle from '@turf/great-circle';
 import { Point } from 'ol/geom.js';
 import { createMapFeature } from '~/utils/map/entities';
+import { greatCircleToOl } from '~/utils';
 
 defineOptions({
     render: () => null,
@@ -51,7 +51,7 @@ async function updateNatTracks() {
             if (nextWaypoint?.coordinate) {
                 features.push(createMapFeature('navigraph', {
                     ...track,
-                    geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 })),
+                    geometry: greatCircleToOl(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 }),
                     key: 'nat',
                     id: `nat-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,

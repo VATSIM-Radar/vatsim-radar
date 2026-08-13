@@ -152,6 +152,7 @@ const settingsSchema = partialObject({
             overlaysPositions: list(['bottom-left', 'top-left'], 'must be either bottom-left or top-left'),
             favoriteLocation: list(['footer', 'header'], 'must be either footer or header'),
             highRatio: list([true, false, 'low'], 'must be either true, false or low'),
+            mapQuality: rangedNumber(25, 200, 'must be a number between 25 and 200', 0),
 
             aircraft: partialObject({
                 shortView: booleanSchema,
@@ -172,6 +173,7 @@ const settingsSchema = partialObject({
                 showMode: list(airportsModeKeys, `must be one of: ${ airportsModeKeys.join(', ') }`),
                 declutterIf: list(airportsDeclutterKeys, `must be one of: ${ airportsDeclutterKeys.join(', ') }`),
                 ATISAsUnstaffed: booleanSchema,
+                showZoomLimit: rangedNumber(0, 9, 'must be a number between 0 and 9', 1),
                 voiceButton: booleanSchema,
                 groundTraffic: partialObject({
                     hide: list(groundTrafficModeKeys, `must be one of: ${ groundTrafficModeKeys.join(', ') }`),

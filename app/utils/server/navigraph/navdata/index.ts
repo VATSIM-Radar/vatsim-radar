@@ -1,7 +1,7 @@
 import type sqlite3 from 'better-sqlite3';
 import { dbPartialRequest } from '~/utils/server/navigraph/db';
 import type { H3Event } from 'h3';
-import { handleH3Error, handleH3Exception, validateDataReady } from '~/utils/server/h3';
+import { handleH3Error, streamProxyResponse, validateDataReady } from '~/utils/server/h3';
 import { findAndRefreshUserByCookie } from '~/utils/server/user';
 import { processNavdataNDB, processNavdataVHF } from '~/utils/server/navigraph/navdata/vordme';
 import {
@@ -111,7 +111,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
         }
     }
 
-    return $fetch<NavigraphNavDataShort>(`${ config.NAVIGRAPH_HOST }/data/${ type }`);
+    return streamProxyResponse(event, `${ config.NAVIGRAPH_HOST }/data/${ type }`);
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full' | 'all') {
@@ -132,12 +132,7 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
     const key = type === 'outdated' ? type : 'current';
 
     const config = useRuntimeConfig();
-    try {
-        if (request === 'all') return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }`);
-        if (request === 'short') return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }`);
-        else return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }/${ index }`);
-    }
-    catch (e) {
-        handleH3Exception(event, e);
-    }
+    if (request === 'all') return streamProxyResponse(event, `${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }`);
+    if (request === 'short') return streamProxyResponse(event, `${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }`);
+    return streamProxyResponse(event, `${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }/${ index }`);
 }

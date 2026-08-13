@@ -206,7 +206,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
 
     const overlays = airportOverlays().value;
 
-    if (getKeyedValueFromSettings('map.preferences.airports.showMode') !== 'allExisting' || useMapStore().zoom < 5) {
+    if (getKeyedValueFromSettings('map.preferences.airports.showMode') !== 'allExisting' || useMapStore().zoom < getKeyedValueFromSettings('map.preferences.airports.showZoomLimit')) {
         airportsArr = airportsArr.filter(x => x.atc.length || x.aircraftCount || overlays.includes(x.icao));
     }
     dataStore.vatsim.parsedAirports.value = Object.fromEntries(airportsArr.map(x => [x.icao, Object.assign(x, { visible: !!visibleMap[x.icao] })]));

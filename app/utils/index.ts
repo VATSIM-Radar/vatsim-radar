@@ -5,10 +5,15 @@ import type {
     MultiPolygon as GeoMultiPolygon,
     Polygon as GeoPolygon,
     Point as GeoPoint,
+    Position,
 } from 'geojson';
+import greatCircle from '@turf/great-circle';
+import { point } from '@turf/helpers';
 import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import Polygon from 'ol/geom/Polygon.js';
+
+type GreatCircleOptions = NonNullable<Parameters<typeof greatCircle>[2]>;
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -70,6 +75,48 @@ export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineSt
     if (feature.geometry.type === 'MultiPolygon') return new MultiPolygon(feature.geometry.coordinates);
 
     throw new Error('Invalid geometry');
+}
+
+function splitAtAntimeridian(coordinates: Position[]) {
+    const parts: Position[][] = [[]];
+
+    for (const coordinate of coordinates) {
+        const currentPart = parts.at(-1)!;
+        const previous = currentPart.at(-1);
+
+        if (!previous || Math.abs(coordinate[0] - previous[0]) <= 180) {
+            currentPart.push(coordinate);
+            continue;
+        }
+
+        const boundaryLongitude = previous[0] > 0 ? 180 : -180;
+        // Unwrap the next longitude so the crossing can be interpolated on the short segment.
+        const unwrappedLongitude = coordinate[0] + (boundaryLongitude > 0 ? 360 : -360);
+        const crossingFraction = (boundaryLongitude - previous[0]) / (unwrappedLongitude - previous[0]);
+        const crossingLatitude = previous[1] + ((coordinate[1] - previous[1]) * crossingFraction);
+
+        if (previous[0] !== boundaryLongitude) currentPart.push([boundaryLongitude, crossingLatitude]);
+
+        const nextPart: Position[] = [[-boundaryLongitude, crossingLatitude]];
+        if (coordinate[0] !== -boundaryLongitude) nextPart.push(coordinate);
+        parts.push(nextPart);
+    }
+
+    return parts;
+}
+
+/**
+ * Builds a great-circle geometry and splits it exactly at the antimeridian.
+ * Turf's own splitting depends on sampling and can leave a gap or return a world-spanning LineString.
+ */
+export function greatCircleToOl(start: Coordinate, end: Coordinate, options?: GreatCircleOptions) {
+    const feature = greatCircle(point(start), point(end), options);
+    const coordinates = feature.geometry.type === 'LineString'
+        ? feature.geometry.coordinates
+        : feature.geometry.coordinates.flat();
+    const parts = splitAtAntimeridian(coordinates);
+
+    return parts.length === 1 ? new LineString(parts[0]) : new MultiLineString(parts);
 }
 
 export function createCircle(center: Coordinate, radius: number, numPoints = 64) {

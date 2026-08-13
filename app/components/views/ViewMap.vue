@@ -750,10 +750,7 @@ watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 const pixelRatio = computed(() => {
     if (typeof window === 'undefined') return 1;
-    const value = getKeyedValueFromSettings('map.preferences.highRatio');
-    if (value === 'low') return 1;
-
-    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : Math.min(window.devicePixelRatio, 2);
+    return (window.devicePixelRatio / 100) * getKeyedValueFromSettings('map.preferences.mapQuality');
 });
 
 await setupDataFetch({

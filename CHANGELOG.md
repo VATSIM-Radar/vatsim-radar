@@ -1,5 +1,20 @@
 # Changelog
 
+# [2.0.1-rc.1]
+
+## Features and Improvements
+
+- Since flights can now exceed 24 hours more often than before, limit for track history is now 36 hours instead of 24
+- Added zoom level control for airports declutter
+- Replaced map quality setting with a new Graphics Scale option, default to 100%
+
+## Bug fixes
+
+- Fixed compatibility for Safari/iOS 15
+- Airlines names will now always be uppercase. This change will be applied within 7 days from this update
+- Fixed meridian gap for routes and lines
+- Fixed tracks resetting sometimes
+
 # [2.0.1-beta.4]
 
 ## Bug fixes
@@ -20,7 +35,8 @@
 - Significantly reduced CPU load when using filter
 - Improved Navigraph Route performance
 - Significantly improved VATGlasses Combined performance
-- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as cache grows
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as
+  cache grows
 
 ## Bug fixes
 
@@ -59,7 +75,7 @@
 - Smooth aircraft movement will now be stopped immediately if you zoom out
 - Smooth aircraft movement will now be stopped if you are moving map
 - Postrender update will now be limited to once per second
-- Hover will no longer affect mobile devices if it is disabled in settings 
+- Hover will no longer affect mobile devices if it is disabled in settings
 - Significantly improved performance for all Navigraph layers
 - Removed unneeded calculations for aircraft when map is moving
 

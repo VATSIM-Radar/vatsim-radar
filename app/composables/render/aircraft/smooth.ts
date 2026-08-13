@@ -3,13 +3,13 @@ import type { EventsKey } from 'ol/events.js';
 import { unByKey } from 'ol/Observable.js';
 import type { Point } from 'ol/geom.js';
 import { LineString, MultiLineString } from 'ol/geom.js';
-import { degreesToRadians, point } from '@turf/helpers';
-import greatCircle from '@turf/great-circle';
+import { degreesToRadians } from '@turf/helpers';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine, MapFeatureProperties } from '~/utils/map/entities';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
+import { greatCircleToOl } from '~/utils';
 
 interface Sample {
     t: number;
@@ -310,7 +310,7 @@ function getLastCoordinate(geometry: LineString | MultiLineString | undefined): 
 }
 
 function getLineGeometry(from: Coordinate, to: Coordinate, npoints = 8) {
-    return turfGeometryToOl(greatCircle(point(from), point(to), { npoints }));
+    return greatCircleToOl(from, to, { npoints });
 }
 
 function setSmoothLinesSource(source: VectorSource | null) {

@@ -345,6 +345,7 @@ export default defineNuxtConfig({
             ],
         },
         build: {
+            target: ['chrome140', 'edge140', 'firefox140', 'safari15', 'ios15'],
             cssMinify: 'esbuild',
             rollupOptions: {
                 external: [

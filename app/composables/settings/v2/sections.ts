@@ -181,7 +181,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'layout',
                             title: 'Layout',
-                            items: [items.appearance.overlaysPositions, items.appearance.highRatio, items.appearance.favoriteLocation],
+                            items: [items.appearance.overlaysPositions, items.appearance.mapQuality, items.appearance.favoriteLocation],
                         },
                         {
                             key: 'tracks',
@@ -262,7 +262,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'display',
                             title: 'Display Options',
-                            items: [items.preferences.airports.showMode, items.preferences.airports.declutterIf, items.preferences.airports.ATISAsUnstaffed, items.preferences.airports.voiceButton, items.preferences.airports.showLimit],
+                            items: [items.preferences.airports.showMode, items.preferences.airports.showZoomLimit, items.preferences.airports.declutterIf, items.preferences.airports.ATISAsUnstaffed, items.preferences.airports.voiceButton, items.preferences.airports.showLimit],
                         },
                         {
                             key: 'traffic',
@@ -473,7 +473,7 @@ export const getSettingsSections = () => {
                                     value: getSettingValue(() => getKeyedValueFromSettings('map.layers.layer') === 'basic', false),
                                     onChange: value => setSettingByKey('map.layers.layer', value === true ? 'basic' : undefined),
                                 },
-                                items.appearance.highRatio,
+                                items.appearance.mapQuality,
                             ],
                         },
                     ],

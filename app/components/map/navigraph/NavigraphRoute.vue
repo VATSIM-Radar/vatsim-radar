@@ -3,7 +3,6 @@ import type { ShallowRef } from 'vue';
 import type { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector.js';
 import { Point } from 'ol/geom.js';
-import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedDataBulk, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
 import turfBearing from '@turf/bearing';
@@ -15,6 +14,7 @@ import {
     createMapFeature,
     getMapFeature,
 } from '~/utils/map/entities';
+import { greatCircleToOl } from '~/utils';
 import type { FeatureNavigraphItemProperties } from '~/utils/map/entities';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type {
@@ -335,7 +335,7 @@ async function update() {
                     !hideLineIfNoProcedure || kind === 'sids' || kind === 'stars' || i > 1 || extendedPilot
                 )) {
                     addFeature(`enroute-${ callsign }`, () => ({
-                        geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 16 })),
+                        geometry: greatCircleToOl(coordinate, newCoordinate, { npoints: 16 }),
                         key: '',
                         identifier: '',
                         type: 'navigraph',
@@ -403,7 +403,7 @@ async function update() {
 
                     if (!staticCacheHit) {
                         addFeature(`enroute-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
-                            geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
+                            geometry: greatCircleToOl(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 }),
                             key: '',
                             identifier: disableLabels ? '' : waypoint.title ?? '',
                             featureType: 'enroute-airways',
@@ -487,7 +487,7 @@ async function update() {
 
                                 if (!staticCacheHit) {
                                     addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`, () => ({
-                                        geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
+                                        geometry: greatCircleToOl([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 }),
                                         key: '',
                                         id: `enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint?.identifier }-last`,
                                         identifier: '',
@@ -510,7 +510,7 @@ async function update() {
 
                         if (!staticCacheHit) {
                             addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`, () => ({
-                                geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]], { npoints: 8 })),
+                                geometry: greatCircleToOl([currWaypoint[3], currWaypoint[4]], [nextAirwayWaypoint[3], nextAirwayWaypoint[4]], { npoints: 8 }),
                                 key: waypoint.airway!.key,
                                 id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextAirwayWaypoint[0] }`,
                                 identifier: disableLabels ? '' : waypoint.airway!.value[0],
