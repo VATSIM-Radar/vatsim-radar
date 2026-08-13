@@ -10,7 +10,7 @@ import CircleStyle from 'ol/style/Circle.js';
 import { VatsimEventType } from '~/types/data/vatsim';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { ownATC } from '~/composables/vatsim/pilots';
-import {useSettingValueFromFunc} from "~/composables/settings/v2/utils.ts";
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style> = {};
@@ -100,7 +100,7 @@ export function setAirportStyle(layer: VectorLayer) {
     styleCache = {};
     styleFillCache = {};
 
-    const showZoomLimit = useSettingValueFromFunc('map.preferences.airports.showZoomLimit')
+    const showZoomLimit = useSettingValueFromFunc('map.preferences.airports.showZoomLimit');
 
     layer.setStyle(feature => {
         const showAirportDetails = mapStore.showAirportDetails;

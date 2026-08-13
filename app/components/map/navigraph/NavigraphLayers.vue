@@ -244,7 +244,6 @@ const controlledEnabled = useSettingValueFromFunc('map.navigraph.layers.airspace
 const waypointsEnabled = useSettingValueFromFunc('map.navigraph.layers.waypoints');
 const routeParsingEnabled = useSettingValueFromFunc('map.navigraph.routeParsing.enabled');
 const natTrakEnabled = useSettingValueFromFunc('map.layers.natTrak.enabled');
-const showZoomLimit = useSettingValueFromFunc('map.preferences.airports.showZoomLimit');
 
 provide('navigraph-source', navigraphSource);
 provide('navigraph-vector-source', navigraphVectorSource);
