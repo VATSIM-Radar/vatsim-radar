@@ -135,7 +135,7 @@ const _settingsDefaultValues = {
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,
-    'map.preferences.hoverInteraction': 'default',
+    'map.preferences.hoverInteraction': 'falseForTablets',
     'map.preferences.featuredDefaultBookmarks': false,
     'map.preferences.skipBookmarkAnimation': false,
     'map.preferences.showTotalDeparturesInFeaturedAirports': false,
