@@ -171,7 +171,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiMenu from '~/components/ui/data/UiMenu.vue';
 import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
-import { useIsMobile, useIsPC, useIsTouch } from '~/composables';
+import { useIsMobile, useIsTouch } from '~/composables';
 import { useSettingValueFromFunc } from '~/composables/settings/v2/utils';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
@@ -360,9 +360,9 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
     feature.changed();
 }
 
-const isMobileOrTablet = useIsTouch();
+const isTouch = useIsTouch();
+const isMobileOrTablet = isTouch;
 const isMobile = useIsMobile();
-const isPC = useIsPC();
 const hoverInteractionSetting = useSettingValueFromFunc('map.preferences.hoverInteraction');
 
 const isHoverInteractionEnabled = computed(() => {
@@ -370,7 +370,7 @@ const isHoverInteractionEnabled = computed(() => {
         case 'trueForAll':
             return true;
         case 'falseForTablets':
-            return isPC.value;
+            return !isTouch.value;
         case 'falseForAll':
             return false;
         case 'default':
