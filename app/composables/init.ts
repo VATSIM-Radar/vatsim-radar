@@ -92,8 +92,14 @@ export function checkForData() {
     });
 }
 
+let vatspyCheckPromise: Promise<void> | null = null;
+
 export function checkForVATSpy() {
-    return initCheck('vatspy', async ({ dataStore }) => {
+    // Several map and dashboard entry points can request VATSpy at the same time.
+    // Share one initialization promise so they cannot rewrite the same IndexedDB tables concurrently.
+    if (vatspyCheckPromise) return vatspyCheckPromise;
+
+    const checkPromise = initCheck('vatspy', async ({ dataStore }) => {
         let notRequired = true;
         let vatspy = await clientDB.data.get('vatspy') as IDBVatSpyData | VatSpyAPIData | undefined;
         if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
@@ -138,7 +144,12 @@ export function checkForVATSpy() {
             data: vatspy.data,
         };
         if (notRequired) return 'notRequired';
+    }).finally(() => {
+        vatspyCheckPromise = null;
     });
+
+    vatspyCheckPromise = checkPromise;
+    return checkPromise;
 }
 
 export const tracksExpired = computed(() => {
