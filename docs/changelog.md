@@ -26,7 +26,7 @@ outline: [ 2, 3 ]
 - Updated font for controller information
 - Updated font for flight and atc hours
 - Updated hit detection to be zero for hover and 2 pixels for right click and click
-- Re-enabled hover interaction for tablets. It can now be force enabled for mobile, and force disabled for any device
+- Hover interaction can now be enabled for tablets or all devices via settings
 - Improved smoothness when switching between DGTA icons
 - Animation to open map on-hover elements is slightly faster now
 - You can now import and export bookmarks
