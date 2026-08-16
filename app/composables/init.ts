@@ -184,7 +184,8 @@ export function checkForSimAware() {
                 await clientDB.simaware.bulkPut(Object.values(groups), Object.keys(groups));
                 await clientDB.simaware.put(data.version, 'version');
             }
-            catch {
+            catch (e) {
+                console.error(e);
                 await clientDB.delete();
                 location.reload();
             }

@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.1-rc.3]
+
+## Performance improvements
+
+- Improved long aircraft list performance in airport overlay
+- Added refresh map button to default airport dashboard
+
 # [2.0.1-rc.2]
 
 ### Features and Improvements
