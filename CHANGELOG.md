@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.1-final]
+# [2.0.1]
 
 ## Highlights
 
