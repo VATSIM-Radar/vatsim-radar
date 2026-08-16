@@ -119,15 +119,18 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
 
     const frequencies = transceiver.map(x => {
         let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
-        const split = callsign.split('_');
-        const name = split.length === 3 ? split.slice(0, 2).join('_') : split[0];
-        const nameAlias = radarStorage.vatsimStatic.aliases[name] ?? radarStorage.vatsimStatic.aliases[split[0]];
 
-        if (nameAlias && nameAlias.frequency === x.frequency) {
-            frequency = parseFloat((nameAlias.frequencyAlias / 1000000).toFixed(3)).toString();
-        }
-        else if (radarStorage.vatsimStatic.aliases[x.frequency]) {
-            frequency = parseFloat((radarStorage.vatsimStatic.aliases[x.frequency].frequencyAlias / 1000000).toFixed(3)).toString();
+        if (radarStorage.vatsimStatic.aliases[x.frequency]) {
+            const split = callsign.split('_');
+            const name = split.length === 3 ? split.slice(0, 2).join('_') : split[0];
+            const nameAlias = radarStorage.vatsimStatic.aliases[name] ?? radarStorage.vatsimStatic.aliases[split[0]];
+
+            if (nameAlias && nameAlias.frequency === x.frequency) {
+                frequency = parseFloat((nameAlias.frequencyAlias / 1000000).toFixed(3)).toString();
+            }
+            else {
+                frequency = parseFloat((radarStorage.vatsimStatic.aliases[x.frequency].frequencyAlias / 1000000).toFixed(3)).toString();
+            }
         }
 
         if (!frequency.includes('.')) {
