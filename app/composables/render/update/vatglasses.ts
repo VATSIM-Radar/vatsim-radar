@@ -14,8 +14,13 @@ import type { DataUpdateContext } from '~/composables/render/update/index';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'geojson';
 import { polygon } from '@turf/helpers';
 import { stringToArray } from '~/utils/shared';
-
-let worker: Worker | null = null;
+import { getCombinationPool } from '~/composables/render/combination-pool';
+import {
+    ensureVatglassesCombinedCacheVersion,
+    getVatglassesCombinedCache,
+    getVatglassesCombinedCacheKey,
+    setVatglassesCombinedCache,
+} from '~/composables/render/vatglasses-cache';
 
 let facilities: {
     ATIS: number;
@@ -46,55 +51,68 @@ function preservePreviousSectorsIfCurrentTickIsEmpty(position: VatglassesActiveP
     }
 }
 
-// This function is used for the combined mode. It splits the sectors into smaller parts, each area exists only once in the result. Each split has an altrange which contains the vertical limits of the sector.
-function splitSectorsWithWorker(sectors: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-        if (!worker) return;
-        worker.postMessage(['splitSectors', sectors]);
+function refreshCombinedSectorProperties(position: VatglassesActivePosition) {
+    const sourceProperties = position.sectors?.[0]?.properties;
+    if (!sourceProperties || !position.sectorsCombined) return;
 
-        worker.onmessage = function(event: { data: any }) {
-            resolve(event.data);
+    for (const sector of position.sectorsCombined) {
+        sector.properties = {
+            ...sector.properties,
+            countryGroupId: sourceProperties.countryGroupId,
+            vatglassesPositionId: sourceProperties.vatglassesPositionId,
+            atc: sourceProperties.atc,
+            colour: sourceProperties.colour,
+            type: sourceProperties.type,
         };
-
-        worker.onerror = function(error: any) {
-            reject(error);
-        };
-    });
+    }
 }
 
+// Combined sectors are independent per position, so a bounded worker pool can calculate them concurrently.
+async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActivePositions, vatglassesVersion: string | null) {
+    const pool = getCombinationPool();
+    const tasks: Promise<void>[] = [];
 
-function combineSectorsWithWorker(sectors: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-        if (!worker) return;
-        worker.postMessage(['combineSectors', sectors]);
+    if (vatglassesVersion) {
+        await ensureVatglassesCombinedCacheVersion(vatglassesVersion).catch(error => console.error(error));
+    }
 
-        worker.onmessage = function(event: { data: any }) {
-            resolve(event.data);
-        };
-
-        worker.onerror = function(error: any) {
-            reject(error);
-        };
-    });
-}
-
-async function combineAllVatglassesActiveSectors(finalPositions: VatglassesActivePositions) {
     for (const countryGroupId in finalPositions) {
         for (const positionId in finalPositions[countryGroupId]) {
-            if (!finalPositions[countryGroupId][positionId]) continue;
-            if (finalPositions[countryGroupId][positionId].sectorsCombined === null) { // if it is null, it is the signal for us this needs to be (re)calculated
-                finalPositions[countryGroupId][positionId].lastUpdated = new Date().toISOString();
-                const sectors = finalPositions[countryGroupId][positionId]['sectors'];
-                if (sectors) {
-                    const splittedSectors = await splitSectorsWithWorker(sectors);
+            const position = finalPositions[countryGroupId][positionId];
+            const sectors = position?.sectors;
+            if (!position || position.sectorsCombined !== null || !sectors) continue;
 
-                    if (splittedSectors) {
-                        finalPositions[countryGroupId][positionId].sectorsCombined = await combineSectorsWithWorker(splittedSectors);
-                    }
+            position.lastUpdated = new Date().toISOString();
+            tasks.push((async () => {
+                const cacheKey = vatglassesVersion
+                    ? await getVatglassesCombinedCacheKey(vatglassesVersion, countryGroupId, positionId, position)
+                    : null;
+                const cachedSectors = cacheKey && vatglassesVersion
+                    ? await getVatglassesCombinedCache(cacheKey, vatglassesVersion).catch(error => {
+                        console.error(error);
+                        return null;
+                    })
+                    : null;
+
+                if (cachedSectors) {
+                    position.sectorsCombined = cachedSectors;
+                    refreshCombinedSectorProperties(position);
+                    return;
                 }
-            }
+
+                const combinedSectors = await pool.run(sectors);
+                position.sectorsCombined = combinedSectors;
+                refreshCombinedSectorProperties(position);
+
+                if (cacheKey && vatglassesVersion) {
+                    await setVatglassesCombinedCache(cacheKey, vatglassesVersion, combinedSectors)
+                        .catch(error => console.error(error));
+                }
+            })());
         }
     }
+
+    await Promise.all(tasks);
 }
 
 function getActiveSectorsOfAirspace(airspace: VatglassesAirspace, context: DataUpdateContext) {
@@ -192,8 +210,6 @@ export async function updateVATGlasses(context: DataUpdateContext) {
     const positionsPrefixes = new Set<string>();
 
     const { airports } = context;
-    const { default: combinedWorker } = await import('~/composables/render/combination-worker.ts?worker');
-    worker ??= new combinedWorker();
 
     // Update positions and airspaces
 
@@ -485,7 +501,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
     if (!firstRun && getKeyedValueFromSettings('map.vatglasses.active') && getKeyedValueFromSettings('map.vatglasses.combined') && !dataStore.vatglassesCombiningInProgress.value) {
         dataStore.vatglassesCombiningInProgress.value = true;
         const logCombine = logBench('vgCombine');
-        await combineAllVatglassesActiveSectors(finalPositions).catch(e => console.error(e));
+        await combineAllVatglassesActiveSectors(finalPositions, dataStore.vatglasses.value || dataStore.versions.value?.vatglasses || null).catch(e => console.error(e));
         logCombine();
         dataStore.vatglassesCombiningInProgress.value = false;
     }

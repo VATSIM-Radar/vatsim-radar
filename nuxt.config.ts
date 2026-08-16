@@ -270,8 +270,7 @@ export default defineNuxtConfig({
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
             display: 'standalone',
-            // @ts-expect-error tabbed not supported here
-            display_override: ['window-controls-overlay', 'tabbed', 'standalone'],
+            display_override: ['standalone'],
             start_url: '/',
             dir: 'ltr',
             lang: 'en',
@@ -346,6 +345,7 @@ export default defineNuxtConfig({
             ],
         },
         build: {
+            target: ['chrome140', 'edge140', 'firefox140', 'safari15', 'ios15'],
             cssMinify: 'esbuild',
             rollupOptions: {
                 external: [

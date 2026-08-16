@@ -4,12 +4,14 @@ import type VectorSource from 'ol/source/Vector.js';
 import { intersects } from 'ol/extent.js';
 import { useMapStore } from '~/store/map';
 import { checkFlightLevel } from '~/composables/render/storage';
-import { createMapFeature, getMapFeature } from '~/utils/map/entities';
+import { createMapFeature } from '~/utils/map/entities';
 import type { FeatureNavigraph } from '~/utils/map/entities';
 import type { NavigraphNavDataShort, ShortAirspace } from '~/utils/server/navigraph/navdata/types';
+import { createSpatialGridIndex } from '~/utils/map/spatial-index';
 import {
     restrictiveAirspaceFeatureToGeoJSON,
 } from '~/utils/shared/airspace';
+import type { AirspaceGeometryOptions } from '~/utils/shared/airspace';
 import { turfGeometryToOl } from '~/utils';
 
 defineOptions({
@@ -35,11 +37,26 @@ let pendingRender = false;
 let disposed = false;
 let previousRestrictedEnabled = false;
 let previousControlledEnabled = false;
-const airspaces: Partial<Record<AirspaceDataKey, NavigraphNavDataShort[AirspaceDataKey]>> = {};
-const featuresCache = new Map<string, FeatureNavigraph>();
-const extentCache = new WeakMap<ShortAirspace, number[] | null>();
+let dataVersion: string | null = null;
+type AirspaceEntry = {
+    key: string;
+    item: ShortAirspace;
+};
 
-function isAirspaceInExtent(item: ShortAirspace, extent: number[]) {
+const airspaces: Partial<Record<AirspaceDataKey, NavigraphNavDataShort[AirspaceDataKey]>> = {};
+const airspaceIndexes: Partial<Record<AirspaceDataKey, ReturnType<typeof createSpatialGridIndex<AirspaceEntry>>>> = {};
+const featuresCache = new Map<string, FeatureNavigraph>();
+const activeFeatures = new Map<string, FeatureNavigraph>();
+const extentCache = new WeakMap<ShortAirspace, number[] | null>();
+const MAX_FEATURE_CACHE = 2000;
+const clientGeometryOptions: AirspaceGeometryOptions = {
+    // Viewport rendering does not need the cache-generation resolution used by the worker.
+    linePoints: 8,
+    arcPoints: 24,
+    circlePoints: 48,
+};
+
+function getAirspaceExtent(item: ShortAirspace) {
     let itemExtent = extentCache.get(item);
 
     if (itemExtent === undefined) {
@@ -66,13 +83,39 @@ function isAirspaceInExtent(item: ShortAirspace, extent: number[]) {
         extentCache.set(item, itemExtent);
     }
 
+    return itemExtent;
+}
+
+function isAirspaceInExtent(item: ShortAirspace, extent: number[]) {
+    const itemExtent = getAirspaceExtent(item);
     return itemExtent ? intersects(itemExtent, extent) : false;
+}
+
+function touchFeature(id: string, feature: FeatureNavigraph) {
+    featuresCache.delete(id);
+    featuresCache.set(id, feature);
+}
+
+function cacheFeature(id: string, feature: FeatureNavigraph) {
+    touchFeature(id, feature);
+
+    for (const [cachedId, cachedFeature] of featuresCache) {
+        if (featuresCache.size <= MAX_FEATURE_CACHE) break;
+        if (cachedId === id) continue;
+        if (activeFeatures.has(cachedId)) continue;
+
+        featuresCache.delete(cachedId);
+        cachedFeature.dispose();
+    }
 }
 
 function getFeature(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, key: string, item: ShortAirspace) {
     const id = `${ featureType }-${ key }`;
     const cached = featuresCache.get(id);
-    if (cached) return cached;
+    if (cached) {
+        touchFeature(id, cached);
+        return cached;
+    }
 
     const geojson = restrictiveAirspaceFeatureToGeoJSON({
         airspace: {
@@ -96,7 +139,7 @@ function getFeature(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, 
             coordinate: point[0] == null || point[1] == null ? null : [point[0], point[1]],
             seqno: point[7],
         })),
-    });
+    }, clientGeometryOptions);
     if (!geojson) return null;
 
     const feature = createMapFeature('navigraph', {
@@ -113,51 +156,61 @@ function getFeature(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, 
         id,
     });
 
-    featuresCache.set(id, feature);
+    cacheFeature(id, feature);
 
     return feature;
 }
 
 async function renderAirspaces(dataKey: AirspaceDataKey, featureType: AirspaceFeatureType, extent: number[], displayed: Set<string>) {
     airspaces[dataKey] ??= await dataStore.navigraph.data(dataKey) ?? {};
+    airspaceIndexes[dataKey] ??= createSpatialGridIndex<AirspaceEntry>({
+        getExtent: ({ item }) => {
+            const itemExtent = getAirspaceExtent(item);
+            return itemExtent ? [itemExtent[0], itemExtent[1], itemExtent[2], itemExtent[3]] : [0, 0, 0, 0];
+        },
+    });
+
+    if (!airspaceIndexes[dataKey]!.size()) {
+        for (const [key, item] of Object.entries(airspaces[dataKey] ?? {})) airspaceIndexes[dataKey]!.add({ key, item });
+    }
 
     let counter = 0;
+    const featuresToAdd: FeatureNavigraph[] = [];
 
-    for (const [key, item] of Object.entries(airspaces[dataKey] ?? {})) {
+    for (const { key, item } of airspaceIndexes[dataKey]!.query(extent)) {
         const id = `${ featureType }-${ key }`;
-        const existingFeature = getMapFeature('navigraph', source!.value, id);
         counter++;
-        if (counter % 1000 === 0) await sleep(0);
+        if (counter % 500 === 0) await sleep(0);
         if (disposed) return;
 
         if (!checkFlightLevel(item[5]) || !isAirspaceInExtent(item, extent)) {
-            if (existingFeature) {
-                source?.value.removeFeature(existingFeature);
-            }
             continue;
         }
 
         displayed.add(id);
 
-        if (existingFeature) continue;
+        if (activeFeatures.has(id)) continue;
 
         const feature = getFeature(dataKey, featureType, key, item);
-        if (feature) source?.value.addFeature(feature);
-    }
-}
-
-function cleanup() {
-    const features = source?.value.getFeatures() ?? [];
-
-    for (const feature of features) {
-        const type = feature.getProperties().featureType;
-        if (type === 'restrictive-airspace' || type === 'controlled-airspace') {
-            source?.value.removeFeature(feature);
-            feature.dispose();
+        if (feature) {
+            activeFeatures.set(id, feature);
+            featuresToAdd.push(feature);
         }
     }
 
+    if (featuresToAdd.length) source?.value.addFeatures(featuresToAdd);
+}
+
+function cleanup() {
+    for (const [id, feature] of activeFeatures) {
+        source?.value.removeFeature(feature);
+        activeFeatures.delete(id);
+    }
+
+    for (const feature of featuresCache.values()) feature.dispose();
     featuresCache.clear();
+    airspaceIndexes.restrictedAirspace = undefined;
+    airspaceIndexes.controlledAirspace = undefined;
     delete airspaces.restrictedAirspace;
     delete airspaces.controlledAirspace;
 }
@@ -174,6 +227,14 @@ async function updateAirspaces() {
         const restrictedLayerEnabled = restrictiveEnabled.value;
         const controlledLayerEnabled = controlledEnabled.value;
         const currentExtent = extent.value;
+        const version = dataStore.navigraph.version.value;
+
+        if (dataVersion !== version) {
+            cleanup();
+            dataVersion = version;
+            previousRestrictedEnabled = false;
+            previousControlledEnabled = false;
+        }
 
         if (restrictedLayerEnabled !== previousRestrictedEnabled || controlledLayerEnabled !== previousControlledEnabled) {
             cleanup();
@@ -192,13 +253,10 @@ async function updateAirspaces() {
             if (controlledLayerEnabled) await renderAirspaces('controlledAirspace', 'controlled-airspace', currentExtent, displayed);
             if (disposed) return;
 
-            const features = source?.value.getFeatures() ?? [];
-
-            for (const feature of features) {
-                const properties = feature.getProperties();
-                if ((properties.featureType !== 'restrictive-airspace' && properties.featureType !== 'controlled-airspace') || displayed.has(properties.id)) continue;
-
+            for (const [id, feature] of activeFeatures) {
+                if (displayed.has(id)) continue;
                 source?.value.removeFeature(feature);
+                activeFeatures.delete(id);
             }
         }
         finally {
@@ -207,9 +265,9 @@ async function updateAirspaces() {
     } while (pendingRender && !disposed);
 }
 
-const renderAirspacesThrottled = useThrottleFn(updateAirspaces, 500, true);
+const renderAirspacesThrottled = useThrottleFn(updateAirspaces, 1000, true);
 
-watch([restrictiveEnabled, controlledEnabled, extent, level], () => {
+watch([restrictiveEnabled, controlledEnabled, extent, level, dataStore.navigraph.version], () => {
     if (inProgress) pendingRender = true;
     renderAirspacesThrottled();
 }, {

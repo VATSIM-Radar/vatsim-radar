@@ -61,6 +61,15 @@
                     Open Dashboard
                 </ui-button>
             </div>
+            <div class="airport_header_section">
+                <ui-button
+                    size="S"
+                    type="secondary"
+                    @click="mapKey++"
+                >
+                    Refresh map
+                </ui-button>
+            </div>
         </div>
         <div class="airport_sections">
             <div class="airport_column">
@@ -146,9 +155,10 @@
         >
             <iframe
                 v-if="ready && mounted"
+                :key="mapKey"
                 ref="airportMapFrame"
                 class="airport_map_iframe"
-                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }`"
+                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }&airportAircraft=1`"
             />
             <transition name="airport_map_pilot--appear">
                 <airport-pilot
@@ -209,6 +219,7 @@ const store = useStore();
 const dataStore = useDataStore();
 const mounted = ref(false);
 const config = useRuntimeConfig();
+const mapKey = ref(0);
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
 const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[icao.value]);

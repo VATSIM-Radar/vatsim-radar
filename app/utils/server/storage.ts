@@ -268,7 +268,7 @@ export interface RadarStorage {
         bookings: VatsimBooking[];
         tracks: VatsimNattrak[];
         achievements: VatsimAchievementList[];
-        aliases: Record<number, VatsimStationAlias>;
+        aliases: Record<number | string, VatsimStationAlias>;
     };
     vatsimNotam: RadarNotam | null;
     vatsim: VatsimStorage;

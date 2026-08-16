@@ -160,12 +160,12 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
     &--type-atc {
         --atc-color: #{$darkGray200};
 
-
         width: 32px;
         height: 16px;
         padding: 0;
 
-        text-shadow: -1px -1px 0 $blackAlpha24, 1px -1px 0 $blackAlpha24, -1px 1px 0 $blackAlpha24, 1px 1px 0 $blackAlpha24;
+        color: $lightGray200Orig;
+        text-shadow: -1px -1px 0 $blackAlpha24Orig, 1px -1px 0 $blackAlpha24Orig, -1px 1px 0 $blackAlpha24Orig, 1px 1px 0 $blackAlpha24Orig;
 
         background: var(--atc-color);
     }

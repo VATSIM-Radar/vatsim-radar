@@ -132,7 +132,7 @@ export const useMapStore = defineStore('map', {
             return !this.moving && !this.distance.pixel;
         },
         showAirportDetails(): boolean {
-            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > 5;
+            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > getKeyedValueFromSettings('map.preferences.airports.showZoomLimit');
         },
         compactAirportView(): boolean {
             const shortView = getKeyedValueFromSettings('map.preferences.airports.shortView');

@@ -466,6 +466,7 @@ defineExpose({
     }
 
     &__pilot {
+        content-visibility: auto;
         border: 2px solid transparent;
         background: $darkGray700;
         transition: 0.3s;

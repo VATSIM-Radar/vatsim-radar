@@ -3,7 +3,7 @@
   "extends": [
     "VATSIM-Radar/vatsim-radar"
   ],
-  "baseBranches": [
+  "baseBranchPatterns": [
     "next"
   ]
 }

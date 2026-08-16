@@ -11,7 +11,7 @@ export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean 
 export const isHideMapObject = (key: keyof UserSettingsV2['map']['visibility']): boolean => {
     const mapStore = useMapStore();
 
-    if (getKeyedValueFromSettings('map.layers.heatmap') && key !== 'pilots' && (key !== 'airports' || mapStore.zoom < 6)) return true;
+    if (getKeyedValueFromSettings('map.layers.heatmap') && key !== 'pilots' && (key !== 'airports' || mapStore.zoom < getKeyedValueFromSettings('map.preferences.airports.showZoomLimit'))) return true;
 
     return !getKeyedValueFromSettings(`map.visibility.${ key }` as any);
 };

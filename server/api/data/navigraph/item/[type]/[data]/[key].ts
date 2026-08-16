@@ -1,4 +1,4 @@
-import { handleH3Error, validateDataReady } from '~/utils/server/h3';
+import { handleH3Error, streamProxyResponse, validateDataReady } from '~/utils/server/h3';
 import { findAndRefreshUserByCookie } from '~/utils/server/user';
 
 export default defineEventHandler(async event => {
@@ -19,5 +19,5 @@ export default defineEventHandler(async event => {
         }
     }
 
-    return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/item/${ type }/${ data }/${ key }`);
+    return streamProxyResponse(event, `${ config.NAVIGRAPH_HOST }/item/${ type }/${ data }/${ key }`);
 });

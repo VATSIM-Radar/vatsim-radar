@@ -169,6 +169,11 @@ export async function checkAndSetMapPreset() {
         }
     }
 
+    if (query.airportAircraft) {
+        preset.onlyAirportAircraft = query.airportAircraft === '1';
+        preset.onlyAirportsAircraft = query.airportAircraft === '1';
+    }
+
     if (typeof query.airports === 'string') {
         preset.airports = query.airports.split(',').map(x => x.toUpperCase());
         preset.hideSectors = false;

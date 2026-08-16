@@ -1,4 +1,4 @@
-import { createError, H3Error, sendError } from 'h3';
+import { createError, H3Error, sendError, sendProxy } from 'h3';
 import type { H3Event } from 'h3';
 import { isDataReady } from '~/utils/server/storage';
 import { prisma } from '~/utils/server/prisma';
@@ -40,6 +40,14 @@ export async function validateDataReady(event: H3Event) {
     }
 
     return true;
+}
+
+export function streamProxyResponse(event: H3Event, target: string) {
+    return sendProxy(event, target, {
+        headers: {
+            Accept: 'application/json',
+        },
+    });
 }
 
 export async function freezeH3Request(event: H3Event, userId: number) {

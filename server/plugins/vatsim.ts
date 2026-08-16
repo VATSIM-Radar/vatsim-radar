@@ -6,5 +6,6 @@ export default defineNitroPlugin(app => {
     redisSubscriber.subscribe('data');
     redisSubscriber.on('message', (_, message) => {
         radarStorage.vatsim = JSON.parse(message);
+        radarStorage.vatsim.extendedPilotsMap = Object.fromEntries(radarStorage.vatsim.extendedPilots.map(x => [x.cid, x]));
     });
 });

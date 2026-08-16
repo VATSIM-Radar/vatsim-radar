@@ -1,6 +1,80 @@
 # Changelog
 
-# [2.0.0-3]
+# [2.0.1-final]
+
+## Highlights
+
+- Add IPC handlers to expose bookmarks and websockets by neilenns. Learn
+  more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use StreamDeck with
+  VATSIM Radar - marketplace plugin is coming
+- Improved hover, smoothness and font here and there
+- Restored EOBT, Time Enroute and Fuel Time in Prefile window
+- Replaced map quality setting with a new Graphics Scale option, default to 100%
+- Performance improvements all around
+
+## Features and Improvements
+
+- Based on community feedback, all airports with at least one traffic anywhere will now show by default
+- Updated font for controller information
+- Updated font for flight and atc hours
+- Updated hit detection to be zero for hover and 2 pixels for right click and click
+- Re-enabled hover interaction for tablets. It can now be force enabled for mobile, and force disabled for any device
+- Improved smoothness when switching between DGTA icons
+- Animation to open map on-hover elements is slightly faster now
+- You can now import and export bookmarks
+- Default airport page will now only show this airport traffic only, like it did before
+- `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
+- New dashboard setting: "Airports traffic only" (false by default)
+- Added support for correct ATC count in Discord Presence when inside Dashboard
+- Since flights can now exceed 24 hours more often than before, limit for track history is now 36 hours instead of 24
+- Added zoom level control for airports declutter
+- Added model matching: CL35 -> CL30, EC75-H175 -> H160, A337 -> A3ST, T38-F5 -> F16, F50 -> F27
+- Added model matching: M346-A29-AMX-T27 -> L159, C550 -> C510, SUCO -> H64 (AH64), P3-L188 -> DC6, MRF1 -> MIR2
+- Added model matching: DA50 -> DA40, R135 -> B703, R722 -> B722, C680 -> C700, GLF4 -> GLF5, B314 -> SHIP
+- Added model matching: T34P-T34T -> BE35, E45X -> E145, U20T -> C208, E390 -> C130, E110 -> C46
+- Added model matching: C295 -> C160, MG21 -> G91, AC11 -> AA5, COL4 -> SR22
+- Add a VSCode devcontainer to simplify dev environment setup by neilenns
+- Added refresh map button to default airport dashboard
+- Airport dashboard airport card now shows wind with gusts if present
+
+## Performance Improvements
+
+- Smooth aircraft update has been capped to 30fps
+- Smooth aircraft movement will now be stopped immediately if you zoom out
+- Smooth aircraft movement will now be stopped if you are moving map
+- Postrender update will now be limited to once per second
+- Hover will no longer affect mobile devices if it is disabled in settings
+- Significantly improved performance for all Navigraph layers
+- Removed unneeded calculations for aircraft when map is moving
+- Improved aircraft render performance
+- Improved smooth aircraft performance
+- Significantly reduced CPU load when using filter
+- Improved Navigraph Route performance
+- Significantly improved VATGlasses Combined performance
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as
+  cache grows
+- Improved long aircraft list performance in airport overlay
+
+## Bug Fixes
+
+- Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
+- Fixed vhf or ndb displaying as airport in some cases
+- Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
+- Fixed favorite button disappeared sometimes
+- Fixed positions displayed incorrectly in Featured Airports
+- Fixed counters click on mobile opening airport instead of aircraft list
+- Fixed header display for tablet mode
+- Fixed VHF frequency lookup in airway routes
+- Fixed bearing-difference calculation when selecting the closest Navigraph waypoint
+- Fixed facilities chip text color in light theme
+- Fixed some TWR controllers displaying twice when VATGlasses is enabled
+- Fixed compatibility for Safari/iOS 15
+- Airlines names will now always be uppercase. This change will be applied within 7 days from this update
+- Fixed meridian gap for routes and lines
+- Fixed tracks resetting sometimes
+- Fixed incorrect HF frequency being shown sometimes
+
+# [2.0.0-3-final]
 
 ## Features and Improvements
 

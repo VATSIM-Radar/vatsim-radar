@@ -196,7 +196,9 @@ defineCronJob('* * * * * *', async () => {
     try {
         dataProcessInProgress = true;
 
-        radarStorage.vatsim.data = structuredClone(data);
+        const dataSnapshot = data;
+        data = null;
+        radarStorage.vatsim.data = dataSnapshot;
 
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
@@ -443,10 +445,10 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        const pilotCallsigns = new Set(data.pilots.map(p => p?.callsign ?? ''));
-        const atcCallsigns = new Set(data.controllers.map(c => c?.callsign ?? ''));
-        const atisCallsigns = new Set(data.atis.map(a => a?.callsign ?? ''));
-        const prefileCallsigns = new Set(data.prefiles.map(p => p?.callsign ?? ''));
+        const pilotCallsigns = new Set(dataSnapshot.pilots.map(p => p?.callsign ?? ''));
+        const atcCallsigns = new Set(dataSnapshot.controllers.map(c => c?.callsign ?? ''));
+        const atisCallsigns = new Set(dataSnapshot.atis.map(a => a?.callsign ?? ''));
+        const prefileCallsigns = new Set(dataSnapshot.prefiles.map(p => p?.callsign ?? ''));
 
         Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
             if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
@@ -729,7 +731,7 @@ defineCronJob('* * * * * *', async () => {
                 regularData: radarStorage.vatsim.regularData,
                 mandatoryData: radarStorage.vatsim.mandatoryData,
                 extendedPilots: radarStorage.vatsim.extendedPilots,
-                extendedPilotsMap: radarStorage.vatsim.extendedPilotsMap,
+                extendedPilotsMap: {},
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
                 compactDatafeed: radarStorage.vatsim.compactDatafeed,

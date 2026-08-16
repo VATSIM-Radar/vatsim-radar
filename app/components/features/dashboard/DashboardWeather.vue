@@ -118,7 +118,7 @@ function parseWind(metar: string): string | null {
         const parsed = parseMetar(metar, { issued: new Date() });
         if (!parsed.wind) return null;
         const dir = typeof parsed.wind.degrees === 'number' ? `${ parsed.wind.degrees }°` : parsed.wind.direction;
-        return `${ dir } ${ parsed.wind.speed } ${ parsed.wind.unit || 'MPS' }`;
+        return `${ dir } ${ parsed.wind.speed }${ parsed.wind.gust ? `G${ parsed.wind.gust }` : '' } ${ parsed.wind.unit || 'MPS' }`;
     }
     catch {
         return null;

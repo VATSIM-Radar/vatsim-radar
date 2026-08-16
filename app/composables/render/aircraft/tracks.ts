@@ -1,9 +1,7 @@
 import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft';
 import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { point } from '@turf/helpers';
-import { turfGeometryToOl } from '~/utils';
-import greatCircle from '@turf/great-circle';
+import { greatCircleToOl } from '~/utils';
 import { LineString, MultiLineString } from 'ol/geom.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine } from '~/utils/map/entities';
@@ -159,9 +157,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         );
 
         if (straightArrivalLine) {
-            const start = point(coordinates);
-            const end = point([arrivalAirport.lon, arrivalAirport.lat]);
-            const geometry = turfGeometryToOl(greatCircle(start, end));
+            const geometry = greatCircleToOl(coordinates, [arrivalAirport.lon, arrivalAirport.lat]);
 
             if (arrLine) {
                 arrLine.setGeometry(geometry);
@@ -196,44 +192,47 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         let shortUpdate = !!updateState.turnsFirstGroupTimestamp;
 
-        const turns = await new Promise<QuestDBGeojson | null | undefined>(async resolve => {
-            if (track.show === 'short') {
-                resolve(null);
-                return;
+        let turns: QuestDBGeojson | null | undefined;
+
+        if (track.show !== 'short') {
+            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - TURNS_REQUEST_INTERVAL && updateState.lastTurnsUpdateData) {
+                turns = updateState.lastTurnsUpdateData;
             }
+            else {
+                const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
 
-            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - TURNS_REQUEST_INTERVAL && updateState?.lastTurnsUpdateData) {
-                resolve(updateState?.lastTurnsUpdateData);
-                return;
-            }
+                try {
+                    turns = await $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
+                        timeout: TURNS_REQUEST_TIMEOUT,
+                    });
+                }
+                catch (error) {
+                    console.error(error);
+                }
 
-            // requestIdleCallback was here, just in case
-
-            const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
-            const data = await $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
-                timeout: TURNS_REQUEST_TIMEOUT,
-            }).catch(console.error) ?? null;
-
-            if (data) {
-                updateState!.lastTurnsUpdateData = data;
-                updateState!.lastTurnsUpdate = Date.now();
-                updateState!.needsFullTurnsUpdate = false;
-                if (data.departedAt || data.arrivedAt) {
-                    dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
-                        departedAt: data.departedAt,
-                        arrivedAt: data.arrivedAt,
-                    };
+                if (turns) {
+                    updateState.lastTurnsUpdateData = turns;
+                    updateState.lastTurnsUpdate = Date.now();
+                    updateState.needsFullTurnsUpdate = false;
+                    if (turns.departedAt || turns.arrivedAt) {
+                        dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
+                            departedAt: turns.departedAt,
+                            arrivedAt: turns.arrivedAt,
+                        };
+                    }
                 }
             }
-
-            resolve(data);
-        });
+        }
 
         if (turns) {
             updateState.flightPlan = turns.flightPlan;
         }
 
-        const firstUpdate = updateState.turnsStart && turns?.flightPlanTime !== updateState.turnsStart;
+        const firstUpdate = !!(
+            updateState.turnsStart &&
+            turns?.flightPlanTime &&
+            turns.flightPlanTime !== updateState.turnsStart
+        );
 
         // Doing a full update
         if (firstUpdate) {
@@ -294,8 +293,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                         collection.features[0].geometry.coordinates.slice(),
                         renderState.coordinates,
                     ];
-                    const points = coordinates.map(x => point(x));
-                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1], { npoints: 8 }));
+                    const geometry = greatCircleToOl(coordinates[0], coordinates[1], { npoints: 8 });
 
                     const id = `${ aircraft.cid }-timestamp-aircraft` as const;
                     const existing = getMapFeature('aircraft-line', linesSource, id);
@@ -361,8 +359,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                         [departureAirport.lon, departureAirport.lat],
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
-                    const points = coordinates.map(x => point(x));
-                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
+                    const geometry = greatCircleToOl(coordinates[0], coordinates[1]);
 
                     const id = `${ aircraft.cid }-timestamp-${ collection.features[0].properties!.timestamp }-departure` as const;
                     const existing = getMapFeature('aircraft-line', linesSource, id);
@@ -392,7 +389,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                 const id = `${ aircraft.cid }-timestamp-${ collection.features[0].properties!.timestamp }` as const;
 
-                const newFeatures: Array<LineString | Position[]> = [];
+                const newFeatures: LineString[] = [];
 
                 function addFeature(geometry: Position | Position[]) {
                     if (typeof geometry[0] === 'number') {
@@ -425,8 +422,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                     const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
 
-                    const points = coords.map(x => point(x));
-
                     let npoints = 4;
 
                     if (
@@ -436,11 +431,11 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                         npoints = 100;
                     }
 
-                    const circle = greatCircle(points[0], points[1], {
+                    const circle = greatCircleToOl(coords[0], coords[1], {
                         npoints,
                     });
 
-                    circle.geometry.coordinates.map(x => addFeature(x));
+                    newFeatures.push(...(circle instanceof LineString ? [circle] : circle.getLineStrings()));
                 }
 
                 const lineFeature = createMapFeature('aircraft-line', {
@@ -458,13 +453,17 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             }
         }
         else {
-            clearNonStraightFeatures();
+            const hasRenderedHistory = track.show !== 'short' && tracksFeatures.some(feature => {
+                const lineType = feature.getProperties().lineType;
+                return lineType === 'loaded' || lineType === 'aircraft' || lineType === 'departure-line';
+            });
 
-            if (departureAirport && pilot?.depDist && pilot?.depDist > 20 && track.isShown) {
-                const start = point([departureAirport.lon, departureAirport.lat]);
-                const end = point(coordinates);
+            // A timeout or temporarily empty QuestDB response must not erase a valid route.
+            // Short mode explicitly disables loaded history, so it still clears those features.
+            if (!hasRenderedHistory) clearNonStraightFeatures();
 
-                const geometry = turfGeometryToOl(greatCircle(start, end, { npoints: STRAIGHT_LINE_NPOINTS }));
+            if (!hasRenderedHistory && departureAirport && pilot?.depDist && pilot?.depDist > 20 && track.isShown) {
+                const geometry = greatCircleToOl([departureAirport.lon, departureAirport.lat], coordinates, { npoints: STRAIGHT_LINE_NPOINTS });
 
                 if (depLine) {
                     depLine.setGeometry(geometry);
@@ -483,7 +482,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     linesSource.addFeature(depLine);
                 }
             }
-            else if (depLine) {
+            else if (!hasRenderedHistory && depLine) {
                 depLine.dispose();
                 linesSource.removeFeature(depLine);
             }

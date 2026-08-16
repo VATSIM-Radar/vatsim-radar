@@ -411,16 +411,6 @@ export async function updateTransceivers() {
 
 function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
     return Object.fromEntries(airlines.map(val => {
-        const name = val.name.split('');
-
-        name.forEach((symbol, index) => {
-            const previousSymbol = val.name[index - 1];
-            if (previousSymbol !== undefined && previousSymbol !== ' ' && previousSymbol !== '(') name[index] = symbol.toLowerCase();
-            else name[index] = symbol.toUpperCase();
-        });
-
-        val.name = name.join('');
-
         return [val.icao, val];
     }));
 }

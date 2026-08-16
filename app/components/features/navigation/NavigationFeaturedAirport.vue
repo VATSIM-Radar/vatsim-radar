@@ -85,6 +85,7 @@ import LocationIcon from '~/assets/icons/kit/location.svg?component';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import type { AirportListItem } from '~/composables/render/airports';
+import { getAirportControllers } from '~/composables/vatsim/airport';
 
 const props = defineProps({
     airport: {
@@ -116,7 +117,7 @@ interface Controller {
 const controllers = computed<Controller[]>(() => {
     const list: Controller[] = [];
 
-    for (const controller of props.airport.atc) {
+    for (const controller of getAirportControllers(props.airport.icao, props.airport.atc)) {
         if (controller.booking) continue;
         if (list.some(x => controller.isATIS ? x.isATIS : x.facility === controller.facility) || controller.facility === ids.FSS || controller.facility === ids.CTR) continue;
 
