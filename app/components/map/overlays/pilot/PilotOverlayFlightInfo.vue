@@ -233,7 +233,7 @@
                         horizontal
                     />
                     <div
-                    v-if="toGoTimeDate || distance?.toGoDist || arrivedAtDate"
+                        v-if="toGoTimeDate || distance?.toGoDist || arrivedAtDate"
                         class="flight-info__progress_footer__item"
                     >
                         <ui-chip :title="arrivedAtDate ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate) ? 'Distance remaining' : 'Time until Destination'">

@@ -242,6 +242,12 @@ export default defineNuxtConfig({
             globPatterns: [
                 '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
             ],
+            // Aircraft SVGs are selected dynamically and must not all be downloaded
+            // while the service worker is being installed. They are cached by the
+            // runtime caching rule below after the map actually requests them.
+            globIgnores: [
+                'aircraft/*.svg',
+            ],
             navigateFallback: null,
             runtimeCaching: [
                 {
