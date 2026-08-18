@@ -6,10 +6,9 @@ import type {
     MapAircraftKeys, MapAircraftList,
 } from '~/types/map';
 import { getAircraftDistance } from '~/composables/vatsim/pilots';
-import { debounce } from '~/utils/shared';
 import type { PartialRecord } from '~/types';
 import { getControllersForPosition } from '~/composables/render';
-import { isValidDate } from '~/utils/shared';
+import { isValidDate, debounce } from '~/utils/shared';
 
 export function getAirportControllers(icao: string, controllers: VatsimShortenedController[] = []) {
     const dataStore = useDataStore();
