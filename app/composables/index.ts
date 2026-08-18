@@ -432,19 +432,18 @@ export function globalComputed<T>(
     return () => _computed;
 }
 
-const iframeCookie = globalComputed(() => useCookie<boolean>('efbx-iframe', {
+export const getIframeCookie = globalComputed(() => useCookie<boolean>('efbx-iframe', {
     secure: true,
     sameSite: 'none',
     path: '/',
     default: () => false,
+    maxAge: 60 * 60 * 24 * 30 * 12,
 }));
 
 export const isIframe = computed(() => {
-    const iframeQuery = useRoute().query.iframe;
+    if (useRoute().query.iframe) return true;
 
-    if (iframeQuery && !iframeCookie().value.value) iframeCookie().value.value = true;
-
-    return iframeCookie().value.value;
+    return getIframeCookie().value.value;
 });
 
 export const isApp = computed(() => {

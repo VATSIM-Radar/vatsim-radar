@@ -15,6 +15,7 @@ import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay, useColorFromProp } from '~/composables';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
+import { isValidDate } from '~/utils/shared';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -336,6 +337,7 @@ export function getFlightRowColor(index: number | null | undefined, theme = useS
 }
 
 export function getTimeRemains(eta: Date): string | null {
+    if (!isValidDate(eta)) return null;
     const timeRemains = eta.getTime() - useDataStore().time.value;
     if (timeRemains < 0) return null;
 

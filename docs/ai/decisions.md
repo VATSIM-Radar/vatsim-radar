@@ -25,6 +25,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Airports, ATC, And Source Fallbacks
 
+- Dynamic airport-aircraft timestamps must be normalized to `Date | null` with `isValidDate` before they reach `Intl.DateTimeFormat`; malformed VATSIM/Navigraph ETA data is optional display data and must not break the airport or pilot overlay.
 - On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.
 - VATGlasses-owned ATC controllers are excluded from SimAware fallback only when their matched VATGlasses position has rendered sector geometry. Empty or transiently unavailable VG geometry must leave the controller eligible for SimAware rendering.
 - SimAware lookup results must not permanently cache empty datasets, and the client cache is invalidated when the SimAware data version changes.

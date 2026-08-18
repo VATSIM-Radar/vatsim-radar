@@ -206,6 +206,7 @@ Important composable groups:
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
 - `app/composables/vatsim/airport.ts`: airport controller lists merge controllers directly attributed to the airport with controllers from rendered airport/TRACON/sector features covering its coordinates; both airport details and Featured Airport cards use this path.
+- `getAircraftForAirport()` in the same composable derives airport-aircraft ETA values from cached `toGoTime` data or current aircraft coordinates/groundspeed; `AirportAircraft.vue` formats those `Date` values for arrival rows.
 - `app/utils/shared/bookings.ts`: shared booking range/continuity helpers. It groups bookings by callsign, treats overlapping or exactly adjacent slots as one continuous chain, and selects the active/nearest chain for map display.
 - `app/composables/navigraph/*`: Navigraph data/layout helpers.
 - `app/composables/navigraph/index.ts`: flight-plan route parsing, including SID/STAR/airway/NAT handling and fallback waypoint resolution against Navigraph `vhf`/`ndb`/`waypoints` plus VATSpy `keyAirports.realIcao` airports.
