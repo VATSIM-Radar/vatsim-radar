@@ -75,6 +75,10 @@ export function parseFilterAltitude(altitude: string): FilterAltitudeConfig[] {
     return config;
 }
 
+export function isValidDate(d: Date): d is Date {
+    return d instanceof Date && !Number.isNaN(d.getTime());
+}
+
 export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
     if (typeof val !== 'number' || Number.isNaN(val)) return false;
 

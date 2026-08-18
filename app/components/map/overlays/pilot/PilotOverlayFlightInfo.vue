@@ -164,10 +164,10 @@
                     v-if="showRouteDetails.value"
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
-                    <template v-if="departedAt || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                    <template v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
-                            <ui-chip v-if="departedAt" title="Departed At">
-                                {{`${ datetime.format(new Date(departedAt)) }z`}}
+                            <ui-chip v-if="departedAtDate" title="Departed At">
+                                {{`${ datetime.format(departedAtDate) }z`}}
                             </ui-chip>
                             <ui-chip title="Distance from Departure">
                                 {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
@@ -185,24 +185,24 @@
                         </ui-chip>
                     </div>
                     <ui-separator
-                        v-if="(distance?.toGoTime || distance?.toGoDist || arrivedAt)"
+                        v-if="(toGoTimeDate || distance?.toGoDist || arrivedAtDate)"
                         distance="0"
                         horizontal
                     />
                     <div
-                        v-if="distance?.toGoDist || arrivedAt"
+                        v-if="distance?.toGoDist || arrivedAtDate"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip v-if="arrivedAt || distance?.toGoDist" :title="arrivedAt ? 'Arrived At' : 'Distance Remaining'">
-                            <template v-if="arrivedAt">
-                                {{datetime.format(new Date(arrivedAt))}}z
+                        <ui-chip v-if="arrivedAtDate || distance?.toGoDist" :title="arrivedAtDate ? 'Arrived At' : 'Distance Remaining'">
+                            <template v-if="arrivedAtDate">
+                                {{datetime.format(arrivedAtDate)}}z
                             </template>
                             <template v-else>
                                 {{Math.round(distance?.toGoDist ?? 0)}} NM
                             </template>
                         </ui-chip>
-                        <ui-chip v-if="distance?.toGoTime! && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time until Destination">
-                            {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
+                        <ui-chip v-if="toGoTimeDate && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time until Destination">
+                            {{ datetime.format(toGoTimeDate)?.toUpperCase() }}z
                         </ui-chip>
                     </div>
                 </div>
@@ -210,10 +210,10 @@
                     v-else
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
-                    <template v-if="departedAt || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                    <template v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
-                            <ui-chip :title="departedAt ? 'Departed At' : 'Departed Distance'">
-                                {{departedAt ? `${ datetime.format(new Date(departedAt)) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
+                            <ui-chip :title="departedAtDate ? 'Departed At' : 'Departed Distance'">
+                                {{departedAtDate ? `${ datetime.format(departedAtDate) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
                             </ui-chip>
                         </div>
                         <ui-separator
@@ -228,23 +228,23 @@
                         </ui-chip>
                     </div>
                     <ui-separator
-                        v-if="(distance?.toGoTime || distance?.toGoDist || arrivedAt)"
+                        v-if="(toGoTimeDate || distance?.toGoDist || arrivedAtDate)"
                         distance="0"
                         horizontal
                     />
                     <div
-                        v-if="distance?.toGoTime || distance?.toGoDist || arrivedAt"
+                    v-if="toGoTimeDate || distance?.toGoDist || arrivedAtDate"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip :title="arrivedAt ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime) ? 'Distance remaining' : 'Time until Destination'">
-                            <template v-if="arrivedAt">
-                                {{datetime.format(new Date(arrivedAt))}}z
+                        <ui-chip :title="arrivedAtDate ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate) ? 'Distance remaining' : 'Time until Destination'">
+                            <template v-if="arrivedAtDate">
+                                {{datetime.format(arrivedAtDate)}}z
                             </template>
-                            <template v-else-if="pilot.status === 'depTaxi' || pilot.status === 'depGate' || !distance?.toGoTime">
+                            <template v-else-if="pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate">
                                 {{Math.round(distance?.toGoDist ?? 0)}} NM
                             </template>
                             <template v-else>
-                                {{ datetime.format(new Date(distance?.toGoTime! || 0))?.toUpperCase() }}z
+                                {{ datetime.format(toGoTimeDate)?.toUpperCase() }}z
                             </template>
                         </ui-chip>
                     </div>
@@ -273,16 +273,16 @@
                         </ui-chip>
                     </div>
                     <ui-separator
-                        v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                        v-if="toGoTimeDate && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
                         distance="0"
                         horizontal
                     />
                     <div
-                        v-if="distance?.toGoTime && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                        v-if="toGoTimeDate && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
                         class="flight-info__progress_footer__item"
                     >
                         <ui-chip title="Time until Destination">
-                            {{ getTimeRemains(new Date(distance.toGoTime!)) }}
+                            {{ getTimeRemains(toGoTimeDate) }}
                         </ui-chip>
                     </div>
                 </div>
@@ -365,6 +365,7 @@ import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { isValidDate } from '~/utils/shared';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
@@ -421,6 +422,16 @@ const dataStore = useDataStore();
 const departedAt = computed(() => props.pilot.flight_plan?.departed_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.departedAt);
 const arrivedAt = computed(() => props.pilot.flight_plan?.arrived_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.arrivedAt);
 
+const getValidDate = (value: string | number | undefined) => {
+    if (!value) return null;
+
+    const date = new Date(value);
+    return isValidDate(date) ? date : null;
+};
+
+const departedAtDate = computed(() => getValidDate(departedAt.value));
+const arrivedAtDate = computed(() => getValidDate(arrivedAt.value));
+
 const numberFormatter = new Intl.NumberFormat('ru-RU');
 
 const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
@@ -431,6 +442,7 @@ const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
 }));
 
 const distance = computed(() => getAircraftDistance(props.pilot));
+const toGoTimeDate = computed(() => getValidDate(distance.value?.toGoTime));
 
 const getStatus = computed(() => {
     return getPilotStatus(props.pilot.status, props.isOffline);

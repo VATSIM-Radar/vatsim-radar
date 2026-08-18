@@ -9,6 +9,7 @@ import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import { debounce } from '~/utils/shared';
 import type { PartialRecord } from '~/types';
 import { getControllersForPosition } from '~/composables/render';
+import { isValidDate } from '~/utils/shared';
 
 export function getAirportControllers(icao: string, controllers: VatsimShortenedController[] = []) {
     const dataStore = useDataStore();
@@ -180,10 +181,12 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
                 }
             }
 
+            const calculatedEta = pilotDistance.toGoTime ? new Date(pilotDistance.toGoTime) : eta;
+
             const truePilot: AirportPopupPilotStatus = {
                 ...pilot,
                 distance: pilotDistance.toGoDist || distance,
-                eta: pilotDistance.toGoTime ? new Date(pilotDistance.toGoTime) : eta,
+                eta: calculatedEta && isValidDate(calculatedEta) ? calculatedEta : null,
                 flown: pilotDistance.depDist || flown,
                 isArrival: true,
             };
