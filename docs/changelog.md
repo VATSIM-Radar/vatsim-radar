@@ -8,9 +8,15 @@ outline: [ 2, 3 ]
 [[toc]]
 :::
 
+# 2.0.1.1
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
 ## 2.0.1
 
-## Highlights
+### Highlights
 
 - Add IPC handlers to expose bookmarks and websockets by neilenns. Learn
   more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use StreamDeck with
@@ -20,7 +26,7 @@ outline: [ 2, 3 ]
 - Replaced map quality setting with a new Graphics Scale option, default to 100%
 - Performance improvements all around
 
-## Features and Improvements
+### Features and Improvements
 
 - Based on community feedback, all airports with at least one traffic anywhere will now show by default
 - Updated font for controller information
@@ -45,7 +51,7 @@ outline: [ 2, 3 ]
 - Added refresh map button to default airport dashboard
 - Airport dashboard airport card now shows wind with gusts if present
 
-## Performance Improvements
+### Performance Improvements
 
 - Smooth aircraft update has been capped to 30fps
 - Smooth aircraft movement will now be stopped immediately if you zoom out
@@ -63,7 +69,7 @@ outline: [ 2, 3 ]
   cache grows
 - Improved long aircraft list performance in airport overlay
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
 - Fixed vhf or ndb displaying as airport in some cases
@@ -84,11 +90,11 @@ outline: [ 2, 3 ]
 
 ## 2.0.0.3
 
-## Features and Improvements
+### Features and Improvements
 
 - Horizontal dashboard layout has become usable by ncls-alien
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed booking not displayed sometimes when another facility was online
 - Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present

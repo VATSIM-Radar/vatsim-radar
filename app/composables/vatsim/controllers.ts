@@ -330,6 +330,18 @@ const allowedDomains = [
     'vatsim.me',
     'nyart.cc',
     'vatsim-petersburg.com',
+    'vacc.ch',
+    'xpguard.net',
+    'vatprc.net',
+    'hvacc.org',
+    'khaleejvacc.net',
+    'torontofir.ca',
+    'vatjpn.org',
+    'vatpac.org',
+    'vatphil.com',
+    'vatsim.tr',
+    'vatssa.com',
+    'vhcf.net',
 ];
 
 function addATISLinks(lines: string[]) {
