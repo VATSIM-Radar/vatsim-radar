@@ -69,7 +69,7 @@
             <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
-                    <map-minified-overlays v-if="!store.activeDashboard"/>
+                    <map-minified-overlays v-if="!store.activeDashboard && !store.config.airports && !store.config.airport"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
