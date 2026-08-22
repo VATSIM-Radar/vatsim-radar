@@ -330,6 +330,7 @@ const allowedDomains = [
     'vatsim.me',
     'nyart.cc',
     'vatsim-petersburg.com',
+    'vacc.ch',
 ];
 
 function addATISLinks(lines: string[]) {
