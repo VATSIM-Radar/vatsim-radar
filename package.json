@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1115.0",
+    "@aws-sdk/client-s3": "3.1116.0",
     "@nuxt/image": "2.1.0",
     "@pinia/nuxt": "1.0.2",
     "@prisma/adapter-mariadb": "7.9.1",
