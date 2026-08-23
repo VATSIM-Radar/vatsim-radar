@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.1-2-final]
+
+- Fixed CZQM/CZQX not lighing up correctly
+
 # [2.0.1-1-final]
 
 - Added new domains to ATIS parse whitelist
