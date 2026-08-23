@@ -1,10 +1,10 @@
 # Changelog
 
-# [2.0.1-2-final]
+# [2.0.1-2]
 
 - Fixed CZQM/CZQX not lighing up correctly
 
-# [2.0.1-1-final]
+# [2.0.1-1]
 
 - Added new domains to ATIS parse whitelist
 - Fixed iframes showing a lot of random airports overlays, extending to whole map
