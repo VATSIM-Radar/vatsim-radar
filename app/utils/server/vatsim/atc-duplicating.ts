@@ -291,4 +291,17 @@ export const duplicatingSettings = [
             'Kazan APP': 'UWKD_APP',
         },
     },
+    {
+        description: 'Central Asia TMAs',
+        authorCid: 1475694,
+        prefixes: ['UAII','UCFM','UTAA','UZSD','UZTR'],
+        suffixes: ['CTR'],
+        mapping: {
+            UADD: 'UADD_TWR',
+            UCFM: 'UCFM_APP',
+            UTAM: 'UTAM_R_APP',
+            UZSB: 'UZSB_APP',
+            UZTT: 'UZTT_APP',
+        },
+    },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
