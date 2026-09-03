@@ -22,10 +22,17 @@
                 Oops! You don't have Discord role to access this version of VATSIM Radar.<br><br>
 
                 <ui-button
+                    type="secondary-black"
                     width="300px"
                     @click="logout"
                 >
                     Wrong account! Let me relogin...
+                </ui-button>
+                <ui-button
+                    href="https://vatsim-radar.com"
+                    width="300px"
+                >
+                    Open main VATSIM Radar
                 </ui-button>
             </div>
         </template>

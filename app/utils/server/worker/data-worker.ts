@@ -315,15 +315,15 @@ defineCronJob('* * * * * *', async () => {
         const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
         const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
 
-        const auNzSectors: typeof allowedDuplicatingSectors = [];
-        const jpSectors: typeof allowedDuplicatingSectors = [];
+        const staticFreqSectors: typeof allowedDuplicatingSectors = [];
+        const dynamicFreqSectors: typeof allowedDuplicatingSectors = [];
 
         for (const sector of allowedDuplicatingSectors) {
-            if (sector.region === 'JP') {
-                jpSectors.push(sector);
+            if (sector.region === 'JP' || sector.region === 'CN') {
+                dynamicFreqSectors.push(sector);
             }
             else if (sector.region === 'AU' || sector.region === 'NZ' || !sector.region) {
-                auNzSectors.push(sector);
+                staticFreqSectors.push(sector);
             }
         }
 
@@ -361,7 +361,7 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // 1. Process AU/NZ duplication (Standard logic)
-            const duplicatedSectors = auNzSectors.filter(x => {
+            const duplicatedSectors = staticFreqSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
                 return controller.text_atis?.some(
@@ -390,11 +390,11 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // VATJPN sector duplication
-            if (jpSectors.length > 0 && controller.text_atis?.length) {
+            if (dynamicFreqSectors.length > 0 && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ');
                 const mainFreqCanon = parseFloat(controller.frequency).toString();
 
-                const extendedJpSectors = jpSectors.filter(s => {
+                const extendedJpSectors = dynamicFreqSectors.filter(s => {
                     const nameRegex = new RegExp(`\\b${ s.name }\\b`, 'i');
                     return nameRegex.test(atisText);
                 });

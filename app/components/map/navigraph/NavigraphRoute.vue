@@ -316,7 +316,7 @@ async function update() {
 
             let i = 0;
 
-            const onFirstWaypoint = (identifier: string, newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
+            const onFirstWaypoint = (identifier: string, newCoordinate: Coordinate, kind: NavigraphNavDataEnrouteWaypointPartial['kind'], prevWaypointKind?: NavigraphNavDataEnrouteWaypointPartial['kind']) => {
                 if (firstWaypoint) return;
 
                 nextWaypoint = {
@@ -342,8 +342,8 @@ async function update() {
                         featureType: 'enroute-airways',
                         dataType: 'navdata',
                         self: true,
-                        kind,
-                        dbType: kind,
+                        kind: prevWaypointKind ?? kind,
+                        dbType: prevWaypointKind ?? kind,
                     }));
                 }
 
@@ -353,6 +353,7 @@ async function update() {
             for (i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
                 const nextWaypoint = waypoints[i + 1];
+                const prevWaypoint = waypoints[i - 1];
                 const nextCoordinate = nextWaypoint?.coordinate ?? [nextWaypoint?.airway?.value?.[2][0]?.[3], nextWaypoint?.airway?.value?.[2][0]?.[4]];
 
                 if (waypoint.kind !== 'airways') {
@@ -392,7 +393,7 @@ async function update() {
                     }
 
                     if (foundWaypoint) {
-                        onFirstWaypoint(waypoint.identifier, waypoint.coordinate!, waypoint.kind);
+                        onFirstWaypoint(waypoint.identifier, waypoint.coordinate!, waypoint.kind, prevWaypoint?.kind);
                     }
 
                     if (typeof nextCoordinate[0] !== 'number') continue;
@@ -438,7 +439,7 @@ async function update() {
                         }
 
                         if (foundWaypoint) {
-                            onFirstWaypoint(currWaypoint[0], [currWaypoint[3], currWaypoint[4]], waypoint.kind);
+                            onFirstWaypoint(currWaypoint[0], [currWaypoint[3], currWaypoint[4]], waypoint.kind, prevWaypoint?.kind);
                         }
 
                         if (!disableWaypoints && !staticCacheHit) {

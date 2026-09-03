@@ -1,10 +1,28 @@
 # Changelog
 
+# [2.0.1-3-rc.1]
+
+- Removed both directions option from nat tracks
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Added support for empty UIRs on map
+- Removed desktop app tray icon on MacOS
+- Updated desktop app to electron v44
+- Added China sectors duplications
+- Fixed some APP bookings not displayed when multiple APP bookings need to be shown
+- Fixed dashed line to STAR waypoint showing as green even before STAR is reached
+
 # [2.0.1-2-final]
 
 - Fixed CZQM/CZQX not lighing up correctly
 
 # [2.0.1-1-final]
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
+# [2.0.1-1]
 
 - Added new domains to ATIS parse whitelist
 - Fixed iframes showing a lot of random airports overlays, extending to whole map
