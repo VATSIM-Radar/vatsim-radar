@@ -14869,12 +14869,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:0.12.7, srvx@npm:^0.12.4, srvx@npm:^0.12.7":
-  version: 0.12.7
-  resolution: "srvx@npm:0.12.7"
+"srvx@npm:1.0.0":
+  version: 1.0.0
+  resolution: "srvx@npm:1.0.0"
   bin:
-    srvx: bin/srvx.mjs
-  checksum: 10c0/924ba9153b40f438558fccfeb531158f628d27baa1e048674df8dd4cc768b34bdf244d710cfa97b10d1ac9d262066cd24dca67b73dd77c076c4d25762e294f85
+    srvx: ./bin/srvx.mjs
+  checksum: 10c0/aec22a3901a0e29e569f9a29ac2f86cd3880727a47e22b15308e16e944f004c838bd2d182e8619172ac663dab2b87b32e1a20209bce1889e2e2a898a1f5fe83f
   languageName: node
   linkType: hard
 
@@ -14884,6 +14884,15 @@ __metadata:
   bin:
     srvx: bin/srvx.mjs
   checksum: 10c0/aae81d7aa2d43e23fd483088533ad471ee2cd28f2065b84119635fd9feabdd4bab94fc06b8d198c205e3613b552624ccd2015c887ba9ca415d9c51dde7e6ec79
+  languageName: node
+  linkType: hard
+
+"srvx@npm:^0.12.4, srvx@npm:^0.12.7":
+  version: 0.12.7
+  resolution: "srvx@npm:0.12.7"
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/924ba9153b40f438558fccfeb531158f628d27baa1e048674df8dd4cc768b34bdf244d710cfa97b10d1ac9d262066cd24dca67b73dd77c076c4d25762e294f85
   languageName: node
   linkType: hard
 
@@ -16532,7 +16541,7 @@ __metadata:
     rou3: "npm:0.9.2"
     sass-embedded: "npm:1.103.1"
     sharp: "npm:0.35.4"
-    srvx: "npm:0.12.7"
+    srvx: "npm:1.0.0"
     stylelint: "npm:17.14.1"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-html: "npm:2.0.0"
