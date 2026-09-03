@@ -24,7 +24,7 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         onChange: value => setSettingByKey('map.traffic.toggleAircraftOverlays', value),
     },
     autoShowAirportTracks: {
-        title: 'Auto-show airport tracks',
+        title: 'Auto-show aircraft tracks',
         description: 'Enabling this will auto-show aircraft tracks for any airport overlay you open.',
         type: 'toggle',
         value: getSettingValue('map.traffic.autoShowAirportTracks'),

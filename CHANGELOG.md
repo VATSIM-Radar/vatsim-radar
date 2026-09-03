@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.1-3-rc.2]
+
+- Max users list count has been extended from 5 to 10
+- Max users per one list has been extended from 200 to 300
+- "Show aircraft tracks" setting in airport overlay is now synced with global setting
+- Added Asia FIR duplications
+
 # [2.0.1-3-rc.1]
 
 - Removed both directions option from nat tracks
