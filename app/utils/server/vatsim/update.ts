@@ -370,15 +370,20 @@ export async function updateSectorsData() {
     const jpSectors = $fetch('https://vatjpn.org/media/external/vatsim-radar/Sectors.xml', {
         responseType: 'text',
     });
+    const cnSectors = $fetch('https://files.vatprc.net/sectors/Sectors.xml', {
+        responseType: 'text',
+    });
 
     const au = xmlParser.parse(await auSectors);
     const nz = xmlParser.parse(await nzSectors);
     const jp = xmlParser.parse(await jpSectors);
+    const cn = xmlParser.parse(await cnSectors);
 
     radarStorage.vatsim.sectorsDataset = [
         ...au.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'AU' })),
         ...nz.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'NZ' })),
         ...jp.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'JP' })),
+        ...cn.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'CN' })),
     ].map((sector: Record<string, any>) => ({
         fullName: sector.FullName,
         name: sector.Name,

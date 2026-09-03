@@ -243,10 +243,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     updateState.lastTurnsUpdate = Date.now();
                     updateState.needsFullTurnsUpdate = false;
                     if (turns.flightPlanTime) {
+                        const previousData = dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
+                        // Incremental groups may omit timestamps recorded before the requested cursor.
+                        const previousFlightData = start && previousData?.flightPlanTime === turns.flightPlanTime ? previousData : undefined;
                         dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
                             flightPlanTime: turns.flightPlanTime,
-                            departedAt: turns.departedAt,
-                            arrivedAt: turns.arrivedAt,
+                            departedAt: turns.departedAt ?? previousFlightData?.departedAt ?? null,
+                            arrivedAt: turns.arrivedAt ?? previousFlightData?.arrivedAt ?? null,
                         };
                     }
                 }

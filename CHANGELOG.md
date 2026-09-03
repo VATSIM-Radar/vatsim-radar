@@ -6,6 +6,9 @@
 - Fixed arrived at showing after turnaround instead of planned arrival time
 - Fixed last flown path showing after turnaround
 - Added support for empty UIRs on map
+- Removed desktop app tray icon on MacOS
+- Updated desktop app to electron v44
+- Added China sectors duplications
 
 # [2.0.1-2-final]
 
