@@ -3,6 +3,7 @@
 # [2.0.1-3-rc.3]
 
 - Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+- Fixed airport on-hover placement popup being incorrect sometimes
 
 # [2.0.1-3-rc.2]
 
