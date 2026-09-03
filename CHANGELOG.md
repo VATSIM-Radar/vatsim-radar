@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.1-3-rc.3]
+
+- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+
 # [2.0.1-3-rc.2]
 
 - Max users list count has been extended from 5 to 10

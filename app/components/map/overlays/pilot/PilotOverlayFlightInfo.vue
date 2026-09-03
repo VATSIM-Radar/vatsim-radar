@@ -409,7 +409,7 @@ const arrAirport = computed(() => {
 });
 
 const airline = shallowRef<RadarDataAirline | null>(null);
-const friend = computed(() => store.friends.find(x => x.cid === props.pilot.cid));
+const friend = computed(() => store.allFriends.find(x => x.cid === props.pilot.cid));
 
 watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, async () => {
     airline.value = await getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks);
