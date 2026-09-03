@@ -264,13 +264,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1121.0":
-  version: 3.1121.0
-  resolution: "@aws-sdk/client-s3@npm:3.1121.0"
+"@aws-sdk/client-s3@npm:3.1124.0":
+  version: 3.1124.0
+  resolution: "@aws-sdk/client-s3@npm:3.1124.0"
   dependencies:
     "@aws-sdk/checksums": "npm:^3.1000.29"
     "@aws-sdk/core": "npm:^3.977.9"
-    "@aws-sdk/credential-provider-node": "npm:^3.972.81"
+    "@aws-sdk/credential-provider-node": "npm:^3.972.82"
     "@aws-sdk/middleware-sdk-s3": "npm:^3.972.75"
     "@aws-sdk/signature-v4-multi-region": "npm:^3.996.46"
     "@aws-sdk/types": "npm:^3.974.5"
@@ -279,7 +279,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.11.3"
     "@smithy/types": "npm:^4.17.2"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/ed715f4e8a25c22da391ed984d489664c3e1e575f35cda0e8c17adacedfd33b6265ec811824dadf28c2f001e55c6847369cbf9774b03dc05175e4e56f5111b45
+  checksum: 10c0/a67fd7326be84d6a787223e18561e01832f47103646310f7d25aed2ca0a24980770685349810fbfe08dbcb5ef6b698c749544ba4c5736109c20ff72b16729a56
   languageName: node
   linkType: hard
 
@@ -362,9 +362,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/credential-provider-node@npm:^3.972.81":
-  version: 3.972.81
-  resolution: "@aws-sdk/credential-provider-node@npm:3.972.81"
+"@aws-sdk/credential-provider-node@npm:^3.972.82":
+  version: 3.972.82
+  resolution: "@aws-sdk/credential-provider-node@npm:3.972.82"
   dependencies:
     "@aws-sdk/credential-provider-env": "npm:^3.972.70"
     "@aws-sdk/credential-provider-http": "npm:^3.972.72"
@@ -377,7 +377,7 @@ __metadata:
     "@smithy/credential-provider-imds": "npm:^4.4.16"
     "@smithy/types": "npm:^4.17.2"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/b0e60a641a4648dcae0e20b3f2fe3866bb1b5aeba64617146888b4208d94878a8421cd74bbf1f8b921a50cc1e8410fa707ca30af0349ec54be43ce5e8004a748
+  checksum: 10c0/c79c2381c1e76fecadb5adf9a8623946d819b20bfc0eaa236a384115027cdea3fe1f0a294c75edbb6aee1a0ccbbc4ec606c2eee8e1c4d720ed2ef281aa1175c8
   languageName: node
   linkType: hard
 
@@ -5202,12 +5202,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:26.4.0, @types/node@npm:^26.4.0":
+"@types/node@npm:*, @types/node@npm:^26.4.0":
   version: 26.4.0
   resolution: "@types/node@npm:26.4.0"
   dependencies:
     undici-types: "npm:~8.3.0"
   checksum: 10c0/e6fc94ea3b58fb8040b38c465dec1c53c1fd9d2c092c81f699d28799726baf59f12e1600318e79e8e6f985bb919dab6ae820180b942b8e38c51acaad63e8aada
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:26.4.1":
+  version: 26.4.1
+  resolution: "@types/node@npm:26.4.1"
+  dependencies:
+    undici-types: "npm:~8.3.0"
+  checksum: 10c0/29568336db8bc67740744782492af0e81ab1f88d86eaa07e38cf0a4c8bae7250a7b4b85c80ac1014fc98b2bc6d4bcac872b2c494ee0671b3880eada7c1fdbc94
   languageName: node
   linkType: hard
 
@@ -14869,12 +14878,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:0.12.7, srvx@npm:^0.12.4, srvx@npm:^0.12.7":
-  version: 0.12.7
-  resolution: "srvx@npm:0.12.7"
+"srvx@npm:1.0.0":
+  version: 1.0.0
+  resolution: "srvx@npm:1.0.0"
   bin:
-    srvx: bin/srvx.mjs
-  checksum: 10c0/924ba9153b40f438558fccfeb531158f628d27baa1e048674df8dd4cc768b34bdf244d710cfa97b10d1ac9d262066cd24dca67b73dd77c076c4d25762e294f85
+    srvx: ./bin/srvx.mjs
+  checksum: 10c0/aec22a3901a0e29e569f9a29ac2f86cd3880727a47e22b15308e16e944f004c838bd2d182e8619172ac663dab2b87b32e1a20209bce1889e2e2a898a1f5fe83f
   languageName: node
   linkType: hard
 
@@ -14884,6 +14893,15 @@ __metadata:
   bin:
     srvx: bin/srvx.mjs
   checksum: 10c0/aae81d7aa2d43e23fd483088533ad471ee2cd28f2065b84119635fd9feabdd4bab94fc06b8d198c205e3613b552624ccd2015c887ba9ca415d9c51dde7e6ec79
+  languageName: node
+  linkType: hard
+
+"srvx@npm:^0.12.4, srvx@npm:^0.12.7":
+  version: 0.12.7
+  resolution: "srvx@npm:0.12.7"
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/924ba9153b40f438558fccfeb531158f628d27baa1e048674df8dd4cc768b34bdf244d710cfa97b10d1ac9d262066cd24dca67b73dd77c076c4d25762e294f85
   languageName: node
   linkType: hard
 
@@ -15430,7 +15448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:^3.3.4":
+"svgo@npm:^3.3.5":
   version: 3.3.5
   resolution: "svgo@npm:3.3.5"
   dependencies:
@@ -16464,7 +16482,7 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1121.0"
+    "@aws-sdk/client-s3": "npm:3.1124.0"
     "@navigraph/amdb": "npm:1.1.1"
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.1.0"
@@ -16494,7 +16512,7 @@ __metadata:
     "@types/geojson": "npm:7946.0.16"
     "@types/jsonwebtoken": "npm:9.0.10"
     "@types/merge-ranges": "npm:1.0.2"
-    "@types/node": "npm:26.4.0"
+    "@types/node": "npm:26.4.1"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:8.18.1"
     "@vite-pwa/nuxt": "npm:1.1.1"
@@ -16532,7 +16550,7 @@ __metadata:
     rou3: "npm:0.9.2"
     sass-embedded: "npm:1.103.1"
     sharp: "npm:0.35.4"
-    srvx: "npm:0.12.7"
+    srvx: "npm:1.0.0"
     stylelint: "npm:17.14.1"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-html: "npm:2.0.0"
@@ -16548,7 +16566,7 @@ __metadata:
     valibot: "npm:1.4.2"
     vite-plugin-eslint2: "npm:5.3.0"
     vite-plugin-pwa: "npm:1.3.0"
-    vite-svg-loader: "npm:5.1.2"
+    vite-svg-loader: "npm:5.1.3"
     vitepress: "npm:1.6.4"
     vue: "npm:3.5.42"
     vue-bottom-sheets: "npm:0.4.0"
@@ -16770,15 +16788,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-svg-loader@npm:5.1.2":
-  version: 5.1.2
-  resolution: "vite-svg-loader@npm:5.1.2"
+"vite-svg-loader@npm:5.1.3":
+  version: 5.1.3
+  resolution: "vite-svg-loader@npm:5.1.3"
   dependencies:
     debug: "npm:^4.3.4"
-    svgo: "npm:^3.3.4"
+    svgo: "npm:^3.3.5"
   peerDependencies:
     vue: ">=3.2.13"
-  checksum: 10c0/6e3bd71449db7d04e66bcfdf02bf2f144c1730abacc4557c13a08b7a4ed9f5db739e9f869516bd60763bd951a252802ebadeeb35f3b102c64d7f44e800b297d9
+  checksum: 10c0/c44a5bf85af3f30f69e7bc726f290ee259e5c66703af3f6084e2421853ab1be3593656e1a5984b259a445afdf651f78647272c58fd46d8baf56e49b6d7d6d7e3
   languageName: node
   linkType: hard
 
