@@ -294,7 +294,7 @@ export const duplicatingSettings = [
     {
         description: 'Central Asia TMAs',
         authorCid: 1475694,
-        prefixes: ['UCFM','UTAA','UZSD','UZTR'],
+        prefixes: ['UCFM', 'UTAA', 'UZSD', 'UZTR'],
         suffixes: ['CTR'],
         mapping: {
             UCFM: 'UCFM_APP',
