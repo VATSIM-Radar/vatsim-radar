@@ -419,10 +419,15 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
 
 const dataStore = useDataStore();
 
-const departedAt = computed(() => props.pilot.flight_plan?.departed_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.departedAt);
-const arrivedAt = computed(() => props.pilot.flight_plan?.arrived_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.arrivedAt);
+const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]);
+const departedAt = computed(() => tracksPilotData.value?.flightPlanTime
+    ? tracksPilotData.value.departedAt
+    : props.pilot.flight_plan?.departed_at);
+const arrivedAt = computed(() => tracksPilotData.value?.flightPlanTime
+    ? tracksPilotData.value.arrivedAt
+    : props.pilot.flight_plan?.arrived_at);
 
-const getValidDate = (value: string | number | undefined) => {
+const getValidDate = (value: string | number | null | undefined) => {
     if (!value) return null;
 
     const date = new Date(value);

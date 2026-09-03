@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.1-3-rc.1]
+
+- Removed both directions option from nat tracks
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Added support for empty UIRs on map
+
 # [2.0.1-2-final]
 
 - Fixed CZQM/CZQX not lighing up correctly

@@ -45,7 +45,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Flight Lifecycle And Route Parsing
 
-- Aircraft turns cache is tied to the current online connection: when `flightPlanTime` changes, invalidate the cached response so the next client update performs a full turns request instead of reusing data from the previous connection.
+- Aircraft turns cache is tied to the current flight, not only the CID. A callsign/logon identity change immediately clears rendered history, route/ETA state, cached plan timestamps, and requests a full track. If an incremental turns response has a changed `flightPlanTime`, clear the client history and route/ETA state, discard that response because it was selected with the previous flight cursor, and schedule an unfiltered request; never render its final group as part of the new flight. Replace the CID-keyed departure/arrival timestamp cache whenever a turns response has a `flightPlanTime`, even when both timestamps are `null`; once such a complete entry exists, it takes precedence over detailed-flight-plan timestamps so its explicit `null` can suppress a stale previous-flight `arrived_at` and restore the live ETA display.
 - Pilot procedures selected for an aircraft are keyed by CID in `localStorage`, so the complete CID entry must be cleared when the pilot's flight-plan fingerprint changes; otherwise procedures from the previous flight remain selected.
 
 - `NavigraphRoute` route-cache comparisons must include `hideLineIfNoProcedure`, because toggling it changes whether the synthetic arrival airport waypoint is inserted and stale cached connector features must be eligible for cleanup.
