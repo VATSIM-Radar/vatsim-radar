@@ -147,7 +147,6 @@ import { getAirportCountry } from '~/composables/vatsim/airport';
 import { sortControllersByPosition } from '~/composables/vatsim/controllers';
 import { makeBookingTime } from '~/composables/vatsim/bookings';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import { useFacilitiesIds } from '../../../../.nuxt/imports';
 
 const props = defineProps({
     payload: {
