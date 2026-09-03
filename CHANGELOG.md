@@ -9,6 +9,8 @@
 - Removed desktop app tray icon on MacOS
 - Updated desktop app to electron v44
 - Added China sectors duplications
+- Fixed some APP bookings not displayed when multiple APP bookings need to be shown
+- Fixed dashed line to STAR waypoint showing as green even before STAR is reached
 
 # [2.0.1-2-final]
 
