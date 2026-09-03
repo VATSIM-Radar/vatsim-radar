@@ -17,6 +17,12 @@
 - Fixed iframes showing a lot of random airports overlays, extending to whole map
 - Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
 
+# [2.0.1-1]
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
 # [2.0.1]
 
 ## Highlights
