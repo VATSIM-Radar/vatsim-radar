@@ -14889,12 +14889,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:1.0.0":
-  version: 1.0.0
-  resolution: "srvx@npm:1.0.0"
+"srvx@npm:1.0.1":
+  version: 1.0.1
+  resolution: "srvx@npm:1.0.1"
   bin:
     srvx: ./bin/srvx.mjs
-  checksum: 10c0/aec22a3901a0e29e569f9a29ac2f86cd3880727a47e22b15308e16e944f004c838bd2d182e8619172ac663dab2b87b32e1a20209bce1889e2e2a898a1f5fe83f
+  checksum: 10c0/a02e9280bbd9907356d79d7c241cc42171918731728faf2813b17b190eb8c4b61f4f42b8fee851906bf694ca99b14396450dd22516e2a3219ac3731a08420a2d
   languageName: node
   linkType: hard
 
@@ -16561,7 +16561,7 @@ __metadata:
     rou3: "npm:0.9.2"
     sass-embedded: "npm:1.103.1"
     sharp: "npm:0.35.4"
-    srvx: "npm:1.0.0"
+    srvx: "npm:1.0.1"
     stylelint: "npm:17.14.1"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-html: "npm:2.0.0"
