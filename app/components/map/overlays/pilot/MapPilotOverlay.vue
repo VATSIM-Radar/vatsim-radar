@@ -38,7 +38,20 @@
                     :color="radarColors[getStatus.color]"
                     :type="isOffline ? 'offline' : 'online'"
                 />
+                <img
+                    v-if="country.country && country.isVfr"
+                    :alt="country.country.name || country.country.countryCode"
+                    class="pilot_flag"
+                    :src="getFlagUrl(country.country.countryCode)"
+                    :title="`${ country.country.name || country.country.countryCode } (${ country.country.prefix })`"
+                >
                 <div class="pilot-header_title">
+                    <img
+                        v-if="airlineLogoUrl"
+                        alt="Airline logo"
+                        class="pilot_airline_logo"
+                        :src="airlineLogoUrl"
+                    >
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -201,11 +214,12 @@
         <template #flightplan>
             <pilot-overlay-flight-plan
                 class="pilot__content"
+                :country="country.country"
                 :flight-plan="pilot.flight_plan ?? null"
+                :is-ifr="country.isIfr"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
-            />
-        </template>
+            /></template>
         <template #actions>
             <ui-button-group>
                 <ui-button
@@ -256,6 +270,7 @@
 
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
+import { ref, watch } from 'vue';
 import { useStore } from '~/store';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
@@ -297,6 +312,8 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
+import { usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
+import { getAirlineLogoUrl } from '~/utils/shared/airline-logos';
 
 const props = defineProps({
     overlay: {
@@ -345,6 +362,10 @@ const ctafFrequency = computed(() => {
 });
 
 const pilot = computed(() => props.overlay.data.pilot);
+
+const country = usePilotCountry(pilot);
+
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value?.callsign));
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
@@ -750,11 +771,35 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .pilot {
+    &_flag {
+        width: auto;
+        height: 14px;
+        border-radius: 2px;
+        object-fit: contain;
+    }
+
+    &_airline_logo {
+        flex-shrink: 0;
+
+        width: 24px;
+        height: 24px;
+        margin-right: 6px;
+        border-radius: 2px;
+
+        object-fit: contain;
+    }
+
     &_header {
         display: flex;
         gap: 8px;
         align-items: center;
         color: var(--status-color);
+    }
+
+    &-header_title {
+        display: flex;
+        gap: 6px;
+        align-items: center;
     }
 
     &__content {

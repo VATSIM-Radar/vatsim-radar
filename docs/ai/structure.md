@@ -309,6 +309,8 @@ Types:
 Shared utility split:
 
 - `app/utils/shared/*`: safe for client and server. Flight math, VATSIM helpers, runway detection.
+- `app/utils/shared/country-codes.ts`: country-of-registration lookup for aircraft overlays. `usePilotCountry` returns a computed `{ country, isVfr, isIfr }` consumed by `MapPilotOverlay.vue` (header flag) and `PilotOverlayFlightPlan.vue` (registration flag); `getCountryFromCallsignOrReg`, `getFlagUrl`, and `formatRegistration` are shared helpers.
+- `app/utils/shared/airline-logos.ts`: resolves 3-letter ICAO airline prefixes to local `/logos/{code}.png` URLs with a fallback chain.
 - `app/utils/data/*`: domain transforms/helpers used mostly around data/rendering.
 - `app/utils/db/*`: database-facing helper types/functions.
 - `app/utils/server/*`: server-only code; do not import into browser-only code.
@@ -323,15 +325,18 @@ Custom Nuxt modules:
 
 - `modules/index.ts` aliases VueUse `useStorage` as `useStorageLocal`.
 - `modules/icons.ts` processes SVG/PNG assets with Sharp/SVGO, generates public aircraft icons, and writes `.nuxt/radar/icons.ts`.
+- `modules/airline-logos.ts` reads `app/data/airline-logo-overrides.json` and fetches airline logos from AirHex during `yarn dev`/`yarn build`, writing optimized PNGs into `public/logos/{CODE}.png` and exporting an `airlineLogos` Set consumed by `app/utils/shared/airline-logos.ts`.
 - `modules/styles.ts` generates SCSS color variables and `.nuxt/radar/colors.ts` imports from `app/utils/colors.ts`.
 
 Assets:
 
 - `app/assets/icons/**`: source SVG icons.
 - `public/aircraft/**`: generated/public aircraft icons.
+- `public/logos/**`: generated airline logo PNGs, committed so production builds need no external image CDN.
+- `public/flags/**`: country flag PNGs downloaded via `yarn fetch:flags` (`scripts/fetch-flags.ts`), also committed.
 - `public/icons/**`: public map icons and compressed/generated variants.
 - `app/assets/fonts/**` and `app/scss/**`: fonts and global style variables.
-- `app/data/`: local data directory placeholder.
+- `app/data/`: local data directory placeholder; `airline-logo-overrides.json` here is an exception to the `app/data` scan exclusion because the logos module reads it explicitly.
 
 Do not hand-edit generated files under `.nuxt` or public generated icon outputs unless the generation pipeline is also updated.
 

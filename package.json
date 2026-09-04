@@ -21,6 +21,7 @@
     "lint:fix": "yarn stylelint:fix && yarn lint:ts:fix",
     "lint": "yarn stylelint && yarn lint:ts",
     "typecheck": "nuxt typecheck",
+    "fetch:flags": "tsx scripts/fetch-flags.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"

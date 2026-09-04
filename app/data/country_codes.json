@@ -1,0 +1,1372 @@
+[
+  {
+    "prefix": "A2-",
+    "oldPrefix": "VQ-ZE, -ZH",
+    "country": "Botswana",
+    "countryCode": "BW"
+  },
+  {
+    "prefix": "A3-",
+    "oldPrefix": "",
+    "country": "Tonga",
+    "countryCode": "TO"
+  },
+  {
+    "prefix": "A4O-",
+    "oldPrefix": "",
+    "country": "Oman",
+    "countryCode": "OM"
+  },
+  {
+    "prefix": "A5-",
+    "oldPrefix": "",
+    "country": "Bhutan",
+    "countryCode": "BT"
+  },
+  {
+    "prefix": "A6-",
+    "oldPrefix": "",
+    "country": "United Arab Emirates",
+    "countryCode": "AE"
+  },
+  {
+    "prefix": "A7-",
+    "oldPrefix": "",
+    "country": "Qatar",
+    "countryCode": "QA"
+  },
+  {
+    "prefix": "A9C-",
+    "oldPrefix": "",
+    "country": "Bahrain",
+    "countryCode": "BH"
+  },
+  {
+    "prefix": "AP-",
+    "oldPrefix": "",
+    "country": "Pakistan",
+    "countryCode": "PK"
+  },
+  {
+    "prefix": "B-",
+    "oldPrefix": "",
+    "country": "Taiwan (Republic of China)",
+    "countryCode": "TW",
+    "afterPrefixLength": 5
+  },
+  {
+    "prefix": "B-",
+    "oldPrefix": "XT-",
+    "country": "China (People's Republic of China)",
+    "countryCode": "CN",
+    "afterPrefixLength": 4
+  },
+  {
+    "prefix": "B-H",
+    "oldPrefix": "VR-H",
+    "country": "China, Hong Kong",
+    "countryCode": "HK"
+  },
+  {
+    "prefix": "B-K",
+    "oldPrefix": "VR-H",
+    "country": "China, Hong Kong",
+    "countryCode": "HK"
+  },
+  {
+    "prefix": "B-L",
+    "oldPrefix": "VR-H",
+    "country": "China, Hong Kong",
+    "countryCode": "HK"
+  },
+  {
+    "prefix": "B-M",
+    "oldPrefix": "CS-M",
+    "country": "China, Macau",
+    "countryCode": "MO"
+  },
+  {
+    "prefix": "C-",
+    "oldPrefix": "CF-",
+    "country": "Canada",
+    "countryCode": "CA"
+  },
+  {
+    "prefix": "C2-",
+    "oldPrefix": "",
+    "country": "Nauru",
+    "countryCode": "NR"
+  },
+  {
+    "prefix": "C3-",
+    "oldPrefix": "",
+    "country": "Andorra",
+    "countryCode": "AD"
+  },
+  {
+    "prefix": "C5-",
+    "oldPrefix": "VP-X",
+    "country": "The Gambia",
+    "countryCode": "GM"
+  },
+  {
+    "prefix": "C6-",
+    "oldPrefix": "VP-B",
+    "country": "Bahamas",
+    "countryCode": "BS"
+  },
+  {
+    "prefix": "C9-",
+    "oldPrefix": "CR-A, CR-B",
+    "country": "Mozambique",
+    "countryCode": "MZ"
+  },
+  {
+    "prefix": "CC-",
+    "oldPrefix": "",
+    "country": "Chile",
+    "countryCode": "CL"
+  },
+  {
+    "prefix": "CN-",
+    "oldPrefix": "",
+    "country": "Morocco",
+    "countryCode": "MA"
+  },
+  {
+    "prefix": "CP-",
+    "oldPrefix": "CB-",
+    "country": "Bolivia",
+    "countryCode": "BO"
+  },
+  {
+    "prefix": "CS-",
+    "oldPrefix": "CR-",
+    "country": "Portugal",
+    "countryCode": "PT"
+  },
+  {
+    "prefix": "CU-",
+    "oldPrefix": "",
+    "country": "Cuba",
+    "countryCode": "CU"
+  },
+  {
+    "prefix": "CX-",
+    "oldPrefix": "",
+    "country": "Uruguay",
+    "countryCode": "UY"
+  },
+  {
+    "prefix": "D-",
+    "oldPrefix": "DM-, DDR-",
+    "country": "Germany",
+    "countryCode": "DE"
+  },
+  {
+    "prefix": "D2-",
+    "oldPrefix": "CR-L",
+    "country": "Angola",
+    "countryCode": "AO"
+  },
+  {
+    "prefix": "D4-",
+    "oldPrefix": "CR-C",
+    "country": "Cape Verde Islands",
+    "countryCode": "CV"
+  },
+  {
+    "prefix": "D6-",
+    "oldPrefix": "",
+    "country": "Comoros",
+    "countryCode": "KM"
+  },
+  {
+    "prefix": "DQ-",
+    "oldPrefix": "VQ-F",
+    "country": "Fiji",
+    "countryCode": "FJ"
+  },
+  {
+    "prefix": "E3-",
+    "oldPrefix": "",
+    "country": "Eritrea",
+    "countryCode": "ER"
+  },
+  {
+    "prefix": "E5-",
+    "oldPrefix": "",
+    "country": "Cook Islands",
+    "countryCode": "CK"
+  },
+  {
+    "prefix": "E7-",
+    "oldPrefix": "YU-,T9-",
+    "country": "Bosnia Hercegovina",
+    "countryCode": "BA"
+  },
+  {
+    "prefix": "EC-",
+    "oldPrefix": "M",
+    "country": "Spain",
+    "countryCode": "ES"
+  },
+  {
+    "prefix": "EI-",
+    "oldPrefix": "",
+    "country": "Ireland",
+    "countryCode": "IE"
+  },
+  {
+    "prefix": "EJ-",
+    "oldPrefix": "",
+    "country": "Ireland",
+    "countryCode": "IE"
+  },
+  {
+    "prefix": "EK-",
+    "oldPrefix": "CCCP-",
+    "country": "Armenia",
+    "countryCode": "AM"
+  },
+  {
+    "prefix": "EL-",
+    "oldPrefix": "LI-",
+    "country": "Liberia",
+    "countryCode": "LR"
+  },
+  {
+    "prefix": "EP-",
+    "oldPrefix": "RV-",
+    "country": "Iran",
+    "countryCode": "IR"
+  },
+  {
+    "prefix": "ER-",
+    "oldPrefix": "CCCP-",
+    "country": "Moldova, Rep. of",
+    "countryCode": "MD"
+  },
+  {
+    "prefix": "ES-",
+    "oldPrefix": "CCCP-",
+    "country": "Estonia",
+    "countryCode": "EE"
+  },
+  {
+    "prefix": "ET-",
+    "oldPrefix": "",
+    "country": "Ethiopia",
+    "countryCode": "ET"
+  },
+  {
+    "prefix": "EW-",
+    "oldPrefix": "CCCP-",
+    "country": "Belarus",
+    "countryCode": "BY"
+  },
+  {
+    "prefix": "EX-",
+    "oldPrefix": "CCCP-",
+    "country": "Kyrgyzstan",
+    "countryCode": "KG"
+  },
+  {
+    "prefix": "EY-",
+    "oldPrefix": "CCCP-",
+    "country": "Tajikistan",
+    "countryCode": "TJ"
+  },
+  {
+    "prefix": "EZ-",
+    "oldPrefix": "CCCP-",
+    "country": "Turkmenistan",
+    "countryCode": "TM"
+  },
+  {
+    "prefix": "F-",
+    "oldPrefix": "",
+    "country": "France",
+    "countryCode": "FR"
+  },
+  {
+    "prefix": "F-O",
+    "oldPrefix": "",
+    "country": "Reunion Island",
+    "countryCode": "RE"
+  },
+  {
+    "prefix": "F-OD",
+    "oldPrefix": "",
+    "country": "New Caledonia",
+    "countryCode": "NC"
+  },
+  {
+    "prefix": "F-OG",
+    "oldPrefix": "",
+    "country": "Guadeloupe",
+    "countryCode": "GP"
+  },
+  {
+    "prefix": "F-OH",
+    "oldPrefix": "",
+    "country": "Tahiti",
+    "countryCode": "PF"
+  },
+  {
+    "prefix": "G-",
+    "oldPrefix": "",
+    "country": "United Kingdom",
+    "countryCode": "GB"
+  },
+  {
+    "prefix": "GL-",
+    "oldPrefix": "",
+    "country": "Greenland",
+    "countryCode": "GL"
+  },
+  {
+    "prefix": "H4-",
+    "oldPrefix": "VP-P",
+    "country": "Solomon Islands",
+    "countryCode": "SB"
+  },
+  {
+    "prefix": "HA-",
+    "oldPrefix": "",
+    "country": "Hungary",
+    "countryCode": "HU"
+  },
+  {
+    "prefix": "HB-",
+    "oldPrefix": "CH-",
+    "country": "Switzerland",
+    "countryCode": "CH"
+  },
+  {
+    "prefix": "HC-",
+    "oldPrefix": "",
+    "country": "Ecuador",
+    "countryCode": "EC"
+  },
+  {
+    "prefix": "HH-",
+    "oldPrefix": "",
+    "country": "Haiti",
+    "countryCode": "HT"
+  },
+  {
+    "prefix": "HI-",
+    "oldPrefix": "",
+    "country": "Dominican Republic",
+    "countryCode": "DO"
+  },
+  {
+    "prefix": "HK-",
+    "oldPrefix": "C-",
+    "country": "Colombia",
+    "countryCode": "CO"
+  },
+  {
+    "prefix": "HL",
+    "oldPrefix": "",
+    "country": "Korea, Rep. of",
+    "countryCode": "KR"
+  },
+  {
+    "prefix": "HP-",
+    "oldPrefix": "RX-",
+    "country": "Panama",
+    "countryCode": "PA"
+  },
+  {
+    "prefix": "HR-",
+    "oldPrefix": "XH-",
+    "country": "Honduras",
+    "countryCode": "HN"
+  },
+  {
+    "prefix": "HS-",
+    "oldPrefix": "",
+    "country": "Thailand",
+    "countryCode": "TH"
+  },
+  {
+    "prefix": "HV-",
+    "oldPrefix": "",
+    "country": "Vatican City",
+    "countryCode": "VA"
+  },
+  {
+    "prefix": "HZ-",
+    "oldPrefix": "UH-",
+    "country": "Saudi Arabia",
+    "countryCode": "SA"
+  },
+  {
+    "prefix": "I-",
+    "oldPrefix": "",
+    "country": "Italy",
+    "countryCode": "IT"
+  },
+  {
+    "prefix": "J2-",
+    "oldPrefix": "",
+    "country": "Djibouti",
+    "countryCode": "DJ"
+  },
+  {
+    "prefix": "J3-",
+    "oldPrefix": "VQ-G",
+    "country": "Grenada",
+    "countryCode": "GD"
+  },
+  {
+    "prefix": "J5-",
+    "oldPrefix": "CR-G",
+    "country": "Guinea Bissau",
+    "countryCode": "GW"
+  },
+  {
+    "prefix": "J6-",
+    "oldPrefix": "VQ-L",
+    "country": "St. Lucia",
+    "countryCode": "LC"
+  },
+  {
+    "prefix": "J7-",
+    "oldPrefix": "",
+    "country": "Dominica",
+    "countryCode": "DM"
+  },
+  {
+    "prefix": "J8-",
+    "oldPrefix": "VP-V",
+    "country": "St. Vincent and Grenadines",
+    "countryCode": "VC"
+  },
+  {
+    "prefix": "JA",
+    "oldPrefix": "J",
+    "country": "Japan",
+    "countryCode": "JP"
+  },
+  {
+    "prefix": "JY-",
+    "oldPrefix": "",
+    "country": "Jordan",
+    "countryCode": "JO"
+  },
+  {
+    "prefix": "LN-",
+    "oldPrefix": "",
+    "country": "Norway",
+    "countryCode": "NO"
+  },
+  {
+    "prefix": "LQ-",
+    "oldPrefix": "",
+    "country": "Argentina (Government)",
+    "countryCode": "AR"
+  },
+  {
+    "prefix": "LV-",
+    "oldPrefix": "R-",
+    "country": "Argentina",
+    "countryCode": "AR"
+  },
+  {
+    "prefix": "LX-",
+    "oldPrefix": "UL-",
+    "country": "Luxembourg",
+    "countryCode": "LU"
+  },
+  {
+    "prefix": "LY-",
+    "oldPrefix": "",
+    "country": "Lithuania",
+    "countryCode": "LT"
+  },
+  {
+    "prefix": "LZ-",
+    "oldPrefix": "",
+    "country": "Bulgaria",
+    "countryCode": "BG"
+  },
+  {
+    "prefix": "M-",
+    "oldPrefix": "",
+    "country": "Isle of Man",
+    "countryCode": "IM"
+  },
+  {
+    "prefix": "MT-",
+    "oldPrefix": "",
+    "country": "Mongolia",
+    "countryCode": "MN"
+  },
+  {
+    "prefix": "N",
+    "oldPrefix": "NC,NL,NR.NS,NX",
+    "country": "United States of America",
+    "countryCode": "US"
+  },
+  {
+    "prefix": "OB-",
+    "oldPrefix": "OA-",
+    "country": "Peru",
+    "countryCode": "PE"
+  },
+  {
+    "prefix": "OD-",
+    "oldPrefix": "LR-",
+    "country": "Lebanon",
+    "countryCode": "LB"
+  },
+  {
+    "prefix": "OE-",
+    "oldPrefix": "A-",
+    "country": "Austria",
+    "countryCode": "AT"
+  },
+  {
+    "prefix": "OH-",
+    "oldPrefix": "K-S",
+    "country": "Finland",
+    "countryCode": "FI"
+  },
+  {
+    "prefix": "OK-",
+    "oldPrefix": "",
+    "country": "Czech Republic",
+    "countryCode": "CZ"
+  },
+  {
+    "prefix": "OM-",
+    "oldPrefix": "OK-",
+    "country": "Slovakia",
+    "countryCode": "SK"
+  },
+  {
+    "prefix": "OO-",
+    "oldPrefix": "",
+    "country": "Belgium",
+    "countryCode": "BE"
+  },
+  {
+    "prefix": "OY-",
+    "oldPrefix": "",
+    "country": "Denmark",
+    "countryCode": "DK"
+  },
+  {
+    "prefix": "P-",
+    "oldPrefix": "",
+    "country": "Korea, Dem. People's Rep. of",
+    "countryCode": "KP"
+  },
+  {
+    "prefix": "P2-",
+    "oldPrefix": "",
+    "country": "Papua New Guinea",
+    "countryCode": "PG"
+  },
+  {
+    "prefix": "P4-",
+    "oldPrefix": "",
+    "country": "Aruba",
+    "countryCode": "AW"
+  },
+  {
+    "prefix": "PH-",
+    "oldPrefix": "",
+    "country": "Netherlands",
+    "countryCode": "NL"
+  },
+  {
+    "prefix": "PJ-",
+    "oldPrefix": "",
+    "country": "Netherlands Antilles",
+    "countryCode": "AN"
+  },
+  {
+    "prefix": "PK-",
+    "oldPrefix": "",
+    "country": "Indonesia",
+    "countryCode": "ID"
+  },
+  {
+    "prefix": "PP-",
+    "oldPrefix": "",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "prefix": "PR-",
+    "oldPrefix": "",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "prefix": "PS-",
+    "oldPrefix": "",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "prefix": "PT-",
+    "oldPrefix": "",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "prefix": "PU-",
+    "oldPrefix": "",
+    "country": "Brazil",
+    "countryCode": "BR"
+  },
+  {
+    "prefix": "PZ-",
+    "oldPrefix": "",
+    "country": "Suriname",
+    "countryCode": "SR"
+  },
+  {
+    "prefix": "RA-",
+    "oldPrefix": "CCCP-",
+    "country": "Russian Federation",
+    "countryCode": "RU"
+  },
+  {
+    "prefix": "RDPL-",
+    "oldPrefix": "F-L, XW-",
+    "country": "Lao",
+    "countryCode": "LA"
+  },
+  {
+    "prefix": "RF-",
+    "oldPrefix": "",
+    "country": "Russian Federation (State owned aircraft)",
+    "countryCode": "RU"
+  },
+  {
+    "prefix": "RP-",
+    "oldPrefix": "PI-",
+    "country": "Philippines",
+    "countryCode": "PH"
+  },
+  {
+    "prefix": "S2-",
+    "oldPrefix": "",
+    "country": "Bangladesh",
+    "countryCode": "BD"
+  },
+  {
+    "prefix": "S3-",
+    "oldPrefix": "",
+    "country": "Bangladesh",
+    "countryCode": "BD"
+  },
+  {
+    "prefix": "S5-",
+    "oldPrefix": "SL-",
+    "country": "Slovenia",
+    "countryCode": "SI"
+  },
+  {
+    "prefix": "S7-",
+    "oldPrefix": "VQ-S",
+    "country": "Seychelles",
+    "countryCode": "SC"
+  },
+  {
+    "prefix": "S9-",
+    "oldPrefix": "CR-S",
+    "country": "Sao Tome and Principe",
+    "countryCode": "ST"
+  },
+  {
+    "prefix": "SE-",
+    "oldPrefix": "",
+    "country": "Sweden",
+    "countryCode": "SE"
+  },
+  {
+    "prefix": "SP-",
+    "oldPrefix": "",
+    "country": "Poland",
+    "countryCode": "PL"
+  },
+  {
+    "prefix": "ST-",
+    "oldPrefix": "SN-",
+    "country": "Sudan",
+    "countryCode": "SD"
+  },
+  {
+    "prefix": "SU-",
+    "oldPrefix": "",
+    "country": "Egypt",
+    "countryCode": "EG"
+  },
+  {
+    "prefix": "SX-",
+    "oldPrefix": "",
+    "country": "Greece",
+    "countryCode": "GR"
+  },
+  {
+    "prefix": "T3-",
+    "oldPrefix": "",
+    "country": "Kiribati",
+    "countryCode": "KI"
+  },
+  {
+    "prefix": "T7-",
+    "oldPrefix": "",
+    "country": "San Marino",
+    "countryCode": "SM"
+  },
+  {
+    "prefix": "TC-",
+    "oldPrefix": "",
+    "country": "Turkey",
+    "countryCode": "TR"
+  },
+  {
+    "prefix": "TF-",
+    "oldPrefix": "",
+    "country": "Iceland",
+    "countryCode": "IS"
+  },
+  {
+    "prefix": "TG-",
+    "oldPrefix": "LG-",
+    "country": "Guatemala",
+    "countryCode": "GT"
+  },
+  {
+    "prefix": "TI-",
+    "oldPrefix": "",
+    "country": "Costa Rica",
+    "countryCode": "CR"
+  },
+  {
+    "prefix": "TJ-",
+    "oldPrefix": "F-O, VR-N",
+    "country": "Cameroon",
+    "countryCode": "CM"
+  },
+  {
+    "prefix": "TL-",
+    "oldPrefix": "F-O",
+    "country": "Central African Republic",
+    "countryCode": "CF"
+  },
+  {
+    "prefix": "TN-",
+    "oldPrefix": "F-O",
+    "country": "Congo",
+    "countryCode": "CG"
+  },
+  {
+    "prefix": "TR-",
+    "oldPrefix": "F-O",
+    "country": "Gabon",
+    "countryCode": "GA"
+  },
+  {
+    "prefix": "TS-",
+    "oldPrefix": "F-O",
+    "country": "Tunisia",
+    "countryCode": "TN"
+  },
+  {
+    "prefix": "TT-",
+    "oldPrefix": "F-O",
+    "country": "Chad",
+    "countryCode": "TD"
+  },
+  {
+    "prefix": "TU-",
+    "oldPrefix": "F-O",
+    "country": "Cote D'Ivoire",
+    "countryCode": "CI"
+  },
+  {
+    "prefix": "TY-",
+    "oldPrefix": "F-O",
+    "country": "Benin",
+    "countryCode": "BJ"
+  },
+  {
+    "prefix": "TZ-",
+    "oldPrefix": "F-O",
+    "country": "Mali",
+    "countryCode": "ML"
+  },
+  {
+    "prefix": "UK-",
+    "oldPrefix": "CCCP-",
+    "country": "Uzbekistan",
+    "countryCode": "UZ"
+  },
+  {
+    "prefix": "UN-",
+    "oldPrefix": "CCCP-",
+    "country": "Kazakhstan",
+    "countryCode": "KZ"
+  },
+  {
+    "prefix": "UP-",
+    "oldPrefix": "CCCP-",
+    "country": "Kazakhstan",
+    "countryCode": "KZ"
+  },
+  {
+    "prefix": "UR-",
+    "oldPrefix": "CCCP-",
+    "country": "Ukraine",
+    "countryCode": "UA"
+  },
+  {
+    "prefix": "V2-",
+    "oldPrefix": "VP-L",
+    "country": "Antigua",
+    "countryCode": "AG"
+  },
+  {
+    "prefix": "V3-",
+    "oldPrefix": "VP-H",
+    "country": "Belize",
+    "countryCode": "BZ"
+  },
+  {
+    "prefix": "V4-",
+    "oldPrefix": "VP-LKA-LLZ",
+    "country": "St. Kitts and Nevis",
+    "countryCode": "KN"
+  },
+  {
+    "prefix": "V5-",
+    "oldPrefix": "",
+    "country": "Namibia",
+    "countryCode": "NA"
+  },
+  {
+    "prefix": "V7-",
+    "oldPrefix": "",
+    "country": "Marshall Islands",
+    "countryCode": "MH"
+  },
+  {
+    "prefix": "V8-",
+    "oldPrefix": "VR-U",
+    "country": "Brunei",
+    "countryCode": "BN"
+  },
+  {
+    "prefix": "VH-",
+    "oldPrefix": "",
+    "country": "Australia",
+    "countryCode": "AU"
+  },
+  {
+    "prefix": "VN-",
+    "oldPrefix": "XV-",
+    "country": "Vietnam",
+    "countryCode": "VN"
+  },
+  {
+    "prefix": "VP-B",
+    "oldPrefix": "VR-B",
+    "country": "Bermuda",
+    "countryCode": "BM"
+  },
+  {
+    "prefix": "VQ-B",
+    "oldPrefix": "VR-B",
+    "country": "Bermuda",
+    "countryCode": "BM"
+  },
+  {
+    "prefix": "VP-C",
+    "oldPrefix": "VR-C",
+    "country": "Cayman Islands",
+    "countryCode": "KY"
+  },
+  {
+    "prefix": "VP-F",
+    "oldPrefix": "",
+    "country": "Falkland Islands",
+    "countryCode": "FK"
+  },
+  {
+    "prefix": "VP-LM",
+    "oldPrefix": "",
+    "country": "Montserrat",
+    "countryCode": "MS"
+  },
+  {
+    "prefix": "VP-LV",
+    "oldPrefix": "",
+    "country": "British Virgin Islands",
+    "countryCode": "VG"
+  },
+  {
+    "prefix": "VQ-H",
+    "oldPrefix": "",
+    "country": "St. Helena",
+    "countryCode": "SH"
+  },
+  {
+    "prefix": "VQ-T",
+    "oldPrefix": "",
+    "country": "Turks and Caicos Islands",
+    "countryCode": "TC"
+  },
+  {
+    "prefix": "VT-",
+    "oldPrefix": "",
+    "country": "India",
+    "countryCode": "IN"
+  },
+  {
+    "prefix": "XA-",
+    "oldPrefix": "",
+    "country": "Mexico",
+    "countryCode": "MX"
+  },
+  {
+    "prefix": "XB-",
+    "oldPrefix": "",
+    "country": "Mexico",
+    "countryCode": "MX"
+  },
+  {
+    "prefix": "XC-",
+    "oldPrefix": "",
+    "country": "Mexico",
+    "countryCode": "MX"
+  },
+  {
+    "prefix": "XT-",
+    "oldPrefix": "F-O",
+    "country": "Burkina Faso",
+    "countryCode": "BF"
+  },
+  {
+    "prefix": "XU-",
+    "oldPrefix": "F-KH, KW-",
+    "country": "Cambodia",
+    "countryCode": "KH"
+  },
+  {
+    "prefix": "XY-",
+    "oldPrefix": "",
+    "country": "Myanmar",
+    "countryCode": "MM"
+  },
+  {
+    "prefix": "XZ-",
+    "oldPrefix": "",
+    "country": "Myanmar",
+    "countryCode": "MM"
+  },
+  {
+    "prefix": "YA-",
+    "oldPrefix": "",
+    "country": "Afghanistan",
+    "countryCode": "AF"
+  },
+  {
+    "prefix": "YI-",
+    "oldPrefix": "",
+    "country": "Iraq",
+    "countryCode": "IQ"
+  },
+  {
+    "prefix": "YJ-",
+    "oldPrefix": "",
+    "country": "Vanuatu",
+    "countryCode": "VU"
+  },
+  {
+    "prefix": "YK-",
+    "oldPrefix": "",
+    "country": "Syria",
+    "countryCode": "SY"
+  },
+  {
+    "prefix": "YL-",
+    "oldPrefix": "",
+    "country": "Latvia",
+    "countryCode": "LV"
+  },
+  {
+    "prefix": "YN-",
+    "oldPrefix": "AN-",
+    "country": "Nicaragua",
+    "countryCode": "NI"
+  },
+  {
+    "prefix": "YR-",
+    "oldPrefix": "CV-",
+    "country": "Romania",
+    "countryCode": "RO"
+  },
+  {
+    "prefix": "YS-",
+    "oldPrefix": "",
+    "country": "El Salvador",
+    "countryCode": "SV"
+  },
+  {
+    "prefix": "YU-",
+    "oldPrefix": "UN-",
+    "country": "Serbia",
+    "countryCode": "RS"
+  },
+  {
+    "prefix": "YV-",
+    "oldPrefix": "",
+    "country": "Venezuela",
+    "countryCode": "VE"
+  },
+  {
+    "prefix": "Z-",
+    "oldPrefix": "VP-W, VP-Y",
+    "country": "Zimbabwe",
+    "countryCode": "ZW"
+  },
+  {
+    "prefix": "Z3-",
+    "oldPrefix": "",
+    "country": "Macedonia",
+    "countryCode": "MK"
+  },
+  {
+    "prefix": "ZA-",
+    "oldPrefix": "",
+    "country": "Albania",
+    "countryCode": "AL"
+  },
+  {
+    "prefix": "ZJ-",
+    "oldPrefix": "",
+    "country": "Jersey",
+    "countryCode": "JE"
+  },
+  {
+    "prefix": "ZK-",
+    "oldPrefix": "",
+    "country": "New Zealand",
+    "countryCode": "NZ"
+  },
+  {
+    "prefix": "ZL-",
+    "oldPrefix": "",
+    "country": "New Zealand",
+    "countryCode": "NZ"
+  },
+  {
+    "prefix": "ZP-",
+    "oldPrefix": "",
+    "country": "Paraguay",
+    "countryCode": "PY"
+  },
+  {
+    "prefix": "ZS-",
+    "oldPrefix": "",
+    "country": "South Africa",
+    "countryCode": "ZA"
+  },
+  {
+    "prefix": "ZT-",
+    "oldPrefix": "",
+    "country": "South Africa",
+    "countryCode": "ZA"
+  },
+  {
+    "prefix": "ZU-",
+    "oldPrefix": "",
+    "country": "South Africa",
+    "countryCode": "ZA"
+  },
+  {
+    "prefix": "2-",
+    "oldPrefix": "",
+    "country": "Guernsey",
+    "countryCode": "GG"
+  },
+  {
+    "prefix": "3A-",
+    "oldPrefix": "CZ, MC",
+    "country": "Monaco",
+    "countryCode": "MC"
+  },
+  {
+    "prefix": "3B-",
+    "oldPrefix": "VQ-M",
+    "country": "Mauritius",
+    "countryCode": "MU"
+  },
+  {
+    "prefix": "3C-",
+    "oldPrefix": "VQ-ZI",
+    "country": "Equatorial Guinea",
+    "countryCode": "GQ"
+  },
+  {
+    "prefix": "3D-",
+    "oldPrefix": "",
+    "country": "Swaziland",
+    "countryCode": "SZ"
+  },
+  {
+    "prefix": "3X-",
+    "oldPrefix": "F-O",
+    "country": "Guinea",
+    "countryCode": "GN"
+  },
+  {
+    "prefix": "4K-",
+    "oldPrefix": "",
+    "country": "Azerbaijan",
+    "countryCode": "AZ"
+  },
+  {
+    "prefix": "4L-",
+    "oldPrefix": "",
+    "country": "Georgia",
+    "countryCode": "GE"
+  },
+  {
+    "prefix": "4O-",
+    "oldPrefix": "",
+    "country": "Montenegro",
+    "countryCode": "ME"
+  },
+  {
+    "prefix": "4R-",
+    "oldPrefix": "VP-C, CY-",
+    "country": "Sri Lanka",
+    "countryCode": "LK"
+  },
+  {
+    "prefix": "4X-",
+    "oldPrefix": "",
+    "country": "Israel",
+    "countryCode": "IL"
+  },
+  {
+    "prefix": "5A-",
+    "oldPrefix": "",
+    "country": "Libya",
+    "countryCode": "LY"
+  },
+  {
+    "prefix": "5B-",
+    "oldPrefix": "VQ-C",
+    "country": "Cyprus",
+    "countryCode": "CY"
+  },
+  {
+    "prefix": "5H-",
+    "oldPrefix": "VP-Z",
+    "country": "Tanzania",
+    "countryCode": "TZ"
+  },
+  {
+    "prefix": "5N-",
+    "oldPrefix": "VR-N",
+    "country": "Nigeria",
+    "countryCode": "NG"
+  },
+  {
+    "prefix": "5R-",
+    "oldPrefix": "F-O",
+    "country": "Madagascar",
+    "countryCode": "MG"
+  },
+  {
+    "prefix": "5T-",
+    "oldPrefix": "F-O",
+    "country": "Mauritania",
+    "countryCode": "MR"
+  },
+  {
+    "prefix": "5U-",
+    "oldPrefix": "F-O",
+    "country": "Niger",
+    "countryCode": "NE"
+  },
+  {
+    "prefix": "5V-",
+    "oldPrefix": "",
+    "country": "Togo",
+    "countryCode": "TG"
+  },
+  {
+    "prefix": "5W-",
+    "oldPrefix": "",
+    "country": "Samoa",
+    "countryCode": "WS"
+  },
+  {
+    "prefix": "5X-",
+    "oldPrefix": "VP-U",
+    "country": "Uganda",
+    "countryCode": "UG"
+  },
+  {
+    "prefix": "5Y-",
+    "oldPrefix": "VP-K",
+    "country": "Kenya",
+    "countryCode": "KE"
+  },
+  {
+    "prefix": "6O-",
+    "oldPrefix": "6OS-",
+    "country": "Somalia",
+    "countryCode": "SO"
+  },
+  {
+    "prefix": "6V-",
+    "oldPrefix": "F-O",
+    "country": "Senegal",
+    "countryCode": "SN"
+  },
+  {
+    "prefix": "6W-",
+    "oldPrefix": "",
+    "country": "Senegal",
+    "countryCode": "SN"
+  },
+  {
+    "prefix": "6Y-",
+    "oldPrefix": "VP-J",
+    "country": "Jamaica",
+    "countryCode": "JM"
+  },
+  {
+    "prefix": "7O-",
+    "oldPrefix": "YE-, 4W-",
+    "country": "Yemen",
+    "countryCode": "YE"
+  },
+  {
+    "prefix": "7P-",
+    "oldPrefix": "VQ-ZA,-ZD",
+    "country": "Lesotho",
+    "countryCode": "LS"
+  },
+  {
+    "prefix": "7Q-",
+    "oldPrefix": "VP-Y",
+    "country": "Malawi",
+    "countryCode": "MW"
+  },
+  {
+    "prefix": "7T-",
+    "oldPrefix": "F-O",
+    "country": "Algeria",
+    "countryCode": "DZ"
+  },
+  {
+    "prefix": "8P-",
+    "oldPrefix": "VQ-B",
+    "country": "Barbados",
+    "countryCode": "BB"
+  },
+  {
+    "prefix": "8Q-",
+    "oldPrefix": "",
+    "country": "Maldives",
+    "countryCode": "MV"
+  },
+  {
+    "prefix": "8R-",
+    "oldPrefix": "VP-G",
+    "country": "Guyana",
+    "countryCode": "GY"
+  },
+  {
+    "prefix": "9A-",
+    "oldPrefix": "RC-",
+    "country": "Croatia",
+    "countryCode": "HR"
+  },
+  {
+    "prefix": "9G-",
+    "oldPrefix": "VP-A",
+    "country": "Ghana",
+    "countryCode": "GH"
+  },
+  {
+    "prefix": "9H-",
+    "oldPrefix": "VP-M",
+    "country": "Malta",
+    "countryCode": "MT"
+  },
+  {
+    "prefix": "9J-",
+    "oldPrefix": "VP-Y",
+    "country": "Zambia",
+    "countryCode": "ZM"
+  },
+  {
+    "prefix": "9K-",
+    "oldPrefix": "K-",
+    "country": "Kuwait",
+    "countryCode": "KW"
+  },
+  {
+    "prefix": "9L-",
+    "oldPrefix": "VR-L",
+    "country": "Sierra Leone",
+    "countryCode": "SL"
+  },
+  {
+    "prefix": "9M-",
+    "oldPrefix": "VR-J, VR-O, VR-R",
+    "country": "Malaysia",
+    "countryCode": "MY"
+  },
+  {
+    "prefix": "9N-",
+    "oldPrefix": "",
+    "country": "Nepal",
+    "countryCode": "NP"
+  },
+  {
+    "prefix": "9Q-",
+    "oldPrefix": "9O-",
+    "country": "Zaire",
+    "countryCode": "CD"
+  },
+  {
+    "prefix": "9U-",
+    "oldPrefix": "BR-",
+    "country": "Burundi",
+    "countryCode": "BI"
+  },
+  {
+    "prefix": "9V-",
+    "oldPrefix": "VR-S",
+    "country": "Singapore",
+    "countryCode": "SG"
+  },
+  {
+    "prefix": "9XR-",
+    "oldPrefix": "",
+    "country": "Rwanda",
+    "countryCode": "RW"
+  },
+  {
+    "prefix": "9Y-",
+    "oldPrefix": "VP-T",
+    "country": "Trinidad and Tobago",
+    "countryCode": "TT"
+  }
+]
