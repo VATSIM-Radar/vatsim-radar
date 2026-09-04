@@ -1,28 +1,27 @@
 # Changelog
 
-# [2.0.1-3-rc.3]
+# [2.0.2-final]
 
-- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
-- Fixed airport on-hover placement popup being incorrect sometimes
-
-# [2.0.1-3-rc.2]
+## Features and Improvements
 
 - Max users list count has been extended from 5 to 10
 - Max users per one list has been extended from 200 to 300
 - "Show aircraft tracks" setting in airport overlay is now synced with global setting
 - Added Asia FIR duplications
-
-# [2.0.1-3-rc.1]
-
 - Removed both directions option from nat tracks
-- Fixed arrived at showing after turnaround instead of planned arrival time
-- Fixed last flown path showing after turnaround
 - Added support for empty UIRs on map
 - Removed desktop app tray icon on MacOS
 - Updated desktop app to electron v44
 - Added China sectors duplications
+
+## Bug Fixes
+
 - Fixed some APP bookings not displayed when multiple APP bookings need to be shown
 - Fixed dashed line to STAR waypoint showing as green even before STAR is reached
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+- Fixed airport on-hover placement popup being incorrect sometimes
 
 # [2.0.1-2-final]
 
