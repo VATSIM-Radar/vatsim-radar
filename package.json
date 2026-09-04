@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1124.0",
+    "@aws-sdk/client-s3": "3.1125.0",
     "@nuxt/image": "2.1.0",
     "@pinia/nuxt": "1.0.2",
     "@prisma/adapter-mariadb": "7.10.0",
@@ -106,7 +106,7 @@
     "@types/ws": "8.18.1",
     "eslint": "10.9.1",
     "fast-xml-parser": "5.11.1",
-    "postcss": "8.5.26",
+    "postcss": "8.5.27",
     "postcss-html": "2.0.0",
     "sass-embedded": "1.103.1",
     "stylelint": "17.14.1",
