@@ -110,7 +110,10 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
 
     result.id = version;
     result.countries = parsedDat.countries.filter(value => value.country && value.code) as typeof result['countries'];
-    result.uirs = parsedDat.uirs.filter(value => value.icao && value.name && value.firs) as typeof result['uirs'];
+    result.uirs = parsedDat.uirs.filter(value => {
+        value.firs ??= '';
+        return value.icao && value.name;
+    }) as typeof result['uirs'];
     parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S1', boundary: 'BIRD' });
     parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S2', boundary: 'BIRD' });
     parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S3', boundary: 'BIRD' });

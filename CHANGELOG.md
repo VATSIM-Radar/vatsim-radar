@@ -1,8 +1,38 @@
 # Changelog
 
-# [2.0.1-2]
+# [2.0.1-3-rc.3]
+
+- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+- Fixed airport on-hover placement popup being incorrect sometimes
+
+# [2.0.1-3-rc.2]
+
+- Max users list count has been extended from 5 to 10
+- Max users per one list has been extended from 200 to 300
+- "Show aircraft tracks" setting in airport overlay is now synced with global setting
+- Added Asia FIR duplications
+
+# [2.0.1-3-rc.1]
+
+- Removed both directions option from nat tracks
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Added support for empty UIRs on map
+- Removed desktop app tray icon on MacOS
+- Updated desktop app to electron v44
+- Added China sectors duplications
+- Fixed some APP bookings not displayed when multiple APP bookings need to be shown
+- Fixed dashed line to STAR waypoint showing as green even before STAR is reached
+
+# [2.0.1-2-final]
 
 - Fixed CZQM/CZQX not lighing up correctly
+
+# [2.0.1-1-final]
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
 
 # [2.0.1-1]
 
@@ -15,8 +45,8 @@
 ## Highlights
 
 - Add IPC handlers to expose bookmarks and websockets by neilenns. Learn
-  more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use StreamDeck with
-  VATSIM Radar - marketplace plugin is coming
+  more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use Stream Deck with
+  the [VATSIM Radar plugin](https://marketplace.elgato.com/product/vatsim-radar-560ea8e3-05f5-45d1-93ca-1793bd6b7311).
 - Improved hover, smoothness and font here and there
 - Restored EOBT, Time Enroute and Fuel Time in Prefile window
 - Replaced map quality setting with a new Graphics Scale option, default to 100%
@@ -490,7 +520,7 @@ This release is focused on a small bug fixes and improvements, including Navigra
   to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
 - Distance tool layer will now have priority over route line
 - Fixed "infinite" Navigraph Data updating once and for all
-- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
+- Added missing support for \_TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
   not accepted until further notice, but existing will be supported now)
 - Fixed pilot encoding being incorrect in some places by 1849614
 - Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
@@ -1094,7 +1124,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid
   users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
 - Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed
-  in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
+  in [GNG DB](<https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc>)
   or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
@@ -1367,7 +1397,7 @@ Made by Thorsten.
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between
   aircraft sizes
 - Improved model matching for A139-189, C700, C750 by StefBrands
-- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60
+- New aircraft icons from DotWallop: A20N, A338, A339, P28\*, P51, PA24, U2, SR22, GLEX, BE60
 - Significantly reduced data consumption
 - Added copy button to controller frequencies
 - Max showed tracks limit is now 50
@@ -1720,7 +1750,7 @@ aircraft that don't have own yet.
 - Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
 - Fixed some gates showing as occupied while they are not
 - Fixed overlay crash when departing on switching between vfr and ifr
-- Fixed _DEP controllers detection fail
+- Fixed \_DEP controllers detection fail
 - Added small horizontal padding to pin icon, so it will be harder to miss a click
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
@@ -1852,7 +1882,7 @@ Planned in future updates:
 ## Bug fixes
 
 - Updated ATIS encoding parse algorithm
-- Moved Boeings 74* icons to B739 icon
+- Moved Boeings 74\* icons to B739 icon
 - Added encoding parsing for pilots names
 - Approach controller popup will now close more easily
 - Pilot offline status should now properly reset after (s)he's back online

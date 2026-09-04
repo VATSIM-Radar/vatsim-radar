@@ -409,7 +409,7 @@ const arrAirport = computed(() => {
 });
 
 const airline = shallowRef<RadarDataAirline | null>(null);
-const friend = computed(() => store.friends.find(x => x.cid === props.pilot.cid));
+const friend = computed(() => store.allFriends.find(x => x.cid === props.pilot.cid));
 
 watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, async () => {
     airline.value = await getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks);
@@ -419,10 +419,11 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
 
 const dataStore = useDataStore();
 
-const departedAt = computed(() => props.pilot.flight_plan?.departed_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.departedAt);
-const arrivedAt = computed(() => props.pilot.flight_plan?.arrived_at || dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]?.arrivedAt);
+const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]);
+const departedAt = computed(() => tracksPilotData.value?.departedAt ?? props.pilot.flight_plan?.departed_at);
+const arrivedAt = computed(() => tracksPilotData.value?.arrivedAt ?? props.pilot.flight_plan?.arrived_at);
 
-const getValidDate = (value: string | number | undefined) => {
+const getValidDate = (value: string | number | null | undefined) => {
     if (!value) return null;
 
     const date = new Date(value);

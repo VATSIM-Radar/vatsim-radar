@@ -334,6 +334,12 @@ export const useStore = defineStore('index', {
                 listName: x.name,
             })));
         },
+        allFriends(): UserListLiveUser[] {
+            return this.lists.flatMap(x => x.users.filter(x => x.type !== 'offline').map(user => ({
+                ...user,
+                listName: x.name,
+            })));
+        },
         userMessages(): PartialRecord<UserMessageType, UserMessage> {
             if (!this.user) return {};
             return Object.fromEntries(this.user.messages.map(x => ([x.message, x])));

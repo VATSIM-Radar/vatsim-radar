@@ -69,11 +69,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
     const { linesSource } = renderSettings;
     const { aircraft, pilot, status, tracksFeatures, overlay, coordinates } = renderState;
 
-    let updateState = aircraftState[aircraft.cid];
-    if (!updateState) {
-        updateState = {};
-        aircraftState[aircraft.cid] = updateState;
-    }
+    const updateState = aircraftState[aircraft.cid] ??= {};
 
     if (updateState.updating) return;
 
@@ -109,6 +105,38 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         updateAircraftRoute(false, renderSettings, renderState);
 
         return;
+    }
+
+    const flightPlanKey = JSON.stringify([
+        pilot.callsign,
+        pilot.logon_time,
+    ]);
+    const flightChanged = !!updateState.flightPlanKey && updateState.flightPlanKey !== flightPlanKey;
+    updateState.flightPlanKey = flightPlanKey;
+
+    if (flightChanged) {
+        tracksFeatures.forEach(feature => {
+            linesSource.removeFeature(feature);
+            feature.dispose();
+        });
+        tracksFeatures.splice(0);
+
+        delete dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
+
+        updateState.lastTurnsUpdate = 0;
+        updateState.lastTurnsUpdateData = undefined;
+        updateState.needsFullTurnsUpdate = true;
+        updateState.turnsFirstGroupTimestamp = '';
+        updateState.turnsSecondGroupPoint = null;
+        updateState.turnsTimestamp = '';
+        updateState.turnsStart = '';
+        updateState.flightPlan = undefined;
+        updateState.previousFlightPlan = undefined;
+
+        const stringCid = aircraft.cid.toString();
+        const hadRoute = dataStore.navigraphWaypoints.value[stringCid];
+        delete dataStore.navigraphWaypoints.value[stringCid];
+        if (hadRoute) triggerRef(dataStore.navigraphWaypoints);
     }
 
     try {
@@ -214,10 +242,14 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     updateState.lastTurnsUpdateData = turns;
                     updateState.lastTurnsUpdate = Date.now();
                     updateState.needsFullTurnsUpdate = false;
-                    if (turns.departedAt || turns.arrivedAt) {
+                    if (turns.flightPlanTime) {
+                        const previousData = dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
+                        // Incremental groups may omit timestamps recorded before the requested cursor.
+                        const previousFlightData = start && previousData?.flightPlanTime === turns.flightPlanTime ? previousData : undefined;
                         dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
-                            departedAt: turns.departedAt,
-                            arrivedAt: turns.arrivedAt,
+                            flightPlanTime: turns.flightPlanTime,
+                            departedAt: turns.departedAt ?? previousFlightData?.departedAt ?? null,
+                            arrivedAt: turns.arrivedAt ?? previousFlightData?.arrivedAt ?? null,
                         };
                     }
                 }
@@ -236,14 +268,30 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         // Doing a full update
         if (firstUpdate) {
+            tracksFeatures.forEach(feature => {
+                linesSource.removeFeature(feature);
+                feature.dispose();
+            });
+            tracksFeatures.splice(0);
+
+            const stringCid = aircraft.cid.toString();
+            const hadRoute = dataStore.navigraphWaypoints.value[stringCid];
+            delete dataStore.navigraphWaypoints.value[stringCid];
+            delete dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
+            updateState.previousFlightPlan = undefined;
+            if (hadRoute) triggerRef(dataStore.navigraphWaypoints);
+
             updateState.turnsFirstGroupTimestamp = '';
             updateState.turnsSecondGroupPoint = null;
             updateState.turnsTimestamp = '';
-            // The cached response belongs to the previous connection and must not block the full reload.
+            updateState.turnsStart = turns?.flightPlanTime ?? '';
             updateState.lastTurnsUpdate = 0;
             updateState.lastTurnsUpdateData = undefined;
             updateState.needsFullTurnsUpdate = true;
             shortUpdate = false;
+            // This response was requested with the previous flight cursor. Do not render its final
+            // group; the next update will replace it with an unfiltered current-flight response.
+            turns = undefined;
         }
 
         if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {

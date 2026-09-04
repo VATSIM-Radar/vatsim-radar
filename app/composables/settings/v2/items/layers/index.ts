@@ -160,7 +160,6 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
             { value: 'all', text: 'All' },
             { value: 'east', text: 'East' },
             { value: 'west', text: 'West' },
-            { value: 'both', text: 'Both directions' },
         ],
         value: getSettingValue('map.layers.natTrak.direction'),
         onChange: value => setSettingByKey('map.layers.natTrak.direction', value as NatTrakDirection),

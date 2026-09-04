@@ -11,6 +11,7 @@ export const aircraftState: Record<number, Partial<{
     turnsStart: string;
     turnsSecondGroupPoint: GeoFeature<GeoPoint> | null;
     timestamps: Set<string>;
+    flightPlanKey: string;
     flightPlan: string;
     previousFlightPlan: string;
     needsFullTurnsUpdate: boolean;

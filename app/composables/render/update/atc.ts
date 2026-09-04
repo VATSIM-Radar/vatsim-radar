@@ -477,7 +477,9 @@ export async function updateControllers(context: DataUpdateContext) {
 
                 if (similar) similar.booking = controller.booking;
 
-                continue;
+                if (similar || controller.facility !== facilities.APP) {
+                    continue;
+                }
             }
 
             if (!dataAirport.atc.some(x => x.cid === controller.cid && x.callsign === controller.callsign)) {

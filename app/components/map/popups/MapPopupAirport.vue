@@ -177,10 +177,11 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const properties = computed(() => props.payload.feature.getProperties());
 const type = computed(() => properties.value.type);
+const facilities = useFacilitiesIds();
 const getOffsetY = computed(() => {
     switch (properties.value.type) {
         case 'airport':
-            return properties.value.atc.length ? -10 : -20;
+            return properties.value.atc?.filter(x => x.facility <= facilities.TWR).length ? -10 : -20;
         case 'airport-atc':
             return mapStore.compactAirportView ? 10 : 20;
         default:
