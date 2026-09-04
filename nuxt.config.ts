@@ -247,6 +247,11 @@ export default defineNuxtConfig({
             // runtime caching rule below after the map actually requests them.
             globIgnores: [
                 'aircraft/*.svg',
+                // Nuxt build assets are content-hashed and cached on first use by
+                // the runtime rule below. Precaching them makes SW installation
+                // fail during rolling deploys if the manifest and asset requests
+                // reach different releases and one old hash already returns 404.
+                'static/**/*',
             ],
             navigateFallback: null,
             runtimeCaching: [
