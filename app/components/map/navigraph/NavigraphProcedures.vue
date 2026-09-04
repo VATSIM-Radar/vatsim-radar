@@ -2,12 +2,11 @@
 import type { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
-import { LineString, Point } from 'ol/geom.js';
-import type { Coordinate } from 'ol/coordinate.js';
-import greatCircle from '@turf/great-circle';
+import { Point } from 'ol/geom.js';
 import type { NavigraphNavDataAirportWaypoint } from '~/utils/server/navigraph/navdata/types';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
 import { createMapFeature } from '~/utils/map/entities';
+import { greatCircleToOl } from '~/utils';
 
 defineOptions({
     render: () => null,
@@ -25,14 +24,8 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
         const nextWaypoint = waypoints[i + 1];
         if (!nextWaypoint) continue;
 
-        let coords: Coordinate[];
-
-        const circle = greatCircle(waypoint.coordinate, nextWaypoint.coordinate, { npoints: 2 });
-        if (circle.geometry.type === 'LineString') coords = circle.geometry.coordinates;
-        else coords = circle.geometry.coordinates.flatMap(x => x);
-
         newFeatures.push(createMapFeature('navigraph', {
-            geometry: new LineString(coords),
+            geometry: greatCircleToOl(waypoint.coordinate, nextWaypoint.coordinate, { npoints: 2 }),
             procedure,
             name,
             type: 'navigraph',
@@ -79,7 +72,7 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
     enrouteTransitions.forEach(x => addWaypoints(newFeatures, x.waypoints, constraints, type));
 }
 
-watch(dataStore.navigraphProcedures, () => {
+function updateProcedures() {
     const newFeatures: Feature[] = [];
 
     for (const { sids, stars, approaches, runways } of Object.values(dataStore.navigraphProcedures.value as Record<string, DataStoreNavigraphProceduresAirport>)) {
@@ -105,7 +98,11 @@ watch(dataStore.navigraphProcedures, () => {
     source?.value.removeFeatures(features);
     features = newFeatures;
     source?.value.addFeatures(features);
-}, {
+}
+
+const updateProceduresThrottled = useThrottleFn(updateProcedures, 1000, true);
+
+watch(dataStore.navigraphProcedures, () => updateProceduresThrottled(), {
     immediate: true,
 });
 

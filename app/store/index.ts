@@ -148,6 +148,12 @@ export const useStore = defineStore('index', {
         touch: false,
         engine: '' as IEngine['name'],
 
+        ownAtc: {
+            pilotsAll: 0,
+            pilotsControlling: 0,
+            date: 0,
+        },
+
         initStatus: {
             vatspy: false,
             simaware: false,
@@ -324,6 +330,12 @@ export const useStore = defineStore('index', {
         },
         friends(): UserListLiveUser[] {
             return this.lists.filter(x => x.showInMenu).flatMap(x => x.users.filter(x => x.type !== 'offline').map(user => ({
+                ...user,
+                listName: x.name,
+            })));
+        },
+        allFriends(): UserListLiveUser[] {
+            return this.lists.flatMap(x => x.users.filter(x => x.type !== 'offline').map(user => ({
                 ...user,
                 listName: x.name,
             })));

@@ -33,6 +33,8 @@ export interface UserSettingsV2 {
             autoZoom: boolean;
             debugMode: boolean;
 
+            hoverInteraction: 'trueForAll' | 'falseForTablets' | 'falseForAll' | 'default';
+
             featuredDefaultBookmarks: boolean;
             skipBookmarkAnimation: boolean;
 
@@ -44,7 +46,7 @@ export interface UserSettingsV2 {
 
             overlaysPositions: 'bottom-left' | 'top-left';
             favoriteLocation: 'header' | 'footer';
-            highRatio: boolean;
+            mapQuality: number;
 
             aircraft: {
                 shortView: boolean;
@@ -63,6 +65,7 @@ export interface UserSettingsV2 {
                 defaultZoomLevel: number;
                 shortView: boolean | 'never';
                 showMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all' | 'allExisting';
+                showZoomLimit: number;
                 declutterIf: 'unstaffed' | 'all' | 'none';
                 ATISAsUnstaffed: boolean;
                 voiceButton: boolean;

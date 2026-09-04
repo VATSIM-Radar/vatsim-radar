@@ -7,13 +7,13 @@ import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
 import type VectorLayer from 'ol/layer/Vector.js';
 
-let styleCache: Record<string, Style> = {};
-let stylesCache: Record<string, Style[]> = {};
 const geometriesCache = new WeakMap<WeakKey, Geometry>();
 
 export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
-    styleCache = {};
-    stylesCache = {};
+    // Keep caches local to the layer. Two Navigraph layers otherwise overwrite each other's
+    // mutable Style instances and force unnecessary style reconstruction.
+    const styleCache: Record<string, Style> = {};
+    const stylesCache: Record<string, Style[]> = {};
 
     const ndbStyle = new Icon({
         src: '/icons/compressed/ndb.png',
@@ -167,7 +167,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
     const restrictedAirspaceStyle = new Style({
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.3)`,
             width: 1,
         }),
         text: new Text({
@@ -186,11 +186,11 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
     const restrictedAirspaceStyleSelected = new Style({
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.3)`,
             width: 1,
         }),
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.07)`,
+            color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.1)`,
         }),
         text: new Text({
             font: getTextFont('caption'),
@@ -232,7 +232,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
             width: 1,
         }),
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.07)`,
+            color: `rgba(${ getCurrentThemeRgbColor('orange500').join(',') }, 0.1)`,
         }),
         text: new Text({
             font: getTextFont('caption'),
@@ -456,6 +456,8 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
                 styleCache.waypoint.setGeometry(null);
             }
 
+            styleCache.waypoint.setZIndex(zIndex);
+
             const styles = [
                 image,
             ];
@@ -509,30 +511,33 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
 
             const key = `airway-${ String(properties.kind) }`;
 
-            styleCache[key] = new Style({
-                stroke,
-                zIndex: 5,
-                text: new Text({
-                    font: getTextFont('caption-medium', { fontSize: 8 }),
-                    text: `${ properties.identifier }`,
-                    placement: 'line',
-                    keepUpright: true,
-                    textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
-                    offsetY: -4,
-                    justify: 'center',
-                    padding: [6, 6, 6, 6],
-                    rotateWithView: false,
-                    fill: new Fill({
-                        color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
+            if (!styleCache[key]) {
+                styleCache[key] = new Style({
+                    stroke,
+                    zIndex: 5,
+                    text: new Text({
+                        font: getTextFont('caption-medium', { fontSize: 8 }),
+                        text: `${ properties.identifier }`,
+                        placement: 'line',
+                        keepUpright: true,
+                        textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
+                        offsetY: -4,
+                        justify: 'center',
+                        padding: [6, 6, 6, 6],
+                        rotateWithView: false,
+                        fill: new Fill({
+                            color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
+                        }),
                     }),
-                }),
-            });
+                });
+            }
 
-            styleCache[key].setStroke(stroke);
-            styleCache[key].getText()!.setText(showAirwaysLabels.value ? properties.identifier : undefined);
+            const airwayStyle = styleCache[key];
+            airwayStyle.setStroke(stroke);
+            airwayStyle.getText()!.setText(showAirwaysLabels.value ? properties.identifier : undefined);
 
             const style = [
-                styleCache[key],
+                airwayStyle,
             ];
 
             if (properties.kind === 'nat' && properties.direction) {

@@ -15,6 +15,7 @@ import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay, useColorFromProp } from '~/composables';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
+import { isValidDate } from '~/utils/shared';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -336,6 +337,7 @@ export function getFlightRowColor(index: number | null | undefined, theme = useS
 }
 
 export function getTimeRemains(eta: Date): string | null {
+    if (!isValidDate(eta)) return null;
     const timeRemains = eta.getTime() - useDataStore().time.value;
     if (timeRemains < 0) return null;
 
@@ -399,6 +401,15 @@ export const ownFlight = computed(() => {
         null;
     }
     return dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ?? null;
+});
+
+export const ownAtc = globalComputed(() => {
+    const _cid = useStore().user?.cid;
+    if (!_cid) return null;
+
+    const cid = +_cid;
+    const atc = useDataStore().vatsim.data.controllers.value.find(x => x.cid === cid);
+    return atc ?? null;
 });
 
 const ownHighlight = globalComputed(() => getKeyedValueFromSettings('map.preferences.aircraft.ownAtcHighlight'));

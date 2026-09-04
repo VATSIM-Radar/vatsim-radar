@@ -1,19 +1,130 @@
 # Changelog
 
-# [2.0.0-3-rc.2]
+# [2.0.2-final]
+
+## Features and Improvements
+
+- Max users list count has been extended from 5 to 10
+- Max users per one list has been extended from 200 to 300
+- "Show aircraft tracks" setting in airport overlay is now synced with global setting
+- Added Asia FIR duplications
+- Removed both directions option from nat tracks
+- Added support for empty UIRs on map
+- Removed desktop app tray icon on MacOS
+- Updated desktop app to electron v44
+- Added China sectors duplications
+
+## Bug Fixes
+
+- Fixed some APP bookings not displayed when multiple APP bookings need to be shown
+- Fixed dashed line to STAR waypoint showing as green even before STAR is reached
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+- Fixed airport on-hover placement popup being incorrect sometimes
+
+# [2.0.1-2-final]
+
+- Fixed CZQM/CZQX not lighing up correctly
+
+# [2.0.1-1-final]
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
+# [2.0.1-1]
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
+# [2.0.1]
+
+## Highlights
+
+- Add IPC handlers to expose bookmarks and websockets by neilenns. Learn
+  more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use Stream Deck with
+  the [VATSIM Radar plugin](https://marketplace.elgato.com/product/vatsim-radar-560ea8e3-05f5-45d1-93ca-1793bd6b7311).
+- Improved hover, smoothness and font here and there
+- Restored EOBT, Time Enroute and Fuel Time in Prefile window
+- Replaced map quality setting with a new Graphics Scale option, default to 100%
+- Performance improvements all around
+
+## Features and Improvements
+
+- Based on community feedback, all airports with at least one traffic anywhere will now show by default
+- Updated font for controller information
+- Updated font for flight and atc hours
+- Updated hit detection to be zero for hover and 2 pixels for right click and click
+- Re-enabled hover interaction for tablets. It can now be force enabled for mobile, and force disabled for any device
+- Improved smoothness when switching between DGTA icons
+- Animation to open map on-hover elements is slightly faster now
+- You can now import and export bookmarks
+- Default airport page will now only show this airport traffic only, like it did before
+- `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
+- New dashboard setting: "Airports traffic only" (false by default)
+- Added support for correct ATC count in Discord Presence when inside Dashboard
+- Since flights can now exceed 24 hours more often than before, limit for track history is now 36 hours instead of 24
+- Added zoom level control for airports declutter
+- Added model matching: CL35 -> CL30, EC75-H175 -> H160, A337 -> A3ST, T38-F5 -> F16, F50 -> F27
+- Added model matching: M346-A29-AMX-T27 -> L159, C550 -> C510, SUCO -> H64 (AH64), P3-L188 -> DC6, MRF1 -> MIR2
+- Added model matching: DA50 -> DA40, R135 -> B703, R722 -> B722, C680 -> C700, GLF4 -> GLF5, B314 -> SHIP
+- Added model matching: T34P-T34T -> BE35, E45X -> E145, U20T -> C208, E390 -> C130, E110 -> C46
+- Added model matching: C295 -> C160, MG21 -> G91, AC11 -> AA5, COL4 -> SR22
+- Add a VSCode devcontainer to simplify dev environment setup by neilenns
+- Added refresh map button to default airport dashboard
+- Airport dashboard airport card now shows wind with gusts if present
+
+## Performance Improvements
+
+- Smooth aircraft update has been capped to 30fps
+- Smooth aircraft movement will now be stopped immediately if you zoom out
+- Smooth aircraft movement will now be stopped if you are moving map
+- Postrender update will now be limited to once per second
+- Hover will no longer affect mobile devices if it is disabled in settings
+- Significantly improved performance for all Navigraph layers
+- Removed unneeded calculations for aircraft when map is moving
+- Improved aircraft render performance
+- Improved smooth aircraft performance
+- Significantly reduced CPU load when using filter
+- Improved Navigraph Route performance
+- Significantly improved VATGlasses Combined performance
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as
+  cache grows
+- Improved long aircraft list performance in airport overlay
+
+## Bug Fixes
+
+- Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
+- Fixed vhf or ndb displaying as airport in some cases
+- Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
+- Fixed favorite button disappeared sometimes
+- Fixed positions displayed incorrectly in Featured Airports
+- Fixed counters click on mobile opening airport instead of aircraft list
+- Fixed header display for tablet mode
+- Fixed VHF frequency lookup in airway routes
+- Fixed bearing-difference calculation when selecting the closest Navigraph waypoint
+- Fixed facilities chip text color in light theme
+- Fixed some TWR controllers displaying twice when VATGlasses is enabled
+- Fixed compatibility for Safari/iOS 15
+- Airlines names will now always be uppercase. This change will be applied within 7 days from this update
+- Fixed meridian gap for routes and lines
+- Fixed tracks resetting sometimes
+- Fixed incorrect HF frequency being shown sometimes
+
+# [2.0.0-3-final]
 
 ## Features and Improvements
 
 - Horizontal dashboard layout has become usable by ncls-alien
-
-# [2.0.0-3-rc.1]
 
 ## Bug Fixes
 
 - Fixed booking not displayed sometimes when another facility was online
 - Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present
 
-# [2.0.0-2-final]
+# [2.0.0-2]
 
 ## Features and improvements
 
@@ -408,7 +519,7 @@ This release is focused on a small bug fixes and improvements, including Navigra
   to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
 - Distance tool layer will now have priority over route line
 - Fixed "infinite" Navigraph Data updating once and for all
-- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
+- Added missing support for \_TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
   not accepted until further notice, but existing will be supported now)
 - Fixed pilot encoding being incorrect in some places by 1849614
 - Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
@@ -1012,7 +1123,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid
   users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
 - Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed
-  in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
+  in [GNG DB](<https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc>)
   or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
@@ -1285,7 +1396,7 @@ Made by Thorsten.
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between
   aircraft sizes
 - Improved model matching for A139-189, C700, C750 by StefBrands
-- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60
+- New aircraft icons from DotWallop: A20N, A338, A339, P28\*, P51, PA24, U2, SR22, GLEX, BE60
 - Significantly reduced data consumption
 - Added copy button to controller frequencies
 - Max showed tracks limit is now 50
@@ -1638,7 +1749,7 @@ aircraft that don't have own yet.
 - Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
 - Fixed some gates showing as occupied while they are not
 - Fixed overlay crash when departing on switching between vfr and ifr
-- Fixed _DEP controllers detection fail
+- Fixed \_DEP controllers detection fail
 - Added small horizontal padding to pin icon, so it will be harder to miss a click
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
@@ -1770,7 +1881,7 @@ Planned in future updates:
 ## Bug fixes
 
 - Updated ATIS encoding parse algorithm
-- Moved Boeings 74* icons to B739 icon
+- Moved Boeings 74\* icons to B739 icon
 - Added encoding parsing for pilots names
 - Approach controller popup will now close more easily
 - Pilot offline status should now properly reset after (s)he's back online

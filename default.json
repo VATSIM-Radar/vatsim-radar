@@ -79,13 +79,6 @@
     },
     {
       "matchPackageNames": [
-        "@vue/language-server",
-        "vue-tsc"
-      ],
-      "groupName": "Volar"
-    },
-    {
-      "matchPackageNames": [
         "nuxt",
         "@nuxt/kit"
       ],

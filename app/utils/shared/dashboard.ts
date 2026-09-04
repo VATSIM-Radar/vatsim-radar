@@ -36,7 +36,7 @@ const flightLevelSchema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxVa
 
 export const DashboardAirportSchema = v.object({
     icao: icaoSchema,
-    showInTrafficPrediction: v.optional(v.boolean(), false),
+    showInTrafficPrediction: v.optional(v.boolean(), true),
     aircraftColor: v.optional(v.nullable(colorSchema)),
 });
 export type DashboardAirport = v.InferOutput<typeof DashboardAirportSchema>;
@@ -111,6 +111,7 @@ export const DashboardSettingsSchema = v.object({
     displayMode: v.optional(v.picklist(dashboardDisplayModes), 'both'),
     showMetar: v.optional(v.boolean(), true),
     showArrivalTracks: v.optional(v.boolean(), true),
+    airportTrafficOnly: v.optional(v.boolean(), false),
     openColumns: v.optional(v.array(v.picklist(dashboardColumns)), () => [...dashboardColumns]),
     predictedWindow: v.optional(DashboardPredictedSchema),
     aircraftMode: v.optional(v.picklist(dashboardAircraftModes.map(x => x.value as MapAircraftMode), 'all' satisfies MapAircraftMode)),

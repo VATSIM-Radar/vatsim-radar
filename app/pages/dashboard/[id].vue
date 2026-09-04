@@ -278,6 +278,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                         displayMode: 'both',
                         showMetar: true,
                         showArrivalTracks: true,
+                        airportTrafficOnly: false,
                         openColumns: [...dashboardColumns],
                         aircraftMode: 'all',
                     },
@@ -348,6 +349,7 @@ const tracksOverride = computed<boolean | null>(() => {
     return null;
 });
 const arrivalTracks = computed(() => tracksOverride.value ?? settings.value?.showArrivalTracks ?? true);
+const airportTrafficOnly = computed(() => settings.value?.airportTrafficOnly ?? false);
 const arrivalTracksModel = computed({
     get: () => arrivalTracks.value,
     set: value => setQueryParam('tracks', value ? '1' : '0'),
@@ -396,6 +398,7 @@ const mapSrc = computed(() => {
     params.set('tracks', Number(arrivalTracks.value).toString());
     params.set('airportMode', aircraftMode.value);
     params.set('dashboard', id.value);
+    params.set('airportAircraft', Number(airportTrafficOnly.value).toString());
 
     if (settings.value?.enrouteCallsign) params.set('atcCallsign', settings.value.enrouteCallsign);
 

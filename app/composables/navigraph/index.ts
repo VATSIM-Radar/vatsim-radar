@@ -334,7 +334,7 @@ type NavigraphCoordinateCandidate = {
     type: string;
 };
 
-const nmToIgnorePriority = 2;
+const nmToIgnorePriority = 5;
 
 function getNavigraphCoordinatePriority(candidate: NavigraphCoordinateCandidate): number {
     return candidate.kind === 'vhf' || candidate.kind === 'ndb' ? 0 : 1;
@@ -428,8 +428,10 @@ function getNatRouteWaypointToken(token: string): { identifier: string; coordina
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
 const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
+type NavigraphParsedDataType = Exclude<keyof NavigraphNavDataShort, 'version'>;
+
 const dataCache: {
-    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways' | 'holdings' | 'restrictedAirspace' | 'controlledAirspace']: NavigraphNavDataShort[K]
+    [K in NavigraphParsedDataType]: Record<string, NavigraphNavDataShort[K] | null>
 } = {
     vhf: {},
     ndb: {},
@@ -440,10 +442,26 @@ const dataCache: {
     controlledAirspace: {},
 };
 
+const NAVIGRAPH_DATA_CACHE_TTL = 1000 * 60;
 let latestUpdate = 0;
 
 type ShortAirwayEntry = [string, ShortAirway];
 type ShortAirwayWaypoint = ShortAirway[2][number];
+
+interface AirwayGraphNode {
+    id: string;
+    airway: ShortAirwayEntry;
+    waypoint: ShortAirwayWaypoint;
+    edges: Set<string>;
+}
+
+interface AirwayGraph {
+    nodes: Map<string, AirwayGraphNode>;
+    nodesByIdentifier: Map<string, AirwayGraphNode[]>;
+}
+
+const AIRWAY_GRAPH_CACHE_TTL = 1000 * 60 * 2;
+const airwayGraphCache = new Map<string, { graph: AirwayGraph; lastUsed: number }>();
 
 function cloneAirwayWithSegment(airway: ShortAirwayEntry, segment: ShortAirwayWaypoint[]): ShortAirwayEntry {
     return [
@@ -460,18 +478,7 @@ function sameAirwayWaypointCoordinate(a: ShortAirwayWaypoint, b: ShortAirwayWayp
     return Math.abs(a[3] - b[3]) < 0.01 && Math.abs(a[4] - b[4]) < 0.01;
 }
 
-function resolveAirwayPath(
-    airways: ShortAirwayEntry[],
-    fromWaypoint: string,
-    toWaypoint: string,
-): ShortAirwayEntry | undefined {
-    type AirwayGraphNode = {
-        id: string;
-        airway: ShortAirwayEntry;
-        waypoint: ShortAirwayWaypoint;
-        edges: Set<string>;
-    };
-
+function buildAirwayGraph(airways: ShortAirwayEntry[]): AirwayGraph {
     const nodes = new Map<string, AirwayGraphNode>();
     const nodesByIdentifier = new Map<string, AirwayGraphNode[]>();
 
@@ -516,29 +523,63 @@ function resolveAirwayPath(
         }
     }
 
+    return { nodes, nodesByIdentifier };
+}
+
+function pruneAirwayGraphCache(now = Date.now()) {
+    for (const [airway, cache] of airwayGraphCache) {
+        if (now - cache.lastUsed > AIRWAY_GRAPH_CACHE_TTL) airwayGraphCache.delete(airway);
+    }
+}
+
+function resolveAirwayPath(
+    airwayIdentifier: string,
+    airways: ShortAirwayEntry[],
+    fromWaypoint: string,
+    toWaypoint: string,
+): ShortAirwayEntry | undefined {
+    const now = Date.now();
+    let cache = airwayGraphCache.get(airwayIdentifier);
+    if (!cache) {
+        cache = {
+            graph: buildAirwayGraph(airways),
+            lastUsed: now,
+        };
+        airwayGraphCache.set(airwayIdentifier, cache);
+    }
+    cache.lastUsed = now;
+
+    const { nodes, nodesByIdentifier } = cache.graph;
+
     const startNodes = nodesByIdentifier.get(fromWaypoint) ?? [];
     const endNodeIds = new Set((nodesByIdentifier.get(toWaypoint) ?? []).map(node => node.id));
 
     if (!startNodes.length || !endNodeIds.size) return undefined;
 
-    const visited = new Set<string>();
-    const queue = startNodes.map(node => ({
-        id: node.id,
-        path: [node.id],
-    }));
+    const previous = new Map<string, string | null>();
+    const queue = startNodes.map(node => node.id);
+    let queueIndex = 0;
 
     for (const node of startNodes) {
-        visited.add(node.id);
+        previous.set(node.id, null);
     }
 
     // Multi-source BFS keeps the route direction-independent and allows the anchor point to live in any fragment.
-    while (queue.length) {
-        const current = queue.shift()!;
+    while (queueIndex < queue.length) {
+        const currentId = queue[queueIndex++];
 
-        if (endNodeIds.has(current.id)) {
+        if (endNodeIds.has(currentId)) {
+            const pathIds: string[] = [];
+            let pathId: string | null = currentId;
+            while (pathId) {
+                pathIds.push(pathId);
+                pathId = previous.get(pathId) ?? null;
+            }
+            pathIds.reverse();
+
             const pathWaypoints: ShortAirwayWaypoint[] = [];
 
-            for (const id of current.path) {
+            for (const id of pathIds) {
                 const waypoint = nodes.get(id)?.waypoint;
                 if (!waypoint) continue;
                 const previousPathWaypoint = pathWaypoints[pathWaypoints.length - 1];
@@ -547,25 +588,19 @@ function resolveAirwayPath(
                 pathWaypoints.push(waypoint);
             }
 
-            if (!pathWaypoints.length) return undefined;
+            if (!pathWaypoints.length) break;
 
-            return cloneAirwayWithSegment(nodes.get(current.path[0])!.airway, pathWaypoints);
+            return cloneAirwayWithSegment(nodes.get(pathIds[0])!.airway, pathWaypoints);
         }
 
-        const node = nodes.get(current.id);
+        const node = nodes.get(currentId);
         if (!node) continue;
 
         for (const nextId of node.edges) {
-            if (visited.has(nextId)) continue;
+            if (previous.has(nextId)) continue;
 
-            visited.add(nextId);
-            queue.push({
-                id: nextId,
-                path: [
-                    ...current.path,
-                    nextId,
-                ],
-            });
+            previous.set(nextId, currentId);
+            queue.push(nextId);
         }
     }
 
@@ -582,14 +617,49 @@ export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' |
     return data;
 }
 
+export async function getNavigraphParsedDataBulk<T extends NavigraphParsedDataType>(type: T, keys: readonly string[]): Promise<Map<string, NavigraphNavDataShort[T] | null>> {
+    latestUpdate = Date.now();
+
+    const result = new Map<string, NavigraphNavDataShort[T] | null>();
+    const missingKeys: string[] = [];
+    const typeCache = dataCache[type] as Record<string, NavigraphNavDataShort[T] | null>;
+
+    for (const key of new Set(keys)) {
+        if (key in typeCache) {
+            result.set(key, typeCache[key]);
+        }
+        else {
+            missingKeys.push(key);
+        }
+    }
+
+    if (!missingKeys.length) return result;
+
+    const values = await clientDB.navigraphDB.bulkGet(missingKeys.map(key => `${ type }-${ key }`));
+
+    for (let i = 0; i < missingKeys.length; i++) {
+        const key = missingKeys[i];
+        const value = values[i] as unknown as NavigraphNavDataShort[T] | undefined;
+        const data = value ?? null;
+
+        typeCache[key] = data;
+        result.set(key, data);
+    }
+
+    return result;
+}
+
 // Cleanup when cache not used
 if (typeof window !== 'undefined') {
     setInterval(() => {
-        if (latestUpdate && Date.now() - latestUpdate > 1000 * 15) {
+        pruneAirwayGraphCache();
+        if (latestUpdate && Date.now() - latestUpdate > NAVIGRAPH_DATA_CACHE_TTL) {
             dataCache.vhf = {};
             dataCache.ndb = {};
             dataCache.waypoints = {};
             dataCache.airways = {};
+            dataCache.holdings = {};
+            airwayGraphCache.clear();
             dataCache.restrictedAirspace = {};
             dataCache.controlledAirspace = {};
         }
@@ -910,7 +980,7 @@ export async function getFlightPlanWaypoints({
                 const prevWaypoint = entries[i - 1]?.split('/')[0];
                 const nextWaypoint = entries[i + 1]?.split('/')[0];
                 const neededAirway = prevWaypoint && nextWaypoint
-                    ? resolveAirwayPath(Object.entries(airways), prevWaypoint, nextWaypoint)
+                    ? resolveAirwayPath(search, Object.entries(airways), prevWaypoint, nextWaypoint)
                     : undefined;
 
                 if (neededAirway) {

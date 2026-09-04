@@ -60,6 +60,10 @@ export default defineConfig({
                         link: '/introduction/about',
                         items: [
                             {
+                                text: `VATSIM Radar v2 feedback`,
+                                link: '/blog/v2-post-release',
+                            },
+                            {
                                 text: 'Year 2 of VATSIM Radar',
                                 link: '/blog/year-2-of-radar',
                             },
@@ -76,6 +80,16 @@ export default defineConfig({
                     {
                         text: 'Features',
                         link: '/introduction/features/',
+                        items: [
+                        {
+                            text: 'Overview',
+                            link: '/introduction/features/',
+                        },
+                        {
+                            text: 'Websocket API',
+                            link: '/introduction/features/websocket-api',
+                        },
+                        ],
                     },
                     {
                         text: 'V2 FAQ',

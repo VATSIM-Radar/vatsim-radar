@@ -8,6 +8,8 @@ import type {
     SimAwareDataFeature,
     VatglassesAPIData, VatglassesData, VatglassesPosition,
 } from '~/utils/server/storage';
+import type { Feature as TurfFeature, Polygon as TurfPolygon } from 'geojson';
+import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type {
     NavDataProcedure,
@@ -38,12 +40,19 @@ export type IDBNavigraphProcedures = {
     approaches: Array<(NavigraphNavDataApproachShort & { procedure?: NavDataProcedure<NavigraphNavDataApproach> })>;
 };
 
+export interface IDBVatGlassesCombinedCacheEntry {
+    version: string;
+    sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[];
+}
+
 class VatsimRadarDB extends Dexie {
     data!: Table<IDBVatSpyData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
 
     vatspyBoundaries!: Table<IDBVatSpyBoundary, string>;
 
     vatglasses!: Table<VatglassesPosition[] | VatglassesData[string] | string, string>;
+
+    vatglassesCombined!: Table<IDBVatGlassesCombinedCacheEntry | string, string>;
 
     simaware!: Table<SimAwareDataFeature[] | string, string>;
 
@@ -63,11 +72,12 @@ export async function initClientDB() {
     indexedDB.deleteDatabase('vatsim-radar');
     const db = new VatsimRadarDB('vatsim-radar-db');
 
-    db.version(7)
+    db.version(8)
         .stores({
             data: '',
             vatspyBoundaries: '',
             vatglasses: '',
+            vatglassesCombined: '',
             simaware: '',
             airlines: '',
             navigraphAirports: '',

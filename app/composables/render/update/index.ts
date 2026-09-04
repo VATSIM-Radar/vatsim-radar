@@ -4,8 +4,9 @@ import { updateAircraft } from '~/composables/render/update/aircraft';
 import { updateControllers } from '~/composables/render/update/atc';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
-import { logBench } from '~/composables';
+import { isPointInExtent, logBench } from '~/composables';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
+import { ownAtc } from '~/composables/vatsim/pilots.ts';
 
 export interface DataUpdateContext { airports: Record<string, DataAirport>; sectors: Record<string, DataSector>; atcAdded: Set<string> | null; airportsAdded: Set<string> }
 
@@ -15,6 +16,7 @@ export async function updateControllersRender() {
     const dataStore = useDataStore();
     const store = useStore();
     const mapStore = useMapStore();
+    const config = useRuntimeConfig();
 
     const airports: Record<string, DataAirport> = {};
     const sectors: Record<string, DataSector> = {};
@@ -119,6 +121,35 @@ export async function updateControllersRender() {
     }
 
     log();
+
+    if (store.localSettings.app?.presence?.modes?.atc && store.appVersion && store.config.dashboardId && ownAtc().value) {
+        const targetOrigin = config.public.DOMAIN;
+        const atc = ownAtc().value!;
+
+        const sector = findATCSector(atc);
+
+        const frequenciesSet = new Set(atc.frequencies ?? []);
+
+        let pilotsAll = 0;
+        let pilotsControlling = 0;
+        const dataStore = useDataStore();
+
+        if (sector) {
+            for (const pilot of dataStore.vatsim.data.pilots.value) {
+                if (!isPointInExtent([pilot.longitude, pilot.latitude], sector)) continue;
+
+                pilotsAll++;
+                if (pilot.frequencies.some(x => frequenciesSet.has(x))) pilotsControlling++;
+            }
+        }
+
+        window.parent.postMessage({
+            type: 'atc-counter',
+            pilotsAll,
+            pilotsControlling,
+            date: Date.now(),
+        }, targetOrigin);
+    }
 
     if (isFirstRun && !vgFirstRun) {
         updateControllersRender();

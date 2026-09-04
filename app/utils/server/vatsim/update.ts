@@ -370,15 +370,20 @@ export async function updateSectorsData() {
     const jpSectors = $fetch('https://vatjpn.org/media/external/vatsim-radar/Sectors.xml', {
         responseType: 'text',
     });
+    const cnSectors = $fetch('https://files.vatprc.net/sectors/Sectors.xml', {
+        responseType: 'text',
+    });
 
     const au = xmlParser.parse(await auSectors);
     const nz = xmlParser.parse(await nzSectors);
     const jp = xmlParser.parse(await jpSectors);
+    const cn = xmlParser.parse(await cnSectors);
 
     radarStorage.vatsim.sectorsDataset = [
         ...au.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'AU' })),
         ...nz.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'NZ' })),
         ...jp.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'JP' })),
+        ...cn.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'CN' })),
     ].map((sector: Record<string, any>) => ({
         fullName: sector.FullName,
         name: sector.Name,
@@ -411,16 +416,6 @@ export async function updateTransceivers() {
 
 function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
     return Object.fromEntries(airlines.map(val => {
-        const name = val.name.split('');
-
-        name.forEach((symbol, index) => {
-            const previousSymbol = val.name[index - 1];
-            if (previousSymbol !== undefined && previousSymbol !== ' ' && previousSymbol !== '(') name[index] = symbol.toLowerCase();
-            else name[index] = symbol.toUpperCase();
-        });
-
-        val.name = name.join('');
-
         return [val.icao, val];
     }));
 }

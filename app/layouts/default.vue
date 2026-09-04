@@ -55,7 +55,7 @@ import type { ThemesList } from '~/utils/colors';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
-import { showUpdatePopup } from '~/composables';
+import { getIframeCookie, showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
 import LayoutNotifications from '~/components/features/layout/LayoutNotifications.vue';
 import LayoutUpdatePopup from '~/components/features/layout/LayoutUpdatePopup.vue';
@@ -97,7 +97,11 @@ const hadRestrictedAuth = restrictedState.value;
 // @ts-expect-error OBS check
 const hasObs = () => typeof window.obsstudio !== 'undefined';
 
+const iframeCookie = getIframeCookie();
+
 onMounted(() => {
+    if (route.query.iframe && !iframeCookie.value.value) iframeCookie.value.value = true;
+
     const handleStorageUpdate = () => {
         setUserLocalSettings();
     };

@@ -169,12 +169,17 @@ export async function checkAndSetMapPreset() {
         }
     }
 
+    if (query.airportAircraft) {
+        preset.onlyAirportAircraft = query.airportAircraft === '1';
+        preset.onlyAirportsAircraft = query.airportAircraft === '1';
+    }
+
     if (typeof query.airports === 'string') {
         preset.airports = query.airports.split(',').map(x => x.toUpperCase());
         preset.hideSectors = false;
         preset.hideAirports = false;
 
-        if (typeof window !== 'undefined' && store.activeDashboard?.showArrivalTracks !== false && query.tracks !== '0') {
+        if (typeof window !== 'undefined' && store.activeDashboard && store.activeDashboard?.showArrivalTracks !== false && query.tracks !== '0') {
             nextTick().then(async () => {
                 for (const airport of preset.airports!) {
                     await checkForUpdates();

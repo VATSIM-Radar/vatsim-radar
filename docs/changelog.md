@@ -8,6 +8,124 @@ outline: [2, 3]
 [[toc]]
 :::
 
+## 2.0.2
+
+### Features and Improvements
+
+- Max users list count has been extended from 5 to 10
+- Max users per one list has been extended from 200 to 300
+- "Show aircraft tracks" setting in airport overlay is now synced with global setting
+- Added Asia FIR duplications
+- Removed both directions option from nat tracks
+- Added support for empty UIRs on map
+- Removed desktop app tray icon on MacOS
+- Updated desktop app to electron v44
+- Added China sectors duplications
+
+### Bug Fixes
+
+- Fixed some APP bookings not displayed when multiple APP bookings need to be shown
+- Fixed dashed line to STAR waypoint showing as green even before STAR is reached
+- Fixed arrived at showing after turnaround instead of planned arrival time
+- Fixed last flown path showing after turnaround
+- Fixed user in lists that are not marked as "show in menu" not displaying comments on pilot hover
+- Fixed airport on-hover placement popup being incorrect sometimes
+
+## 2.0.1.2
+
+- Fixed CZQM/CZQX not lighing up correctly
+
+## 2.0.1.1
+
+- Added new domains to ATIS parse whitelist
+- Fixed iframes showing a lot of random airports overlays, extending to whole map
+- Updated Desktop App to a newer version of Electron that fixes memory leak that our application could be affected by
+
+## 2.0.1
+
+### Highlights
+
+- Add IPC handlers to expose bookmarks and websockets by neilenns. Learn
+  more: https://docs.vatsim-radar.com/introduction/features/websocket-api. That will also allow to use Stream Deck with
+  the [VATSIM Radar plugin](https://marketplace.elgato.com/product/vatsim-radar-560ea8e3-05f5-45d1-93ca-1793bd6b7311).
+- Improved hover, smoothness and font here and there
+- Restored EOBT, Time Enroute and Fuel Time in Prefile window
+- Replaced map quality setting with a new Graphics Scale option, default to 100%
+- Performance improvements all around
+
+### Features and Improvements
+
+- Based on community feedback, all airports with at least one traffic anywhere will now show by default
+- Updated font for controller information
+- Updated font for flight and atc hours
+- Updated hit detection to be zero for hover and 2 pixels for right click and click
+- Hover interaction can now be enabled for tablets or all devices via settings
+- Improved smoothness when switching between DGTA icons
+- Animation to open map on-hover elements is slightly faster now
+- You can now import and export bookmarks
+- Default airport page will now only show this airport traffic only, like it did before
+- `showInTrafficPrediction` is now default to enabled when adding new airport in dashboard
+- New dashboard setting: "Airports traffic only" (false by default)
+- Added support for correct ATC count in Discord Presence when inside Dashboard
+- Since flights can now exceed 24 hours more often than before, limit for track history is now 36 hours instead of 24
+- Added zoom level control for airports declutter
+- Added model matching: CL35 -> CL30, EC75-H175 -> H160, A337 -> A3ST, T38-F5 -> F16, F50 -> F27
+- Added model matching: M346-A29-AMX-T27 -> L159, C550 -> C510, SUCO -> H64 (AH64), P3-L188 -> DC6, MRF1 -> MIR2
+- Added model matching: DA50 -> DA40, R135 -> B703, R722 -> B722, C680 -> C700, GLF4 -> GLF5, B314 -> SHIP
+- Added model matching: T34P-T34T -> BE35, E45X -> E145, U20T -> C208, E390 -> C130, E110 -> C46
+- Added model matching: C295 -> C160, MG21 -> G91, AC11 -> AA5, COL4 -> SR22
+- Add a VSCode devcontainer to simplify dev environment setup by neilenns
+- Added refresh map button to default airport dashboard
+- Airport dashboard airport card now shows wind with gusts if present
+
+### Performance Improvements
+
+- Smooth aircraft update has been capped to 30fps
+- Smooth aircraft movement will now be stopped immediately if you zoom out
+- Smooth aircraft movement will now be stopped if you are moving map
+- Postrender update will now be limited to once per second
+- Hover will no longer affect mobile devices if it is disabled in settings
+- Significantly improved performance for all Navigraph layers
+- Removed unneeded calculations for aircraft when map is moving
+- Improved aircraft render performance
+- Improved smooth aircraft performance
+- Significantly reduced CPU load when using filter
+- Improved Navigraph Route performance
+- Significantly improved VATGlasses Combined performance
+- VATGlasses Combined features will now be cached on your disk as other things do, dramatically improving load time as
+  cache grows
+- Improved long aircraft list performance in airport overlay
+
+### Bug Fixes
+
+- Fixed airport procedures reset all, select all sids/stars working incorrectly and doing nothing
+- Fixed vhf or ndb displaying as airport in some cases
+- Fixed some cases where positions without simaware tracon definition would not display, such as AMM_APP
+- Fixed favorite button disappeared sometimes
+- Fixed positions displayed incorrectly in Featured Airports
+- Fixed counters click on mobile opening airport instead of aircraft list
+- Fixed header display for tablet mode
+- Fixed VHF frequency lookup in airway routes
+- Fixed bearing-difference calculation when selecting the closest Navigraph waypoint
+- Fixed facilities chip text color in light theme
+- Fixed some TWR controllers displaying twice when VATGlasses is enabled
+- Fixed compatibility for Safari/iOS 15
+- Airlines names will now always be uppercase. This change will be applied within 7 days from this update
+- Fixed meridian gap for routes and lines
+- Fixed tracks resetting sometimes
+- Fixed incorrect HF frequency being shown sometimes
+
+## 2.0.0.3
+
+### Features and Improvements
+
+- Horizontal dashboard layout has become usable by ncls-alien
+
+### Bug Fixes
+
+- Fixed booking not displayed sometimes when another facility was online
+- Fixed incorrect approach callsign matching to all existing sectors, including even tower sector if present
+
 ## 2.0.0.2
 
 ### Features and improvements
@@ -66,13 +184,16 @@ Due to internal refactor, map is now infinite horizontally. I've been asked to a
 
 You can now download VATSIM Radar and install it on your PC!
 
-This feature has limitations - for example, on MacOS you'll have to disable quarantine for Radar to install it, and on Windows you'll see a SmartScreen warning.
+This feature has limitations - for example, on MacOS you'll have to disable quarantine for Radar to install it, and on
+Windows you'll see a SmartScreen warning.
 
-Still, if you manage to install it, you can use it as any desktop app - you can even enable Rich Presence in Settings -> Application Settings.
+Still, if you manage to install it, you can use it as any desktop app - you can even enable Rich Presence in Settings ->
+Application Settings.
 
 #### Map Interaction Rework
 
-Ever found yourself hovering or clicking something you didn't want to hover or click? Now, each map interaction has a priority for your actions.
+Ever found yourself hovering or clicking something you didn't want to hover or click? Now, each map interaction has a
+priority for your actions.
 
 That also leads to performance improvements, and a MUCH better experience on mobile devices.
 
@@ -80,19 +201,24 @@ That also leads to performance improvements, and a MUCH better experience on mob
 
 Controller Dashboard has been completely reworked, with previous map will be available to view NOTAMs, METARs and TAFs.
 
-Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic Prediction window has been added.
+Dashboard now supports multiple airports, has a quick button to brief for weather and NOTAMs, as well as Traffic
+Prediction window has been added.
 
-You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even share all of these with your ATC colleagues by making dashboard public.
+You can also view enroute traffic, change map location, set color for arriving traffic depending on airport - and even
+share all of these with your ATC colleagues by making dashboard public.
 
 #### Performance Improvements
 
-Map has received a LOT of performance improvements due to internal refactors, and should work much better on any devices. Freezes are still expected when map is zoomed out and multiple words are shown, especially in busy hours.
+Map has received a LOT of performance improvements due to internal refactors, and should work much better on any
+devices. Freezes are still expected when map is zoomed out and multiple words are shown, especially in busy hours.
 
-In case that will not be enough for some, Settings have received a "Performance preset" page, containing settings that affect performance the most, with a way to apply them in one click.
+In case that will not be enough for some, Settings have received a "Performance preset" page, containing settings that
+affect performance the most, with a way to apply them in one click.
 
 #### Website Redesign
 
-Whole website has received a new look - from logo, to fonts. We hope that you love it, and we'll continue to improve design in future.
+Whole website has received a new look - from logo, to fonts. We hope that you love it, and we'll continue to improve
+design in future.
 
 And that are just the highlights! Full changelog is available below.
 
@@ -333,11 +459,13 @@ And that are just the highlights! Full changelog is available below.
 - Add ZDV mapping for ATC Duplication
 - Fixed map settings impossible to save or import if counters were disabled at some point
 - Fixed map settings impossible to save or import if Navigraph Terminal Waypoints were enabled or disabled at some point
-- Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot (for example, 1.35)
+- Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot
+  (for example, 1.35)
 - Fixed some airways not showing as intended
 - Add ZAU Center and TRACONs to ATC duplication
 - Migrated to new FAA NMS API
-- To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is available and pilot is not tuned up to CTAF frequency
+- To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is
+  available and pilot is not tuned up to CTAF frequency
 
 ## 1.2.4.6
 
@@ -392,10 +520,12 @@ This release is focused on a small bug fixes and improvements, including Navigra
 - Added missing helipads to Navigraph Layouts
 - Added apron names for Navigraph Layouts
 - Deicing pads are now less bright in Navigraph Layouts
-- Fixed an issue when distance flown was bigger than intended, leading to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
+- Fixed an issue when distance flown was bigger than intended, leading
+  to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
 - Distance tool layer will now have priority over route line
 - Fixed "infinite" Navigraph Data updating once and for all
-- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are not accepted until further notice, but existing will be supported now)
+- Added missing support for \_TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are
+  not accepted until further notice, but existing will be supported now)
 - Fixed pilot encoding being incorrect in some places by 1849614
 - Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
 - Fixed deicing pads overlapping with taxiway labels
@@ -442,7 +572,8 @@ This release is focused on a small bug fixes and improvements, including Navigra
 - Aircraft icon will now move together with map, not fall behind
 - Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends
   lists, or for next users
-- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when applicable
+- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when
+  applicable
 - You can now hover precisely on aircraft even in "crowded" space
 - All boundaries have been removed from "light" layer
 - It's now much easier to click on aircraft that is close to airport name
@@ -1006,7 +1137,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid
   users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
 - Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed
-  in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
+  in [GNG DB](<https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc>)
   or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 ## 1.0.1.1
@@ -1279,7 +1410,7 @@ Made by Thorsten.
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between
   aircraft sizes
 - Improved model matching for A139-189, C700, C750 by StefBrands
-- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60
+- New aircraft icons from DotWallop: A20N, A338, A339, P28\*, P51, PA24, U2, SR22, GLEX, BE60
 - Significantly reduced data consumption
 - Added copy button to controller frequencies
 - Max showed tracks limit is now 50
@@ -1366,9 +1497,9 @@ Big thanks to Felix and DotWallop for making this release possible!
 #### New aircraft icons
 
 - Updated helicopter icons matching
-- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172,
-  C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10,
-  A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37 (8,9)M, BCS1, C152, C17,
+  C172, C208, C25C, DA40, DC10, DC3, DH8 (A,B,C,D), DHC (2,6,7), EC45, EH10, F (14,15,16,18,22,35), GLID, KODI, SHIP,
+  BALL, A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
 
 #### Arrival rate
 
@@ -1437,8 +1568,8 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed a rare issue when runway text could stay when zooming out
 - Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
 - Fixed an issue when midflight arrival change caused flight path disappear
-- Fixed airport track line disappearing for midflight connections
-  Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
+- Fixed airport track line disappearing for midflight connections Fixed an issue with approach TRACONs could sometimes
+  lead to duplicate empty airport shown on map
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - Improved great circle support for transoceanic flights that had disconnects
 
@@ -1632,7 +1763,7 @@ aircraft that don't have own yet.
 - Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
 - Fixed some gates showing as occupied while they are not
 - Fixed overlay crash when departing on switching between vfr and ifr
-- Fixed _DEP controllers detection fail
+- Fixed \_DEP controllers detection fail
 - Added small horizontal padding to pin icon, so it will be harder to miss a click
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
@@ -1764,7 +1895,7 @@ Planned in future updates:
 ### Bug fixes
 
 - Updated ATIS encoding parse algorithm
-- Moved Boeings 74* icons to B739 icon
+- Moved Boeings 74\* icons to B739 icon
 - Added encoding parsing for pilots names
 - Approach controller popup will now close more easily
 - Pilot offline status should now properly reset after (s)he's back online

@@ -13,7 +13,7 @@
             v-if="multiple"
             size="S"
             type="secondary"
-            @click="delete dataStore.navigraphProcedures.value[props.airport]"
+            @click="[delete dataStore.navigraphProcedures.value[props.airport], triggerRef(dataStore.navigraphProcedures)]"
         >
             Reset all
         </ui-button>
@@ -388,6 +388,8 @@ async function selectAll(key: 'sids' | 'stars') {
 
         transitionsList.value.stars.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
     }
+
+    updateSelection();
 }
 
 watch(selectedAirport, () => {

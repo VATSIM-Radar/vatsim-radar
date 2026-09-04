@@ -99,7 +99,7 @@ export default defineEventHandler(async (event): Promise<IpfsUser | undefined> =
         return;
     }
 
-    let viffData = await $fetch<IpfsUser>(`https://viff-system.network/ifps/callsign?callsign=${ pilot.callsign }&profile=false`, {
+    let viffData = await $fetch<IpfsUser>(`https://api.viffsys.com/ifps/callsign?callsign=${ pilot.callsign }&profile=false`, {
         timeout: 1000 * 10,
     }).catch(() => {});
 
@@ -113,7 +113,7 @@ export default defineEventHandler(async (event): Promise<IpfsUser | undefined> =
         return;
     }
 
-    const url = new URL('https://viff-system.network/ifps/dpi');
+    const url = new URL('https://api.viffsys.com/ifps/dpi');
     url.searchParams.set('callsign', pilot.callsign);
 
     if ('ready' in body) {
@@ -133,7 +133,7 @@ export default defineEventHandler(async (event): Promise<IpfsUser | undefined> =
 
     console.log(url.toString());
 
-    viffData = await $fetch<IpfsUser>(`https://viff-system.network/ifps/callsign?callsign=${ pilot.callsign }&profile=false`, {
+    viffData = await $fetch<IpfsUser>(`https://api.viffsys.com/ifps/callsign?callsign=${ pilot.callsign }&profile=false`, {
         timeout: 1000 * 10,
     }).catch(() => {});
 

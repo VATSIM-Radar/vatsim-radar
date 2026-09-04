@@ -242,6 +242,17 @@ export default defineNuxtConfig({
             globPatterns: [
                 '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
             ],
+            // Aircraft SVGs are selected dynamically and must not all be downloaded
+            // while the service worker is being installed. They are cached by the
+            // runtime caching rule below after the map actually requests them.
+            globIgnores: [
+                'aircraft/*.svg',
+                // Nuxt build assets are content-hashed and cached on first use by
+                // the runtime rule below. Precaching them makes SW installation
+                // fail during rolling deploys if the manifest and asset requests
+                // reach different releases and one old hash already returns 404.
+                'static/**/*',
+            ],
             navigateFallback: null,
             runtimeCaching: [
                 {
@@ -270,8 +281,7 @@ export default defineNuxtConfig({
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
             display: 'standalone',
-            // @ts-expect-error tabbed not supported here
-            display_override: ['window-controls-overlay', 'tabbed', 'standalone'],
+            display_override: ['standalone'],
             start_url: '/',
             dir: 'ltr',
             lang: 'en',
@@ -346,6 +356,7 @@ export default defineNuxtConfig({
             ],
         },
         build: {
+            target: ['chrome140', 'edge140', 'firefox140', 'safari15', 'ios15'],
             cssMinify: 'esbuild',
             rollupOptions: {
                 external: [

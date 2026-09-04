@@ -27,9 +27,10 @@
                 </template>
             </ui-text>
             <template v-if="!controller.isBooking">
-                <div
+                <ui-text
                     class="atc_frequency"
                     :class="{ 'atc_frequency--not-tuned-up': notTunedUp }"
+                    type="caption"
                     @click.prevent.stop="[copy(controller.frequency as string), copiedFor = controller.callsign]"
                 >
                     <template v-if="isCopied(controller.callsign)">
@@ -38,7 +39,7 @@
                     <template v-else>
                         {{controller.frequency}}
                     </template>
-                </div>
+                </ui-text>
                 <a
                     v-if="showSpeaker"
                     class="atc_speaker"
@@ -75,7 +76,7 @@
                 />
                 <ui-chip
                     v-if="showAtis && controller.atis_code"
-                    text-type="caption-medium-alt"
+                    text-type="caption-medium"
                 >
                     Info {{controller.atis_code}}
                 </ui-chip>
@@ -96,7 +97,7 @@
                 type="caption-light"
             >
                 Monitoring
-                <div
+                <ui-text
                     v-for="freq in additionalFrequencies"
                     :key="freq"
                     class="atc_frequency atc_frequency--secondary"
@@ -108,10 +109,10 @@
                     <template v-else>
                         {{freq}}
                     </template>
-                </div>
+                </ui-text>
             </ui-text>
             <template v-if="showAtis && controller.text_atis?.length">
-                <ui-text type="3b-medium-alt">
+                <ui-text type="3b">
                     <ul class="atc__atis">
                         <li
                             v-for="atis in getATIS(controller)"
@@ -343,7 +344,7 @@ const isCopied = (key: string) => {
     }
 
     &__atis {
-        line-height: normal;;
+        font-weight: 400;
         text-transform: none;
     }
 

@@ -42,7 +42,7 @@
             >
                 <ui-bubble
                     class="aircraft-hover__frequency"
-                    :text-type="isShortInfo ? 'caption-light' : undefined"
+                    :text-type="isShortInfo ? 'caption' : undefined"
                     type="primary-flat"
                 >
                     {{ pilot.frequencies[0] }}
@@ -50,6 +50,7 @@
                 <ui-bubble
                     v-if="pilot.frequencies[1] && store.config.airport"
                     class="aircraft-hover__frequency"
+                    text-type="caption"
                     type="primary-flat"
                 >
                     {{ pilot.frequencies[1] }}
@@ -57,6 +58,7 @@
                 <ui-bubble
                     v-if="pilot.transponder && store.config.airport"
                     class="aircraft-hover__frequency"
+                    text-type="caption"
                     type="primary-flat"
                 >
                     {{ pilot.transponder }}
@@ -77,9 +79,9 @@
                                 <ui-text
                                     v-if="friend.comment"
                                     tag="span"
-                                    type="caption-medium"
+                                    type="caption-light"
                                 >
-                                    {{friend.comment}}
+                                    <br> {{friend.comment}}
                                 </ui-text>
                             </template>
                             <template v-else>
@@ -184,7 +186,7 @@ const map = injectMap();
 const properties = computed(() => props.payload.feature.getProperties());
 const isShortInfo = computed(() => getKeyedValueFromSettings('map.preferences.aircraft.shortView'));
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[properties.value.cid.toString()]);
-const friend = computed(() => store.friends.find(x => x.cid === properties.value.cid));
+const friend = computed(() => store.allFriends.find(x => x.cid === properties.value.cid));
 
 // Fallback popup size used until the rendered popup has been measured
 const FALLBACK_POPUP_WIDTH = computed(() => (isShortInfo.value ? 160 : 248));

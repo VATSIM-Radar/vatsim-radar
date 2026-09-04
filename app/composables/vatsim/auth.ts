@@ -28,9 +28,12 @@ export function navigraphAuth() {
 
     window.parent.postMessage({ type: 'external-auth' }, '*');
 
-    nextTick().then(() => {
-        document.location.href = `/api/auth/navigraph/redirect?iframe=${ Number(isIframe.value) }`;
-    });
+    if (isIframe.value) window.open(`/api/auth/navigraph/redirect?iframe=${ Number(isIframe.value) }`);
+    else {
+        nextTick().then(() => {
+            document.location.href = `/api/auth/navigraph/redirect?iframe=${ Number(isIframe.value) }`;
+        });
+    }
 }
 
 export function logout() {

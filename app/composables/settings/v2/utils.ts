@@ -84,9 +84,10 @@ const _settingsDefaultValues = {
     'map.preferences.airports.defaultZoomLevel': 14,
 
     'map.preferences.airports.shortView': false,
-    'map.preferences.airports.showMode': 'staffedAndGroundTraffic',
+    'map.preferences.airports.showMode': 'all',
     'map.preferences.airports.declutterIf': 'unstaffed',
     'map.preferences.airports.ATISAsUnstaffed': false,
+    'map.preferences.airports.showZoomLimit': 6,
     'map.preferences.airports.voiceButton': true,
 
     'map.preferences.airports.groundTraffic.hide': 'lowZoom',
@@ -129,11 +130,12 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.aircraft.main': { color: 'blue500' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
-    'map.preferences.highRatio': false,
+    'map.preferences.mapQuality': 100,
     'map.preferences.favoriteLocation': 'footer',
     'map.preferences.autoFollow': false,
     'map.preferences.autoZoom': false,
     'map.preferences.debugMode': false,
+    'map.preferences.hoverInteraction': 'falseForTablets',
     'map.preferences.featuredDefaultBookmarks': false,
     'map.preferences.skipBookmarkAnimation': false,
     'map.preferences.showTotalDeparturesInFeaturedAirports': false,

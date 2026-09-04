@@ -76,11 +76,22 @@ async function filterFirsForList(list: string[] | undefined, callsign: string) {
             continue;
         }
 
+        const filteredFeatures = features.filter(x => x.properties.oceanic === callsign.endsWith('_FSS'));
+        const selectedFeatures = filteredFeatures.length ? filteredFeatures : features;
+
         result.push({
             fir,
-            feature: features.length === 1
-                ? features[0]
-                : features.find(x => x.properties.oceanic === callsign.endsWith('_FSS')) ?? features[0],
+            // Keep all selected boundary parts in one MultiPolygon so one FIR can
+            // contain several independent sectors without requiring a geometric union.
+            feature: selectedFeatures.length === 1
+                ? selectedFeatures[0]
+                : {
+                    ...selectedFeatures[0],
+                    geometry: {
+                        ...selectedFeatures[0].geometry,
+                        coordinates: selectedFeatures.flatMap(feature => feature.geometry.coordinates),
+                    },
+                },
             symbols: length,
             exact,
         });
@@ -427,8 +438,6 @@ export async function updateControllers(context: DataUpdateContext) {
 
             let dataAirport: DataAirport | undefined;
 
-            if (isApp && !feature && airport?.isPseudo) continue;
-
             if (!airport && feature) {
                 const key = validPrefix ?? feature.properties.id;
                 context.airportsAdded.add(key);
@@ -468,10 +477,14 @@ export async function updateControllers(context: DataUpdateContext) {
 
                 if (similar) similar.booking = controller.booking;
 
-                continue;
+                if (similar || controller.facility !== facilities.APP) {
+                    continue;
+                }
             }
 
-            dataAirport.atc.push({ ...controller, isATIS });
+            if (!dataAirport.atc.some(x => x.cid === controller.cid && x.callsign === controller.callsign)) {
+                dataAirport.atc.push({ ...controller, isATIS });
+            }
         }
     }
 

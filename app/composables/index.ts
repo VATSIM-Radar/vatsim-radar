@@ -19,7 +19,7 @@ import { GeoJSON } from 'ol/format.js';
 import type { WatchOptions } from '@vue/runtime-core';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
-    if (!point[0] || !point[1]) return false;
+    if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) return false;
     return containsCoordinate(extent, point);
 }
 
@@ -388,7 +388,7 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = 'v2.0.0';
+export const updatePopupActive: false | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 
 export function isServer() {
@@ -432,19 +432,18 @@ export function globalComputed<T>(
     return () => _computed;
 }
 
-const iframeCookie = globalComputed(() => useCookie<boolean>('efbx-iframe', {
+export const getIframeCookie = globalComputed(() => useCookie<boolean>('efbx-iframe', {
     secure: true,
     sameSite: 'none',
     path: '/',
     default: () => false,
+    maxAge: 60 * 60 * 24 * 30 * 12,
 }));
 
 export const isIframe = computed(() => {
-    const iframeQuery = useRoute().query.iframe;
+    if (useRoute().query.iframe) return true;
 
-    if (iframeQuery && !iframeCookie().value.value) iframeCookie().value.value = true;
-
-    return iframeCookie().value.value;
+    return getIframeCookie().value.value;
 });
 
 export const isApp = computed(() => {

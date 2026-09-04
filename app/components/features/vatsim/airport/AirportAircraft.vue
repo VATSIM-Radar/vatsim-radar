@@ -80,8 +80,8 @@
                     (pilot.departure && pilot.arrival) ? 'destination': '',
                     pilot.aircraft_faa ?? 'No flight plan',
                     (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
-                    (pilot.eta && aircraftMode !== 'ground' && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
-                    (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
+                    (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground' && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
+                    (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
 
                 ]"
                 class="aircraft__pilot"
@@ -158,6 +158,7 @@ import type { MapAircraftKeys } from '~/types/map';
 import type { PropType } from 'vue';
 import VatsimPilotHours from '~/components/features/vatsim/pilots/VatsimPilotHours.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import { isValidDate } from '~/utils/shared';
 
 const props = defineProps({
     filterRelativeToAircraft: {
@@ -466,6 +467,7 @@ defineExpose({
     }
 
     &__pilot {
+        content-visibility: auto;
         border: 2px solid transparent;
         background: $darkGray700;
         transition: 0.3s;

@@ -267,9 +267,9 @@ const flightPlanItems = computed(() => {
     if (!props.flightPlan) return [];
 
     return ([
-        { title: 'EOBT', text: `${ convertTime(props.flightPlan.deptime ?? '') }z`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.deptime },
-        { title: 'Time Enroute', text: `${ convertTime(props.flightPlan.enroute_time ?? '') }`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.enroute_time },
-        { title: 'Fuel Time', text: `${ convertTime(props.flightPlan.fuel_time ?? '') }`, hide: (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.fuel_time },
+        { title: 'EOBT', text: `${ convertTime(props.flightPlan.deptime ?? '') }z`, hide: !props.status ? false : (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.deptime },
+        { title: 'Time Enroute', text: `${ convertTime(props.flightPlan.enroute_time ?? '') }`, hide: !props.status ? false : (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.enroute_time },
+        { title: 'Fuel Time', text: `${ convertTime(props.flightPlan.fuel_time ?? '') }`, hide: !props.status ? false : (props.status !== 'depGate' && props.status !== 'depTaxi') || !props.flightPlan.fuel_time },
         { title: 'Aircraft Type', text: props.flightPlan.aircraft_faa, hide: !props.flightPlan.aircraft_faa },
         { title: 'Cruise TAS', text: `${ props.flightPlan.cruise_tas } kts`, hide: !props.flightPlan.cruise_tas },
         { title: 'Cruise Altitude', text: props.flightPlan.altitude && !isNaN(Number(props.flightPlan.altitude)) ? `${ numberFormatter.format(+props.flightPlan.altitude) } ft` : props.flightPlan.altitude, hide: !props.flightPlan.altitude },

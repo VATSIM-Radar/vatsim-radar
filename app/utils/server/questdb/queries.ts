@@ -53,6 +53,7 @@ const planFields: QuestDBFlightKey[] = [
     'transponder',
 ];
 const turnsFields: QuestDBFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude', 'fpl_departed_at', 'fpl_arrived_at'];
+const ONLINE_FLIGHT_LOOKBACK = 1000 * 60 * 60 * 36;
 
 function getMainTable() {
     return process.env.QUESTDB_TABLE_MAIN || 'vatsim_tracks';
@@ -235,7 +236,7 @@ export async function getQuestDBOnlineFlightTurns(cid: string, start?: string) {
         cid,
         limit: 1,
         onlineOnly: true,
-        startDate: new Date().getTime() - (1000 * 60 * 60 * 24),
+        startDate: Date.now() - ONLINE_FLIGHT_LOOKBACK,
     });
 
     if (!row) return null;
@@ -271,7 +272,7 @@ ORDER BY ${ sqlIdentifier(getTimestampColumn()) } DESC`;
 export async function getQuestDBOnlineFlightsTurns(cids: number[]) {
     const flights = await getQuestDBLatestFlightForCids({
         cids,
-        startDate: new Date().getTime() - (1000 * 60 * 60 * 24),
+        startDate: Date.now() - ONLINE_FLIGHT_LOOKBACK,
     });
 
     if (!flights.length) return null;

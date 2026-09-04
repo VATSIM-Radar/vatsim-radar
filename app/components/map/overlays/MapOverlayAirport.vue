@@ -120,12 +120,7 @@
                 v-if="dataAirport?.aircraft.arrivals?.length"
                 class="airport__aircraft-toggles"
             >
-                <ui-toggle
-                    :model-value="!!props.overlay.data.showTracks"
-                    @update:modelValue="props.overlay.data.showTracks = $event"
-                >
-                    Show aircraft tracks
-                </ui-toggle>
+                <ui-setting-item :item="getSettingByItem(settingsItems.preferences.traffic.autoShowAirportTracks, { title: 'Show aircraft tracks', description: undefined })"/>
             </div>
             <airport-aircraft
                 :ground-mode="props.overlay.data.aircraftGroundMode"
@@ -171,7 +166,13 @@ import type { PropType, ShallowRef } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
-import { getNavigraphAirportProcedures, sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
+import {
+    getNavigraphAirportProcedures,
+    getSettingsItems,
+    sendUserPreset,
+    showAirportOnMap,
+    useDataStore, useSettingValueFromFunc,
+} from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupContent } from '~/components/popups/PopupOverlay.vue';
@@ -181,7 +182,6 @@ import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/compo
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
-import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import AirportInfo from '~/components/features/vatsim/airport/AirportInfo.vue';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
@@ -202,6 +202,7 @@ import AirportProcedures from '~/components/features/vatsim/airport/AirportProce
 
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import MapOverlayAirportCounts from '~/components/map/overlays/MapOverlayAirportCounts.vue';
+import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
 
 const props = defineProps({
     overlay: {
@@ -211,12 +212,17 @@ const props = defineProps({
 });
 
 const isMobile = useIsMobile();
-
+const settingsItems = getSettingsItems().value;
 const overlayData = computed(() => props.overlay.data);
 provideAirport(overlayData);
 const atc = getATCForAirport(overlayData);
 const aircraft = getAircraftForAirport(overlayData);
 const map = inject<ShallowRef<Map | null>>('map')!;
+const autoTracks = useSettingValueFromFunc('map.traffic.autoShowAirportTracks');
+
+watch(autoTracks, value => {
+    props.overlay.data.showTracks = value;
+});
 
 watch(() => props.overlay.data, () => {
     triggerRef(overlayData);

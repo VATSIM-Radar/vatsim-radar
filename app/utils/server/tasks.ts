@@ -161,7 +161,16 @@ async function vatsimTasks() {
                 },
             });
 
-            radarStorage.vatsimStatic.aliases = Object.fromEntries(aliases.map(x => [x.frequency, x]));
+            radarStorage.vatsimStatic.aliases = Object.fromEntries([
+                ...aliases.map(x => [x.frequency, x]),
+                ...aliases.map(x => {
+                    const split = x.name.split('_');
+
+                    const name = split.length === 3 ? split.slice(0, 2).join('_') : split[0];
+
+                    return [name, x];
+                }),
+            ]);
         }
     }).catch(console.error);
     await defineCronJob('* * * * *', async () => {
@@ -187,7 +196,7 @@ async function vatsimTasks() {
                 notam = {
                     id: new Date(current.started ?? new Date().toISOString()).getTime(),
                     type: NotamType.ANNOUNCEMENT,
-                    text: `VATSIM outage is currently being monitored. The team is continuing to assess service stability. Visit the <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information.`,
+                    text: `VATSIM outage is currently being monitored. The team is continuing to assess service stability. Visit the <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
                     active: true,
                     activeFrom: null,
                     activeTo: null,

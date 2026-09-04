@@ -69,7 +69,7 @@
             <div :key="mapColorsKey">
                 <client-only v-if="ready">
                     <map-selected-procedures v-if="restoredOverlays"/>
-                    <map-minified-overlays v-if="!store.activeDashboard"/>
+                    <map-minified-overlays v-if="!store.activeDashboard && !store.config.airports && !store.config.airport"/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sector-list
                         v-if="!store.config.hideSectors"
@@ -562,6 +562,27 @@ useLazyAsyncData('bookmarks', async () => {
     server: false,
 });
 
+function fetchAndShowBookmark(bookmarkId: number) {
+    return $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId }`).then(bookmark => {
+        if (bookmark) {
+            showBookmark(bookmark.json, map.value);
+        }
+    }).catch(console.error);
+}
+
+// Handles the case where the desktop app is requesting a bookmark. Without this, the bookmark will never
+// trigger because there is no page reload, only a query string change.
+watch(
+    () => route.query.bookmark,
+    async bookmarkQuery => {
+        if (!map.value || !bookmarkQuery) return;
+
+        const bookmarkId = +bookmarkQuery;
+        fetchAndShowBookmark(bookmarkId);
+    },
+    { immediate: true },
+);
+
 watch([isMobile, popups], () => {
     visibleOverlays.value.forEach(x => x._maxHeight = undefined);
     popupsHeight.value = popups.value?.clientHeight ?? 0;
@@ -622,13 +643,19 @@ watch([visibleOverlays, popupsHeight, isMobile], async () => {
 let moving = true;
 let success = false;
 
+function updateMapExtent(view: View) {
+    const nextExtent = view.calculateExtent(map.value!.getSize());
+    if (nextExtent.every((value, index) => value === mapStore.extent[index])) return;
+    mapStore.extent = nextExtent;
+}
+
 async function handleMoveEnd() {
     if (!success) return;
     moving = false;
     const view = map.value!.getView();
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-    mapStore.extent = view.calculateExtent(map.value!.getSize());
+    updateMapExtent(view);
 
     mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 
@@ -660,7 +687,7 @@ async function handleMoveEnd() {
     mapStore.moving = false;
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-    mapStore.extent = view.calculateExtent(map.value!.getSize());
+    updateMapExtent(view);
 
     mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 }
@@ -744,10 +771,7 @@ watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 const pixelRatio = computed(() => {
     if (typeof window === 'undefined') return 1;
-    const value = getKeyedValueFromSettings('map.preferences.highRatio');
-    if (value === 'low') return 1;
-
-    return getKeyedValueFromSettings('map.preferences.highRatio') ? Math.min(window.devicePixelRatio + 1, 3) : Math.min(window.devicePixelRatio, 2);
+    return (window.devicePixelRatio / 100) * getKeyedValueFromSettings('map.preferences.mapQuality');
 });
 
 await setupDataFetch({
@@ -933,9 +957,12 @@ await setupDataFetch({
 
             saveData(airports, aircraft);
         };
-        map.value.on('postrender', postrenderHandler);
 
-        mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+        const throttlePostrenderHandler = useThrottleFn(postrenderHandler, 1000, true);
+
+        map.value.on('postrender', throttlePostrenderHandler);
+
+        updateMapExtent(map.value!.getView());
         mapStore.center = map.value!.getView().getCenter()!;
 
         const targetMouseDownHandler = (event: MouseEvent) => {
@@ -995,7 +1022,7 @@ await setupDataFetch({
             popupsResizeObserver?.disconnect();
             targetElement.removeEventListener('mousedown', targetMouseDownHandler);
             currentMap.un('pointerdrag', pointerDragHandler);
-            currentMap.un('postrender', postrenderHandler);
+            currentMap.un('postrender', throttlePostrenderHandler);
             currentMap.un('movestart', moveStartHandler);
             currentMap.un('moveend', moveEndHandler);
             currentMap.getView().un('change:resolution', resolutionChangeHandler);
@@ -1021,11 +1048,7 @@ await setupDataFetch({
         }
 
         if (bookmarkId.value) {
-            const bookmark = await $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId.value }`).catch(() => {
-            });
-            if (bookmark) {
-                showBookmark(bookmark.json, map.value);
-            }
+            fetchAndShowBookmark(bookmarkId.value);
         }
 
         success = true;

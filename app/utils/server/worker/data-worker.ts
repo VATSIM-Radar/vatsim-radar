@@ -196,7 +196,9 @@ defineCronJob('* * * * * *', async () => {
     try {
         dataProcessInProgress = true;
 
-        radarStorage.vatsim.data = structuredClone(data);
+        const dataSnapshot = data;
+        data = null;
+        radarStorage.vatsim.data = dataSnapshot;
 
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
@@ -313,15 +315,15 @@ defineCronJob('* * * * * *', async () => {
         const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
         const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
 
-        const auNzSectors: typeof allowedDuplicatingSectors = [];
-        const jpSectors: typeof allowedDuplicatingSectors = [];
+        const staticFreqSectors: typeof allowedDuplicatingSectors = [];
+        const dynamicFreqSectors: typeof allowedDuplicatingSectors = [];
 
         for (const sector of allowedDuplicatingSectors) {
-            if (sector.region === 'JP') {
-                jpSectors.push(sector);
+            if (sector.region === 'JP' || sector.region === 'CN') {
+                dynamicFreqSectors.push(sector);
             }
             else if (sector.region === 'AU' || sector.region === 'NZ' || !sector.region) {
-                auNzSectors.push(sector);
+                staticFreqSectors.push(sector);
             }
         }
 
@@ -359,7 +361,7 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // 1. Process AU/NZ duplication (Standard logic)
-            const duplicatedSectors = auNzSectors.filter(x => {
+            const duplicatedSectors = staticFreqSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
                 return controller.text_atis?.some(
@@ -388,11 +390,11 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // VATJPN sector duplication
-            if (jpSectors.length > 0 && controller.text_atis?.length) {
+            if (dynamicFreqSectors.length > 0 && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ');
                 const mainFreqCanon = parseFloat(controller.frequency).toString();
 
-                const extendedJpSectors = jpSectors.filter(s => {
+                const extendedJpSectors = dynamicFreqSectors.filter(s => {
                     const nameRegex = new RegExp(`\\b${ s.name }\\b`, 'i');
                     return nameRegex.test(atisText);
                 });
@@ -443,10 +445,10 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        const pilotCallsigns = new Set(data.pilots.map(p => p?.callsign ?? ''));
-        const atcCallsigns = new Set(data.controllers.map(c => c?.callsign ?? ''));
-        const atisCallsigns = new Set(data.atis.map(a => a?.callsign ?? ''));
-        const prefileCallsigns = new Set(data.prefiles.map(p => p?.callsign ?? ''));
+        const pilotCallsigns = new Set(dataSnapshot.pilots.map(p => p?.callsign ?? ''));
+        const atcCallsigns = new Set(dataSnapshot.controllers.map(c => c?.callsign ?? ''));
+        const atisCallsigns = new Set(dataSnapshot.atis.map(a => a?.callsign ?? ''));
+        const prefileCallsigns = new Set(dataSnapshot.prefiles.map(p => p?.callsign ?? ''));
 
         Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
             if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
@@ -729,7 +731,7 @@ defineCronJob('* * * * * *', async () => {
                 regularData: radarStorage.vatsim.regularData,
                 mandatoryData: radarStorage.vatsim.mandatoryData,
                 extendedPilots: radarStorage.vatsim.extendedPilots,
-                extendedPilotsMap: radarStorage.vatsim.extendedPilotsMap,
+                extendedPilotsMap: {},
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
                 compactDatafeed: radarStorage.vatsim.compactDatafeed,
