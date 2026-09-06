@@ -31,6 +31,9 @@ model User {
   lists                UserTrackingList[]
   messages             UserAcknowledgedMessages[]
   favoriteDashboards   FavoriteDashboard[]
+
+  @@index([discordId])
+  @@index([privateUntil])
 }
 
 model UserToken {
@@ -40,6 +43,8 @@ model UserToken {
   refreshMaxDate    DateTime
   userId            Int
   user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+
+  @@index([refreshMaxDate])
 }
 
 model UserIframeToken {
@@ -48,6 +53,9 @@ model UserIframeToken {
   accessTokenExpire  DateTime
   refreshToken       String
   refreshTokenExpire DateTime
+
+  @@index([refreshToken])
+  @@index([refreshTokenExpire])
 }
 
 model UserRequest {
@@ -86,7 +94,6 @@ model UserPreset {
   lists  UserPresetList[]
 
   @@index([userId, type])
-  @@index([type])
 }
 
 model UserPresetList {
@@ -115,8 +122,6 @@ model UserTrackingList {
   userId     Int
   user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
   presets    UserPresetList[]
-
-  @@index([color])
 }
 
 model Dashboard {
@@ -154,6 +159,8 @@ model Auth {
   discordStrategy DiscordStrategy?
   verifier        String?
   createdAt       DateTime         @default(now())
+
+  @@index([createdAt])
 }
 
 model NavigraphUser {

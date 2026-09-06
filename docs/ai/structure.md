@@ -289,9 +289,12 @@ Prisma schema:
 - `NavigraphUser` and `VatsimUser` attach external account identities/tokens to `User`.
 - `UserPreset` stores map settings, filters, bookmarks, and dashboard bookmarks as JSON.
 - `UserTrackingList` stores friends/achtung/custom user lists.
+- List API lifecycle is implemented by `app/utils/server/handlers/lists.ts` and exposed at `server/api/user/lists`; client mutations go through `app/composables/fetchers/lists.ts`, while `app/store/index.ts` supplies a virtual `FRIENDS` list with `id: 0` when no persisted friends list exists.
 - `UserPresetList` links presets and tracking lists.
 - `UserAcknowledgedMessages` tracks dismissed/acknowledged user messages.
 - `Notams` stores internal NOTAM/announcement records.
+- Database access is concentrated in `app/utils/server/handlers/*`, `app/utils/server/user.ts`, `app/utils/server/h3.ts`, `app/utils/server/tasks.ts`, and `server/api/**`; index coverage for these Prisma filters should be checked against `prisma/schema.prisma` when changing persistence queries.
+- The standalone `UserPreset.type` and `UserTrackingList.color` indexes are currently exercised by startup data migrations in `server/plugins/index.ts` and `server/api/user/settings/v2/migrate.post.ts`, respectively.
 
 Prisma client output is generated into `.nuxt/prisma` and imported via the `#prisma` alias configured in `nuxt.config.ts`.
 
