@@ -330,5 +330,4 @@ export const duplicatingSettings = [
             'PYT': 'MPTO_APP',
           },
     },
-    {
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
