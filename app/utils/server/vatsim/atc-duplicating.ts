@@ -294,7 +294,7 @@ export const duplicatingSettings = [
     {
         description: 'Central Asia TMAs',
         authorCid: 1475694,
-        prefixes: ['UCFM', 'UTAA', 'UZSD', 'UZTR'],
+        c
         suffixes: ['CTR'],
         mapping: {
             UCFM: 'UCFM_APP',
@@ -303,4 +303,33 @@ export const duplicatingSettings = [
             UZTT: 'UZTT_APP',
         },
     },
+    {
+        description: 'MHCC_CTR TRACONs',
+        authorCid: 1794201,
+        prefixes: ['MHCC'],
+        suffixes: ['CTR'],
+        mapping: {
+            'GUA': 'MGGT_APP',
+            'FRS': 'MGMM_APP',
+            'BZE': 'MZBZ_APP',
+            'SAP': 'MHLM_DEP',
+            'LCE': 'MHLC_APP',
+            'RTB': 'MHRO_APP',
+            'TGU': 'MHTG_APP',
+            'SAL': 'MSLP_APP',
+            'MGA': 'MNMG_APP',
+            'LIR': 'MRLB_APP',
+            'SJO': 'MROC_C_APP',
+          },
+    },
+    {
+        description: 'MPZL TRACONs',
+        authorCid: 1794201,
+        prefixes: ['MPZL'],
+        suffixes: ['CTR'],
+        mapping: {
+            'PYT': 'MPTO_APP',
+          },
+    },
+    {
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
