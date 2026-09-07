@@ -328,6 +328,6 @@ export const duplicatingSettings = [
         suffixes: ['CTR'],
         mapping: {
             PYT: 'MPTO_APP',
-            },
         },
+    },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
