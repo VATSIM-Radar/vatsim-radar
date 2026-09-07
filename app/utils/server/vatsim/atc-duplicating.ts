@@ -327,7 +327,7 @@ export const duplicatingSettings = [
         prefixes: ['MPZL'],
         suffixes: ['CTR'],
         mapping: {
-            PYT: 'MPTO_APP',
+            PTY: 'MPTO_APP',
         },
     },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];
