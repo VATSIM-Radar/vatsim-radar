@@ -101,10 +101,19 @@ const options: Record<string, any> = {
     },
     stacked: false,
     scales: {
+        x: {
+            grid: {
+                color: getCurrentThemeHexColor('darkGray100'),
+            },
+        },
         y: {
             type: 'linear',
             display: true,
             position: 'left',
+
+            grid: {
+                color: getCurrentThemeHexColor('darkGray100'),
+            },
         },
         y1: {
             type: 'linear',
@@ -113,6 +122,7 @@ const options: Record<string, any> = {
 
             grid: {
                 drawOnChartArea: false,
+                color: getCurrentThemeHexColor('darkGray100'),
             },
         },
     },

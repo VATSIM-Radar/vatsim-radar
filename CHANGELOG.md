@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.2-1-beta.1]
+
+- Fixed SID being blue after departure
+- Fixed old flight track showing after reconnect in case your new flight had exactly same params as previous
+- Fixed flight plan resetting after reconnecting from empty flight plan and filling old one again
+- Fixed smooth aircraft handling all world aircraft movement instead of currently visible
+- Reduced aircraft update frequency to be only when needed
+- Fixed speed & altitude graph color in light theme
+
 # [2.0.2-final]
 
 ## Features and Improvements
