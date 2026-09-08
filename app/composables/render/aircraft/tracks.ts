@@ -1,7 +1,7 @@
 import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft';
 import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { greatCircleToOl } from '~/utils';
+import { greatCircleToOl, sleep } from '~/utils';
 import { LineString, MultiLineString } from 'ol/geom.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine } from '~/utils/map/entities';
@@ -235,6 +235,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     });
                 }
                 catch (error) {
+                    await sleep(5000);
                     console.error(error);
                 }
 

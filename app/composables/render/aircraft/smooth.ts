@@ -393,6 +393,7 @@ function isDocumentHidden() {
 function frame() {
     try {
         const source = activeSource;
+        const mapStore = useMapStore();
         if (!source) return;
         if (isDocumentHidden()) return;
 
@@ -444,7 +445,7 @@ function frame() {
 
         for (const feature of source.getFeatures()) {
             const properties = feature.getProperties();
-            if (!isMapFeature('aircraft', properties)) continue;
+            if (!isMapFeature('aircraft', properties) || !mapStore.renderedPilots?.includes(properties.cid)) continue;
 
             const cid = properties.cid;
             const track = tracks.get(cid);

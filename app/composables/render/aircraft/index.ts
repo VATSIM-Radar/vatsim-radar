@@ -224,8 +224,23 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled || useDirectCoordinates) existingFeature.getGeometry()!.setCoordinates(coordinates);
-            existingFeature.setProperties(properties);
+            if (!smoothMovementEnabled || useDirectCoordinates) {
+                const geometry = existingFeature.getGeometry()! as Point;
+                const existingCoordinates = geometry.getCoordinates();
+                if (existingCoordinates[0] !== coordinates[0] || existingCoordinates[1] !== coordinates[1]) {
+                    existingFeature.getGeometry()!.setCoordinates(coordinates);
+                }
+
+                const existingProperties = existingFeature.getProperties();
+                let changed = false;
+
+                for (const key in properties) {
+                    // @ts-expect-error dynamic assignment
+                    if (existingProperties[key] !== properties[key]) changed = true;
+                }
+
+                if (changed) existingFeature.setProperties(properties);
+            }
         }
         else {
             const feature = createMapFeature('aircraft', {

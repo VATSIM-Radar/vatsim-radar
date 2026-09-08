@@ -42,11 +42,13 @@ const flightKeys = Object.keys({
 
 const planFields: QuestDBFlightKey[] = [
     'callsign',
+    'groundspeed',
     'fpl_arrival',
     'fpl_departure',
     'fpl_departure_time',
     'fpl_enroute_time',
     'fpl_revision',
+    'fpl_route',
     'heading',
     'name',
     'qnh_mb',
@@ -54,6 +56,8 @@ const planFields: QuestDBFlightKey[] = [
 ];
 const turnsFields: QuestDBFlightKey[] = ['altitude', 'groundspeed', 'latitude', 'longitude', 'fpl_departed_at', 'fpl_arrived_at'];
 const ONLINE_FLIGHT_LOOKBACK = 1000 * 60 * 60 * 36;
+const GROUND_SPEED_LIMIT = 50;
+const PLAN_RESUBMISSION_GAP = 1000 * 60 * 60 * 2;
 
 function getMainTable() {
     return process.env.QUESTDB_TABLE_MAIN || 'vatsim_tracks';
@@ -138,11 +142,46 @@ function hasLowerRevisionWithSameCallsign(row: QuestDBFlight, nextRow: QuestDBFl
         row.fpl_revision > nextRow.fpl_revision;
 }
 
+function isSimilarFlightPlan(row: QuestDBFlight, nextRow: QuestDBFlight | undefined) {
+    return (
+        nextRow?.callsign === row.callsign && (
+            !!row.fpl_departure_time &&
+                !!nextRow.fpl_departure_time &&
+                (nextRow.fpl_departure_time === row.fpl_departure_time || (nextRow.fpl_departure === row.fpl_departure && nextRow.fpl_arrival === row.fpl_arrival)) &&
+                nextRow.fpl_enroute_time === row.fpl_enroute_time
+        )
+    ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign);
+}
+
+function findAdjacentPlan(rows: QuestDBFlight[], index: number, direction: -1 | 1, callsign: string | undefined) {
+    for (let adjacentIndex = index + direction; adjacentIndex >= 0 && adjacentIndex < rows.length; adjacentIndex += direction) {
+        const candidate = rows[adjacentIndex];
+
+        if (candidate.callsign !== callsign) return undefined;
+        if (candidate.fpl_arrival) return candidate;
+    }
+
+    return undefined;
+}
+
+function isGroundPlanResubmission(row: QuestDBFlight, previousRow: QuestDBFlight | undefined) {
+    return isSimilarFlightPlan(row, previousRow) &&
+        row.fpl_route === previousRow?.fpl_route &&
+        row.time - (previousRow?.time || row.time) > PLAN_RESUBMISSION_GAP &&
+        row.groundspeed !== null && row.groundspeed !== undefined && row.groundspeed < GROUND_SPEED_LIMIT &&
+        row.fpl_revision === 1;
+}
+
 export function filterRows(rows: QuestDBFlight[]): QuestDBFlight[] {
     return rows.filter((row, index) => {
+        const previousRow = findAdjacentPlan(rows, index, -1, row.callsign);
         const nextRow = rows[index + 1];
+        const nextPlan = findAdjacentPlan(rows, index, 1, row.callsign);
 
+        // Keep the new snapshot and remove its older identical snapshot.
+        if (previousRow && isGroundPlanResubmission(previousRow, row)) return false;
         if (nextRow && hasLowerRevisionWithSameCallsign(row, nextRow)) return false;
+        if (nextPlan && isGroundPlanResubmission(row, nextPlan)) return true;
         if (!nextRow) return true;
 
         const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival;
@@ -150,16 +189,7 @@ export function filterRows(rows: QuestDBFlight[]): QuestDBFlight[] {
 
         if (isNew && !isFplnChange) return true;
 
-        const similarRow = (
-            nextRow?.callsign === row.callsign && (
-                !!row.fpl_departure_time &&
-                    !!nextRow.fpl_departure_time &&
-                    (nextRow.fpl_departure_time === row.fpl_departure_time || (nextRow.fpl_departure === row.fpl_departure && nextRow.fpl_arrival === row.fpl_arrival)) &&
-                    nextRow.fpl_enroute_time === row.fpl_enroute_time
-            )
-        ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
-            ? rows[index + 1]
-            : null;
+        const similarRow = isSimilarFlightPlan(row, nextRow) ? nextRow : null;
 
         return !similarRow;
     });
