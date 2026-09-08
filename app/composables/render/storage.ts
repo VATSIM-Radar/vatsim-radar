@@ -13,6 +13,7 @@ import type {
 import { getCurrentInstance } from 'vue';
 import type { Ref, ShallowRef } from 'vue';
 import type {
+    DataImagesType,
     RadarDataAirline,
     Sigmets,
     SimAwareDataFeature, VatglassesData,
@@ -271,6 +272,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
+    imagesData: DataImagesType;
     navigraphWaypoints: Ref<Record<string, PilotNavigraphWaypoints>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
@@ -326,6 +328,11 @@ const dataStore: UseDataStore = {
     sigmets,
     airlines: (icao, virtual?: boolean) => {
         return clientDB.airlines.get(`${ icao }${ virtual ? '-virtual' : '' }`) as Promise<RadarDataAirline>;
+    },
+    imagesData: {
+        airlines: [],
+        countries: [],
+        countriesData: [],
     },
     navigraphWaypoints: waypoints,
     navigraphProcedures,

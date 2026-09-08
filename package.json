@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "2.0.2-final",
+  "version": "2.0.2-1-beta.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,6 +21,7 @@
     "lint:fix": "yarn stylelint:fix && yarn lint:ts:fix",
     "lint": "yarn stylelint && yarn lint:ts",
     "typecheck": "nuxt typecheck",
+    "fetch:flags": "tsx scripts/fetch-flags.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"

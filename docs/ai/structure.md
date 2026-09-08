@@ -275,7 +275,7 @@ Background tasks:
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Nitro's Navigraph data/item/procedure endpoints perform local readiness and subscription checks, then stream the worker response through `app/utils/server/h3.ts` without parsing the JSON in the main application. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
-- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables; `converters.ts` emits structured write rows for the official QuestDB Node.js client and can serialize rows to ILP text for the debug data endpoint.
+- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables, filters duplicate flight-plan snapshots (including plan re-submission after a temporary missing-plan snapshot), and selects plan-time groundspeed/route for lifecycle decisions; `converters.ts` emits structured write rows for the official QuestDB Node.js client and can serialize rows to ILP text for the debug data endpoint.
   - Public pilot track reads enter through `server/api/data/vatsim/pilot/[cid]/turns.ts`; each read resolves the current flight from the plans table and then reads turn points from the main tracks table.
   - Client-side aircraft track fetching is driven by `app/components/map/layers/MapAircraftList.vue` and `app/composables/render/aircraft/tracks.ts`. Airport/pilot overlays and hover can request full tracks; per-aircraft refresh is capped at 15 seconds in the browser state.
 
@@ -312,6 +312,8 @@ Types:
 Shared utility split:
 
 - `app/utils/shared/*`: safe for client and server. Flight math, VATSIM helpers, runway detection.
+- `app/utils/shared/country-codes.ts`: country-of-registration lookup for aircraft overlays. `usePilotCountry` returns a computed `{ country, isVfr, isIfr }` consumed by `MapPilotOverlay.vue` (header flag) and `PilotOverlayFlightPlan.vue` (registration flag); `getCountryFromCallsignOrReg`, `getFlagUrl`, and `formatRegistration` are shared helpers.
+- `../../app/utils/shared/images.ts`: resolves 3-letter ICAO airline prefixes to local `/logos/{code}.png` URLs with a fallback chain.
 - `app/utils/data/*`: domain transforms/helpers used mostly around data/rendering.
 - `app/utils/db/*`: database-facing helper types/functions.
 - `app/utils/server/*`: server-only code; do not import into browser-only code.
@@ -326,15 +328,18 @@ Custom Nuxt modules:
 
 - `modules/index.ts` aliases VueUse `useStorage` as `useStorageLocal`.
 - `modules/icons.ts` processes SVG/PNG assets with Sharp/SVGO, generates public aircraft icons, and writes `.nuxt/radar/icons.ts`.
+- `modules/airline-logos.ts` reads `app/data/airline-logo-overrides.json` and fetches airline logos from AirHex during `yarn dev`/`yarn build`, writing optimized PNGs into `public/logos/{CODE}.png` and exporting an `airlineLogos` Set consumed by `../../app/utils/shared/images.ts`.
 - `modules/styles.ts` generates SCSS color variables and `.nuxt/radar/colors.ts` imports from `app/utils/colors.ts`.
 
 Assets:
 
 - `app/assets/icons/**`: source SVG icons.
 - `public/aircraft/**`: generated/public aircraft icons.
+- `public/logos/**`: generated airline logo PNGs, committed so production builds need no external image CDN.
+- `public/flags/**`: country flag PNGs downloaded via `yarn fetch:flags` (`scripts/fetch-flags.ts`), also committed.
 - `public/icons/**`: public map icons and compressed/generated variants.
 - `app/assets/fonts/**` and `app/scss/**`: fonts and global style variables.
-- `app/data/`: local data directory placeholder.
+- `app/data/`: local data directory placeholder; `airline-logo-overrides.json` here is an exception to the `app/data` scan exclusion because the logos module reads it explicitly.
 
 Do not hand-edit generated files under `.nuxt` or public generated icon outputs unless the generation pipeline is also updated.
 
