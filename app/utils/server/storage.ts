@@ -15,6 +15,7 @@ import type { cycles } from '~/utils/server/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
+import type { CountryCodeEntry } from '~/utils/shared/images.ts';
 
 export interface SimAwareProperties {
     id: string;
@@ -238,6 +239,12 @@ export interface VatsimStorage {
     };
 }
 
+export interface DataImagesType {
+    airlines: string[];
+    countries: string[];
+    countriesData: CountryCodeEntry[];
+}
+
 export interface RadarStorage {
     vatspy: {
         version: string;
@@ -276,6 +283,7 @@ export interface RadarStorage {
     navigraphSetUp: boolean;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
+    images: DataImagesType;
 }
 
 export const radarStorage: RadarStorage = {
@@ -307,7 +315,7 @@ export const radarStorage: RadarStorage = {
         bookings: [],
         tracks: [],
         achievements: [],
-        aliases: [],
+        aliases: {},
     },
     vatsim: {
         data: null,
@@ -335,6 +343,11 @@ export const radarStorage: RadarStorage = {
         airlines: {},
         virtual: {},
         all: {},
+    },
+    images: {
+        airlines: [],
+        countries: [],
+        countriesData: [],
     },
 };
 

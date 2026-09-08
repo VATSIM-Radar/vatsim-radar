@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.2-1-beta.2]
+
+- Add country flags and airline logos to aircraft overlays by webdevcode-git
+
 # [2.0.2-1-beta.1]
 
 - Fixed SID being blue after departure

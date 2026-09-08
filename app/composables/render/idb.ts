@@ -2,6 +2,7 @@ import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { Table } from 'dexie';
 import Dexie from 'dexie';
 import type {
+    DataImagesType,
     RadarDataAirline,
     RadarDataAirlinesAllList,
     SimAwareAPIData,
@@ -46,7 +47,7 @@ export interface IDBVatGlassesCombinedCacheEntry {
 }
 
 class VatsimRadarDB extends Dexie {
-    data!: Table<IDBVatSpyData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
+    data!: Table<IDBVatSpyData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData | DataImagesType, string>;
 
     vatspyBoundaries!: Table<IDBVatSpyBoundary, string>;
 
