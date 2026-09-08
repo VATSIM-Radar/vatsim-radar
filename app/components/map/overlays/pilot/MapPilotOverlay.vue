@@ -296,7 +296,6 @@ import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlay
 import { boundingExtent, getCenter } from 'ol/extent.js';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
 import { useCopyText } from '~/composables';
-import UiIcon from '~/components/ui/data/UiIcon.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
