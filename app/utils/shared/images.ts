@@ -9,7 +9,7 @@ export function getAirlineLogoUrl(callsign?: string | null): string | null {
     const code = callsign.toUpperCase().match(/^([A-Z]{3})/)?.[1];
     if (!code || !useDataStore().imagesData.airlines.includes(code)) return null;
 
-    return `https://data.vatsim-radar.com/images/logos/${ code }.png`;
+    return `https://data.vatsim-radar.com/images/logos/${ code }.png?v=1`;
 }
 
 export interface CountryCodeEntry {

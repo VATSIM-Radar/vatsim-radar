@@ -46,12 +46,14 @@
                     :title="`${ country.country.name || country.country.countryCode } (${ country.country.prefix })`"
                 >
                 <div class="pilot-header_title">
-                    <img
-                        v-if="airlineLogoUrl"
-                        alt="Airline logo"
-                        class="pilot_airline_logo"
-                        :src="airlineLogoUrl"
-                    >
+                    <div  class="pilot_airline_logo-wrapper">
+                        <img
+                            v-if="airlineLogoUrl"
+                            alt="Airline logo"
+                            class="pilot_airline_logo"
+                            :src="airlineLogoUrl"
+                        >
+                    </div>
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -294,6 +296,7 @@ import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlay
 import { boundingExtent, getCenter } from 'ol/extent.js';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
 import { useCopyText } from '~/composables';
+import UiIcon from '~/components/ui/data/UiIcon.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
@@ -782,10 +785,15 @@ onMounted(() => {
 
         width: 24px;
         height: 24px;
-        margin-right: 6px;
         border-radius: 2px;
 
         object-fit: contain;
+
+        &-wrapper {
+            margin-right: 4px;
+            border-radius: 4px;
+            background: $whiteOrig;
+        }
     }
 
     &_header {
