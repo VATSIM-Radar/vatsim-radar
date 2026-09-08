@@ -1,8 +1,16 @@
 import { computed } from 'vue';
 import type { Ref } from 'vue';
-import rawCountryCodes from '~/data/country_codes.json';
-import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
-import { getFlightPlanParam } from '~/utils/shared/vatsim';
+import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim.ts';
+import { getFlightPlanParam } from '~/utils/shared/vatsim.ts';
+
+export function getAirlineLogoUrl(callsign?: string | null): string | null {
+    if (!callsign) return null;
+
+    const code = callsign.toUpperCase().match(/^([A-Z]{3})/)?.[1];
+    if (!code || !useDataStore().imagesData.airlines.includes(code)) return null;
+
+    return `https://data.vatsim-radar.com/images/logos/${ code }.png`;
+}
 
 export interface CountryCodeEntry {
     prefix: string;
@@ -17,24 +25,26 @@ interface PreparedPrefix {
     original: CountryCodeEntry;
 }
 
-const PREPARED_CODES: PreparedPrefix[] = (rawCountryCodes as CountryCodeEntry[])
-    .map(item => {
-        const cleanPrefix = (item.prefix || '').replace(/-/g, '').trim().toUpperCase();
-        return {
-            cleanPrefix,
-            length: cleanPrefix.length,
-            original: item,
-        };
-    })
-    .filter(entry => entry.cleanPrefix.length > 0)
-    .sort((a, b) => b.length - a.length);
+let preparedCodes: PreparedPrefix[] | undefined;
 
 export function getCountryFromCallsignOrReg(input?: string | null): CountryCodeEntry | null {
     if (!input) return null;
 
+    preparedCodes ??= useDataStore().imagesData.countriesData
+        .map(item => {
+            const cleanPrefix = (item.prefix || '').replace(/-/g, '').trim().toUpperCase();
+            return {
+                cleanPrefix,
+                length: cleanPrefix.length,
+                original: item,
+            };
+        })
+        .filter(entry => entry.cleanPrefix.length > 0)
+        .sort((a, b) => b.length - a.length);
+
     const searchInput = input.replace(/-/g, '').trim().toUpperCase();
 
-    for (const entry of PREPARED_CODES) {
+    for (const entry of preparedCodes) {
         if (!searchInput.startsWith(entry.cleanPrefix)) continue;
 
         const afterLength = entry.original.afterPrefixLength;
@@ -49,7 +59,7 @@ export function getCountryFromCallsignOrReg(input?: string | null): CountryCodeE
 }
 
 export function getFlagUrl(countryCode: string): string {
-    return `/flags/${ countryCode.toLowerCase() }.png`;
+    return `https://data.vatsim-radar.com/images/flags/${ countryCode.toLowerCase() }.png`;
 }
 
 export function formatRegistration(registration: string | number | null | undefined, country: CountryCodeEntry | null): string {

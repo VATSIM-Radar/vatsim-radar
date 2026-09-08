@@ -180,8 +180,6 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
-import type { CountryCodeEntry } from '~/utils/shared/country-codes';
-import { getFlagUrl, formatRegistration } from '~/utils/shared/country-codes';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
@@ -196,6 +194,8 @@ import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { playSelcal } from '~/utils/shared/selcal';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
+import { formatRegistration, getFlagUrl } from '~/utils/shared/images.ts';
+import type { CountryCodeEntry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     flightPlan: {

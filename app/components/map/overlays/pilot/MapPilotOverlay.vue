@@ -312,8 +312,7 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
-import { usePilotCountry, getFlagUrl } from '~/utils/shared/country-codes';
-import { getAirlineLogoUrl } from '~/utils/shared/airline-logos';
+import { getAirlineLogoUrl, getFlagUrl, usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     overlay: {

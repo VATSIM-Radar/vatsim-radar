@@ -1,18 +1,27 @@
 import { getTransceiverData } from '~/utils/server/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
-import type { RadarDataAirline, RadarDataAirlineAll, RadarDataAirlinesList } from '~/utils/server/storage';
+import type {
+    DataImagesType,
+    RadarDataAirline,
+    RadarDataAirlineAll,
+    RadarDataAirlinesList,
+} from '~/utils/server/storage';
 import { radarStorage } from '~/utils/server/storage';
 import { wss } from '~/utils/server/vatsim/ws';
 import type {
+    VatsimAchievementList,
+    VatsimBooking,
+    VatsimBookingData,
+    VatsimController,
+    VatsimDivision,
     VatsimExtendedPilot,
     VatsimMandatoryData,
+    VatsimNattrak,
+    VatsimPrefile,
     VatsimShortenedAircraft,
-    VatsimTransceiver,
-    VatsimBookingData,
-    VatsimBooking,
-    VatsimDivision,
+    VatsimShortenedController,
     VatsimSubDivision,
-    VatsimShortenedController, VatsimController, VatsimNattrak, VatsimAchievementList, VatsimPrefile,
+    VatsimTransceiver,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getFacilityByCallsign, getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -437,6 +446,13 @@ export async function updateAirlines() {
         },
     };
     await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
+}
+
+export async function updateAirlinesCodes() {
+    radarStorage.images = await $fetch<DataImagesType>(!isDebug() ? 'http://data:3000/images' : 'https://data.vatsim-radar.com/images', {
+        retry: 3,
+    });
+    await setRedisData('data-images', radarStorage.images, 1000 * 60 * 60 * 24 * 7);
 }
 
 function parseCoordinates(input: string) {
