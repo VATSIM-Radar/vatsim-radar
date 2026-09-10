@@ -266,7 +266,7 @@ export function setAirportStyle(layer: VectorLayer) {
             }
         }
 
-        if (!isHideAtcType('ground') && mapStore.renderedAirports?.includes(properties.icao)) {
+        if (!isHideAtcType('ground') && mapStore.renderedAirports?.has(properties.icao)) {
             if (isMapFeature('airport-atc', properties)) {
                 let letter: string | undefined;
 

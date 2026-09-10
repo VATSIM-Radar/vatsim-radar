@@ -88,7 +88,7 @@ const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type 
 // Pilot overlays whose aircraft should highlight + draw tracks (excludes "parked" minimized mobile chips).
 const activePilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot' && !isPilotOverlayParked(x)).map(x => +x.key));
 const airportOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'airport' && x.data.showTracks).map(x => x.key));
-const renderedPilots = computed(() => useMapStore().renderedPilots?.length);
+const renderedPilots = computed(() => useMapStore().renderedPilots?.size);
 
 const aircraftStyleSettings = computed(() => JSON.stringify([
     store.theme,
@@ -110,7 +110,7 @@ const aircraftStyleSettings = computed(() => JSON.stringify([
     activePilotsOverlays.value,
     ownFlight.value?.cid,
     !!mapStore.renderedPilots,
-    mapStore.renderedPilots?.length,
+    mapStore.renderedPilots?.size,
 ]));
 
 watch(aircraftStyleSettings, () => {

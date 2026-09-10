@@ -263,11 +263,11 @@ const autoFollow = useSettingValueFromFunc('map.preferences.autoFollow');
 const autoZoom = useSettingValueFromFunc('map.preferences.autoZoom');
 const vatglassesAutoLevel = useSettingValueFromFunc('map.vatglasses.autoLevel');
 const queryUpdateEnabled = useSettingValueFromFunc('map.preferences.enableQueryUpdate');
-function isSameSetAsArray<T>(set: Set<T>, list: T[] | null) {
-    if (!list || set.size !== list.length) return false;
+function isSameSet<T>(set: Set<T>, current: Set<T> | null) {
+    if (!current || set.size !== current.size) return false;
 
-    for (const item of list) {
-        if (!set.has(item)) return false;
+    for (const item of set) {
+        if (!current.has(item)) return false;
     }
 
     return true;
@@ -929,11 +929,11 @@ await setupDataFetch({
         map.value.on('pointerdrag', pointerDragHandler);
 
         const saveData = useThrottleFn((airports: Set<string>, aircraft: Set<number>) => {
-            if (!isSameSetAsArray(airports, mapStore.renderedAirports)) {
-                mapStore.renderedAirports = Array.from(airports);
+            if (!isSameSet(airports, mapStore.renderedAirports)) {
+                mapStore.renderedAirports = new Set(airports);
             }
-            if (!isSameSetAsArray(aircraft, mapStore.renderedPilots)) {
-                mapStore.renderedPilots = Array.from(aircraft);
+            if (!isSameSet(aircraft, mapStore.renderedPilots)) {
+                mapStore.renderedPilots = new Set(aircraft);
             }
         }, 250, true);
 

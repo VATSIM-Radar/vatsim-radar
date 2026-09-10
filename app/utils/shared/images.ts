@@ -92,27 +92,11 @@ export function usePilotCountry(pilot: Ref<VatsimExtendedPilot | VatsimPrefile |
         const flightPlan = 'flight_plan' in pilot.value ? pilot.value.flight_plan : undefined;
         const rules = flightPlan?.flight_rules?.toUpperCase();
 
-        if (rules === 'I') {
-            const registration = getFlightPlanParam(flightPlan?.remarks, 'REG');
-            return {
-                country: registration ? getCountryFromCallsignOrReg(registration) : null,
-                isVfr: false,
-                isIfr: true,
-            };
-        }
-
-        if (rules === 'V') {
-            return {
-                country: getCountryFromCallsignOrReg(pilot.value.callsign),
-                isVfr: true,
-                isIfr: false,
-            };
-        }
-
+        const registration = getFlightPlanParam(flightPlan?.remarks, 'REG');
         return {
-            country: null,
-            isVfr: false,
-            isIfr: false,
+            country: registration ? getCountryFromCallsignOrReg(registration) : null,
+            isVfr: rules !== 'I',
+            isIfr: rules === 'I',
         };
     });
 }

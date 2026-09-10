@@ -209,7 +209,7 @@ onMounted(() => {
         getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals'),
         getKeyedValueFromSettings('map.preferences.airports.showZoomLimit'),
     ]));
-    const mapRender = computed(() => !mapStore.renderedAirports?.length);
+    const mapRender = computed(() => !mapStore.renderedAirports?.size);
 
     const renderAirports = useThrottleFn(async () => {
         if (isHideMapObject('airports')) {

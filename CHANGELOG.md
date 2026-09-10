@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.2-1-beta.3]
+
+## QA Changes
+
+- Moved logo from top left to operator line
+- Removed logo for VAs
+- Changed country matching to be by registration ONLY
+- Added registration country to operator
+- Fixed various issues with aircraft having too small size or teleporting with animation
+
 # [2.0.2-1-beta.2]
 
 - Add country flags and airline logos to aircraft overlays by webdevcode-git

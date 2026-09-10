@@ -76,7 +76,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 - `ViewMap` owns only the default OpenLayers interactions and the distance starter interaction. It must remove only those managed interactions when distance settings change, because `MapSelect` and `MapDistance` add their own interactions later and will not re-register them after a blanket clear. The distance tool starts from OpenLayers `dblclick`/CTRL pointer events, not by manually timing two `pointerdown` events.
 - On touch devices, the distance tool always starts only from OpenLayers `dblclick`, irrespective of a desktop-saved CTRL+Click preference. Single taps must continue to reach map selection, and double-tap zoom remains disabled while the ruler is enabled.
-- Map render hot paths should avoid rebuilding reactive arrays or doing `Array.includes` per OpenLayers feature. Keep `renderedAirports`/`renderedPilots` assignments stable when declutter output has not changed, and use per-render `Set` lookups for visible airport/pilot membership checks.
+- Map render hot paths should avoid rebuilding reactive collections or doing linear membership scans per OpenLayers feature. Keep `renderedAirports`/`renderedPilots` assignments stable when declutter output has not changed; they are `Set` instances so visible airport/pilot membership checks stay constant-time.
 - `ViewMap` must dispose its OpenLayers `Map` on component teardown after child map layers unmount. Route changes and settings preview iframes can create fresh map instances, so `postrender`/move listeners, DOM listeners, resize observers, map target, and rendered feature snapshots must be cleaned to avoid accumulated render loops and FPS degradation.
 
 ## Server Data And Storage
@@ -136,6 +136,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 - Own-flight `selfCoordinate` updates participate in the smooth RAF loop as a direct target, not as mandatory track samples. Keep own-flight in smooth displayed-coordinate reuse so route/line endpoints use the same displayed coordinate, but do not feed `selfCoordinate` into delayed mandatory interpolation/extrapolation.
 - Smooth position EMA must snap to the target once the remaining distance is tiny. Otherwise the exponential tail makes aircraft appear to crawl slowly toward the final point after the large correction is already visually complete.
 - Smooth aircraft movement must reset each track to the first fresh mandatory-data position after a 10-second snapshot gap, so returning to a stale tab snaps aircraft to current coordinates instead of animating across the missed interval. Moving aircraft extrapolation is capped at 10 seconds to bridge longer mandatory-feed delays without allowing aircraft to drift forever during an active-tab API/WebSocket outage.
+- `renderedPilots` is a throttled OpenLayers declutter result, so it must not be used as a smooth-track timestamp or source of truth. If an off-screen aircraft is updated directly from mandatory data, its interpolation samples/displayed-coordinate accumulator must be reseeded at the same time; otherwise revealing it briefly renders the stale geometry and then animates from the stale smooth target.
 
 ## Workers And Server Configuration
 
@@ -177,4 +178,3 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 - `PopupFullscreen` must route close events from its inner `PopupMapInfo` title close button through `closePopup()`, not direct model assignment, so one-way `model-value` usages still update fullscreen `localValue`, animation, overflow state, and external emits consistently with backdrop, Escape, and top-right close.
 - Map booking lookahead (`map.bookings.hours`) limits which booking starts are shown, not the displayed end of an already selected booking. For one callsign, an active booking takes priority over later bookings in the lookahead window, and overlapping or exactly adjacent bookings form one continuous `Booked until` interval even when their controller CIDs differ.
-

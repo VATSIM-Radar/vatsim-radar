@@ -224,23 +224,25 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled || useDirectCoordinates) {
+            if (!smoothMovementEnabled || useDirectCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
                 const geometry = existingFeature.getGeometry()! as Point;
                 const existingCoordinates = geometry.getCoordinates();
                 if (existingCoordinates[0] !== coordinates[0] || existingCoordinates[1] !== coordinates[1]) {
                     existingFeature.getGeometry()!.setCoordinates(coordinates);
                 }
-
-                const existingProperties = existingFeature.getProperties();
-                let changed = false;
-
-                for (const key in properties) {
-                    // @ts-expect-error dynamic assignment
-                    if (existingProperties[key] !== properties[key]) changed = true;
-                }
-
-                if (changed) existingFeature.setProperties(properties);
             }
+
+            const existingProperties = existingFeature.getProperties();
+            let changed = false;
+
+            for (const key in properties) {
+                if (key === 'coordinates') continue;
+
+                // @ts-expect-error dynamic assignment
+                if (existingProperties[key] !== properties[key]) changed = true;
+            }
+
+            if (changed) existingFeature.setProperties(properties);
         }
         else {
             const feature = createMapFeature('aircraft', {

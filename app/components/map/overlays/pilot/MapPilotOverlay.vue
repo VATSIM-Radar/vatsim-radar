@@ -38,22 +38,7 @@
                     :color="radarColors[getStatus.color]"
                     :type="isOffline ? 'offline' : 'online'"
                 />
-                <img
-                    v-if="country.country && country.isVfr"
-                    :alt="country.country.name || country.country.countryCode"
-                    class="pilot_flag"
-                    :src="getFlagUrl(country.country.countryCode)"
-                    :title="`${ country.country.name || country.country.countryCode } (${ country.country.prefix })`"
-                >
                 <div class="pilot-header_title">
-                    <div  class="pilot_airline_logo-wrapper">
-                        <img
-                            v-if="airlineLogoUrl"
-                            alt="Airline logo"
-                            class="pilot_airline_logo"
-                            :src="airlineLogoUrl"
-                        >
-                    </div>
                     {{ pilot.callsign }}
                 </div>
                 <ui-bubble
@@ -314,7 +299,7 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
-import { getAirlineLogoUrl, getFlagUrl, usePilotCountry } from '~/utils/shared/images.ts';
+import { usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     overlay: {
@@ -365,8 +350,6 @@ const ctafFrequency = computed(() => {
 const pilot = computed(() => props.overlay.data.pilot);
 
 const country = usePilotCountry(pilot);
-
-const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value?.callsign));
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
@@ -772,29 +755,6 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .pilot {
-    &_flag {
-        width: auto;
-        height: 14px;
-        border-radius: 2px;
-        object-fit: contain;
-    }
-
-    &_airline_logo {
-        flex-shrink: 0;
-
-        width: 24px;
-        height: 24px;
-        border-radius: 2px;
-
-        object-fit: contain;
-
-        &-wrapper {
-            margin-right: 4px;
-            border-radius: 4px;
-            background: $whiteOrig;
-        }
-    }
-
     &_header {
         display: flex;
         gap: 8px;
