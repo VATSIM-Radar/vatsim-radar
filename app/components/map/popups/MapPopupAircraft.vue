@@ -162,7 +162,6 @@ import { clampOverlayPositioning, overlayPositionFromHeading } from '~/utils/map
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiText from '~/components/ui/text/UiText.vue';
-import { getAirlineLogoUrl, usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     payload: {
