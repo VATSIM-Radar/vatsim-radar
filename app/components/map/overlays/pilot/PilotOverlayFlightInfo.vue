@@ -528,6 +528,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         }
 
         &--logo {
+            border-radius: 0;
             filter:
                 drop-shadow(0 0 0.4px rgb(0, 0, 0, 0.35));
         }

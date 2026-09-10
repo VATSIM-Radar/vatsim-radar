@@ -381,13 +381,14 @@ const flightPlanItems = computed(() => {
 
     .registration_wrapper {
         display: inline-flex;
-        gap: 6px;
+        flex-wrap: wrap;
+        gap: 4px;
         align-items: center;
     }
 
     .registration_flag {
-        width: auto;
-        height: 14px;
+        width: 16px;
+        min-width: 16px;
         border-radius: 2px;
         object-fit: contain;
     }
