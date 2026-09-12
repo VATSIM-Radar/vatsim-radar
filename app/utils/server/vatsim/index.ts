@@ -128,7 +128,7 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
             if (nameAlias && nameAlias.frequency === x.frequency) {
                 frequency = parseFloat((nameAlias.frequencyAlias / 1000000).toFixed(3)).toString();
             }
-            else {
+            else if (x.frequency.toString().length < 9) {
                 frequency = parseFloat((radarStorage.vatsimStatic.aliases[x.frequency].frequencyAlias / 1000000).toFixed(3)).toString();
             }
         }

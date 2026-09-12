@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.3-rc.2]
+
+- Fixed rare issues when frequencies were replacing with incorrect ones (For example, 124.300 showed for LFMN_TWR instead of 118.700)
+
 # [2.0.3-rc.1]
 
 ## QA Changes
