@@ -63,6 +63,7 @@ export function serializeClass<T extends string | null | undefined>(className: T
 
 export function turfGeometryToOl(feature: Feature<GeoMultiPolygon>): MultiPolygon;
 export function turfGeometryToOl(feature: Feature<GeoPolygon>): Polygon;
+export function turfGeometryToOl(feature: Feature<GeoPolygon | GeoMultiPolygon>): Polygon | MultiPolygon;
 export function turfGeometryToOl(feature: Feature<GeoPoint>): Point;
 export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString>): LineString | MultiLineString;
 export function turfGeometryToOl(feature: Feature<GeoMultiLineString>): MultiLineString;

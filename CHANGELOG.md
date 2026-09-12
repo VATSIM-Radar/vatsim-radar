@@ -1,5 +1,19 @@
 # Changelog
 
+# [2.0.3-rc.1]
+
+## QA Changes
+
+- Updated aircraft logo display to be a banner instead of icon and have it's own section
+
+## 2.0.3 changes
+
+- Fixed an issue when having controlled/restrictive airspace enabled: zoom into the ground has led to severe performance degradation
+- Added model matching for H25B HAWKER to FA50
+- Fixed MAGADAN CTA showing on whole world when having controlled airspace layer enabled
+- METAR will now be opened in "info" tab of airport by default
+- Controllers callsign will now be highlighted when they are favorited/friends in controller card
+
 # [2.0.2-1-beta.3]
 
 ## QA Changes

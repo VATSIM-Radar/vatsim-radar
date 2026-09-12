@@ -14,6 +14,7 @@
             </ui-chip>
             <ui-text
                 class="atc_callsign"
+                :style="{ '--color': controllerColor() ?? 'currentColor' }"
                 type="3b"
             >
                 <ui-spoiler
@@ -294,7 +295,7 @@ const isCopied = (key: string) => {
         overflow-wrap: anywhere;
     }
 
-    &_name {
+    &_name, &_callsign {
         color: var(--color);
     }
 

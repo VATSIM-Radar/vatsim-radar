@@ -140,10 +140,10 @@ defineCronJob('* * * * * *', async () => {
         console.error(e);
     }
 
-    data?.pilots.push({
+    /*    data?.pilots.push({
         cid: 10000,
         name: 'Dummy',
-        callsign: 'CHX50',
+        callsign: 'FTA320',
         server: 'Nah ah',
         pilot_rating: 1,
         military_rating: 0,
@@ -168,7 +168,7 @@ defineCronJob('* * * * * *', async () => {
             deptime: '',
             enroute_time: '',
             fuel_time: '',
-            remarks: 'DUMMY',
+            remarks: 'CS=FLIGHTTRAINING=FLIGHTTRAININGA320 WEB=FTA320.ES',
             route: '',
             revision_id: 1,
             assigned_transponder: '7700',
@@ -182,7 +182,7 @@ defineCronJob('* * * * * *', async () => {
         frequencies: ['122.800'],
         sim: 'MSFS',
         icon: 'c17',
-    });
+    });*/
 
     dataInProgress = false;
     dataLatestFinished = Date.now();

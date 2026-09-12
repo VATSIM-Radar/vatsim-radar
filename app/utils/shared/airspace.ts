@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Polygon, Position } from 'geojson';
+import type { Feature, FeatureCollection, MultiPolygon, Polygon, Position } from 'geojson';
 import greatCircle from '@turf/great-circle';
 import { point } from '@turf/helpers';
 
@@ -343,7 +343,61 @@ function getRestrictiveAirspaceProperties(record: RestrictiveAirspaceRecord): Re
     };
 }
 
-function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[], geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Polygon | null {
+function splitPolygonAtAntimeridian(ring: AirspaceCoordinate[]): Polygon | MultiPolygon {
+    const coordinates = ring.length > 1 && sameCoordinate(ring[0], ring[ring.length - 1])
+        ? ring.slice(0, -1)
+        : ring;
+    const parts: AirspaceCoordinate[][] = [[]];
+
+    for (let index = 0; index < coordinates.length; index++) {
+        const start = coordinates[index];
+        const end = coordinates[(index + 1) % coordinates.length];
+        const currentPart = parts.at(-1)!;
+
+        if (!currentPart.length) currentPart.push(start);
+
+        if (Math.abs(end[0] - start[0]) <= 180) {
+            if (!sameCoordinate(currentPart.at(-1)!, end)) currentPart.push(end);
+            continue;
+        }
+
+        const boundaryLongitude = start[0] > 0 ? 180 : -180;
+        const unwrappedEndLongitude = end[0] + (boundaryLongitude > 0 ? 360 : -360);
+        const crossingFraction = (boundaryLongitude - start[0]) / (unwrappedEndLongitude - start[0]);
+        const crossingLatitude = start[1] + ((end[1] - start[1]) * crossingFraction);
+
+        currentPart.push([boundaryLongitude, crossingLatitude]);
+        parts.push([[-boundaryLongitude, crossingLatitude], end]);
+    }
+
+    // A ring normally crosses the antimeridian twice. The traversal splits each side into
+    // separate fragments at those crossings, so merge fragments that belong to the same side.
+    const mergedParts = new Map<number, AirspaceCoordinate[]>();
+    for (const part of parts) {
+        if (part.length < 2) continue;
+
+        const side = part[0][0] >= 0 ? 1 : -1;
+        const merged = mergedParts.get(side);
+        if (!merged) mergedParts.set(side, [...part]);
+        else {
+            for (const coordinate of part) {
+                if (!sameCoordinate(merged.at(-1)!, coordinate)) merged.push(coordinate);
+            }
+        }
+    }
+
+    const polygons = [...mergedParts.values()]
+        .filter(part => part.length >= 3)
+        .map(part => {
+            if (!sameCoordinate(part[0], part.at(-1)!)) part.push([...part[0]]);
+            return [part];
+        });
+
+    if (polygons.length <= 1) return { type: 'Polygon', coordinates: polygons[0] ?? [ring] };
+    return { type: 'MultiPolygon', coordinates: polygons };
+}
+
+function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[], geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Polygon | MultiPolygon | null {
     const options = { ...defaultGeometryOptions, ...geometryOptions };
     const boundaryPoints: { point: RestrictiveAirspacePoint; boundaryPoint: AirspaceBoundaryPoint }[] = [];
 
@@ -395,14 +449,14 @@ function buildRestrictiveAirspacePolygon(points: RestrictiveAirspacePoint[], geo
 
     if (ring.length && !sameCoordinate(ring[0], ring[ring.length - 1])) ring.push([...ring[0]]);
 
-    return ring.length >= 4 ? { type: 'Polygon', coordinates: [ring] } : null;
+    return ring.length >= 4 ? splitPolygonAtAntimeridian(ring) : null;
 }
 
 /**
  * Convert one grouped restrictive airspace into one GeoJSON feature. This is the preferred helper
  * when data already comes from the Navigraph worker as `{ airspace, points }`.
  */
-export function restrictiveAirspaceFeatureToGeoJSON(feature: RestrictiveAirspaceFeatureData, geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Feature<Polygon, RestrictiveAirspaceProperties> | null {
+export function restrictiveAirspaceFeatureToGeoJSON(feature: RestrictiveAirspaceFeatureData, geometryOptions: AirspaceGeometryOptions = defaultGeometryOptions): Feature<Polygon | MultiPolygon, RestrictiveAirspaceProperties> | null {
     const geometry = buildRestrictiveAirspacePolygon(feature.points, geometryOptions);
 
     if (!geometry) return null;
@@ -418,7 +472,7 @@ export function restrictiveAirspaceFeatureToGeoJSON(feature: RestrictiveAirspace
  * Convenience converter for callers that want ready-to-render GeoJSON. The Navigraph worker does not
  * call this during cache generation, because large AIRAC cycles should defer geometry work to clients.
  */
-export function restrictiveAirspaceToGeoJSON(records: RestrictiveAirspaceRecord[]): FeatureCollection<Polygon, RestrictiveAirspaceProperties> {
+export function restrictiveAirspaceToGeoJSON(records: RestrictiveAirspaceRecord[]): FeatureCollection<Polygon | MultiPolygon, RestrictiveAirspaceProperties> {
     const groups = new Map<string, RestrictiveAirspaceRecord[]>();
 
     for (const record of records) {
@@ -435,7 +489,7 @@ export function restrictiveAirspaceToGeoJSON(records: RestrictiveAirspaceRecord[
         else groups.set(key, [record]);
     }
 
-    const features: Array<Feature<Polygon, RestrictiveAirspaceProperties>> = [];
+    const features: Array<Feature<Polygon | MultiPolygon, RestrictiveAirspaceProperties>> = [];
 
     for (const group of groups.values()) {
         group.sort((a, b) => a.seqno - b.seqno);

@@ -94,7 +94,7 @@ export function stringToArray<T>(item: T | T[] | undefined): T[] {
 }
 
 export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
-    const exec = /(CS[\/\-=,]|CALLSIGN([\/\-=,]| ))(?<callsign>[A-Z -]+)(([\/\-=,](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/\-=,][A-Z-])|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/\-=,][A-Z-]))|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$))/.exec(remarks);
+    const exec = /(CS[\/\-=,]|CALLSIGN([\/\-=,]| ))(?<callsign>[A-Z0-9 -]+)(([\/\-=,](?<name>[A-Z0-9 -]+)((?= ([- A-Z0-9]+)?[\/\-=,][A-Z0-9-])|((?= [A-Z0-9-]+[\/\-=,][A-Z0-9-]))|(?=$)))|((?= ([ A-Z0-9-]+)?[\/\-=,][A-Z0-9-]))|((?= [A-Z0-9-]+[\/\-=,][A-Z0-9-]))|(?=$))/.exec(remarks);
     if (exec?.groups && exec?.groups?.callsign) {
         const callsign = exec.groups.callsign?.replace('VATSIMVA', '').split('TCAS')[0].split('SIMBRIEF')[0].trim();
         if (!callsign) return null;
