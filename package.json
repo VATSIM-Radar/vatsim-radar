@@ -50,7 +50,7 @@
     "@vueuse/components": "14.4.0",
     "@vueuse/core": "14.4.0",
     "@vueuse/nuxt": "14.4.0",
-    "adm-zip": "0.6.0",
+    "adm-zip": "0.6.1",
     "better-sqlite3": "12.11.1",
     "chardet": "2.2.0",
     "chart.js": "4.5.1",
