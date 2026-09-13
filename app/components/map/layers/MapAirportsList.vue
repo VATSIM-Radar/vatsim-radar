@@ -187,7 +187,7 @@ onMounted(() => {
         visibleAirports.value = result.visible;
     }, 500, true);
 
-    useUpdateCallback(['short', 'extent', dataStore.airportsList, updateRelatedSettings], () => {
+    useUpdateCallback(['short', 'extent', updateRelatedSettings], () => {
         updateAirports();
     }, {
         immediate: true,

@@ -108,6 +108,12 @@
             v-if="props.overlay.data.photo"
             #photo
         >
+            <div v-if="airlineLogoUrl" class="pilot__operator">
+                <img
+                    alt="Airline logo"
+                    :src="airlineLogoUrl"
+                >
+            </div>
             <ui-text
                 class="pilot__photo"
                 :href="props.overlay.data.photo.link"
@@ -299,7 +305,7 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
-import { usePilotCountry } from '~/utils/shared/images.ts';
+import { getAirlineLogoUrl, usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     overlay: {
@@ -456,6 +462,8 @@ const arrBars = computed(() => {
     return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
 });
 
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign));
+
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
@@ -495,7 +503,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     if (props.overlay?.data.photo) {
         sections.push({
             key: 'photo',
-            title: 'Photo',
+            title: airlineLogoUrl.value ? 'Airline & Photo' : 'Photo',
             collapsedDefault: collapsedPhoto.value !== false,
             collapsible: true,
         });
@@ -833,6 +841,24 @@ onMounted(() => {
                 background-position: center;
                 background-size: contain;
             }
+        }
+    }
+
+    &__operator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 8px;
+        padding: 8px;
+        border-radius: 4px;
+
+        background: $whiteOrig;
+
+        img {
+            border-radius: 4px;
+            object-fit: contain;
+            object-position: center;
         }
     }
 

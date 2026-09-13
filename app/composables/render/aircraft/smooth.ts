@@ -448,11 +448,11 @@ function frame() {
         const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
         const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
-        for (const feature of source.getFeatures()) {
-            const properties = feature.getProperties();
-            if (!isMapFeature('aircraft', properties) || !mapStore.renderedPilots?.has(properties.cid)) continue;
+        for (const cid of Array.from(mapStore.renderedPilots ?? [])) {
+            const feature = source.getFeatureById(cid);
+            const properties = feature?.getProperties();
+            if (!feature || !properties || !isMapFeature('aircraft', properties) || !mapStore.renderedPilots?.has(properties.cid)) continue;
 
-            const cid = properties.cid;
             const track = tracks.get(cid);
             if (!track) continue;
 

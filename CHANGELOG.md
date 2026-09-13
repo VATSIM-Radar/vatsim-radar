@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.3-rc.3]
+
+## QA Changes
+
+- Moved Airline logo under Photo section, renamed Photo section accordingly
+- Removed Reg Flag from airline name, it will now only show under Reg in flight plan
+
+## Performance Improvements
+
+- Implemented minor performance improvements
+
 # [2.0.3-rc.2]
 
 - Fixed rare issues when frequencies were replacing with incorrect ones (For example, 124.300 showed for LFMN_TWR instead of 118.700)

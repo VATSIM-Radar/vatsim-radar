@@ -88,17 +88,7 @@
 
             <div class="flight-info__columns flight-info__columns--airline">
                 <ui-data-list-item>
-                    <div class="flight-info__operator">
-                        {{ airline.name }}
-                        <div v-if="country?.country" class="flight-info__airline-wrapper flight-info__airline-wrapper--country">
-                            <img
-                                :alt="country.country.name || country.country.countryCode"
-                                class="flight-info__airline flight-info__airline--country"
-                                :src="getFlagUrl(country.country.countryCode)"
-                                :title="`${ country.country.name || country.country.countryCode } (${ country.country.prefix })`"
-                            >
-                        </div>
-                    </div>
+                    {{ airline.name }}
 
                     <ui-data-list
                         circle-divider
@@ -123,21 +113,6 @@
                         </template>
                     </ui-data-list>
                 </ui-data-list-item>
-                <ui-separator
-                    dashed
-                    distance="0"
-                    full
-                />
-                <div
-                    v-if="airlineLogoUrl && !airline?.virtual"
-                    class="flight-info__airline-wrapper flight-info__airline-wrapper--logo"
-                >
-                    <img
-                        alt="Airline logo"
-                        class="flight-info__airline flight-info__airline--logo"
-                        :src="airlineLogoUrl"
-                    >
-                </div>
             </div>
         </ui-data-container>
         <div class="flight-info__progress">
@@ -398,7 +373,6 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { isValidDate } from '~/utils/shared';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
-import { getAirlineLogoUrl, getFlagUrl, usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     pilot: {
@@ -443,10 +417,6 @@ const airline = shallowRef<RadarDataAirline | null>(null);
 const friend = computed(() => store.allFriends.find(x => x.cid === props.pilot.cid));
 
 const pilot = computed(() => props.pilot);
-
-const country = usePilotCountry(pilot);
-
-const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign));
 
 watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, async () => {
     airline.value = await getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks);
@@ -518,36 +488,6 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         display: flex;
         gap: 8px;
         align-items: center;
-    }
-
-    &__airline {
-        overflow: hidden;
-        display: block;
-        flex-shrink: 0;
-
-        width: 20px;
-        min-width: 20px;
-        border-radius: 2px;
-
-        object-fit: contain;
-
-        &-wrapper--logo {
-            display: inline-flex;
-            justify-content: flex-end;
-
-            margin-top: 4px;
-            padding: 2px 4px;
-            border-radius: 4px;
-
-            background: $whiteOrig;
-        }
-
-        &--logo {
-            width: 100%;
-            max-width: 100px;
-            max-height: 50px;
-            border-radius: 0;
-        }
     }
 
     &__chip {

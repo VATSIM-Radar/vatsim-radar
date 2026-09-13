@@ -110,7 +110,6 @@ const aircraftStyleSettings = computed(() => JSON.stringify([
     activePilotsOverlays.value,
     ownFlight.value?.cid,
     !!mapStore.renderedPilots,
-    mapStore.renderedPilots?.size,
 ]));
 
 watch(aircraftStyleSettings, () => {
