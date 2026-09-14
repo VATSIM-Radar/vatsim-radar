@@ -38,7 +38,7 @@ We are currently looking for just one designer for this role.
 
 ### Requirements
 
-1. You shall be familiar with Adobe Illustrator
+1. You shall be familiar with Figma and Graphic Design on a basic level
 2. You shall be familiar with basic Googling so you can find aircraft icons references
 3. You will be required to insert your icons in code using any code editor, such as VS Code (with a help from me of course)
 
@@ -47,7 +47,7 @@ Look at current icons to understand what the job is: https://github.com/VATSIM-R
 ### Responsibilities / Working process
 
 1. Review Github Issues for existing icons
-2. Draw those icons in Illustrator following instruction and requirements that will be sent to you
+2. Draw those icons in Figma (or Illustrator) following instruction and requirements that will be sent to you
 3. Add them to code using instruction that will be given to you
 4. Open a Pull Request to merge those icons to VATSIM Radar
 
