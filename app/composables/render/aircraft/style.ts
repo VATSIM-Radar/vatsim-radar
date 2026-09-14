@@ -460,9 +460,11 @@ export function disposeAircraftStyle() {
     aircraftImageStyleCache.clear();
     svgSrcCache.clear();
     aircraftStyleCids.clear();
+    styleCache = {};
+    hitboxImageCache = {};
 }
 
-export function setAircraftLineStyle(layer: VectorImageLayer) {
+export function setAircraftLineStyle(layer: VectorImageLayer | VectorLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft-line', properties)) {

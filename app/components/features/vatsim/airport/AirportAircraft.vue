@@ -73,68 +73,78 @@
                     </template>
                 </ui-block-title>
             </template>
-            <ui-text-block
-                v-for="pilot in displayedAircraft"
-                :key="pilot.cid"
-                :bottom-items="[
-                    (pilot.departure && pilot.arrival) ? 'destination': '',
-                    pilot.aircraft_faa ?? 'No flight plan',
-                    (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
-                    (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground' && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
-                    (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
-
-                ]"
-                class="aircraft__pilot"
-                :class="{ 'aircraft__pilot--selected': simpleMode && selected === pilot.cid }"
-                is-button
-                @click="inDashboard ? selected = pilot.cid : ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
+            <div
+                v-for="chunk in chunks"
+                :key="chunk.index"
+                :ref="element => setChunkElement(chunk.index, element)"
+                :data-chunk="chunk.index"
+                class="aircraft_list_rows"
+                :style="chunk.mounted ? undefined : { height: `${ chunk.height }px` }"
             >
-                <template #top>
-                    <div
-                        ref="pilots"
-                        class="aircraft__pilot_header"
-                        :class="{ '--has-stats': stats.some(x => x.cid === pilot.cid) }"
-                        :data-cid="pilot.cid"
+                <template v-if="chunk.mounted">
+                    <ui-text-block
+                        v-for="pilot in chunk.items"
+                        :key="pilot.cid"
+                        :bottom-items="[
+                            (pilot.departure && pilot.arrival) ? 'destination': '',
+                            pilot.aircraft_faa ?? 'No flight plan',
+                            (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
+                            (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground' && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
+                            (pilot.eta && isValidDate(pilot.eta) && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
+
+                        ]"
+                        class="aircraft__pilot"
+                        :class="{ 'aircraft__pilot--selected': simpleMode && selected === pilot.cid }"
+                        is-button
+                        @click="inDashboard ? selected = pilot.cid : ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
                     >
-                        <div class="aircraft__pilot_header_title">
-                            {{ pilot.callsign }}
-
-                            <vatsim-pilot-hours
-                                v-if="stats.find(x => x.cid === pilot.cid)"
-                                class="aircraft__pilot_header_title_stats"
-                                :hours="stats.find(x => x.cid === pilot.cid)!.stats"
-                            />
-
-                            <ui-bubble
-                                v-if="'frequencies' in pilot && pilot.frequencies.length >= 1"
-                                class="aircraft__pilot_header_title_frequency"
-                                type="primary-flat"
+                        <template #top>
+                            <div
+                                ref="pilots"
+                                class="aircraft__pilot_header"
+                                :class="{ '--has-stats': stats[pilot.cid] !== undefined }"
+                                :data-cid="pilot.cid"
                             >
-                                {{ pilot.frequencies[0] }}
-                            </ui-bubble>
-                        </div>
-                        <div
-                            v-if="!simpleMode"
-                            class="aircraft__pilot_header_status"
-                            :style="{ '--color': `rgb(var(--${ getLocalPilotStatus(pilot).color }))` }"
-                        >
-                            {{ getLocalPilotStatus(pilot).title }}
-                        </div>
-                    </div>
+                                <div class="aircraft__pilot_header_title">
+                                    {{ pilot.callsign }}
+
+                                    <vatsim-pilot-hours
+                                        v-if="stats[pilot.cid] !== undefined"
+                                        class="aircraft__pilot_header_title_stats"
+                                        :hours="stats[pilot.cid]!"
+                                    />
+
+                                    <ui-bubble
+                                        v-if="'frequencies' in pilot && pilot.frequencies.length >= 1"
+                                        class="aircraft__pilot_header_title_frequency"
+                                        type="primary-flat"
+                                    >
+                                        {{ pilot.frequencies[0] }}
+                                    </ui-bubble>
+                                </div>
+                                <div
+                                    v-if="!simpleMode"
+                                    class="aircraft__pilot_header_status"
+                                    :style="{ '--color': `rgb(var(--${ getLocalPilotStatus(pilot).color }))` }"
+                                >
+                                    {{ getLocalPilotStatus(pilot).title }}
+                                </div>
+                            </div>
+                        </template>
+                        <template #bottom="{ item }">
+                            <div
+                                v-if="item === 'destination' && pilot.departure && pilot.arrival"
+                                class="aircraft__pilot_route"
+                            >
+                                from <strong>{{ pilot.departure }}</strong> to <strong>{{ pilot.arrival }}</strong>
+                            </div>
+                            <template v-else>
+                                {{ item }}
+                            </template>
+                        </template>
+                    </ui-text-block>
                 </template>
-                <template #bottom="{ item }">
-                    <div
-                        v-if="item === 'destination' && pilot.departure && pilot.arrival"
-                        ref="pilots"
-                        class="aircraft__pilot_route"
-                    >
-                        from <strong>{{ pilot.departure }}</strong> to <strong>{{ pilot.arrival }}</strong>
-                    </div>
-                    <template v-else>
-                        {{ item }}
-                    </template>
-                </template>
-            </ui-text-block>
+            </div>
         </div>
     </div>
 </template>
@@ -159,6 +169,7 @@ import type { PropType } from 'vue';
 import VatsimPilotHours from '~/components/features/vatsim/pilots/VatsimPilotHours.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { isValidDate } from '~/utils/shared';
+import { useVirtualChunks } from '~/composables/virtual-chunks';
 
 const props = defineProps({
     filterRelativeToAircraft: {
@@ -288,6 +299,8 @@ const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
     return [];
 });
 
+const { chunks, setElement: setChunkElement } = useVirtualChunks(displayedAircraft, computed(() => `${ data.value.icao }|${ aircraftMode.value }|${ aircraftGroundMode.value }|${ props.simpleMode }`));
+
 function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof getPilotStatus> {
     if (aircraftMode.value !== 'ground') {
         if (pilot.isArrival) {
@@ -313,26 +326,59 @@ function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof 
     }
 }
 
-const stats = ref<{
-    cid: number;
-    stats: number;
-}[]>([]);
+const stats = shallowRef<Record<number, number>>({});
+const displayedCids = computed(() => new Set(displayedAircraft.value.map(pilot => pilot.cid)));
+watch(displayedCids, cids => {
+    if (Object.keys(stats.value).some(cid => !cids.has(+cid))) {
+        stats.value = Object.fromEntries(Object.entries(stats.value).filter(([cid]) => cids.has(+cid)));
+    }
+});
+const pendingStats = new Set<number>();
+const observedPilots = new Set<Element>();
+let statsGeneration = 0;
 
 const observer = new IntersectionObserver(async entries => {
     if (!showPilotStats.value) return;
-
-    for (const entry of entries.filter(x => x.isIntersecting && !x.target.classList.contains('--has-stats'))) {
-        const cid = +((entry.target as HTMLDivElement).dataset.cid ?? '0');
-
-        stats.value.push({
-            cid,
-            stats: await getVATSIMMemberStats(cid, 'pilot'),
-        });
+    const generation = statsGeneration;
+    for (const entry of entries) {
+        const cid = Number((entry.target as HTMLElement).dataset.cid);
+        if (!entry.isIntersecting || !cid || stats.value[cid] !== undefined || pendingStats.has(cid)) continue;
+        pendingStats.add(cid);
+        try {
+            const hours = await getVATSIMMemberStats(cid, 'pilot');
+            if (generation !== statsGeneration) return;
+            if (displayedCids.value.has(cid)) stats.value = { ...stats.value, [cid]: hours };
+        }
+        catch (error) {
+            console.error(error);
+        }
+        finally {
+            if (generation === statsGeneration) pendingStats.delete(cid);
+        }
     }
 });
 
+function observePilots() {
+    const current = new Set(pilotsRefs.value);
+    for (const element of observedPilots) {
+        if (!current.has(element as HTMLDivElement) || !showPilotStats.value) {
+            observer.unobserve(element);
+            observedPilots.delete(element);
+        }
+    }
+    if (!showPilotStats.value) return;
+    for (const element of current) {
+        if (observedPilots.has(element)) continue;
+        observer.observe(element);
+        observedPilots.add(element);
+    }
+}
+
 onBeforeUnmount(() => {
+    statsGeneration++;
     observer.disconnect();
+    pendingStats.clear();
+    observedPilots.clear();
 });
 
 onMounted(() => {
@@ -340,32 +386,17 @@ onMounted(() => {
         aircraftMode.value = 'arriving';
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
     }
-
-    for (const el of pilotsRefs.value) {
-        observer.observe(el);
-    }
+    observePilots();
 });
 
-watch(showPilotStats, val => {
-    if (!val) {
-        stats.value = [];
-    }
-    else {
-        for (const el of pilotsRefs.value) {
-            observer.unobserve(el);
-        }
-
-        for (const el of pilotsRefs.value) {
-            observer.observe(el);
-        }
-    }
+watch(showPilotStats, () => {
+    statsGeneration++;
+    pendingStats.clear();
+    if (!showPilotStats.value) stats.value = {};
+    observePilots();
 });
 
-onUpdated(() => {
-    for (const el of pilotsRefs.value) {
-        observer.observe(el);
-    }
-});
+onUpdated(observePilots);
 
 defineExpose({
     aircraft,
@@ -435,6 +466,12 @@ defineExpose({
             max-height: 50dvh;
         }
 
+        &_rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         &__filter {
             cursor: pointer;
 
@@ -460,7 +497,7 @@ defineExpose({
     &--simple {
         grid-template-columns: 100%;
 
-        .aircraft_list {
+        .aircraft_list_rows {
             flex-direction: row;
             flex-wrap: wrap;
         }

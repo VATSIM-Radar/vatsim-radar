@@ -26,6 +26,7 @@ import {
     resetAircraftStyleCache,
 } from '~/composables/render/aircraft/style';
 import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
+import { disposeAircraftState } from '~/composables/render/aircraft/state';
 import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 defineOptions({
@@ -35,7 +36,9 @@ defineOptions({
 let vectorLayer: VectorLayer<any>;
 let vectorSource: VectorSource;
 
-let linesLayer: VectorImageLayer<any>;
+let linesLayer: VectorLayer<any>;
+let historyLayer: VectorImageLayer<any>;
+let historySource: VectorSource;
 let linesSource: VectorSource;
 
 const canRender = computed(() => !isHideMapObject('pilots'));
@@ -297,24 +300,25 @@ function setVisiblePilots() {
         const airport = dataStore.airportsList.value[store.config.airport];
         if (airport) {
             const coords = [dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lat];
-            const aircraft = Object.values(airport.aircraft).flatMap(x => x);
+            const aircraft = new Set(Object.values(airport.aircraft).flatMap(x => x));
 
+            const categories = Object.fromEntries(Object.entries(airport.aircraft).map(([key, ids]) => [key, new Set(ids)]));
             dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => {
                 const fullPilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
                 const nearby = fullPilot && fullPilot.flight_rules !== 'I' && coords[0] && calculateDistanceInNauticalMiles(coords as Coordinate, [x.longitude, x.latitude]) <= 40;
                 if (nearby) return true;
 
-                if (!aircraft.includes(x.cid)) return false;
+                if (!aircraft.has(x.cid)) return false;
 
                 if (store.config.airportMode && store.config.airportMode !== 'all') {
                     if (store.config.airportMode === 'ground') {
-                        return airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid);
+                        return categories.groundArr?.has(x.cid) || categories.groundDep?.has(x.cid);
                     }
                     if (store.config.airportMode === 'airborne') {
-                        return airport.aircraft.departures?.includes(x.cid) || airport.aircraft.arrivals?.includes(x.cid);
+                        return categories.departures?.has(x.cid) || categories.arrivals?.has(x.cid);
                     }
                     else {
-                        return airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid);
+                        return categories[store.config.airportMode as MapAircraftKeys]?.has(x.cid);
                     }
                 }
 
@@ -366,15 +370,21 @@ const updateRelatedSettings = computed(() => JSON.stringify([
 let init = false;
 
 const visibleSet = useThrottleFn(() => {
+    if (!init) return;
     const log = logBench('aircraftPrepare');
     setVisiblePilots();
     log();
 }, 300, true);
 
 const debouncedUpdate = useThrottleFn(() => {
+    if (!init) return;
     if (!canRender.value) {
         vectorSource.clear();
         linesSource.clear();
+        historySource.clear();
+        disposeAircraftState(false);
+        dataStore.navigraphWaypoints.value = {};
+        dataStore.vatsim.tracksPilotsData.value = {};
         pruneAircraftStyleCache(new Set<number>());
     }
     else {
@@ -385,6 +395,8 @@ const debouncedUpdate = useThrottleFn(() => {
                 layer: vectorLayer,
                 linesSource: linesSource,
                 linesLayer: linesLayer,
+                historySource,
+                historyLayer,
                 shownPilots: getShownPilots.value,
                 tracks: showTracks.value,
             });
@@ -393,7 +405,7 @@ const debouncedUpdate = useThrottleFn(() => {
     }
 }, 300, true);
 
-useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings], () => {
+useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings, airportOverlays], () => {
     if (!init) return;
     visibleSet();
 });
@@ -443,7 +455,14 @@ watch(map, val => {
             overlaps: true,
         });
 
-        linesLayer = new VectorImageLayer<any>({
+        historySource = new VectorSource({ wrapX: true });
+        historyLayer = new VectorImageLayer({
+            source: historySource,
+            properties: { type: 'aircraft-history' },
+            zIndex: FEATURES_Z_INDEX.AIRCRAFT_LINE,
+        });
+
+        linesLayer = new VectorLayer<any>({
             source: linesSource,
             properties: {
                 type: 'aircraft-line',
@@ -455,6 +474,7 @@ watch(map, val => {
     initHeatmap();
 
     val.addLayer(vectorLayer);
+    val.addLayer(historyLayer);
     val.addLayer(linesLayer);
 
     setVisiblePilots();
@@ -471,7 +491,13 @@ watch(() => getKeyedValueFromSettings('map.traffic.smoothMovement'), enabled => 
 });
 
 onBeforeUnmount(() => {
+    init = false;
     stopSmoothMovement();
+    disposeAircraftState();
+    if (historyLayer) map.value?.removeLayer(historyLayer);
+    historyLayer?.dispose();
+    historySource?.clear();
+    dataStore.vatsim.tracksPilotsData.value = {};
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     vectorLayer?.dispose();
     if (linesLayer) map.value?.removeLayer(linesLayer);

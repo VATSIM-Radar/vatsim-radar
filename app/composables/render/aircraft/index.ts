@@ -23,10 +23,9 @@ import { updateAircraftTracksData } from '~/composables/render/aircraft/tracks';
 import {
     isSmoothMovementEnabled,
     isSmoothMovementSuspendedForLoad,
+    resetSmoothAircraftPosition,
 } from '~/composables/render/aircraft/smooth';
-import { aircraftState } from './state';
-import type { DataAirport } from '~/composables/render/storage';
-import type { PartialRecord } from '~/types';
+import { aircraftState, clearAircraftState } from './state';
 
 export interface TrackData { show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }
 
@@ -35,7 +34,9 @@ export interface AircraftRenderSettings {
     layer: VectorLayer;
 
     linesSource: VectorSource;
-    linesLayer: VectorImageLayer;
+    linesLayer: VectorLayer;
+    historySource: VectorSource;
+    historyLayer: VectorImageLayer;
 
     shownPilots: VatsimMandatoryPilot[];
     tracks: Record<string, TrackData>;
@@ -65,7 +66,7 @@ function getAircraftScale(coordinates: Coordinate, icon: string, isPilotOnGround
     });
 }
 
-function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, isOnGround }: AircraftRenderState, airportsMap: PartialRecord<string, DataAirport>): MapAircraftStatus {
+function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, isOnGround }: AircraftRenderState, airportsMap: ReadonlyMap<number, MapAircraftStatus>): MapAircraftStatus {
     const store = useStore();
 
     if (selfFlight || store.config.allAircraftGreen) return 'green';
@@ -76,41 +77,15 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
         return 'emergency';
     }
 
-    // color aircraft icon based on departure/arrival when the airport dashboard is in use
-    if (store.config.airport && !overlay) {
-        const vatAirport = airportsMap[store.config.airport];
-        if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-        if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
-        if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
-        if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
-    }
-
-    if (store.config.airports && !overlay) {
-        for (const airport of store.config.airports) {
-            const vatAirport = airportsMap[airport];
-            if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
-            if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
-            if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
-        }
-    }
+    if (!overlay && airportsMap.has(aircraft.cid)) return airportsMap.get(aircraft.cid)!;
 
     if (overlay || (showTracks && !isOnGround)) return 'active';
 
     return isOnGround ? 'ground' : 'default';
 }
 
-export async function setMapAircraft(settings: {
-    source: VectorSource;
-    layer: VectorLayer;
-
-    linesSource: VectorSource;
-    linesLayer: VectorImageLayer;
-
-    shownPilots: VatsimMandatoryPilot[];
-    tracks: Record<string, TrackData>;
-}) {
-    const { source, layer, linesLayer, linesSource, shownPilots, tracks } = settings;
+export function setMapAircraft(settings: AircraftRenderSettings) {
+    const { source, layer, linesLayer, linesSource, historySource, historyLayer, shownPilots, tracks } = settings;
 
     if (layer.getStyle() === createDefaultStyle) {
         setAircraftStyle(layer);
@@ -119,6 +94,8 @@ export async function setMapAircraft(settings: {
     if (linesLayer.getStyle() === createDefaultStyle) {
         setAircraftLineStyle(linesLayer);
     }
+
+    if (historyLayer.getStyle() === createDefaultStyle) setAircraftLineStyle(historyLayer);
 
     const dataStore = useDataStore();
     const mapStore = useMapStore();
@@ -129,7 +106,7 @@ export async function setMapAircraft(settings: {
     const useDirectCoordinates = smoothMovementEnabled && isSmoothMovementSuspendedForLoad(true);
     const overlays = Object.fromEntries(mapStore.overlays.filter(x => x.type === 'pilot').filter(x => !isPilotOverlayParked(x)).map(x => [+x.key, x]));
 
-    const linesFeatures = linesSource.getFeatures().slice(0);
+    const linesFeatures = [...linesSource.getFeatures(), ...historySource.getFeatures()];
     const linesFeaturesMap: Record<number, FeatureAircraftLine[]> = {};
     const keyedShownPilots = new Set(shownPilots.map(x => x.cid));
 
@@ -151,6 +128,18 @@ export async function setMapAircraft(settings: {
         else {
             feature.dispose();
             linesSource.removeFeature(feature);
+            historySource.removeFeature(feature);
+        }
+    }
+
+    const dashboardStatuses = new Map<number, MapAircraftStatus>();
+    const config = useStore().config;
+    for (const icao of config.airport ? [config.airport] : config.airports ?? []) {
+        const categories = dataStore.airportsList.value[icao]?.aircraft;
+        for (const [kind, status] of [['groundDep', 'departing'], ['departures', 'default'], ['groundArr', 'landed'], ['arrivals', 'arriving']] as const) {
+            for (const cid of categories?.[kind] ?? []) {
+                if (!dashboardStatuses.has(cid)) dashboardStatuses.set(cid, status);
+            }
         }
     }
 
@@ -176,7 +165,8 @@ export async function setMapAircraft(settings: {
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
-        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && existingFeature
+        const directPosition = !smoothMovementEnabled || useDirectCoordinates || !mapStore.renderedPilots?.has(aircraft.cid);
+        const smoothFeatureProperties = !directPosition && existingFeature
             ? existingFeature.getProperties()
             : undefined;
         const featureCoordinates = smoothFeatureProperties
@@ -197,7 +187,7 @@ export async function setMapAircraft(settings: {
             color: '',
         };
 
-        const status = getAircraftStatus(renderState, dataStore.airportsList.value);
+        const status = getAircraftStatus(renderState, dashboardStatuses);
 
         renderState.color = getAircraftStatusColor(status, aircraft.cid);
         renderState.status = status;
@@ -224,7 +214,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled || useDirectCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
+            if (directPosition) {
                 const geometry = existingFeature.getGeometry()! as Point;
                 const existingCoordinates = geometry.getCoordinates();
                 if (existingCoordinates[0] !== coordinates[0] || existingCoordinates[1] !== coordinates[1]) {
@@ -232,7 +222,13 @@ export async function setMapAircraft(settings: {
                 }
             }
 
+            if (directPosition && smoothMovementEnabled) resetSmoothAircraftPosition(aircraft.cid, coordinates, heading ?? 0);
+
             const existingProperties = existingFeature.getProperties();
+            const previousCoordinates = existingProperties.coordinates;
+            if (previousCoordinates?.[0] !== featureCoordinates[0] || previousCoordinates?.[1] !== featureCoordinates[1]) {
+                existingFeature.set('coordinates', featureCoordinates, true);
+            }
             let changed = false;
 
             for (const key in properties) {
@@ -262,8 +258,12 @@ export async function setMapAircraft(settings: {
         if (!keyedShownPilots.has(feature.getId() as number)) {
             feature.dispose();
             source.removeFeature(feature);
-            delete aircraftState[feature.getId() as number];
+            clearAircraftState(feature.getId() as number);
         }
+    }
+
+    for (const cid in aircraftState) {
+        if (!keyedShownPilots.has(+cid)) clearAircraftState(+cid);
     }
 
     pruneAircraftStyleCache(keyedShownPilots);

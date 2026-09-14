@@ -11,6 +11,7 @@ import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 import { greatCircleToOl } from '~/utils';
 import { useMapStore } from '~/store/map';
+import { updateAircraftLineCoordinates } from './lines';
 
 interface Sample {
     t: number;
@@ -301,13 +302,6 @@ export function setSmoothNavigraphRouteSource(source: VectorSource | null) {
     activeNavigraphRouteSource = source;
 }
 
-function getFirstCoordinate(geometry: LineString | MultiLineString | undefined): Coordinate | null {
-    if (geometry instanceof LineString) return geometry.getFirstCoordinate();
-
-    const coordinates = geometry?.getCoordinates();
-    return coordinates?.[0]?.[0] ?? null;
-}
-
 function getLastCoordinate(geometry: LineString | MultiLineString | undefined): Coordinate | null {
     if (geometry instanceof LineString) return geometry.getLastCoordinate();
 
@@ -350,24 +344,20 @@ function setSmoothLinesSource(source: VectorSource | null) {
 
 function updateAircraftLineFeatures(cid: number, coordinate: Coordinate) {
     const features = aircraftLineFeatures.get(cid);
-    if (!features) return;
+    if (features) updateAircraftLineCoordinates(features, coordinate);
+}
 
-    for (const feature of features) {
-        const properties = feature.getProperties();
-        if (!isMapFeature('aircraft-line', properties)) continue;
-
-        const geometry = feature.getGeometry();
-        if (!(geometry instanceof LineString) && !(geometry instanceof MultiLineString)) continue;
-
-        if (properties.lineType === 'arrival-straight') {
-            const end = getLastCoordinate(geometry);
-            if (end) feature.setGeometry(getLineGeometry(coordinate, end));
-        }
-        else if (properties.lineType === 'departure-straight' || properties.lineType === 'aircraft') {
-            const start = getFirstCoordinate(geometry);
-            if (start) feature.setGeometry(getLineGeometry(start, coordinate));
-        }
-    }
+// Direct writes can happen on extent/settings changes between mandatory snapshots.
+// Reseed at the write itself so revealing the aircraft cannot replay an older path.
+export function resetSmoothAircraftPosition(cid: number, coordinate: Coordinate, heading: number) {
+    const track = tracks.get(cid);
+    if (!track) return;
+    const [lon, lat] = coordinate;
+    track.samples = [{ t: lastSampleT || Date.now(), lon, lat, heading }];
+    track.aLon = lon;
+    track.aLat = lat;
+    track.aHeading = heading;
+    track.applied = true;
 }
 
 function updateNavigraphRouteCoordinate(cid: number, coordinate: Coordinate) {
@@ -448,9 +438,11 @@ function frame() {
         const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
         const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
-        for (const feature of source.getFeatures()) {
+        for (const renderedCid of mapStore.renderedPilots ?? []) {
+            const feature = source.getFeatureById(renderedCid);
+            if (!feature) continue;
             const properties = feature.getProperties();
-            if (!isMapFeature('aircraft', properties) || !mapStore.renderedPilots?.has(properties.cid)) continue;
+            if (!isMapFeature('aircraft', properties)) continue;
 
             const cid = properties.cid;
             const track = tracks.get(cid);

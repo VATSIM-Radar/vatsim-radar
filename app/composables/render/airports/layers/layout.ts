@@ -12,6 +12,18 @@ const setAirports = new Set<string>();
 const airportFeatures = new Map<string, Feature<Geometry>[]>();
 let currentSettingsKey: string | undefined;
 
+export function disposeAirportLayouts(source: VectorSource) {
+    for (const features of airportFeatures.values()) {
+        for (const feature of features) {
+            source.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+    airportFeatures.clear();
+    setAirports.clear();
+    currentSettingsKey = undefined;
+}
+
 export function setMapNavigraphLayout({ source, airports, navigraphData, layer }: {
     source: VectorSource;
     layer: VectorLayer | VectorImageLayer;

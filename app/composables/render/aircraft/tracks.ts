@@ -1,14 +1,14 @@
 import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft';
 import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { greatCircleToOl, sleep } from '~/utils';
+import { greatCircleToOl } from '~/utils';
 import { LineString, MultiLineString } from 'ol/geom.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine } from '~/utils/map/entities';
 import type { Position } from 'geojson';
-import { aircraftState } from './state';
+import { aircraftState, beginTurnsRequest, clearAircraftState } from './state';
+import { updateAircraftLineCoordinates, setAircraftLineEndpoints } from './lines';
 
-const TURNS_REQUEST_INTERVAL = 1000 * 15;
 const TURNS_REQUEST_TIMEOUT = 1000 * 5;
 
 const STRAIGHT_LINE_NPOINTS = 8;
@@ -40,7 +40,7 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
             updateState.previousFlightPlan = updateState.flightPlan;
         }
 
-        dataStore.navigraphWaypoints.value[stringCid] = {
+        const route = {
             pilot: pilot,
             coordinates,
             full: typeof overlay?.data?.fullRoute === 'boolean' ? overlay?.data?.fullRoute : !!getKeyedValueFromSettings('map.traffic.showFullRoute'),
@@ -58,7 +58,13 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
             }),
         };
 
+        if (aircraftState[aircraft.cid] !== updateState) return;
+        dataStore.navigraphWaypoints.value[stringCid] = route;
+
         triggerRef(dataStore.navigraphWaypoints);
+    }
+    catch (error) {
+        if (aircraftState[aircraft.cid] === updateState) useRadarError(error);
     }
     finally {
         updateState.settingRoute = false;
@@ -66,12 +72,14 @@ async function updateAircraftRoute(show: boolean | null | undefined, renderSetti
 }
 
 export async function updateAircraftTracksData(renderSettings: AircraftRenderSettings, renderState: AircraftRenderState) {
-    const { linesSource } = renderSettings;
-    const { aircraft, pilot, status, tracksFeatures, overlay, coordinates } = renderState;
+    const { linesSource, historySource } = renderSettings;
+    function removeFeature(feature: FeatureAircraftLine) {
+        linesSource.removeFeature(feature);
+        historySource.removeFeature(feature);
+    }
 
-    const updateState = aircraftState[aircraft.cid] ??= {};
-
-    if (updateState.updating) return;
+    const { aircraft, pilot, status, tracksFeatures, overlay } = renderState;
+    let { coordinates } = renderState;
 
     let depLine: FeatureAircraftLine | undefined, arrLine: FeatureAircraftLine | undefined;
 
@@ -79,7 +87,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         const features = tracksFeatures.filter(x => x !== depLine && x !== arrLine);
         if (!features.length) return;
 
-        linesSource?.removeFeatures(features);
+        features.forEach(removeFeature);
         features.forEach(x => x.dispose());
     }
 
@@ -98,11 +106,14 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
     if (!pilot || !track) {
         tracksFeatures.forEach(x => {
-            linesSource.removeFeature(x);
+            removeFeature(x);
             x.dispose();
         });
 
-        updateAircraftRoute(false, renderSettings, renderState);
+        const hadRoute = dataStore.navigraphWaypoints.value[aircraft.cid];
+        delete dataStore.navigraphWaypoints.value[aircraft.cid];
+        if (hadRoute) triggerRef(dataStore.navigraphWaypoints);
+        clearAircraftState(aircraft.cid);
 
         return;
     }
@@ -111,20 +122,23 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         pilot.callsign,
         pilot.logon_time,
     ]);
-    const flightChanged = !!updateState.flightPlanKey && updateState.flightPlanKey !== flightPlanKey;
+    const previousState = aircraftState[aircraft.cid];
+    const flightChanged = !!previousState?.flightPlanKey && previousState.flightPlanKey !== flightPlanKey;
+    if (flightChanged || (previousState?.trackMode && previousState.trackMode !== track.show)) clearAircraftState(aircraft.cid);
+    const updateState = aircraftState[aircraft.cid] ??= {};
+    if (updateState.updating) return;
     updateState.flightPlanKey = flightPlanKey;
+    updateState.trackMode = track.show;
 
     if (flightChanged) {
         tracksFeatures.forEach(feature => {
-            linesSource.removeFeature(feature);
+            removeFeature(feature);
             feature.dispose();
         });
         tracksFeatures.splice(0);
 
         delete dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
 
-        updateState.lastTurnsUpdate = 0;
-        updateState.lastTurnsUpdateData = undefined;
         updateState.needsFullTurnsUpdate = true;
         updateState.turnsFirstGroupTimestamp = '';
         updateState.turnsSecondGroupPoint = null;
@@ -141,6 +155,9 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
     try {
         updateState.updating = true;
+        updateState.request = new AbortController();
+        const isCurrent = () => aircraftState[aircraft.cid] === updateState;
+        updateAircraftLineCoordinates(tracksFeatures, coordinates);
         let turnsColor = getAircraftStatusColor(status, aircraft.cid);
         const turnsTransparency = getKeyedValueFromSettings('map.preferences.colors.turnsTransparency');
 
@@ -153,8 +170,11 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         for (const feature of tracksFeatures) {
             const properties = feature.getProperties();
 
-            if (properties.lineType === 'departure-straight' && properties.color === turnsColor) depLine = feature;
-            if (properties.lineType === 'arrival-straight' && properties.color === turnsColor) arrLine = feature;
+            if (properties.lineType === 'departure-straight') depLine = feature;
+            if (properties.lineType === 'arrival-straight') arrLine = feature;
+            if (properties.status !== status || ((feature === depLine || feature === arrLine) && properties.color !== turnsColor)) {
+                feature.setProperties({ status, ...(feature === depLine || feature === arrLine ? { color: turnsColor } : {}) });
+            }
         }
 
         const departureAirport = pilot.departure ? dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure] : null;
@@ -172,9 +192,11 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         if (canShowRoute && !updateState.flightPlan) {
             updateState.flightPlan = (await $fetch<{ flightPlan: string } | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/plan`, {
                 timeout: TURNS_REQUEST_TIMEOUT,
+                signal: updateState.request.signal,
             }).catch(console.error))?.flightPlan ?? '';
         }
 
+        if (!isCurrent()) return;
         updateAircraftRoute(canShowRoute, renderSettings, renderState);
 
         // Building arrival line
@@ -185,12 +207,11 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         );
 
         if (straightArrivalLine) {
-            const geometry = greatCircleToOl(coordinates, [arrivalAirport.lon, arrivalAirport.lat]);
-
             if (arrLine) {
-                arrLine.setGeometry(geometry);
+                setAircraftLineEndpoints(arrLine, coordinates, [arrivalAirport.lon, arrivalAirport.lat]);
             }
             else {
+                const geometry = greatCircleToOl(coordinates, [arrivalAirport.lon, arrivalAirport.lat], { npoints: 8 });
                 arrLine = createMapFeature('aircraft-line', {
                     geometry,
                     id: `${ aircraft.cid }-arrival`,
@@ -212,9 +233,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         if (!tracksFeatures.length) {
             updateState.turnsFirstGroupTimestamp = '';
             updateState.turnsStart = '';
-            // No rendered history means this CID may have reconnected; do not reuse the previous session cache.
-            updateState.lastTurnsUpdate = 0;
-            updateState.lastTurnsUpdateData = undefined;
+            // A missing rendered track needs a full response; its retry deadline remains intact.
             updateState.needsFullTurnsUpdate = true;
         }
 
@@ -222,37 +241,33 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
         let turns: QuestDBGeojson | null | undefined;
 
-        if (track.show !== 'short') {
-            if (updateState.lastTurnsUpdate && updateState.lastTurnsUpdate > Date.now() - TURNS_REQUEST_INTERVAL && updateState.lastTurnsUpdateData) {
-                turns = updateState.lastTurnsUpdateData;
+        if (track.show !== 'short' && beginTurnsRequest(aircraft.cid)) {
+            const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
+            try {
+                turns = await $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
+                    timeout: TURNS_REQUEST_TIMEOUT,
+                    signal: updateState.request.signal,
+                });
             }
-            else {
-                const start = updateState.needsFullTurnsUpdate ? '' : updateState.turnsFirstGroupTimestamp ?? '';
+            catch (error) {
+                if (isCurrent()) console.error(error);
+            }
+            if (!isCurrent()) return;
+            const aircraftFeature = getMapFeature('aircraft', renderSettings.source, aircraft.cid);
+            coordinates = aircraftFeature?.getGeometry()?.getCoordinates() ?? coordinates;
+            renderState.coordinates = coordinates;
 
-                try {
-                    turns = await $fetch<QuestDBGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=${ start }`, {
-                        timeout: TURNS_REQUEST_TIMEOUT,
-                    });
-                }
-                catch (error) {
-                    await sleep(5000);
-                    console.error(error);
-                }
-
-                if (turns) {
-                    updateState.lastTurnsUpdateData = turns;
-                    updateState.lastTurnsUpdate = Date.now();
-                    updateState.needsFullTurnsUpdate = false;
-                    if (turns.flightPlanTime) {
-                        const previousData = dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
-                        // Incremental groups may omit timestamps recorded before the requested cursor.
-                        const previousFlightData = start && previousData?.flightPlanTime === turns.flightPlanTime ? previousData : undefined;
-                        dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
-                            flightPlanTime: turns.flightPlanTime,
-                            departedAt: turns.departedAt ?? previousFlightData?.departedAt ?? null,
-                            arrivedAt: turns.arrivedAt ?? previousFlightData?.arrivedAt ?? null,
-                        };
-                    }
+            if (turns) {
+                updateState.needsFullTurnsUpdate = false;
+                if (turns.flightPlanTime) {
+                    const previousData = dataStore.vatsim.tracksPilotsData.value[aircraft.cid];
+                    // Incremental groups may omit timestamps recorded before the requested cursor.
+                    const previousFlightData = start && previousData?.flightPlanTime === turns.flightPlanTime ? previousData : undefined;
+                    dataStore.vatsim.tracksPilotsData.value[aircraft.cid] = {
+                        flightPlanTime: turns.flightPlanTime,
+                        departedAt: turns.departedAt ?? previousFlightData?.departedAt ?? null,
+                        arrivedAt: turns.arrivedAt ?? previousFlightData?.arrivedAt ?? null,
+                    };
                 }
             }
         }
@@ -270,7 +285,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
         // Doing a full update
         if (firstUpdate) {
             tracksFeatures.forEach(feature => {
-                linesSource.removeFeature(feature);
+                removeFeature(feature);
                 feature.dispose();
             });
             tracksFeatures.splice(0);
@@ -286,8 +301,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.turnsSecondGroupPoint = null;
             updateState.turnsTimestamp = '';
             updateState.turnsStart = turns?.flightPlanTime ?? '';
-            updateState.lastTurnsUpdate = 0;
-            updateState.lastTurnsUpdateData = undefined;
             updateState.needsFullTurnsUpdate = true;
             shortUpdate = false;
             // This response was requested with the previous flight cursor. Do not render its final
@@ -300,13 +313,14 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.turnsStart = turns.flightPlanTime;
         }
 
-        if (turns?.features?.length && track.show !== 'short') {
+        if (turns?.features?.[0]?.features.length && track.show !== 'short') {
+            const collections = turns.features.filter(collection => collection.features.length);
             if (depLine) {
                 depLine.dispose();
                 linesSource.removeFeature(depLine);
             }
 
-            const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
+            const firstCollectionTimestamp = collections[0].features[collections[0].features.length - 1].properties!.timestamp;
 
             const toRemove = tracksFeatures.filter(x => {
                 // Clear all
@@ -317,25 +331,26 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             });
 
             toRemove.forEach(x => {
-                linesSource.removeFeature(x);
+                removeFeature(x);
                 x.dispose();
             });
 
-            if (turns.features[1]) {
-                updateState.turnsSecondGroupPoint = turns.features[1].features[0];
+            if (collections[1]) {
+                updateState.turnsSecondGroupPoint = collections[1].features[0];
             }
             else if (updateState.turnsFirstGroupTimestamp !== firstCollectionTimestamp) updateState.turnsSecondGroupPoint = null;
 
             updateState.turnsFirstGroupTimestamp = firstCollectionTimestamp ?? '';
 
-            for (let i = 0; i < turns.features.length; i++) {
+            for (let i = 0; i < collections.length; i++) {
                 const collection = {
-                    ...turns.features[i],
+                    ...collections[i],
                 };
+                if (!collection.features.length) continue;
 
                 collection.features = [...collection.features];
 
-                const nextCollection = turns.features[i + 1];
+                const nextCollection = collections[i + 1];
 
                 if (i === 0) {
                     const coordinates = [
@@ -397,12 +412,12 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     });
                 }
 
-                if (i === turns.features.length - 1 &&
+                if (i === collections.length - 1 &&
                     !shortUpdate &&
                     departureAirport &&
                     arrivalAirport &&
                     departureAirport.icao !== arrivalAirport?.icao &&
-                    !turns.features.some(x => x.features.some(x => x.properties!.standing === true))
+                    !collections.some(x => x.features.some(x => x.properties!.standing === true))
                 ) {
                     const coordinates = [
                         [departureAirport.lon, departureAirport.lat],
@@ -411,7 +426,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     const geometry = greatCircleToOl(coordinates[0], coordinates[1]);
 
                     const id = `${ aircraft.cid }-timestamp-${ collection.features[0].properties!.timestamp }-departure` as const;
-                    const existing = getMapFeature('aircraft-line', linesSource, id);
+                    const existing = getMapFeature('aircraft-line', historySource, id);
 
                     if (existing) {
                         existing.setGeometry(geometry);
@@ -432,7 +447,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                             status,
                         });
 
-                        linesSource.addFeature(lineFeature);
+                        historySource.addFeature(lineFeature);
                     }
                 }
 
@@ -498,7 +513,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     status,
                 });
 
-                linesSource.addFeature(lineFeature);
+                historySource.addFeature(lineFeature);
             }
         }
         else {
@@ -509,15 +524,19 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
             // A timeout or temporarily empty QuestDB response must not erase a valid route.
             // Short mode explicitly disables loaded history, so it still clears those features.
-            if (!hasRenderedHistory) clearNonStraightFeatures();
+            if (!hasRenderedHistory) {
+                clearNonStraightFeatures();
+                updateState.turnsFirstGroupTimestamp = '';
+                updateState.turnsSecondGroupPoint = null;
+                updateState.needsFullTurnsUpdate = true;
+            }
 
             if (!hasRenderedHistory && departureAirport && pilot?.depDist && pilot?.depDist > 20 && track.isShown) {
-                const geometry = greatCircleToOl([departureAirport.lon, departureAirport.lat], coordinates, { npoints: STRAIGHT_LINE_NPOINTS });
-
                 if (depLine) {
-                    depLine.setGeometry(geometry);
+                    setAircraftLineEndpoints(depLine, [departureAirport.lon, departureAirport.lat], coordinates);
                 }
                 else {
+                    const geometry = greatCircleToOl([departureAirport.lon, departureAirport.lat], coordinates, { npoints: STRAIGHT_LINE_NPOINTS });
                     depLine = createMapFeature('aircraft-line', {
                         geometry,
                         id: `${ aircraft.cid }-departure`,

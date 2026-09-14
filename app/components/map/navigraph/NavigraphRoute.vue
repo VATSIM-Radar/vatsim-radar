@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Feature } from 'ol';
-import type VectorSource from 'ol/source/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import { injectMap } from '~/composables/map';
+import { setNavigraphStyle } from '~/composables/render/navigraph/style';
 import { Point } from 'ol/geom.js';
 import { getNavigraphParsedDataBulk, waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -36,10 +39,21 @@ const mapStore = useMapStore();
 
 let triggeringNavigraphWaypointOutputs = false;
 
-if (source) {
-    watch(source, value => setSmoothNavigraphRouteSource(value), { immediate: true });
-    onBeforeUnmount(() => setSmoothNavigraphRouteSource(null));
-}
+const map = injectMap();
+const liveSource = new VectorSource({ wrapX: true });
+const liveLayer = new VectorLayer({
+    source: liveSource,
+    zIndex: 6,
+    declutter: 'navigraph',
+    properties: { selectable: true },
+});
+setNavigraphStyle(liveLayer);
+watch(map, (value, previous) => {
+    previous?.removeLayer(liveLayer);
+    value?.addLayer(liveLayer);
+}, { immediate: true });
+setSmoothNavigraphRouteSource(liveSource);
+let disposed = false;
 
 interface RouteRenderCache extends Omit<PilotNavigraphWaypoints, 'pilot' | 'coordinates'> {
     departure: string | null | undefined;
@@ -81,6 +95,11 @@ function hasSameNextWaypoint(cache: RouteRenderCache, waypoint: RouteWaypointCan
 }
 
 function cleanup() {
+    disposed = true;
+    setSmoothNavigraphRouteSource(null);
+    map.value?.removeLayer(liveLayer);
+    liveSource.clear();
+    liveLayer.dispose();
     const features = source?.value.getFeatures() ?? [];
 
     for (const feature of features) {
@@ -95,6 +114,7 @@ function cleanup() {
 }
 
 async function update() {
+    if (disposed) return;
     let currentFlight = false;
     const featuresToAdd: Feature[] = [];
     const pendingFeatures = new Map<string, Feature>();
@@ -104,8 +124,9 @@ async function update() {
     const visibleRouteCids = new Set<number>();
     let routeKeys: Set<string> | null = null;
 
-    function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
-        const existingFeature = getMapFeature('navigraph', source!.value, id) ?? pendingFeatures.get(id);
+    function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>, live = false) {
+        if (disposed) return;
+        const existingFeature = getMapFeature('navigraph', live ? liveSource : source!.value, id) ?? pendingFeatures.get(id);
         keys.add(id);
         routeKeys?.add(id);
 
@@ -346,7 +367,7 @@ async function update() {
                         self: true,
                         kind: prevWaypointKind ?? kind,
                         dbType: prevWaypointKind ?? kind,
-                    }));
+                    }), true);
                 }
 
                 firstWaypoint = true;
@@ -560,7 +581,8 @@ async function update() {
             if (!visibleRouteCids.has(cid)) routeRenderCache.delete(cid);
         }
 
-        const features = source?.value.getFeatures() ?? [];
+        if (disposed) return;
+        const features = [...source?.value.getFeatures() ?? [], ...liveSource.getFeatures()];
 
         const waypoints: Record<string, PilotNavigraphWaypoints> = {};
 
@@ -588,6 +610,7 @@ async function update() {
             const type = feature.getProperties().featureType;
             if (type.startsWith('enroute') && !keys.has(feature.getId() as string)) {
                 source?.value.removeFeature(feature);
+                liveSource.removeFeature(feature);
                 feature.dispose();
             }
             else if (type.startsWith('enroute') && feature.getProperties().currentFlight !== currentFlightKeys.has(feature.getId() as string)) {
@@ -597,7 +620,10 @@ async function update() {
             }
         }
 
-        if (featuresToAdd.length) source?.value.addFeatures(featuresToAdd);
+        if (featuresToAdd.length) {
+            source?.value.addFeatures(featuresToAdd.filter(feature => !feature.get('self')));
+            liveSource.addFeatures(featuresToAdd.filter(feature => feature.get('self')));
+        }
 
         triggeringNavigraphWaypointOutputs = true;
         try {

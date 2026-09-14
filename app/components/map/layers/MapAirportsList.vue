@@ -13,7 +13,7 @@ import { globalMapEntities } from '~/utils/map/entities';
 import { setMapGatesRunways } from '~/composables/render/airports/layers/gates';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { airportLayoutStyles } from '~/composables/navigraph/layouts';
-import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
+import { setMapNavigraphLayout, disposeAirportLayouts } from '~/composables/render/airports/layers/layout';
 import { isHideMapObject } from '~/composables/settings';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
 
@@ -214,6 +214,7 @@ onMounted(() => {
     const renderAirports = useThrottleFn(async () => {
         if (isHideMapObject('airports')) {
             airportsSource?.clear();
+            disposeAirportLayouts(navigraphSource);
             navigraphSource?.clear();
             gatesSource?.clear();
             return;
@@ -258,6 +259,7 @@ onMounted(() => {
 });*/
 
 onBeforeUnmount(() => {
+    if (navigraphSource) disposeAirportLayouts(navigraphSource);
     airportsLayer?.dispose();
     navigraphLayer?.dispose();
     gatesLayer?.dispose();

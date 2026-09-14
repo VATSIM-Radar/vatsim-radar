@@ -92,6 +92,12 @@ export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortened
 
 export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPilotStatus>>;
 
+// Shared per-snapshot indexes preserve feed order without scanning the worldwide
+// pilot list once for every open airport/dashboard. Use short-data coordinates here
+// so distance/ETA updates retain their existing cadence.
+const airportPilotIndex = computed(() => new Map(useDataStore().vatsim.data.pilots.value.map((pilot, index) => [pilot.cid, { pilot, index }])));
+const airportPrefileIndex = computed(() => new Map(useDataStore().vatsim.data.prefiles.value.map((pilot, index) => [pilot.cid, { pilot, index }])));
+
 export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'] | null>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
@@ -144,12 +150,22 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
             arrivals: [] as AirportPopupPilotStatus[],
         } satisfies AirportPopupPilotList;
 
-        for (const pilot of dataStore.vatsim.data.pilots.value) {
+        const categories = {
+            groundDep: new Set(vatAirport.aircraft.groundDep),
+            groundArr: new Set(vatAirport.aircraft.groundArr),
+            departures: new Set(vatAirport.aircraft.departures),
+            arrivals: new Set(vatAirport.aircraft.arrivals),
+        };
+        const candidates = new Set(Object.values(categories).flatMap(ids => [...ids]));
+        const pilots = [...candidates].map(cid => airportPilotIndex.value.get(cid))
+            .filter(entry => !!entry).sort((a, b) => a.index - b.index);
+
+        for (const { pilot } of pilots) {
             if (data.icao !== pilot.departure && data.icao !== pilot.arrival && vatAirport?.iata !== pilot.departure && vatAirport?.iata !== pilot.arrival) {
                 // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
                 // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
                 if (!pilot.departure && !pilot.arrival) {
-                    if (!vatAirport.aircraft.groundDep?.includes(pilot.cid) && !vatAirport.aircraft.groundArr?.includes(pilot.cid)) continue;
+                    if (!categories.groundDep.has(pilot.cid) && !categories.groundArr.has(pilot.cid)) continue;
                 }
                 else {
                     continue;
@@ -190,29 +206,29 @@ export const getAircraftForAirport = (_data: MaybeRef<StoreOverlayAirport['data'
                 isArrival: true,
             };
 
-            if (vatAirport.aircraft.departures?.includes(pilot.cid)) {
+            if (categories.departures.has(pilot.cid)) {
                 list.departures.push({ ...truePilot, isArrival: false });
             }
-            if (vatAirport.aircraft.arrivals?.includes(pilot.cid)) {
+            if (categories.arrivals.has(pilot.cid)) {
                 list.arrivals.push(truePilot);
             }
-            if (vatAirport.aircraft.groundDep?.includes(pilot.cid)) {
+            if (categories.groundDep.has(pilot.cid)) {
                 list.groundDep.push({ ...truePilot, isArrival: false });
             }
-            if (vatAirport.aircraft.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
+            if (categories.groundArr.has(pilot.cid)) list.groundArr.push(truePilot);
         }
 
-        for (const pilot of dataStore.vatsim.data.prefiles.value) {
+        const prefiles = [...new Set(vatAirport.aircraft.prefiles)].map(cid => airportPrefileIndex.value.get(cid))
+            .filter(entry => !!entry).sort((a, b) => a.index - b.index);
+        for (const { pilot } of prefiles) {
             if (pilot.departure !== data.icao) continue;
-            if (vatAirport.aircraft.prefiles?.includes(pilot.cid)) {
-                list.prefiles.push({
-                    ...pilot,
-                    distance: 0,
-                    flown: 0,
-                    eta: null,
-                    isArrival: false,
-                });
-            }
+            list.prefiles.push({
+                ...pilot,
+                distance: 0,
+                flown: 0,
+                eta: null,
+                isArrival: false,
+            });
         }
 
         if (filter) {
