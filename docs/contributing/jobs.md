@@ -13,7 +13,7 @@ We are hiring because two persons responsible for those areas lack free time to 
 
 ### Requirements
 
-1. You shall be familiar with Figma on a Junior+ or greater level
+1. You shall be familiar with Figma on a Junior+ or greater level - understand concepts of tokens and such
 2. You shall be familiar with basic UI concepts, such as Material Design
 3. You shall dislike default generic AI Tailwind design because it sucks and is present everywhere
 
