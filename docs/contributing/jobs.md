@@ -58,4 +58,6 @@ Look at current icons to understand what the job is: https://github.com/VATSIM-R
 
 We'll do an interview session to get to know each other. 
 
+Applications form will be available until 28 Sep or so. 
+
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc1ilUc4iniU9jHyAu9xLmfVWghNMuscWxV5ZuDSocpIJCjaA/viewform?embedded=true" width="100%" height="600px" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
