@@ -451,7 +451,7 @@ function frame() {
         for (const cid of Array.from(mapStore.renderedPilots ?? [])) {
             const feature = source.getFeatureById(cid);
             const properties = feature?.getProperties();
-            if (!feature || !properties || !isMapFeature('aircraft', properties) || !mapStore.renderedPilots?.has(properties.cid)) continue;
+            if (!feature || !properties || !isMapFeature('aircraft', properties)) continue;
 
             const track = tracks.get(cid);
             if (!track) continue;

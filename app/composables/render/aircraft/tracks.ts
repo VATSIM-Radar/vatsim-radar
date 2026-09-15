@@ -509,7 +509,12 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
             // A timeout or temporarily empty QuestDB response must not erase a valid route.
             // Short mode explicitly disables loaded history, so it still clears those features.
-            if (!hasRenderedHistory) clearNonStraightFeatures();
+            if (!hasRenderedHistory) {
+                clearNonStraightFeatures();
+                updateState.turnsFirstGroupTimestamp = '';
+                updateState.turnsSecondGroupPoint = null;
+                updateState.needsFullTurnsUpdate = true;
+            }
 
             if (!hasRenderedHistory && departureAirport && pilot?.depDist && pilot?.depDist > 20 && track.isShown) {
                 const geometry = greatCircleToOl([departureAirport.lon, departureAirport.lat], coordinates, { npoints: STRAIGHT_LINE_NPOINTS });
