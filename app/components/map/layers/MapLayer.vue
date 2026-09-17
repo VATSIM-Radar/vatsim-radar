@@ -117,7 +117,7 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
                 title: 'Protomaps',
                 url: 'https://github.com/protomaps/basemaps',
             },
-            url: '/tiles.json?v=2.0',
+            url: '/tiles.json?v=2.0.3',
             pm: true,
             theme,
         };
