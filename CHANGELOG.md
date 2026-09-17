@@ -1,71 +1,39 @@
 # Changelog
 
-# [2.0.3-rc.4]
+# [2.0.3-final]
 
-## QA Fixes
-
-- Fixed Air France icon
+This update is probably the final update addressing v2 feedback as there is not much left to fix. v2.1 development will
+begin after this one.
 
 ## Features and Improvements
 
 - Updated base map layer from 03 July 2026 to 17 Sept 2026
+- Re-enabled ZNY VATGlasses sector
+- Added model matching for H25B HAWKER to FA50
+- Controllers callsign will now be highlighted when they are favorited/friends in controller card
+- METAR will now be opened in "info" tab of airport by default
+- Add country flags and airline logos to aircraft overlays by webdevcode-git. Country flag is displayed next to
+  registration, and airline shows in case airline is non-virtual and registration is real - it will show in "Airline &
+  Photo" section in that case
 
 ## Bug Fixes
 
-- Re-enabled ZNY VATGlasses sector
 - Improved stability of ATC focus when direct link is opened
-
-# [2.0.3-rc.3]
-
-## QA Changes
-
-- Moved Airline logo under Photo section, renamed Photo section accordingly
-- Removed Reg Flag from airline name, it will now only show under Reg in flight plan
+- Fixed rare issues when frequencies were replacing with incorrect ones (For example, 124.300 showed for LFMN_TWR
+  instead of 118.700)
+- Fixed MAGADAN CTA showing on whole world when having controlled airspace layer enabled
+- Fixed SID being blue after departure
+- Fixed old flight track showing after reconnect in case your new flight had exactly same params as previous
+- Fixed flight plan resetting after reconnecting from empty flight plan and filling old one again
+- Fixed speed & altitude graph color in light theme
 
 ## Performance Improvements
 
 - Implemented minor performance improvements
-
-# [2.0.3-rc.2]
-
-- Fixed rare issues when frequencies were replacing with incorrect ones (For example, 124.300 showed for LFMN_TWR instead of 118.700)
-
-# [2.0.3-rc.1]
-
-## QA Changes
-
-- Updated aircraft logo display to be a banner instead of icon and have it's own section
-
-## 2.0.3 changes
-
-- Fixed an issue when having controlled/restrictive airspace enabled: zoom into the ground has led to severe performance degradation
-- Added model matching for H25B HAWKER to FA50
-- Fixed MAGADAN CTA showing on whole world when having controlled airspace layer enabled
-- METAR will now be opened in "info" tab of airport by default
-- Controllers callsign will now be highlighted when they are favorited/friends in controller card
-
-# [2.0.2-1-beta.3]
-
-## QA Changes
-
-- Moved logo from top left to operator line
-- Removed logo for VAs
-- Changed country matching to be by registration ONLY
-- Added registration country to operator
-- Fixed various issues with aircraft having too small size or teleporting with animation
-
-# [2.0.2-1-beta.2]
-
-- Add country flags and airline logos to aircraft overlays by webdevcode-git
-
-# [2.0.2-1-beta.1]
-
-- Fixed SID being blue after departure
-- Fixed old flight track showing after reconnect in case your new flight had exactly same params as previous
-- Fixed flight plan resetting after reconnecting from empty flight plan and filling old one again
+- Fixed an issue when having controlled/restrictive airspace enabled: zoom into the ground has led to severe performance
+  degradation
 - Fixed smooth aircraft handling all world aircraft movement instead of currently visible
 - Reduced aircraft update frequency to be only when needed
-- Fixed speed & altitude graph color in light theme
 
 # [2.0.2-final]
 
