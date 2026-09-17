@@ -11,6 +11,7 @@ import { globalMapEntities, isMapFeature } from '~/utils/map/entities';
 import { extend } from 'ol/extent.js';
 import type { Extent } from 'ol/extent.js';
 import type { Geometry } from 'ol/geom.js';
+import { isHideAtcType } from '~/composables/settings';
 
 export const useFacilitiesIds = () => {
     return {
@@ -261,10 +262,14 @@ export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | nu
 
     if (!map) return;
 
+    const store = useStore();
+    let iteration = 0;
+
     if (!globalMapEntities.sectors?.getFeatures().length) {
         do {
             await sleep(1000);
-        } while (!globalMapEntities.sectors?.getFeatures().length);
+            iteration++;
+        } while (!globalMapEntities.sectors?.getFeatures().length && !store.config.hideSectors && !isHideAtcType('firs') && iteration < 60);
     }
 
     const sector = findATCSector(atc);
