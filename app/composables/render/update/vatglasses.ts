@@ -33,7 +33,7 @@ let facilities: {
     CTR: number;
 };
 
-const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', 'RUSC', 'RUCEN', 'RUWSC', 'RUESC', 'RUWRC', 'RUERC', ['56', 'NY']];
+const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', 'RUSC', 'RUCEN', 'RUWSC', 'RUESC', 'RUWRC', 'RUERC'];
 
 function checkIgnoredPosition(id: string, callsign: string) {
     return ignoredPositions.some(x => typeof x === 'string' ? id === x : x[0] === id && callsign.startsWith(x[1]));

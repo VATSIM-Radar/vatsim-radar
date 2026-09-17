@@ -1,5 +1,20 @@
 # Changelog
 
+# [2.0.3-rc.4]
+
+## QA Fixes
+
+- Fixed Air France icon
+
+## Features and Improvements
+
+- Updated base map layer from 03 July 2026 to 17 Sept 2026
+
+## Bug Fixes
+
+- Re-enabled ZNY VATGlasses sector
+- Improved stability of ATC focus when direct link is opened
+
 # [2.0.3-rc.3]
 
 ## QA Changes

@@ -261,7 +261,14 @@ export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | nu
 
     if (!map) return;
 
+    if (!globalMapEntities.sectors?.getFeatures().length) {
+        do {
+            await sleep(1000);
+        } while (!globalMapEntities.sectors?.getFeatures().length);
+    }
+
     const sector = findATCSector(atc);
+
     if (sector) {
         map.getView().fit(sector, {
             duration: 300,

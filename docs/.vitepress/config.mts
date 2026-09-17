@@ -33,6 +33,10 @@ export default defineConfig({
                 link: '/contributing/',
             },
             {
+                text: 'News',
+                link: '/blog/',
+            },
+            {
                 text: packageJson.version,
                 items: [
                     {
@@ -58,20 +62,6 @@ export default defineConfig({
                     {
                         text: 'About Us',
                         link: '/introduction/about',
-                        items: [
-                            {
-                                text: `VATSIM Radar v2 feedback`,
-                                link: '/blog/v2-post-release',
-                            },
-                            {
-                                text: 'Year 2 of VATSIM Radar',
-                                link: '/blog/year-2-of-radar',
-                            },
-                            {
-                                text: 'State of Radar 2025',
-                                link: '/blog/state-of-radar-2025',
-                            },
-                        ],
                     },
                     {
                         text: 'FAQ',
@@ -132,7 +122,7 @@ export default defineConfig({
                         link: '/contributing/va',
                     },
                     {
-                        text: 'Airlines data',
+                        text: 'Airlines data/logos',
                         link: '/contributing/airlines',
                     },
                     {

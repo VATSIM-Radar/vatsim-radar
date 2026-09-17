@@ -363,7 +363,7 @@ export default defineNuxtConfig({
                 'ol/extent.js',
                 'ol/format.js',
                 'ol/geom/Polygon.js',
-                'ol/proj.ts',
+                'ol/proj.js',
             ],
         },
         build: {
