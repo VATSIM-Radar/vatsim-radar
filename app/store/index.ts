@@ -388,7 +388,7 @@ export const useStore = defineStore('index', {
                             dataStore.versions.value.simaware !== await clientDB.simaware.get('version') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
-                    ) location.href = '/?reload=1'
+                    ) location.href = '/?reload=1';
                 }
 
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
