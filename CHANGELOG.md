@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.3]
+# [2.0.3-final]
 
 This update is probably the final update addressing v2 feedback as there is not much left to fix. v2.1 development will
 begin after this one.
