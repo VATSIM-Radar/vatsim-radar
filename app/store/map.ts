@@ -90,8 +90,8 @@ export const useMapStore = defineStore('map', {
         openOverlayId: null as string | null,
 
         hoveredPilot: null as number | null,
-        renderedAirports: null as null | string[],
-        renderedPilots: null as null | number[],
+        renderedAirports: null as null | Set<string>,
+        renderedPilots: null as null | Set<number>,
         shownPilots: 0,
 
         overlays: [] as StoreOverlay[],
@@ -124,15 +124,15 @@ export const useMapStore = defineStore('map', {
     }),
     getters: {
         getRenderedPilotsCount(): number {
-            if (getKeyedValueFromSettings('map.traffic.declutter') !== false) return this.shownPilots || this.renderedPilots?.length || 0;
+            if (getKeyedValueFromSettings('map.traffic.declutter') !== false) return this.shownPilots || this.renderedPilots?.size || 0;
 
-            return this.renderedPilots?.length ?? 0;
+            return this.renderedPilots?.size ?? 0;
         },
         canShowOverlay(): boolean {
             return !this.moving && !this.distance.pixel;
         },
         showAirportDetails(): boolean {
-            return !!this.renderedAirports && this.renderedAirports.length < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > getKeyedValueFromSettings('map.preferences.airports.showZoomLimit');
+            return !!this.renderedAirports && this.renderedAirports.size < getKeyedValueFromSettings('map.preferences.airports.showLimit') && this.zoom > getKeyedValueFromSettings('map.preferences.airports.showZoomLimit');
         },
         compactAirportView(): boolean {
             const shortView = getKeyedValueFromSettings('map.preferences.airports.shortView');

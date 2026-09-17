@@ -394,7 +394,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             }
 
             const hideText = !overlays.value.includes(cid) && ownFlight.value?.cid !== cid &&
-                (!pilotLabels.value || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.getRenderedPilotsCount === 0 || mapStore.renderedPilots.length > aircraftShowLimit.value);
+            (!pilotLabels.value || scaledWidth < 10 || !mapStore.renderedPilots || mapStore.getRenderedPilotsCount === 0 || mapStore.renderedPilots.size > aircraftShowLimit.value);
             let offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
             const textValue = hideText ? undefined : callsign;
             const text = textStyle.getText()!;

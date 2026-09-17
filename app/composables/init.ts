@@ -7,6 +7,7 @@ import type { IDBVatSpyData } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
+    DataImagesType,
     RadarDataAirlinesAllList,
     SimAwareAPIData, SimAwareDataFeature,
     VatglassesAPIData, VatglassesData,
@@ -403,15 +404,21 @@ export function checkForNavigraph() {
 export function checkForAirlines() {
     return initCheck('airlines', async ({ dataStore }) => {
         const airlines = await clientDB.airlines.get('version') as string | undefined;
+        const images = await clientDB.data.get('images-data') as DataImagesType | undefined;
+
         let notRequired = true;
-        if (!airlines || Date.now() > new Date(airlines).getTime()) {
+        if (!airlines || !images || Date.now() > new Date(airlines).getTime()) {
             const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
+            const imagesData = await $fetch<DataImagesType>('/api/data/images');
 
             try {
                 await clientDB.airlines.clear();
                 await clientDB.airlines.bulkPut(Object.values(data.all), Object.keys(data.all).map(x => x));
                 await clientDB.airlines.bulkPut(Object.values(data.virtual), Object.keys(data.virtual).map(x => `${ x }-virtual`));
                 await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version');
+
+                await clientDB.data.put(imagesData, 'images-data');
+                dataStore.imagesData = imagesData;
             }
             catch {
                 await clientDB.delete();
@@ -420,6 +427,7 @@ export function checkForAirlines() {
 
             notRequired = false;
         }
+        else dataStore.imagesData = images;
 
         if (notRequired) return 'notRequired';
     });

@@ -348,7 +348,6 @@ const tabs = computed<InfoPopupContent>(() => {
         list.info.sections.push({
             title: 'METAR',
             collapsible: true,
-            collapsedDefault: !!vatInfo.value,
             key: 'metar',
         });
     }

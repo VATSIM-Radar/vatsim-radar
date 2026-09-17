@@ -10,6 +10,7 @@ import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 import { greatCircleToOl } from '~/utils';
+import { useMapStore } from '~/store/map';
 
 interface Sample {
     t: number;
@@ -78,6 +79,9 @@ function computeDelay() {
 export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: number, timestampNum: number, now = Date.now()) {
     if (serverTime && serverTime <= lastServerTime) return;
 
+    const mapStore = useMapStore();
+    const renderedPilots = mapStore.renderedPilots;
+
     lastSampleWall = now;
     awaitingFreshSamples = false;
 
@@ -103,6 +107,7 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
 
     for (const pilot of pilots) {
         seen.add(pilot.cid);
+
         const heading = pilot.heading ?? 0;
         const track = tracks.get(pilot.cid);
 
@@ -117,7 +122,7 @@ export function recordSmoothSamples(pilots: VatsimMandatoryPilot[], serverTime: 
             continue;
         }
 
-        if (resetAfterInactiveGap) {
+        if (resetAfterInactiveGap || !renderedPilots?.has(pilot.cid)) {
             track.samples = [{ t, lon: pilot.longitude, lat: pilot.latitude, heading }];
             track.aLon = NaN;
             track.aLat = NaN;
@@ -393,6 +398,7 @@ function isDocumentHidden() {
 function frame() {
     try {
         const source = activeSource;
+        const mapStore = useMapStore();
         if (!source) return;
         if (isDocumentHidden()) return;
 
@@ -442,11 +448,11 @@ function frame() {
         const positionAmount = 1 - Math.exp(-sinceLast / POSITION_SMOOTH_MS);
         const headingAmount = 1 - Math.exp(-sinceLast / HEADING_SMOOTH_MS);
 
-        for (const feature of source.getFeatures()) {
-            const properties = feature.getProperties();
-            if (!isMapFeature('aircraft', properties)) continue;
+        for (const cid of Array.from(mapStore.renderedPilots ?? [])) {
+            const feature = source.getFeatureById(cid);
+            const properties = feature?.getProperties();
+            if (!feature || !properties || !isMapFeature('aircraft', properties)) continue;
 
-            const cid = properties.cid;
             const track = tracks.get(cid);
             if (!track) continue;
 

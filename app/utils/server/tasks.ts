@@ -20,7 +20,7 @@ import {
     updateSectorsData,
     updateBookings,
     updateNattrak,
-    updateTransceivers,
+    updateTransceivers, updateAirlinesCodes,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -139,6 +139,7 @@ async function vatsimTasks() {
     await defineCronJob('*/30 * * * * *', updateVatglassesDynamic).catch(console.error);
     await defineCronJob('15 * * * *', updateSectorsData).catch(console.error);
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
+    await defineCronJob('15 0 * * *', updateAirlinesCodes).catch(console.error);
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
     await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
     await defineCronJob('20 0 * * *', async () => {
@@ -449,6 +450,7 @@ export async function updateRedisData() {
     radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
     radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
     radarStorage.airlines = (await getRedisData('data-airlines')) ?? radarStorage.airlines;
+    radarStorage.images = (await getRedisData('data-images')) ?? radarStorage.images;
     radarStorage.vatsimStatic.divisions = (await getRedisData('data-divisions')) ?? radarStorage.vatsimStatic.divisions;
     radarStorage.vatsimStatic.subDivisions = (await getRedisData('data-subdivisions')) ?? radarStorage.vatsimStatic.subDivisions;
     radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;

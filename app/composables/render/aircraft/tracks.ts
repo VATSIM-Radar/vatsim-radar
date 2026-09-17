@@ -1,7 +1,7 @@
 import type { AircraftRenderSettings, AircraftRenderState } from '~/composables/render/aircraft';
 import type { QuestDBGeojson } from '~/utils/server/questdb/converters';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { greatCircleToOl } from '~/utils';
+import { greatCircleToOl, sleep } from '~/utils';
 import { LineString, MultiLineString } from 'ol/geom.js';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraftLine } from '~/utils/map/entities';
@@ -235,6 +235,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     });
                 }
                 catch (error) {
+                    await sleep(5000);
                     console.error(error);
                 }
 
@@ -508,7 +509,12 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
             // A timeout or temporarily empty QuestDB response must not erase a valid route.
             // Short mode explicitly disables loaded history, so it still clears those features.
-            if (!hasRenderedHistory) clearNonStraightFeatures();
+            if (!hasRenderedHistory) {
+                clearNonStraightFeatures();
+                updateState.turnsFirstGroupTimestamp = '';
+                updateState.turnsSecondGroupPoint = null;
+                updateState.needsFullTurnsUpdate = true;
+            }
 
             if (!hasRenderedHistory && departureAirport && pilot?.depDist && pilot?.depDist > 20 && track.isShown) {
                 const geometry = greatCircleToOl([departureAirport.lon, departureAirport.lat], coordinates, { npoints: STRAIGHT_LINE_NPOINTS });

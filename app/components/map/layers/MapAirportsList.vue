@@ -187,7 +187,7 @@ onMounted(() => {
         visibleAirports.value = result.visible;
     }, 500, true);
 
-    useUpdateCallback(['short', 'extent', dataStore.airportsList, updateRelatedSettings], () => {
+    useUpdateCallback(['short', 'extent', updateRelatedSettings, dataStore.sectorsUpdateId], () => {
         updateAirports();
     }, {
         immediate: true,
@@ -209,7 +209,7 @@ onMounted(() => {
         getKeyedValueFromSettings('map.preferences.airports.counters.syncDeparturesArrivals'),
         getKeyedValueFromSettings('map.preferences.airports.showZoomLimit'),
     ]));
-    const mapRender = computed(() => !mapStore.renderedAirports?.length);
+    const mapRender = computed(() => !mapStore.renderedAirports?.size);
 
     const renderAirports = useThrottleFn(async () => {
         if (isHideMapObject('airports')) {

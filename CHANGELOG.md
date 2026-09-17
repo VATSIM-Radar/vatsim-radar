@@ -1,6 +1,41 @@
 # Changelog
 
-# [2.0.2]
+# [2.0.3-final]
+
+This update is probably the final update addressing v2 feedback as there is not much left to fix. v2.1 development will
+begin after this one.
+
+## Features and Improvements
+
+- Updated base map layer from 03 July 2026 to 17 Sept 2026
+- Re-enabled ZNY VATGlasses sector
+- Added model matching for H25B HAWKER to FA50
+- Controllers callsign will now be highlighted when they are favorited/friends in controller card
+- METAR will now be opened in "info" tab of airport by default
+- Add country flags and airline logos to aircraft overlays by webdevcode-git. Country flag is displayed next to
+  registration, and airline shows in case airline is non-virtual and registration is real - it will show in "Airline &
+  Photo" section in that case
+
+## Bug Fixes
+
+- Improved stability of ATC focus when direct link is opened
+- Fixed rare issues when frequencies were replacing with incorrect ones (For example, 124.300 showed for LFMN_TWR
+  instead of 118.700)
+- Fixed MAGADAN CTA showing on whole world when having controlled airspace layer enabled
+- Fixed SID being blue after departure
+- Fixed old flight track showing after reconnect in case your new flight had exactly same params as previous
+- Fixed flight plan resetting after reconnecting from empty flight plan and filling old one again
+- Fixed speed & altitude graph color in light theme
+
+## Performance Improvements
+
+- Implemented minor performance improvements
+- Fixed an issue when having controlled/restrictive airspace enabled: zoom into the ground has led to severe performance
+  degradation
+- Fixed smooth aircraft handling all world aircraft movement instead of currently visible
+- Reduced aircraft update frequency to be only when needed
+
+# [2.0.2-final]
 
 ## Features and Improvements
 

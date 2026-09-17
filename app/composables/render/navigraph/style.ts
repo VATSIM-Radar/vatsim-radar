@@ -2,6 +2,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import { Icon, Style, Fill, Stroke, Text } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Point } from 'ol/geom.js';
+import type Map from 'ol/Map.js';
 import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
@@ -9,7 +10,7 @@ import type VectorLayer from 'ol/layer/Vector.js';
 
 const geometriesCache = new WeakMap<WeakKey, Geometry>();
 
-export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
+export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Map) {
     // Keep caches local to the layer. Two Navigraph layers otherwise overwrite each other's
     // mutable Style instances and force unnecessary style reconstruction.
     const styleCache: Record<string, Style> = {};
@@ -43,6 +44,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         opacity: 0.6,
     });
 
+    const mapStore = useMapStore();
     const showAirwaysLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showAirwaysLabel');
     const showWaypointsLabels = useSettingValueFromFunc('map.navigraph.layers.airways.showWaypointsLabel');
 
@@ -165,6 +167,17 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         lineDash: [6, 12],
     });
 
+    const referenceResolution = map.getView().getResolutionForZoom(8);
+
+    function getAirspaceRepeat(resolution: number) {
+        if (mapStore.preciseZoom > 12) return undefined;
+
+        return Math.min(
+            2000,
+            Math.max(800, 400 * referenceResolution / resolution),
+        );
+    }
+
     const restrictedAirspaceStyle = new Style({
         stroke: new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('red500').join(',') }, 0.3)`,
@@ -285,7 +298,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         }),
     });
 
-    layer.setStyle(feature => {
+    layer.setStyle((feature, resolution) => {
         const properties = feature.getProperties();
 
         if (!isMapFeature('navigraph', properties)) return;
@@ -337,16 +350,24 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer) {
         }
 
         if (featureType === 'restrictive-airspace') {
+            const repeat = getAirspaceRepeat(resolution);
             const style = properties.opened ? restrictedAirspaceStyleSelected : restrictedAirspaceStyle;
 
+            if (style.getText()!.getRepeat() !== repeat) {
+                style.getText()!.setRepeat(repeat);
+            }
             style.getText()!.setText(`${ properties.identifier } ${ properties.lowerLimit } - ${ properties.upperLimit }`);
 
             return style;
         }
 
         if (featureType === 'controlled-airspace') {
+            const repeat = getAirspaceRepeat(resolution);
             const style = properties.opened ? controlledAirspaceStyleSelected : controlledAirspaceStyle;
 
+            if (style.getText()!.getRepeat() !== repeat) {
+                style.getText()!.setRepeat(repeat);
+            }
             style.getText()!.setText(`${ properties.identifier } ${ properties.lowerLimit } - ${ properties.upperLimit }`);
 
             return style;

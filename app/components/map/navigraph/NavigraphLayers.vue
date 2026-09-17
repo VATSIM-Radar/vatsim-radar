@@ -368,7 +368,7 @@ watch(map, val => {
             },
         });
 
-        setNavigraphStyle(navigraphLayer);
+        setNavigraphStyle(navigraphLayer, map.value!);
 
         map.value?.addLayer(navigraphLayer);
     }
@@ -386,7 +386,7 @@ watch(map, val => {
             },
         });
 
-        setNavigraphStyle(navigraphVectorLayer);
+        setNavigraphStyle(navigraphVectorLayer, map.value!);
 
         map.value?.addLayer(navigraphVectorLayer);
     }

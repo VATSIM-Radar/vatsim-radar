@@ -200,6 +200,27 @@
                 </div>
             </div>
 
+            <div class="about__attributions">
+                <ui-text type="caption-light">
+                    Country flags are sourced from
+                    <a
+                        href="https://flagcdn.com"
+                        rel="noopener"
+                        target="_blank"
+                    >flagcdn.com</a>
+                    and served locally from this project.
+                </ui-text>
+                <ui-text type="caption-light">
+                    Airline logos are sourced from the
+                    <a
+                        href="https://github.com/Jxck-S/airline-logos"
+                        rel="noopener"
+                        target="_blank"
+                    >Jxck-S/airline-logos</a>
+                    project (FlightAware, FlightRadar24 and RadarBox sets) and processed at build time.
+                </ui-text>
+            </div>
+
             <div class="about__support">
                 <div class="about__support_content">
                     <div class="about__support_title">
@@ -223,6 +244,7 @@
 <script setup lang="ts">
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 import { useStore } from '~/store';
 
 useHead({
@@ -526,6 +548,33 @@ const store = useStore();
                 &:hover {
                     color: $lightGray400;
                     background: $blue500;
+                }
+            }
+        }
+    }
+
+    &__attributions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        margin-bottom: 24px;
+        padding: 24px;
+        border-radius: 8px;
+
+        background: $darkGray700;
+
+        @include mobile {
+            padding: 16px;
+        }
+
+        a {
+            color: $blue500;
+            text-decoration: none;
+
+            @include hover {
+                &:hover {
+                    text-decoration: underline;
                 }
             }
         }

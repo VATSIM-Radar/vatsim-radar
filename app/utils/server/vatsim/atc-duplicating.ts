@@ -145,6 +145,7 @@ export const duplicatingSettings = [
         suffixes: ['CTR', 'APP', 'DEP'],
         mapping: {
             AGS: 'AGS_APP',
+            CLT: 'CLT_APP',
             GSO: 'GSO_APP',
             AHN: 'AHN_APP',
             CSG: 'CSG_APP',

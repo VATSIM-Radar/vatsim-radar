@@ -179,7 +179,7 @@ export function setMapAirports({ source, airports, layer }: {
         let isBooked = !!appr.length && appr.every(x => x.isBooking);
 
         // Counters
-        if (airport.aircraft && mapStore.renderedAirports?.includes(airport.icao)) {
+        if (airport.aircraft && mapStore.renderedAirports?.has(airport.icao)) {
             const counters = getAirportCounters(airport.aircraft);
             const list = Object.entries(counters);
             const totalCount = list.filter(x => x[1].length).length;
@@ -407,7 +407,7 @@ export function setMapAirports({ source, airports, layer }: {
                 }
             }
 
-            if (isMapFeature('airport-counter', properties) && !mapStore.renderedAirports?.includes(properties.icao)) {
+            if (isMapFeature('airport-counter', properties) && !mapStore.renderedAirports?.has(properties.icao)) {
                 source.removeFeature(feature);
                 feature.dispose();
             }

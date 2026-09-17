@@ -378,7 +378,7 @@ export const useStore = defineStore('index', {
                     dataStore.vatsim.versions.value = versions;
                 }
 
-                if (useIsDebug()) {
+                if (useIsDebug() && !useRoute().query.reload) {
                     dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
 
                     if (
@@ -388,7 +388,7 @@ export const useStore = defineStore('index', {
                             dataStore.versions.value.simaware !== await clientDB.simaware.get('version') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
-                    ) location.reload();
+                    ) location.href = '/?reload=1'
                 }
 
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {

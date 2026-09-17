@@ -20,7 +20,7 @@
             >
                 <template #item-name="{ item }">
                     <ui-spoiler type="pilot">
-                        {{item.text}}
+                        {{ item.text }}
                     </ui-spoiler>
                 </template>
                 <template #item-cid="{ item }">
@@ -32,7 +32,7 @@
                             text-type="caption"
                             type="primary-flat"
                         >
-                            {{item.text}}
+                            {{ item.text }}
                         </ui-bubble>
                     </ui-spoiler>
                 </template>
@@ -71,12 +71,12 @@
             >
                 <template #item-hours="{ item }">
                     <span class="flight-info__chip">
-                        Flight Hours: <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                        Flight Hours: <ui-chip text-type="caption">{{ numberFormatter.format(+item.text!) }}</ui-chip>
                     </span>
                 </template>
                 <template #item-atc-hours="{ item }">
                     <span class="flight-info__chip">
-                        ATC Hours: <ui-chip text-type="caption">{{numberFormatter.format(+item.text!)}}</ui-chip>
+                        ATC Hours: <ui-chip text-type="caption">{{ numberFormatter.format(+item.text!) }}</ui-chip>
                     </span>
                 </template>
             </ui-data-list>
@@ -86,40 +86,33 @@
                 <airline-icon/>
             </template>
 
-            <div class="flight-info__columns">
-                <template v-if="airline">
-                    <ui-data-list-item>
-                        {{airline.name}}
+            <div class="flight-info__columns flight-info__columns--airline">
+                <ui-data-list-item>
+                    {{ airline.name }}
 
-                        <ui-data-list
-                            circle-divider
-                            class="flight-info__secondary"
-                            :items="[{ text: airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
-                        >
-                            <template #item-virtual>
-                                <ui-text
-                                    :href="airline.website ?? undefined"
-                                    target="_blank"
-                                    type="caption-light"
+                    <ui-data-list
+                        circle-divider
+                        class="flight-info__secondary"
+                        :items="[{ text: airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
+                    >
+                        <template #item-virtual>
+                            <ui-text
+                                :href="airline.website ?? undefined"
+                                target="_blank"
+                                type="caption-light"
+                            >
+                                <ui-bubble
+                                    text-type="3b-medium"
+                                    type="primary-flat"
                                 >
-                                    <ui-bubble
-                                        text-type="caption-light"
-                                        type="primary-flat"
-                                    >
-                                        <span :class="airline.website ? '__link' : ''">
-                                            VIRTUAL
-                                        </span>
-                                    </ui-bubble>
-                                </ui-text>
-                            </template>
-                        </ui-data-list>
-                    </ui-data-list-item>
-                    <ui-separator
-                        dashed
-                        distance="0"
-                        full
-                    />
-                </template>
+                                    <span :class="airline.website ? '__link' : ''">
+                                        VIRTUAL
+                                    </span>
+                                </ui-bubble>
+                            </ui-text>
+                        </template>
+                    </ui-data-list>
+                </ui-data-list-item>
             </div>
         </ui-data-container>
         <div class="flight-info__progress">
@@ -127,7 +120,7 @@
                 class="flight-info__progress_title"
                 type="caption"
             >
-                {{getStatus.title}}
+                {{ getStatus.title }}
             </ui-text>
             <div class="flight-info__progress_line">
                 <ui-text
@@ -136,7 +129,7 @@
                     type="h5"
                     @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
                 >
-                    {{props.pilot.flight_plan?.departure ?? 'ZZZZ'}}
+                    {{ props.pilot.flight_plan?.departure ?? 'ZZZZ' }}
                 </ui-text>
                 <div class="flight-info__progress__line">
                     <div class="flight-info__progress__line_svg">
@@ -153,7 +146,7 @@
                     type="h5"
                     @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
                 >
-                    {{props.pilot.flight_plan?.arrival ?? 'ZZZZ'}}
+                    {{ props.pilot.flight_plan?.arrival ?? 'ZZZZ' }}
                 </ui-text>
             </div>
             <ui-text
@@ -164,13 +157,15 @@
                     v-if="showRouteDetails.value"
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
-                    <template v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                    <template
+                        v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                    >
                         <div class="flight-info__progress_footer__item">
                             <ui-chip v-if="departedAtDate" title="Departed At">
-                                {{`${ datetime.format(departedAtDate) }z`}}
+                                {{ `${ datetime.format(departedAtDate) }z` }}
                             </ui-chip>
                             <ui-chip title="Distance from Departure">
-                                {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
+                                {{ `${ Math.round(distance!.depDist ?? 0) } NM` }}
                             </ui-chip>
                         </div>
                         <ui-separator
@@ -193,15 +188,21 @@
                         v-if="distance?.toGoDist || arrivedAtDate"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip v-if="arrivedAtDate || distance?.toGoDist" :title="arrivedAtDate ? 'Arrived At' : 'Distance Remaining'">
+                        <ui-chip
+                            v-if="arrivedAtDate || distance?.toGoDist"
+                            :title="arrivedAtDate ? 'Arrived At' : 'Distance Remaining'"
+                        >
                             <template v-if="arrivedAtDate">
-                                {{datetime.format(arrivedAtDate)}}z
+                                {{ datetime.format(arrivedAtDate) }}z
                             </template>
                             <template v-else>
-                                {{Math.round(distance?.toGoDist ?? 0)}} NM
+                                {{ Math.round(distance?.toGoDist ?? 0) }} NM
                             </template>
                         </ui-chip>
-                        <ui-chip v-if="toGoTimeDate && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'" title="Time until Destination">
+                        <ui-chip
+                            v-if="toGoTimeDate && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' && pilot.status !== 'arrTaxi' && pilot.status !== 'arrGate'"
+                            title="Time until Destination"
+                        >
                             {{ datetime.format(toGoTimeDate)?.toUpperCase() }}z
                         </ui-chip>
                     </div>
@@ -210,10 +211,12 @@
                     v-else
                     class="flight-info__progress_footer_section flight-info__progress_footer_section--initial"
                 >
-                    <template v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
+                    <template
+                        v-if="departedAtDate || distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'"
+                    >
                         <div class="flight-info__progress_footer__item">
                             <ui-chip :title="departedAtDate ? 'Departed At' : 'Departed Distance'">
-                                {{departedAtDate ? `${ datetime.format(departedAtDate) }z` : `${ Math.round(distance!.depDist ?? 0) } NM`}}
+                                {{ departedAtDate ? `${ datetime.format(departedAtDate) }z` : `${ Math.round(distance!.depDist ?? 0) } NM` }}
                             </ui-chip>
                         </div>
                         <ui-separator
@@ -236,12 +239,14 @@
                         v-if="toGoTimeDate || distance?.toGoDist || arrivedAtDate"
                         class="flight-info__progress_footer__item"
                     >
-                        <ui-chip :title="arrivedAtDate ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate) ? 'Distance remaining' : 'Time until Destination'">
+                        <ui-chip
+                            :title="arrivedAtDate ? 'Arrived At' : (pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate) ? 'Distance remaining' : 'Time until Destination'"
+                        >
                             <template v-if="arrivedAtDate">
-                                {{datetime.format(arrivedAtDate)}}z
+                                {{ datetime.format(arrivedAtDate) }}z
                             </template>
                             <template v-else-if="pilot.status === 'depTaxi' || pilot.status === 'depGate' || !toGoTimeDate">
-                                {{Math.round(distance?.toGoDist ?? 0)}} NM
+                                {{ Math.round(distance?.toGoDist ?? 0) }} NM
                             </template>
                             <template v-else>
                                 {{ datetime.format(toGoTimeDate)?.toUpperCase() }}z
@@ -256,7 +261,7 @@
                     <template v-if="distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'">
                         <div class="flight-info__progress_footer__item">
                             <ui-chip title="Distance from Departure">
-                                {{`${ Math.round(distance!.depDist ?? 0) } NM`}}
+                                {{ `${ Math.round(distance!.depDist ?? 0) } NM` }}
                             </ui-chip>
                         </div>
                         <ui-separator
@@ -269,7 +274,7 @@
                         class="flight-info__progress_footer__item"
                     >
                         <ui-chip title="Remaining Distance">
-                            {{Math.round(distance.toGoDist)}} NM
+                            {{ Math.round(distance.toGoDist) }} NM
                         </ui-chip>
                     </div>
                     <ui-separator
@@ -318,7 +323,7 @@
                 </template>
                 <template v-if="!isOffline" #item-com1>
                     <div class="flight-info__speaker-wrapper">
-                        {{pilot.frequencies[0]}}
+                        {{ pilot.frequencies[0] }}
                         <a
                             class="flight-info__speaker"
                             :href="`https://listen.vatsim.net/live/${ pilot.callsign }`"
@@ -330,7 +335,7 @@
                     </div>
                 </template>
                 <template #item-ctaf>
-                    {{ctaf}}
+                    {{ ctaf }}
                 </template>
             </ui-data-list>
         </ui-data-container>
@@ -411,6 +416,8 @@ const arrAirport = computed(() => {
 const airline = shallowRef<RadarDataAirline | null>(null);
 const friend = computed(() => store.allFriends.find(x => x.cid === props.pilot.cid));
 
+const pilot = computed(() => props.pilot);
+
 watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, async () => {
     airline.value = await getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks);
 }, {
@@ -477,6 +484,12 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     flex-direction: column;
     gap: 20px;
 
+    &__operator {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
     &__chip {
         display: flex;
         gap: 4px;
@@ -486,7 +499,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     &__secondary :deep(.text) {
         font-weight: normal !important;
 
-        &:not(.bubble, .chip){
+        &:not(.bubble, .chip) {
             color: $typographySecondary
         }
     }
@@ -495,6 +508,10 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         display: flex;
         gap: 20px;
         align-items: center;
+
+        &--airline {
+            justify-content: space-between;
+        }
     }
 
     &__progress {

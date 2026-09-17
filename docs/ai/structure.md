@@ -126,6 +126,13 @@ When adding general UI/session state, use Pinia. When adding large map/datafeed 
 
 ### Map And Rendering
 
+Client performance audit entry points:
+
+- Aircraft hot path: `app/components/map/layers/MapAircraftList.vue` throttles visibility/render updates, `app/composables/render/aircraft/index.ts` reconciles OpenLayers aircraft/line features, `app/composables/render/aircraft/style.ts` supplies the per-feature style callback, and `app/composables/render/aircraft/smooth.ts` owns the optional frame loop.
+- Live-data fan-out: `app/composables/render/storage.ts` converts compact/mandatory feeds and `app/composables/index.ts` maps `short`/`mandatory` timestamps to update callbacks; `app/composables/render/update/index.ts` rebuilds derived airport/sector state.
+- Visibility feedback: `app/components/views/ViewMap.vue` derives `renderedPilots`/`renderedAirports` from OpenLayers declutter during throttled `postrender` callbacks; these sets feed aircraft visibility, style decluttering, and smooth-movement decisions.
+- Enriched list getters: `app/store/index.ts` computes `lists`, `friends`, and `allFriends` from current live datasets; consumers in filters and aircraft styling can therefore add live-array scans to update paths.
+
 Core files:
 
 - `app/components/views/ViewMap.vue` creates the OpenLayers `Map`, wires controls/popups/layers, and orchestrates map-only UI.
@@ -140,6 +147,7 @@ Core files:
 - `app/composables/render/aircraft/tracks.ts` builds straight arrival/departure lines and historical turn segments from QuestDB data; `app/components/map/navigraph/NavigraphRoute.vue` builds the pilot's parsed route and aircraft-to-waypoint connectors. Both families use the shared `greatCircleToOl()` helper in `app/utils/index.ts` for Turf great-circle generation, antimeridian splitting, and OpenLayers conversion.
 - Navigraph static-layer rendering is coordinated by `app/components/map/navigraph/NavigraphLayers.vue`. Most Navigraph feature kinds share one `VectorImageLayer`/`VectorSource`; NDB/VHF use a separate `VectorLayer`. Waypoints, airways, navaids, holdings, and airspace use the longitude/latitude grid in `app/utils/map/spatial-index.ts` to query viewport candidates instead of scanning complete AIRAC collections after every extent change. Airspace uses bounded cached, client-generated polygon geometries. The shared style callback is `app/composables/render/navigraph/style.ts` and updates cached OpenLayers styles plus decluttering.
 - `app/composables/render/aircraft/smooth.ts` owns optional smooth aircraft movement. It records mandatory-data aircraft samples while smoothing is not suspended by low zoom or an excessive rendered-pilot count, estimates render delay from accepted snapshot cadence, moves existing aircraft OpenLayers geometries on a capped `requestAnimationFrame` loop, and locally advances departure/current-tail/Navigraph line endpoints from the smoothed coordinate. During low-zoom or excessive-load suspension, `setMapAircraft()` applies mandatory coordinates directly; the RAF loop reseeds interpolation from that displayed geometry on resume so aircraft cannot roll back to stale samples. Map movement alone continues to preserve interpolated geometry until movement ends.
+- `ViewMap.vue` derives `mapStore.renderedAirports` and `mapStore.renderedPilots` as stable `Set` instances from OpenLayers declutter during throttled `postrender` callbacks. They are visibility/render-result hints, not authoritative aircraft state; when `setMapAircraft()` uses `renderedPilots` to choose direct geometry updates for off-screen features, the corresponding smooth track must be reseeded from that displayed coordinate before interpolation resumes.
 - Aircraft coordinates and historical turns have independent update paths. `setVatsimMandatoryData()` mutates keyed pilot coordinates and supplies smoothing samples, but while smoothing is enabled an existing aircraft feature's `Point` geometry is updated only by the animation loop. Historical turn features are fetched separately from the QuestDB-backed `/api/data/vatsim/pilot/:cid/turns` endpoint, so a growing track does not prove that the aircraft geometry path is still advancing.
 - `app/composables/render/aircraft/tracks.ts` owns client turns fetching and rendering. It tracks callsign/logon flight identity per CID so a changed connection clears client turns, route, and ETA state before requesting data. If an incremental response reports a changed `flightPlanTime`, the response is discarded and a full current-flight request is scheduled instead of rendering a group selected with the previous cursor. The CID-keyed `tracksPilotsData` timestamp entry is replaced for every response with a `flightPlanTime`, including `null` departure/arrival values; `PilotOverlayFlightInfo.vue` treats that complete entry as authoritative and uses the detailed flight plan only before track data loads. Temporary turns failures preserve rendered history.
 - `app/composables/render/aircraft/style.ts` owns aircraft icon/text/hitbox style caching, including async SVG/PNG icon loading and aircraft-specific rotation/label styling. Async icon completions batch layer refreshes through one animation frame; current SVG/icon variants are retained per CID and pruned with the aircraft source, while decoded PNGs use a bounded shared cache.
@@ -273,9 +281,9 @@ Background tasks:
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
 - `app/utils/server/vatsim/ws.ts` owns the server-side websocket registry: `wssPilots` maps callsigns to registered sockets, registration messages can move a socket between callsigns, and Kafka position events fan out through this registry.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
-- `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Nitro's Navigraph data/item/procedure endpoints perform local readiness and subscription checks, then stream the worker response through `app/utils/server/h3.ts` without parsing the JSON in the main application. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
+- `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Nitro's Navigraph data/item/procedure endpoints perform local readiness and subscription checks, then stream the worker response through `app/utils/server/h3.ts` without parsing the JSON in the main application. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/shared/airspace.ts` also splits antimeridian-crossing polygons into `MultiPolygon` geometry so OpenLayers cannot connect the ±180° edges across the world. `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
 - `app/utils/server/vatglasses.ts` handles VATGlasses data.
-- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables; `converters.ts` emits structured write rows for the official QuestDB Node.js client and can serialize rows to ILP text for the debug data endpoint.
+- `app/utils/server/questdb/*` handles analytics queries/converters. `queries.ts` builds QuestDB SQL over separate `QUESTDB_TABLE_PLANS` and `QUESTDB_TABLE_MAIN` tables, filters duplicate flight-plan snapshots (including plan re-submission after a temporary missing-plan snapshot), and selects plan-time groundspeed/route for lifecycle decisions; `converters.ts` emits structured write rows for the official QuestDB Node.js client and can serialize rows to ILP text for the debug data endpoint.
   - Public pilot track reads enter through `server/api/data/vatsim/pilot/[cid]/turns.ts`; each read resolves the current flight from the plans table and then reads turn points from the main tracks table.
   - Client-side aircraft track fetching is driven by `app/components/map/layers/MapAircraftList.vue` and `app/composables/render/aircraft/tracks.ts`. Airport/pilot overlays and hover can request full tracks; per-aircraft refresh is capped at 15 seconds in the browser state.
 
@@ -289,9 +297,12 @@ Prisma schema:
 - `NavigraphUser` and `VatsimUser` attach external account identities/tokens to `User`.
 - `UserPreset` stores map settings, filters, bookmarks, and dashboard bookmarks as JSON.
 - `UserTrackingList` stores friends/achtung/custom user lists.
+- List API lifecycle is implemented by `app/utils/server/handlers/lists.ts` and exposed at `server/api/user/lists`; client mutations go through `app/composables/fetchers/lists.ts`, while `app/store/index.ts` supplies a virtual `FRIENDS` list with `id: 0` when no persisted friends list exists.
 - `UserPresetList` links presets and tracking lists.
 - `UserAcknowledgedMessages` tracks dismissed/acknowledged user messages.
 - `Notams` stores internal NOTAM/announcement records.
+- Database access is concentrated in `app/utils/server/handlers/*`, `app/utils/server/user.ts`, `app/utils/server/h3.ts`, `app/utils/server/tasks.ts`, and `server/api/**`; index coverage for these Prisma filters should be checked against `prisma/schema.prisma` when changing persistence queries.
+- The standalone `UserPreset.type` and `UserTrackingList.color` indexes are currently exercised by startup data migrations in `server/plugins/index.ts` and `server/api/user/settings/v2/migrate.post.ts`, respectively.
 
 Prisma client output is generated into `.nuxt/prisma` and imported via the `#prisma` alias configured in `nuxt.config.ts`.
 
@@ -309,6 +320,8 @@ Types:
 Shared utility split:
 
 - `app/utils/shared/*`: safe for client and server. Flight math, VATSIM helpers, runway detection.
+- `app/utils/shared/country-codes.ts`: country-of-registration lookup for aircraft overlays. `usePilotCountry` returns a computed `{ country, isVfr, isIfr }` consumed by `MapPilotOverlay.vue` (header flag) and `PilotOverlayFlightPlan.vue` (registration flag); `getCountryFromCallsignOrReg`, `getFlagUrl`, and `formatRegistration` are shared helpers.
+- `../../app/utils/shared/images.ts`: resolves 3-letter ICAO airline prefixes to local `/logos/{code}.png` URLs with a fallback chain.
 - `app/utils/data/*`: domain transforms/helpers used mostly around data/rendering.
 - `app/utils/db/*`: database-facing helper types/functions.
 - `app/utils/server/*`: server-only code; do not import into browser-only code.
@@ -323,15 +336,18 @@ Custom Nuxt modules:
 
 - `modules/index.ts` aliases VueUse `useStorage` as `useStorageLocal`.
 - `modules/icons.ts` processes SVG/PNG assets with Sharp/SVGO, generates public aircraft icons, and writes `.nuxt/radar/icons.ts`.
+- `modules/airline-logos.ts` reads `app/data/airline-logo-overrides.json` and fetches airline logos from AirHex during `yarn dev`/`yarn build`, writing optimized PNGs into `public/logos/{CODE}.png` and exporting an `airlineLogos` Set consumed by `../../app/utils/shared/images.ts`.
 - `modules/styles.ts` generates SCSS color variables and `.nuxt/radar/colors.ts` imports from `app/utils/colors.ts`.
 
 Assets:
 
 - `app/assets/icons/**`: source SVG icons.
 - `public/aircraft/**`: generated/public aircraft icons.
+- `public/logos/**`: generated airline logo PNGs, committed so production builds need no external image CDN.
+- `public/flags/**`: country flag PNGs downloaded via `yarn fetch:flags` (`scripts/fetch-flags.ts`), also committed.
 - `public/icons/**`: public map icons and compressed/generated variants.
 - `app/assets/fonts/**` and `app/scss/**`: fonts and global style variables.
-- `app/data/`: local data directory placeholder.
+- `app/data/`: local data directory placeholder; `airline-logo-overrides.json` here is an exception to the `app/data` scan exclusion because the logos module reads it explicitly.
 
 Do not hand-edit generated files under `.nuxt` or public generated icon outputs unless the generation pipeline is also updated.
 

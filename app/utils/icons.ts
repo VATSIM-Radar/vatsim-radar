@@ -1837,6 +1837,8 @@ export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | Vat
         case 'AT75':
         case 'AT76':
             return aircraftIcons.at7x;
+        case 'H25B':
+            return aircraftIcons.fa50;
         case 'A10':
         case 'A124':
         case 'A139':

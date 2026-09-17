@@ -108,6 +108,12 @@
             v-if="props.overlay.data.photo"
             #photo
         >
+            <div v-if="airlineLogoUrl" class="pilot__operator">
+                <img
+                    alt="Airline logo"
+                    :src="airlineLogoUrl"
+                >
+            </div>
             <ui-text
                 class="pilot__photo"
                 :href="props.overlay.data.photo.link"
@@ -201,11 +207,12 @@
         <template #flightplan>
             <pilot-overlay-flight-plan
                 class="pilot__content"
+                :country="country.country"
                 :flight-plan="pilot.flight_plan ?? null"
+                :is-ifr="country.isIfr"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
-            />
-        </template>
+            /></template>
         <template #actions>
             <ui-button-group>
                 <ui-button
@@ -256,6 +263,7 @@
 
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
+import { ref, watch } from 'vue';
 import { useStore } from '~/store';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
@@ -297,6 +305,7 @@ import UiBadge from '~/components/ui/data/UiBadge.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import { getFlightPlanParam } from '~/utils/shared/vatsim';
 import { enrouteAircraftPath } from '~/composables/navigraph';
+import { getAirlineLogoUrl, usePilotCountry } from '~/utils/shared/images.ts';
 
 const props = defineProps({
     overlay: {
@@ -345,6 +354,8 @@ const ctafFrequency = computed(() => {
 });
 
 const pilot = computed(() => props.overlay.data.pilot);
+
+const country = usePilotCountry(pilot);
 
 const flightPlanKey = computed(() => {
     const flightPlan = pilot.value.flight_plan;
@@ -451,6 +462,8 @@ const arrBars = computed(() => {
     return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
 });
 
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign));
+
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
@@ -490,7 +503,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     if (props.overlay?.data.photo) {
         sections.push({
             key: 'photo',
-            title: 'Photo',
+            title: airlineLogoUrl.value ? 'Airline & Photo' : 'Photo',
             collapsedDefault: collapsedPhoto.value !== false,
             collapsible: true,
         });
@@ -757,6 +770,12 @@ onMounted(() => {
         color: var(--status-color);
     }
 
+    &-header_title {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
     &__content {
         position: relative;
     }
@@ -822,6 +841,24 @@ onMounted(() => {
                 background-position: center;
                 background-size: contain;
             }
+        }
+    }
+
+    &__operator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 8px;
+        padding: 8px;
+        border-radius: 4px;
+
+        background: $whiteOrig;
+
+        img {
+            border-radius: 4px;
+            object-fit: contain;
+            object-position: center;
         }
     }
 

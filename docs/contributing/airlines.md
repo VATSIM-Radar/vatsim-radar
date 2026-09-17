@@ -7,3 +7,7 @@ So that your changes will be visible in Euroscope and other programs.
 If you want, you can also correct data in our repository: https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json
 
 Data from here applies within 7 days since released.
+
+## Airlines logos
+
+If you need to change some logos, visit this repo: https://github.com/Jxck-S/airline-logos
