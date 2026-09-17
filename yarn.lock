@@ -16581,7 +16581,7 @@ __metadata:
     "@types/ws": "npm:8.18.1"
     "@vite-pwa/nuxt": "npm:1.1.1"
     "@vueuse/components": "npm:15.0.0"
-    "@vueuse/core": "npm:14.4.0"
+    "@vueuse/core": "npm:15.0.0"
     "@vueuse/nuxt": "npm:14.4.0"
     adm-zip: "npm:0.6.1"
     better-sqlite3: "npm:12.11.1"
