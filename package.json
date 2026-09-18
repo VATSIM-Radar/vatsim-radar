@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1133.0",
+    "@aws-sdk/client-s3": "3.1135.0",
     "@nuxt/image": "2.1.0",
     "@pinia/nuxt": "1.0.2",
     "@prisma/adapter-mariadb": "7.10.0",
@@ -71,7 +71,7 @@
     "nuxt": "4.5.2",
     "ol": "10.10.0",
     "ol-ext": "4.0.38",
-    "ol-mapbox-style": "13.5.0",
+    "ol-mapbox-style": "13.5.1",
     "pinia": "4.0.3",
     "prisma": "7.10.0",
     "rou3": "0.9.2",
