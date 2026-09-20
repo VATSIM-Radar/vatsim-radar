@@ -7,6 +7,8 @@ import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { getTextFont } from '~/composables/render/text';
 import type VectorLayer from 'ol/layer/Vector.js';
+import { getColorValueByKey } from '~/composables/settings/v2/utils.ts';
+import { getColorFromSettings } from '~/composables/settings/colors.ts';
 
 const geometriesCache = new WeakMap<WeakKey, Geometry>();
 
@@ -264,6 +266,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Ma
     const strokesCache = {
         self: {} as Record<string, Stroke>,
         currentFlight: {} as Record<string, Stroke>,
+        others: {} as Record<string, Stroke>,
     };
 
     const westTrack = new Style({
@@ -530,9 +533,66 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Ma
                 }
             }
 
-            const key = `airway-${ String(properties.kind) }`;
+            let key = `airway-${ String(properties.kind) }`;
+
+            if (properties.kind === 'nat') {
+                const setting = getColorValueByKey('map.preferences.colors.default.natTracks', true);
+
+                if (setting) {
+                    strokesCache.others.natColored ||= new Stroke({
+                        color: getColorFromSettings(setting),
+                        width: stroke.getWidth()!,
+                        lineDash: stroke.getLineDash()!,
+                        lineJoin: stroke.getLineJoin(),
+                    });
+
+                    stroke = strokesCache.others.natColored;
+
+                    key += '-colored';
+                }
+            }
+            else if (properties.featureType === 'airways') {
+                const setting = getColorValueByKey('map.preferences.colors.default.airways', true);
+
+                if (setting) {
+                    strokesCache.others.enrouteColored ||= new Stroke({
+                        color: getColorFromSettings(setting),
+                        width: stroke.getWidth()!,
+                        lineDash: stroke.getLineDash()!,
+                        lineJoin: stroke.getLineJoin(),
+                    });
+
+                    stroke = strokesCache.others.enrouteColored;
+
+                    key += '-colored';
+                }
+            }
 
             if (!styleCache[key]) {
+                let textColor = `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`;
+
+                if (properties.kind === 'nat') {
+                    const setting = getColorValueByKey('map.preferences.colors.default.natTracks', true);
+
+                    if (setting) {
+                        textColor = getColorFromSettings({
+                            color: setting.color,
+                            transparency: 0.7,
+                        });
+                    }
+                    else textColor = `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)`;
+                }
+                else if (properties.featureType === 'airways') {
+                    const setting = getColorValueByKey('map.preferences.colors.default.airways', true);
+
+                    if (setting) {
+                        textColor = getColorFromSettings({
+                            color: setting.color,
+                            transparency: 0.7,
+                        });
+                    }
+                }
+
                 styleCache[key] = new Style({
                     stroke,
                     zIndex: 5,
@@ -547,7 +607,7 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Ma
                         padding: [6, 6, 6, 6],
                         rotateWithView: false,
                         fill: new Fill({
-                            color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('blue500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('blue300').join(',') }, 0.7)`,
+                            color: textColor,
                         }),
                     }),
                 });

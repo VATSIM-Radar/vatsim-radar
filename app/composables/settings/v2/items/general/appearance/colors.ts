@@ -107,6 +107,22 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
         value: colorValue('map.preferences.colors.default.centerBg'),
         onChange: value => setColorByKey('map.preferences.colors.default.centerBg', value as UserMapSettingsColor),
     },
+    airways: {
+        type: 'color',
+        title: 'Airways',
+        description: 'Changes Airways layer color. Has no effect on aircraft route',
+        defaultColor: colorDefault('map.preferences.colors.default.airways'),
+        value: colorValue('map.preferences.colors.default.airways'),
+        onChange: value => setColorByKey('map.preferences.colors.default.airways', value as UserMapSettingsColor),
+    },
+    natTracks: {
+        type: 'color',
+        title: 'NAT Tracks',
+        description: 'Changes NAT Tracks layer color. Has no effect on aircraft route',
+        defaultColor: colorDefault('map.preferences.colors.default.natTracks'),
+        value: colorValue('map.preferences.colors.default.natTracks'),
+        onChange: value => setColorByKey('map.preferences.colors.default.natTracks', value as UserMapSettingsColor),
+    },
     runways: {
         type: 'color',
         title: 'Runways',

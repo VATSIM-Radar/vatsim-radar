@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.3-1-rc.2]
+
+## Features and Improvements
+
+- Updated base map layer from 17 Sept 2026 to 20 Sept 2026 to fix weird emojis in some places instead of city names in Detailed view
+- Added support for Airways and NAT Tracks color change
+
 # [2.0.3-1-rc.1]
 
 ## Bug Fixes
@@ -7,7 +14,6 @@
 - Fixed rare issues when frequencies were replacing with incorrect ones, this time for pilots (For example, 124.300
   showed for pilots listening for LFMN_TWR instead of 118.700). In case more than one frequency alias is present, pilot
   frequency will not be modified to prevent incorrect frequency alias getting selected
-- Updated base map layer from 17 Sept 2026 to 20 Sept 2026 to fix weird emojis in some places instead of city names in Detailed view
 - Fixed Navigraph features disappearing in "other worlds"
 - Fixed some Navigraph Airways showing at whole world
 - Fixed some Navigraph Airways being incorrectly long and containing much more waypoints than there really are

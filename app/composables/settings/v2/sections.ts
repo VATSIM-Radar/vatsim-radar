@@ -201,6 +201,8 @@ export const getSettingsSections = () => {
                                 items.appearance.colors.uirs,
                                 items.appearance.colors.centerText,
                                 items.appearance.colors.centerBg,
+                                items.appearance.colors.airways,
+                                items.appearance.colors.natTracks,
                             ],
                         },
                         {
@@ -389,7 +391,11 @@ export const getSettingsSections = () => {
                         {
                             key: 'layers',
                             title: 'Map Layers',
-                            items: Object.values(items.layers.navigraph.layers),
+                            items: [
+                                ...Object.values(items.layers.navigraph.layers),
+                                items.appearance.colors.airways,
+                                items.appearance.colors.natTracks,
+                            ],
                         },
                         {
                             key: 'airport',
