@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
-import { intersects } from 'ol/extent.js';
+import { getCenter, intersects } from 'ol/extent.js';
 import { useMapStore } from '~/store/map';
 import { checkFlightLevel } from '~/composables/render/storage';
 import { createMapFeature } from '~/utils/map/entities';
@@ -13,6 +13,7 @@ import {
 } from '~/utils/shared/airspace';
 import type { AirspaceGeometryOptions } from '~/utils/shared/airspace';
 import { turfGeometryToOl } from '~/utils';
+import { getCurrentWorldExtent } from '~/composables/map/world';
 
 defineOptions({
     render: () => null,
@@ -88,7 +89,10 @@ function getAirspaceExtent(item: ShortAirspace) {
 
 function isAirspaceInExtent(item: ShortAirspace, extent: number[]) {
     const itemExtent = getAirspaceExtent(item);
-    return itemExtent ? intersects(itemExtent, extent) : false;
+    if (!itemExtent) return false;
+
+    const extentCenter = getCenter(extent);
+    return intersects(getCurrentWorldExtent({ extent: itemExtent, eventCoordinate: extentCenter }), extent);
 }
 
 function touchFeature(id: string, feature: FeatureNavigraph) {

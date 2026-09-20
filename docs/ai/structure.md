@@ -155,6 +155,7 @@ Core files:
 - `app/utils/icons.ts` owns the aircraft icon catalog and `getAircraftIcon()` designator aliases. New aliases should reuse an existing `aircraftIcons` entry unless a new SVG is explicitly required.
 - `setAircraftStyle()` in `app/composables/render/aircraft/style.ts` installs a layer-level OpenLayers style callback; it is therefore on the per-feature render path and should keep its work/cache lookups cheap.
 - `app/utils/map/*` contains map entities, distance helpers, and aircraft scaling.
+- `app/composables/map/world.ts` normalizes coordinates between the original longitude range and the currently viewed wrapped world; Navigraph viewport filters use it before comparing AIRAC features with `mapStore.extent`.
 
 Map component groups:
 

@@ -7,6 +7,8 @@ import { createMapFeature } from '~/utils/map/entities';
 import type { FeatureNavigraph } from '~/utils/map/entities';
 import { createSpatialGridIndex } from '~/utils/map/spatial-index';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
+import { getCurrentWorldCoordinate } from '~/composables/map/world';
+import { getCenter } from 'ol/extent.js';
 
 defineOptions({
     render: () => null,
@@ -78,13 +80,15 @@ async function updateWaypoints() {
     }
 
     const currentExtent = extent.value;
+    const extentCenter = getCenter(currentExtent);
     const currentTerminal = !!terminal.value;
     const visibleKeys = new Set<string>();
     const featuresToAdd: FeatureNavigraph[] = [];
 
     for (const { key, waypoint } of waypointsIndex.query(currentExtent)) {
         const coordinate = [waypoint[1], waypoint[2]];
-        if (!isPointInExtent(coordinate, currentExtent) || (waypoint[4] && !currentTerminal)) continue;
+        const currentCoordinate = [getCurrentWorldCoordinate({ coordinate, eventCoordinate: extentCenter })[0], coordinate[1]];
+        if (!isPointInExtent(currentCoordinate, currentExtent) || (waypoint[4] && !currentTerminal)) continue;
 
         visibleKeys.add(key);
         if (waypointFeatures.has(key)) continue;
