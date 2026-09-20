@@ -264,9 +264,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1133.0":
-  version: 3.1133.0
-  resolution: "@aws-sdk/client-s3@npm:3.1133.0"
+"@aws-sdk/client-s3@npm:3.1136.0":
+  version: 3.1136.0
+  resolution: "@aws-sdk/client-s3@npm:3.1136.0"
   dependencies:
     "@aws-sdk/checksums": "npm:^3.1001.0"
     "@aws-sdk/core": "npm:^3.978.0"
@@ -279,7 +279,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.11.3"
     "@smithy/types": "npm:^4.17.2"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/2ee687d381a5fc9d8c2f6bf7be54817d4ea1aef3f6d01c258bd8d24c850ea2f5d62533dfb7a4e803153b5b97f80b03d946bf3f5a2f461d61f0c59673cc7f69a1
+  checksum: 10c0/d58ed990f5ea3c7e67d66130f6322900f629f056fa4af17014b4c19f13f3feaba2f98235a4896a38041ba382e28c92d91566b997fe8d9d9cfa3ee19541b12c11
   languageName: node
   linkType: hard
 
@@ -5250,12 +5250,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:26.6.1, @types/node@npm:^26.4.0":
+"@types/node@npm:*, @types/node@npm:^26.4.0":
   version: 26.6.1
   resolution: "@types/node@npm:26.6.1"
   dependencies:
     undici-types: "npm:~8.9.0"
   checksum: 10c0/c90d3db40e7c9c92f0854ecdcaabd9c1923b7e2a43cf2c97cf147a5aba7e18a1c80034088edfb1bb2153ceffdd87be7ce0a256b80ec7cd92e619c564133ae5fe
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:26.6.2":
+  version: 26.6.2
+  resolution: "@types/node@npm:26.6.2"
+  dependencies:
+    undici-types: "npm:~8.9.0"
+  checksum: 10c0/bb411ff5863a79a28ffa4ebadf2499d44046aa114d25a7a6c78f57def118123a0a7dea99e8fe38849099e9dba2b41b8853a7a282037618559f58653c35e7c5c5
   languageName: node
   linkType: hard
 
@@ -9000,9 +9009,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:10.10.0":
-  version: 10.10.0
-  resolution: "eslint@npm:10.10.0"
+"eslint@npm:10.11.0":
+  version: 10.11.0
+  resolution: "eslint@npm:10.11.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
@@ -9041,7 +9050,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/ba583145305f088585f91c5dab6825492ec657614558e4610cffc94174cf800f456e39ec3cafd3eed73e04bd9a05794067ae33b553f1323e3e7c1157242409d2
+  checksum: 10c0/c767f45f21d1921b41d70e30b1c8fa7ec4e65c0f43a8d80cc4990ca3d923127fa7b9b3416b8f5be6e877d9286f97d3c51a04ed341bc6aa73c0dba0f463e1f861
   languageName: node
   linkType: hard
 
@@ -12421,15 +12430,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:13.5.0":
-  version: 13.5.0
-  resolution: "ol-mapbox-style@npm:13.5.0"
+"ol-mapbox-style@npm:13.5.1":
+  version: 13.5.1
+  resolution: "ol-mapbox-style@npm:13.5.1"
   dependencies:
     "@maplibre/maplibre-gl-style-spec": "npm:^26.4.1"
     mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/64a9274b5f85b581531b6a1a088c32561a36df81fcfd150891b4f0f7a2a23e03d627fa5a21cead233d47c29c0ce6248e2e941b1ffb159ca309819bbdf14c9278
+  checksum: 10c0/426b8872cbc6f83917057157ad749ed5848976ea35a527dd9fe2d5353bc94de854218fb35fd9b53615ee4886ca9fa2dba122e283107ed90ea03eba0b6c2dc37a
   languageName: node
   linkType: hard
 
@@ -16517,7 +16526,7 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1133.0"
+    "@aws-sdk/client-s3": "npm:3.1136.0"
     "@navigraph/amdb": "npm:1.1.1"
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.1.0"
@@ -16547,7 +16556,7 @@ __metadata:
     "@types/geojson": "npm:7946.0.16"
     "@types/jsonwebtoken": "npm:9.0.10"
     "@types/merge-ranges": "npm:1.0.2"
-    "@types/node": "npm:26.6.1"
+    "@types/node": "npm:26.6.2"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:8.18.1"
     "@vite-pwa/nuxt": "npm:1.1.1"
@@ -16563,7 +16572,7 @@ __metadata:
     deep-equal: "npm:2.2.3"
     dexie: "npm:4.4.6"
     discord.js: "npm:14.27.0"
-    eslint: "npm:10.10.0"
+    eslint: "npm:10.11.0"
     fast-xml-parser: "npm:5.11.1"
     ioredis: "npm:6.0.0"
     jsonwebtoken: "npm:9.0.3"
@@ -16577,7 +16586,7 @@ __metadata:
     nuxt: "npm:4.5.2"
     ol: "npm:10.10.0"
     ol-ext: "npm:4.0.38"
-    ol-mapbox-style: "npm:13.5.0"
+    ol-mapbox-style: "npm:13.5.1"
     pinia: "npm:4.0.3"
     postcss: "npm:8.5.28"
     postcss-html: "npm:2.0.0"
