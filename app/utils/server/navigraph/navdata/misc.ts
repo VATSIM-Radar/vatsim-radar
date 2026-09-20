@@ -161,15 +161,17 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
         let objectAirway = fullData.airways[key];
         let shortAirway = shortData.airways[key];
 
-        if (previousAirway && previousAirway.seqno < airway.seqno && airway.route_identifier === previousAirway.route_identifier) continue;
+        if (previousAirway && previousAirway.seqno + 10 === airway.seqno && airway.route_identifier === previousAirway.route_identifier) continue;
 
         const nextAirways: typeof airways = [airway];
 
         let k = i + 1;
+        let previousSeqno = airway.seqno;
         let nextItem = airways[k];
 
-        while (nextItem && airway.route_identifier === nextItem.route_identifier && airway.seqno < nextItem.seqno) {
+        while (nextItem && airway.route_identifier === nextItem.route_identifier && previousSeqno + 10 === nextItem.seqno) {
             nextAirways.push(nextItem);
+            previousSeqno = nextItem.seqno;
             k++;
             nextItem = airways[k];
         }

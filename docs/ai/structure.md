@@ -68,6 +68,7 @@ The app has three main runtime layers:
 PWA and browser-cache behavior:
 
 - `nuxt.config.ts` configures `@vite-pwa/nuxt` with prompted service-worker updates, periodic update checks, Workbox precaching for JS/CSS/fonts/SVG/webmanifest assets, and a `static-assets` runtime cache for other static files.
+- Production and next application images are built atomically in `.config/Dockerfile` (the Nuxt build runs inside the image). Their Kubernetes Deployments use `Recreate`, while the production HPA can scale the application to multiple identical-image pods; asset-version mismatches should therefore be traced first to browser/service-worker or edge-cache state, and then to image-tag consistency across the active pods.
 - PWA manifest `handle_links: 'not-preferred'` only controls whether an installed PWA prefers handling links to its own origin; it does not make external anchors open in new tabs. External links must use `target="_blank"` (or `window.open`) at their individual call sites.
 - `app/components/features/layout/LayoutUpdatePopup.vue` applies a pending service-worker update or reloads the page when the app reports a new version.
 - `app/plugins/db.client.ts` initializes the browser-side Dexie database through `app/composables/render/idb.ts`; several dataset-update handlers in `app/composables/init.ts` delete the database and call `location.reload()` after IndexedDB failures. A persistent browser-cache/service-worker or IndexedDB failure can therefore appear as a page refresh loop.

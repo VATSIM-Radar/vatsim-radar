@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LineString, Point } from 'ol/geom.js';
+import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { intersects } from 'ol/extent.js';
@@ -159,7 +159,7 @@ async function updateAirways() {
                         const feature = createMapFeature('navigraph', {
                             type: 'navigraph',
                             featureType: 'airways',
-                            geometry: new LineString(entry.airwayCoords),
+                            geometry: greatCircleToOl(entry.airwayCoords[0], entry.airwayCoords[1], { npoints: 2 }),
                             usage: entry.usage,
                             flightLevel: entry.flightLevel,
                             id,

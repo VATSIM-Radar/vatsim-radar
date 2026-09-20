@@ -162,16 +162,10 @@ async function vatsimTasks() {
                 },
             });
 
-            radarStorage.vatsimStatic.aliases = Object.fromEntries([
-                ...aliases.map(x => [x.frequency, x]),
-                ...aliases.map(x => {
-                    const split = x.name.split('_');
-
-                    const name = split.length === 3 ? split.slice(0, 2).join('_') : split[0];
-
-                    return [name, x];
-                }),
-            ]);
+            for (const alias of aliases) {
+                radarStorage.vatsimStatic.aliases[alias.frequency] ??= [];
+                radarStorage.vatsimStatic.aliases[alias.frequency].push(alias);
+            }
         }
     }).catch(console.error);
     await defineCronJob('* * * * *', async () => {
