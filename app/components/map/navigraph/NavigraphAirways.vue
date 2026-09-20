@@ -2,7 +2,7 @@
 import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
-import { intersects } from 'ol/extent.js';
+import { getCenter, intersects } from 'ol/extent.js';
 import { useMapStore } from '~/store/map';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -11,6 +11,7 @@ import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types'
 import { createMapFeature } from '~/utils/map/entities';
 import type { FeatureNavigraph } from '~/utils/map/entities';
 import { createSpatialGridIndex } from '~/utils/map/spatial-index';
+import { getCurrentWorldCoordinate, getCurrentWorldExtent } from '~/composables/map/world';
 
 defineOptions({
     render: () => null,
@@ -136,6 +137,7 @@ async function updateAirways() {
         }
 
         const currentExtent = extent.value;
+        const extentCenter = getCenter(currentExtent);
         const visibleAirways = new Set<string>();
         const visibleWaypoints = new Set<string>();
         const featuresToAdd: FeatureNavigraph[] = [];
@@ -144,13 +146,19 @@ async function updateAirways() {
             const id = 'waypoint' + entry.airwayKey + entry.identifier + entry.waypoint;
             const waypointId = id + 'text';
             const inExtent = entry.airwayCoords
-                ? intersects([
-                    Math.min(entry.airwayCoords[0][0], entry.airwayCoords[1][0]),
-                    Math.min(entry.airwayCoords[0][1], entry.airwayCoords[1][1]),
-                    Math.max(entry.airwayCoords[0][0], entry.airwayCoords[1][0]),
-                    Math.max(entry.airwayCoords[0][1], entry.airwayCoords[1][1]),
-                ], currentExtent)
-                : isPointInExtent(entry.waypointCoordinate, currentExtent);
+                ? intersects(getCurrentWorldExtent({
+                    extent: [
+                        Math.min(entry.airwayCoords[0][0], entry.airwayCoords[1][0]),
+                        Math.min(entry.airwayCoords[0][1], entry.airwayCoords[1][1]),
+                        Math.max(entry.airwayCoords[0][0], entry.airwayCoords[1][0]),
+                        Math.max(entry.airwayCoords[0][1], entry.airwayCoords[1][1]),
+                    ],
+                    eventCoordinate: extentCenter,
+                }), currentExtent)
+                : isPointInExtent([
+                    getCurrentWorldCoordinate({ coordinate: entry.waypointCoordinate, eventCoordinate: extentCenter })[0],
+                    entry.waypointCoordinate[1],
+                ], currentExtent);
 
             if (checkFlightLevel(entry.flightLevel) && inExtent) {
                 if (entry.airwayCoords) {
