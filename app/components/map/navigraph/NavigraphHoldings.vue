@@ -290,7 +290,7 @@ async function updateHoldings(generation: number) {
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
-        const currentCoordinate = getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter });
+        const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
         if (!checkFlightLevel(flightLevel) || !isPointInExtent(currentCoordinate, currentExtent) || (!enabled && !existingWaypoint)) {
             if (existingFeature) {
                 removeFeature(holdingFeatures, id);

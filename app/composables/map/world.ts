@@ -16,8 +16,8 @@ export function getOriginalWorldCoordinate({ eventCoordinate }: {
 export function getCurrentWorldCoordinate({ coordinate, eventCoordinate }: {
     coordinate: Coordinate; eventCoordinate: Coordinate;
 }): Coordinate {
-    const worldIndex = Math.floor((eventCoordinate[0] + 180) / 360);
     const localCoordinate = modPositive((coordinate[0] + 180), 360) - 180;
+    const worldIndex = Math.round((eventCoordinate[0] - localCoordinate) / 360);
 
     return [localCoordinate + (worldIndex * 360), eventCoordinate[1]];
 }
@@ -25,10 +25,15 @@ export function getCurrentWorldCoordinate({ coordinate, eventCoordinate }: {
 export function getCurrentWorldExtent({ extent, eventCoordinate }: {
     extent: Extent; eventCoordinate: Coordinate;
 }): Extent {
-    const currentMin = getCurrentWorldCoordinate({
-        coordinate: [extent[0], extent[1]],
-        eventCoordinate: [eventCoordinate[0], extent[1]],
+    const extentCenter: Coordinate = [
+        (extent[0] + extent[2]) / 2,
+        (extent[1] + extent[3]) / 2,
+    ];
+    const currentCenter = getCurrentWorldCoordinate({
+        coordinate: extentCenter,
+        eventCoordinate,
     });
+    const offsetX = currentCenter[0] - extentCenter[0];
 
-    return [currentMin[0], extent[1], currentMin[0] + (extent[2] - extent[0]), extent[3]];
+    return [extent[0] + offsetX, extent[1], extent[2] + offsetX, extent[3]];
 }

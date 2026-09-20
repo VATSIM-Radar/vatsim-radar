@@ -94,7 +94,8 @@ async function updateNdb(generation: number) {
         const visible = new Set<string>();
         const featuresToAdd: FeatureNavigraph[] = [];
         for (const { key, value: [ident, name, frequency, longitude, latitude] } of ndbIndex.query(currentExtent)) {
-            if (!isPointInExtent(getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter }), currentExtent)) continue;
+            const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
+            if (!isPointInExtent(currentCoordinate, currentExtent)) continue;
             visible.add(key);
             if (ndbFeatures.has(key)) continue;
 
@@ -134,7 +135,8 @@ async function updateNdb(generation: number) {
         const visible = new Set<string>();
         const featuresToAdd: FeatureNavigraph[] = [];
         for (const { key, value: [ident, name, dme, frequency, longitude, latitude] } of vordmeIndex.query(currentExtent)) {
-            if (!isPointInExtent(getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter }), currentExtent)) continue;
+            const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
+            if (!isPointInExtent(currentCoordinate, currentExtent)) continue;
             visible.add(key);
             if (vordmeFeatures.has(key)) continue;
 

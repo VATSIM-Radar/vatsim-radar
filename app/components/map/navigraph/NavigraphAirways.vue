@@ -155,7 +155,10 @@ async function updateAirways() {
                     ],
                     eventCoordinate: extentCenter,
                 }), currentExtent)
-                : isPointInExtent(getCurrentWorldCoordinate({ coordinate: entry.waypointCoordinate, eventCoordinate: extentCenter }), currentExtent);
+                : isPointInExtent([
+                    getCurrentWorldCoordinate({ coordinate: entry.waypointCoordinate, eventCoordinate: extentCenter })[0],
+                    entry.waypointCoordinate[1],
+                ], currentExtent);
 
             if (checkFlightLevel(entry.flightLevel) && inExtent) {
                 if (entry.airwayCoords) {

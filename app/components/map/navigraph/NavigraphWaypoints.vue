@@ -87,7 +87,8 @@ async function updateWaypoints() {
 
     for (const { key, waypoint } of waypointsIndex.query(currentExtent)) {
         const coordinate = [waypoint[1], waypoint[2]];
-        if (!isPointInExtent(getCurrentWorldCoordinate({ coordinate, eventCoordinate: extentCenter }), currentExtent) || (waypoint[4] && !currentTerminal)) continue;
+        const currentCoordinate = [getCurrentWorldCoordinate({ coordinate, eventCoordinate: extentCenter })[0], coordinate[1]];
+        if (!isPointInExtent(currentCoordinate, currentExtent) || (waypoint[4] && !currentTerminal)) continue;
 
         visibleKeys.add(key);
         if (waypointFeatures.has(key)) continue;
