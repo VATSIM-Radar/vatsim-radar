@@ -153,6 +153,8 @@ export default defineNitroPlugin(async app => {
                 vatsim: true,
                 presets: true,
                 lists: true,
+                dashboards: true,
+                favoriteDashboards: true,
             },
         });
 
@@ -196,6 +198,8 @@ export default defineNitroPlugin(async app => {
 
         const mapSettingsText = presets.MAP_SETTINGS_V2 ? `${ presets.MAP_SETTINGS_V2 }` : `zero. Remember to save your settings, so they are available on any device!`;
         const filtersText = presets.FILTER ? `\n- Filters saved: ${ presets.FILTER }. Good feature by the way!` : '';
+        const dashboardsText = existingUser.dashboards?.length ? `\n- Dashboards created: ${ existingUser.dashboards.length }` : '';
+        const dashboardsSavedText = existingUser.favoriteDashboards?.length ? `\n- Dashboards saved: ${ existingUser.favoriteDashboards.length }` : '';
         const bookmarksText = presets.BOOKMARK ? `\n- Bookmarks created: ${ presets.BOOKMARK }. At least some knows you could use them!` : '';
 
         const friendsCount = (existingUser.lists.find(x => x.type === 'FRIENDS')?.users as unknown[])?.length ?? 0;
@@ -207,8 +211,8 @@ export default defineNitroPlugin(async app => {
             content: `### <@${ interaction.user.id }> VATSIM Radar${ isNext ? ' Next' : '' } stats
                         
 - ID: ${ existingUser.id }
-- Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-- Friends (or enemies) saved: ${ friendsCount || `0` }${ otherListsText }${ isNext ? '\n\nBig thanks for being a part of Radar Next team!' : '' }`,
+- Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }${ dashboardsText }${ dashboardsSavedText }
+- Friends saved: ${ friendsCount || `0` }${ otherListsText }${ isNext ? '\n\nBig thanks for being a part of Radar Next team!' : '' }`,
             ephemeral,
         });
     }
