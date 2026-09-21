@@ -161,9 +161,9 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
     // start a new part. The second waypoint-description character marks the end
     // of an enroute airway, so the following row must start a new part.
     for (const airway of airways) {
-        const continuesPrevious = previousAirway
-            && airway.route_identifier === previousAirway.route_identifier
-            && previousAirway.waypoint_description_code[1] !== 'E';
+        const continuesPrevious = previousAirway &&
+            airway.route_identifier === previousAirway.route_identifier &&
+            previousAirway.waypoint_description_code[1] !== 'E';
 
         if (!continuesPrevious) {
             currentKey = `${ airway.route_identifier }-${ airway.area_code }-${ airway.route_type }-${ airway.icao_code }`;
