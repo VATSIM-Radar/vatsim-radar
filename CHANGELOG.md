@@ -1,19 +1,11 @@
 # Changelog
 
-# [2.0.3-1-rc.3]
-
-## Bug Fixes
-
-- Fixed vIFF CTOT calculation when CDM is offline to be exactly the same as on vIFF page
-
-# [2.0.3-1-rc.2]
+# [2.0.3-1-final]
 
 ## Features and Improvements
 
 - Updated base map layer from 17 Sept 2026 to 20 Sept 2026 to fix weird emojis in some places instead of city names in Detailed view
 - Added support for Airways and NAT Tracks color change
-
-# [2.0.3-1-rc.1]
 
 ## Bug Fixes
 
@@ -23,6 +15,7 @@
 - Fixed Navigraph features disappearing in "other worlds"
 - Fixed some Navigraph Airways showing at whole world
 - Fixed some Navigraph Airways being incorrectly long and containing much more waypoints than there really are
+- Fixed vIFF CTOT calculation when CDM is offline to be exactly the same as on vIFF page
 
 # [2.0.3-final]
 
