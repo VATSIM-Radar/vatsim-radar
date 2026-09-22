@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.3-1-rc.3]
+
+## Bug Fixes
+
+- Fixed vIFF CTOT calculation when CDM is offline to be exactly the same as on vIFF page
+
 # [2.0.3-1-rc.2]
 
 ## Features and Improvements
