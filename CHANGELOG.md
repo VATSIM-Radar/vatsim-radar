@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.3-1-final]
+# [2.0.3-1]
 
 ## Features and Improvements
 
