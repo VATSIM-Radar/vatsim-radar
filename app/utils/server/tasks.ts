@@ -162,6 +162,8 @@ async function vatsimTasks() {
                 },
             });
 
+            radarStorage.vatsimStatic.aliases = {};
+
             for (const alias of aliases) {
                 radarStorage.vatsimStatic.aliases[alias.frequency] ??= [];
                 radarStorage.vatsimStatic.aliases[alias.frequency].push(alias);

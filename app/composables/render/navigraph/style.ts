@@ -539,8 +539,12 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Ma
                 const setting = getColorValueByKey('map.preferences.colors.default.natTracks', true);
 
                 if (setting) {
+                    const settingsColor = getColorFromSettings(setting);
+
+                    if (strokesCache.others.natColored && strokesCache.others.natColored.getColor() !== settingsColor) delete strokesCache.others.natColored;
+
                     strokesCache.others.natColored ||= new Stroke({
-                        color: getColorFromSettings(setting),
+                        color: settingsColor,
                         width: stroke.getWidth()!,
                         lineDash: stroke.getLineDash()!,
                         lineJoin: stroke.getLineJoin(),
@@ -555,8 +559,12 @@ export function setNavigraphStyle(layer: VectorImageLayer | VectorLayer, map: Ma
                 const setting = getColorValueByKey('map.preferences.colors.default.airways', true);
 
                 if (setting) {
+                    const settingsColor = getColorFromSettings(setting);
+
+                    if (strokesCache.others.enrouteColored && strokesCache.others.enrouteColored.getColor() !== settingsColor) delete strokesCache.others.enrouteColored;
+
                     strokesCache.others.enrouteColored ||= new Stroke({
-                        color: getColorFromSettings(setting),
+                        color: settingsColor,
                         width: stroke.getWidth()!,
                         lineDash: stroke.getLineDash()!,
                         lineJoin: stroke.getLineJoin(),
