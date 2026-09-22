@@ -108,6 +108,8 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.uirs': { color: 'purple400', transparency: 0.1 },
     'map.preferences.colors.default.centerText': { color: 'lightGray500' },
     'map.preferences.colors.default.centerBg': { color: 'darkGray500' },
+    'map.preferences.colors.default.airways': { color: 'blue500', transparency: 0.5 },
+    'map.preferences.colors.default.natTracks': { color: 'blue500', transparency: 0.5 },
     'map.preferences.colors.default.approach': { color: 'red300' },
     'map.preferences.colors.default.approachText': { color: 'red300' },
     'map.preferences.colors.default.approachBg': { color: 'darkGray900' },

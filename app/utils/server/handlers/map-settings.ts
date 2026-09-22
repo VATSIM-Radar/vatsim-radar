@@ -11,6 +11,8 @@ export interface UserMapSettingsColors {
     uirs?: UserMapSettingsColor;
     centerText?: UserMapSettingsColor;
     centerBg?: UserMapSettingsColor;
+    airways?: UserMapSettingsColor;
+    natTracks?: UserMapSettingsColor;
     approach?: UserMapSettingsColor;
     approachText?: UserMapSettingsColor;
     approachBg?: UserMapSettingsColor;

@@ -2,7 +2,7 @@ import { ofetch } from 'ofetch';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import { radarStorage } from '~/utils/server/storage';
-import type { IVatsimTransceiver } from '~/types/data/vatsim';
+import type { IVatsimTransceiver, VatsimStationAlias } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/server/h3';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/server';
@@ -120,17 +120,25 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
     const frequencies = transceiver.map(x => {
         let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
 
-        if (radarStorage.vatsimStatic.aliases[x.frequency]) {
+        const aliases = radarStorage.vatsimStatic.aliases[x.frequency];
+
+        if (aliases?.length) {
             const split = callsign.split('_');
             const name = split.length === 3 ? split.slice(0, 2).join('_') : split[0];
-            const nameAlias = radarStorage.vatsimStatic.aliases[name] ?? radarStorage.vatsimStatic.aliases[split[0]];
 
-            if (nameAlias && nameAlias.frequency === x.frequency) {
-                frequency = parseFloat((nameAlias.frequencyAlias / 1000000).toFixed(3)).toString();
+            let namedAlias: VatsimStationAlias | undefined;
+
+            if (aliases.length > 1) {
+                for (const alias of aliases) {
+                    const aliasSplit = alias.name.split('_');
+                    const aliasName = aliasSplit.length === 3 ? aliasSplit.slice(0, 2).join('_') : aliasSplit[0];
+
+                    if (aliasName === name || aliasName === split[0]) namedAlias = alias;
+                }
             }
-            else if (x.frequency.toString().length < 9) {
-                frequency = parseFloat((radarStorage.vatsimStatic.aliases[x.frequency].frequencyAlias / 1000000).toFixed(3)).toString();
-            }
+
+            const result = namedAlias ?? (aliases.length === 1 ? aliases[0] : null);
+            if (result) frequency = parseFloat((result.frequencyAlias / 1000000).toFixed(3)).toString();
         }
 
         if (!frequency.includes('.')) {

@@ -11,6 +11,8 @@ import { createMapFeature } from '~/utils/map/entities';
 import type { FeatureNavigraph } from '~/utils/map/entities';
 import { createSpatialGridIndex } from '~/utils/map/spatial-index';
 import { getNavigraphParsedData } from '~/composables/navigraph';
+import { getCurrentWorldCoordinate } from '~/composables/map/world';
+import { getCenter } from 'ol/extent.js';
 
 defineOptions({
     render: () => null,
@@ -210,6 +212,7 @@ function cleanup() {
 async function updateHoldings(generation: number) {
     const enabled = isEnabled.value;
     const currentExtent = extent.value;
+    const extentCenter = getCenter(currentExtent);
     const version = dataStore.navigraph.version.value;
 
     if (dataVersion !== version) {
@@ -287,7 +290,8 @@ async function updateHoldings(generation: number) {
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
-        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], currentExtent) || (!enabled && !existingWaypoint)) {
+        const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
+        if (!checkFlightLevel(flightLevel) || !isPointInExtent(currentCoordinate, currentExtent) || (!enabled && !existingWaypoint)) {
             if (existingFeature) {
                 removeFeature(holdingFeatures, id);
             }

@@ -110,6 +110,8 @@ const aircraftColorsSchema = partialObject(
 const themeColorsSchema = partialObject({
     firs: colorSchema,
     uirs: colorSchema,
+    airways: colorSchema,
+    natTracks: colorSchema,
     centerText: colorSchema,
     centerBg: colorSchema,
     approach: colorSchema,

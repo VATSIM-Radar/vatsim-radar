@@ -223,22 +223,14 @@ const blocks = computed(() => {
     if (props.ipfs?.cdmData.ctot && props.ipfs.isCdm) {
         items.push({
             title: 'CTOT',
-            value: `${ props.ipfs.cdmData.ctot.slice(0, 4) }z`,
+            value: `${ props.ipfs.cdmData.ctot.slice(0, 4) ?? props.ipfs.ctot.slice(0, 4) }z`,
             hint: 'Calculated Take-Off Time. The time assigned for your take-off to ensure traffic flow and airspace management',
         });
     }
     else if (props.ipfs.ctot) {
-        const hours = parseInt(props.ipfs?.ctot.slice(0, 2));
-        let minutes = parseInt(props.ipfs?.ctot.slice(2, 4));
-        minutes -= props.ipfs.taxi ?? 0;
-        let total = (hours * 60) + minutes;
-        total = (total + 1440) % 1440;
-
-        const value = `${ ('0' + Math.floor(total / 60)).slice(-2) }${ ('0' + (total % 60)).slice(-2) }z`;
-
         items.push({
             title: 'CTOT',
-            value,
+            value: `${ props.ipfs.ctot.slice(0, 4) }z`,
             hint: 'Calculated Take-Off Time. The time assigned for your take-off to ensure traffic flow and airspace management',
         });
     }

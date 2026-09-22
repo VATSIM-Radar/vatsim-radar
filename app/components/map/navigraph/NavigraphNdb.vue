@@ -7,6 +7,8 @@ import type { FeatureNavigraph } from '~/utils/map/entities';
 import { createMapFeature } from '~/utils/map/entities';
 import { createSpatialGridIndex } from '~/utils/map/spatial-index';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
+import { getCurrentWorldCoordinate } from '~/composables/map/world';
+import { getCenter } from 'ol/extent.js';
 
 defineOptions({
     render: () => null,
@@ -68,6 +70,7 @@ function removeMissing(features: Map<string, FeatureNavigraph>, visible: Set<str
 
 async function updateNdb(generation: number) {
     const currentExtent = extent.value;
+    const extentCenter = getCenter(currentExtent);
     const version = dataStore.navigraph.version.value;
     if (dataVersion !== version) {
         cleanup();
@@ -91,7 +94,8 @@ async function updateNdb(generation: number) {
         const visible = new Set<string>();
         const featuresToAdd: FeatureNavigraph[] = [];
         for (const { key, value: [ident, name, frequency, longitude, latitude] } of ndbIndex.query(currentExtent)) {
-            if (!isPointInExtent([longitude, latitude], currentExtent)) continue;
+            const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
+            if (!isPointInExtent(currentCoordinate, currentExtent)) continue;
             visible.add(key);
             if (ndbFeatures.has(key)) continue;
 
@@ -131,7 +135,8 @@ async function updateNdb(generation: number) {
         const visible = new Set<string>();
         const featuresToAdd: FeatureNavigraph[] = [];
         for (const { key, value: [ident, name, dme, frequency, longitude, latitude] } of vordmeIndex.query(currentExtent)) {
-            if (!isPointInExtent([longitude, latitude], currentExtent)) continue;
+            const currentCoordinate = [getCurrentWorldCoordinate({ coordinate: [longitude, latitude], eventCoordinate: extentCenter })[0], latitude];
+            if (!isPointInExtent(currentCoordinate, currentExtent)) continue;
             visible.add(key);
             if (vordmeFeatures.has(key)) continue;
 
