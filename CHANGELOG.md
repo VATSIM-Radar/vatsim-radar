@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.4-beta.1]
+
+- Fixed line being purple sometimes even after SID
+- Removed smooth aircraft for own flight on ground
+- Fixed LIRF_TWR displaying incorrect frequency once again
+
 # [2.0.3-1-final]
 
 ## Features and Improvements

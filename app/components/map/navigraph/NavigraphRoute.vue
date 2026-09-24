@@ -335,6 +335,7 @@ async function update() {
                     !hideLineIfNoProcedure || kind === 'sids' || kind === 'stars' || i > 1 || extendedPilot
                 )) {
                     if (kind === 'sids') prevWaypointKind = kind;
+                    else if (prevWaypointKind === 'sids') prevWaypointKind = kind;
 
                     addFeature(`enroute-${ callsign }`, () => ({
                         geometry: greatCircleToOl(coordinate, newCoordinate, { npoints: 16 }),

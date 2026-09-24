@@ -176,7 +176,8 @@ export async function setMapAircraft(settings: {
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
-        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && existingFeature
+        const useDirectSelfCoordinates = isSelfFlight && !!dataStore.vatsim.selfCoordinate.value;
+        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && !useDirectSelfCoordinates && existingFeature
             ? existingFeature.getProperties()
             : undefined;
         const featureCoordinates = smoothFeatureProperties
@@ -224,7 +225,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled || useDirectCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
+            if (!smoothMovementEnabled || useDirectCoordinates || useDirectSelfCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
                 const geometry = existingFeature.getGeometry()! as Point;
                 const existingCoordinates = geometry.getCoordinates();
                 if (existingCoordinates[0] !== coordinates[0] || existingCoordinates[1] !== coordinates[1]) {

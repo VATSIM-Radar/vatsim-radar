@@ -11,6 +11,7 @@ import { getAircraftDynamicScale } from '~/utils/map/aircraft-scale';
 import type { Coordinate } from 'ol/coordinate.js';
 import { greatCircleToOl } from '~/utils';
 import { useMapStore } from '~/store/map';
+import { ownFlight } from '~/composables/vatsim/pilots';
 
 interface Sample {
     t: number;
@@ -30,23 +31,41 @@ interface Track {
 const SMOOTH_FRAME_RATE = 30;
 const SMOOTH_FRAME_INTERVAL = 1000 / SMOOTH_FRAME_RATE;
 const LIMIT_SMOOTH_FRAME_RATE = true;
+// Multiplies the learned position-update interval to keep rendering behind the latest sample.
 const DELAY_GAPS = 1.3;
+// Adds a fixed millisecond safety margin to the cadence-based render delay.
 const DELAY_EXTRA = 500;
-const MIN_DELAY = 1500;
+// Sets the minimum allowed render delay in milliseconds.
+const MIN_DELAY = 1000;
+// Caps the render delay in milliseconds when updates arrive slowly or irregularly.
 const MAX_DELAY = 6000;
+// Controls how quickly the learned update cadence follows newly observed sample intervals.
 const CADENCE_SMOOTH = 0.2;
+// Provides the initial assumed position-update interval in milliseconds.
 const DEFAULT_GAP = 4000;
+// Excludes larger sample intervals from cadence learning and caps the learned interval.
 const STALL_GAP = 15000;
+// Controls how quickly the estimated server-to-client clock offset follows new measurements.
 const OFFSET_SMOOTH = 0.05;
+// Limits the number of position samples retained for each aircraft track.
 const MAX_SAMPLES = 16;
+// Limits how far in milliseconds movement may be extrapolated beyond the newest sample.
 const MAX_EXTRAPOLATION = 1000 * 10;
-const MOVING_THRESHOLD = 30;
+// Stops extrapolation when the speed derived from recent positions is at or below this value in knots.
+const MOVING_THRESHOLD = 50;
+// Converts millisecond-based movement rates to knots.
 const MS_PER_HOUR = 1000 * 60 * 60;
+// Approximates the number of nautical miles in one degree of latitude.
 const NM_PER_DEGREE = 60;
+// Sets the exponential convergence time constant for displayed position corrections.
 const POSITION_SMOOTH_MS = 300;
+// Sets the exponential convergence time constant for displayed heading corrections.
 const HEADING_SMOOTH_MS = 900;
+// Defines the millisecond gap treated as an inactive frame or stale sample interval.
 const INACTIVE_FRAME_GAP = 1000 * 10;
+// Snaps after an inactive frame gap when the target is at least this many nautical miles away.
 const INACTIVE_SNAP_DISTANCE_NM = 2;
+// Snaps to a nearby target within this distance to avoid a long exponential correction tail.
 const POSITION_SNAP_DISTANCE_NM = 0.03;
 
 const tracks = new Map<number, Track>();
@@ -399,6 +418,7 @@ function frame() {
     try {
         const source = activeSource;
         const mapStore = useMapStore();
+        const dataStore = useDataStore();
         if (!source) return;
         if (isDocumentHidden()) return;
 
@@ -452,6 +472,8 @@ function frame() {
             const feature = source.getFeatureById(cid);
             const properties = feature?.getProperties();
             if (!feature || !properties || !isMapFeature('aircraft', properties)) continue;
+
+            if (cid === ownFlight.value?.cid && dataStore.vatsim.selfCoordinate.value) continue;
 
             const track = tracks.get(cid);
             if (!track) continue;
