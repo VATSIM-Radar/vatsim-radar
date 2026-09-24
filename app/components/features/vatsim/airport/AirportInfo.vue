@@ -20,7 +20,8 @@
                 { title: 'Elevation', text: `${ airportInfo.altitude_m }m, ${ airportInfo.altitude_ft }ft` },
                 { title: 'Transition Level', text: airportInfo.transition_level },
                 { title: 'Transition Altitude', text: airportInfo.transition_alt },
-                { title: 'CTAF', text: airportInfo.ctafFreq },
+                { title: 'CTAF', text: airportInfo.ctafFreq, hide: !airportInfo.ctafFreq },
+                { title: 'Magnetic Declination', text: decl, hide: !decl },
             ]"
         />
     </div>
@@ -29,8 +30,16 @@
 <script setup lang="ts">
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
+// @ts-expect-error JS-only lib
+import { magvar } from 'magvar';
 
+const dataStore = useDataStore();
 const data = injectAirport();
 
 const airportInfo = computed(() => data.value.airport?.vatInfo);
+const decl = computed(() => {
+    if (!data.value.airport?.vatInfo?.icao) return null;
+    const vatAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.airport?.vatInfo?.icao];
+    return vatAirport ? Math.round(magvar(vatAirport.lat, vatAirport.lon)) : null;
+});
 </script>

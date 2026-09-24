@@ -1,5 +1,10 @@
 # Changelog
 
+# [2.0.4-beta.2]
+
+- Added magnetic declination to airport info and conditions request
+- Bookings are now shown when filter is enabled
+
 # [2.0.4-beta.1]
 
 - Fixed line being purple sometimes even after SID

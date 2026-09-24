@@ -109,6 +109,18 @@
                         </div>
                     </div>
                     <div class="metar__item_body">
+                        <ui-text
+                            v-if="item.decl"
+                            class="metar__item_body_section"
+                            type="caption-light"
+                        >
+                            <span class="metar__declination">
+                                Magnetic declination:
+                                <div class="metar__item_title_text">
+                                    {{item.decl}}
+                                </div>
+                            </span>
+                        </ui-text>
                         <div class="metar__item_body_section">
                             <textarea
                                 v-if="item.metarRaw"
@@ -172,6 +184,9 @@ import CloseIcon from '~/assets/icons/basic/close.svg?component';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
+// @ts-expect-error JS-only lib
+import { magvar } from 'magvar';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -252,11 +267,16 @@ const { data, refresh } = await useLazyAsyncData<VatsimAirportDataIcao[]>('metar
 const metars = computed(() => {
     const list = data.value ?? [];
 
-    return list.map(airport => ({
-        icao: airport.icao,
-        metarRaw: airport.metar,
-        tafRaw: airport.taf,
-    }));
+    return list.map(airport => {
+        const vatAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[airport.icao];
+
+        return {
+            icao: airport.icao,
+            metarRaw: airport.metar,
+            tafRaw: airport.taf,
+            decl: vatAirport ? Math.round(magvar(vatAirport.lat, vatAirport.lon)) : null,
+        };
+    });
 });
 </script>
 
@@ -265,6 +285,12 @@ const metars = computed(() => {
     &_form {
         display: flex;
         gap: 16px;
+    }
+
+    &__declination {
+        display: flex;
+        gap: 4px;
+        align-items: center;
     }
 
     &_favorite {

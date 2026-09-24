@@ -10,6 +10,7 @@ import { debugBookings, debugControllers } from '~/composables/render/update/uti
 import { duplicatingSettings } from '~/utils/server/vatsim/atc-duplicating';
 import { getSimAwareFeatures } from '~/composables/render/airports';
 import { selectMapBookings } from '~/utils/shared/bookings';
+import { filterVatsimControllers } from '~/composables/settings/filter.ts';
 
 export const callsignSplitRegex = /_+/gm;
 
@@ -248,7 +249,7 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings && !store.activeFilter) || store.bookingOverride) ? store.bookings : [];
+    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
         const now = Date.now();
@@ -260,15 +261,19 @@ export async function updateControllers(context: DataUpdateContext) {
     const realCallsigns = new Set(dataStore.vatsim.data.controllers.value.map(x => x.callsign));
     const duplicatedPositions: Record<string, VatsimShortenedController> = {};
 
+    let controllersBookings = bookings.map(({ atc, ...rest }) => ({
+        ...atc,
+        facility: getFacilityByCallsign(atc.callsign),
+        booking: rest,
+        isBooking: true,
+    } satisfies VatsimShortenedController));
+
+    controllersBookings = filterVatsimControllers(controllersBookings, []).controllers;
+
     const controllers = [
         ...(store.bookingOverride ? [] : dataStore.vatsim.data.controllers.value),
         ...(store.bookingOverride ? [] : dataStore.vatsim.data.atis.value),
-        ...bookings.map(({ atc, ...rest }) => ({
-            ...atc,
-            facility: getFacilityByCallsign(atc.callsign),
-            booking: rest,
-            isBooking: true,
-        } satisfies VatsimShortenedController)),
+        ...controllersBookings,
     ];
 
     if (debugControllers.value?.length) {
