@@ -211,7 +211,7 @@ export type VatsimMandatoryData = {
     timestamp: string;
     timestampNum: number;
     serverTime: number;
-    pilots: [cid: VatsimPilot['cid'], longitude: VatsimPilot['longitude'], latitude: VatsimPilot['latitude'], icon: AircraftIcon, heading: number][];
+    pilots: [cid: VatsimPilot['cid'], longitude: VatsimPilot['longitude'], latitude: VatsimPilot['latitude'], icon: AircraftIcon, heading: number, date?: string][];
     // controllers: [VatsimController['cid'], VatsimController['callsign'], VatsimController['frequency'], VatsimController['facility']][];
     // atis: VatsimMandatoryData['controllers'];
 };

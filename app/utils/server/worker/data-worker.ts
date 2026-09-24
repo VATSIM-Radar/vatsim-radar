@@ -260,6 +260,7 @@ defineCronJob('* * * * * *', async () => {
                 date: undefined,
                 deleted: undefined,
                 flight_plan: undefined,
+                last_updated: newerData.date,
             });
 
             if (newerData.flight_plan) {
@@ -284,6 +285,7 @@ defineCronJob('* * * * * *', async () => {
                 date: undefined,
                 deleted: undefined,
                 flight_plan: undefined,
+                last_updated: newerData.date,
             });
 
             if (newerData.flight_plan) {
@@ -306,8 +308,19 @@ defineCronJob('* * * * * *', async () => {
                 ...newerData,
                 date: undefined,
                 deleted: undefined,
+                last_updated: newerData.date,
             });
         });
+
+        const timestamps: VatsimStorage['differentialUpdate'] = radarStorage.vatsim.data
+            ? {
+                pilots: Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x.last_updated])),
+                controllers: Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x.last_updated])),
+                prefiles: Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x.last_updated])),
+                atis: Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x.last_updated])),
+                observers: Object.fromEntries(radarStorage.vatsim.data!.observers.map(x => [x.cid, x.last_updated])),
+            }
+            : null;
 
         const length = radarStorage.vatsim.data!.controllers.length;
         const onlineCallsigns = new Set(radarStorage.vatsim.data!.controllers.map(x => x.callsign));
@@ -735,6 +748,7 @@ defineCronJob('* * * * * *', async () => {
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
                 compactDatafeed: radarStorage.vatsim.compactDatafeed,
+                differentialUpdate: timestamps,
             } satisfies Omit<VatsimStorage, 'kafka' | 'sectorsDataset'>), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);

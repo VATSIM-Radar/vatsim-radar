@@ -1,7 +1,8 @@
 import { ofetch } from 'ofetch';
 import { radarStorage } from '~/utils/server/storage';
-import { validateDataReady } from '~/utils/server/h3';
+import { handleH3Error, validateDataReady } from '~/utils/server/h3';
 import type { VatsimMandatoryData } from '~/types/data/vatsim';
+import { isValidDate } from '~/utils/shared';
 
 export default defineEventHandler(async event => {
     const remoteBase = process.env.REMOTE_DATA_URL?.replace(/\/+$/, '');
@@ -18,5 +19,28 @@ export default defineEventHandler(async event => {
 
     if (!(await validateDataReady(event))) return;
 
-    return radarStorage.vatsim.mandatoryData;
+    const query = getQuery(event);
+    let result = radarStorage.vatsim.mandatoryData;
+    if (query.timestamp) {
+        const mandatory = radarStorage.vatsim.mandatoryData;
+        if (!mandatory) return mandatory;
+
+        const date = new Date(query.timestamp as string);
+        if (!isValidDate(date)) {
+            return handleH3Error({
+                event,
+                statusCode: 400,
+                data: 'Invalid date',
+            });
+        }
+
+        result = { ...mandatory };
+
+        for (const cid in result.pilots) {
+            if (!radarStorage.vatsim.differentialUpdate?.pilots[cid] || radarStorage.vatsim.differentialUpdate?.pilots[cid] > result.pilots[cid]![5]!) continue;
+            delete result.pilots[cid];
+        }
+    }
+
+    return result;
 });
