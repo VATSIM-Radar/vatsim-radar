@@ -8,7 +8,7 @@ import type {
     VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats, VatsimNattrakClient,
     VatsimShortenedAircraft,
-    VatsimShortenedController,
+    VatsimShortenedController, VatsimShortenedPrefile, VatsimLiveCollection,
 } from '~/types/data/vatsim';
 import { getCurrentInstance } from 'vue';
 import type { Ref, ShallowRef } from 'vue';
@@ -88,7 +88,7 @@ const stats = shallowRef<{
 }[]>([]);
 
 export type VatsimData = {
-    [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
+    [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots' | 'activeCallsigns'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
 } & {
     keyedPilots: Ref<NonNullable<VatsimLiveData['keyedPilots']>>;
     keyedPrefiles: Ref<NonNullable<VatsimLiveData['keyedPrefiles']>>;
@@ -113,6 +113,30 @@ const data: VatsimData = {
     notam,
 };
 
+export type VatsimChangedCollections = Record<VatsimLiveCollection, boolean>;
+
+function createVatsimChangedCollections(): VatsimChangedCollections {
+    return {
+        pilots: false,
+        controllers: false,
+        atis: false,
+        prefiles: false,
+        observers: false,
+    };
+}
+
+// Keep decoded data independent from compact response dictionaries. A new compact
+// response rebuilds its dictionary indexes, while existing cached entities retain
+// their already decoded values.
+const vatsimDataMaps = {
+    pilots: new Map<number, VatsimShortenedAircraft>(),
+    prefiles: new Map<number, VatsimShortenedPrefile>(),
+    controllers: new Map<string, VatsimLiveDataShort['controllers'][number]>(),
+    atis: new Map<string, VatsimLiveDataShort['atis'][number]>(),
+    observers: new Map<string, VatsimLiveDataShort['observers'][number]>(),
+};
+const mandatoryPilotsMap = new Map<number, VatsimMandatoryPilot>();
+
 const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
@@ -133,8 +157,10 @@ const vatsim: UseDataStore['vatsim'] = {
     versions: ref<VatDataVersions['vatsim'] | null>(null),
     updateTimestamp: ref(''),
     updateTime: ref(0),
+    mandatoryTimestamp: ref(''),
     localUpdateTime: ref(0),
     shortUpdateTime: ref(0),
+    lastDataChanges: shallowRef(createVatsimChangedCollections()),
     selfCoordinate: ref<{ coordinate: Coordinate; heading: number; date: number } | null>(null),
     notam,
 };
@@ -235,8 +261,10 @@ export interface UseDataStore {
         versions: Ref<VatDataVersions['vatsim'] | null>;
         updateTimestamp: Ref<string>;
         updateTime: Ref<number>;
+        mandatoryTimestamp: Ref<string>;
         localUpdateTime: Ref<number>;
         shortUpdateTime: Ref<number>;
+        lastDataChanges: ShallowRef<VatsimChangedCollections>;
         selfCoordinate: Ref<{
             coordinate: Coordinate;
             heading: number;
@@ -364,6 +392,13 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
     };
 
     for (const pilot of _vatsimData.pilots) {
+        const partialPilot = pilot as Partial<VatsimShortenedAircraft>;
+        if (typeof partialPilot.cid === 'number') {
+            const normalizedPatch = Object.fromEntries(Object.entries(partialPilot).map(([key, value]) => [key, value ?? undefined]));
+            vatsimData.pilots.push({ ...vatsimDataMaps.pilots.get(partialPilot.cid), ...normalizedPatch } as VatsimShortenedAircraft);
+            continue;
+        }
+
         vatsimData.pilots.push({
             cid: pilot.ci,
             name: pilot.n,
@@ -456,71 +491,126 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
         });
     }
 
-    const filteredControllers = filterVatsimControllers(vatsimData.controllers, vatsimData.atis);
+    const changes = mergeVatsimData(vatsimData, !!_vatsimData.activeCallsigns);
+    vatsim.lastDataChanges.value = changes;
 
-    for (const key in vatsimData) {
-        if (key === 'pilots' || key === 'prefiles') vatsimData[key] = filterVatsimPilots<any>(vatsimData[key]);
+    data.general.value = vatsimData.general;
+    data.bars.value = vatsimData.bars;
+    if (vatsimData.notam && data.notam.value) Object.assign(data.notam.value, vatsimData.notam);
+    else if (data.notam.value !== vatsimData.notam) data.notam.value = vatsimData.notam;
 
-        if (key === 'controllers') vatsimData.controllers = filteredControllers.controllers;
-        if (key === 'atis') vatsimData.atis = filteredControllers.atis;
-        if (key === 'notam') {
-            if (vatsimData.notam && data.notam.value) {
-                Object.assign(data.notam.value, vatsimData.notam);
-            }
-            else if (data.notam.value !== vatsimData.notam) data.notam.value = vatsimData.notam;
-            continue;
+    // Every regular VATSIM update contains changed pilots. Prefiles are optional,
+    // so keep their filtering and reactive update conditional.
+    const useMandatoryCoordinates = String(useRuntimeConfig().public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate');
+    const pilots = filterVatsimPilots(Array.from(vatsimDataMaps.pilots.values()));
+    data.pilots.value = pilots;
+    data.keyedPilots.value = Object.fromEntries(pilots.map(pilot => [pilot.cid.toString(), {
+        ...pilot,
+        longitude: useMandatoryCoordinates ? (data.keyedPilots.value[pilot.cid.toString()]?.longitude ?? pilot.longitude) : pilot.longitude,
+        latitude: useMandatoryCoordinates ? (data.keyedPilots.value[pilot.cid.toString()]?.latitude ?? pilot.latitude) : pilot.latitude,
+        heading: useMandatoryCoordinates ? (data.keyedPilots.value[pilot.cid.toString()]?.heading ?? pilot.heading) : pilot.heading,
+    }]));
+
+    if (changes.prefiles) {
+        const prefiles = filterVatsimPilots(Array.from(vatsimDataMaps.prefiles.values()));
+        data.prefiles.value = prefiles;
+        data.keyedPrefiles.value = Object.fromEntries(prefiles.map(pilot => [pilot.cid.toString(), pilot]));
+    }
+
+    if (changes.controllers || changes.atis) {
+        const filteredControllers = filterVatsimControllers(
+            Array.from(vatsimDataMaps.controllers.values()),
+            Array.from(vatsimDataMaps.atis.values()),
+        );
+        data.controllers.value = filteredControllers.controllers;
+        data.atis.value = filteredControllers.atis;
+    }
+    if (changes.observers) data.observers.value = Array.from(vatsimDataMaps.observers.values());
+
+    // Regular data owns removals. Remove pilots absent from its full active list so
+    // a stale mandatory delta cannot leave a disconnected aircraft on the map.
+    if (changes.pilots && mandatoryPilotsMap.size) {
+        let mandatoryChanged = false;
+        for (const cid of mandatoryPilotsMap.keys()) {
+            if (data.keyedPilots.value[cid.toString()]) continue;
+            mandatoryPilotsMap.delete(cid);
+            mandatoryChanged = true;
         }
-
-        if (key in data) {
-            // @ts-expect-error Dynamic assignment
-            data[key].value = vatsimData[key];
+        if (mandatoryChanged) {
+            const pilots = Array.from(mandatoryPilotsMap.values());
+            vatsim.mandatoryData.value = { pilots };
+            vatsim._mandatoryData.value = vatsim.mandatoryData.value;
+            vatsim.localUpdateTime.value = Date.now();
         }
     }
 
-    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), {
-        ...pilot,
-        longitude: data.keyedPilots.value[pilot.cid.toString()]?.longitude ?? pilot.longitude,
-        latitude: data.keyedPilots.value[pilot.cid.toString()]?.latitude ?? pilot.latitude,
-        heading: data.keyedPilots.value[pilot.cid.toString()]?.heading ?? pilot.heading,
-    }]));
-
-    data.keyedPrefiles.value = Object.fromEntries(vatsimData.prefiles.map(pilot => [pilot.cid.toString(), pilot]));
+    return changes;
 }
 
-export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
-    time.value = mandatoryData.serverTime;
-    vatsim.localUpdateTime.value = Date.now();
-    vatsim.updateTime.value = mandatoryData.timestampNum;
-
-    if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(([cid]) => data.keyedPilots.value[cid.toString()] !== undefined);
-
-    vatsim.mandatoryData.value = {
-        pilots: mandatoryData.pilots.map(([cid, lon, lat, icon, heading]) => {
-            const cidString = cid.toString();
-            if (data.keyedPilots.value?.[cidString]) {
-                data.keyedPilots.value[cidString].longitude = lon;
-                data.keyedPilots.value[cidString].latitude = lat;
-                data.keyedPilots.value[cidString].heading = heading;
-            }
-
-            return {
-                cid,
-                longitude: lon,
-                latitude: lat,
-                icon,
-                heading,
-            };
-        }),
+function mergeVatsimData(vatsimData: VatsimLiveDataShort, isDelta: boolean): VatsimChangedCollections {
+    const activeCallsigns = vatsimData.activeCallsigns;
+    return {
+        pilots: mergeVatsimCollection(vatsimDataMaps.pilots, vatsimData.pilots, activeCallsigns?.pilots, isDelta, item => item.cid),
+        prefiles: mergeVatsimCollection(vatsimDataMaps.prefiles, vatsimData.prefiles, activeCallsigns?.prefiles, isDelta, item => item.cid),
+        controllers: mergeVatsimCollection(vatsimDataMaps.controllers, vatsimData.controllers, activeCallsigns?.controllers, isDelta, item => item.callsign),
+        atis: mergeVatsimCollection(vatsimDataMaps.atis, vatsimData.atis, activeCallsigns?.atis, isDelta, item => item.callsign),
+        observers: mergeVatsimCollection(vatsimDataMaps.observers, vatsimData.observers, activeCallsigns?.observers, isDelta, item => item.callsign),
     };
+}
 
-    triggerRef(data.keyedPilots);
-    vatsim._mandatoryData.value = vatsim.mandatoryData.value;
+function mergeVatsimCollection<T extends { callsign: string }, K extends string | number>(map: Map<K, T>, values: T[], activeCallsigns: string[] | undefined, isDelta: boolean, getKey: (item: T) => K) {
+    const hadItems = map.size > 0;
+    if (!isDelta) map.clear();
+
+    let changed = !isDelta && hadItems;
+    for (const item of values) {
+        map.set(getKey(item), item);
+        changed = true;
+    }
+    if (!isDelta) return changed || map.size > 0;
+
+    const active = new Set([...(activeCallsigns ?? []), ...values.map(item => item.callsign)]);
+    for (const [key, item] of map) {
+        if (active.has(item.callsign)) continue;
+        map.delete(key);
+        changed = true;
+    }
+    return changed;
+}
+
+export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData, replace = false) {
+    time.value = mandatoryData.serverTime;
+    vatsim.updateTime.value = mandatoryData.timestampNum;
+    vatsim.mandatoryTimestamp.value = mandatoryData.timestamp;
+
+    const pilots = mandatoryData.pilots
+        .filter(([cid]) => !hasActivePilotFilter() || data.keyedPilots.value[cid.toString()] !== undefined)
+        .map(([cid, lon, lat, icon, heading]) => ({ cid, longitude: lon, latitude: lat, icon, heading }));
+    if (replace) mandatoryPilotsMap.clear();
+
+    let changed = replace;
+    for (const pilot of pilots) {
+        mandatoryPilotsMap.set(pilot.cid, pilot);
+        if (data.keyedPilots.value[pilot.cid.toString()]) {
+            data.keyedPilots.value[pilot.cid.toString()].longitude = pilot.longitude;
+            data.keyedPilots.value[pilot.cid.toString()].latitude = pilot.latitude;
+            data.keyedPilots.value[pilot.cid.toString()].heading = pilot.heading;
+        }
+        changed = true;
+    }
+
+    if (changed) {
+        triggerRef(data.keyedPilots);
+        vatsim.mandatoryData.value = { pilots: Array.from(mandatoryPilotsMap.values()) };
+        vatsim._mandatoryData.value = vatsim.mandatoryData.value;
+        vatsim.localUpdateTime.value = Date.now();
+    }
 
     // Avoid accumulating samples when smoothing is suspended because the current load
     // makes interpolation too expensive. Map movement itself is ignored here because
     // samples remain useful while the viewport is being dragged.
     if (isSmoothMovementEnabled() && !isSmoothMovementSuspendedForLoad(true)) {
-        recordSmoothSamples(vatsim.mandatoryData.value.pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
+        recordSmoothSamples(pilots, mandatoryData.serverTime, mandatoryData.timestampNum);
     }
 }
 
@@ -651,13 +741,11 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 try {
                     const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                         timeout: 1000 * 60,
+                        query: dataStore.vatsim.mandatoryTimestamp.value
+                            ? { timestamp: dataStore.vatsim.mandatoryTimestamp.value }
+                            : undefined,
                     });
                     if (mandatoryData) setVatsimMandatoryData(mandatoryData);
-
-                    if (dataStore.vatsim.data.general.value) {
-                        dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
-                    }
-                    dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
                 }
                 catch (e) {
                     useRadarError(e);
@@ -669,7 +757,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
-            await store.getVATSIMData(socketsEnabled());
+            await store.getVATSIMData();
             onFetch?.();
             localStorage.setItem('radar-visibility-check', Date.now().toString());
         }, 10000);

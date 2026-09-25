@@ -394,21 +394,33 @@ export const useStore = defineStore('index', {
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
                     if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
+                    const fullData = force || !dataStore.vatsim.data.general.value;
+                    const includePositionUpdates = String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate');
                     const data = await $fetch<VatsimLiveCompactData | VatsimLiveCompactDataShort>(`/api/data/vatsim/data/compact${ dataStore.vatsim.data.general.value?.unique_users ? '/short' : '' }`, {
                         timeout: 1000 * 60,
+                        query: {
+                            ...(fullData ? {} : { timestamp: dataStore.vatsim.data.general.value?.update_timestamp }),
+                            ...(includePositionUpdates ? { includePositionUpdates: 'true' } : {}),
+                        },
                     });
-                    await setVatsimDataStore(data);
+                    setVatsimDataStore(data);
                     dataStore.vatsim.shortUpdateTime.value = Date.now();
+                    dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
 
                     if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate') || !dataStore.vatsim.mandatoryData.value) {
+                        const fullMandatoryData = force || !dataStore.vatsim.mandatoryData.value;
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
+                            query: fullMandatoryData
+                                ? undefined
+                                : {
+                                    timestamp: dataStore.vatsim.mandatoryTimestamp.value,
+                                },
                         });
-                        if (mandatoryData) setVatsimMandatoryData(mandatoryData);
+                        if (mandatoryData) setVatsimMandatoryData(mandatoryData, fullMandatoryData);
                         if (dataStore.vatsim.data.general.value) {
                             dataStore.vatsim.data.general.value.update_timestamp = data.general.update_timestamp;
                         }
-                        dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
                     }
 
                     await onFetch?.();

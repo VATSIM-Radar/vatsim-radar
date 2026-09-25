@@ -108,7 +108,7 @@ export function updateVatsimMandatoryDataStorage() {
 
     for (const pilot of data.pilots) {
         const coords = [pilot.longitude, pilot.latitude];
-        newData.pilots.push([pilot.cid, coords[0], coords[1], getAircraftIcon(pilot).icon, pilot.heading, pilot.last_updated]);
+        newData.pilots.push([pilot.cid, coords[0], coords[1], getAircraftIcon(pilot).icon, pilot.heading]);
     }
 
     // newData.controllers = data.controllers.map(x => [x.cid, x.callsign, x.frequency, x.facility]);

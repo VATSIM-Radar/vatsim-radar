@@ -131,6 +131,7 @@ Client performance audit entry points:
 
 - Aircraft hot path: `app/components/map/layers/MapAircraftList.vue` throttles visibility/render updates, `app/composables/render/aircraft/index.ts` reconciles OpenLayers aircraft/line features, `app/composables/render/aircraft/style.ts` supplies the per-feature style callback, and `app/composables/render/aircraft/smooth.ts` owns the optional frame loop.
 - Live-data fan-out: `app/composables/render/storage.ts` converts compact/mandatory feeds and `app/composables/index.ts` maps `short`/`mandatory` timestamps to update callbacks; `app/composables/render/update/index.ts` rebuilds derived airport/sector state.
+- Live-data deltas: `storage.ts` decodes each compact response using that response's `map`, merges it into CID-keyed pilot/prefile and callsign-keyed ATC/ATIS/observer maps, then rebuilds only changed reactive collections. Regular responses use `general.update_timestamp`; mandatory uses its separate cursor. Pilot changes arrive on every regular update, while unchanged ATC collections retain their current refs and skip ATC/VATGlasses/sector work.
 - Visibility feedback: `app/components/views/ViewMap.vue` derives `renderedPilots`/`renderedAirports` from OpenLayers declutter during throttled `postrender` callbacks; these sets feed aircraft visibility, style decluttering, and smooth-movement decisions.
 - Enriched list getters: `app/store/index.ts` computes `lists`, `friends`, and `allFriends` from current live datasets; consumers in filters and aircraft styling can therefore add live-array scans to update paths.
 
@@ -261,6 +262,7 @@ Common server helpers:
 - `app/utils/server/prisma.ts`: Prisma client configured with MariaDB adapter.
 - `app/utils/server/storage.ts`: server data storage types and read helpers.
 - `app/utils/server/redis.ts`: Redis helpers.
+- `app/utils/server/vatsim/differential.ts`: shared timestamp validation, entity filtering, and regular-feed active-callsign inventory for full, short, compact, and mandatory VATSIM feed responses.
 
 ### Server Plugins And Background Work
 

@@ -227,6 +227,8 @@ export interface VatsimStorage {
 
     compactDatafeed: VatsimLiveDataMap | null;
     differentialUpdate: Record<'pilots' | 'controllers' | 'atis' | 'prefiles' | 'observers', Record<number, string>> | null;
+    mandatoryDifferentialUpdate: Record<number, string> | null;
+    pilotDifferentialFields: Record<number, string[]> | null;
 
     extendedPilots: VatsimExtendedPilot[];
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
@@ -324,6 +326,8 @@ export const radarStorage: RadarStorage = {
         mandatoryData: null,
         compactDatafeed: null,
         differentialUpdate: null,
+        mandatoryDifferentialUpdate: null,
+        pilotDifferentialFields: null,
         extendedPilots: [],
         extendedPilotsMap: {},
         transceivers: {},
