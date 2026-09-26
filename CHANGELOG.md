@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.4-beta.3]
+
+- VATSIM Radar airline name & logo will now respect OPR remark
+
 # [2.0.4-beta.2]
 
 - Added magnetic declination to airport info and conditions request

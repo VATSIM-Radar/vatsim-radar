@@ -324,7 +324,7 @@ Shared utility split:
 
 - `app/utils/shared/*`: safe for client and server. Flight math, VATSIM helpers, runway detection.
 - `app/utils/shared/country-codes.ts`: country-of-registration lookup for aircraft overlays. `usePilotCountry` returns a computed `{ country, isVfr, isIfr }` consumed by `MapPilotOverlay.vue` (header flag) and `PilotOverlayFlightPlan.vue` (registration flag); `getCountryFromCallsignOrReg`, `getFlagUrl`, and `formatRegistration` are shared helpers.
-- `../../app/utils/shared/images.ts`: resolves 3-letter ICAO airline prefixes to local `/logos/{code}.png` URLs with a fallback chain.
+- `../../app/utils/shared/images.ts`: resolves airline logo codes to local `/logos/{code}.png` URLs, preferring a known `OPR/` remark and falling back to the callsign prefix.
 - `app/utils/data/*`: domain transforms/helpers used mostly around data/rendering.
 - `app/utils/db/*`: database-facing helper types/functions.
 - `app/utils/server/*`: server-only code; do not import into browser-only code.

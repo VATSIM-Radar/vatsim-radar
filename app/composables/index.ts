@@ -17,6 +17,7 @@ import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format.js';
 import type { WatchOptions } from '@vue/runtime-core';
+import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) return false;
@@ -249,7 +250,16 @@ export async function getAirlineFromCallsign(callsign: string, remarks?: string)
     const icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = await useDataStore().airlines(icao);
+    const operator = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
+    const airlineCodes = [...new Set([operator, icao].filter((value): value is string => !!value))];
+
+    // OPR is more reliable than the callsign prefix when a flight uses a different operator.
+    // Keep the callsign lookup as a fallback because OPR is optional and may be unknown.
+    let airline: RadarDataAirline | null = null;
+    for (const airlineCode of airlineCodes) {
+        airline = await useDataStore().airlines(airlineCode);
+        if (airline) break;
+    }
 
     if (!airline && !remarks) return airline ?? null;
 

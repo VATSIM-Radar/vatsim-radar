@@ -178,6 +178,8 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Popups And Bookings
 
+- Airline logos and airline details both prefer a known `OPR/` flight-plan remark over the callsign prefix. Because OPR is optional or may be absent from the dataset, both paths must fall back to the standard callsign-based lookup.
+
 - Featured Airport controller badges must use the same controller enrichment as airport details: merge `DataAirport.atc` with controllers from rendered airport/TRACON/sector features covering the airport coordinates, then deduplicate by callsign. Callsign-only attribution misses nonstandard and sector-owned positions and can leave only ATIS visible.
 
 - `PopupFullscreen` must route close events from its inner `PopupMapInfo` title close button through `closePopup()`, not direct model assignment, so one-way `model-value` usages still update fullscreen `localValue`, animation, overflow state, and external emits consistently with backdrop, Escape, and top-right close.

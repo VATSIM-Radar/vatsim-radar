@@ -462,7 +462,7 @@ const arrBars = computed(() => {
     return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
 });
 
-const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign));
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign, pilot.value.flight_plan?.remarks));
 
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [

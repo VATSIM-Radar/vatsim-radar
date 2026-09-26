@@ -137,7 +137,7 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
                 }
             }
 
-            const result = namedAlias ?? ((aliases.length === 1 && frequency.toString().length < 9) ? aliases[0] : null);
+            const result = namedAlias ?? ((aliases.length === 1 && x.frequency.toString().length < 9) ? aliases[0] : null);
             if (result) frequency = parseFloat((result.frequencyAlias / 1000000).toFixed(3)).toString();
         }
 
