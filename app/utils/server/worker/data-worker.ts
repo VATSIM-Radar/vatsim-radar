@@ -87,11 +87,78 @@ const toDelete = {
     prefiles: new Set<string>(),
 };
 
+function isSameVatsimValue(current: unknown, next: unknown): boolean {
+    if (Object.is(current, next)) return true;
+    if (!current || !next || typeof current !== 'object' || typeof next !== 'object') return false;
+
+    if (Array.isArray(current) || Array.isArray(next)) {
+        return Array.isArray(current) && Array.isArray(next) && current.length === next.length && current.every((item, index) => isSameVatsimValue(item, next[index]));
+    }
+
+    const currentRecord = current as Record<string, unknown>;
+    const nextRecord = next as Record<string, unknown>;
+    const currentKeys = Object.keys(currentRecord);
+    const nextKeys = Object.keys(nextRecord);
+    return currentKeys.length === nextKeys.length && currentKeys.every(key => key in nextRecord && isSameVatsimValue(currentRecord[key], nextRecord[key]));
+}
+
 function objectAssign(object: Record<string, any>, target: Record<string, any>) {
     for (const key in target) {
         if (target[key] === null || target[key] === undefined) continue;
         object[key] = target[key];
     }
+}
+
+function omitVatsimFields(object: object, fields: Set<string>) {
+    return Object.fromEntries(Object.entries(object).filter(([key]) => !fields.has(key)));
+}
+
+function preserveUnchangedLastUpdated<T extends { last_updated: string; callsign: string }>(current: T[], previous: T[], key: (item: T) => string | number) {
+    const previousByKey = new Map(previous.map(item => [key(item), item]));
+    for (const item of current) {
+        const oldItem = previousByKey.get(key(item));
+        if (!oldItem) continue;
+
+        const currentEntity = omitVatsimFields(item, new Set(['last_updated']));
+        const previousEntity = omitVatsimFields(oldItem, new Set(['last_updated']));
+        const previousTimestamp = oldItem.last_updated;
+        if (isSameVatsimValue(currentEntity, previousEntity)) item.last_updated = previousTimestamp;
+    }
+}
+
+function preserveUnchangedVatsimTimestamps(current: VatsimData, previous: VatsimData) {
+    preserveUnchangedLastUpdated(current.pilots, previous.pilots, item => item.cid);
+    preserveUnchangedLastUpdated(current.prefiles, previous.prefiles, item => item.cid);
+    preserveUnchangedLastUpdated(current.controllers, previous.controllers, item => item.callsign);
+    preserveUnchangedLastUpdated(current.atis, previous.atis, item => item.callsign);
+    preserveUnchangedLastUpdated(current.observers, previous.observers, item => item.callsign);
+}
+
+function getShortPilotTimestamps(current: VatsimData['pilots'], previous: VatsimData['pilots'] | undefined) {
+    const previousByCid = new Map(previous?.map(item => [item.cid, item]));
+
+    return Object.fromEntries(current.map(pilot => {
+        const oldPilot = previousByCid.get(pilot.cid);
+        if (!oldPilot) return [pilot.cid, pilot.last_updated];
+
+        const excludedFields = new Set(['last_updated', 'longitude', 'latitude', 'heading']);
+        const currentPilot = omitVatsimFields(pilot, excludedFields);
+        const previousPilot = omitVatsimFields(oldPilot, excludedFields);
+
+        return [pilot.cid, isSameVatsimValue(currentPilot, previousPilot) ? oldPilot.last_updated : pilot.last_updated];
+    }));
+}
+
+function getPilotDifferentialFields<T extends { cid: number }>(current: T[], previous: T[] | undefined): Record<number, string[]> {
+    const previousByCid = new Map(previous?.map(item => [item.cid, item]));
+
+    return Object.fromEntries(current.map(pilot => {
+        const oldPilot = previousByCid.get(pilot.cid);
+        if (!oldPilot) return [pilot.cid, Object.keys(pilot).filter(key => key !== 'cid')];
+
+        const fields = new Set([...Object.keys(pilot), ...Object.keys(oldPilot)]);
+        return [pilot.cid, [...fields].filter(key => key !== 'cid' && !isSameVatsimValue(pilot[key as keyof T], oldPilot[key as keyof T]))];
+    }));
 }
 
 let dataLatestFinished = 0;
@@ -198,6 +265,8 @@ defineCronJob('* * * * * *', async () => {
 
         const dataSnapshot = data;
         data = null;
+        const previousData = radarStorage.vatsim.data;
+        const previousRegularData = radarStorage.vatsim.regularData;
         radarStorage.vatsim.data = dataSnapshot;
 
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
@@ -260,15 +329,12 @@ defineCronJob('* * * * * *', async () => {
                 date: undefined,
                 deleted: undefined,
                 flight_plan: undefined,
+                last_updated: new Date(newerData.date).toISOString(),
             });
 
             if (newerData.flight_plan) {
-                if (pilot.flight_plan) {
-                    objectAssign(pilot.flight_plan, newerData.flight_plan);
-                }
-                else {
-                    pilot.flight_plan = newerData.flight_plan;
-                }
+                if (pilot.flight_plan) objectAssign(pilot.flight_plan, newerData.flight_plan);
+                else pilot.flight_plan = newerData.flight_plan;
             }
         });
 
@@ -284,15 +350,12 @@ defineCronJob('* * * * * *', async () => {
                 date: undefined,
                 deleted: undefined,
                 flight_plan: undefined,
+                last_updated: new Date(newerData.date).toISOString(),
             });
 
             if (newerData.flight_plan) {
-                if (prefile.flight_plan) {
-                    objectAssign(prefile.flight_plan, newerData.flight_plan);
-                }
-                else {
-                    prefile.flight_plan = newerData.flight_plan;
-                }
+                if (prefile.flight_plan) objectAssign(prefile.flight_plan, newerData.flight_plan);
+                else prefile.flight_plan = newerData.flight_plan;
             }
         });
 
@@ -306,6 +369,7 @@ defineCronJob('* * * * * *', async () => {
                 ...newerData,
                 date: undefined,
                 deleted: undefined,
+                last_updated: new Date(newerData.date).toISOString(),
             });
         });
 
@@ -473,6 +537,7 @@ defineCronJob('* * * * * *', async () => {
         toDelete.prefiles.clear();
 
         updateVatsimDataStorage();
+        if (previousData) preserveUnchangedVatsimTimestamps(radarStorage.vatsim.data!, previousData);
         updateVatsimMandatoryDataStorage();
 
         await updateVatsimExtendedPilots();
@@ -539,6 +604,34 @@ defineCronJob('* * * * * *', async () => {
             }),
             bars: shortBars,
         };
+        radarStorage.vatsim.pilotDifferentialFields = getPilotDifferentialFields(
+            radarStorage.vatsim.regularData.pilots,
+            previousRegularData?.pilots,
+        );
+
+        // Entity cursors must use the same server snapshot timeline as mandatory.
+        // Upstream/Kafka timestamps can predate that snapshot, which would make a
+        // valid mandatory cursor filter every changed pilot out.
+        const regularTimestamp = radarStorage.vatsim.data!.general.update_timestamp;
+        for (const pilot of radarStorage.vatsim.data!.pilots) {
+            const changedFields = radarStorage.vatsim.pilotDifferentialFields[pilot.cid] ?? [];
+            if (changedFields.length) {
+                pilot.last_updated = regularTimestamp;
+            }
+        }
+
+        // `updateVatsimDataStorage()` separates OBS positions from controllers.
+        // Build timestamp indexes afterwards so the observer collection exists and
+        // each differential collection matches the payload sent to clients.
+        const mandatoryTimestamps = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x.last_updated]));
+        const timestamps: VatsimStorage['differentialUpdate'] = {
+            pilots: getShortPilotTimestamps(radarStorage.vatsim.data!.pilots, previousData?.pilots),
+            controllers: Object.fromEntries(radarStorage.vatsim.data!.controllers.map(x => [x.cid, x.last_updated])),
+            prefiles: Object.fromEntries(radarStorage.vatsim.data!.prefiles.map(x => [x.cid, x.last_updated])),
+            atis: Object.fromEntries(radarStorage.vatsim.data!.atis.map(x => [x.cid, x.last_updated])),
+            observers: Object.fromEntries(radarStorage.vatsim.data!.observers.map(x => [x.cid, x.last_updated])),
+        };
+        radarStorage.vatsim.mandatoryDifferentialUpdate = mandatoryTimestamps;
 
         const notams = await prisma.notams.findMany({
             where: {
@@ -735,6 +828,9 @@ defineCronJob('* * * * * *', async () => {
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
                 compactDatafeed: radarStorage.vatsim.compactDatafeed,
+                differentialUpdate: timestamps,
+                mandatoryDifferentialUpdate: mandatoryTimestamps,
+                pilotDifferentialFields: radarStorage.vatsim.pilotDifferentialFields,
             } satisfies Omit<VatsimStorage, 'kafka' | 'sectorsDataset'>), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
