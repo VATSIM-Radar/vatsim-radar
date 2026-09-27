@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.4-beta.4]
+
+- Fixed rare Approach sectors issues where incorrect TRACON was selected
+
 # [2.0.4-beta.3]
 
 - VATSIM Radar airline name & logo will now respect OPR remark
