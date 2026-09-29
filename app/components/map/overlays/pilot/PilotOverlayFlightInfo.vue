@@ -440,7 +440,25 @@ const sim = computed(() => {
         case 2:
             return 'MSFS';
         case 6:
-            return 'xPilot';
+            return 'X-Plane';
+        case 9:
+            return 'MSFS X';
+        case 10:
+            return 'MSFS 2020';
+        case 11:
+            return 'MSFS 2024';
+        case 12:
+            return 'X-Plane 8';
+        case 13:
+            return 'X-Plane 9';
+        case 14:
+            return 'X-Plane 10';
+        case 16:
+            return 'X-Plane 11';
+        case 25:
+            return 'FlightGear';
+        case 30:
+            return 'Prepar3D';
         default:
             return null;
     }
