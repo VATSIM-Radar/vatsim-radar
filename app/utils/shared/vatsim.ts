@@ -136,6 +136,10 @@ export function getTraconSuffix(tracon: SimAwareDataFeature): string | null {
     return null;
 }
 
+export function getLongestTraconPrefix(callsign: string, prefixes: string[]): string {
+    return prefixes.reduce((matched, prefix) => callsign.startsWith(prefix) && prefix.length > matched.length ? prefix : matched, '');
+}
+
 export const supportedNavigraphLayouts: AmdbLayerName[] = [
     'parkingstandarea',
     'apronelement',
