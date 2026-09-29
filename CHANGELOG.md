@@ -1,5 +1,10 @@
 # Changelog
 
+# [2.0.4-beta.5]
+
+- Slightly improve pilot altitude calculation
+- Added sumulator type in pilot overlay
+
 # [2.0.4-beta.4]
 
 - Fixed rare Approach sectors issues where incorrect TRACON was selected

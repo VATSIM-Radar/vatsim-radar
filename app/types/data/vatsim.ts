@@ -33,7 +33,7 @@ export interface VatsimPilot {
     logon_time: string;
     last_updated: string;
     frequencies: string[];
-    sim?: string;
+    sim?: number;
     icon?: AircraftIcon;
     vertical_speed?: number;
 }

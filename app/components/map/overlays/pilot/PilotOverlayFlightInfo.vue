@@ -67,6 +67,7 @@
                     ...usePilotRating(pilot, false, true).map(x => ({ text: x })),
                     { key: 'hours', text: stats?.pilot },
                     { key: 'atc-hours', text: stats?.atc },
+                    { key: 'sim', text: sim },
                 ]"
             >
                 <template #item-hours="{ item }">
@@ -77,6 +78,11 @@
                 <template #item-atc-hours="{ item }">
                     <span class="flight-info__chip">
                         ATC Hours: <ui-chip text-type="caption">{{ numberFormatter.format(+item.text!) }}</ui-chip>
+                    </span>
+                </template>
+                <template #item-sim="{ item }">
+                    <span class="flight-info__chip">
+                        Simulator: <ui-chip text-type="caption">{{ sim }}</ui-chip>
                     </span>
                 </template>
             </ui-data-list>
@@ -429,6 +435,16 @@ const dataStore = useDataStore();
 const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]);
 const departedAt = computed(() => tracksPilotData.value?.departedAt ?? props.pilot.flight_plan?.departed_at);
 const arrivedAt = computed(() => tracksPilotData.value?.arrivedAt ?? props.pilot.flight_plan?.arrived_at);
+const sim = computed(() => {
+    switch (props.pilot.sim) {
+        case 2:
+            return 'MSFS';
+        case 6:
+            return 'xPilot';
+        default:
+            return null;
+    }
+});
 
 const getValidDate = (value: string | number | null | undefined) => {
     if (!value) return null;

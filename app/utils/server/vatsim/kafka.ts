@@ -20,6 +20,7 @@ export function kafkaAddClient(event: KafkaAddClient) {
             name: event.RealName,
             date: Date.now(),
             deleted: false,
+            sim: event.SimType,
         };
     }
     else {

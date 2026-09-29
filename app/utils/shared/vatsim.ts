@@ -121,7 +121,7 @@ export function getPilotTrueAltitude(pilot: Pick<VatsimShortenedAircraft, 'altit
     const altitude = Number.isFinite(pilot.altitude) ? pilot.altitude : 0;
     if (altitude < 9500) return altitude;
     if (!Number.isFinite(pilot.qnh_mb)) return altitude;
-    return Math.round(altitude - ((pilot.qnh_mb - 1013) * 28.9));
+    return Math.round(altitude - ((pilot.qnh_mb - 1013.25) * 29.53));
 }
 
 export function getTraconPrefixes(tracon: SimAwareDataFeature): string[] {
