@@ -251,7 +251,12 @@ defineCronJob('* * * * * *', async () => {
 
         radarStorage.vatsim.data!.pilots.forEach(pilot => {
             const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
-            if (!newerData || updateTimestamp > newerData.date) return;
+            if (!newerData) return;
+
+            // SimType is connection metadata from ADDCLIENT; keep it even if the snapshot timestamp is newer.
+            if (newerData.sim !== undefined) pilot.sim = newerData.sim;
+
+            if (updateTimestamp > newerData.date) return;
 
             if (newerData.deleted) return toDelete.pilots.add(pilot.callsign);
 
@@ -451,7 +456,10 @@ defineCronJob('* * * * * *', async () => {
         const prefileCallsigns = new Set(dataSnapshot.prefiles.map(p => p?.callsign ?? ''));
 
         Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
-            if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
+            const pilot = radarStorage.vatsim.kafka.pilots[k];
+            if (!pilotCallsigns.has(k) && Date.now() - pilot.date > 2 * 60 * 1000) {
+                delete radarStorage.vatsim.kafka.pilots[k];
+            }
         });
 
         Object.keys(radarStorage.vatsim.kafka.atc).forEach(k => {
