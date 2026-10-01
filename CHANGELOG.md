@@ -1,9 +1,14 @@
 # Changelog
 
+# [2.0.4-rc.1]
+
+- Add Moscow and Samara duplication rules
+- Added a link to Pilot Feedback as a small icon near Pilot CID
+
 # [2.0.4-beta.5]
 
 - Slightly improve pilot altitude calculation
-- Added sumulator type in pilot overlay
+- Added sumulator type in pilot overlay behind a new "Show simulator" setting
 
 # [2.0.4-beta.4]
 

@@ -10,11 +10,13 @@
 
             <ui-data-list
                 circle-divider
+                gap="8px 8px"
                 :items="[
                     { key: 'name', text: pilot.name },
                     { key: 'cid', text: pilot.cid },
                     { key: 'comment', text: friend?.comment },
                     { key: 'stats', text: 'stats' },
+                    { key: 'feedback', text: 'feedback' },
                     { key: 'favorite', text: Number(!!store.user) },
                 ]"
             >
@@ -50,10 +52,24 @@
                         :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
                         icon-width="14"
                         target="_blank"
+                        title="Stats"
                         type="link"
                     >
                         <template #icon>
                             <stats-icon width="14"/>
+                        </template>
+                    </ui-button>
+                </template>
+                <template #item-feedback>
+                    <ui-button
+                        href="https://pilot-feedback.vatsim.net/"
+                        icon-width="14"
+                        target="_blank"
+                        title="Leave Feedback"
+                        type="link"
+                    >
+                        <template #icon>
+                            <person-icon width="14"/>
                         </template>
                     </ui-button>
                 </template>
@@ -62,12 +78,12 @@
             <ui-data-list
                 circle-divider
                 class="flight-info__secondary"
-                gap="0px 16px"
+                gap="8px 8px"
                 :items="[
                     ...usePilotRating(pilot, false, true).map(x => ({ text: x })),
                     { key: 'hours', text: stats?.pilot },
                     { key: 'atc-hours', text: stats?.atc },
-                    { key: 'sim', text: sim },
+                    { key: 'sim', text: sim, hide: !showSimulator.value },
                 ]"
             >
                 <template #item-hours="{ item }">
@@ -356,6 +372,7 @@ import {
     getPilotStatus,
     reColorSvg,
 } from '~/composables/vatsim/pilots';
+import PersonIcon from 'assets/icons/kit/person.svg?component';
 import StatsIcon from 'assets/icons/kit/stats.svg?component';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
@@ -379,6 +396,7 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { isValidDate } from '~/utils/shared';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
+import { getSimulatorName } from '../../../../utils/shared/vatsim';
 
 const props = defineProps({
     pilot: {
@@ -402,6 +420,7 @@ const props = defineProps({
 const mapStore = useMapStore();
 const store = useStore();
 const showRouteDetails = getSettingValue('map.traffic.showRouteDetails');
+const showSimulator = getSettingValue('map.traffic.showSimulator');
 
 const getLogonTime = computed(() => {
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
@@ -436,32 +455,7 @@ const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[p
 const departedAt = computed(() => tracksPilotData.value?.departedAt ?? props.pilot.flight_plan?.departed_at);
 const arrivedAt = computed(() => tracksPilotData.value?.arrivedAt ?? props.pilot.flight_plan?.arrived_at);
 const sim = computed(() => {
-    switch (props.pilot.sim) {
-        case 2:
-            return 'MSFS';
-        case 6:
-            return 'X-Plane';
-        case 9:
-            return 'MSFS X';
-        case 10:
-            return 'MSFS 2020';
-        case 11:
-            return 'MSFS 2024';
-        case 12:
-            return 'X-Plane 8';
-        case 13:
-            return 'X-Plane 9';
-        case 14:
-            return 'X-Plane 10';
-        case 16:
-            return 'X-Plane 11';
-        case 25:
-            return 'FlightGear';
-        case 30:
-            return 'Prepar3D';
-        default:
-            return null;
-    }
+    return getSimulatorName(props.pilot.sim);
 });
 
 const getValidDate = (value: string | number | null | undefined) => {

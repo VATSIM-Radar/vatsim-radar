@@ -168,6 +168,7 @@ const _settingsDefaultValues = {
 
     'map.traffic.showFullRoute': false,
     'map.traffic.showRouteDetails': false,
+    'map.traffic.showSimulator': false,
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,

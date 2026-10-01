@@ -244,7 +244,7 @@ export const getSettingsSections = () => {
                         {
                             key: 'overlays',
                             title: 'Overlays',
-                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.showRouteDetails, items.preferences.traffic.toggleAircraftOverlays],
+                            items: [items.preferences.traffic.showFullRoute, items.preferences.traffic.showRouteDetails, items.preferences.traffic.showSimulator, items.preferences.traffic.toggleAircraftOverlays],
                         },
                         {
                             key: 'traffic',
