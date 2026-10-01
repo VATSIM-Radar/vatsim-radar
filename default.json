@@ -79,6 +79,14 @@
     },
     {
       "matchPackageNames": [
+        "/electron/"
+      ],
+      "groupName": "Electron",
+      "separateMultipleMinor": true,
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
         "nuxt",
         "@nuxt/kit"
       ],
