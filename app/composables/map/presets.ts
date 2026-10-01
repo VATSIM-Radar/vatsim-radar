@@ -3,6 +3,7 @@ import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
 import type { PublicDashboard } from '~/utils/server/handlers/dashboards';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
+import { withBulkAirportOverlays } from '~/composables/map/airport-overlays';
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -117,7 +118,6 @@ const myulllLargePreset: SiteConfig = {
 export async function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
-    const mapStore = useMapStore();
 
     if (!query.preset) return;
 
@@ -181,19 +181,21 @@ export async function checkAndSetMapPreset() {
 
         if (typeof window !== 'undefined' && store.activeDashboard && store.activeDashboard?.showArrivalTracks !== false && query.tracks !== '0') {
             nextTick().then(async () => {
-                for (const airport of preset.airports!) {
-                    await checkForUpdates();
-                    await checkForVATSpy();
+                await checkForUpdates();
+                await checkForVATSpy();
 
-                    await mapStore.addAirportOverlay(airport, undefined, {
-                        minified: true,
-                        collapsed: true,
-                        data: {
-                            showTracks: true,
-                        },
-                        dontSave: true,
-                    });
-                }
+                await withBulkAirportOverlays(preset.airports!, async addAirport => {
+                    for (const airport of preset.airports!) {
+                        await addAirport(airport, undefined, {
+                            minified: true,
+                            collapsed: true,
+                            data: {
+                                showTracks: true,
+                            },
+                            dontSave: true,
+                        });
+                    }
+                });
             });
         }
         else if (store.activeDashboard?.showArrivalTracks === false) {

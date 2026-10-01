@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.4-rc.2]
+
+- Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports page would not jump
+- Improved VATSpy sector compare
+- Fixed user block when opening Dashboard with a lot of airports in it
+
 # [2.0.4-rc.1]
 
 - Add Moscow and Samara duplication rules

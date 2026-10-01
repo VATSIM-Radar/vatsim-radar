@@ -40,34 +40,73 @@ export async function getDiffPolygons(geojson: FeatureCollection, type: 'simawar
 
     if (!dataToCompare) throw new Error('SimAware data is missing');
 
+    const identityKey = (feature: Feature) => type === 'simaware'
+        ? JSON.stringify(feature.properties)
+        : JSON.stringify([feature.properties?.id, feature.properties?.oceanic]);
+
+    // Keep duplicate features in buckets so each occurrence is matched once.
+    const oldByIdentity = new Map<string, Array<{ feature: Feature; matched: boolean }>>();
+    const oldByIdentityAndGeometry = new Map<string, Map<string, Array<{ feature: Feature; matched: boolean }>>>();
+
+    for (const feature of dataToCompare.features) {
+        const key = identityKey(feature);
+        const geometryKey = JSON.stringify(feature.geometry);
+        const entry = { feature, matched: false };
+        const identityEntries = oldByIdentity.get(key) ?? [];
+        identityEntries.push(entry);
+        oldByIdentity.set(key, identityEntries);
+
+        const geometries = oldByIdentityAndGeometry.get(key) ?? new Map<string, Array<{ feature: Feature; matched: boolean }>>();
+        const exactMatches = geometries.get(geometryKey) ?? [];
+        exactMatches.push(entry);
+        geometries.set(geometryKey, exactMatches);
+        oldByIdentityAndGeometry.set(key, geometries);
+    }
+
+    // Reserve every unchanged feature before pairing any remaining geometry as changed.
+    const exactMatches = new Set<Feature>();
+    for (const feature of geojson.features) {
+        const key = identityKey(feature);
+        const geometryKey = JSON.stringify(feature.geometry);
+        const previousFeature = oldByIdentityAndGeometry.get(key)?.get(geometryKey)?.pop();
+        if (previousFeature) {
+            previousFeature.matched = true;
+            exactMatches.add(feature);
+        }
+    }
+
     const toPush: Feature[] = [];
 
     for (const feature of geojson.features) {
-        const previousFeature = dataToCompare.features.find(x => type === 'simaware' ? JSON.stringify(x.properties) === JSON.stringify(feature.properties) : x.properties!.id === feature.properties!.id && (x.properties as any)!.oceanic === feature.properties!.oceanic);
+        if (exactMatches.has(feature)) continue;
 
-        if (!previousFeature) {
-            feature.properties!.fill = 'green500';
-        }
-        else if (JSON.stringify(previousFeature.geometry) !== JSON.stringify(feature.geometry)) {
+        const changedMatch = oldByIdentity.get(identityKey(feature))?.find(entry => !entry.matched);
+        if (changedMatch) {
+            changedMatch.matched = true;
             feature.properties!.fill = 'blue500';
             toPush.push({
-                ...previousFeature,
+                ...changedMatch.feature,
                 properties: {
-                    ...previousFeature.properties,
+                    ...changedMatch.feature.properties,
                     fill: 'purple500',
                 },
             });
         }
+        else {
+            feature.properties!.fill = 'green500';
+        }
     }
+
     geojson.features.push(...toPush);
 
-    for (const feature of dataToCompare.features) {
-        const previousFeature = geojson.features.find(x => 'name' in feature.properties ? x.properties!.id === feature.properties!.id && x.properties!.name === feature.properties!.name : x.properties!.id === feature.properties!.id && x.properties!.oceanic === feature.properties!.oceanic);
-        if (!previousFeature) {
+    for (const entries of oldByIdentity.values()) {
+        for (const entry of entries) {
+            if (entry.matched) continue;
+
             geojson.features.push({
-                ...feature,
+                ...entry.feature,
                 properties: {
-                    ...feature.properties,
+                    ...entry.feature.properties,
                     fill: 'red500',
                 },
             });

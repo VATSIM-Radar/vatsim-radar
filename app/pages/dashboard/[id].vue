@@ -557,20 +557,27 @@ function applyFlOverride() {
 }
 
 async function fetchAirportsWeather() {
-    const icaos = airportIcaos.value;
+    const airportCodes = airportIcaos.value;
+    const icaos = [...new Set(airportCodes.map(icao => icao.trim().toUpperCase()).filter(icao => icao.length === 4))];
     if (!icaos.length) return {} as Record<string, StoreOverlayAirport['data']>;
 
-    const entries = await Promise.all(icaos.map(async (icao): Promise<[string, StoreOverlayAirport['data']]> => {
-        try {
-            const airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao }`);
-            return [icao, { icao, airport, notams: [], showTracks: false }];
-        }
-        catch {
-            return [icao, { icao, notams: [], showTracks: false }];
-        }
-    }));
+    let airportResults: Record<string, VatsimAirportData> = {};
+    try {
+        // Dashboard airports share one bulk request instead of one request per airport.
+        airportResults = await $fetch<Record<string, VatsimAirportData>>('/api/data/vatsim/airports', {
+            query: { airports: icaos.join(',') },
+        });
+    }
+    catch (error) {
+        console.error(error);
+    }
 
-    return Object.fromEntries(entries) as Record<string, StoreOverlayAirport['data']>;
+    return Object.fromEntries(airportCodes.map(icao => [icao, {
+        icao,
+        airport: airportResults[icao.trim().toUpperCase()],
+        notams: [],
+        showTracks: false,
+    }])) as Record<string, StoreOverlayAirport['data']>;
 }
 
 async function refreshWeather() {

@@ -115,7 +115,7 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
 
             if (!x.properties!.fill) return true;
 
-            if (showConfig.value === 'all') return true;
+            if (showConfig.value === 'all') return x.properties!.fill !== 'purple500' && x.properties!.fill !== 'red500';
             if (showConfig.value === 'changed') return x.properties!.fill === 'blue500';
             if (showConfig.value === 'previous') return x.properties!.fill === 'purple500';
             if (showConfig.value === 'added') return x.properties!.fill === 'green500';

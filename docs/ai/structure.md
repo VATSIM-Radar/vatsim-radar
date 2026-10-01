@@ -245,6 +245,7 @@ Main groups:
 
 - `server/api/data/**`: public data endpoints.
   - `vatsim/data/*`: full, compact, short, mandatory, pilot-specific, airport-specific, event, booking, and stats data.
+  - `vatsim/airports/index.ts` maps to `/api/data/vatsim/airports`; sibling `metar` and `notams` routes are bulk endpoints keyed by ICAO, all accepting the comma-separated `airports` query parameter.
   - `navigraph/*`: navdata/procedure/airport/item endpoints.
   - `vatspy.ts`, `simaware.ts`, `vatglasses.ts`, `airlines.ts`, `tracks.ts`, `sigmets.ts`, `notams.ts`, `versions.ts`, `status.ts`.
   - `debug/*` and `custom/*` support data debugging and custom source comparison.
@@ -256,6 +257,7 @@ API routes are usually thin. Business logic and validation should live in `app/u
 
 Common server helpers:
 
+- `app/utils/server/debug/data-get.ts`: fetches and compiles SimAware/VATSpy boundary data for debug comparison endpoints; `getDiffPolygons()` marks additions, removals, and changed geometries.
 - `app/utils/server/h3.ts`: error handling, data-ready validation, per-user request freezing.
 - `app/utils/server/user.ts`: user lookup, token refresh, list privacy filtering.
 - `app/utils/server/prisma.ts`: Prisma client configured with MariaDB adapter.
@@ -396,7 +398,8 @@ Add a VATSIM data field:
 
 Airport details/race-prone loading:
 
-- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`), then populated asynchronously from `/api/data/vatsim/airport/:icao` and `/notams`.
+- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`). Saved and preset overlays use `app/composables/map/airport-overlays.ts` to batch initial info and defer one bulk NOTAM request; dashboard weather data uses the same bulk airport info route. Interactive single-airport openings keep the per-airport routes.
+- Bulk airport routes live in `server/api/data/vatsim/airports/{index,metar,notams}.ts`; airport info is shared with the single-airport index route through `app/utils/server/vatsim/airport-data.ts`.
 - The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it also refreshes weather/controllers/NOTAM data on intervals and live-data updates.
 - The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
 - When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
