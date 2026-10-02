@@ -12,7 +12,7 @@ export interface DataUpdateContext { airports: Record<string, DataAirport>; sect
 
 let vgFirstRun: boolean | undefined = true;
 
-export async function updateControllersRender() {
+export async function updateControllersRender({ updateAtc = true }: { updateAtc?: boolean } = {}) {
     const dataStore = useDataStore();
     const store = useStore();
     const mapStore = useMapStore();
@@ -33,12 +33,19 @@ export async function updateControllersRender() {
         airports[airport] = Object.assign({}, dataStore.airportsList.value[airport]);
         airports[airport].aircraft = {};
         airports[airport].aircraftCount = 0;
-        airports[airport].atc = [];
-        airports[airport].features = [];
+        if (updateAtc) {
+            airports[airport].atc = [];
+            airports[airport].features = [];
+        }
+        else if (airports[airport].atc.length) context.airportsAdded.add(airport);
     }
 
     if (getKeyedValueFromSettings('map.preferences.airports.showMode') === 'allExisting') {
         for (const airport of Object.values(dataStore.vatspy.value?.data.keyAirports.realIcao ?? {})) {
+            if (!updateAtc && airports[airport.icao]) {
+                context.airportsAdded.add(airport.icao);
+                continue;
+            }
             airports[airport.icao] = {
                 aircraftCount: 0,
                 atc: [],
@@ -58,13 +65,15 @@ export async function updateControllersRender() {
 
     const isFirstRun = !!vgFirstRun;
 
-    if (!dataStore.vatglassesCombiningInProgress.value) {
-        log = logBench('updateVG');
-        vgFirstRun = await updateVATGlasses(context);
-        log();
+    if (updateAtc) {
+        if (!dataStore.vatglassesCombiningInProgress.value) {
+            log = logBench('updateVG');
+            vgFirstRun = await updateVATGlasses(context);
+            log();
+        }
+        log = logBench('updateATC');
+        await updateControllers(context);
     }
-    log = logBench('updateATC');
-    await updateControllers(context);
 
     for (const event of store.getEvents) {
         for (const airport of event.airports) {
@@ -111,13 +120,15 @@ export async function updateControllersRender() {
     }
 
     dataStore.airportsList.value = context.airports;
-    dataStore.sectorsList.value = Object.values(context.sectors);
-    dataStore.sectorsUpdateId.value++;
+    if (updateAtc) {
+        dataStore.sectorsList.value = Object.values(context.sectors);
+        dataStore.sectorsUpdateId.value++;
 
-    dataStore.atcAddedDuringUpdate.value.clear();
+        dataStore.atcAddedDuringUpdate.value.clear();
 
-    if (context.atcAdded) {
-        dataStore.atcAddedDuringUpdate.value = context.atcAdded;
+        if (context.atcAdded) {
+            dataStore.atcAddedDuringUpdate.value = context.atcAdded;
+        }
     }
 
     log();
@@ -159,7 +170,14 @@ export async function updateControllersRender() {
 export function initControllersUpdate() {
     const store = useStore();
     const relevantSettings = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
-    useUpdateCallback(['short', isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
+    useUpdateCallback(['short'], () => {
+        if (store.initStatus.status !== false) return;
+        const changes = useDataStore().vatsim.lastDataChanges.value;
+        updateControllersRender({
+            updateAtc: changes.controllers || changes.atis || changes.observers,
+        });
+    });
+    useUpdateCallback([isVatGlassesActive, runwaysState, debugControllers, debugBookings, relevantSettings], () => {
         if (store.initStatus.status !== false) return;
         updateControllersRender();
     });
