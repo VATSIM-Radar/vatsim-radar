@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.4-rc.3]
+
+- Added RMP position on map support
+
 # [2.0.4-rc.2]
 
 - Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports page would not jump

@@ -27,6 +27,7 @@ let facilities: {
     OBS: number;
     FSS: number;
     DEL: number;
+    RMP: number;
     GND: number;
     TWR: number;
     APP: number;
@@ -221,6 +222,7 @@ export async function updateVATGlasses(context: DataUpdateContext) {
             FSS: facilitiesData.find(x => x.short === 'FSS')?.id ?? -1,
             DEL: facilitiesData.find(x => x.short === 'DEL')?.id ?? -1,
             GND: facilitiesData.find(x => x.short === 'GND')?.id ?? -1,
+            RMP: facilitiesData.find(x => x.short === 'RMP')?.id ?? -1,
             TWR: facilitiesData.find(x => x.short === 'TWR')?.id ?? -1,
             APP: facilitiesData.find(x => x.short === 'APP')?.id ?? -1,
             CTR: facilitiesData.find(x => x.short === 'CTR')?.id ?? -1,

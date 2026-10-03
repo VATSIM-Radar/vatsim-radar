@@ -183,6 +183,7 @@ const facilitiesMap = {
     FSS: 1,
     DEL: 2,
     GND: 3,
+    RMP: -3,
     TWR: 4,
     APP: 5,
     CTR: 6,
@@ -191,7 +192,6 @@ const facilitiesMap = {
 export function getFacilityByCallsign(callsign: string): number {
     let postfix = callsign.split('_').at(-1);
     if (postfix === 'DEP') postfix = 'APP';
-    if (postfix === 'RMP') postfix = 'GND';
     return facilitiesMap[postfix as keyof typeof facilitiesMap] ?? -1;
 }
 

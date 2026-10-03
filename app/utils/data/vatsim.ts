@@ -9,6 +9,7 @@ export const useFacilitiesIds = () => {
         TWR: radarStorage.vatsim.data?.facilities.find(x => x.short === 'TWR')?.id ?? -1,
         APP: radarStorage.vatsim.data?.facilities.find(x => x.short === 'APP')?.id ?? -1,
         CTR: radarStorage.vatsim.data?.facilities.find(x => x.short === 'CTR')?.id ?? -1,
+        RMP: radarStorage.vatsim.data?.facilities.find(x => x.short === 'RMP')?.id ?? -1,
     };
 };
 

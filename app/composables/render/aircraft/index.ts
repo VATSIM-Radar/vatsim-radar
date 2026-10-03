@@ -158,7 +158,7 @@ export async function setMapAircraft(settings: {
         const isSelfFlight = aircraft?.cid === ownFlight.value?.cid;
         const actualAircraft = dataStore.vatsim.data.keyedPilots.value[aircraft.cid.toString()];
 
-        if (isSelfFlight && dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
+        if (isSelfFlight && dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 10) {
             dataStore.vatsim.selfCoordinate.value = null;
         }
 

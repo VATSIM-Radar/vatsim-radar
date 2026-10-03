@@ -88,7 +88,6 @@ export function updateVatsimDataStorage() {
         }
         let postfix = controller.callsign.split('_').at(-1);
         if (postfix === 'DEP') postfix = 'APP';
-        if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
         return controller.facility !== -1 && controller.facility !== positions.OBS;
     });

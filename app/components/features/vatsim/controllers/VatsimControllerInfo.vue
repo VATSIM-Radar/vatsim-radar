@@ -9,9 +9,7 @@
                 v-if="showFacility"
                 :atc-facility="isATIS ? -1 : controller.facility"
                 class="atc_facility"
-            >
-                {{ isATIS ? 'ATIS' : controller.facility === -2 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
-            </ui-chip>
+            />
             <ui-text
                 class="atc_callsign"
                 :style="{ '--color': controllerColor() ?? 'currentColor' }"

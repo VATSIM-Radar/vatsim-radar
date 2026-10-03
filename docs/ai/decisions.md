@@ -25,6 +25,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Airports, ATC, And Source Fallbacks
 
+- Resolve facility labels through the existing `useFacilitiesNames()` composable by numeric ID; use `UiChip`'s default facility content instead of duplicating label lookup in controller components. Add `{ id: -3, short: 'RMP', long: 'Ramp' }` to the received storage facilities only when no RMP entry exists; preserve an upstream RMP entry and resolve its ID and labels from metadata, including callsign/booking resolution. ATIS/CTAF labels remain local. RMP filter validation uses the server `useFacilitiesIds().RMP` and keeps the existing restrictions for other IDs.
 - Dynamic airport-aircraft timestamps must be normalized to `Date | null` with `isValidDate` before they reach `Intl.DateTimeFormat`; malformed VATSIM/Navigraph ETA data is optional display data and must not break the airport or pilot overlay.
 - Restored and preset airport overlays batch initial info by ICAO and request NOTAMs separately after overlay creation; apply delayed NOTAM results only to overlays that are still open. Dashboard airport weather reads use one bulk info request, while interactive single-airport openings keep their per-airport requests.
 - On touch devices, an airport long press previews the 15-minute traffic rate and consumes the synthetic click from the same gesture; only a short tap opens the airport overlay.

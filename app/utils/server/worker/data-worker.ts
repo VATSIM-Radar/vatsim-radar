@@ -200,6 +200,10 @@ defineCronJob('* * * * * *', async () => {
         data = null;
         radarStorage.vatsim.data = dataSnapshot;
 
+        if (!radarStorage.vatsim.data.facilities.some(facility => facility.short === 'RMP')) {
+            radarStorage.vatsim.data.facilities.push({ id: -3, short: 'RMP', long: 'Ramp' });
+        }
+
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp!).getTime();
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 

@@ -458,7 +458,7 @@ const store = useStore();
 const tab = ref('filter');
 const routesBothDirection = ref(true);
 
-const atcPositions: SelectItem[] = Object.entries(useFacilitiesIds()).filter(([key]) => key !== 'OBS').map(([text, value]) => ({ value, text }));
+const atcPositions = computed<SelectItem[]>(() => Object.entries(useFacilitiesIds()).filter(([key, value]) => key !== 'OBS' && (key !== 'RMP' || value !== -1)).map(([text, value]) => ({ value, text })));
 const atcRatings: SelectItem[] = Object.entries(useRatingsIds()).map(([text, value]) => ({ value, text }));
 const pilotRatings: SelectItem[] = Object.entries(usePilotRatings()).map(([text, value]) => ({ value, text }));
 
