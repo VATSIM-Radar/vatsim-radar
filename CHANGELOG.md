@@ -2,7 +2,7 @@
 
 # [2.0.4-rc.4]
 
-- Reduce map clutter and performance by removing some of VATSPy FIRs boundaries from map
+- Reduce map clutter and improve performance by removing some of VATSPy FIRs boundaries from map
 
 # [2.0.4-rc.3]
 
