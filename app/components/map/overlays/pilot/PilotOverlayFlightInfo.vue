@@ -110,12 +110,18 @@
 
             <div class="flight-info__columns flight-info__columns--airline">
                 <ui-data-list-item>
-                    {{ airline.name }}
+                    <div class="flight-info__columns--airline_title">
+                        {{ airline.sourceAirline?.name ?? airline.name }}
+
+                        <ui-text v-if="airline.sourceAirline" type="caption-light">
+                            Operating carrier: {{airline.name}}
+                        </ui-text>
+                    </div>
 
                     <ui-data-list
                         circle-divider
                         class="flight-info__secondary"
-                        :items="[{ text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
+                        :items="[{ text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { text: airline.sourceAirline?.callsign ?? airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
                     >
                         <template #item-virtual>
                             <ui-text
@@ -533,6 +539,16 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
 
         &--airline {
             justify-content: space-between;
+
+            &_title {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                .text {
+                    margin-bottom: 4px;
+                }
+            }
         }
     }
 
