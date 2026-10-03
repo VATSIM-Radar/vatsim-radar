@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.4-rc.4]
+
+- Reduce map clutter and performance by removing some of VATSPy FIRs boundaries from map
+
 # [2.0.4-rc.3]
 
 I have decided to work on some P1 issues.
