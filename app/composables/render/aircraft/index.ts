@@ -80,7 +80,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
     if (store.config.airport && !overlay) {
         const vatAirport = airportsMap[store.config.airport];
         if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-        if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
+        if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'departed';
         if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
         if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
     }
@@ -89,7 +89,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
         for (const airport of store.config.airports) {
             const vatAirport = airportsMap[airport];
             if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
+            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'departed';
             if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
             if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
         }

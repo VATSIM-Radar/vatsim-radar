@@ -108,7 +108,23 @@
             v-if="props.overlay.data.photo"
             #photo
         >
-            <div v-if="airlineLogoUrl" class="pilot__operator">
+            <div
+                v-if="airlineLogoUrl"
+                class="pilot__operator"
+                :class="{ 'pilot__operator--source': airlineSourceLogoUrl }"
+            >
+                <img
+                    v-if="airlineSourceLogoUrl"
+                    alt="Airline logo"
+                    :src="airlineSourceLogoUrl"
+                >
+                <ui-text
+                    v-if="airlineSourceLogoUrl"
+                    class="pilot__operator_separator"
+                    type="h4"
+                >
+                    &
+                </ui-text>
                 <img
                     alt="Airline logo"
                     :src="airlineLogoUrl"
@@ -463,6 +479,7 @@ const arrBars = computed(() => {
 });
 
 const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign, pilot.value.flight_plan?.remarks));
+const airlineSourceLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign, pilot.value.flight_plan?.remarks, true));
 
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
@@ -854,6 +871,18 @@ onMounted(() => {
         border-radius: 4px;
 
         background: $whiteOrig;
+
+        &_separator {
+            color: $blackOrig;
+        }
+
+        &--source {
+            justify-content: space-evenly;
+
+            img {
+                max-width: 45%;
+            }
+        }
 
         img {
             border-radius: 4px;

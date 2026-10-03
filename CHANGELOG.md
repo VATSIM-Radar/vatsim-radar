@@ -2,7 +2,11 @@
 
 # [2.0.4-rc.3]
 
+I have decided to work on some P1 issues.
+
 - Added RMP position on map support
+- Added "Operated by" in case OPR is different from ICAO code to airline block
+- You can now change departed color for aircraft in dashboard
 
 # [2.0.4-rc.2]
 

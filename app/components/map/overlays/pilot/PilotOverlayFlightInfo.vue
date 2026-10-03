@@ -96,7 +96,7 @@
                         ATC Hours: <ui-chip text-type="caption">{{ numberFormatter.format(+item.text!) }}</ui-chip>
                     </span>
                 </template>
-                <template #item-sim="{ item }">
+                <template #item-sim>
                     <span class="flight-info__chip">
                         Simulator: <ui-chip text-type="caption">{{ sim }}</ui-chip>
                     </span>
@@ -115,7 +115,7 @@
                     <ui-data-list
                         circle-divider
                         class="flight-info__secondary"
-                        :items="[{ text: airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
+                        :items="[{ text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
                     >
                         <template #item-virtual>
                             <ui-text
@@ -511,12 +511,6 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     display: flex;
     flex-direction: column;
     gap: 20px;
-
-    &__operator {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
 
     &__chip {
         display: flex;

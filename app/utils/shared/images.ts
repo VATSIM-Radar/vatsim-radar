@@ -3,11 +3,18 @@ import type { Ref } from 'vue';
 import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim.ts';
 import { getFlightPlanParam } from '~/utils/shared/vatsim.ts';
 
-export function getAirlineLogoUrl(callsign?: string | null, remarks?: string | null): string | null {
+export function getAirlineLogoUrl(callsign?: string | null, remarks?: string | null, sourceAirline = false): string | null {
     if (!callsign) return null;
 
     const callsignCode = callsign.toUpperCase().match(/^([A-Z]{3})/)?.[1];
     const operatorCode = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
+
+    if (sourceAirline) {
+        if (![operatorCode, callsignCode].every(value => value && useDataStore().imagesData.airlines.includes(value))) return null;
+
+        return `https://data.vatsim-radar.com/images/logos/${ callsignCode }.png?v=2`;
+    }
+
     const code = [operatorCode, callsignCode].find(value => value && useDataStore().imagesData.airlines.includes(value));
     if (!code) return null;
 

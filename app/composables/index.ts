@@ -247,21 +247,22 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
 };
 
 export async function getAirlineFromCallsign(callsign: string, remarks?: string): Promise<RadarDataAirline | null> {
-    const icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
+    let icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const operator = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
-    const airlineCodes = [...new Set([operator, icao].filter((value): value is string => !!value))];
+    const opr = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
 
-    // OPR is more reliable than the callsign prefix when a flight uses a different operator.
-    // Keep the callsign lookup as a fallback because OPR is optional and may be unknown.
-    let airline: RadarDataAirline | null = null;
-    for (const airlineCode of airlineCodes) {
-        airline = await useDataStore().airlines(airlineCode);
-        if (airline) break;
+    let airline = await useDataStore().airlines(icao);
+    const operator = opr ? await useDataStore().airlines(opr) : null;
+    let sourceAirline: RadarDataAirline | null = null;
+
+    if (operator && operator.icao !== airline.icao) {
+        if (airline) sourceAirline = airline;
+        airline = operator;
+        icao = opr;
     }
 
-    if (!airline && !remarks) return airline ?? null;
+    if (!airline && !remarks) return null;
 
     const virtualAirline = remarks ? await useDataStore().airlines(icao, true) : undefined;
 
@@ -278,6 +279,7 @@ export async function getAirlineFromCallsign(callsign: string, remarks?: string)
         website,
         virtual: vaCallsign ? true : airline!.virtual,
         virtualParsed: !!vaCallsign,
+        sourceAirline,
     };
 }
 
