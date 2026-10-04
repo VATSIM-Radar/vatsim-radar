@@ -18,6 +18,12 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
+      "matchDepTypes": [
+        "engines"
+      ],
+      "enabled": false
+    },
+    {
       "matchPackageNames": [
         "@nuxtjs/stylelint-module"
       ],

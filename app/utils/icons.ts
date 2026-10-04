@@ -1593,6 +1593,20 @@ export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | Vat
             return aircraftIcons.g91;
         case 'AC11':
             return aircraftIcons.aa5;
+        case 'E545':
+        case 'E550':
+            return aircraftIcons.fa50;
+        case 'M350':
+        case 'M500':
+        case 'M600':
+        case 'M700':
+            return aircraftIcons.p46t;
+        case 'E35L':
+            return aircraftIcons.e145;
+        case 'PA31':
+            return aircraftIcons.pa34;
+        case 'MQ9':
+            return aircraftIcons.u2;
         case 'COL4':
             return aircraftIcons.sr22;
         case 'VF35':

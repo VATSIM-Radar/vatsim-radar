@@ -8,6 +8,36 @@ outline: [2, 3]
 [[toc]]
 :::
 
+## 2.0.4
+
+### New Features
+
+- Added magnetic declination to airport info and conditions request
+- Added "Operated by" in case OPR is different from ICAO code to airline block
+- You can now change departed color for aircraft in dashboard
+- Added RMP position on map support
+- Added simulator type (MSFS/X-Plane) in pilot overlay behind a new "Show simulator" setting
+- VATSIM Radar airline name & logo will now respect OPR remark
+- Added model matching: E545→FA50, E550→FA50, M350→P46T, M500→P46T, M600→P46T, M700→P46T, E35L→E145, PA31→PA34, MQ9→U2
+
+### Features and Improvements
+
+- Removed smooth aircraft for own flight on ground to reduce delay
+- Bookings are now shown when filter is enabled
+- Slightly improve pilot altitude calculation
+- Add Moscow and Samara duplication rules
+- Added a link to Pilot Feedback as a small icon near Pilot CID
+- Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports page would not jump
+- Reduce map clutter and improve performance by removing some of VATSPy FIRs boundaries from map
+
+### Bug Fixes
+
+- Fixed line being purple sometimes even after SID
+- Fixed LIRF_TWR displaying incorrect frequency once again
+- Fixed rare Approach sectors issues where incorrect TRACON was selected
+- Improved VATSpy sector compare
+- Fixed user block when opening Dashboard with a lot of airports in it
+
 ## 2.0.3.1
 
 ### Features and Improvements

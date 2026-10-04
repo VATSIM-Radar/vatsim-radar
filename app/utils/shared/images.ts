@@ -10,6 +10,7 @@ export function getAirlineLogoUrl(callsign?: string | null, remarks?: string | n
     const operatorCode = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
 
     if (sourceAirline) {
+        if (operatorCode === callsignCode) return null;
         if (![operatorCode, callsignCode].every(value => value && useDataStore().imagesData.airlines.includes(value))) return null;
 
         return `https://data.vatsim-radar.com/images/logos/${ callsignCode }.png?v=2`;

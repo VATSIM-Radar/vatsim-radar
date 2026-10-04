@@ -121,7 +121,7 @@
                     <ui-data-list
                         circle-divider
                         class="flight-info__secondary"
-                        :items="[{ text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { text: airline.sourceAirline?.callsign ?? airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
+                        :items="[{ text: airline.sourceAirline?.callsign ?? airline.callsign }, { text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { key: 'virtual', text: Number(!!airline.virtual) }]"
                     >
                         <template #item-virtual>
                             <ui-text

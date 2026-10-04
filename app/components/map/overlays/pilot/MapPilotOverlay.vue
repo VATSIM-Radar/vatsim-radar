@@ -108,6 +108,23 @@
             v-if="props.overlay.data.photo"
             #photo
         >
+            <ui-text
+                class="pilot__photo"
+                :href="props.overlay.data.photo.link"
+                target="_blank"
+                type="3b-medium"
+            >
+                <img
+                    :alt="props.overlay.data.photo.photographer"
+                    decoding="async"
+                    importance="low"
+                    referrerpolicy="origin-when-cross-origin"
+                    :src="(props.overlay.data.photo.thumbnail_large ?? props.overlay.data.photo.thumbnail).src"
+                >
+                <div class="pilot__photo_author">
+                    {{props.overlay.data.photo.photographer}}
+                </div>
+            </ui-text>
             <div
                 v-if="airlineLogoUrl"
                 class="pilot__operator"
@@ -130,23 +147,6 @@
                     :src="airlineLogoUrl"
                 >
             </div>
-            <ui-text
-                class="pilot__photo"
-                :href="props.overlay.data.photo.link"
-                target="_blank"
-                type="3b-medium"
-            >
-                <img
-                    :alt="props.overlay.data.photo.photographer"
-                    decoding="async"
-                    importance="low"
-                    referrerpolicy="origin-when-cross-origin"
-                    :src="(props.overlay.data.photo.thumbnail_large ?? props.overlay.data.photo.thumbnail).src"
-                >
-                <div class="pilot__photo_author">
-                    {{props.overlay.data.photo.photographer}}
-                </div>
-            </ui-text>
         </template>
         <template #ipfs>
             <map-popup-ipfs
@@ -866,9 +866,8 @@ onMounted(() => {
         align-items: center;
         justify-content: center;
 
-        margin-bottom: 8px;
         padding: 8px;
-        border-radius: 4px;
+        border-radius: 0 0 4px 4px;
 
         background: $whiteOrig;
 
@@ -895,7 +894,7 @@ onMounted(() => {
         position: relative;
 
         img {
-            border-radius: 8px;
+            border-radius: 4px 4px 0 0;
         }
 
         &_author {
