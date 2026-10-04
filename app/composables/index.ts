@@ -256,10 +256,10 @@ export async function getAirlineFromCallsign(callsign: string, remarks?: string)
     const operator = opr ? await useDataStore().airlines(opr) : null;
     let sourceAirline: RadarDataAirline | null = null;
 
-    if (operator && operator.icao !== airline.icao) {
+    if (operator && (!airline || operator.icao !== airline.icao)) {
         if (airline) sourceAirline = airline;
         airline = operator;
-        icao = opr;
+        icao = opr!;
     }
 
     if (!airline && !remarks) return null;
