@@ -14334,10 +14334,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rou3@npm:0.11.0":
-  version: 0.11.0
-  resolution: "rou3@npm:0.11.0"
-  checksum: 10c0/abf3acdd02d7357671349336eab0a0d499d3fe8672309004f78b33ff7af1c1b25968feba313d050924ca9b7b34f4802dc840264f36de6e8c634638002897cde2
+"rou3@npm:0.12.0":
+  version: 0.12.0
+  resolution: "rou3@npm:0.12.0"
+  checksum: 10c0/d7c6e0d0c84af3ec1b57e48dbe20d2c9cb9db911cadfc5876bfbbad1b723eab09137a4b2b6de53ce9a3e5146ab5297c38cf7fd07583cdf752c59f45cd317dd69
   languageName: node
   linkType: hard
 
@@ -16953,7 +16953,7 @@ __metadata:
     postcss: "npm:8.5.28"
     postcss-html: "npm:2.0.0"
     prisma: "npm:7.10.0"
-    rou3: "npm:0.11.0"
+    rou3: "npm:0.12.0"
     sass-embedded: "npm:1.105.1"
     sharp: "npm:0.35.5"
     srvx: "npm:1.0.5"
