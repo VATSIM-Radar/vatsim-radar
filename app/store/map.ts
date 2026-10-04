@@ -366,12 +366,9 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
 
                 if (fetchData) {
-                    overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`, {
+                    // Load stable airport info now; METAR and NOTAM come from external vendors and are deferred until the overlay opens.
+                    overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }?excludeWeather=1`, {
                         timeout: 15000,
-                    });
-                    $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`).then(x => overlay.data.notams = x).catch(e => {
-                        console.error(e);
-                        overlay.data.notams = [];
                     });
                 }
                 return overlay;

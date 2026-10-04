@@ -400,9 +400,9 @@ Add a VATSIM data field:
 
 Airport details/race-prone loading:
 
-- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`). Saved and preset overlays use `app/composables/map/airport-overlays.ts` to batch initial info and defer one bulk NOTAM request; dashboard weather data uses the same bulk airport info route. Interactive single-airport openings keep the per-airport routes.
+- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`). Saved and preset overlays use `app/composables/map/airport-overlays.ts` to batch initial airport info; dashboard weather and the Conditions Request popup (`app/components/popups/PopupMetar.vue`) use bulk METAR/NOTAM routes. Bulk airport routes share a 100-ICAO query cap and process at most 10 airports concurrently in fixed batches.
 - Bulk airport routes live in `server/api/data/vatsim/airports/{index,metar,notams}.ts`; airport info is shared with the single-airport index route through `app/utils/server/vatsim/airport-data.ts`.
-- The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it also refreshes weather/controllers/NOTAM data on intervals and live-data updates.
+- The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it loads METAR and NOTAM on first expansion and refreshes them every five minutes while expanded. Airport info is fetched separately from those vendor-backed sources.
 - The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
 - When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
 

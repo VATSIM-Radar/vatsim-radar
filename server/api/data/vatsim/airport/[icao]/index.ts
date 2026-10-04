@@ -20,5 +20,6 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
         weatherOnly: getQuery(event).requestedDataType === '1',
         controllersOnly: getQuery(event).requestedDataType === '2',
         excludeBookings: getQuery(event).excludeBookings === '1',
+        excludeWeather: getQuery(event).excludeWeather === '1',
     });
 });

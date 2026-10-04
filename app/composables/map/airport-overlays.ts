@@ -1,7 +1,6 @@
 import type { StoreOverlayAirport, PartialOverlayParams } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]/index';
-import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 interface AirportOverlayTabs {
     aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
@@ -21,8 +20,7 @@ function normalizeIcaos(airports: string[]) {
 }
 
 /**
- * Fetch info once, then let the caller restore overlays in its original order with its original settings.
- * NOTAM loading starts after the callback so it cannot hold up overlay creation.
+ * Fetch airport info once, then let the caller restore overlays in its original order with its original settings.
  */
 export async function withBulkAirportOverlays<T>(airports: string[], callback: (addAirport: AddAirportOverlay) => Promise<T>): Promise<T> {
     const mapStore = useMapStore();
@@ -44,7 +42,6 @@ export async function withBulkAirportOverlays<T>(airports: string[], callback: (
         }
     }
 
-    const createdIcaos = new Set<string>();
     const addAirport: AddAirportOverlay = async (rawIcao, options, params) => {
         const icao = rawIcao.trim().toUpperCase();
         if (icao.length !== 4) return;
@@ -52,8 +49,7 @@ export async function withBulkAirportOverlays<T>(airports: string[], callback: (
         const existingOverlay = mapStore.overlays.find(overlay => overlay.key === icao);
         if (existingOverlay) return mapStore.addAirportOverlay(icao, options, params);
 
-        createdIcaos.add(icao);
-        // Seed the store action with bulk data and skip its per-airport info and NOTAM requests.
+        // Seed the store action with bulk info and skip per-airport requests during restoration.
         return mapStore.addAirportOverlay(icao, options, {
             ...params,
             data: {
@@ -63,28 +59,5 @@ export async function withBulkAirportOverlays<T>(airports: string[], callback: (
         }, { fetchData: false });
     };
 
-    try {
-        return await callback(addAirport);
-    }
-    finally {
-        // Start the NOTAM request after overlay creation so slow NOTAM sources do not delay restoration.
-        if (createdIcaos.size) {
-            const created = [...createdIcaos];
-            const applyNotams = (results: Record<string, VatsimAirportDataNotam[]>) => {
-                for (const icao of created) {
-                    // Ignore responses for overlays that were closed while NOTAMs were loading.
-                    const overlay = mapStore.overlays.find(item => item.key === icao);
-                    if (overlay?.type === 'airport') overlay.data.notams = results[icao] ?? [];
-                }
-            };
-
-            void $fetch<Record<string, VatsimAirportDataNotam[]>>('/api/data/vatsim/airports/notams', {
-                query: { airports: created.join(',') },
-                timeout: 15000,
-            }).then(applyNotams).catch(error => {
-                console.error(error);
-                applyNotams({});
-            });
-        }
-    }
+    return await callback(addAirport);
 }

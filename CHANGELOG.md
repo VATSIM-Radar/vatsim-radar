@@ -21,6 +21,7 @@
 - Added a link to Pilot Feedback as a small icon near Pilot CID
 - Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports page would not jump
 - Reduce map clutter and improve performance by removing some of VATSPy FIRs boundaries from map
+- Add "Update Weather" button in Dashboard
 
 ## Bug Fixes
 

@@ -165,7 +165,7 @@
             <ui-button
                 v-if="list.length"
                 :disabled="loading"
-                @click="[cached = [], refresh()]"
+                @click="[cached = [], notams = {}, refresh()]"
             >
                 Refresh
             </ui-button>
@@ -230,23 +230,6 @@ function saveFavorite() {
     localStorage.setItem('metar-favorite', JSON.stringify(favorite.value));
 }
 
-async function requestAirport(icao: string) {
-    const cachedItem = cached.value.find(x => x.icao === icao);
-
-    if (cachedItem) return cachedItem;
-
-    const data = await $fetch<VatsimAirportDataIcao>(`/api/data/vatsim/airport/${ icao }?requestedDataType=1&excludeBookings=1`);
-    data.icao = icao;
-    cached.value.push(data);
-
-    $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`).then(x => {
-        notams.value[icao] = x;
-        triggerRef(notams);
-    }).catch(console.error);
-
-    return data;
-}
-
 interface VatsimAirportDataIcao extends VatsimAirportData {
     icao: string;
 }
@@ -255,7 +238,37 @@ const { data, refresh } = await useLazyAsyncData<VatsimAirportDataIcao[]>('metar
     loading.value = true;
 
     try {
-        return await Promise.all(list.value.map(requestAirport));
+        const icaos = [...new Set(list.value.map(icao => icao.trim().toUpperCase()).filter(icao => icao.length === 4))];
+        const cachedIcaos = new Set(cached.value.map(airport => airport.icao));
+        const missingIcaos = icaos.filter(icao => !cachedIcaos.has(icao));
+
+        // Keep each query below the server's 100-ICAO limit; each endpoint bounds upstream work in batches of ten.
+        for (let index = 0; index < missingIcaos.length; index += 100) {
+            const batch = missingIcaos.slice(index, index + 100);
+            const [weatherResult, notamsResult] = await Promise.allSettled([
+                $fetch<Record<string, Pick<VatsimAirportData, 'metar' | 'taf'>>>('/api/data/vatsim/airports/metar', {
+                    query: { airports: batch.join(',') },
+                }),
+                $fetch<Record<string, VatsimAirportDataNotam[]>>('/api/data/vatsim/airports/notams', {
+                    query: { airports: batch.join(',') },
+                }),
+            ]);
+
+            const weatherByIcao = weatherResult.status === 'fulfilled' ? weatherResult.value : {};
+            const notamsByIcao = notamsResult.status === 'fulfilled' ? notamsResult.value : {};
+
+            if (weatherResult.status === 'rejected') console.error(weatherResult.reason);
+            if (notamsResult.status === 'rejected') console.error(notamsResult.reason);
+
+            for (const icao of batch) {
+                cached.value.push({ icao, ...weatherByIcao[icao] });
+                notams.value[icao] = notamsByIcao[icao] ?? [];
+            }
+        }
+
+        triggerRef(notams);
+        const cachedByIcao = new Map(cached.value.map(airport => [airport.icao, airport]));
+        return icaos.map(icao => cachedByIcao.get(icao)).filter((airport): airport is VatsimAirportDataIcao => !!airport);
     }
     finally {
         loading.value = false;

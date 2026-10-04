@@ -1,4 +1,4 @@
-import { getBulkAirportIcaos } from '~/utils/server/vatsim/airport-data';
+import { getBulkAirportIcaos, mapAirportsInBatches } from '~/utils/server/vatsim/airport-data';
 import { getAirportNotams } from '~/utils/server/notams';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
@@ -7,7 +7,7 @@ export default defineEventHandler(async event => {
     if (!airports) return;
 
     const config = useRuntimeConfig();
-    const results = await Promise.all(airports.map(async icao => {
+    const results = await mapAirportsInBatches(airports, async icao => {
         if (!config.FAA_NOTAMS_CLIENT_ID) return [icao, [] as VatsimAirportDataNotam[]] as const;
 
         try {
@@ -22,7 +22,7 @@ export default defineEventHandler(async event => {
             console.error(error);
             return [icao, [] as VatsimAirportDataNotam[]] as const;
         }
-    }));
+    });
 
     return Object.fromEntries(results);
 });

@@ -52,7 +52,7 @@ const MAX_SAMPLES = 16;
 // Limits how far in milliseconds movement may be extrapolated beyond the newest sample.
 const MAX_EXTRAPOLATION = 1000 * 10;
 // Stops extrapolation when the speed derived from recent positions is at or below this value in knots.
-const MOVING_THRESHOLD = 50;
+const MOVING_THRESHOLD = 30;
 // Converts millisecond-based movement rates to knots.
 const MS_PER_HOUR = 1000 * 60 * 60;
 // Approximates the number of nautical miles in one degree of latitude.

@@ -27,7 +27,7 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
             let [metar, noaaMetar, taf] = await Promise.all([
                 $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text', headers: getVATSIMIdentHeaders() }).catch(console.error),
                 $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
-                $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
+                $fetch<string>(`https://aviationweather.gov/api/data/taf?ids=${ icao }&format=raw`, { responseType: 'text' }).catch(() => {}),
             ]);
 
             if (noaaMetar) {
@@ -54,10 +54,12 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
                 }
             }
 
-            const splitTaf = taf?.split('\n');
-            if (splitTaf) {
-                data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
-            }
+            if (taf) data.taf = taf;
+
+            // const splitTaf = taf?.split('\n');
+            // if (splitTaf) {
+            //     data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
+            // }
 
             if (data.metar) {
                 await setRedisSync(`airport-${ icao }-metar`, JSON.stringify({
