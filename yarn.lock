@@ -264,9 +264,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1143.0":
-  version: 3.1143.0
-  resolution: "@aws-sdk/client-s3@npm:3.1143.0"
+"@aws-sdk/client-s3@npm:3.1146.0":
+  version: 3.1146.0
+  resolution: "@aws-sdk/client-s3@npm:3.1146.0"
   dependencies:
     "@aws-sdk/checksums": "npm:^3.1001.1"
     "@aws-sdk/core": "npm:^3.978.1"
@@ -279,7 +279,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.12.1"
     "@smithy/types": "npm:^4.19.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/8e9c88148ad1c022e681bda1147277255ee3eb67d43267337114d1d2744c94aaeb3f17dda4603be3951b6ca9a07d98305bfc0294e8a32d542c95c4097be6ee05
+  checksum: 10c0/2c5ac51be29afd167fa7b2b0b2d58a9364d9df6e448075a3d899a1be2cca0c5ebe26b1c4668cdd48120bf6674b07d304434f351a3171e2a4b97c1ee6309391d2
   languageName: node
   linkType: hard
 
@@ -5516,12 +5516,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:26.6.3":
-  version: 26.6.3
-  resolution: "@types/node@npm:26.6.3"
+"@types/node@npm:26.6.4":
+  version: 26.6.4
+  resolution: "@types/node@npm:26.6.4"
   dependencies:
     undici-types: "npm:~8.9.0"
-  checksum: 10c0/51070287167d157d246a5ad83e6ead93aa310bbd9cc880ecd1f244a00c2a31491620f997fbbb6ba4ce164388694827999ec68c1d16c3fb64c1037056e64613c7
+  checksum: 10c0/094e7362df9200ba4c2da09131ca3b5d1aa51535a268a24e4ee2546d9c5a323d1d30cbdaaaa3db7ef8b2387572d1f9edabb11538ab7a09d3bca33ae5cddc2b1b
   languageName: node
   linkType: hard
 
@@ -6412,9 +6412,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/language-core@npm:3.3.11":
-  version: 3.3.11
-  resolution: "@vue/language-core@npm:3.3.11"
+"@vue/language-core@npm:3.3.12":
+  version: 3.3.12
+  resolution: "@vue/language-core@npm:3.3.12"
   dependencies:
     "@volar/language-core": "npm:2.4.28"
     "@vue/compiler-dom": "npm:^3.5.0"
@@ -6423,7 +6423,7 @@ __metadata:
     muggle-string: "npm:^0.4.1"
     path-browserify: "npm:^1.0.1"
     picomatch: "npm:^4.0.4"
-  checksum: 10c0/d05c0a9983cb92f03e283729450d21da81848eecf4328020c2047b7cf1318b74597455b21740a32f56552d267d8b14fb834ae7939c4f5ff24bd4dc7a3a2fbbc7
+  checksum: 10c0/8a6dad0c08911cc708e39be0196eaa3f8025a9015c0551d54ffe5846c2f5a39005d6939ad56dff572c3a7c969ff5ea93457b67a4b10b94fce9e9d20b28381caa
   languageName: node
   linkType: hard
 
@@ -9275,9 +9275,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:10.11.0":
-  version: 10.11.0
-  resolution: "eslint@npm:10.11.0"
+"eslint@npm:10.12.0":
+  version: 10.12.0
+  resolution: "eslint@npm:10.12.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
@@ -9316,7 +9316,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/c767f45f21d1921b41d70e30b1c8fa7ec4e65c0f43a8d80cc4990ca3d923127fa7b9b3416b8f5be6e877d9286f97d3c51a04ed341bc6aa73c0dba0f463e1f861
+  checksum: 10c0/1302ce8a7df2f67fe8f4014b2f9449bd38eb86903ba7b841d9a8ca5a5daf8ee15442861ab870e96c0074d5f333b405d7b2f16388981f807db410cc3a02178af9
   languageName: node
   linkType: hard
 
@@ -15709,9 +15709,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:17.15.0":
-  version: 17.15.0
-  resolution: "stylelint@npm:17.15.0"
+"stylelint@npm:17.16.0":
+  version: 17.16.0
+  resolution: "stylelint@npm:17.16.0"
   dependencies:
     "@csstools/css-calc": "npm:^3.3.0"
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
@@ -15750,7 +15750,7 @@ __metadata:
     write-file-atomic: "npm:^7.0.1"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/1077bfd2206dbb1a6498b1a569314dd7d5f54f629412e58bcaca581898defa7776c3377c967b709603d36dea0ef34c2f6a05901c8cd47560ffdb9dc78746b113
+  checksum: 10c0/68d13ddac44ab77344c9c6204b5981629f9a44829e3a87a63634ece51af0101814eda05ec05273b43967f82e2c9f407a1b455e503a86a63080f88738ac736824
   languageName: node
   linkType: hard
 
@@ -16888,7 +16888,7 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1143.0"
+    "@aws-sdk/client-s3": "npm:3.1146.0"
     "@navigraph/amdb": "npm:1.1.1"
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.1.0"
@@ -16918,7 +16918,7 @@ __metadata:
     "@types/geojson": "npm:7946.0.16"
     "@types/jsonwebtoken": "npm:9.0.10"
     "@types/merge-ranges": "npm:1.0.2"
-    "@types/node": "npm:26.6.3"
+    "@types/node": "npm:26.6.4"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:8.18.2"
     "@vite-pwa/nuxt": "npm:1.1.1"
@@ -16934,7 +16934,7 @@ __metadata:
     deep-equal: "npm:2.2.3"
     dexie: "npm:4.4.6"
     discord.js: "npm:14.27.0"
-    eslint: "npm:10.11.0"
+    eslint: "npm:10.12.0"
     fast-xml-parser: "npm:5.11.2"
     ioredis: "npm:6.0.0"
     jsonwebtoken: "npm:9.0.3"
@@ -16957,7 +16957,7 @@ __metadata:
     sass-embedded: "npm:1.105.1"
     sharp: "npm:0.35.5"
     srvx: "npm:1.0.5"
-    stylelint: "npm:17.15.0"
+    stylelint: "npm:17.16.0"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-html: "npm:2.0.0"
     stylelint-config-recommended: "npm:18.0.0"
@@ -16978,7 +16978,7 @@ __metadata:
     vue-bottom-sheets: "npm:0.4.0"
     vue-chartjs: "npm:5.3.4"
     vue-draggable-plus: "npm:0.6.1"
-    vue-tsc: "npm:3.3.11"
+    vue-tsc: "npm:3.3.12"
     ws: "npm:8.22.0"
   languageName: unknown
   linkType: soft
@@ -17460,17 +17460,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-tsc@npm:3.3.11":
-  version: 3.3.11
-  resolution: "vue-tsc@npm:3.3.11"
+"vue-tsc@npm:3.3.12":
+  version: 3.3.12
+  resolution: "vue-tsc@npm:3.3.12"
   dependencies:
     "@volar/typescript": "npm:2.4.28"
-    "@vue/language-core": "npm:3.3.11"
+    "@vue/language-core": "npm:3.3.12"
   peerDependencies:
     typescript: ">=5.0.0"
   bin:
     vue-tsc: bin/vue-tsc.js
-  checksum: 10c0/b1995cf9519754e9974d051668d1b6d4e3bb3bd1adc507350689bf2e128cc57c0c21c58952c247a97f12cf008c1b5235f4bcf5882f6784d6a8286019f439d3cf
+  checksum: 10c0/6436c760b5ad025f166532a9fb722dc98d178dbba5cf6b635526bd0b987fb0e43bb0e34771749652c930e6b9b3306338578d8caa7ec8b22ce186d340f003d530
   languageName: node
   linkType: hard
 
