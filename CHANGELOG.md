@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.4-final]
+# [2.0.4]
 
 ## New Features
 
