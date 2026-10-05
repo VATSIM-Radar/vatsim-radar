@@ -17,6 +17,7 @@ import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format.js';
 import type { WatchOptions } from '@vue/runtime-core';
+import { getFlightPlanParam } from '~/utils/shared/vatsim';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     if (!Number.isFinite(point[0]) || !Number.isFinite(point[1])) return false;
@@ -246,12 +247,22 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
 };
 
 export async function getAirlineFromCallsign(callsign: string, remarks?: string): Promise<RadarDataAirline | null> {
-    const icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
+    let icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = await useDataStore().airlines(icao);
+    const opr = getFlightPlanParam(remarks, 'OPR')?.trim().toUpperCase();
 
-    if (!airline && !remarks) return airline ?? null;
+    let airline = await useDataStore().airlines(icao);
+    const operator = opr ? await useDataStore().airlines(opr) : null;
+    let sourceAirline: RadarDataAirline | null = null;
+
+    if (operator && (!airline || operator.icao !== airline.icao)) {
+        if (airline) sourceAirline = airline;
+        airline = operator;
+        icao = opr!;
+    }
+
+    if (!airline && !remarks) return null;
 
     const virtualAirline = remarks ? await useDataStore().airlines(icao, true) : undefined;
 
@@ -268,6 +279,7 @@ export async function getAirlineFromCallsign(callsign: string, remarks?: string)
         website,
         virtual: vaCallsign ? true : airline!.virtual,
         virtualParsed: !!vaCallsign,
+        sourceAirline,
     };
 }
 

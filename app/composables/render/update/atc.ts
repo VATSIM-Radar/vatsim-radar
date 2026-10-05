@@ -2,7 +2,7 @@ import type { DataUpdateContext } from '~/composables/render/update/index';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { VatSpyAirport, VatSpyData, VatSpyDataProperties } from '~/types/data/vatspy';
 import type { Feature, MultiPolygon } from 'geojson';
-import { getFacilityByCallsign, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
+import { getFacilityByCallsign, getLongestTraconPrefix, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type { DataAirport, DataSector } from '~/composables/render/storage';
 import { checkForVATSpy } from '~/composables/init';
@@ -10,6 +10,7 @@ import { debugBookings, debugControllers } from '~/composables/render/update/uti
 import { duplicatingSettings } from '~/utils/server/vatsim/atc-duplicating';
 import { getSimAwareFeatures } from '~/composables/render/airports';
 import { selectMapBookings } from '~/utils/shared/bookings';
+import { filterVatsimControllers } from '~/composables/settings/filter.ts';
 
 export const callsignSplitRegex = /_+/gm;
 
@@ -248,7 +249,7 @@ export async function updateControllers(context: DataUpdateContext) {
         }
     }
 
-    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings && !store.activeFilter) || store.bookingOverride) ? store.bookings : [];
+    let bookings = ((getKeyedValueFromSettings('map.bookings.enabled') && !store.config.hideBookings) || store.bookingOverride) ? store.bookings : [];
 
     if (!store.bookingOverride) {
         const now = Date.now();
@@ -260,15 +261,19 @@ export async function updateControllers(context: DataUpdateContext) {
     const realCallsigns = new Set(dataStore.vatsim.data.controllers.value.map(x => x.callsign));
     const duplicatedPositions: Record<string, VatsimShortenedController> = {};
 
+    let controllersBookings = bookings.map(({ atc, ...rest }) => ({
+        ...atc,
+        facility: getFacilityByCallsign(atc.callsign),
+        booking: rest,
+        isBooking: true,
+    } satisfies VatsimShortenedController));
+
+    controllersBookings = filterVatsimControllers(controllersBookings, []).controllers;
+
     const controllers = [
         ...(store.bookingOverride ? [] : dataStore.vatsim.data.controllers.value),
         ...(store.bookingOverride ? [] : dataStore.vatsim.data.atis.value),
-        ...bookings.map(({ atc, ...rest }) => ({
-            ...atc,
-            facility: getFacilityByCallsign(atc.callsign),
-            booking: rest,
-            isBooking: true,
-        } satisfies VatsimShortenedController)),
+        ...controllersBookings,
     ];
 
     if (debugControllers.value?.length) {
@@ -342,7 +347,6 @@ export async function updateControllers(context: DataUpdateContext) {
         const split = controller.callsign.split('_');
         const isATIS = callsign.endsWith('ATIS');
         const prefix = split[0];
-        const middleName = split.length === 3 ? split.slice(0, 2) : prefix;
 
         if (!isATIS && (controller.facility === facilities.CTR || controller.facility === facilities.FSS)) {
             if (!uirsMap) continue;
@@ -374,37 +378,23 @@ export async function updateControllers(context: DataUpdateContext) {
             const traconFeatures = (!isATIS && (isApp || controller.facility === facilities.TWR)) ? await getSimAwareFeatures(dataStore, prefix) : [];
 
             let feature: SimAwareDataFeature | undefined;
-            let backupFeature: SimAwareDataFeature | undefined;
             let validPrefix = '';
-            let backupPrefix = '';
 
             for (const sector of traconFeatures) {
                 const suffix = getTraconSuffix(sector);
                 if (!isApp && !suffix) continue;
                 if (suffix && !callsign.endsWith(suffix)) continue;
 
-                const prefixes = getTraconPrefixes(sector);
+                const matchedPrefix = getLongestTraconPrefix(callsign, getTraconPrefixes(sector));
 
-                const middlePrefix = prefixes.find(x => x === middleName);
-                const secondPrefix = (split.length === 3 && prefixes.find(x => x.split('_').length === 2 && callsign.startsWith(x)));
-
-                if (middlePrefix || secondPrefix) {
-                    feature ??= sector;
-                    validPrefix = middlePrefix || secondPrefix || '';
-                    break;
-                }
-
-                const regularPrefix = prefixes.find(x => callsign.startsWith(x));
-
-                if (regularPrefix) {
-                    backupFeature ??= sector;
-                    backupPrefix = regularPrefix;
-                    break;
+                if (matchedPrefix) {
+                    if (!validPrefix || matchedPrefix.length > validPrefix.length) {
+                        feature = sector;
+                        validPrefix = matchedPrefix;
+                    }
+                    continue;
                 }
             }
-
-            feature ??= backupFeature;
-            validPrefix ??= backupPrefix;
 
             if (validPrefix) {
                 validPrefix = validPrefix.split('_')[0];

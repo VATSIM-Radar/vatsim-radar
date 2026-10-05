@@ -241,6 +241,46 @@ const dataAirport = computed(() => dataStore.airportsList.value[props.overlay.da
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
 
+const isExpanded = computed(() => !props.overlay.collapsed && !props.overlay.minified);
+let hasOpened = false;
+
+async function refreshWeatherAndNotams() {
+    const icao = airport.value?.icao;
+    if (!icao) return;
+
+    const overlayId = props.overlay.id;
+    const [weatherResult, notamsResult] = await Promise.allSettled([
+        $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao }/metar`, { timeout: 15000 }),
+        $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao }/notams`, { timeout: 15000 }),
+    ]);
+
+    // The request may finish after the user closes this overlay; never mutate a removed overlay.
+    const currentOverlay = mapStore.overlays.find(item => item.id === overlayId);
+    if (currentOverlay?.type !== 'airport') return;
+
+    if (weatherResult.status === 'fulfilled') {
+        currentOverlay.data.airport = { ...currentOverlay.data.airport, ...weatherResult.value };
+    }
+    else {
+        console.error(weatherResult.reason);
+    }
+
+    if (notamsResult.status === 'fulfilled') {
+        currentOverlay.data.notams = notamsResult.value;
+    }
+    else {
+        console.error(notamsResult.reason);
+    }
+}
+
+watch([isExpanded, () => airport.value?.icao], ([expanded, icao]) => {
+    if (!expanded || !icao || hasOpened) return;
+
+    // Vendor-backed weather and NOTAM calls start only on the first expanded view.
+    hasOpened = true;
+    void refreshWeatherAndNotams();
+}, { immediate: true });
+
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures-lazy`, () => getNavigraphAirportProcedures(props.overlay.key));
 
@@ -429,14 +469,8 @@ const runways = computed(() => dataStore.airportsList.value[props.overlay.data.i
 
 onMounted(() => {
     const interval = setInterval(async () => {
-        props.overlay.data.airport = {
-            ...props.overlay.data.airport,
-            ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
-        };
-
-        props.overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport.value?.icao }/notams`, {
-            timeout: 1000 * 15,
-        });
+        if (!hasOpened || !isExpanded.value) return;
+        await refreshWeatherAndNotams();
     }, 1000 * 60 * 5);
 
     onBeforeUnmount(() => {

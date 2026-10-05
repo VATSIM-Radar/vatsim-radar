@@ -121,7 +121,7 @@ export function getPilotTrueAltitude(pilot: Pick<VatsimShortenedAircraft, 'altit
     const altitude = Number.isFinite(pilot.altitude) ? pilot.altitude : 0;
     if (altitude < 9500) return altitude;
     if (!Number.isFinite(pilot.qnh_mb)) return altitude;
-    return Math.round(altitude - ((pilot.qnh_mb - 1013) * 28.9));
+    return Math.round(altitude - ((pilot.qnh_mb - 1013.25) * 29.53));
 }
 
 export function getTraconPrefixes(tracon: SimAwareDataFeature): string[] {
@@ -134,6 +134,10 @@ export function getTraconSuffix(tracon: SimAwareDataFeature): string | null {
     if (typeof tracon.properties?.suffix === 'string') return tracon.properties.suffix;
 
     return null;
+}
+
+export function getLongestTraconPrefix(callsign: string, prefixes: string[]): string {
+    return prefixes.reduce((matched, prefix) => callsign.startsWith(prefix) && prefix.length > matched.length ? prefix : matched, '');
 }
 
 export const supportedNavigraphLayouts: AmdbLayerName[] = [
@@ -179,6 +183,7 @@ const facilitiesMap = {
     FSS: 1,
     DEL: 2,
     GND: 3,
+    RMP: -3,
     TWR: 4,
     APP: 5,
     CTR: 6,
@@ -187,7 +192,6 @@ const facilitiesMap = {
 export function getFacilityByCallsign(callsign: string): number {
     let postfix = callsign.split('_').at(-1);
     if (postfix === 'DEP') postfix = 'APP';
-    if (postfix === 'RMP') postfix = 'GND';
     return facilitiesMap[postfix as keyof typeof facilitiesMap] ?? -1;
 }
 
@@ -196,4 +200,33 @@ export function getFlightPlanParam(remarks: string | null | undefined, param: st
 
     const result = new RegExp(`( |^)${ param }\/(?<val>.+?)( [A-Z]+\/.*|$)`).exec(remarks);
     return result?.groups?.val || null;
+}
+
+export function getSimulatorName(sim: unknown) {
+    switch (sim) {
+        case 2:
+            return 'MSFS';
+        case 6:
+            return 'X-Plane';
+        case 9:
+            return 'MSFS X';
+        case 10:
+            return 'MSFS 2020';
+        case 11:
+            return 'MSFS 2024';
+        case 12:
+            return 'X-Plane 8';
+        case 13:
+            return 'X-Plane 9';
+        case 14:
+            return 'X-Plane 10';
+        case 16:
+            return 'X-Plane 11';
+        case 25:
+            return 'FlightGear';
+        case 30:
+            return 'Prepar3D';
+        default:
+            return null;
+    }
 }

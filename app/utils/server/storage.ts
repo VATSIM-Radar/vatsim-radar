@@ -156,6 +156,7 @@ export interface RadarDataAirline {
     icao: string;
     name: string;
     callsign: string;
+    sourceAirline?: RadarDataAirline | null;
     virtual: boolean;
     website?: string | null;
     virtualParsed?: boolean;

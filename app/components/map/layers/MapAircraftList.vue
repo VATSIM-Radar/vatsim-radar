@@ -404,7 +404,7 @@ useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings, airpor
     visibleSet();
 });
 
-watch([getShownPilots, canRender, showTracks, renderedPilots, dataStore.vatsim.data.keyedPilots], debouncedUpdate);
+watch([getShownPilots, canRender, showTracks, renderedPilots, dataStore.vatsim.data.keyedPilots, dataStore.vatsim.selfCoordinate], debouncedUpdate);
 
 watch(activePilotsOverlays, () => {
     if (!init) return;

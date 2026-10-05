@@ -129,6 +129,7 @@ const _settingsDefaultValues = {
     'map.preferences.colors.default.aircraft.landed': { color: 'red300' },
     'map.preferences.colors.default.aircraft.arriving': { color: 'red300' },
     'map.preferences.colors.default.aircraft.departing': { color: 'red300' },
+    'map.preferences.colors.default.aircraft.departed': { color: 'red300' },
     'map.preferences.colors.default.aircraft.main': { color: 'blue500' },
 
     'map.preferences.overlaysPositions': 'bottom-left',
@@ -168,6 +169,7 @@ const _settingsDefaultValues = {
 
     'map.traffic.showFullRoute': false,
     'map.traffic.showRouteDetails': false,
+    'map.traffic.showSimulator': false,
     'map.traffic.toggleAircraftOverlays': false,
     'map.traffic.autoShowAirportTracks': false,
     'map.traffic.disableFastUpdate': false,
@@ -245,7 +247,7 @@ export const settingsDefaultValues = _settingsDefaultValues as {
 export function setAircraftDefaultColors() {
     const aircraftColors = aircraftStatusColors;
 
-    const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing'] satisfies MapAircraftStatus[];
+    const aircraftOptions = ['ground', 'active', 'green', 'hover', 'landed', 'arriving', 'departing', 'departed'] satisfies MapAircraftStatus[];
 
     for (const option of aircraftOptions) {
         settingsDefaultValues[`map.preferences.colors.default.aircraft.${ option }`] = { color: aircraftColors[option] };

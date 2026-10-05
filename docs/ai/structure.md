@@ -227,6 +227,8 @@ Important composable groups:
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
 - `app/composables/vatsim/controllers.ts`: shared controller lookup, airport/sector extent resolution, and map navigation helpers. `findATCSector()` returns geographic extents with a small look-ahead gap for controller navigation.
+- Controller facility IDs are resolved in `app/utils/shared/vatsim.ts`, `app/utils/data/vatsim.ts` (server), and `app/composables/vatsim/controllers.ts` (client). `app/utils/server/worker/data-worker.ts` adds missing RMP metadata when accepting a feed snapshot into storage, before controller normalization and compact feed generation. `useFacilitiesNames()` in the client controller composable supplies full or short labels by facility ID; `UiChip.vue` supplies controller list chips and `MapPopupAirport.vue` uses the full labels. Airport icons are selected in `app/composables/render/airports/layers/airport-style.ts` from `public/icons/atc/`.
+- ATC position filter choices are built in `app/components/map/settings/filters/MapFilters.vue`; matching lives in `app/composables/settings/filter.ts`, and persistence validation lives in `app/utils/server/handlers/filters.ts`.
 - `app/composables/render/update/vatglasses.ts`: first VATGlasses render scans live controllers, resolves position/country records from IndexedDB, constructs GeoJSON sector polygons, and optionally runs split/combine geometry work through the bounded worker pool in `app/composables/render/combination-pool.ts`; each worker executes the complete split-and-combine pipeline for one position. The first render is awaited inside `updateControllersRender()`.
 - `app/utils/data/vatglasses-helper.ts`: combined geometry preprocessing groups intersecting polygon bounding boxes, performs one boundary sweep per connected group, and skips boolean operations for disjoint result fragments before preserving altitude ranges with Turf intersection/difference/union operations.
 - `app/components/map/navigraph/NavigraphRoute.vue`: renders cached Navigraph route features; its route cache key must include settings that change the augmented waypoint list.
@@ -245,6 +247,7 @@ Main groups:
 
 - `server/api/data/**`: public data endpoints.
   - `vatsim/data/*`: full, compact, short, mandatory, pilot-specific, airport-specific, event, booking, and stats data.
+  - `vatsim/airports/index.ts` maps to `/api/data/vatsim/airports`; sibling `metar` and `notams` routes are bulk endpoints keyed by ICAO, all accepting the comma-separated `airports` query parameter.
   - `navigraph/*`: navdata/procedure/airport/item endpoints.
   - `vatspy.ts`, `simaware.ts`, `vatglasses.ts`, `airlines.ts`, `tracks.ts`, `sigmets.ts`, `notams.ts`, `versions.ts`, `status.ts`.
   - `debug/*` and `custom/*` support data debugging and custom source comparison.
@@ -256,6 +259,7 @@ API routes are usually thin. Business logic and validation should live in `app/u
 
 Common server helpers:
 
+- `app/utils/server/debug/data-get.ts`: fetches and compiles SimAware/VATSpy boundary data for debug comparison endpoints; `getDiffPolygons()` marks additions, removals, and changed geometries.
 - `app/utils/server/h3.ts`: error handling, data-ready validation, per-user request freezing.
 - `app/utils/server/user.ts`: user lookup, token refresh, list privacy filtering.
 - `app/utils/server/prisma.ts`: Prisma client configured with MariaDB adapter.
@@ -281,6 +285,7 @@ Background tasks:
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
 - `app/utils/server/vatsim/*` contains source-specific VATSIM/VATSpy/SimAware/Kafka/websocket helpers.
+- `app/utils/server/vatsim/kafka.ts` merges Kafka client/position/flight-plan events into `radarStorage.vatsim.kafka`; `ADDCLIENT.SimType` is currently the only Kafka source for a pilot's `sim` field, while position events do not carry it. The worker applies this cache to the VATSIM snapshot before `updateVatsimExtendedPilots()` builds the data returned by `server/api/data/vatsim/pilot/[cid]/index.ts`; it also derives pilot vertical speed from timestamped altitude samples before the live data is published.
 - `app/utils/server/vatsim/ws.ts` owns the server-side websocket registry: `wssPilots` maps callsigns to registered sockets, registration messages can move a socket between callsigns, and Kafka position events fan out through this registry.
 - `app/utils/server/worker/kafka.ts` owns the Kafka consumer startup, topic subscription, stale-message cutoff, and periodic consumer health logs for message age, processing time, dropped stale messages, and offset lag.
 - `app/utils/server/navigraph/*` handles Navigraph DB setup, navdata parsing, and file-backed full-data cache helpers. The standalone Navigraph worker serves the public Navigraph API from in-memory short data plus versioned JSON cache files under `app/data/navigraph-cache`, backed by the Kubernetes Navigraph PVC. Nitro's Navigraph data/item/procedure endpoints perform local readiness and subscription checks, then stream the worker response through `app/utils/server/h3.ts` without parsing the JSON in the main application. Non-procedure item cache files are grouped by data type and loaded through a short-lived in-memory cache; procedure files remain split by airport/group/index. Enroute airway normalization is owned by `app/utils/server/navigraph/navdata/misc.ts`. Isomorphic airspace geometry helpers live in `app/utils/shared/airspace.ts`; `app/utils/shared/airspace.ts` also splits antimeridian-crossing polygons into `MultiPolygon` geometry so OpenLayers cannot connect the ±180° edges across the world. `app/utils/server/navigraph/navdata/airspaces.ts` reads Navigraph DB restrictive and controlled airspace records, stores keyed grouped full records under `restrictedAirspace`/`controlledAirspace`, and emits short keyed records with enough point data for client extent filtering. `app/components/map/navigraph/NavigraphAirspace.vue` renders both airspace datasets from the same source, split by settings and `dbType`.
@@ -323,7 +328,7 @@ Shared utility split:
 
 - `app/utils/shared/*`: safe for client and server. Flight math, VATSIM helpers, runway detection.
 - `app/utils/shared/country-codes.ts`: country-of-registration lookup for aircraft overlays. `usePilotCountry` returns a computed `{ country, isVfr, isIfr }` consumed by `MapPilotOverlay.vue` (header flag) and `PilotOverlayFlightPlan.vue` (registration flag); `getCountryFromCallsignOrReg`, `getFlagUrl`, and `formatRegistration` are shared helpers.
-- `../../app/utils/shared/images.ts`: resolves 3-letter ICAO airline prefixes to local `/logos/{code}.png` URLs with a fallback chain.
+- `../../app/utils/shared/images.ts`: resolves airline logo codes to local `/logos/{code}.png` URLs, preferring a known `OPR/` remark and falling back to the callsign prefix.
 - `app/utils/data/*`: domain transforms/helpers used mostly around data/rendering.
 - `app/utils/db/*`: database-facing helper types/functions.
 - `app/utils/server/*`: server-only code; do not import into browser-only code.
@@ -395,8 +400,9 @@ Add a VATSIM data field:
 
 Airport details/race-prone loading:
 
-- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`), then populated asynchronously from `/api/data/vatsim/airport/:icao` and `/notams`.
-- The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it also refreshes weather/controllers/NOTAM data on intervals and live-data updates.
+- Map airport popups are created in `useMapStore().addAirportOverlay()` (`app/store/map.ts`). Saved and preset overlays use `app/composables/map/airport-overlays.ts` to batch initial airport info; dashboard weather and the Conditions Request popup (`app/components/popups/PopupMetar.vue`) use bulk METAR/NOTAM routes. Bulk airport routes share a 100-ICAO query cap and process at most 10 airports concurrently in fixed batches.
+- Bulk airport routes live in `server/api/data/vatsim/airports/{index,metar,notams}.ts`; airport info is shared with the single-airport index route through `app/utils/server/vatsim/airport-data.ts`.
+- The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it loads METAR and NOTAM on first expansion and refreshes them every five minutes while expanded. Airport info is fetched separately from those vendor-backed sources.
 - The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
 - When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
 

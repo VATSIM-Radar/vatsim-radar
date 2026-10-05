@@ -2,7 +2,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { MapAirportRender } from '~/types/map';
 import { globalComputed, isPointInExtent } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
-import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
+import { getLongestTraconPrefix, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { Map } from 'ol';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type { UseDataStore } from '~/composables/render/storage';
@@ -149,57 +149,43 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
             cached.add(callsign);
         }
 
-        const backupFeatures: [controller: VatsimShortenedController, sector: SimAwareDataFeature][] = [];
+        const finalFeatures: [controller: VatsimShortenedController, sector: SimAwareDataFeature][] = [];
 
-        const added = new Set<string>();
+        const prefixesList: Record<string, { sector: SimAwareDataFeature; length: number }[]> = {};
 
         for (const sector of traconFeatures) {
             const prefixes = getTraconPrefixes(sector);
             const suffix = getTraconSuffix(sector);
 
             for (const controller of arrAtc) {
-                if (added.has(controller.callsign)) continue;
                 if (controller.facility !== facilities.APP && !suffix) continue;
-                const splittedCallsign = controller.callsign.split('_');
+                const matchedPrefix = getLongestTraconPrefix(controller.callsign, prefixes);
 
                 if (
                     (!suffix || controller.callsign.endsWith(suffix)) &&
-                    (
-                        // Match AIRPORT_TYPE_NAME
-                        prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
-                        // Match AIRPORT_NAME
-                        (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
-                        // Match AIRPORT_TYPERANDOMSTRING_NAME
-                        (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
-                    )
+                    matchedPrefix
                 ) {
-                    const existing = backupFeatures?.findIndex(x => x[0].callsign === controller.callsign);
-                    if (existing !== -1) backupFeatures.splice(existing, 1);
-
-                    addFeatureToAirport(sector, airport, controller);
-                    added.add(controller.callsign);
+                    finalFeatures.push([controller, sector]);
+                    prefixesList[controller.callsign] ??= [];
+                    prefixesList[controller.callsign].push({ sector, length: matchedPrefix.length });
                     continue;
-                }
-
-                if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
-                    const existing = backupFeatures?.findIndex(x => x[0].callsign === controller.callsign);
-
-                    if (existing !== -1) {
-                        const existingFeature = backupFeatures[existing];
-
-                        // Checking for priority, longer prefixes mean more precise
-                        if (existingFeature[1].properties.prefix.reduce((acc, item) => acc > item.length ? acc : item.length, 0) < prefixes.reduce((acc, item) => acc > item.length ? acc : item.length, 0)) {
-                            backupFeatures.splice(existing, 1);
-                        }
-                        else continue;
-                    }
-
-                    backupFeatures.push([controller, sector]);
                 }
             }
         }
 
-        backupFeatures.forEach(([controller, sector]) => addFeatureToAirport(sector, airport, controller));
+        finalFeatures.forEach(([controller, sector]) => {
+            let itemLength = 0;
+            let maxLength = 1;
+
+            for (const item of prefixesList[controller.callsign]!) {
+                if (item.sector === sector) itemLength = item.length;
+                else if (item.length > maxLength) maxLength = item.length;
+            }
+
+            if (itemLength < maxLength) return;
+
+            addFeatureToAirport(sector, airport, controller);
+        });
     }
 
     const visibleMap = Object.fromEntries(visibleAirports.map(x => [x.icao, x]));

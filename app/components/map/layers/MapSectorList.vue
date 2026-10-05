@@ -102,7 +102,7 @@ onMounted(async () => {
             emptyLayer: vectorImageLayer,
             emptySource: vectorImageSource,
             labelsLayer,
-            firs: offlineSectors.map(feature => ({ feature, atc: [], persistent: true })),
+            firs: offlineSectors.filter(x => x.properties.id.length === 4).map(feature => ({ feature, atc: [], persistent: true })),
         });
         offlineSectorsRendered = true;
     }

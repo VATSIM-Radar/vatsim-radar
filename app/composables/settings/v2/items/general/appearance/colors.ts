@@ -214,4 +214,12 @@ export const settingsItemAppearanceColors = globalComputed(() => makeSettingsIte
         value: colorValue('map.preferences.colors.default.aircraft.departing'),
         onChange: value => setColorByKey('map.preferences.colors.default.aircraft.departing', value as UserMapSettingsColor),
     },
+    aircraftDeparted: {
+        type: 'color',
+        title: 'Departed aircraft',
+        description: 'Dashboard',
+        defaultColor: colorDefault('map.preferences.colors.default.aircraft.departed'),
+        value: colorValue('map.preferences.colors.default.aircraft.departed'),
+        onChange: value => setColorByKey('map.preferences.colors.default.aircraft.departed', value as UserMapSettingsColor),
+    },
 })));

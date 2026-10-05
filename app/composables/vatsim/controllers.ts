@@ -19,10 +19,22 @@ export const useFacilitiesIds = () => {
         OBS: 0,
         FSS: 1,
         DEL: 2,
+        RMP: -3,
         GND: 3,
         TWR: 4,
         APP: 5,
         CTR: 6,
+    };
+};
+
+export const useFacilitiesNames = (short = false): Record<number, string> => {
+    const dataStore = useDataStore();
+    const ids = useFacilitiesIds();
+
+    return {
+        ...Object.fromEntries(dataStore.vatsim.data.facilities.value.map(facility => [facility.id, short ? facility.short : facility.long])),
+        [ids.ATIS]: 'ATIS',
+        [-2]: 'CTAF',
     };
 };
 
@@ -72,6 +84,11 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
         return radarColors.citrus500;
     }
 
+    if (facility === ids.RMP) {
+        if (raw) return radarColors.purple600Rgb;
+        return radarColors.purple600;
+    }
+
     if (facility === ids.CTR || facility === ids.FSS) {
         if (raw) return radarColors.teal600Rgb;
         return radarColors.teal600;
@@ -90,15 +107,16 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     const ids = useFacilitiesIds();
 
     const getPositionIndex = (position: number, isAtis = false) => {
-        if (isAtis) return 5;
+        if (isAtis) return 6;
         if (position === ids.DEL) return 0;
-        if (position === ids.GND) return 1;
-        if (position === ids.TWR) return 2;
-        if (position === ids.APP) return 3;
-        if (position === ids.ATIS) return 4;
-        if (position === ids.CTR) return 5;
-        if (position === ids.FSS) return 6;
-        return 6;
+        if (position === ids.RMP) return 1;
+        if (position === ids.GND) return 2;
+        if (position === ids.TWR) return 3;
+        if (position === ids.APP) return 4;
+        if (position === ids.ATIS) return 5;
+        if (position === ids.CTR) return 6;
+        if (position === ids.FSS) return 7;
+        return 8;
     };
 
     return facilities.slice().sort((a, b) => {
@@ -354,6 +372,7 @@ const allowedDomains = [
     'vatsim.tr',
     'vatssa.com',
     'vhcf.net',
+    'teamcovey.org',
 ];
 
 function addATISLinks(lines: string[]) {

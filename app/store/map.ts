@@ -74,7 +74,7 @@ export interface StoreOverlayAtc extends StoreOverlayDefault {
 
 export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport;
 
-type PartialOverlayParams<T = StoreOverlay> = Partial<Omit<T, 'key' | 'type' | 'data'>> & {
+export type PartialOverlayParams<T = StoreOverlay> = Partial<Omit<T, 'key' | 'type' | 'data'>> & {
     // @ts-expect-error T always has data
     data?: Partial<T['data']>;
 };
@@ -311,7 +311,7 @@ export const useMapStore = defineStore('map', {
             aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
             aircraftGroundMode?: StoreOverlayAirport['data']['aircraftGroundMode'];
             tab?: StoreOverlayAirport['data']['tab'];
-        } = {}, params?: PartialOverlayParams<StoreOverlayAirport>) {
+        } = {}, params?: PartialOverlayParams<StoreOverlayAirport>, { fetchData = true }: { fetchData?: boolean } = {}) {
             if (this.openingOverlay) {
                 console.log('already opening');
                 return;
@@ -365,13 +365,12 @@ export const useMapStore = defineStore('map', {
 
                 this.openingOverlay = false;
 
-                overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`, {
-                    timeout: 15000,
-                });
-                $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`).then(x => overlay.data.notams = x).catch(e => {
-                    console.error(e);
-                    overlay.data.notams = [];
-                });
+                if (fetchData) {
+                    // Load stable airport info now; METAR and NOTAM come from external vendors and are deferred until the overlay opens.
+                    overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }?excludeWeather=1`, {
+                        timeout: 15000,
+                    });
+                }
                 return overlay;
             }
             finally {

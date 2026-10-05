@@ -80,7 +80,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
     if (store.config.airport && !overlay) {
         const vatAirport = airportsMap[store.config.airport];
         if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-        if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
+        if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'departed';
         if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
         if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
     }
@@ -89,7 +89,7 @@ function getAircraftStatus({ pilot, selfFlight, aircraft, overlay, showTracks, i
         for (const airport of store.config.airports) {
             const vatAirport = airportsMap[airport];
             if (vatAirport?.aircraft.groundDep?.includes(aircraft.cid)) return 'departing';
-            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'default';
+            if (vatAirport?.aircraft.departures?.includes(aircraft.cid)) return 'departed';
             if (vatAirport?.aircraft.groundArr?.includes(aircraft.cid)) return 'landed';
             if (vatAirport?.aircraft.arrivals?.includes(aircraft.cid)) return 'arriving';
         }
@@ -158,7 +158,7 @@ export async function setMapAircraft(settings: {
         const isSelfFlight = aircraft?.cid === ownFlight.value?.cid;
         const actualAircraft = dataStore.vatsim.data.keyedPilots.value[aircraft.cid.toString()];
 
-        if (isSelfFlight && dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
+        if (isSelfFlight && dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 10) {
             dataStore.vatsim.selfCoordinate.value = null;
         }
 
@@ -176,7 +176,8 @@ export async function setMapAircraft(settings: {
         const icon = 'icon' in aircraft ? aircraftIcons[aircraft.icon] : getAircraftIcon(aircraft);
 
         const existingFeature = getMapFeature('aircraft', source, aircraft.cid);
-        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && existingFeature
+        const useDirectSelfCoordinates = isSelfFlight && !!dataStore.vatsim.selfCoordinate.value;
+        const smoothFeatureProperties = smoothMovementEnabled && !useDirectCoordinates && !useDirectSelfCoordinates && existingFeature
             ? existingFeature.getProperties()
             : undefined;
         const featureCoordinates = smoothFeatureProperties
@@ -224,7 +225,7 @@ export async function setMapAircraft(settings: {
         };
 
         if (existingFeature) {
-            if (!smoothMovementEnabled || useDirectCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
+            if (!smoothMovementEnabled || useDirectCoordinates || useDirectSelfCoordinates || !mapStore.renderedPilots?.has(aircraft.cid)) {
                 const geometry = existingFeature.getGeometry()! as Point;
                 const existingCoordinates = geometry.getCoordinates();
                 if (existingCoordinates[0] !== coordinates[0] || existingCoordinates[1] !== coordinates[1]) {

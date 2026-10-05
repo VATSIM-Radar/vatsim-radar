@@ -28,6 +28,18 @@
                     {{ copyState ? 'Copied!' : 'Copy link' }}
                 </ui-button>
 
+                <ui-button
+                    :disabled="loading"
+                    size="S"
+                    type="secondary"
+                    @click="refreshWeather"
+                >
+                    <template #icon>
+                        <reset-icon/>
+                    </template>
+                    Update Weather
+                </ui-button>
+
                 <div class="dashboard-view_actions">
                     <ui-button
                         size="S"
@@ -237,6 +249,7 @@ import CopyIcon from '@/assets/icons/kit/copy.svg?component';
 import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
 import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
+import ResetIcon from '~/assets/icons/kit/reset.svg?component';
 import { useDataStore } from '~/composables/render/storage';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 import { dashboardAircraftModes, dashboardColumns } from '~/utils/shared/dashboard';
@@ -556,21 +569,35 @@ function applyFlOverride() {
     }
 }
 
+const loading = ref(false);
+
 async function fetchAirportsWeather() {
-    const icaos = airportIcaos.value;
+    const airportCodes = airportIcaos.value;
+    const icaos = [...new Set(airportCodes.map(icao => icao.trim().toUpperCase()).filter(icao => icao.length === 4))];
     if (!icaos.length) return {} as Record<string, StoreOverlayAirport['data']>;
 
-    const entries = await Promise.all(icaos.map(async (icao): Promise<[string, StoreOverlayAirport['data']]> => {
-        try {
-            const airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao }`);
-            return [icao, { icao, airport, notams: [], showTracks: false }];
-        }
-        catch {
-            return [icao, { icao, notams: [], showTracks: false }];
-        }
-    }));
+    let airportResults: Record<string, VatsimAirportData> = {};
 
-    return Object.fromEntries(entries) as Record<string, StoreOverlayAirport['data']>;
+    loading.value = true;
+
+    try {
+        // Dashboard weather uses one bounded request for all airport METARs.
+        airportResults = await $fetch<Record<string, VatsimAirportData>>('/api/data/vatsim/airports/metar', {
+            query: { airports: icaos.join(',') },
+        });
+    }
+    catch (error) {
+        console.error(error);
+    }
+
+    loading.value = false;
+
+    return Object.fromEntries(airportCodes.map(icao => [icao, {
+        icao,
+        airport: airportResults[icao.trim().toUpperCase()],
+        notams: [],
+        showTracks: false,
+    }])) as Record<string, StoreOverlayAirport['data']>;
 }
 
 async function refreshWeather() {

@@ -1,23 +1,15 @@
-import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
+import { handleH3Exception } from '~/utils/server/h3';
 import { getAirportNotams } from '~/utils/server/notams';
+import { getBulkAirportIcaos, mapAirportsInBatches } from '~/utils/server/vatsim/airport-data';
 
 export default defineEventHandler(async event => {
     try {
         const query = getQuery(event);
         const isShort = !query.full;
-        const icao = getQuery(event).icao;
+        const icaos = getBulkAirportIcaos(event, 'icao');
+        if (!icaos) return;
 
-        if (!icao || typeof icao !== 'string') {
-            return handleH3Error({
-                event,
-                statusCode: 400,
-                data: 'icao GET-param is required',
-            });
-        }
-
-        const icaos = icao.split(',');
-
-        return Object.fromEntries(await Promise.all(icaos.map(async icao => [icao, await getAirportNotams(icao, isShort).catch(() => ([]))])));
+        return Object.fromEntries(await mapAirportsInBatches(icaos, async icao => [icao, await getAirportNotams(icao, isShort).catch(() => ([]))] as const));
     }
     catch (e) {
         handleH3Exception(event, e);

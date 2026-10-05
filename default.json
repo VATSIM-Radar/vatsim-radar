@@ -18,6 +18,12 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
+      "matchDepTypes": [
+        "engines"
+      ],
+      "enabled": false
+    },
+    {
       "matchPackageNames": [
         "@nuxtjs/stylelint-module"
       ],
@@ -74,6 +80,14 @@
         "vue"
       ],
       "groupName": "Vue",
+      "separateMultipleMinor": true,
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
+        "/electron/"
+      ],
+      "groupName": "Electron",
       "separateMultipleMinor": true,
       "separateMinorPatch": true
     },

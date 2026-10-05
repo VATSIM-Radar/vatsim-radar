@@ -283,9 +283,17 @@ export function setAirportStyle(layer: VectorLayer) {
                     case facilities.GND:
                         letter = 'G';
                         break;
+                    case facilities.RMP:
+                        letter = 'R';
+                        break;
                 }
 
-                const width = 14;
+                let width = 14;
+                const padding = [2, 4, 0, 7];
+                if (properties.totalCount === 5) {
+                    width = 12;
+                    padding[3] = 5;
+                }
                 const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * width;
 
                 const booked = properties.facility.atc.every(x => x.isBooking);
@@ -300,7 +308,7 @@ export function setAirportStyle(layer: VectorLayer) {
                                 text: 'A',
                                 offsetX: offsetX,
                                 offsetY: 10,
-                                padding: [2, 4, 0, 7],
+                                padding,
                                 fill: getCachedFill('transparent'),
                                 backgroundFill: getCachedFill(`rgba(${ getFacilityPositionColor(properties.facility.facility, true).join(',') }, ${ booked ? 0.5 : 1 })`),
                                 declutterMode: 'none',

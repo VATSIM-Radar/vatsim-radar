@@ -21,6 +21,8 @@ export const MAX_DASHBOARDS = 20;
 export const MAX_FAVORITE_DASHBOARDS = 50;
 export const MAX_FILTER_ARRAY_VALUE = 30;
 export const MAX_MAP_ZOOM = 20;
+export const MAX_BULK_AIRPORTS = 100;
+export const BULK_AIRPORT_CONCURRENCY = 5;
 
 export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;

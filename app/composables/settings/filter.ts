@@ -247,9 +247,9 @@ function filterController(atc: VatsimShortenedController, listFilterCids: ListFi
     return true;
 }
 
-export function filterVatsimControllers(controllers: VatsimLiveDataShort['controllers'], atis: VatsimLiveDataShort['atis']): {
-    controllers: VatsimLiveDataShort['controllers'];
-    atis: VatsimLiveDataShort['atis'];
+export function filterVatsimControllers<C extends VatsimLiveDataShort['controllers'][0], A extends VatsimLiveDataShort['atis'][0]>(controllers: C[], atis: A[]): {
+    controllers: C[];
+    atis: A[];
 } {
     const store = useStore();
 

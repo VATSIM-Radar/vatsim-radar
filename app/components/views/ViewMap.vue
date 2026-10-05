@@ -171,6 +171,7 @@ import { setupDataFetch } from '~/composables/render/storage';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlay } from '~/store/map';
+import { withBulkAirportOverlays } from '~/composables/map/airport-overlays';
 import {
     allArrivedPilots,
     observerFlight,
@@ -422,30 +423,33 @@ const restoreOverlays = async () => {
     const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
 
-    for (const overlay of localOverlays) {
-        try {
-            const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
-            if (existingOverlay) continue;
+    const localAirportIcaos = localOverlays.filter(overlay => overlay.type === 'airport').map(overlay => overlay.key);
+    await withBulkAirportOverlays(localAirportIcaos, async addAirport => {
+        for (const overlay of localOverlays) {
+            try {
+                const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
+                if (existingOverlay) continue;
 
-            if (overlay.type === 'pilot') {
-                await mapStore.addPilotOverlay(overlay.key, undefined, overlay);
-            }
-            else if (overlay.type === 'prefile') {
-                await mapStore.addPrefileOverlay(overlay.key, overlay);
-            }
-            else if (overlay.type === 'atc') {
-                await mapStore.addAtcOverlay(overlay.key, overlay);
-            }
-            else if (overlay.type === 'airport') {
-                await mapStore.addAirportOverlay(overlay.key, undefined, overlay);
-            }
+                if (overlay.type === 'pilot') {
+                    await mapStore.addPilotOverlay(overlay.key, undefined, overlay);
+                }
+                else if (overlay.type === 'prefile') {
+                    await mapStore.addPrefileOverlay(overlay.key, overlay);
+                }
+                else if (overlay.type === 'atc') {
+                    await mapStore.addAtcOverlay(overlay.key, overlay);
+                }
+                else if (overlay.type === 'airport') {
+                    await addAirport(overlay.key, undefined, overlay);
+                }
 
-            await sleep(0);
+                await sleep(0);
+            }
+            catch (e) {
+                console.error(e);
+            }
         }
-        catch (e) {
-            console.error(e);
-        }
-    }
+    });
 
     if (typeof route.query.pilot === 'string' && route.query.pilot) {
         const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);
@@ -496,7 +500,18 @@ const restoreOverlays = async () => {
         }
     }
 
-    if (routeOverlays?.length) {
+    const routeAirportIcaos = routeOverlays?.flatMap(overlay => {
+        if (!overlay) return [];
+        const data = overlay.split(';');
+        const type = data.find(x => x.startsWith('type='))?.split('=')[1];
+        const key = data.find(x => x.startsWith('key='))?.split('=')[1];
+
+        return type === 'airport' && key ? [key] : [];
+    }) ?? [];
+
+    await withBulkAirportOverlays(routeAirportIcaos, async addAirport => {
+        if (!routeOverlays?.length) return;
+
         for (const overlay of routeOverlays) {
             if (!overlay) continue;
             const data = overlay.split(';');
@@ -518,7 +533,7 @@ const restoreOverlays = async () => {
                         await mapStore.addPrefileOverlay(key, { sticky, collapsed, minified });
                         break;
                     case 'airport':
-                        await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed, minified });
+                        await addAirport(key, undefined, { sticky, collapsed, minified });
                         break;
                     case 'atc':
                         await mapStore.addAtcOverlay(key, { sticky, collapsed, minified });
@@ -529,7 +544,7 @@ const restoreOverlays = async () => {
                 console.error(e);
             }
         }
-    }
+    });
 };
 
 useUpdateInterval(() => {

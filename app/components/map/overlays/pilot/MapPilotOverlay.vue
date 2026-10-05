@@ -108,12 +108,6 @@
             v-if="props.overlay.data.photo"
             #photo
         >
-            <div v-if="airlineLogoUrl" class="pilot__operator">
-                <img
-                    alt="Airline logo"
-                    :src="airlineLogoUrl"
-                >
-            </div>
             <ui-text
                 class="pilot__photo"
                 :href="props.overlay.data.photo.link"
@@ -131,6 +125,28 @@
                     {{props.overlay.data.photo.photographer}}
                 </div>
             </ui-text>
+            <div
+                v-if="airlineLogoUrl"
+                class="pilot__operator"
+                :class="{ 'pilot__operator--source': airlineSourceLogoUrl }"
+            >
+                <img
+                    v-if="airlineSourceLogoUrl"
+                    alt="Airline logo"
+                    :src="airlineSourceLogoUrl"
+                >
+                <ui-text
+                    v-if="airlineSourceLogoUrl"
+                    class="pilot__operator_separator"
+                    type="h4"
+                >
+                    &
+                </ui-text>
+                <img
+                    alt="Airline logo"
+                    :src="airlineLogoUrl"
+                >
+            </div>
         </template>
         <template #ipfs>
             <map-popup-ipfs
@@ -462,7 +478,8 @@ const arrBars = computed(() => {
     return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
 });
 
-const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign));
+const airlineLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign, pilot.value.flight_plan?.remarks));
+const airlineSourceLogoUrl = computed(() => getAirlineLogoUrl(pilot.value.callsign, pilot.value.flight_plan?.remarks, true));
 
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
@@ -849,11 +866,22 @@ onMounted(() => {
         align-items: center;
         justify-content: center;
 
-        margin-bottom: 8px;
         padding: 8px;
-        border-radius: 4px;
+        border-radius: 0 0 4px 4px;
 
         background: $whiteOrig;
+
+        &_separator {
+            color: $blackOrig;
+        }
+
+        &--source {
+            justify-content: space-evenly;
+
+            img {
+                max-width: 45%;
+            }
+        }
 
         img {
             border-radius: 4px;
@@ -866,7 +894,7 @@ onMounted(() => {
         position: relative;
 
         img {
-            border-radius: 8px;
+            border-radius: 4px 4px 0 0;
         }
 
         &_author {

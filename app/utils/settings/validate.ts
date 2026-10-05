@@ -13,7 +13,7 @@ const counterModeKeys = ['total', 'totalMoving', 'totalLanded', 'airborne', 'gro
 const horizontalCounterModeKeys = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'] as const;
 const turnsKeys = ['magma', 'inferno', 'rainbow', 'viridis'] as const;
 const tracksModeKeys = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'] as const;
-const aircraftColorKeys = ['main', 'default', 'ground', 'green', 'active', 'hover', 'neutral', 'arriving', 'departing', 'landed'] as const;
+const aircraftColorKeys = ['main', 'default', 'ground', 'green', 'active', 'hover', 'neutral', 'arriving', 'departing', 'departed', 'landed'] as const;
 const notamsSortKeys = ['startDesc', 'startAsc', 'endAsc', 'endDesc'] as const;
 const favoriteSortKeys = ['newest', 'oldest', 'abcAsc', 'abcDesc', 'cidAsc', 'cidDesc'] as const;
 const searchFilterKeys = ['flights', 'airports', 'atc'] as const;
@@ -231,6 +231,7 @@ const settingsSchema = partialObject({
         traffic: partialObject({
             showFullRoute: booleanSchema,
             showRouteDetails: booleanSchema,
+            showSimulator: booleanSchema,
             toggleAircraftOverlays: booleanSchema,
             autoShowAirportTracks: booleanSchema,
             disableFastUpdate: booleanSchema,

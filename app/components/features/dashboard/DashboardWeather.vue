@@ -3,6 +3,7 @@
         <div class="dashboard-weather_strip">
             <ui-button
                 v-if="entries.some(x => changedWeather[x.icao] && changedWeather[x.icao]?.metar !== x.metar)"
+                class="dashboard-weather_strip_previous"
                 size="S"
                 :type="showPreviousMetar ? 'primary' : 'secondary'"
                 @click="showPreviousMetar = !showPreviousMetar"
@@ -191,10 +192,14 @@ onMounted(() => {
     gap: 8px;
 
     &_strip {
-        overflow-x: auto;
+        overflow-x: scroll;
         display: flex;
         gap: 8px;
         padding-bottom: 2px;
+
+        &_previous {
+            white-space: nowrap;
+        }
     }
 
     &_card {

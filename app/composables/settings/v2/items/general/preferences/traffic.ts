@@ -16,6 +16,13 @@ export const settingsItemTraffic = globalComputed(() => makeSettingsItems(({ not
         value: getSettingValue('map.traffic.showRouteDetails'),
         onChange: value => setSettingByKey('map.traffic.showRouteDetails', value),
     },
+    showSimulator: {
+        title: 'Show simulator',
+        description: 'Shows user simulator type in pilot overlay',
+        type: 'toggle',
+        value: getSettingValue('map.traffic.showSimulator'),
+        onChange: value => setSettingByKey('map.traffic.showSimulator', value),
+    },
     toggleAircraftOverlays: {
         title: 'Fast open multiple aircraft',
         description: 'By default, you have to pin aircraft overlay to keep it open - it will close otherwise. With this setting, it will stay open, and others will open minified.',

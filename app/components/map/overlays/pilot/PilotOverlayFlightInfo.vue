@@ -10,11 +10,13 @@
 
             <ui-data-list
                 circle-divider
+                gap="8px 8px"
                 :items="[
                     { key: 'name', text: pilot.name },
                     { key: 'cid', text: pilot.cid },
                     { key: 'comment', text: friend?.comment },
                     { key: 'stats', text: 'stats' },
+                    { key: 'feedback', text: 'feedback' },
                     { key: 'favorite', text: Number(!!store.user) },
                 ]"
             >
@@ -50,10 +52,24 @@
                         :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
                         icon-width="14"
                         target="_blank"
+                        title="Stats"
                         type="link"
                     >
                         <template #icon>
                             <stats-icon width="14"/>
+                        </template>
+                    </ui-button>
+                </template>
+                <template #item-feedback>
+                    <ui-button
+                        href="https://pilot-feedback.vatsim.net/"
+                        icon-width="14"
+                        target="_blank"
+                        title="Leave Feedback"
+                        type="link"
+                    >
+                        <template #icon>
+                            <person-icon width="14"/>
                         </template>
                     </ui-button>
                 </template>
@@ -62,11 +78,12 @@
             <ui-data-list
                 circle-divider
                 class="flight-info__secondary"
-                gap="0px 16px"
+                gap="8px 8px"
                 :items="[
                     ...usePilotRating(pilot, false, true).map(x => ({ text: x })),
                     { key: 'hours', text: stats?.pilot },
                     { key: 'atc-hours', text: stats?.atc },
+                    { key: 'sim', text: sim, hide: !showSimulator.value },
                 ]"
             >
                 <template #item-hours="{ item }">
@@ -79,6 +96,11 @@
                         ATC Hours: <ui-chip text-type="caption">{{ numberFormatter.format(+item.text!) }}</ui-chip>
                     </span>
                 </template>
+                <template #item-sim>
+                    <span class="flight-info__chip">
+                        Simulator: <ui-chip text-type="caption">{{ sim }}</ui-chip>
+                    </span>
+                </template>
             </ui-data-list>
         </ui-data-container>
         <ui-data-container v-if="airline">
@@ -88,12 +110,18 @@
 
             <div class="flight-info__columns flight-info__columns--airline">
                 <ui-data-list-item>
-                    {{ airline.name }}
+                    <div class="flight-info__columns--airline_title">
+                        {{ airline.sourceAirline?.name ?? airline.name }}
+
+                        <ui-text v-if="airline.sourceAirline" type="caption-light">
+                            Operating carrier: {{airline.name}}
+                        </ui-text>
+                    </div>
 
                     <ui-data-list
                         circle-divider
                         class="flight-info__secondary"
-                        :items="[{ text: airline.icao }, { text: airline.callsign }, { key: 'virtual', text: Number(!!airline.virtual) }]"
+                        :items="[{ text: airline.sourceAirline?.callsign ?? airline.callsign }, { text: airline.sourceAirline?.icao }, { text: airline.sourceAirline ? `Operated by ${ airline.icao }` : airline.icao }, { key: 'virtual', text: Number(!!airline.virtual) }]"
                     >
                         <template #item-virtual>
                             <ui-text
@@ -350,6 +378,7 @@ import {
     getPilotStatus,
     reColorSvg,
 } from '~/composables/vatsim/pilots';
+import PersonIcon from 'assets/icons/kit/person.svg?component';
 import StatsIcon from 'assets/icons/kit/stats.svg?component';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
@@ -373,6 +402,7 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { isValidDate } from '~/utils/shared';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
+import { getSimulatorName } from '../../../../utils/shared/vatsim';
 
 const props = defineProps({
     pilot: {
@@ -396,6 +426,7 @@ const props = defineProps({
 const mapStore = useMapStore();
 const store = useStore();
 const showRouteDetails = getSettingValue('map.traffic.showRouteDetails');
+const showSimulator = getSettingValue('map.traffic.showSimulator');
 
 const getLogonTime = computed(() => {
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
@@ -429,6 +460,9 @@ const dataStore = useDataStore();
 const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]);
 const departedAt = computed(() => tracksPilotData.value?.departedAt ?? props.pilot.flight_plan?.departed_at);
 const arrivedAt = computed(() => tracksPilotData.value?.arrivedAt ?? props.pilot.flight_plan?.arrived_at);
+const sim = computed(() => {
+    return getSimulatorName(props.pilot.sim);
+});
 
 const getValidDate = (value: string | number | null | undefined) => {
     if (!value) return null;
@@ -484,12 +518,6 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     flex-direction: column;
     gap: 20px;
 
-    &__operator {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
     &__chip {
         display: flex;
         gap: 4px;
@@ -511,6 +539,16 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
 
         &--airline {
             justify-content: space-between;
+
+            &_title {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                .text {
+                    margin-bottom: 4px;
+                }
+            }
         }
     }
 

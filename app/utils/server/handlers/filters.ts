@@ -8,6 +8,7 @@ import { UserPresetType } from '#prisma';
 import { isNumber, isObject, MAX_FILTER_ARRAY_VALUE, MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
 import { radarStorage } from '~/utils/server/storage';
 import { validateColor, validateRandomObjectKeys, validateTransparency } from '~/utils/server/handlers/index';
+import { useFacilitiesIds } from '~/utils/data/vatsim';
 
 export interface IUserFilterOthers {
     othersOpacity?: number;
@@ -73,6 +74,7 @@ function validateCallsignFilter(val: unknown): boolean {
 
 const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<keyof IUserFilter, (val: unknown) => boolean>> => {
     const vatspy = radarStorage.vatspy;
+    const facilities = useFacilitiesIds();
 
     return {
         users: val => {
@@ -123,7 +125,7 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
 
             if ('notTunedUp' in val && typeof val.notTunedUp !== 'boolean') return false;
             if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
-            if ('facilities' in val && (!Array.isArray(val.facilities) || val.facilities.length > MAX_FILTER_ARRAY_VALUE || !val.facilities.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
+            if ('facilities' in val && (!Array.isArray(val.facilities) || val.facilities.length > MAX_FILTER_ARRAY_VALUE || !val.facilities.every(x => isNumber(x) && ((x < 1000 && x > 0) || (facilities.RMP !== -1 && x === facilities.RMP))))) return false;
 
             return true;
         },

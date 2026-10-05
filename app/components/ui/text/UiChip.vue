@@ -26,10 +26,10 @@
             <slot>
                 <template v-if="typeof atcFacility === 'number'">
                     <template v-if="!atcSmallIcon">
-                        {{atcFacility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === atcFacility)?.short}}
+                        {{facilityName}}
                     </template>
                     <template v-else>
-                        {{atcFacility === -1 ? 'A' : dataStore.vatsim.data.facilities.value.find(x => x.id === atcFacility)?.short.slice(0,1)}}
+                        {{facilityName?.slice(0, 1)}}
                     </template>
                 </template>
                 <template v-else-if="time">
@@ -57,7 +57,7 @@
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import UiText from '~/components/ui/text/UiText.vue';
 import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
-import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
+import { getFacilityPositionColor, useFacilitiesNames } from '~/composables/vatsim/controllers';
 import { useColorFromProp } from '~/composables';
 
 const props = defineProps({
@@ -101,7 +101,7 @@ defineSlots<{
     append: () => any;
 }>();
 
-const dataStore = useDataStore();
+const facilityName = computed(() => typeof props.atcFacility === 'number' ? useFacilitiesNames(true)[props.atcFacility] : undefined);
 
 const model = defineModel({ type: Boolean });
 

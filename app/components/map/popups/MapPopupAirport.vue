@@ -144,7 +144,7 @@ import VatsimControllerInfo from '~/components/features/vatsim/controllers/Vatsi
 import UiText from '~/components/ui/text/UiText.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import { getAirportCountry } from '~/composables/vatsim/airport';
-import { sortControllersByPosition } from '~/composables/vatsim/controllers';
+import { sortControllersByPosition, useFacilitiesNames } from '~/composables/vatsim/controllers';
 import { makeBookingTime } from '~/composables/vatsim/bookings';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 
@@ -217,9 +217,9 @@ const getPopupName = computed(() => {
     if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' && featureProps.atc?.length ? 'Controllers' : '' }`;
     if ('facility' in featureProps) {
         const airport = (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name;
-        let facility = featureProps.facility.facility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === (featureProps as any).facility?.facility)?.long;
+        let facility = useFacilitiesNames()[featureProps.facility.facility] ?? '';
 
-        if (featureProps.facility.facility === useFacilitiesIds().APP) facility = 'Approach / Departure';
+        if (featureProps.facility.facility === facilities.APP) facility = 'Approach / Departure';
 
         return `${ airport } ${ facility }`;
     }
