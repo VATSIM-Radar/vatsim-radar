@@ -7,6 +7,7 @@ import { getCurrentThemeHexColor } from '~/composables';
 import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
 import type { MapAircraftList } from '~/types/map';
 import CircleStyle from 'ol/style/Circle.js';
+import RegularShape from 'ol/style/RegularShape.js';
 import { VatsimEventType } from '~/types/data/vatsim';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { ownATC } from '~/composables/vatsim/pilots';
@@ -14,6 +15,7 @@ import { useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style> = {};
+let labelHitboxCache: Record<string, Style> = {};
 let textMeasureContext: CanvasRenderingContext2D | null = null;
 
 const airportCounterMinOffsetX = 30;
@@ -22,7 +24,7 @@ const airportCounterIcaoGap = 8;
 const airportCounterFakeObstacleLeftOverflow = 5;
 const maxAirportIcaoWidthFallback = 44;
 const airportCounterTextOffsetX = 9;
-const airportCounterPopupGap = 5;
+const airportCounterPopupOverlap = 1;
 
 function getCachedFill(color: string) {
     let cachedFill = styleFillCache[color];
@@ -87,7 +89,7 @@ export function getAirportCounterPopupOffsetX({ icao, localsLength, counter }: {
 }) {
     const counterWidth = Math.ceil(getTextWidth(counter.toString(), getAirportCounterTextFont(), counter.toString().length * 6));
 
-    return getAirportCounterOffsetX(icao, localsLength) + airportCounterTextOffsetX + counterWidth + airportCounterPopupGap;
+    return getAirportCounterOffsetX(icao, localsLength) + airportCounterTextOffsetX + counterWidth - airportCounterPopupOverlap;
 }
 
 export function setAirportStyle(layer: VectorLayer) {
@@ -99,6 +101,7 @@ export function setAirportStyle(layer: VectorLayer) {
 
     styleCache = {};
     styleFillCache = {};
+    labelHitboxCache = {};
 
     const showZoomLimit = useSettingValueFromFunc('map.preferences.airports.showZoomLimit');
 
@@ -151,7 +154,21 @@ export function setAirportStyle(layer: VectorLayer) {
             styleCache[key].getText()!.setText(`${ properties.icao }${ isShowDot ? '\n•' : '' }`);
             styleCache[key].setZIndex(zIndex);
 
-            return [styleCache[key]];
+            const labelWidth = Math.ceil(getTextWidth(properties.icao, getTextFont('caption-medium')) + 2);
+            const labelHitboxKey = `airport-label-${ labelWidth }`;
+            labelHitboxCache[labelHitboxKey] ??= new Style({
+                image: new RegularShape({
+                    points: 4,
+                    radius: 1,
+                    angle: Math.PI / 4,
+                    scale: [labelWidth / Math.SQRT2, 13 / Math.SQRT2],
+                    displacement: [0, 6],
+                    fill: getCachedFill('rgba(0, 0, 0, 0)'),
+                    declutterMode: 'none',
+                }),
+            });
+
+            return [labelHitboxCache[labelHitboxKey], styleCache[key]];
         }
 
         if (!isHideAtcType('approach')) {

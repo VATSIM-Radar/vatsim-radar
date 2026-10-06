@@ -15,6 +15,8 @@ import type { Units } from 'ol/control/ScaleLine.js';
 import type { RecursivePartial } from '~/types';
 import type { UserPreset } from '#prisma';
 
+export type VatspySectorsSettings = false | 'firs' | 'all' | 'allLabels';
+
 export interface UserSettingsV2 {
     version: '2.0';
     appearance: {
@@ -97,6 +99,7 @@ export interface UserSettingsV2 {
         layers: {
             weather: MapWeatherLayer | null;
             layer: MapLayoutLayerWithOptions;
+            vatspySectors: MapLayoutLayerWithOptions;
             layerLabels: boolean;
             relativeIndicator: false | Units;
             terminator: boolean;

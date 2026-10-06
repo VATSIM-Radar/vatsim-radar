@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.0.4-1-rc.1]
+
+- Added new setting to show all VATSpy boundaries, show labels for them, or hide all boundaries
+- Added airport ICAO clickzone so it's easier to hover and click over it
+- Airport aircraft list will now open closer to counters when hovered, so it's easy to get your mouse to the list
+  without it closing
+
 # [2.0.4-final]
 
 ## New Features
@@ -19,7 +26,8 @@
 - Slightly improve pilot altitude calculation
 - Add Moscow and Samara duplication rules
 - Added a link to Pilot Feedback as a small icon near Pilot CID
-- Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports page would not jump
+- Added permanent horizontal scrollbar to airport dashboard METAR list so when long METAR opens with a lot of airports
+  page would not jump
 - Reduce map clutter and improve performance by removing some of VATSPy FIRs boundaries from map
 - Add "Update Weather" button in Dashboard
 
@@ -35,7 +43,8 @@
 
 ## Features and Improvements
 
-- Updated base map layer from 17 Sept 2026 to 20 Sept 2026 to fix weird emojis in some places instead of city names in Detailed view
+- Updated base map layer from 17 Sept 2026 to 20 Sept 2026 to fix weird emojis in some places instead of city names in
+  Detailed view
 - Added support for Airways and NAT Tracks color change
 
 ## Bug Fixes

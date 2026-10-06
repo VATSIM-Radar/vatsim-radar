@@ -68,6 +68,20 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
         value: getSettingValue('map.layers.layer'),
         onChange: value => setSettingByKey('map.layers.layer', value as MapLayoutLayerWithOptions),
     },
+    vatspySectors: {
+        title: 'VATSpy sectorization',
+        description: 'What boundaries to show from VATSpy sector data',
+        searchKeywords: ['vatspy', 'boundaries'],
+        type: 'radio',
+        items: [
+            { value: false, text: 'Active ATC boundaries' },
+            { value: 'firs', text: 'FIRs boundaries' },
+            { value: 'all', text: 'All boundaries (including splits)' },
+            { value: 'allLabels', text: 'All boundaries and their labels', hint: 'Reduces performance' },
+        ],
+        value: getSettingValue('map.layers.vatspySectors'),
+        onChange: value => setSettingByKey('map.layers.vatspySectors', value as MapLayoutLayerWithOptions),
+    },
     layerLabels: {
         title: 'Show labels',
         description: 'Shows labels on supported map layers',

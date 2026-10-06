@@ -33,6 +33,14 @@ const mapLayerKeys = [
     'protoGeneralLabels',
     'protoGeneralNoLabels',
 ] as const;
+
+const vatspyKeys = [
+    false,
+    'firs',
+    'all',
+    'allLabels',
+] as const;
+
 const unitsKeys = ['degrees', 'imperial', 'nautical', 'metric'] as const;
 const natTrakDirectionKeys = ['west', 'east', 'both', 'all'] as const;
 const distanceInteractionKeys = ['dblclick', 'ctrlclick'] as const;
@@ -205,6 +213,7 @@ const settingsSchema = partialObject({
         layers: partialObject({
             weather: v.nullable(list(weatherLayerKeys, `must be one of: ${ weatherLayerKeys.join(', ') }`)),
             layer: list(mapLayerKeys, `must be one of: ${ mapLayerKeys.join(', ') }`),
+            vatspySectors: list(vatspyKeys, `must be one of: ${ vatspyKeys.join(', ') }`),
             layerLabels: booleanSchema,
             relativeIndicator: v.union([v.literal(false), list(unitsKeys, `must be false or one of: ${ unitsKeys.join(', ') }`)], `must be false or one of: ${ unitsKeys.join(', ') }`),
             terminator: booleanSchema,

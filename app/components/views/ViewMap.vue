@@ -786,6 +786,7 @@ watch([isTouch, () => distanceInteraction.value], setMapInteractions);
 
 const pixelRatio = computed(() => {
     if (typeof window === 'undefined') return 1;
+    if (route.path.startsWith('/data')) return window.devicePixelRatio * 2;
     return (window.devicePixelRatio / 100) * getKeyedValueFromSettings('map.preferences.mapQuality');
 });
 

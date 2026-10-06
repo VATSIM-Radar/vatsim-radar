@@ -8,6 +8,7 @@ import {
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
+import { getKeyedValueFromSettings, useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 
 function getSafeVatglassesLevel() {
     const level = useStore().localSettings.vatglassesLevel;
@@ -19,7 +20,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
     layer: VectorLayer;
 
     emptySource: VectorSource;
-    emptyLayer: VectorImageLayer;
+    emptyLayer: VectorImageLayer | VectorLayer;
 
     labelsLayer: VectorLayer;
 
@@ -28,13 +29,14 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
 }) {
     const store = useStore();
     const dataStore = useDataStore();
+    const vatspySetting = getKeyedValueFromSettings('map.layers.vatspySectors');
 
     if (layer.getStyle() === createDefaultStyle) {
         setSectorStyle(layer);
     }
 
     if (emptyLayer.getStyle() === createDefaultStyle) {
-        setSectorStyle(emptyLayer);
+        setSectorStyle(emptyLayer, 'both');
     }
 
     if (labelsLayer.getStyle() === createDefaultStyle) {
@@ -54,7 +56,9 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
         if (sectorType === 'empty') emptyIds.add(id);
         else activeIds.add(id);
 
-        const existingFeature = getMapFeature('sector', sectorType === 'empty' ? emptySource : source, id);
+        const targetSource = (sectorType === 'empty' && vatspySetting !== 'allLabels' ? emptySource : source);
+
+        const existingFeature = getMapFeature('sector', targetSource, id);
         const isBooking = (sectorType !== 'empty' && store.bookingOverride) || (!!controllers.length && controllers.every(x => x.isBooking));
         const isDuplicated = !!controllers.length && controllers.every(x => x.duplicated);
 
@@ -100,7 +104,7 @@ export function setMapSectors({ source, firs, layer, emptyLayer, emptySource, la
                 isOceanic: fir.feature.properties.oceanic,
                 persistent: fir.persistent,
             });
-            (sectorType === 'empty' ? emptySource : source).addFeature(feature);
+            targetSource.addFeature(feature);
         }
     }
 

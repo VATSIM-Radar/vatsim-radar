@@ -297,7 +297,7 @@ export const getSettingsSections = () => {
                         {
                             key: '',
                             title: 'Map Layer',
-                            items: [items.layers.layerLabels, items.layers.layer, items.layers.osmTransparency, items.layers.satelliteTransparency],
+                            items: [items.layers.layerLabels, items.layers.layer, items.layers.vatspySectors, items.layers.osmTransparency, items.layers.satelliteTransparency],
                         },
                         {
                             key: 'weather',

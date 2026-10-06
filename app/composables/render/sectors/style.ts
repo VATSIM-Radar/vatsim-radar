@@ -1,7 +1,7 @@
 import type VectorLayer from 'ol/layer/Vector.js';
 import { Text, Stroke, Style, Fill } from 'ol/style.js';
 import { isMapFeature } from '~/utils/map/entities';
-import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
+import type { FeatureAirportSectorDefaultProperties, FeatureAirportSectorVGProperties } from '~/utils/map/entities';
 import type { ColorsListRgb } from '~/utils/colors';
 import {
     getSelectedColorTransparencyFromSettings,
@@ -13,6 +13,7 @@ import type { Geometry } from 'ol/geom.js';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { ownATC } from '~/composables/vatsim/pilots';
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 
 let styleFillCache: Record<string, Fill> = {};
 let styleCache: Record<string, Style | Style[]> = {};
@@ -30,7 +31,7 @@ function getCachedFill(color: string) {
     return cachedFill;
 }
 
-function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate, labelType, transparent, atc }: {
+function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate, labelType, transparent, atc, sectorType }: {
     color: ColorsListRgb;
     settingsColor?: SettingsColorType;
     dashed: boolean;
@@ -40,9 +41,11 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     secondLine?: string;
     transparent?: boolean;
     labelCoordinate: Coordinate;
-    labelType: boolean;
+    labelType: boolean | 'both';
     atc: VatsimShortenedController[];
+    sectorType: FeatureAirportSectorDefaultProperties['sectorType'];
 }) {
+    const mapStore = useMapStore();
     let userColorRaw = settingsColor ? getSelectedColorFromSettings(settingsColor, true) : null;
     let userColorTransparency = settingsColor ? getSelectedColorTransparencyFromSettings(settingsColor) : null;
 
@@ -51,16 +54,18 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
         userColorTransparency = getSelectedColorTransparencyFromSettings('centerBookings') || userColorTransparency;
     }
 
+    const origLabelType = labelType;
     const getOwnAtc = ownATC().value;
     const own = atc.some(x => getOwnAtc.includes(x.callsign));
-    const key = String(userColorRaw) + String(userColorTransparency) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType) + String(transparent) + String(own);
+    if (sectorType === 'empty' && mapStore.preciseZoom < 6) labelType = false;
+    const key = String(userColorRaw) + String(userColorTransparency) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(sectorType) + String(labelType) + String(transparent) + String(own);
 
     let cachedStyle = styleCache[key];
 
     if (!cachedStyle) {
         cachedStyle = [];
 
-        if (labelType) {
+        if (labelType !== false) {
             let textFill = getCachedFill(`rgba(${ getSelectedColorFromSettings('centerText', true) || getCurrentThemeRgbColor('lightGray500').join(',') }, ${ booking ? 0.4 : 1 })`);
             const textFillRaw = getSelectedColorFromSettings('centerText', true) || getCurrentThemeRgbColor('lightGray500').join(',');
             let sectorBg = getCachedFill(`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`);
@@ -76,32 +81,34 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                 geometry: new Point(labelCoordinate),
                 text: label
                     ? new Text({
-                        font: getTextFont('caption-medium'),
+                        font: getTextFont('caption-medium', { fontSize: sectorType === 'empty' ? 10 : undefined }),
                         text: label,
                         textAlign: 'center',
                         padding: [4, 1, 2, 4],
                         fill: hovered ? getCachedFill(radarColors.lightGray300Hex) : textFill,
                         backgroundFill: hovered ? sectorBg : textBg,
-                        backgroundStroke: own
-                            ? new Stroke({
-                                color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ transparent ? 0 : 1 })`,
-                                width: 1,
-                                lineCap: 'round',
-                                lineJoin: 'round',
-                            })
-                            : new Stroke({
-                                color: `rgba(${ textFillRaw }, ${ transparent ? 0 : booking ? 0.1 : 0.2 })`,
-                                width: 1,
-                                lineCap: 'round',
-                                lineJoin: 'round',
-                            }),
+                        backgroundStroke: sectorType === 'empty'
+                            ? undefined
+                            : own
+                                ? new Stroke({
+                                    color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ transparent ? 0 : 1 })`,
+                                    width: 1,
+                                    lineCap: 'round',
+                                    lineJoin: 'round',
+                                })
+                                : new Stroke({
+                                    color: `rgba(${ textFillRaw }, ${ transparent ? 0 : booking ? 0.1 : 0.2 })`,
+                                    width: 1,
+                                    lineCap: 'round',
+                                    lineJoin: 'round',
+                                }),
                         declutterMode: 'declutter',
                     })
                     : undefined,
                 zIndex: !label ? 1 : !hovered ? 3 : 5,
             }));
         }
-        else {
+        if (origLabelType !== true) {
             let fillOpacity = hovered ? 0.2 : booking ? (userColorTransparency ?? 0.1) : (userColorTransparency ?? 0.07);
             let strokeOpacity = (hovered || booking) ? 0.6 : 0.5;
 
@@ -201,10 +208,11 @@ const vatglassesStyle = ({ colour, max, positionId, atc }: FeatureAirportSectorV
     return styleCache[key] as Style;
 };
 
-export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType = false) {
+export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType: boolean | 'both' = false) {
     styleFillCache = {};
     styleCache = {};
     geometryCache = {};
+    const vatspySetting = useSettingValueFromFunc('map.layers.vatspySectors');
 
     layer.setStyle(feature => {
         const properties = feature.getProperties();
@@ -216,9 +224,10 @@ export function setSectorStyle(layer: VectorLayer | VectorImageLayer, labelType 
                 settingsColor: properties.sectorType === 'empty' ? undefined : properties.sectorType === 'fir' ? 'firs' : 'uirs',
                 transparent: hideOnZoom,
                 dashed: properties.duplicated,
+                sectorType: properties.sectorType,
                 booking: properties.booked,
                 hovered: !!properties.selected,
-                label: properties.sectorType !== 'empty' ? properties.icao : undefined,
+                label: properties.sectorType !== 'empty' || vatspySetting.value === 'allLabels' ? properties.icao : undefined,
                 secondLine: properties.sectorType !== 'empty' ? properties.uir : undefined,
                 labelCoordinate: properties.label,
                 labelType,

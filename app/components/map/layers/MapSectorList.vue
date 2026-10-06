@@ -12,13 +12,14 @@ import { updateControllersRender } from '~/composables/render/update';
 import { globalMapEntities } from '~/utils/map/entities';
 import { logBench } from '~/composables';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
+import { useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 
 defineOptions({
     render: () => null,
 });
 
 let vectorLayer: VectorLayer<any>;
-let vectorImageLayer: VectorImageLayer<any>;
+let vectorOfflineLayer: VectorLayer<any> | VectorImageLayer<any>;
 let vectorSource: VectorSource;
 let vectorImageSource: VectorSource;
 
@@ -26,6 +27,8 @@ let labelsLayer: VectorLayer<any>;
 let lastSectorsUpdateId = 0;
 let offlineSectorsRendered = false;
 let atcWasHidden = false;
+
+const vatspySetting = useSettingValueFromFunc('map.layers.vatspySectors');
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
@@ -66,12 +69,12 @@ onMounted(async () => {
         },
     });
 
-    vectorImageLayer = new VectorImageLayer<any>({
+    vectorOfflineLayer = new VectorImageLayer<any>({
         source: vectorImageSource,
         zIndex: FEATURES_Z_INDEX.SECTORS_EMPTY,
         declutter: false,
         properties: {
-            type: 'sectors-empty',
+            type: 'sectors-offline',
         },
     });
 
@@ -85,27 +88,40 @@ onMounted(async () => {
     });
 
     map.value.addLayer(vectorLayer);
-    map.value.addLayer(vectorImageLayer);
+    map.value.addLayer(vectorOfflineLayer);
     map.value.addLayer(labelsLayer);
 
     async function renderOfflineSectors() {
-        if (offlineSectorsRendered || !dataStore.vatspy.value) return;
+        if (offlineSectorsRendered || !dataStore.vatspy.value || !vatspySetting.value) return;
 
         // Offline VATSpy sectors do not depend on live controller updates. Render them once,
         // then let OpenLayers retain the projected geometry instead of keeping GeoJSON in RAM.
         const offlineSectors = await dataStore.vatspyBoundaries();
         if (!map.value) return;
 
+        const sectors = (vatspySetting.value === 'firs' ? offlineSectors.filter(x => x.properties.id.length <= 4) : offlineSectors).map(feature => ({ feature, atc: [], persistent: true }));
+        vectorOfflineLayer.setDeclutter(vatspySetting.value === 'allLabels' ? 'airports' : false);
+
         setMapSectors({
             source: vectorSource,
             layer: vectorLayer,
-            emptyLayer: vectorImageLayer,
+            emptyLayer: vectorOfflineLayer,
             emptySource: vectorImageSource,
             labelsLayer,
-            firs: offlineSectors.filter(x => x.properties.id.length === 4).map(feature => ({ feature, atc: [], persistent: true })),
+            firs: sectors,
         });
         offlineSectorsRendered = true;
     }
+
+    watch(vatspySetting, (val, oldVal) => {
+        if (val !== 'allLabels' && oldVal === 'allLabels') {
+            vectorSource.clear();
+        }
+
+        vectorImageSource.clear();
+        offlineSectorsRendered = false;
+        renderOfflineSectors();
+    });
 
     const mapSettings = computed(() => JSON.stringify([
         getKeyedValueFromSettings('map.vatglasses.active'),
@@ -138,7 +154,7 @@ onMounted(async () => {
                 source: vectorSource,
                 layer: vectorLayer,
 
-                emptyLayer: vectorImageLayer,
+                emptyLayer: vectorOfflineLayer,
                 emptySource: vectorImageSource,
 
                 labelsLayer,
@@ -155,7 +171,7 @@ onMounted(async () => {
             setMapSectors({
                 source: vectorSource,
                 layer: vectorLayer,
-                emptyLayer: vectorImageLayer,
+                emptyLayer: vectorOfflineLayer,
                 emptySource: vectorImageSource,
                 labelsLayer,
                 firs: [],
@@ -192,10 +208,10 @@ onBeforeUnmount(() => {
     globalMapEntities.sectors = null;
 
     labelsLayer?.dispose();
-    vectorImageLayer?.dispose();
+    vectorOfflineLayer?.dispose();
 
     map.value?.removeLayer(vectorLayer);
     map.value?.removeLayer(labelsLayer);
-    map.value?.removeLayer(vectorImageLayer);
+    map.value?.removeLayer(vectorOfflineLayer);
 });
 </script>

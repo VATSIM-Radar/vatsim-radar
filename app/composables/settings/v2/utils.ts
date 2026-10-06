@@ -148,6 +148,7 @@ const _settingsDefaultValues = {
 
     'map.layers.weather': null,
     'map.layers.layer': 'protoData',
+    'map.layers.vatspySectors': 'firs',
     'map.layers.layerLabels': true,
     'map.layers.relativeIndicator': 'metric',
     'map.layers.terminator': false,
