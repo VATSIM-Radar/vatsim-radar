@@ -8,7 +8,7 @@ import {
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 import type VectorImageLayer from 'ol/layer/VectorImage.js';
-import { getKeyedValueFromSettings, useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
+import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils.ts';
 
 function getSafeVatglassesLevel() {
     const level = useStore().localSettings.vatglassesLevel;
