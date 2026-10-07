@@ -261,7 +261,7 @@ export const duplicatingSettings = [
             'CLE Area': 'CLE_A_APP',
             'D21': 'DTW_F_APP',
             'PIT Area': 'PIT_D_APP',
-            'BUF TRACON': 'BUF_E_APP',
+            'BUF Area': 'BUF_E_APP',
         },
     },
     {
