@@ -373,6 +373,7 @@ const allowedDomains = [
     'vatssa.com',
     'vhcf.net',
     'teamcovey.org',
+    'kwiq.cc',
 ];
 
 function addATISLinks(lines: string[]) {
