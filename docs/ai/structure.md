@@ -448,6 +448,8 @@ If lint or typecheck fails with a permission error in `node_modules` or `.nuxt`,
 
 There is no obvious dedicated unit test suite in `package.json`; rely on lint/typecheck/build and targeted manual verification for changed flows.
 
+ATC duplication rules are maintained in `app/utils/server/vatsim/atc-duplicating.ts` and applied while rendering controllers in `app/composables/render/update/atc.ts`; a mapping may expand one ATIS label into multiple duplicated callsigns.
+
 ### Cautions For AI Agents
 
 - Many files are auto-imported by Nuxt. Absence of explicit imports does not mean a symbol is global JavaScript; check Nuxt composables/stores/plugins.

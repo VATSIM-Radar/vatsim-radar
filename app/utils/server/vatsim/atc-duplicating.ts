@@ -1,3 +1,5 @@
+type DuplicatingTarget = string | string[];
+
 interface DuplicatingSettingV2 {
     // NCT, SFO, etc
     prefixes?: string[];
@@ -15,7 +17,7 @@ interface DuplicatingSettingV2 {
     /**
      * @description ATIS line: callsign
      */
-    mapping: Record<string, string>;
+    mapping: Record<string, DuplicatingTarget>;
 }
 
 export const duplicatingSettings = [
@@ -343,6 +345,20 @@ export const duplicatingSettings = [
             UTAM: 'UTAM_R_APP',
             UZSB: 'UZSB_APP',
             UZTT: 'UZTT_APP',
+        },
+    },
+    {
+        description: 'EKDK Copenhagen TMA (K/R FL015-075, O/W FL075-195)',
+        authorCid: 0,
+        prefixes: ['EKDK'],
+        suffixes: ['APP', 'DEP'],
+        mapping: {
+            'EKCH O/W': ['EKCH_O_APP', 'EKCH_W_APP'],
+            'EKCH K/R': ['EKCH_K_DEP', 'EKCH_R_DEP'],
+            'EKCH O': 'EKCH_O_APP',
+            'EKCH W': 'EKCH_W_APP',
+            'EKCH K': 'EKCH_K_DEP',
+            'EKCH R': 'EKCH_R_DEP',
         },
     },
 ] satisfies DuplicatingSettingV2[] as DuplicatingSettingV2[];

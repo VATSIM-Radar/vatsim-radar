@@ -306,33 +306,35 @@ export async function updateControllers(context: DataUpdateContext) {
                     match = true;
                     const atisText = controller.text_atis.join(' ');
 
-                    for (let [areaText, targetCallsign] of Object.entries(setting.mapping)) {
+                    for (let [areaText, targetCallsigns] of Object.entries(setting.mapping)) {
                         if (typeof RegExp.escape === 'function') areaText = RegExp.escape(areaText);
                         else areaText = areaText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
                         const areaTextRegExp = new RegExp(`\\b${ areaText }\\b`, 'i');
 
-                        if (areaTextRegExp.test(atisText) && controller.callsign !== targetCallsign) {
-                            if (!realCallsigns.has(targetCallsign)) {
-                                const duplicated = {
-                                    ...controller,
-                                    facility: getFacilityByCallsign(targetCallsign),
-                                    callsign: targetCallsign,
-                                    duplicatedBy: controller.callsign,
-                                    duplicated: true,
-                                };
+                        if (areaTextRegExp.test(atisText)) {
+                            for (const targetCallsign of Array.isArray(targetCallsigns) ? targetCallsigns : [targetCallsigns]) {
+                                if (controller.callsign !== targetCallsign && !realCallsigns.has(targetCallsign)) {
+                                    const duplicated = {
+                                        ...controller,
+                                        facility: getFacilityByCallsign(targetCallsign),
+                                        callsign: targetCallsign,
+                                        duplicatedBy: controller.callsign,
+                                        duplicated: true,
+                                    };
 
-                                if (!shouldDuplicateArtccApp && controller.facility !== duplicated.facility) continue;
+                                    if (!shouldDuplicateArtccApp && controller.facility !== duplicated.facility) continue;
 
-                                // Priority to app
-                                if (duplicatedPositions[duplicated.callsign]) {
-                                    if (duplicatedPositions[duplicated.callsign].facility > controller.facility) {
-                                        Object.assign(duplicatedPositions[duplicated.callsign], duplicated);
+                                    // Priority to app
+                                    if (duplicatedPositions[duplicated.callsign]) {
+                                        if (duplicatedPositions[duplicated.callsign].facility > controller.facility) {
+                                            Object.assign(duplicatedPositions[duplicated.callsign], duplicated);
+                                        }
                                     }
-                                }
-                                else {
-                                    duplicatedPositions[duplicated.callsign] = duplicated;
-                                    controllers.push(duplicated);
+                                    else {
+                                        duplicatedPositions[duplicated.callsign] = duplicated;
+                                        controllers.push(duplicated);
+                                    }
                                 }
                             }
                         }
