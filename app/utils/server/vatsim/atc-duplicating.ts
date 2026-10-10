@@ -253,6 +253,18 @@ export const duplicatingSettings = [
         },
     },
     {
+        description: 'ZOB Center and TRACONs',
+        authorCid: 1892512,
+        prefixes: ['CLE'],
+        suffixes: ['CTR'],
+        mapping: {
+            'CLE Area': 'CLE_A_APP',
+            'D21': 'DTW_F_APP',
+            'PIT Area': 'PIT_D_APP',
+            'BUF Area': 'BUF_E_APP',
+        },
+    },
+    {
         description: 'ACC Curitiba (SBCW)',
         authorCid: 1233530,
         prefixes: ['SBCW'],
