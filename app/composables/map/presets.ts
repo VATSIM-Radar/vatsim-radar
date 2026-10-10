@@ -118,6 +118,7 @@ const myulllLargePreset: SiteConfig = {
 export async function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
+    const dataStore = useDataStore();
 
     if (!query.preset) return;
 
@@ -163,9 +164,24 @@ export async function checkAndSetMapPreset() {
         preset.dashboardId = query.dashboard;
 
         if (typeof window !== 'undefined') {
-            await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
+            const dashboard = await $fetch<PublicDashboard>(`/api/data/dashboard/${ preset.dashboardId }`).then(x => {
                 store.activeDashboard = x.json;
-            }).catch(console.error);
+                return x.json;
+            }).catch(() => {});
+
+            if (!dashboard) {
+                await checkForVATSpy();
+                const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[preset.dashboardId];
+                if (airport) {
+                    // @ts-expect-error empty schema
+                    store.activeDashboard = {
+                        airports: [{
+                            icao: airport.icao,
+                            showInTrafficPrediction: true,
+                        }],
+                    };
+                }
+            }
         }
     }
 

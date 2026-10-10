@@ -1,7 +1,8 @@
 # Changelog
 
-# [2.0.4-1-rc.1]
+# [2.0.4-1-final]
 
+- Fixed error in default airport dashboard when aircraft tracks were not shown
 - Added new setting to show all VATSpy boundaries, show labels for them, or hide all boundaries
 - Added airport ICAO clickzone so it's easier to hover and click over it
 - Airport aircraft list will now open closer to counters when hovered, so it's easy to get your mouse to the list

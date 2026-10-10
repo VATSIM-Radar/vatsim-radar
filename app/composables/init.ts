@@ -103,7 +103,7 @@ export function checkForVATSpy() {
     const checkPromise = initCheck('vatspy', async ({ dataStore }) => {
         let notRequired = true;
         let vatspy = await clientDB.data.get('vatspy') as IDBVatSpyData | VatSpyAPIData | undefined;
-        if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
+        if (!vatspy || vatspy.version !== dataStore.versions.value?.vatspy) {
             vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
 
             const { features, ...metadata } = vatspy.data as VatSpyAPIData['data'];
