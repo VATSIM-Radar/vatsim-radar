@@ -17,6 +17,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 ## Build Compatibility
 
 - The Vite client build in `nuxt.config.ts` targets `safari15` so production JavaScript remains parseable by iOS 15 Safari. Keep this target when changing client build settings; runtime API polyfills are a separate concern.
+- Nuxt ignores editor backup files ending in `~` (`**/*~` in `nuxt.config.ts`). Auto-import scanning of `app/composables/**` must not read short-lived editor copies, which can disappear between enumeration and reading and restart the dev process with `ENOENT`.
 
 ## Client State And Filtering
 

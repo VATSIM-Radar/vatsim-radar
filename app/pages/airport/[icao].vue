@@ -158,7 +158,7 @@
                 :key="mapKey"
                 ref="airportMapFrame"
                 class="airport_map_iframe"
-                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }&airportAircraft=1`"
+                :src="mapSrc"
             />
             <transition name="airport_map_pilot--appear">
                 <airport-pilot
@@ -212,6 +212,7 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import { dashboardAircraftModes } from '~/utils/shared/dashboard';
+import { appendMapPresetFilterQuery } from '~/composables/map/presets';
 
 const route = useRoute();
 const router = useRouter();
@@ -388,6 +389,19 @@ const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     default: () => false,
     watch: false,
     path: '/',
+});
+
+const mapSrc = computed(() => {
+    const params = new URLSearchParams({
+        preset: 'dashboard',
+        airport: icao.value,
+        airportMode: aircraftMode.value ?? 'all',
+        zoom: savedZoom.value ?? '',
+        tracks: Number(arrivalTracks.value).toString(),
+        airportAircraft: '1',
+    });
+    appendMapPresetFilterQuery(params, route.query);
+    return `/?${ params.toString() }`;
 });
 
 const settings = computed(() => ({

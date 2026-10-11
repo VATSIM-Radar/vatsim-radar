@@ -23,7 +23,7 @@ if (process.env.DOMAIN?.includes('next')) appName = 'VATSIM Radar Next';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    ignore: appDataIgnorePatterns,
+    ignore: [...appDataIgnorePatterns, '**/*~'],
 
     app: {
         buildAssetsDir: '/static/',
@@ -380,6 +380,7 @@ export default defineNuxtConfig({
             watch: {
                 ignored: appDataIgnorePatterns,
             },
+            cors: true,
         },
         css: {
             preprocessorMaxWorkers: true,

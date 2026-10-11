@@ -2,6 +2,7 @@
     <div
         v-if="dashboard"
         class="dashboard-view"
+        :class="{ 'dashboard-view--hide-footer': store.config.hideFooter }"
     >
         <div class="dashboard-view_header">
             <div class="dashboard-view_header_title">
@@ -18,6 +19,7 @@
                 </div>
 
                 <ui-button
+                    v-if="!store.config.hideHeader"
                     size="S"
                     type="secondary"
                     @click="onCopyLink"
@@ -152,7 +154,7 @@
                     Conditions Request
                 </ui-button>
                 <ui-button
-                    v-if="dashboard?.id === -1"
+                    v-if="dashboard?.id === -1 && !store.config.hideHeader"
                     size="S"
                     :to="`/dashboard?new=1&airport=${ id.toUpperCase() }`"
                     type="secondary"
@@ -255,6 +257,7 @@ import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 import { dashboardAircraftModes, dashboardColumns } from '~/utils/shared/dashboard';
 import type { MapAircraftMode } from '~/types/map';
 import DataIcon from 'assets/icons/kit/data.svg?component';
+import { appendMapPresetFilterQuery } from '~/composables/map/presets';
 
 const route = useRoute();
 const router = useRouter();
@@ -412,6 +415,14 @@ const mapSrc = computed(() => {
     params.set('airportMode', aircraftMode.value);
     params.set('dashboard', id.value);
     params.set('airportAircraft', Number(airportTrafficOnly.value).toString());
+    if (isNaN(Number(id.value))) {
+        const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[id.value.toUpperCase()];
+        if (airport) {
+            params.set('center', `${ airport.lon },${ airport.lat }`);
+            params.set('zoom', '10');
+        }
+    }
+    appendMapPresetFilterQuery(params, route.query);
 
     if (settings.value?.enrouteCallsign) params.set('atcCallsign', settings.value.enrouteCallsign);
 
@@ -430,6 +441,7 @@ useHead(() => ({
 
 const seenDashboards = useLocalStorage<{ name: string; id: string }[]>('seen-dashboards', []);
 
+const loading = ref(false);
 const ready = ref(false);
 const mounted = ref(false);
 const mapFrame = ref<HTMLIFrameElement | null>(null);
@@ -569,8 +581,6 @@ function applyFlOverride() {
     }
 }
 
-const loading = ref(false);
-
 async function fetchAirportsWeather() {
     const airportCodes = airportIcaos.value;
     const icaos = [...new Set(airportCodes.map(icao => icao.trim().toUpperCase()).filter(icao => icao.length === 4))];
@@ -616,6 +626,10 @@ async function refreshWeather() {
 
     @include mobileOnly {
         height: auto;
+    }
+
+    &--hide-footer {
+        height: calc(100dvh - 40px);
     }
 
     &_header {

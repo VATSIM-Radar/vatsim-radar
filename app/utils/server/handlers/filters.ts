@@ -15,6 +15,8 @@ export interface IUserFilterOthers {
     ourColor?: UserMapSettingsColor;
 }
 
+export type UserFilterFlightPlan = 'all' | 'ifr' | 'trueVfr' | 'allVfr' | 'none';
+
 export interface IUserFilter {
     users: Partial<{
         pilots: {
@@ -42,7 +44,7 @@ export interface IUserFilter {
         status: 'all' | 'departing' | 'airborne' | 'arrived';
         aircraft: string[];
         type: 'all' | 'domestic' | 'international';
-        plan: 'all' | 'ifr' | 'trueVfr' | 'allVfr' | 'none';
+        plan: UserFilterFlightPlan;
         excludeNoFlightPlan: boolean;
         squawks: string[];
         ratings: number[];

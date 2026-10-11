@@ -7,6 +7,8 @@
 - Added airport ICAO clickzone so it's easier to hover and click over it
 - Airport aircraft list will now open closer to counters when hovered, so it's easy to get your mouse to the list
   without it closing
+- Added support for filters in query parameters for custom integrations
+- Fixed international/domestic flights filter not showing any aircraft
 
 # [2.0.4-final]
 

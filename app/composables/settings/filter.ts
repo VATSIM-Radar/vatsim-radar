@@ -22,7 +22,7 @@ function getListFilterCids(store: ReturnType<typeof useStore>): ListFilterCids {
 
 export function hasActivePilotFilter() {
     const store = useStore();
-    if (Object.keys(store.config).length || !store.activeFilter) return false;
+    if ((Object.keys(store.config).length && !store.tempFilter) || !store.activeFilter) return false;
 
     if (!store.activeFilter.users?.pilots?.value?.length &&
         !store.activeFilter.users?.lists?.length &&
@@ -151,8 +151,10 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
             const depCountry = getAirportCountry(pilot.departure);
             const arrCountry = getAirportCountry(pilot.arrival!);
 
-            if (store.activeFilter.flights.type === 'international' && depCountry === arrCountry) return false;
-            else if (depCountry !== arrCountry) return false;
+            if (store.activeFilter.flights.type === 'international' && depCountry?.country === arrCountry?.country) {
+                return false;
+            }
+            else if (store.activeFilter.flights.type === 'domestic' && depCountry?.country !== arrCountry?.country) return false;
         }
 
         if (store.activeFilter.flights?.squawks?.length && !store.activeFilter.flights.squawks.some(x => 'transponder' in pilot && pilot.transponder === x)) return false;
@@ -222,7 +224,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 export function hasActiveATCFilter() {
     const store = useStore();
 
-    if (Object.keys(store.config).length) return false;
+    if (Object.keys(store.config).length && !store.tempFilter) return false;
 
     if (!store.activeFilter) return false;
 

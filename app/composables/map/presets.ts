@@ -2,8 +2,33 @@ import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
 import type { PublicDashboard } from '~/utils/server/handlers/dashboards';
+import type { UserFilter } from '~/utils/server/handlers/filters';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
 import { withBulkAirportOverlays } from '~/composables/map/airport-overlays';
+import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
+
+export function appendMapPresetFilterQuery(params: URLSearchParams, query: ReturnType<typeof useRoute>['query']) {
+    const arrayKeys = [
+        'filterPilotsCallsigns',
+        'filterAtcCallsigns',
+        'filterCids',
+        'filterDepartureAirports',
+        'filterArrivalAirports',
+        'filterDepartureAirportsPrefix',
+        'filterArrivalAirportsPrefix',
+    ] as const;
+
+    for (const key of arrayKeys) {
+        const value = query[key];
+        if (typeof value === 'string') params.set(key, value);
+        else if (Array.isArray(value)) params.set(key, value.filter((item): item is string => typeof item === 'string').join(','));
+    }
+
+    for (const key of ['filterStatus', 'filterType', 'filterPlan'] as const) {
+        const value = query[key];
+        if (typeof value === 'string') params.set(key, value);
+    }
+}
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -73,7 +98,6 @@ const vatsupPreset: SiteConfig = {
     showCornerLogo: false,
     hideOverlays: true,
 };
-
 const dashboardPreset: SiteConfig = {
     hideAirports: false,
     hideSectors: false,
@@ -115,6 +139,57 @@ const myulllLargePreset: SiteConfig = {
     showCornerLogo: false,
 };
 
+function createPresetFilterFromQuery(query: ReturnType<typeof useRoute>['query']): NonNullable<SiteConfig['filter']> {
+    const filterQuery = {
+        pilotsCallsigns: query.filterPilotsCallsigns,
+        atcCallsigns: query.filterAtcCallsigns,
+        cids: query.filterCids,
+        departureAirports: query.filterDepartureAirports,
+        arrivalAirports: query.filterArrivalAirports,
+        departureAirportsPrefix: query.filterDepartureAirportsPrefix,
+        arrivalAirportsPrefix: query.filterArrivalAirportsPrefix,
+        status: query.filterStatus,
+        type: query.filterType,
+        plan: query.filterPlan,
+    } satisfies Record<keyof NonNullable<SiteConfig['filter']>, unknown>;
+    const arrayFilterKeys = ['pilotsCallsigns', 'atcCallsigns', 'cids', 'departureAirports', 'arrivalAirports', 'departureAirportsPrefix', 'arrivalAirportsPrefix'] as const;
+    const filter = Object.fromEntries(arrayFilterKeys.flatMap(key => {
+        const value = filterQuery[key];
+        if (typeof value === 'string') return [[key, value.split(',').filter(Boolean)]];
+        if (Array.isArray(value)) return [[key, value.filter((item): item is string => typeof item === 'string').flatMap(item => item.split(',').filter(Boolean))]];
+        return [];
+    })) as NonNullable<SiteConfig['filter']>;
+
+    if (typeof filterQuery.status === 'string') filter.status = filterQuery.status as NonNullable<SiteConfig['filter']>['status'];
+    if (typeof filterQuery.type === 'string') filter.type = filterQuery.type as NonNullable<SiteConfig['filter']>['type'];
+    if (typeof filterQuery.plan === 'string') filter.plan = filterQuery.plan as NonNullable<SiteConfig['filter']>['plan'];
+
+    return filter;
+}
+
+function createUserFilterFromPresetFilter(filter: NonNullable<SiteConfig['filter']>): UserFilter {
+    const users: NonNullable<UserFilter['users']> = {};
+    const airports: NonNullable<UserFilter['airports']> = {};
+    const flights: NonNullable<UserFilter['flights']> = {};
+
+    if (filter.pilotsCallsigns?.length) users.pilots = { type: 'prefix', value: filter.pilotsCallsigns };
+    if (filter.atcCallsigns?.length) users.atc = { type: 'prefix', value: filter.atcCallsigns };
+    if (filter.cids?.length) users.cids = filter.cids.filter(cid => /^\d+$/.test(cid)).map(Number);
+    if (filter.departureAirports?.length) airports.departure = filter.departureAirports;
+    if (filter.arrivalAirports?.length) airports.arrival = filter.arrivalAirports;
+    if (filter.departureAirportsPrefix?.length) airports.departurePrefix = filter.departureAirportsPrefix;
+    if (filter.arrivalAirportsPrefix?.length) airports.arrivalPrefix = filter.arrivalAirportsPrefix;
+    if (filter.status) flights.status = filter.status;
+    if (filter.type) flights.type = filter.type;
+    if (filter.plan) flights.plan = filter.plan;
+
+    return {
+        ...(Object.keys(users).length ? { users } : {}),
+        ...(Object.keys(airports).length ? { airports } : {}),
+        ...(Object.keys(flights).length ? { flights } : {}),
+    };
+}
+
 export async function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
@@ -145,7 +220,7 @@ export async function checkAndSetMapPreset() {
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;
     }
-    else if (query.preset === 'settings') {
+    else if (query.preset === 'settings' || query.preset === 'vatrus') {
         preset = settingsPreset;
     }
     else if (query.preset === 'vatsup') {
@@ -230,6 +305,12 @@ export async function checkAndSetMapPreset() {
 
     if (typeof query.airportMode === 'string' && query.airportMode) {
         preset.airportMode = query.airportMode as MapAircraftMode;
+    }
+
+    const filter = createPresetFilterFromQuery(query);
+    if (Object.keys(filter).length) {
+        preset.filter = filter;
+        setUserTemporaryFilter(createUserFilterFromPresetFilter(filter));
     }
 
     store.config = preset;

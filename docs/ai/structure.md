@@ -41,6 +41,7 @@ Important root files:
 Nuxt dev-server notes:
 
 - In development, `@nuxt/vite-builder` creates a Vite-node Unix socket under `/tmp/nuxt-vite-*/nuxt.sock`. `connect ENOENT` for that path means Nitro/Nuxt tried to reach the dev builder socket after it was removed, failed to start, or during a restart race.
+- `nuxt.config.ts` sets `imports.dirs: ['composables/**']`; Nuxt's auto-import module rescans these directories on builder file events. Its `unimport` scanner enumerates matching files and reads each one, so transient editor backup files in `app/composables/` can be encountered during a scan. The development source is bind-mounted into `/radar` by `docker-compose.yml`.
 - Experimental `nuxt.config.ts` flags such as `vite.experimental.bundledDev`, top-level `experimental.watcher`, streaming, and async context settings can affect this dev-server path before application code runs.
 - SSR streaming warnings for `/` should start with global render paths: `app/layouts/default.vue` uses `useHead()` with a `bodyClose` Cloudflare script and reads `cookiePolicyStatus()`, while `app/plugins/init.ts` calls `useIframeHeader()` which sets the CSP response header through `app/composables/iframe.ts`.
 
@@ -404,6 +405,7 @@ Airport details/race-prone loading:
 - Bulk airport routes live in `server/api/data/vatsim/airports/{index,metar,notams}.ts`; airport info is shared with the single-airport index route through `app/utils/server/vatsim/airport-data.ts`.
 - The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it loads METAR and NOTAM on first expansion and refreshes them every five minutes while expanded. Airport info is fetched separately from those vendor-backed sources.
 - The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
+- Airport-specific dashboard URLs are assembled in `app/pages/dashboard/[id].vue`; ICAO dashboards use VATSpy `realIcao` coordinates for iframe `center` and a fixed zoom, while saved dashboards can include multiple airports.
 - When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
 
 Add a persisted user setting or preset field:

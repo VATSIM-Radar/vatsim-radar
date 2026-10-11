@@ -18,7 +18,7 @@ import type {
     UserListLiveUserPilot,
     UserListUser,
 } from '~/utils/server/handlers/lists';
-import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
+import type { UserFilter, UserFilterFlightPlan, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import type { UserMessageType } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
@@ -57,6 +57,19 @@ export interface SiteConfig {
     zoom?: number;
 
     showCornerLogo?: boolean;
+
+    filter?: {
+        pilotsCallsigns?: string[];
+        atcCallsigns?: string[];
+        cids?: string[];
+        departureAirports?: string[];
+        arrivalAirports?: string[];
+        departureAirportsPrefix?: string[];
+        arrivalAirportsPrefix?: string[];
+        status?: 'all' | 'departing' | 'arrived' | 'airborne';
+        type?: 'domestic' | 'international';
+        plan?: UserFilterFlightPlan;
+    };
 }
 
 export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
