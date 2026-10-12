@@ -246,7 +246,7 @@ export async function checkAndSetMapPreset() {
 
             if (!dashboard) {
                 await checkForVATSpy();
-                const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[preset.dashboardId];
+                const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[preset.dashboardId.toUpperCase()];
                 if (airport) {
                     // @ts-expect-error empty schema
                     store.activeDashboard = {
