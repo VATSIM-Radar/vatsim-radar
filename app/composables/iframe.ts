@@ -28,9 +28,9 @@ export async function useIframeHeader() {
 
     try {
         const url = new URL(originHeader || refererHeader!);
-        const origin = new URL(originHeader || refererHeader!).hostname;
+        const origin = url.hostname.toLowerCase().replace(/\.$/, '');
 
-        if (origin && iframeWhitelist.includes(origin)) {
+        if (origin && iframeWhitelist.some(host => origin === host || origin.endsWith(`.${ host }`))) {
             setHeader(event, 'Content-Security-Policy', `frame-ancestors *`);
         }
         else {
