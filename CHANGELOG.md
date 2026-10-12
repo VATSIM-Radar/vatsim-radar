@@ -10,7 +10,7 @@
 - Added support for filters in query parameters for custom integrations
 - Fixed international/domestic flights filter not showing any aircraft
 
-# [2.0.4-final]
+# [2.0.4]
 
 ## New Features
 
