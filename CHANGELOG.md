@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.4-1-final]
+# [2.0.4-1]
 
 - Fixed error in default airport dashboard when aircraft tracks were not shown
 - Added new setting to show all VATSpy boundaries, show labels for them, or hide all boundaries
