@@ -249,6 +249,52 @@ export async function setDiscordPresence(set = true) {
 let interval: NodeJS.Timeout | undefined;
 let inProgress = false;
 
+function mergePresenceData(incoming: VatsimLiveDataShort) {
+    if (!data || !incoming.activeCallsigns) {
+        data = incoming;
+        return;
+    }
+
+    const merge = <T extends { cid: number; callsign: string }>(
+        current: T[],
+        changed: T[],
+        activeCallsigns: string[],
+        key: (item: T) => string | number,
+    ) => {
+        const items = new Map(current.map(item => [key(item), item]));
+        for (const item of changed) {
+            const itemKey = key(item);
+            const patch = Object.fromEntries(Object.entries(item).map(([field, value]) => [field, value ?? undefined]));
+            items.set(itemKey, { ...items.get(itemKey), ...patch } as T);
+        }
+
+        const active = new Set([...activeCallsigns, ...changed.map(item => item.callsign)]);
+        for (const [itemKey, item] of items) {
+            if (active.has(item.callsign)) continue;
+            items.delete(itemKey);
+        }
+        return Array.from(items.values());
+    };
+
+    data = {
+        ...data,
+        ...incoming,
+        pilots: merge(data.pilots, incoming.pilots, incoming.activeCallsigns.pilots, item => item.cid),
+        prefiles: merge(data.prefiles, incoming.prefiles, incoming.activeCallsigns.prefiles, item => item.cid),
+        controllers: merge(data.controllers, incoming.controllers, incoming.activeCallsigns.controllers, item => item.callsign),
+        atis: merge(data.atis, incoming.atis, incoming.activeCallsigns.atis, item => item.callsign),
+        observers: merge(data.observers, incoming.observers, incoming.activeCallsigns.observers, item => item.callsign),
+    };
+}
+
+async function fetchPresenceData() {
+    const incoming = await $fetch<VatsimLiveDataShort>('/api/data/vatsim/data/short', {
+        timeout: 1000 * 60,
+        query: data?.general.update_timestamp ? { timestamp: data.general.update_timestamp } : undefined,
+    });
+    mergePresenceData(incoming);
+}
+
 export async function initDiscordPresenceUpdate() {
     if (interval) return;
 
@@ -266,9 +312,7 @@ export async function initDiscordPresenceUpdate() {
     });
 
     try {
-        data = await $fetch<VatsimLiveDataShort>(`/api/data/vatsim/data/short`, {
-            timeout: 1000 * 60,
-        });
+        await fetchPresenceData();
 
         await setDiscordPresence();
     }
@@ -288,9 +332,7 @@ export async function initDiscordPresenceUpdate() {
 
         try {
             inProgress = true;
-            data = await $fetch<VatsimLiveDataShort>(`/api/data/vatsim/data/short`, {
-                timeout: 1000 * 60,
-            });
+            await fetchPresenceData();
 
             await setDiscordPresence();
         }

@@ -226,21 +226,26 @@ export type VatsimShortenedController = VatsimShortenedData['atis'][0];
 
 export type VatsimMandatoryPilot = VatsimMandatoryConvertedData['pilots'][0];
 
+export type VatsimLiveCollection = 'pilots' | 'controllers' | 'atis' | 'prefiles' | 'observers';
+export type VatsimActiveCallsigns = Record<VatsimLiveCollection, string[]>;
+
 export type VatsimLiveData = VatsimShortenedData & {
     keyedPilots?: Record<string, VatsimShortenedAircraft>;
     keyedPrefiles?: Record<string, VatsimShortenedPrefile>;
+    activeCallsigns?: VatsimActiveCallsigns;
     notam: RadarNotam | null;
 };
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam'>;
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam' | 'activeCallsigns'>;
 
 export type VatsimLiveCompactData = Omit<VatsimShortenedData, 'pilots' | 'controllers' | 'observers' | 'atis' | 'prefiles'> & VatsimLiveDataMap & {
     keyedPilots?: Record<string, VatsimShortenedAircraft>;
     keyedPrefiles?: Record<string, VatsimShortenedPrefile>;
+    activeCallsigns?: VatsimActiveCallsigns;
     notam: RadarNotam | null;
 };
 
-export type VatsimLiveCompactDataShort = Pick<VatsimLiveCompactData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam' | 'map'>;
+export type VatsimLiveCompactDataShort = Pick<VatsimLiveCompactData, 'general' | 'pilots' | 'observers' | 'controllers' | 'atis' | 'prefiles' | 'bars' | 'notam' | 'map' | 'activeCallsigns'>;
 
 export type VatsimLiveDataMap = {
     map: {
