@@ -51,7 +51,8 @@ import ViewFooter from '~/components/features/footer/ViewFooter.vue';
 import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
-import { themesList, type ThemesList } from '~/utils/colors';
+import { themesList } from '~/utils/colors';
+import type { ThemesList } from '~/utils/colors';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';

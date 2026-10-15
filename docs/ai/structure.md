@@ -35,6 +35,7 @@ Important root files:
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
+- `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
@@ -265,6 +266,7 @@ Common server helpers:
 - `app/utils/server/h3.ts`: error handling, data-ready validation, per-user request freezing.
 - `app/utils/server/user.ts`: user lookup, token refresh, list privacy filtering.
 - `app/utils/server/prisma.ts`: Prisma client configured with MariaDB adapter.
+- `app/utils/server/navigraph/db.ts`: read-only Navigraph SQLite access through `better-sqlite3`; `app/utils/server/worker/navigraph-cache-builder.ts` also opens the database in a separate process. Native runtime loading is owned by the dependency's `lib/binding.js` and bundled `prebuilds/` binaries, so check these alongside Docker Node versions when auditing native-module compatibility or Nitro output tracing.
 - `app/utils/server/storage.ts`: server data storage types and read helpers.
 - `app/utils/server/redis.ts`: Redis helpers.
 

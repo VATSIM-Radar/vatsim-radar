@@ -1,7 +1,8 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
-import { themesList, type ThemesList } from '~/utils/colors';
+import { themesList } from '~/utils/colors';
+import type { ThemesList } from '~/utils/colors';
 import type { PublicDashboard } from '~/utils/server/handlers/dashboards';
 import type { UserFilter } from '~/utils/server/handlers/filters';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
