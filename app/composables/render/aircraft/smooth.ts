@@ -38,11 +38,11 @@ const DELAY_EXTRA = 500;
 // Sets the minimum allowed render delay in milliseconds.
 const MIN_DELAY = 1000;
 // Caps the render delay in milliseconds when updates arrive slowly or irregularly.
-const MAX_DELAY = 6000;
+const MAX_DELAY = 12000;
 // Controls how quickly the learned update cadence follows newly observed sample intervals.
 const CADENCE_SMOOTH = 0.2;
 // Provides the initial assumed position-update interval in milliseconds.
-const DEFAULT_GAP = 4000;
+const DEFAULT_GAP = 6000;
 // Excludes larger sample intervals from cadence learning and caps the learned interval.
 const STALL_GAP = 15000;
 // Controls how quickly the estimated server-to-client clock offset follows new measurements.
