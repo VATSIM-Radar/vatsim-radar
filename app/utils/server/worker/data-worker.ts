@@ -11,6 +11,7 @@ import updateVatsimExtendedPilots, {
 import { initQuestDB, questDBWrite } from '~/utils/server/questdb/client';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/server/worker/kafka';
+import { kafkaForgetPilotPosition } from '~/utils/server/vatsim/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
 import { getPlanQuestDBDataForPilots, getShortQuestDBDataForPilots } from '~/utils/server/questdb/converters';
 import { getRedis } from '~/utils/server/redis';
@@ -260,7 +261,14 @@ defineCronJob('* * * * * *', async () => {
             // SimType is connection metadata from ADDCLIENT; keep it even if the snapshot timestamp is newer.
             if (newerData.sim !== undefined) pilot.sim = newerData.sim;
 
-            if (updateTimestamp > newerData.date) return;
+            const pilotLastUpdated = pilot.last_updated ? new Date(pilot.last_updated).getTime() : NaN;
+            const latestSnapshotTimestamp = Number.isFinite(pilotLastUpdated)
+                ? Math.max(updateTimestamp, pilotLastUpdated)
+                : updateTimestamp;
+            if (latestSnapshotTimestamp - newerData.date > 2 * 60 * 1000) {
+                console.warn(`[Kafka] Ignoring pilot position over 2 minutes older than VATSIM data for ${pilot.callsign}: event=${new Date(newerData.date).toISOString()}, latest=${new Date(latestSnapshotTimestamp).toISOString()}`);
+                return;
+            }
 
             if (newerData.deleted) return toDelete.pilots.add(pilot.callsign);
 
@@ -463,6 +471,7 @@ defineCronJob('* * * * * *', async () => {
             const pilot = radarStorage.vatsim.kafka.pilots[k];
             if (!pilotCallsigns.has(k) && Date.now() - pilot.date > 2 * 60 * 1000) {
                 delete radarStorage.vatsim.kafka.pilots[k];
+                kafkaForgetPilotPosition(k);
             }
         });
 

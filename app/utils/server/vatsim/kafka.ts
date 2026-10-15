@@ -40,6 +40,7 @@ export function kafkaRemoveClient(event: KafkaRmClient) {
     if (!callsign) return;
 
     updatedPilots.delete(callsign);
+    pilotPositionTimestamps.delete(callsign);
     pilotVerticalSpeedEntries.delete(callsign);
 
     if (wssPilots[callsign]) {
@@ -76,11 +77,16 @@ export function kafkaUpdateController(event: KafkaAD) {
 }
 
 const updatedPilots = new Set<string>();
+const pilotPositionTimestamps = new Map<string, number>();
 const pilotVerticalSpeedEntries = new Map<string, {
     altitude: VatsimPilot['altitude'];
     updatedAt: number;
     verticalSpeed: NonNullable<VatsimPilot['vertical_speed']>;
 }>();
+
+export function kafkaForgetPilotPosition(callsign: string) {
+    pilotPositionTimestamps.delete(callsign);
+}
 
 const verticalSpeedAltitudeTolerance = 50; // Ignore altitude noise below 50 ft.
 const verticalSpeedMinTimeDiff = 3000; // Wait at least 3s before calculating VS.
@@ -140,6 +146,14 @@ function getVerticalSpeed(pilot: Partial<VatsimPilot> | undefined, event: KafkaP
 
 export function kafkaUpdatePilot(event: KafkaPD, updatedAt: number) {
     let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
+    const previousPositionTimestamp = pilotPositionTimestamps.get(event.Callsign);
+
+    if (previousPositionTimestamp !== undefined && updatedAt <= previousPositionTimestamp) {
+        console.warn(`[Kafka] Ignoring out-of-order pilot position for ${ event.Callsign }: event=${ new Date(updatedAt).toISOString() }, latest=${ new Date(previousPositionTimestamp).toISOString() }`);
+        return;
+    }
+
+    pilotPositionTimestamps.set(event.Callsign, updatedAt);
     const qnhIhb = Number((29.92 - (event.PressureDifference / 1000.0)).toFixed(2));
     const qnhMb = Math.round(qnhIhb * 33.86389);
 
