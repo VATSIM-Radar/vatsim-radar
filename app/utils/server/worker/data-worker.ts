@@ -266,7 +266,7 @@ defineCronJob('* * * * * *', async () => {
                 ? Math.max(updateTimestamp, pilotLastUpdated)
                 : updateTimestamp;
             if (latestSnapshotTimestamp - newerData.date > 2 * 60 * 1000) {
-                console.warn(`[Kafka] Ignoring pilot position over 2 minutes older than VATSIM data for ${pilot.callsign}: event=${new Date(newerData.date).toISOString()}, latest=${new Date(latestSnapshotTimestamp).toISOString()}`);
+                console.warn(`[Kafka] Ignoring pilot position over 2 minutes older than VATSIM data for ${ pilot.callsign }: event=${ new Date(newerData.date).toISOString() }, latest=${ new Date(latestSnapshotTimestamp).toISOString() }`);
                 return;
             }
 
