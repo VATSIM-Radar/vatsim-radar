@@ -16756,6 +16756,9 @@ __metadata:
     vue-draggable-plus: "npm:0.6.1"
     vue-tsc: "npm:3.3.13"
     ws: "npm:8.22.0"
+  dependenciesMeta:
+    better-sqlite3@13.0.3:
+      built: false
   languageName: unknown
   linkType: soft
 
