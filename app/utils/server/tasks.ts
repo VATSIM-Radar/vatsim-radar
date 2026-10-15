@@ -1,12 +1,6 @@
 import { $fetch } from 'ofetch';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/server/index';
-import type {
-    PatreonAccount,
-    PatreonPledge,
-    PatreonPledges,
-    PatreonPledgesReward,
-    PatreonPledgesUser,
-} from '~/types/data/patreon';
+import type { PatreonPledge } from '~/types/data/patreon';
 import { isDataReady, radarStorage } from '~/utils/server/storage';
 import type { VatglassesDynamicData } from '~/utils/server/storage';
 import { initNavigraph } from '~/utils/server/navigraph/db';
@@ -349,49 +343,86 @@ function clearTask() {
 }
 
 async function patreonTask() {
+    const accessToken = process.env.PATREON_ACCESS_TOKEN;
+    if (!accessToken) return;
+
     const pFetch = $fetch.create({
         headers: {
-            Authorization: `Bearer ${ process.env.PATREON_ACCESS_TOKEN }`,
+            Authorization: `Bearer ${ accessToken }`,
+            'User-Agent': 'VATSIM Radar - Website',
         },
     });
 
     await defineCronJob('15 * * * *', async () => {
-        const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns', {
+        type PatreonResource<T> = { type: string; id: string; attributes: T };
+        type PatreonCampaignResponse = {
+            data: PatreonResource<{ patron_count?: number }>[];
+        };
+        type PatreonMember = PatreonResource<{
+            full_name?: string;
+            patron_status?: string | null;
+            last_charge_status?: string | null;
+        }> & {
+            relationships?: {
+                currently_entitled_tiers?: { data?: Array<{ id: string; type: string }> };
+            };
+        };
+        type PatreonMembersResponse = {
+            data: PatreonMember[];
+            included?: PatreonResource<{ amount_cents?: number }>[];
+            meta?: { pagination?: { cursors?: { next?: string } } };
+        };
+
+        const myAccount = await pFetch<PatreonCampaignResponse>('https://www.patreon.com/api/oauth2/v2/campaigns', {
+            query: {
+                'fields[campaign]': 'patron_count',
+            },
             timeout: 1000 * 10,
         });
-        const campaign = myAccount.data[0].id;
+        const campaignData = myAccount.data?.[0];
+        const campaign = campaignData?.id;
         if (!campaign) return;
 
-        let counter: number;
-        let nextLink = '';
-
         const patrons: PatreonPledge[] = [];
+        let paid = 0;
+        let cursor: string | undefined;
+        const cursors = new Set<string>();
 
-        do {
-            const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`, {
+        while (true) {
+            const data = await pFetch<PatreonMembersResponse>(`https://www.patreon.com/api/oauth2/v2/campaigns/${ campaign }/members`, {
+                query: {
+                    'fields[member]': 'full_name,patron_status,last_charge_status',
+                    'fields[tier]': 'amount_cents',
+                    include: 'currently_entitled_tiers',
+                    ...(cursor ? { 'page[cursor]': cursor } : {}),
+                },
                 timeout: 1000 * 10,
             });
-            counter = data.data.length;
 
-            for (const user of data.data) {
-                if (user.type !== 'pledge') continue;
-                const level = data.included.find(x => x.type === 'reward' && user.relationships.reward?.data.id === x.id) as PatreonPledgesReward | undefined;
-                const patron = data.included.find(x => x.type === 'user' && user.relationships.patron?.data.id === x.id) as PatreonPledgesUser | undefined;
-                if (!level || typeof level.attributes.amount_cents !== 'number' || level.attributes.amount_cents < 500 || !patron) continue;
-                patrons.push({
-                    levelId: level.id,
-                    name: patron.attributes.full_name,
-                });
+            const includedById = new Map((data.included ?? []).map(resource => [resource.id, resource]));
+            for (const member of data.data ?? []) {
+                if (member.type !== 'member' || member.attributes.patron_status !== 'active_patron') continue;
+
+                if (member.attributes.last_charge_status === 'Paid') {
+                    paid++;
+                }
+
+                if (!member.attributes.full_name) continue;
+                const entitledTier = member.relationships?.currently_entitled_tiers?.data
+                    ?.map(tier => includedById.get(tier.id))
+                    .find((tier): tier is PatreonResource<{ amount_cents?: number }> => tier?.type === 'tier' && typeof tier.attributes.amount_cents === 'number' && tier.attributes.amount_cents >= 500);
+                if (entitledTier) patrons.push({ levelId: entitledTier.id, name: member.attributes.full_name });
             }
 
-            if (!data.links?.next) break;
-            nextLink = data.links.next;
-        } while (counter > 0);
+            const nextCursor = data.meta?.pagination?.cursors?.next;
+            if (!nextCursor || cursors.has(nextCursor)) break;
+            cursors.add(nextCursor);
+            cursor = nextCursor;
+        }
 
         await setRedisData('data-patreon', {
-            all: myAccount.data[0].attributes.patron_count,
-            paid: myAccount.data[0].attributes.paid_member_count,
-            budget: myAccount.data[0].attributes.pledge_sum / 100,
+            all: campaignData.attributes.patron_count ?? 0,
+            paid,
             highlighted: patrons,
         }, 1000 * 60 * 60 * 24 * 2);
     }).catch(() => {});

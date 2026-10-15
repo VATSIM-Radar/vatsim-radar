@@ -16,6 +16,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Build Compatibility
 
+- `better-sqlite3@13.0.3` has its build disabled through the root `package.json` `dependenciesMeta`. This version ships N-API prebuilds for Linux x64/ARM64, but Yarn 4.18.1 still synthesizes `node-gyp rebuild` from `binding.gyp` despite `gypfile: false`, requiring absent Python/build tools in slim Docker images. Keep this exception version-specific and reassess it when upgrading the package or targeting architectures without bundled prebuilds. Docker dependency installs use `--inline-builds` so failed dependency scripts are visible in CI.
 - The Vite client build in `nuxt.config.ts` targets `safari15` so production JavaScript remains parseable by iOS 15 Safari. Keep this target when changing client build settings; runtime API polyfills are a separate concern.
 - Nuxt ignores editor backup files ending in `~` (`**/*~` in `nuxt.config.ts`). Auto-import scanning of `app/composables/**` must not read short-lived editor copies, which can disappear between enumeration and reading and restart the dev process with `ENOENT`.
 
@@ -85,6 +86,8 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 - `ViewMap` must dispose its OpenLayers `Map` on component teardown after child map layers unmount. Route changes and settings preview iframes can create fresh map instances, so `postrender`/move listeners, DOM listeners, resize observers, map target, and rendered feature snapshots must be cleaned to avoid accumulated render loops and FPS degradation.
 
 ## Server Data And Storage
+
+- Patreon sync uses API v2 campaign members, explicit `fields`/`include`, and cursor pagination. Only active members with `last_charge_status === 'Paid'` contribute to paid count; monthly budget is intentionally not calculated or shown because API v2 does not provide an aggregate equivalent to the legacy `pledge_sum`. Highlighted supporters are selected from currently entitled tiers of at least 500 cents.
 
 - QuestDB replaces the previous time-series storage for pilot track analytics. Use `QUESTDB_TABLE_MAIN` for position/turn rows and `QUESTDB_TABLE_PLANS` for flight-plan snapshots because QuestDB uses tables for this split. Writes use the official `@questdb/nodejs-client` over HTTP ingestion by default; reads use the HTTP `/exec` SQL API.
 - QuestDB infrastructure uses the official `questdb/questdb:9.4.3` image in Docker Compose and Kubernetes. Kubernetes resource names should use `questdb` rather than `influx-v3`; the PVC is `radar-questdb` mounted at `/var/lib/questdb`, and readiness should use QuestDB's health endpoint on port `9003`.
