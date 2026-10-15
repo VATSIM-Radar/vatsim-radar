@@ -21,6 +21,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Client State And Filtering
 
+- For map URLs with a `preset`, a valid `query.theme` overrides that preset's theme; unsupported theme values are ignored.
 - Favorite-list filtering builds a per-data-pass CID `Set` from the raw selected lists and passes it into `filterUser`; do not introduce a long-lived cache for this path. `store.lists` should use short-lived per-getter maps for CID and shared-observer lookups instead of nested list scans.
 - Pilot/ATC filter inversion and filter-color membership must use the CID `Set` produced by the current filter pass. Mandatory pilot membership must use the keyed pilot lookup; do not restore nested `.some()` scans over the live pilot arrays.
 

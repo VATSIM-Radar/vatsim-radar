@@ -1,6 +1,7 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
+import { themesList, type ThemesList } from '~/utils/colors';
 import type { PublicDashboard } from '~/utils/server/handlers/dashboards';
 import type { UserFilter } from '~/utils/server/handlers/filters';
 import { checkForUpdates, checkForVATSpy } from '~/composables/init';
@@ -314,5 +315,8 @@ export async function checkAndSetMapPreset() {
     }
 
     store.config = preset;
+    if (typeof query.theme === 'string' && (query.theme === 'default' || query.theme in themesList)) {
+        preset.theme = query.theme as ThemesList;
+    }
     if (preset.theme) store.theme = preset.theme;
 }

@@ -215,6 +215,7 @@ Important composable groups:
 - `app/composables/fetchers/*`: user preset/settings/filter/bookmark fetch/save helpers.
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
+- `app/composables/map/presets.ts` builds map configuration from `query.preset` and applies supported query overrides, including `query.theme`.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
 - `app/composables/vatsim/airport.ts`: airport controller lists merge controllers directly attributed to the airport with controllers from rendered airport/TRACON/sector features covering its coordinates; both airport details and Featured Airport cards use this path.
 - `getAircraftForAirport()` in the same composable derives airport-aircraft ETA values from cached `toGoTime` data or current aircraft coordinates/groundspeed; `AirportAircraft.vue` formats those `Date` values for arrival rows.
