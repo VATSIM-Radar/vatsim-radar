@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "2.0.4-1",
+  "version": "2.0.4-2-final",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1149.0",
+    "@aws-sdk/client-s3": "3.1151.0",
     "@nuxt/image": "2.1.0",
     "@pinia/nuxt": "1.0.2",
     "@prisma/adapter-mariadb": "7.10.0",
@@ -51,7 +51,7 @@
     "@vueuse/core": "15.0.0",
     "@vueuse/nuxt": "15.0.0",
     "adm-zip": "0.6.1",
-    "better-sqlite3": "12.11.1",
+    "better-sqlite3": "13.0.3",
     "chardet": "2.2.0",
     "chart.js": "4.5.1",
     "chokidar": "5.0.0",
@@ -65,13 +65,13 @@
     "kafkajs": "2.2.4",
     "klona": "2.0.6",
     "magvar": "2.2.0",
-    "marked": "18.1.0",
+    "marked": "18.1.1",
     "merge-ranges": "1.0.2",
     "metar-taf-parser": "9.1.3",
     "nuxt": "4.6.1",
     "ol": "10.11.0",
     "ol-ext": "4.0.38",
-    "ol-mapbox-style": "13.5.1",
+    "ol-mapbox-style": "13.6.0",
     "pinia": "4.0.3",
     "prisma": "7.10.0",
     "rou3": "1.0.0",
@@ -83,7 +83,7 @@
     "vite-plugin-pwa": "2.0.0",
     "vite-svg-loader": "5.1.3",
     "vitepress": "1.6.4",
-    "vue": "3.5.43",
+    "vue": "3.5.44",
     "vue-bottom-sheets": "0.4.0",
     "vue-chartjs": "5.3.4",
     "vue-draggable-plus": "0.6.1",
@@ -96,7 +96,7 @@
     "@stylistic/eslint-plugin": "5.10.0",
     "@stylistic/stylelint-plugin": "5.3.1",
     "@types/adm-zip": "0.6.0",
-    "@types/better-sqlite3": "7.6.13",
+    "@types/better-sqlite3": "9.6.0",
     "@types/deep-equal": "1.0.4",
     "@types/geojson": "7946.0.16",
     "@types/jsonwebtoken": "9.0.10",
@@ -106,7 +106,7 @@
     "@types/ws": "8.18.2",
     "eslint": "10.12.0",
     "fast-xml-parser": "5.11.2",
-    "postcss": "8.5.29",
+    "postcss": "8.5.30",
     "postcss-html": "2.0.0",
     "sass-embedded": "1.105.1",
     "stylelint": "17.16.0",
@@ -121,6 +121,11 @@
     "typescript": "6.0.3",
     "vite-plugin-eslint2": "5.3.0",
     "vue-tsc": "3.3.13"
+  },
+  "dependenciesMeta": {
+    "better-sqlite3@13.0.3": {
+      "built": false
+    }
   },
   "packageManager": "yarn@4.18.1"
 }

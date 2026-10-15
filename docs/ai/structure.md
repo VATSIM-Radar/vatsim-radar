@@ -33,8 +33,10 @@ Important root files:
 
 - `nuxt.config.ts` configures `srcDir: 'app/'`, modules, runtime config, PWA, Nitro route rules, dev port `8080`, and the Safari 15 client build target.
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
+- `package.json` also owns version-specific dependency build policy through `dependenciesMeta`; `.yarnrc.yml` selects the checked-in Yarn release and the `node-modules` linker.
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
+- `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
@@ -215,6 +217,7 @@ Important composable groups:
 - `app/composables/fetchers/*`: user preset/settings/filter/bookmark fetch/save helpers.
 - `app/composables/settings/*`: local settings, filters, colors, visibility rules.
 - `app/composables/map/*`: map presets, world helpers, click outside behavior.
+- `app/composables/map/presets.ts` builds map configuration from `query.preset` and applies supported query overrides, including `query.theme`.
 - `app/composables/vatsim/*`: domain helpers for pilots, controllers, airport data, bookings, events.
 - `app/composables/vatsim/airport.ts`: airport controller lists merge controllers directly attributed to the airport with controllers from rendered airport/TRACON/sector features covering its coordinates; both airport details and Featured Airport cards use this path.
 - `getAircraftForAirport()` in the same composable derives airport-aircraft ETA values from cached `toGoTime` data or current aircraft coordinates/groundspeed; `AirportAircraft.vue` formats those `Date` values for arrival rows.
@@ -264,6 +267,7 @@ Common server helpers:
 - `app/utils/server/h3.ts`: error handling, data-ready validation, per-user request freezing.
 - `app/utils/server/user.ts`: user lookup, token refresh, list privacy filtering.
 - `app/utils/server/prisma.ts`: Prisma client configured with MariaDB adapter.
+- `app/utils/server/navigraph/db.ts`: read-only Navigraph SQLite access through `better-sqlite3`; `app/utils/server/worker/navigraph-cache-builder.ts` also opens the database in a separate process. Native runtime loading is owned by the dependency's `lib/binding.js` and bundled `prebuilds/` binaries, so check these alongside Docker Node versions when auditing native-module compatibility or Nitro output tracing.
 - `app/utils/server/storage.ts`: server data storage types and read helpers.
 - `app/utils/server/redis.ts`: Redis helpers.
 
@@ -281,6 +285,7 @@ Nitro plugins:
 Background tasks:
 
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
+- Patreon supporter data is synchronized hourly in `patreonTask()` in `app/utils/server/tasks.ts` through Patreon API v2 campaigns/members endpoints, then published in Redis as `data-patreon` (member counts and highlighted supporters; no budget estimate).
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
   - Ground pilot status is assigned here: no-plan ground aircraft are `depTaxi`, planned aircraft still on their departure are `depTaxi`, and planned aircraft already away from departure or on another ground airport are `arrTaxi`.
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.

@@ -51,6 +51,7 @@ import ViewFooter from '~/components/features/footer/ViewFooter.vue';
 import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
+import { themesList } from '~/utils/colors';
 import type { ThemesList } from '~/utils/colors';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
@@ -83,6 +84,11 @@ const theme = useCookie<ThemesList>('theme', {
 });
 
 store.theme = theme.value ?? settingsStore?.settings.appearance?.theme ?? 'default';
+
+if (typeof route.query.theme === 'string' && (route.query.theme === 'default' || route.query.theme in themesList)) {
+    theme.value = route.query.theme as ThemesList;
+    store.theme = theme.value;
+}
 
 await checkAndSetMapPreset();
 

@@ -13,7 +13,7 @@ RUN apt-get update
 RUN apt-get install -y default-mysql-client git
 RUN npm i -g yarn
 
-RUN yarn
+RUN yarn --inline-builds
 
 COPY . /radar
 RUN yarn prepare

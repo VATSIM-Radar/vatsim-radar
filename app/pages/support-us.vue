@@ -32,14 +32,6 @@
                         Paid Members
                     </div>
                 </div>
-                <div class="support_hero_stats_item">
-                    <div class="support_hero_stats_item_title">
-                        {{ Math.floor(data.budget) }}$
-                    </div>
-                    <div class="support_hero_stats_item_subtitle">
-                        Monthly Budget
-                    </div>
-                </div>
             </div>
             <div  class="support_hero_cta">
                 <ui-button
@@ -207,6 +199,8 @@ const features: Feature[] = [
 <style scoped lang="scss">
 .support {
     &_hero {
+        position: relative;
+
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -220,13 +214,29 @@ const features: Feature[] = [
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
 
+        &::before {
+            content: '';
+
+            position: absolute;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: linear-gradient(
+              to left,
+              varToRgba('darkGray600', 0),
+              varToRgba('darkGray600', 1)
+          );
+        }
+
         &--light {
             background-image: url("@/assets/images/support-us-bg-light.png");
         }
 
-        @include mobile {
-            gap: 16px;
-            padding: 16px;
+        >*{
+            position: relative;
+            z-index: 1;
         }
 
         &_title, &_text {
@@ -308,6 +318,11 @@ const features: Feature[] = [
             @include mobileOnly {
                 flex-direction: column;
             }
+        }
+
+        @include mobile {
+            gap: 16px;
+            padding: 16px;
         }
     }
 
