@@ -154,6 +154,8 @@ export function setAirportStyle(layer: VectorLayer) {
             styleCache[key].getText()!.setText(`${ properties.icao }${ isShowDot ? '\n•' : '' }`);
             styleCache[key].setZIndex(zIndex);
 
+            if (!showAirportDetails) return styleCache[key];
+
             const labelWidth = Math.ceil(getTextWidth(properties.icao, getTextFont('caption-medium')) + 2);
             const labelHitboxKey = `airport-label-${ labelWidth }`;
             labelHitboxCache[labelHitboxKey] ??= new Style({
