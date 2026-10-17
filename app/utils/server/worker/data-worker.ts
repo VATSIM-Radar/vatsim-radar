@@ -266,7 +266,7 @@ defineCronJob('* * * * * *', async () => {
                 const latestSnapshotTimestamp = Number.isFinite(pilotLastUpdated)
                     ? Math.max(updateTimestamp, pilotLastUpdated)
                     : updateTimestamp;
-                if (latestSnapshotTimestamp - newerData.date > 2 * 60 * 1000) {
+                if (latestSnapshotTimestamp - newerData.date > 1 * 60 * 1000) {
                     return;
                 }
 
