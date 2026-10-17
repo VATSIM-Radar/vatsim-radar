@@ -9,11 +9,11 @@ import {
 } from '~/utils/server/vatsim/kafka';
 import { getRedisSync } from '~/utils/server/redis.ts';
 
+export let fastUpdatesEnabled = true;
+
 export async function initKafka() {
     try {
         if (!process.env.VATSIM_KAFKA_BROKER) return;
-
-        let fastUpdatesEnabled = true;
 
         setInterval(async () => {
             const previous = fastUpdatesEnabled;

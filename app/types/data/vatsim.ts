@@ -205,6 +205,7 @@ export type VatsimShortenedData = {
     atis: Omit<VatsimATIS, 'visual_range' | 'server' | 'last_updated'>[];
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'flight_rules'>>>;
     bars: BARSShort;
+    fastUpdatesEnabled: boolean;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
 export type VatsimMandatoryData = {

@@ -10,7 +10,7 @@ import updateVatsimExtendedPilots, {
 } from '~/utils/server/vatsim/update';
 import { initQuestDB, questDBWrite } from '~/utils/server/questdb/client';
 import { $fetch } from 'ofetch';
-import { initKafka } from '~/utils/server/worker/kafka';
+import { fastUpdatesEnabled, initKafka } from '~/utils/server/worker/kafka';
 import { kafkaForgetPilotPosition } from '~/utils/server/vatsim/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
 import { getPlanQuestDBDataForPilots, getShortQuestDBDataForPilots } from '~/utils/server/questdb/converters';
@@ -254,77 +254,79 @@ defineCronJob('* * * * * *', async () => {
             latitude: 17.56167
         })*/
 
-        radarStorage.vatsim.data!.pilots.forEach(pilot => {
-            const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
-            if (!newerData) return;
+        if (fastUpdatesEnabled) {
+            radarStorage.vatsim.data!.pilots.forEach(pilot => {
+                const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
+                if (!newerData) return;
 
-            // SimType is connection metadata from ADDCLIENT; keep it even if the snapshot timestamp is newer.
-            if (newerData.sim !== undefined) pilot.sim = newerData.sim;
+                // SimType is connection metadata from ADDCLIENT; keep it even if the snapshot timestamp is newer.
+                if (newerData.sim !== undefined) pilot.sim = newerData.sim;
 
-            const pilotLastUpdated = pilot.last_updated ? new Date(pilot.last_updated).getTime() : NaN;
-            const latestSnapshotTimestamp = Number.isFinite(pilotLastUpdated)
-                ? Math.max(updateTimestamp, pilotLastUpdated)
-                : updateTimestamp;
-            if (latestSnapshotTimestamp - newerData.date > 2 * 60 * 1000) {
-                console.warn(`[Kafka] Ignoring pilot position over 2 minutes older than VATSIM data for ${ pilot.callsign }: event=${ new Date(newerData.date).toISOString() }, latest=${ new Date(latestSnapshotTimestamp).toISOString() }`);
-                return;
-            }
+                const pilotLastUpdated = pilot.last_updated ? new Date(pilot.last_updated).getTime() : NaN;
+                const latestSnapshotTimestamp = Number.isFinite(pilotLastUpdated)
+                    ? Math.max(updateTimestamp, pilotLastUpdated)
+                    : updateTimestamp;
+                if (latestSnapshotTimestamp - newerData.date > 2 * 60 * 1000) {
+                    console.warn(`[Kafka] Ignoring pilot position over 2 minutes older than VATSIM data for ${ pilot.callsign }: event=${ new Date(newerData.date).toISOString() }, latest=${ new Date(latestSnapshotTimestamp).toISOString() }`);
+                    return;
+                }
 
-            if (newerData.deleted) return toDelete.pilots.add(pilot.callsign);
+                if (newerData.deleted) return toDelete.pilots.add(pilot.callsign);
 
-            objectAssign(pilot, {
-                ...newerData,
-                date: undefined,
-                deleted: undefined,
-                flight_plan: undefined,
+                objectAssign(pilot, {
+                    ...newerData,
+                    date: undefined,
+                    deleted: undefined,
+                    flight_plan: undefined,
+                });
+
+                if (newerData.flight_plan) {
+                    if (pilot.flight_plan) {
+                        objectAssign(pilot.flight_plan, newerData.flight_plan);
+                    }
+                    else {
+                        pilot.flight_plan = newerData.flight_plan;
+                    }
+                }
             });
 
-            if (newerData.flight_plan) {
-                if (pilot.flight_plan) {
-                    objectAssign(pilot.flight_plan, newerData.flight_plan);
+            radarStorage.vatsim.data!.prefiles.forEach(prefile => {
+                if (!prefile) return;
+                const newerData = radarStorage.vatsim.kafka.prefiles[prefile.callsign];
+                if (!newerData || updateTimestamp > newerData.date) return;
+
+                if (newerData.deleted) return toDelete.prefiles.add(prefile.callsign);
+
+                objectAssign(prefile, {
+                    ...newerData,
+                    date: undefined,
+                    deleted: undefined,
+                    flight_plan: undefined,
+                });
+
+                if (newerData.flight_plan) {
+                    if (prefile.flight_plan) {
+                        objectAssign(prefile.flight_plan, newerData.flight_plan);
+                    }
+                    else {
+                        prefile.flight_plan = newerData.flight_plan;
+                    }
                 }
-                else {
-                    pilot.flight_plan = newerData.flight_plan;
-                }
-            }
-        });
-
-        radarStorage.vatsim.data!.prefiles.forEach(prefile => {
-            if (!prefile) return;
-            const newerData = radarStorage.vatsim.kafka.prefiles[prefile.callsign];
-            if (!newerData || updateTimestamp > newerData.date) return;
-
-            if (newerData.deleted) return toDelete.prefiles.add(prefile.callsign);
-
-            objectAssign(prefile, {
-                ...newerData,
-                date: undefined,
-                deleted: undefined,
-                flight_plan: undefined,
             });
 
-            if (newerData.flight_plan) {
-                if (prefile.flight_plan) {
-                    objectAssign(prefile.flight_plan, newerData.flight_plan);
-                }
-                else {
-                    prefile.flight_plan = newerData.flight_plan;
-                }
-            }
-        });
+            radarStorage.vatsim.data!.controllers.forEach(controller => {
+                const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
+                if (!newerData || updateTimestamp > newerData.date) return;
 
-        radarStorage.vatsim.data!.controllers.forEach(controller => {
-            const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
-            if (!newerData || updateTimestamp > newerData.date) return;
+                if (newerData.deleted) return toDelete.atc.add(controller.callsign);
 
-            if (newerData.deleted) return toDelete.atc.add(controller.callsign);
-
-            objectAssign(controller, {
-                ...newerData,
-                date: undefined,
-                deleted: undefined,
+                objectAssign(controller, {
+                    ...newerData,
+                    date: undefined,
+                    deleted: undefined,
+                });
             });
-        });
+        }
 
         const length = radarStorage.vatsim.data!.controllers.length;
         const onlineCallsigns = new Set(radarStorage.vatsim.data!.controllers.map(x => x.callsign));
@@ -559,6 +561,7 @@ defineCronJob('* * * * * *', async () => {
                 };
             }),
             bars: shortBars,
+            fastUpdatesEnabled,
         };
 
         const notams = await prisma.notams.findMany({
