@@ -25,7 +25,7 @@ import {
     pruneAircraftStyleCache,
     resetAircraftStyleCache,
 } from '~/composables/render/aircraft/style';
-import { startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
+import { isSmoothMovementEnabled, startSmoothMovement, stopSmoothMovement } from '~/composables/render/aircraft/smooth';
 import { getColorValueByKey } from '~/composables/settings/v2/utils';
 
 defineOptions({
@@ -466,12 +466,12 @@ watch(map, val => {
     setVisiblePilots();
     init = true;
 
-    if (getKeyedValueFromSettings('map.traffic.smoothMovement')) startSmoothMovement(vectorSource, linesSource);
+    if (isSmoothMovementEnabled()) startSmoothMovement(vectorSource, linesSource);
 }, {
     immediate: true,
 });
 
-watch(() => getKeyedValueFromSettings('map.traffic.smoothMovement'), enabled => {
+watch(isSmoothMovementEnabled, enabled => {
     if (enabled && vectorSource) startSmoothMovement(vectorSource, linesSource);
     else stopSmoothMovement();
 });

@@ -3,6 +3,16 @@
         <template #title>
             Internal NOTAMs management. Please leave
         </template>
+
+        <ui-toggle
+            v-if="config"
+            align-left
+            :model-value="config.fastUpdatesEnabled"
+            @update:modelValue="toggleFastUpdates"
+        >
+            Fast updates enabled
+        </ui-toggle>
+
         <!-- @vue-ignore -->
         <ui-button @click="[activeNotam = { active: true, dismissable: false }, editActive = true]">
             Create
@@ -120,6 +130,23 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 const { data: notams, refresh } = await useAsyncData('internal-notams', () => $fetch<RadarNotam[]>('/api/data/notams/0'), {
     server: false,
 });
+
+interface Config {
+    fastUpdatesEnabled: boolean;
+}
+
+const { data: config } = await useAsyncData('internal-config', () => $fetch<Config>('/api/data/config'), {
+    server: false,
+});
+
+async function toggleFastUpdates(event: boolean) {
+    config.value = await $fetch<Config>('/api/data/config', {
+        method: 'POST',
+        body: {
+            fastUpdatesEnabled: event,
+        },
+    });
+}
 
 const activeNotam = ref<null | RadarNotam>(null);
 const editActive = ref(false);

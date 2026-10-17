@@ -394,6 +394,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
         bars: radarStorage.vatsim.regularData!.bars,
+        fastUpdatesEnabled: storage.vatsim.regularData!.fastUpdatesEnabled,
         notam: storage.vatsim.notam,
     };
 }
@@ -407,6 +408,7 @@ export function getServerVatsimLiveShortData() {
         atis: radarStorage.vatsim.data!.atis,
         prefiles: radarStorage.vatsim.regularData!.prefiles,
         bars: radarStorage.vatsim.regularData!.bars,
+        fastUpdatesEnabled: radarStorage.vatsim.regularData!.fastUpdatesEnabled,
         notam: radarStorage.vatsim.notam,
     } satisfies VatsimLiveDataShort;
 }
@@ -427,6 +429,7 @@ export function getServerVatsimCompactData(): VatsimLiveCompactData {
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
         bars: radarStorage.vatsim.regularData!.bars,
+        fastUpdatesEnabled: storage.vatsim.regularData!.fastUpdatesEnabled,
         notam: storage.vatsim.notam,
     };
 }
@@ -441,6 +444,7 @@ export function getServerVatsimCompactShortData() {
         prefiles: radarStorage.vatsim.compactDatafeed?.prefiles ?? [],
         map: radarStorage.vatsim.compactDatafeed?.map ?? {} as VatsimLiveCompactData['map'],
         bars: radarStorage.vatsim.regularData!.bars,
+        fastUpdatesEnabled: radarStorage.vatsim.regularData!.fastUpdatesEnabled,
         notam: radarStorage.vatsim.notam,
     } satisfies VatsimLiveCompactDataShort;
 }

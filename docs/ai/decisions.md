@@ -115,6 +115,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 ## Aircraft Rendering And Smoothing
 
+- `fastUpdatesEnabled: false` in the live VATSIM feed disables smooth aircraft movement and fast mandatory polling just like the local `disableFastUpdate` preference, and short-data checks run every 7 instead of 10 seconds. Neither flag disables WebSockets; only the global `DISABLE_WEBSOCKETS` switch does. Keep fast updates enabled until the first feed arrives so delayed responses do not disable them prematurely.
 - Aircraft type aliases in `app/utils/icons.ts` intentionally map unsupported or uncommon ICAO designators to the closest existing silhouette. This keeps the icon catalog bounded while still giving VATSIM aircraft recognizable geometry; aliases should not add new assets unless the existing silhouettes are materially unsuitable.
 
 - Aircraft straight-track feature matching must use the same transparency-adjusted color stored on the feature. Comparing an opaque status color to a stored `rgba(...)` color makes existing straight tracks miss updates when turns transparency is enabled.

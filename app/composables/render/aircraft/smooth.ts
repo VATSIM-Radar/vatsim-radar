@@ -12,6 +12,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import { greatCircleToOl } from '~/utils';
 import { useMapStore } from '~/store/map';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import { useDataStore } from '~/composables/render/storage';
 
 interface Sample {
     t: number;
@@ -80,7 +81,7 @@ let awaitingFreshSamples = false;
 let resumingFromLoadSuspension = false;
 
 export function isSmoothMovementEnabled() {
-    return getKeyedValueFromSettings('map.traffic.smoothMovement') === true;
+    return getKeyedValueFromSettings('map.traffic.smoothMovement') === true && useDataStore().vatsim.data.fastUpdatesEnabled.value;
 }
 
 export function isSmoothMovementSuspendedForLoad(ignoreMapMoving = false) {

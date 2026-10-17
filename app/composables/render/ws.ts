@@ -116,7 +116,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     let closeSocket: ReturnType<typeof initDataWebsocket> | undefined;
 
     function checkForSocket() {
-        if (getKeyedValueFromSettings('map.traffic.disableFastUpdate') || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
+        if (String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
 

@@ -110,6 +110,7 @@ const data: VatsimData = {
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
     bars: shallowRef({}),
+    fastUpdatesEnabled: ref(true),
     notam,
 };
 
@@ -629,7 +630,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
-    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate');
+    const mandatoryUpdatesEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !getKeyedValueFromSettings('map.traffic.disableFastUpdate') && data.fastUpdatesEnabled.value;
 
     function startIntervalChecks() {
         vgInterval = setInterval(async () => {
@@ -643,7 +644,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         let mandatoryTick = 0;
         interval = setInterval(async () => {
             if (mandatoryInProgess || !store.isTabVisible) return;
-            if (socketsEnabled()) {
+            if (mandatoryUpdatesEnabled()) {
                 mandatoryTick++;
                 if (!isSmoothMovementEnabled() && mandatoryTick % 2 !== 0) return;
                 mandatoryInProgess = true;
@@ -666,13 +667,17 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             }
         }, 1000);
 
+        let lastVisibilityCheck = Date.now();
         visibilityInterval = setInterval(async () => {
+            const now = Date.now();
+            if (now - lastVisibilityCheck < (data.fastUpdatesEnabled.value ? 10000 : 7000)) return;
+            lastVisibilityCheck = now;
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
-            await store.getVATSIMData(socketsEnabled());
+            await store.getVATSIMData(mandatoryUpdatesEnabled());
             onFetch?.();
             localStorage.setItem('radar-visibility-check', Date.now().toString());
-        }, 10000);
+        }, 1000);
 
         let lastListsUpdate = 0;
 
@@ -696,19 +701,10 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
-        const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
 
-        watch(() => getKeyedValueFromSettings('map.traffic.disableFastUpdate'), val => {
-            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            ws?.();
-            if (val !== true) {
-                ws = checkForWSData(isMounted);
-            }
-        }, {
-            immediate: true,
-        });
+        if (String(config.public.DISABLE_WEBSOCKETS) !== 'true') ws = checkForWSData(isMounted);
 
         watch(isVatGlassesActive, val => {
             if (val) {
