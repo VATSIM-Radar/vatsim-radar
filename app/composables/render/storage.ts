@@ -670,7 +670,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         let lastVisibilityCheck = Date.now();
         visibilityInterval = setInterval(async () => {
             const now = Date.now();
-            if (now - lastVisibilityCheck < (data.fastUpdatesEnabled.value ? 10000 : 7000)) return;
+            if (now - lastVisibilityCheck < (data.fastUpdatesEnabled.value && !getKeyedValueFromSettings('map.traffic.disableFastUpdate') ? 10000 : 7000)) return;
             lastVisibilityCheck = now;
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
