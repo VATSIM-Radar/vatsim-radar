@@ -6,6 +6,7 @@
 
         <ui-toggle
             v-if="config"
+            align-left
             :model-value="config.fastUpdatesEnabled"
             @update:modelValue="toggleFastUpdates"
         >
