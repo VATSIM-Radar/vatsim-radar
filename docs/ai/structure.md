@@ -142,6 +142,7 @@ Core files:
 - `app/components/views/ViewMap.vue` creates the OpenLayers `Map`, wires controls/popups/layers, and orchestrates map-only UI.
 - `app/composables/render/index.ts` contains shared render constants/helpers.
 - `app/composables/render/storage.ts` owns the client data store and VATSIM data conversion functions.
+- The VATSIM worker stores `fastUpdatesEnabled` in `regularData`; `app/utils/server/storage.ts` forwards it through full/short and compact/compact-short endpoints. The client stores it in `useDataStore().vatsim.data` for mandatory fetch scheduling, short-data check cadence, and aircraft smoothing; WebSocket management remains separate.
 - `app/composables/render/update/index.ts` is the main recompute entry point for controllers/aircraft/airports/sectors.
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.

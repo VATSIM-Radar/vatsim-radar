@@ -206,6 +206,20 @@
                     tag="span"
                     type="caption-medium-alt"
                 >{{ getCounts.lastUpdated }}</ui-text>
+                <ui-tooltip
+                    v-if="!dataStore.vatsim.data.fastUpdatesEnabled.value"
+                    align="right"
+                    class="map-footer__fast-updates"
+                    width="300px"
+                >
+                    <template #activator>
+                        <warning-icon class="map-footer__fast-updates_icon" width="14"/>
+                    </template>
+
+                    <ui-text type="3b">
+                        Fast updates have been disabled. Smooth movement is not working, and data is updating every 10 seconds, like in VATSpy
+                    </ui-text>
+                </ui-tooltip>
             </ui-text>
         </div>
     </footer>
@@ -292,6 +306,8 @@ import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import { navigraphAuth } from '~/composables/vatsim/auth';
+import WarningIcon from '~/assets/icons/kit/warning.svg?component';
+import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
