@@ -7,10 +7,25 @@ import {
     kafkaUpdatePilot,
     kafkaUpdatePlan,
 } from '~/utils/server/vatsim/kafka';
+import { getRedisSync } from '~/utils/server/redis.ts';
 
 export async function initKafka() {
     try {
         if (!process.env.VATSIM_KAFKA_BROKER) return;
+
+        let fastUpdatesEnabled = true;
+
+        setInterval(async () => {
+            const previous = fastUpdatesEnabled;
+            fastUpdatesEnabled = await getRedisSync('fast-updates-off') !== '0';
+
+            if (previous !== fastUpdatesEnabled) {
+                console.log('fast updates', fastUpdatesEnabled);
+            }
+        }, 1000 * 60);
+
+        fastUpdatesEnabled = await getRedisSync('fast-updates-off') !== '0';
+        console.log('fast updates', fastUpdatesEnabled);
 
         const kafka = new Kafka({
             brokers: [process.env.VATSIM_KAFKA_BROKER!],
@@ -67,7 +82,7 @@ export async function initKafka() {
                 partition,
                 message,
             }) => {
-                if (!message.value) return;
+                if (!fastUpdatesEnabled || !message.value) return;
 
                 const json = JSON.parse(message.value.toString());
 
