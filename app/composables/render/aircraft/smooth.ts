@@ -81,7 +81,7 @@ let awaitingFreshSamples = false;
 let resumingFromLoadSuspension = false;
 
 export function isSmoothMovementEnabled() {
-    return getKeyedValueFromSettings('map.traffic.smoothMovement') === true && useDataStore().vatsim.data.fastUpdatesEnabled.value;
+    return getKeyedValueFromSettings('map.traffic.smoothMovement') === true && !getKeyedValueFromSettings('map.traffic.disableFastUpdate') && useDataStore().vatsim.data.fastUpdatesEnabled.value;
 }
 
 export function isSmoothMovementSuspendedForLoad(ignoreMapMoving = false) {
