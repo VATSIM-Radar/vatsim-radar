@@ -26,6 +26,7 @@ import type { UserDashboard } from '~/utils/server/handlers/dashboards';
 import type { DashboardSettings } from '~/utils/shared/dashboard';
 import { useIsDebug } from '~/composables';
 import { clientDB } from '~/composables/render/idb';
+import { getAircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 import type { SnackbarType } from '~/components/ui/data/UiSnackbar.vue';
 import type { UserSettingsV2Partial } from '~/utils/settings/types';
@@ -413,7 +414,16 @@ export const useStore = defineStore('index', {
                     await setVatsimDataStore(data);
                     dataStore.vatsim.shortUpdateTime.value = Date.now();
 
-                    if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || getKeyedValueFromSettings('map.traffic.disableFastUpdate') || !dataStore.vatsim.data.fastUpdatesEnabled.value || !dataStore.vatsim.mandatoryData.value) {
+                    if (!data.fastUpdatesEnabled || getKeyedValueFromSettings('map.traffic.disableFastUpdate')) {
+                        setVatsimMandatoryData({
+                            timestamp: data.general.update_timestamp,
+                            timestampNum: Date.parse(data.general.update_timestamp),
+                            serverTime: Date.now(),
+                            pilots: dataStore.vatsim.data.pilots.value.map<VatsimMandatoryData['pilots'][number]>(pilot => [pilot.cid, pilot.longitude, pilot.latitude, getAircraftIcon(pilot).icon, pilot.heading]),
+                        });
+                        dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
+                    }
+                    else if (force || String(config.public.DISABLE_WEBSOCKETS) === 'true' || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });
