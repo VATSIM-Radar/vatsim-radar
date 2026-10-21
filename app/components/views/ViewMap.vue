@@ -1,5 +1,14 @@
 <template>
     <div class="map">
+        <ui-text
+            v-if="standDemoEnabled"
+            class="map_stand-demo"
+            role="status"
+            type="3b-medium"
+        >
+            STAND DEMO - real EKCH positions; synthetic limits, restrictions and status.
+            Click C32, C33 or C35 for test details. C34 and C36 have no details.
+        </ui-text>
         <div
             ref="mapContainer"
             class="map_container"
@@ -220,6 +229,7 @@ import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 import MapMinifiedOverlays from '~/components/map/overlays/MapMinifiedOverlays.vue';
 import { setUserTemporaryFilter } from '~/composables/fetchers/filters';
 import MapLayer from '~/components/map/layers/MapLayer.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 import { updateControllersRender } from '~/composables/render/update';
 
@@ -249,6 +259,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
+const standDemoEnabled = import.meta.dev && route.query.standDemo === '1';
 const isDiscord = ref(route.query.discord === '1');
 const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
@@ -1161,6 +1172,24 @@ onUnmounted(() => {
     width: 100%;
     border: 1px solid $strokeDefault;
     border-radius: 16px;
+
+    &_stand-demo {
+        pointer-events: none;
+
+        position: absolute;
+        z-index: 10;
+        bottom: 80px;
+        left: 12px;
+
+        max-width: min(560px, calc(100% - 24px));
+        padding: 12px;
+        border: 1px solid $orange500;
+        border-radius: 8px;
+
+        color: $lightGray200;
+
+        background: $darkGray900;
+    }
 
     &_container {
         z-index: 5;

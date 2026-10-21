@@ -132,6 +132,9 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const existingFeature = getMapFeature('airport-navigraph', source, id);
 
             if (existingFeature) {
+                if (existingFeature.getProperties().standInformation !== gate.standInformation) {
+                    existingFeature.setProperties({ standInformation: gate.standInformation });
+                }
                 if (existingFeature.getProperties().gateColor !== color) {
                     existingFeature.setProperties({
                         gateColor: color,
@@ -149,6 +152,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                     gateColor: color,
                     airport: icao,
                     featureType: 'gate',
+                    standInformation: gate.standInformation,
                     trulyOccupied: gate.trulyOccupied,
                     maybeOccupied: gate.maybeOccupied,
                 });

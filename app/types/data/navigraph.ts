@@ -3,12 +3,24 @@ import type { PartialRecord } from '~/types';
 import type { FeatureCollection } from 'geojson';
 import type { AmdbLayerName } from '@navigraph/amdb';
 
+export interface NavigraphStandInformation {
+    source: 'Navigraph AMDB' | 'Synthetic demo data';
+    effectiveDate: string | null;
+    prohibitedAircraft: string[] | null;
+    guidanceLines: {
+        id: number;
+        maximumWingspan: number | null;
+        status: 'open' | 'closed' | null;
+    }[];
+}
+
 export interface NavigraphGate {
     gate_identifier: string;
     gate_latitude: number;
     gate_longitude: number;
     name: string;
     airport_identifier: string;
+    standInformation?: NavigraphStandInformation;
     trulyOccupied?: boolean;
     maybeOccupied?: boolean;
     pixel?: Pixel;

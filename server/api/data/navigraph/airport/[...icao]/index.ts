@@ -13,6 +13,7 @@ import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
 import { isDebug } from '~/utils/server/debug';
+import { getNavigraphStandInformation } from '~/utils/shared/stands';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
@@ -106,6 +107,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                     gate_latitude: coords[1],
                     name: ident,
                     airport_identifier: area.properties.idarpt,
+                    standInformation: getNavigraphStandInformation(area.properties, applicableStandLines.map(line => line.properties)),
                 }];
             });
 
@@ -120,6 +122,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                 gate_latitude: coords[1],
                 name: ident,
                 airport_identifier: area.properties.idarpt,
+                standInformation: getNavigraphStandInformation(area.properties, []),
             }));
 
             return [...guidanceLineGates, ...centroidGates];

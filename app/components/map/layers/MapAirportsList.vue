@@ -16,6 +16,7 @@ import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
 import { isHideMapObject } from '~/composables/settings';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
+import { getStandDemoData } from '~/utils/dev/stand-fixtures';
 
 defineOptions({
     render: () => null,
@@ -26,6 +27,8 @@ export type AirportNavigraphData = Record<string, NavigraphAirportData>;
 const mapStore = useMapStore();
 const map = injectMap();
 const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
+const route = useRoute();
+const standDemoData = import.meta.dev && route.query.standDemo === '1' ? getStandDemoData() : undefined;
 
 let airportsLayer: VectorLayer<any>;
 let airportsSource: VectorSource;
@@ -33,7 +36,7 @@ let airportsSource: VectorSource;
 let navigraphLayer: VectorImageLayer<any>;
 let navigraphSource: VectorSource;
 
-let gatesLayer: VectorImageLayer<any>;
+let gatesLayer: VectorLayer<any>;
 let gatesSource: VectorSource;
 
 const now = new Date();
@@ -163,12 +166,11 @@ onMounted(() => {
         },
     });
 
-    gatesLayer = new VectorImageLayer<any>({
+    gatesLayer = new VectorLayer<any>({
         source: gatesSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
         minZoom: 15,
         declutter: 'gates',
-        imageRatio: touch.value ? 1 : 1.5,
         properties: {
             type: 'airports-gates',
         },
@@ -180,7 +182,7 @@ onMounted(() => {
 
     const updateAirports = useThrottleFn(async () => {
         const log = logBench('airportsPrepare');
-        const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value! });
+        const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value!, skipNavigraph: !!standDemoData });
         log();
         if (!result) return;
         airportsList.value = result.all;
@@ -233,7 +235,7 @@ onMounted(() => {
             airports: getShownAirports.value,
             layer: gatesLayer,
             source: gatesSource,
-            navigraphData: navigraphData.value,
+            navigraphData: standDemoData ? { ...navigraphData.value, ...standDemoData } : navigraphData.value,
         });
 
         setMapNavigraphLayout({

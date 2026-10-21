@@ -206,10 +206,11 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
 
 const airportList = activeAirportsList();
 
-export async function getInitialAirportsList({ navigraphData, source, map }: {
+export async function getInitialAirportsList({ navigraphData, source, map, skipNavigraph = false }: {
     navigraphData: Ref<Record<string, NavigraphAirportData>>;
     source: VectorSource;
     map: Map;
+    skipNavigraph?: boolean;
 }): Promise<VisibleAirportsResult | null> {
     const dataStore = useDataStore();
     if (settingAirports || !dataStore.vatspy.value || !map) return null;
@@ -283,7 +284,7 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
             list.push(result);
         }));
 
-        if (mapStore.zoom > 12) {
+        if (mapStore.zoom > 12 && !skipNavigraph) {
             await Promise.all(visibleAirports.map(async airport => {
                 if (!dataStore.vatspy.value!.data.keyAirports.realIcao[airport.icao] || navigraphData.value[airport.icao]) return {};
 

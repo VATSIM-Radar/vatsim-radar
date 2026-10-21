@@ -166,6 +166,8 @@ import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCount
 import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
 import MapPopupSigmet from '~/components/map/popups/MapPopupSigmet.vue';
 import MapPopupNavigraph from '~/components/map/popups/MapPopupNavigraph.vue';
+import MapPopupStand from '~/components/map/popups/MapPopupStand.vue';
+import { hasNavigraphStandInformation } from '~/utils/shared/stands';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
@@ -290,6 +292,9 @@ const interactableElements = {
     navigraph: {
         overlayComponent: MapPopupNavigraph,
     },
+    stand: {
+        overlayComponent: MapPopupStand,
+    },
 } satisfies Record<string, Overlay>;
 
 type OverlayKey = keyof typeof interactableElements;
@@ -305,7 +310,7 @@ const select = useTemplateRef('select');
 useClickOutside({
     element: select,
     callback: el => {
-        if (!isMobileOrTablet.value || !map.value || (el.target as HTMLElement)?.closest('.vbs')) return;
+        if (!isMobileOrTablet.value || !map.value || (el.target as HTMLElement)?.closest('.vbs, .tooltip_container')) return;
         map.value!.getTargetElement().style.cursor = 'grab';
         openedOverlay.value = null;
         selectFeature(false);
@@ -361,6 +366,13 @@ function selectFeature(feature: Feature | false, selected?: boolean) {
 }
 
 const isTouch = useIsTouch();
+const standAction: RadarEventAction = payload => {
+    const properties = payload.feature.getProperties();
+    if (!isMapFeature('airport-navigraph', properties) || properties.featureType !== 'gate') return false;
+    if (!hasNavigraphStandInformation(properties.standInformation)) return;
+    return openOverlay('stand', payload, 'stand');
+};
+
 const isMobileOrTablet = isTouch;
 const isMobile = useIsMobile();
 const hoverInteractionSetting = useSettingValueFromFunc('map.preferences.hoverInteraction');
@@ -621,6 +633,11 @@ const definitions: Record<SelectableFeatures, Definition> = {
         },
         disableMobileHoverFallback: true,
     },
+    stand: {
+        featureTypes: ['airport-navigraph'],
+        click: standAction,
+        disableMobileHoverFallback: true,
+    },
 };
 
 type SelectableFeatures =
@@ -633,6 +650,7 @@ type SelectableFeatures =
     | 'aircraft'
     | 'sigmet'
     | 'distance'
+    | 'stand'
     | 'navigraph';
 
 const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Ref<Feature[]> }> = {
@@ -661,6 +679,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportControllers',
             'airportApproach',
             'aircraft',
+            'stand',
             'multi',
             'sectorVG',
             'sigmet',
@@ -721,6 +740,7 @@ function createSelectHandler(type: EventType, select: Select) {
             if (!map.value) return;
             const selected = (arg.mapBrowserEvent && type !== 'hover') ? arg.selected : select.getFeatures().getArray();
             const currentHoverRequestId = type === 'hover' ? ++hoverRequestId : undefined;
+            if (type === 'hover' && openedOverlay.value?.key === 'stand') return;
             states[type].selectedFeatures.value = selected.slice(0);
 
             if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
@@ -732,6 +752,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 openedOverlay.value = null;
                 if (type === 'hover' || isMobileOrTablet.value) {
                     sleep(100).then(() => {
+                        if (type === 'hover' && openedOverlay.value?.key === 'stand') return;
                         // A newer pointer position owns the hover state now.
                         if (type === 'hover' && currentHoverRequestId !== hoverRequestId) return;
 
@@ -770,6 +791,8 @@ function createSelectHandler(type: EventType, select: Select) {
 
                     // Do not let a delayed hover action overwrite a newer one.
                     if (currentHoverRequestId !== hoverRequestId) return;
+
+                    if (openedOverlay.value?.key === 'stand') return;
 
                     if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
 
@@ -860,7 +883,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 }
             }
 
-            if (type === 'hover' && currentHoverRequestId !== hoverRequestId) return;
+            if (type === 'hover' && (currentHoverRequestId !== hoverRequestId || openedOverlay.value?.key === 'stand')) return;
 
             if (!tookAction) {
                 if (type === 'hover') {
@@ -891,12 +914,14 @@ watch(map, val => {
         const type = layer.getProperties().type;
         const featureType = feature.getProperties().type;
         const selectable = layer.getProperties().selectable;
+        if (featureType === 'airport-navigraph') return feature.getProperties().featureType === 'gate';
 
         // TODO
         return selectable || (type?.startsWith('airports') && featureType !== 'airport-tracon' && featureType !== 'airport-circle') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
     };
 
     hoverFilter = (feature, layer) => {
+        if (feature.getProperties().type === 'airport-navigraph') return false;
         if (isMobileOrTablet.value && feature.getProperties().type === 'navigraph') return false;
         return filter(feature, layer);
     };
