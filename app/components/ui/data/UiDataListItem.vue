@@ -14,6 +14,7 @@
                 v-if="$slots.tooltip"
                 class="list-item_title_tooltip"
                 :location="tooltipLocation"
+                :teleported="tooltipTeleported"
                 :width="tooltipWidth"
             >
                 <template
@@ -48,6 +49,10 @@ defineProps({
     },
     tooltipWidth: {
         type: String,
+    },
+    tooltipTeleported: {
+        type: Boolean,
+        default: false,
     },
     swapTypes: {
         type: Boolean,

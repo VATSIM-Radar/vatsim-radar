@@ -1,4 +1,5 @@
 import { Feature } from 'ol';
+import type { NavigraphStandInformation } from '~/types/data/navigraph';
 import type { Geometry, LineString, MultiLineString, Point } from 'ol/geom.js';
 import type Polygon from 'ol/geom/Polygon.js';
 import type MultiPolygon from 'ol/geom/MultiPolygon.js';
@@ -96,6 +97,7 @@ export interface FeatureAirportAirportCounterProperties {
 
 export interface FeatureAirportNavigraphProperties {
     type: 'airport-navigraph';
+    standInformation?: NavigraphStandInformation;
     identifier?: string;
     ident?: string;
     idlin?: string;
