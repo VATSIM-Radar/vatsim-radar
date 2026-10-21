@@ -215,7 +215,7 @@ watch([model, () => props.teleported], async () => {
 const tooltipEventTarget = computed(() => import.meta.client && props.teleported && model.value ? window : undefined);
 useEventListener(tooltipEventTarget, 'resize', updateTooltipPosition);
 useEventListener(tooltipEventTarget, 'scroll', updateTooltipPosition, true);
-useEventListener(tooltipEventTarget, 'keydown', event => {
+useEventListener<KeyboardEvent>(tooltipEventTarget, 'keydown', event => {
     if (event.key !== 'Escape') return;
     event.stopPropagation();
     model.value = false;

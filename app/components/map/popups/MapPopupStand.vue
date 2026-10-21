@@ -17,9 +17,6 @@
             @update:modelValue="emit('close')"
         >
             <template #title>
-                <template v-if="properties?.standInformation?.source === 'Synthetic demo data'">
-                    TEST -
-                </template>
                 {{ properties?.airport }} / {{ properties?.identifier }}
             </template>
             <ui-data-list

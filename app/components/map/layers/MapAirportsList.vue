@@ -16,7 +16,6 @@ import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
 import { isHideMapObject } from '~/composables/settings';
 import VectorImageLayer from 'ol/layer/VectorImage.js';
-import { getStandDemoData } from '~/utils/dev/stand-fixtures';
 
 defineOptions({
     render: () => null,
@@ -27,8 +26,6 @@ export type AirportNavigraphData = Record<string, NavigraphAirportData>;
 const mapStore = useMapStore();
 const map = injectMap();
 const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
-const route = useRoute();
-const standDemoData = import.meta.dev && route.query.standDemo === '1' ? getStandDemoData() : undefined;
 
 let airportsLayer: VectorLayer<any>;
 let airportsSource: VectorSource;
@@ -182,7 +179,7 @@ onMounted(() => {
 
     const updateAirports = useThrottleFn(async () => {
         const log = logBench('airportsPrepare');
-        const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value!, skipNavigraph: !!standDemoData });
+        const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value! });
         log();
         if (!result) return;
         airportsList.value = result.all;
@@ -235,7 +232,7 @@ onMounted(() => {
             airports: getShownAirports.value,
             layer: gatesLayer,
             source: gatesSource,
-            navigraphData: standDemoData ? { ...navigraphData.value, ...standDemoData } : navigraphData.value,
+            navigraphData: navigraphData.value,
         });
 
         setMapNavigraphLayout({

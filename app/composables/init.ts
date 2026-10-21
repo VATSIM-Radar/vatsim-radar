@@ -377,8 +377,6 @@ async function updateNavigraph() {
 
 export function checkForNavigraph() {
     return initCheck('navigraph', async ({ store, dataStore }) => {
-        if (import.meta.dev && import.meta.client && new URLSearchParams(window.location.search).get('standDemo') === '1') return 'notRequired';
-
         try {
             const navigraph = await dataStore.navigraph.data('version');
 

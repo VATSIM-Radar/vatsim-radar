@@ -4,7 +4,7 @@ import type { FeatureCollection } from 'geojson';
 import type { AmdbLayerName } from '@navigraph/amdb';
 
 export interface NavigraphStandInformation {
-    source: 'Navigraph AMDB' | 'Synthetic demo data';
+    source: 'Navigraph AMDB';
     effectiveDate: string | null;
     prohibitedAircraft: string[] | null;
     guidanceLines: {
