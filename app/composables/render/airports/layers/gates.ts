@@ -132,9 +132,11 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const existingFeature = getMapFeature('airport-navigraph', source, id);
 
             if (existingFeature) {
-                if (existingFeature.getProperties().standInformation !== gate.standInformation) {
-                    existingFeature.setProperties({ standInformation: gate.standInformation });
-                }
+                // OpenLayers only emits propertychange for changed values, so an open stand popup refreshes only when data changes
+                existingFeature.setProperties({
+                    restacn: gate.restacn,
+                    guidanceLines: gate.guidanceLines,
+                });
                 if (existingFeature.getProperties().gateColor !== color) {
                     existingFeature.setProperties({
                         gateColor: color,
@@ -152,7 +154,8 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                     gateColor: color,
                     airport: icao,
                     featureType: 'gate',
-                    standInformation: gate.standInformation,
+                    restacn: gate.restacn,
+                    guidanceLines: gate.guidanceLines,
                     trulyOccupied: gate.trulyOccupied,
                     maybeOccupied: gate.maybeOccupied,
                 });

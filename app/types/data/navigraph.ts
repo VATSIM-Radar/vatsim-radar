@@ -1,18 +1,10 @@
 import type { Pixel } from 'ol/pixel.js';
 import type { PartialRecord } from '~/types';
 import type { FeatureCollection } from 'geojson';
-import type { AmdbLayerName } from '@navigraph/amdb';
+import type { AmdbLayerName, AmdbResponseStructure } from '@navigraph/amdb';
 
-export interface NavigraphStandInformation {
-    source: 'Navigraph AMDB';
-    effectiveDate: string | null;
-    prohibitedAircraft: string[] | null;
-    guidanceLines: {
-        id: number;
-        maximumWingspan: number | null;
-        status: 'open' | 'closed' | null;
-    }[];
-}
+export type NavigraphStandArea = Pick<AmdbResponseStructure['parkingstandarea']['features'][number]['properties'], 'restacn'>;
+export type NavigraphStandGuidanceLine = Pick<AmdbResponseStructure['standguidanceline']['features'][number]['properties'], 'wingspan' | 'status'>;
 
 export interface NavigraphGate {
     gate_identifier: string;
@@ -20,7 +12,9 @@ export interface NavigraphGate {
     gate_longitude: number;
     name: string;
     airport_identifier: string;
-    standInformation?: NavigraphStandInformation;
+    // Raw AMDB stand fields, parsed on frontend (see utils/shared/stands.ts)
+    restacn?: NavigraphStandArea['restacn'];
+    guidanceLines?: NavigraphStandGuidanceLine[];
     trulyOccupied?: boolean;
     maybeOccupied?: boolean;
     pixel?: Pixel;

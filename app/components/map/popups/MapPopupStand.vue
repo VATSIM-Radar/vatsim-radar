@@ -1,6 +1,6 @@
 <template>
     <map-html-overlay
-        v-if="items.length"
+        v-if="stand"
         model-value
         :settings="{ position: payload.coordinate, stopEvent: true, positioning: 'top-center' }"
         :z-index="20"
@@ -19,6 +19,15 @@
             <template #title>
                 {{ properties?.airport }} / {{ properties?.identifier }}
             </template>
+            <template #titleAppend>
+                <ui-tooltip
+                    align="right"
+                    location="bottom"
+                    width="240px"
+                >
+                    {{ hint }}
+                </ui-tooltip>
+            </template>
             <ui-data-list
                 :grid-columns="1"
                 :items="items"
@@ -32,14 +41,17 @@ import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
 import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
+import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import type { FeatureAirportNavigraph } from '~/utils/map/entities';
+import { parseNavigraphStand } from '~/utils/map/stands';
 
 const props = defineProps<{ payload: RadarEventPayload<FeatureAirportNavigraph> }>();
 const emit = defineEmits<{ close: []; id: [id: string] }>();
 
 const properties = shallowRef<ReturnType<FeatureAirportNavigraph['getProperties']>>();
 
+// Feature properties are not reactive, so follow OpenLayers changes to keep an open popup up to date
 watchEffect(onCleanup => {
     const feature = props.payload.feature;
     const updateProperties = () => {
@@ -50,41 +62,43 @@ watchEffect(onCleanup => {
     onCleanup(() => feature.un('propertychange', updateProperties));
 });
 
+const stand = computed(() => properties.value && parseNavigraphStand(properties.value));
+
 const items = computed<DataListItem[]>(() => {
-    const information = properties.value?.standInformation;
-    const guidanceLines = Array.isArray(information?.guidanceLines) ? information.guidanceLines.filter(line => line && Number.isInteger(line.id) && line.id >= 0) : [];
-    const restrictions = Array.isArray(information?.prohibitedAircraft) ? information.prohibitedAircraft.filter(aircraft => typeof aircraft === 'string' && aircraft.trim()) : [];
-    const result: DataListItem[] = [];
+    if (!stand.value) return [];
 
-    for (const line of guidanceLines) {
-        const wingspan = typeof line.maximumWingspan === 'number' && Number.isFinite(line.maximumWingspan) && line.maximumWingspan > 0 ? `${ line.maximumWingspan } m` : null;
-        const status = line.status === 'closed' ? 'closed' : line.status === 'open' ? 'open' : null;
-        if (!wingspan && !status) continue;
-        const title = wingspan ? guidanceLines.length > 1 ? 'Max span' : 'Max wingspan' : 'Permanent status';
-        result.push({
-            title: guidanceLines.length > 1 ? `${ title } (line ${ line.id })` : title,
-            text: [wingspan, status].filter(Boolean).join(' / '),
-            tooltip: 'Maximum wingspan and permanent status for this guidance line. Temporary closures are not included; check current NOTAMs.',
-            tooltipWidth: '240px',
-            tooltipTeleported: true,
-        });
-    }
+    const { guidanceLines, prohibitedAircraft } = stand.value;
+    const multipleLines = guidanceLines.length > 1;
 
-    if (restrictions.length) {
+    const result: DataListItem[] = guidanceLines.map((line, index) => {
+        const title = line.wingspan ? (multipleLines ? 'Max span' : 'Max wingspan') : 'Permanent status';
+
+        return {
+            title: multipleLines ? `${ title } (line ${ index + 1 })` : title,
+            text: [line.wingspan && `${ line.wingspan } m`, line.status].filter(Boolean).join(' / '),
+        };
+    });
+
+    if (prohibitedAircraft.length) {
         result.push({
             title: 'Prohibited aircraft',
-            text: restrictions.join(', '),
-            tooltip: 'Only published prohibited aircraft are shown; omitted restrictions do not mean the stand is unrestricted.',
-            tooltipWidth: '240px',
-            tooltipTeleported: true,
+            text: prohibitedAircraft.join(', '),
         });
     }
 
     return result;
 });
 
-watch(() => items.value.length, length => {
-    if (!length) emit('close');
+// Single help text for the whole popup, only mentioning rows that are shown
+const hint = computed(() => [
+    stand.value?.guidanceLines.length && 'Maximum wingspan and permanent status per guidance line. Temporary closures are not included; check current NOTAMs.',
+    stand.value?.prohibitedAircraft.length && 'Only published prohibited aircraft are shown.',
+    'Missing restrictions do not mean the stand is unrestricted.',
+].filter(Boolean).join(' '));
+
+// Stand data can disappear on refresh - close instead of showing an empty popup
+watch(stand, val => {
+    if (!val) emit('close');
 }, { immediate: true });
 </script>
 

@@ -10,7 +10,6 @@
             class="list_item"
             :class="{ 'list_item--clickable': !!item.onClick }"
             :tooltip-location="item.tooltipLocation ?? tooltipLocation ?? 'top'"
-            :tooltip-teleported="item.tooltipTeleported"
             :tooltip-width="item?.tooltipWidth"
             @click="item.onClick?.()"
         >
@@ -86,7 +85,6 @@ export interface DataListItem {
     tooltip?: string;
     tooltipTitle?: string;
     tooltipWidth?: string;
-    tooltipTeleported?: boolean;
     tooltipLocation?: TooltipLocation;
     hide?: boolean;
     onClick?: () => any;
