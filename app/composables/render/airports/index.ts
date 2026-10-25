@@ -149,9 +149,10 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
             cached.add(callsign);
         }
 
-        const finalFeatures: [controller: VatsimShortenedController, sector: SimAwareDataFeature][] = [];
+        let finalFeatures: [controller: VatsimShortenedController, sector: SimAwareDataFeature][] = [];
 
         const prefixesList: Record<string, { sector: SimAwareDataFeature; length: number }[]> = {};
+        const suffixesList: Record<string, boolean> = {};
 
         for (const sector of traconFeatures) {
             const prefixes = getTraconPrefixes(sector);
@@ -168,10 +169,13 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
                     finalFeatures.push([controller, sector]);
                     prefixesList[controller.callsign] ??= [];
                     prefixesList[controller.callsign].push({ sector, length: matchedPrefix.length });
+                    suffixesList[controller.callsign] ||= !!suffix;
                     continue;
                 }
             }
         }
+
+        finalFeatures = finalFeatures.filter(x => !suffixesList[x[0].callsign] || x[1].properties.suffix);
 
         finalFeatures.forEach(([controller, sector]) => {
             let itemLength = 0;

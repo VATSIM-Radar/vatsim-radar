@@ -1,7 +1,7 @@
 <template>
     <popup-fullscreen
         disabled
-        :model-value="store.initStatus.status === true"
+        :model-value="showInitPopup"
         width="600px"
     >
         <template #title>
@@ -113,6 +113,18 @@ const retries = computed(() => {
     if (!retries.length) return null;
 
     return retries;
+});
+
+const someHadLoad = ref(false);
+
+const showInitPopup = computed(() => {
+    if (store.initStatus.status === false) return false;
+    const someLoading = Object.entries(store.initStatus).find(([key, value]) => key !== 'dataGet' && key !== 'updatesCheck' && value === 'loading');
+
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+    if (someLoading && !someHadLoad.value) someHadLoad.value = true;
+
+    return someLoading || someHadLoad.value;
 });
 
 const retry = async () => {

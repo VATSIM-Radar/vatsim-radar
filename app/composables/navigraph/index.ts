@@ -226,6 +226,27 @@ function parseCoordPart(raw: string, degreeDigits: 2 | 3, isLonDir2 = false): nu
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const value = input.trim();
 
+    // ARINC 424 shorthand encodes a quadrant, not a single hemisphere.
+    // N/E/W/S mean NW/NE/SW/SE; a middle letter adds 100 degrees longitude.
+    // Parse it before preciseRegex, which otherwise treats 07W70 as north by default.
+    const shorthand = value.match(/^(\d{2})(?:([NSEW])(\d{2})|(\d{2})([NSEW]))$/);
+    if (shorthand) {
+        const [, latRaw, middleQuadrant, middleLon, trailingLon, trailingQuadrant] = shorthand;
+        const quadrant = middleQuadrant ?? trailingQuadrant;
+        const lat = parseInt(latRaw, 10);
+        const lon = parseInt(middleLon ?? trailingLon, 10) + (middleQuadrant ? 100 : 0);
+
+        if (lat > 90 || lon > 180) return null;
+
+        const latDir = quadrant === 'W' || quadrant === 'S' ? 'S' : 'N';
+        const lonDir = quadrant === 'N' || quadrant === 'W' ? 'W' : 'E';
+
+        return [
+            [withSign(lon, lonDir), withSign(lat, latDir)],
+            `${ latDir }${ latRaw }${ lonDir }${ String(lon).padStart(3, '0') }`,
+        ];
+    }
+
     const match = value.match(preciseRegex);
     if (!match) return null;
 

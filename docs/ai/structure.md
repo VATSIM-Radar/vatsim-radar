@@ -134,6 +134,7 @@ Client performance audit entry points:
 
 - Aircraft hot path: `app/components/map/layers/MapAircraftList.vue` throttles visibility/render updates, `app/composables/render/aircraft/index.ts` reconciles OpenLayers aircraft/line features, `app/composables/render/aircraft/style.ts` supplies the per-feature style callback, and `app/composables/render/aircraft/smooth.ts` owns the optional frame loop.
 - Live-data fan-out: `app/composables/render/storage.ts` converts compact/mandatory feeds and `app/composables/index.ts` maps `short`/`mandatory` timestamps to update callbacks; `app/composables/render/update/index.ts` rebuilds derived airport/sector state.
+- Aircraft startup tracing: `checkForData()` in `app/composables/init.ts` delegates to `useStore().getVATSIMData()` in `app/store/index.ts`, which owns compact-feed version gating and mandatory fallback. `MapAircraftList.vue` seeds `visiblePilots` from `_mandatoryData`; airport/dashboard restrictions also read `airportsList`, whose replacement triggers the same throttled visibility recalculation as live-feed updates. Country-based flight filters in `app/composables/settings/filter.ts` resolve countries through the VATSpy-backed `getAirportCountry()` in `app/composables/vatsim/airport.ts`.
 - Visibility feedback: `app/components/views/ViewMap.vue` derives `renderedPilots`/`renderedAirports` from OpenLayers declutter during throttled `postrender` callbacks; these sets feed aircraft visibility, style decluttering, and smooth-movement decisions.
 - Enriched list getters: `app/store/index.ts` computes `lists`, `friends`, and `allFriends` from current live datasets; consumers in filters and aircraft styling can therefore add live-array scans to update paths.
 
@@ -189,6 +190,7 @@ Feature-level UI lives under `app/components/features`:
 - `events/`: VATSIM event cards/details.
 - `navigation/`: AIRAC/favorites/featured airport widgets.
 - `vatsim/airport/`: airport detail panels such as METAR, TAF, controllers, aircraft, NOTAMs, procedures.
+  - `AirportInfo.vue` is shared by `app/pages/airport/[icao].vue` and `app/components/map/overlays/MapOverlayAirport.vue`; its airport context comes from `provideAirport`/`injectAirport` in `app/composables/vatsim/airport.ts`.
 - `vatsim/controllers/`: controller display helpers.
 - `vatsim/pilots/`: pilot detail helpers.
 
@@ -228,7 +230,7 @@ Important composable groups:
   - Airway parsing keeps one session-local graph per airway identifier, shared across pilots and expired by inactivity alongside the existing short Navigraph data cache. Resolved `from -> to` paths are not cached.
   - `getNavigraphParsedDataBulk` resolves unique short-data identifier buckets from the in-memory cache and fetches remaining buckets with one IndexedDB `bulkGet`; `NavigraphRoute.vue` uses it for airway NDB/VHF enrichment.
   - `app/components/map/overlays/pilot/MapPilotOverlay.vue` clears the CID-keyed selected procedure state in memory and in `localStorage` when the pilot receives a new flight plan.
-  - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
+  - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens (including five-character ARINC 424 quadrant shorthand) and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
 - `app/composables/vatsim/controllers.ts`: shared controller lookup, airport/sector extent resolution, and map navigation helpers. `findATCSector()` returns geographic extents with a small look-ahead gap for controller navigation.
