@@ -36,7 +36,7 @@ import UiDataList from '~/components/ui/data/UiDataList.vue';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
 import tzlookup from '@photostructure/tz-lookup';
-import { getSunTimes } from '~/utils/shared/sun';
+import { getLocalNoon, getSunTimes } from '~/utils/shared/sun';
 
 const dataStore = useDataStore();
 const data = injectAirport();
@@ -109,7 +109,8 @@ function formatSunTime(date: Date) {
 const sunTimes = computed(() => {
     if (!vatAirport.value) return null;
 
-    const { sunrise, sunset, polar } = getSunTimes(now.value, vatAirport.value.lat, vatAirport.value.lon);
+    const { lat, lon } = vatAirport.value;
+    const { sunrise, sunset, polar } = getSunTimes(getLocalNoon(now.value, lon, timeZone.value), lat, lon);
 
     if (polar) {
         return {
