@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.5-beta.1]
+
+- ARINC coordinate shorthand improperly parsed (such as 17W75)
+- Fixed rare case when some approach sectors were duplicated, such as LAX_DEP lighting up LAX_APP sector
+- Improved aircraft load speed after initial load
+- Removed init popup when there is nothing to update
+- Fixed airlines updating each time you open VATSIM Radar
+
 # [2.0.4-1]
 
 - Fixed error in default airport dashboard when aircraft tracks were not shown

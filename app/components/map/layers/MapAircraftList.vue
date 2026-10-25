@@ -399,7 +399,7 @@ const debouncedUpdate = useThrottleFn(() => {
     }
 }, 300, true);
 
-useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings, airportOverlays], () => {
+useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings, airportOverlays, dataStore.airportsList], () => {
     if (!init) return;
     visibleSet();
 });
