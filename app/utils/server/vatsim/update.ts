@@ -396,8 +396,8 @@ export async function updateSectorsData() {
                 if (!sector || typeof sector !== 'object' ||
                     typeof sector.Name !== 'string' || !sector.Name ||
                     typeof sector.Callsign !== 'string' || !sector.Callsign ||
-                    !(typeof sector.Frequency === 'string' && sector.Frequency ||
-                        typeof sector.Frequency === 'number' && Number.isFinite(sector.Frequency))) {
+                    !((typeof sector.Frequency === 'string' && sector.Frequency) ||
+                        (typeof sector.Frequency === 'number' && Number.isFinite(sector.Frequency)))) {
                     console.error(`Invalid sector for ${ region } at index ${ index }:`, sector);
                     continue;
                 }
