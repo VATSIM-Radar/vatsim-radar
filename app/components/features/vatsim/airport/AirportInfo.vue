@@ -3,6 +3,14 @@
         v-if="airportInfo"
         class="__info-sections"
     >
+        <ui-text
+            v-if="localTime"
+            class="airport__time"
+            type="3b"
+        >
+            Local time: <ui-chip>{{localTime}}</ui-chip>
+        </ui-text>
+
         <ui-data-list
             :grid-columns="1"
             :items="[
@@ -22,106 +30,33 @@
                 { title: 'Transition Altitude', text: airportInfo.transition_alt },
                 { title: 'CTAF', text: airportInfo.ctafFreq, hide: !airportInfo.ctafFreq },
                 { title: 'Magnetic Declination', text: decl, hide: !decl },
-                { title: 'Local Time', text: localTime, hide: !localTime },
-                { title: 'Sunrise', text: sunTimes?.sunrise, hide: !sunTimes?.sunrise },
-                { title: 'Sunset', text: sunTimes?.sunset, hide: !sunTimes?.sunset },
             ]"
         />
+        <airport-sun-times/>
     </div>
 </template>
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
-import tzlookup from '@photostructure/tz-lookup';
-import { getLocalNoon, getSunTimes } from '~/utils/shared/sun';
+import UiText from '~/components/ui/text/UiText.vue';
+import AirportSunTimes from '~/components/features/vatsim/airport/AirportSunTimes.vue';
+import { useAirportTime } from '~/composables/vatsim/airport-time';
 
-const dataStore = useDataStore();
 const data = injectAirport();
 
 const airportInfo = computed(() => data.value.airport?.vatInfo);
-const vatAirport = computed(() => {
-    if (!data.value.airport?.vatInfo?.icao) return null;
-    return dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.airport?.vatInfo?.icao] ?? null;
-});
+const { vatAirport, localTime } = useAirportTime();
 const decl = computed(() => vatAirport.value ? Math.round(magvar(vatAirport.value.lat, vatAirport.value.lon)) : null);
-
-const now = ref(new Date());
-let interval: ReturnType<typeof setInterval> | undefined;
-
-onMounted(() => {
-    interval = setInterval(() => now.value = new Date(), 1000 * 10);
-});
-
-onBeforeUnmount(() => clearInterval(interval));
-
-const timeZone = computed(() => {
-    if (!vatAirport.value) return null;
-
-    try {
-        return tzlookup(vatAirport.value.lat, vatAirport.value.lon);
-    }
-    catch {
-        return null;
-    }
-});
-
-const utcFormatter = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-});
-
-const localFormatter = computed(() => {
-    if (!timeZone.value) return null;
-
-    return new Intl.DateTimeFormat('en-GB', {
-        timeZone: timeZone.value,
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZoneName: 'shortOffset',
-    });
-});
-
-// Formats as "14:32 (UTC+2)"
-function formatLocalTime(date: Date) {
-    const parts = localFormatter.value!.formatToParts(date);
-    const time = parts.filter(x => x.type === 'hour' || x.type === 'literal' || x.type === 'minute').map(x => x.value).join('').trim();
-    const offset = parts.find(x => x.type === 'timeZoneName')?.value.replace('GMT', 'UTC');
-
-    return `${ time } (${ offset })`;
-}
-
-const localTime = computed(() => localFormatter.value ? formatLocalTime(now.value) : null);
-
-// Formats as "06:41 local, 04:41z", or only zulu time when timezone is unknown
-function formatSunTime(date: Date) {
-    const utc = `${ utcFormatter.format(date) }z`;
-    if (!localFormatter.value) return utc;
-
-    return `${ formatLocalTime(date).split(' ')[0] } local, ${ utc }`;
-}
-
-const sunTimes = computed(() => {
-    if (!vatAirport.value) return null;
-
-    const { lat, lon } = vatAirport.value;
-    const { sunrise, sunset, polar } = getSunTimes(getLocalNoon(now.value, lon, timeZone.value), lat, lon);
-
-    if (polar) {
-        return {
-            sunrise: polar === 'day' ? 'Polar day' : 'Polar night',
-            sunset: null,
-        };
-    }
-
-    return {
-        sunrise: sunrise && formatSunTime(sunrise),
-        sunset: sunset && formatSunTime(sunset),
-    };
-});
 </script>
+
+<style lang="scss" scoped>
+.airport__time {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+</style>

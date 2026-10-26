@@ -94,8 +94,25 @@
             v-else
             #name
         >
-            <div class="airport__name">
-                {{ airport.name }}
+            <div class="airport__info">
+                <div class="airport__name">
+                    {{ airport.name }}
+                </div>
+                <ui-text
+                    v-if="localTime"
+                    class="airport__time"
+                    type="3b"
+                >
+                    Local time: <ui-chip>{{localTime}}</ui-chip>
+                </ui-text>
+                <ui-text
+                    v-if="localTime"
+                    class="airport__time"
+                    type="3b"
+                >
+                    Magnetic Declination: <ui-chip>{{decl}}</ui-chip>
+                </ui-text>
+                <airport-sun-times :airport="airport"/>
             </div>
         </template>
         <template #atc>
@@ -183,6 +200,7 @@ import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue'
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
 import AirportInfo from '~/components/features/vatsim/airport/AirportInfo.vue';
+import AirportSunTimes from '~/components/features/vatsim/airport/AirportSunTimes.vue';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
@@ -203,6 +221,11 @@ import AirportProcedures from '~/components/features/vatsim/airport/AirportProce
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import MapOverlayAirportCounts from '~/components/map/overlays/MapOverlayAirportCounts.vue';
 import UiSettingItem from '~/components/ui/data/UiSettingItem.vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import { useAirportTime } from '~/composables/vatsim/airport-time';
+// @ts-expect-error JS-only lib
+import { magvar } from 'magvar';
 
 const props = defineProps({
     overlay: {
@@ -243,6 +266,9 @@ const notams = computed(() => props.overlay.data.notams);
 
 const isExpanded = computed(() => !props.overlay.collapsed && !props.overlay.minified);
 let hasOpened = false;
+
+const { localTime } = useAirportTime(airport);
+const decl = computed(() => airport.value ? Math.round(magvar(airport.value.lat, airport.value.lon)) : null);
 
 async function refreshWeatherAndNotams() {
     const icao = airport.value?.icao;
@@ -362,7 +388,7 @@ const tabs = computed<InfoPopupContent>(() => {
     }
     else {
         list.info.sections.push({
-            title: 'Airport name',
+            title: 'Airport Info',
             key: 'name',
         });
     }
@@ -490,6 +516,18 @@ onMounted(() => {
     &__name {
         font-size: 12px;
         font-weight: 600;
+    }
+
+    &__time {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     &__ground-toggles {

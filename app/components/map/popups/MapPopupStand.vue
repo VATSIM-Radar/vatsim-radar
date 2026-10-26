@@ -70,11 +70,21 @@ const items = computed<DataListItem[]>(() => {
     const { guidanceLines, prohibitedAircraft } = stand.value;
     const multipleLines = guidanceLines.length > 1;
 
-    const result: DataListItem[] = guidanceLines.map((line, index) => {
+    const groups: { line: typeof guidanceLines[number]; numbers: number[] }[] = [];
+    for (const [index, line] of guidanceLines.entries()) {
+        const group = groups.find(({ line: current }) => current.wingspan === line.wingspan && current.status === line.status);
+        if (group) group.numbers.push(index + 1);
+        else groups.push({ line, numbers: [index + 1] });
+    }
+
+    const result: DataListItem[] = groups.map(({ line, numbers }) => {
         const title = line.wingspan ? (multipleLines ? 'Max span' : 'Max wingspan') : 'Permanent status';
+        const lineNumbers = numbers.length > 1 && numbers.every((number, index) => number === numbers[0] + index)
+            ? `${ numbers[0] }–${ numbers[numbers.length - 1] }`
+            : numbers.join(', ');
 
         return {
-            title: multipleLines ? `${ title } (line ${ index + 1 })` : title,
+            title: multipleLines ? `${ title } (${ numbers.length === 1 ? 'line' : 'lines' } ${ lineNumbers })` : title,
             text: [line.wingspan && `${ line.wingspan } m`, line.status].filter(Boolean).join(' / '),
         };
     });

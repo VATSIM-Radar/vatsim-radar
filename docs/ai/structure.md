@@ -174,7 +174,7 @@ Map component groups:
 - `app/components/popups/PopupMapInfo.vue`: shared framed popup block used by map popups and as the inner content shell for fullscreen dialogs; its title close button only updates the block `modelValue`.
 - `app/components/popups/PopupFullscreen.vue`: fullscreen modal wrapper with backdrop/escape/top-right close handling; it embeds `PopupMapInfo` for title/content/actions layout.
 - `app/components/map/layers/MapSelect.vue`: central OpenLayers hover/click/right-click selection interaction. It applies priority ordering, opens feature popups, and owns the click multiselect menu for lower-priority overlapping features such as SIGMET, VATGlasses, and Navigraph.
-- `MapPopupStand.vue` observes OpenLayers feature property changes so displayed stand metadata stays current.
+- `MapPopupStand.vue` observes OpenLayers feature property changes so displayed stand metadata stays current, and groups matching guidance-line rows for display.
 - Airport stand markers are owned by `app/composables/render/airports/layers/gates.ts` (`setMapGatesRunways`) and the gates source/layer in `app/components/map/layers/MapAirportsList.vue`. The interactive gates use `VectorLayer` so label decluttering and selection share the map frame; the separate ground-layout geometry retains `VectorImageLayer` and is rendered by `app/composables/render/airports/layers/layout.ts`. Stand metadata integration starts with the `NavigraphGate` model in `app/types/data/navigraph.ts` and `server/api/data/navigraph/airport/[...icao]/index.ts`, which assembles gate data from Navigraph gates and airport-layout geometry; hover/click integration belongs in `MapSelect.vue`.
 - The airport endpoint copies raw AMDB `parkingstandarea.restacn` and per-line `standguidanceline.wingspan`/`status` onto gate records (`NavigraphGate.restacn`/`guidanceLines`) before stripping layout properties. `gates.ts` carries them onto stand features and refreshes retained features. `app/utils/map/stands.ts` (`parseNavigraphStand`) parses them on the frontend and returns `null` when nothing is known. `MapSelect.vue` routes gate clicks only (not hover or runway labels) to `app/components/map/popups/MapPopupStand.vue` via the `clickOnly` overlay flag. The popup reuses the shared popup/data-list primitives with inline span/status rows and a single title help tooltip. Schema support does not establish populated EKCH coverage.
 - `MapSelect` invalidates delayed hover actions with a request id so stale `pointerMove` handlers cannot overwrite the current cursor, selection, or overlay state.
@@ -193,13 +193,14 @@ Feature-level UI lives under `app/components/features`:
 - `events/`: VATSIM event cards/details.
 - `navigation/`: AIRAC/favorites/featured airport widgets.
 - `vatsim/airport/`: airport detail panels such as METAR, TAF, controllers, aircraft, NOTAMs, procedures.
-  - `AirportInfo.vue` is shared by `app/pages/airport/[icao].vue` and `app/components/map/overlays/MapOverlayAirport.vue`; its airport context comes from `provideAirport`/`injectAirport` in `app/composables/vatsim/airport.ts`.
+  - `AirportInfo.vue` is shared by `app/pages/airport/[icao].vue` and `app/components/map/overlays/MapOverlayAirport.vue`; its airport context comes from `provideAirport`/`injectAirport` in `app/composables/vatsim/airport.ts`. `AirportSunTimes.vue` renders sunrise/sunset in the info panel and in the overlay's fallback `#name` section; `app/composables/vatsim/airport-time.ts` supplies the local clock and sun times from an optional direct VATSpy airport or the injected airport context.
 - `vatsim/controllers/`: controller display helpers.
 - `vatsim/pilots/`: pilot detail helpers.
 
 Reusable UI primitives are in `app/components/ui`:
 
 - `buttons/`, `inputs/`, `text/`, `data/`, plus layout wrappers such as `UiContainer` and `UiPageContainer`.
+- `app/components/ui/data/UiDataList.vue` renders keyed item content through `#item-{key}` slots; `app/components/ui/text/UiChip.vue` supplies the compact value badges used in these rows.
 
 For new UI, prefer these primitives and existing feature/component patterns before adding new base components.
 

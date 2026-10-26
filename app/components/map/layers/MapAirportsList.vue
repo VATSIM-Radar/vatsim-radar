@@ -152,7 +152,7 @@ onMounted(() => {
         imageRatio: touch.value ? 1 : 1.5,
         minZoom: 12,
         style: function(feature) {
-            const type = feature.get('type') as AmdbLayerName;
+            const type = feature.get('featureType') as AmdbLayerName;
             if (zoomHiddenLayoutTypes.has(type) && mapStore.preciseZoom < 14.5) return;
 
             const style = styles[type];

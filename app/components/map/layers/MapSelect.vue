@@ -296,7 +296,6 @@ const interactableElements = {
     },
     stand: {
         overlayComponent: MapPopupStand,
-        clickOnly: true,
     },
 } satisfies Record<string, Overlay>;
 
@@ -647,6 +646,9 @@ const definitions: Record<SelectableFeatures, Definition> = {
 
             return openOverlay('stand', payload, 'stand');
         },
+        hover: () => {
+            return true;
+        },
         disableMobileHoverFallback: true,
     },
 };
@@ -673,6 +675,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportControllers',
             'airportApproach',
             'aircraft',
+            'stand',
             'sectorVG',
             'sigmet',
             'distance',
@@ -930,7 +933,7 @@ watch(map, val => {
     };
 
     hoverFilter = (feature, layer) => {
-        if (feature.getProperties().type === 'airport-navigraph') return false;
+        if (feature.getProperties().type === 'airport-navigraph') return feature.getProperties().featureType === 'gate';
         if (isMobileOrTablet.value && feature.getProperties().type === 'navigraph') return false;
         return filter(feature, layer);
     };
