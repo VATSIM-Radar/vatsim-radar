@@ -94,7 +94,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
         });
     }
 
-    const activeFeatures = new Set<string>();
+    const newlySetAirports = new Set<string>();
 
     if (!styleFillCache.gateDefault) {
         styleFillCache.gateDefault = new Fill({
@@ -125,7 +125,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         for (const gate of resolvedGates) {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
-            activeFeatures.add(id);
             const opacitySetting = getColorValueByKey('map.preferences.colors.default.gates');
 
             const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('red700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('orange700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('green700').join(',') }, ${ opacitySetting ?? 1 })`;
@@ -133,15 +132,10 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const existingFeature = getMapFeature('airport-navigraph', source, id);
 
             if (existingFeature) {
-                const coordinates = existingFeature.getGeometry()!.getCoordinates();
-                if (coordinates[0] !== gate.gate_longitude || coordinates[1] !== gate.gate_latitude) {
-                    existingFeature.setGeometry(new Point([gate.gate_longitude, gate.gate_latitude]));
-                }
                 // OpenLayers only emits propertychange for changed values, so an open stand popup refreshes only when data changes
                 existingFeature.setProperties({
                     restacn: gate.restacn,
                     guidanceLines: gate.guidanceLines,
-                    standInformation: gate.standInformation,
                 });
                 if (existingFeature.getProperties().gateColor !== color) {
                     existingFeature.setProperties({
@@ -157,7 +151,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                     identifier: gate.name || gate.gate_identifier,
                     type: 'airport-navigraph',
                     geometry: new Point([gate.gate_longitude, gate.gate_latitude]),
-                    standInformation: gate.standInformation,
                     gateColor: color,
                     airport: icao,
                     featureType: 'gate',
@@ -173,7 +166,6 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         for (const runway of runways ?? []) {
             const id = `airport-${ icao }-runway-${ runway.runway_identifier }` as const;
-            activeFeatures.add(id);
 
             const existingFeature = getMapFeature('airport-navigraph', source, id);
             const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('citrus600').join(',') }, 0.7)`;
@@ -200,10 +192,12 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                 source.addFeature(feature);
             }
         }
+
+        newlySetAirports.add(icao);
     }
 
     source.forEachFeature(feature => {
-        if (!activeFeatures.has(feature.getProperties().id)) {
+        if (!newlySetAirports.has(feature.getProperties().airport)) {
             source.removeFeature(feature);
             feature.dispose();
         }

@@ -44,7 +44,7 @@ import type { DataListItem } from '~/components/ui/data/UiDataList.vue';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import type { FeatureAirportNavigraph } from '~/utils/map/entities';
-import { parseStand } from '~/utils/map/stands';
+import { parseNavigraphStand } from '~/utils/map/stands';
 
 const props = defineProps<{ payload: RadarEventPayload<FeatureAirportNavigraph> }>();
 const emit = defineEmits<{ close: []; id: [id: string] }>();
@@ -62,12 +62,12 @@ watchEffect(onCleanup => {
     onCleanup(() => feature.un('propertychange', updateProperties));
 });
 
-const stand = computed(() => properties.value && parseStand(properties.value));
+const stand = computed(() => properties.value && parseNavigraphStand(properties.value));
 
 const items = computed<DataListItem[]>(() => {
     if (!stand.value) return [];
 
-    const { guidanceLines, prohibitedAircraft, maximumWingspan, approvedAircraft, notes } = stand.value;
+    const { guidanceLines, prohibitedAircraft } = stand.value;
     const multipleLines = guidanceLines.length > 1;
 
     const result: DataListItem[] = guidanceLines.map((line, index) => {
@@ -78,10 +78,6 @@ const items = computed<DataListItem[]>(() => {
             text: [line.wingspan && `${ line.wingspan } m`, line.status].filter(Boolean).join(' / '),
         };
     });
-
-    if (maximumWingspan) result.push({ title: 'Max wingspan', text: `${ maximumWingspan } m` });
-    if (approvedAircraft) result.push({ title: 'Approved aircraft', text: approvedAircraft.length ? approvedAircraft.join(', ') : 'None' });
-    if (notes) result.push({ title: 'Restrictions', text: notes });
 
     if (prohibitedAircraft.length) {
         result.push({
@@ -97,8 +93,6 @@ const items = computed<DataListItem[]>(() => {
 const hint = computed(() => [
     stand.value?.guidanceLines.length && 'Maximum wingspan and permanent status per guidance line. Temporary closures are not included; check current NOTAMs.',
     stand.value?.prohibitedAircraft.length && 'Only published prohibited aircraft are shown.',
-    stand.value?.maximumWingspan && 'Maximum permitted wingspan for this stand.',
-    stand.value?.approvedAircraft && 'Approved aircraft is an exhaustive list from the source.',
     'Missing restrictions do not mean the stand is unrestricted.',
 ].filter(Boolean).join(' '));
 

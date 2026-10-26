@@ -2,10 +2,8 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { MapAirportRender } from '~/types/map';
 import { globalComputed, isPointInExtent } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
-import type { AirportStandData } from '~/types/data/stands';
-import { mergeAirportStandData } from '~/utils/map/stands';
 import { getLongestTraconPrefix, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
-import type { Map as OpenLayersMap } from 'ol';
+import type { Map } from 'ol';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type { UseDataStore } from '~/composables/render/storage';
 import type VectorSource from 'ol/source/Vector.js';
@@ -207,13 +205,11 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
 };
 
 const airportList = activeAirportsList();
-const airportDataExpiresAt = new Map<string, number>();
-let airportDataContext = '';
 
 export async function getInitialAirportsList({ navigraphData, source, map }: {
     navigraphData: Ref<Record<string, NavigraphAirportData>>;
     source: VectorSource;
-    map: OpenLayersMap;
+    map: Map;
 }): Promise<VisibleAirportsResult | null> {
     const dataStore = useDataStore();
     if (settingAirports || !dataStore.vatspy.value || !map) return null;
@@ -222,14 +218,6 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
     const store = useStore();
     const mapStore = useMapStore();
     const overlays = airportOverlays().value;
-    const getDataContext = () => JSON.stringify([!!store.user?.hasFms, !!store.user?.hasCharts, getKeyedValueFromSettings('map.navigraph.airport.enabled')]);
-    const requestContext = getDataContext();
-
-    if (airportDataContext !== requestContext) {
-        navigraphData.value = {};
-        airportDataExpiresAt.clear();
-        airportDataContext = requestContext;
-    }
 
     try {
         const extent = mapStore.extent.slice();
@@ -290,7 +278,6 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
             }
             else {
                 delete navigraphData.value[result.airport.icao];
-                airportDataExpiresAt.delete(result.airport.icao);
             }
 
             list.push(result);
@@ -298,42 +285,21 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
 
         if (mapStore.zoom > 12) {
             await Promise.all(visibleAirports.map(async airport => {
-                if (!dataStore.vatspy.value!.data.keyAirports.realIcao[airport.icao]) return;
-                if (navigraphData.value[airport.icao] && (airportDataExpiresAt.get(airport.icao) ?? 0) > Date.now()) return;
+                if (!dataStore.vatspy.value!.data.keyAirports.realIcao[airport.icao] || navigraphData.value[airport.icao]) return {};
 
                 const params = new URLSearchParams();
                 params.set('v', store.version);
                 params.set('layout', (store.user?.hasCharts && store.user?.hasFms && getKeyedValueFromSettings('map.navigraph.airport.enabled')) ? '1' : '0');
 
-                // Fetch independently: missing Navigraph databases or entitlements must not hide community stands.
-                const [community, navigraph] = await Promise.allSettled([
-                    $fetch<AirportStandData>(`/api/data/stands/${ airport.icao }`, { timeout: 8000, retry: 0 }),
-                    $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`, { timeout: 8000, retry: 0 }),
-                ]);
-                if (requestContext !== getDataContext()) return;
-                const existing = navigraphData.value[airport.icao];
-                const communityData = community.status === 'fulfilled' && community.value?.airport === airport.icao && Array.isArray(community.value.gates) ? community.value : undefined;
-                const navigraphAirport = navigraph.status === 'fulfilled' && navigraph.value?.airport === airport.icao && Array.isArray(navigraph.value.gates) ? navigraph.value : undefined;
-
-                if (communityData || navigraphAirport || !existing) {
-                    navigraphData.value[airport.icao] = mergeAirportStandData(communityData ?? {
-                        airport: airport.icao,
-                        gates: existing?.gates.filter(gate => gate.standInformation?.source === 'vatdata-stands') ?? [],
-                    }, navigraphAirport);
-                }
-                airportDataExpiresAt.set(airport.icao, Date.now() + (communityData && navigraphAirport ? 300000 : 30000));
+                navigraphData.value[airport.icao] = await $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`);
             }));
         }
         else {
             navigraphData.value = {};
-            airportDataExpiresAt.clear();
         }
 
         for (const icao in navigraphData.value) {
-            if (!visibleNavigraphAirports.has(icao)) {
-                delete navigraphData.value[icao];
-                airportDataExpiresAt.delete(icao);
-            }
+            if (!visibleNavigraphAirports.has(icao)) delete navigraphData.value[icao];
         }
 
         return {
