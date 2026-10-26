@@ -12,9 +12,10 @@ import {
     updateAchievements,
     updateAirlines,
     updateSectorsData,
-    updateBookings,
+    initBookings,
     updateNattrak,
     updateTransceivers, updateAirlinesCodes,
+    updateBookings,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';

@@ -143,6 +143,7 @@ Core files:
 - `app/components/views/ViewMap.vue` creates the OpenLayers `Map`, wires controls/popups/layers, and orchestrates map-only UI.
 - `app/composables/render/index.ts` contains shared render constants/helpers.
 - `app/composables/render/storage.ts` owns the client data store and VATSIM data conversion functions.
+- `initBookings()` in `app/composables/render/storage.ts` constructs the map booking request window from map settings or explicit booking override times; the endpoint lives under `server/api/data/vatsim/bookings/`.
 - The VATSIM worker stores `fastUpdatesEnabled` in `regularData`; `app/utils/server/storage.ts` forwards it through full/short and compact/compact-short endpoints. The client stores it in `useDataStore().vatsim.data` for mandatory fetch scheduling, short-data check cadence, and aircraft smoothing; when fast updates are disabled by either the feed or the local preference, short data also populates the mandatory aircraft state. WebSocket management remains separate.
 - `app/composables/render/update/index.ts` is the main recompute entry point for controllers/aircraft/airports/sectors.
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
@@ -294,6 +295,7 @@ Background tasks:
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - Patreon supporter data is synchronized hourly in `patreonTask()` in `app/utils/server/tasks.ts` through Patreon API v2 campaigns/members endpoints, then published in Redis as `data-patreon` (member counts and highlighted supporters; no budget estimate).
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
+  - Booking ingestion, SSE parsing/signing, legacy GET fallback, and Redis publication currently live in this file; scheduling is in `app/utils/server/tasks.ts`, while booking range filtering is in `app/utils/shared/bookings.ts` and `server/api/data/vatsim/bookings/index.ts`.
   - Ground pilot status is assigned here: no-plan ground aircraft are `depTaxi`, planned aircraft still on their departure are `depTaxi`, and planned aircraft already away from departure or on another ground airport are `arrTaxi`.
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.

@@ -533,11 +533,12 @@ function initBookings() {
     const dataStore = useDataStore();
 
     let lastUpdate = Date.now();
+    const start = ref(0);
     const end = ref(0);
     const bookingsQueryParams = computed(() => ({
         starting: store.bookingOverride
             ? store.bookingsStartTime.getTime()
-            : Date.now(),
+            : start.value,
         ending: store.bookingOverride
             ? store.bookingsEndTime.getTime()
             : end.value,
@@ -551,27 +552,26 @@ function initBookings() {
         }).catch(() => []);
     }
 
-    function updateEnd() {
-        const d = new Date();
-        d.setTime(Date.now() + ((((getKeyedValueFromSettings('map.bookings.hours')) * 60) * 60) * 1000));
-        end.value = d.getTime();
+    function updateBookingWindow() {
+        const quarterHour = 15 * 60 * 1000;
+        const roundedStart = Math.floor(Date.now() / quarterHour) * quarterHour;
+        start.value = roundedStart;
+        end.value = roundedStart + getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000;
     }
 
     const bookingHours = computed(() => getKeyedValueFromSettings('map.bookings.hours'));
-    // Every 15 minutes
+    // Check for a new 15-minute booking window after the existing refresh delay.
     const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 5);
 
     watch(bookingsQueryParams, updateBookings);
-    watch(bookingHours, updateEnd, { immediate: true });
+    watch(bookingHours, updateBookingWindow, { immediate: true });
     if (store.bookingOverride) updateBookings();
 
     if (!bookingsInterval) {
         bookingsInterval = setInterval(() => {
-            if (needToUpdate.value) updateEnd();
+            if (needToUpdate.value) updateBookingWindow();
         }, 1000 * 30);
     }
-
-    updateEnd();
 }
 
 function initEvents() {

@@ -206,6 +206,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 - `PopupFullscreen` must route close events from its inner `PopupMapInfo` title close button through `closePopup()`, not direct model assignment, so one-way `model-value` usages still update fullscreen `localValue`, animation, overflow state, and external emits consistently with backdrop, Escape, and top-right close.
 - Map booking lookahead (`map.bookings.hours`) limits which booking starts are shown, not the displayed end of an already selected booking. For one callsign, an active booking takes priority over later bookings in the lookahead window, and overlapping or exactly adjacent bookings form one continuous `Booked until` interval even when their controller CIDs differ.
+- Automatic map booking requests round the start down to the previous 15-minute boundary and calculate the configured lookahead from that boundary so repeated requests share cache keys. Booking override requests retain the exact user-selected start and end times.
 # Client performance review baseline
 
 - Airport/dashboard aircraft visibility must be recalculated when `airportsList` is replaced, using the existing throttled `MapAircraftList.vue` update callback. Initial aircraft filtering can precede airport-state population, so recovery must not depend on a later mandatory/short update. The authorized fix is limited to this dependency; other initialization findings remain investigation-only.
