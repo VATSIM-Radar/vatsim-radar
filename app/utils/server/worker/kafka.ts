@@ -42,12 +42,12 @@ export async function initKafka() {
         await consumer.connect();
 
         const topics = [
-            'ADDCLIENT-staging',
-            'RMCLIENT-staging',
-            'AD-staging',
-            'PD-staging',
-            'PLAN-staging',
-            'DELPLAN-staging',
+            'ADDCLIENT',
+            'RMCLIENT',
+            'AD',
+            'PD',
+            'PLAN',
+            'DELPLAN',
         ];
 
         const topicsInfo: Record<string, { partition: number; offset: string }> = {};
@@ -93,12 +93,12 @@ export async function initKafka() {
                 // Don't accept messages older than 10s
                 if (timestamp + (1000 * 10) < curDate) return;
 
-                if (topic === 'ADDCLIENT-staging') return kafkaAddClient(json);
-                if (topic === 'RMCLIENT-staging') return kafkaRemoveClient(json);
-                if (topic === 'AD-staging') return kafkaUpdateController(json);
-                if (topic === 'PD-staging') return kafkaUpdatePilot(json, timestamp);
-                if (topic === 'PLAN-staging') return kafkaUpdatePlan(json);
-                if (topic === 'DELPLAN-staging') return kafkaRemovePlan(json);
+                if (topic === 'ADDCLIENT') return kafkaAddClient(json);
+                if (topic === 'RMCLIENT') return kafkaRemoveClient(json);
+                if (topic === 'AD') return kafkaUpdateController(json);
+                if (topic === 'PD') return kafkaUpdatePilot(json, timestamp);
+                if (topic === 'PLAN') return kafkaUpdatePlan(json);
+                if (topic === 'DELPLAN') return kafkaRemovePlan(json);
             },
         });
         for (const key in topicsInfo) {
