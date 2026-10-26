@@ -29,6 +29,7 @@
     "7zip-min": "3.0.1",
     "@aws-sdk/client-s3": "3.1156.0",
     "@nuxt/image": "2.2.0",
+    "@photostructure/tz-lookup": "11.7.0",
     "@pinia/nuxt": "1.0.3",
     "@prisma/adapter-mariadb": "7.10.1",
     "@prisma/client": "7.10.1",

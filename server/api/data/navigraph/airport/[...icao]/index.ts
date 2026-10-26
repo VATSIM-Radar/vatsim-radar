@@ -106,6 +106,8 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                     gate_latitude: coords[1],
                     name: ident,
                     airport_identifier: area.properties.idarpt,
+                    restacn: area.properties.restacn || undefined,
+                    guidanceLines: applicableStandLines.map(({ properties: { wingspan, status } }) => ({ wingspan, status })),
                 }];
             });
 
@@ -120,6 +122,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                 gate_latitude: coords[1],
                 name: ident,
                 airport_identifier: area.properties.idarpt,
+                restacn: area.properties.restacn || undefined,
             }));
 
             return [...guidanceLineGates, ...centroidGates];

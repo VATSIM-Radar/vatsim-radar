@@ -14,6 +14,7 @@ const iframeWhitelist = [
     'wfhub.local',
     'oav.gr',
     'vatrus.info',
+    'vatsim-scandinavia.org',
 ];
 
 export async function useIframeHeader() {
