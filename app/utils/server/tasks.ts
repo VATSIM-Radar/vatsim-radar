@@ -268,7 +268,7 @@ function backupTask() {
             },
         } = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?').exec(process.env.DATABASE_URL!)! as { groups: Record<string, string> };
 
-        execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
+        execSync(`mysqldump -u${ user } -p${ password } -h${ host } --skip-ssl-verify-server-cert --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
 
         const date = new Date();
 
