@@ -167,7 +167,7 @@ import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
 import MapPopupSigmet from '~/components/map/popups/MapPopupSigmet.vue';
 import MapPopupNavigraph from '~/components/map/popups/MapPopupNavigraph.vue';
 import MapPopupStand from '~/components/map/popups/MapPopupStand.vue';
-import { parseNavigraphStand } from '~/utils/map/stands';
+import { parseStand } from '~/utils/map/stands';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
@@ -643,7 +643,7 @@ const definitions: Record<SelectableFeatures, Definition> = {
             if (!isMapFeature('airport-navigraph', properties) || properties.featureType !== 'gate') return false;
 
             // Stands without any known information stay visible, but open no popup
-            if (!parseNavigraphStand(properties)) return;
+            if (!parseStand(properties)) return;
 
             return openOverlay('stand', payload, 'stand');
         },
