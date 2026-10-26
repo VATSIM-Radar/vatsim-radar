@@ -3812,6 +3812,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@photostructure/tz-lookup@npm:11.7.0":
+  version: 11.7.0
+  resolution: "@photostructure/tz-lookup@npm:11.7.0"
+  checksum: 10c0/955760d41844c06243129d9b42cebacc0d3f26b5eafb60eafb25ba6ef903803f65b65d6d9c9b9670dac0aa64239668b555715ebfaa52db4f12a2f1cb92d973c9
+  languageName: node
+  linkType: hard
+
 "@pinia/nuxt@npm:1.0.3":
   version: 1.0.3
   resolution: "@pinia/nuxt@npm:1.0.3"
@@ -16063,6 +16070,7 @@ __metadata:
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.2.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
+    "@photostructure/tz-lookup": "npm:11.7.0"
     "@pinia/nuxt": "npm:1.0.3"
     "@prisma/adapter-mariadb": "npm:7.10.1"
     "@prisma/client": "npm:7.10.1"
