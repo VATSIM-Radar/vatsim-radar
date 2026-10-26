@@ -1,5 +1,10 @@
 # Changelog
 
+# [2.0.5-rc.1]
+
+- Add local time and sunrise/sunset to airport info by fabienn-c (1444380)
+- Extend stand markers with Navigraph information by bjerrecs (1581824) - Navigraph Unlimited only
+
 # [2.0.5-beta.1]
 
 - ARINC coordinate shorthand improperly parsed (such as 17W75)

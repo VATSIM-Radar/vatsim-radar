@@ -1299,6 +1299,10 @@ onUnmounted(() => {
         left: 16px;
 
         text-decoration: none;
+
+        @include fromTablet {
+            left: 56px;
+        }
     }
 
     :deep(.ol-attribution) {
