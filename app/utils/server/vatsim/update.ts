@@ -2,6 +2,7 @@ import { getTransceiverData } from '~/utils/server/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
 import type {
     DataImagesType,
+    DatasetSector,
     RadarDataAirline,
     RadarDataAirlineAll,
     RadarDataAirlinesList,
@@ -369,36 +370,55 @@ const xmlParser = new XMLParser({
 });
 
 export async function updateSectorsData() {
-    const auSectors = $fetch('https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml', {
-        responseType: 'text',
-    });
-    const nzSectors = $fetch('https://raw.githubusercontent.com/vatSys/new-zealand-dataset/refs/heads/master/Sectors.xml', {
-        responseType: 'text',
-    });
-    const jpSectors = $fetch('https://vatjpn.org/media/external/vatsim-radar/Sectors.xml', {
-        responseType: 'text',
-    });
-    const cnSectors = $fetch('https://files.vatprc.net/sectors/Sectors.xml', {
-        responseType: 'text',
-    });
+    const sources = [
+        { region: 'AU', url: 'https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml' },
+        { region: 'NZ', url: 'https://raw.githubusercontent.com/vatSys/new-zealand-dataset/refs/heads/master/Sectors.xml' },
+        { region: 'JP', url: 'https://vatjpn.org/media/external/vatsim-radar/Sectors.xml' },
+        { region: 'CN', url: 'https://files.vatprc.net/sectors/Sectors.xml' },
+    ];
 
-    const au = xmlParser.parse(await auSectors);
-    const nz = xmlParser.parse(await nzSectors);
-    const jp = xmlParser.parse(await jpSectors);
-    const cn = xmlParser.parse(await cnSectors);
+    const datasets = await Promise.all(sources.map(async ({ region, url }): Promise<DatasetSector[]> => {
+        try {
+            const xml = await $fetch<string>(url, { responseType: 'text' });
+            const parsed: unknown = xmlParser.parse(xml);
+            const sectors = parsed && typeof parsed === 'object' && 'Sectors' in parsed && parsed.Sectors &&
+                typeof parsed.Sectors === 'object' && 'Sector' in parsed.Sectors
+                ? parsed.Sectors.Sector
+                : undefined;
 
-    radarStorage.vatsim.sectorsDataset = [
-        ...au.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'AU' })),
-        ...nz.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'NZ' })),
-        ...jp.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'JP' })),
-        ...cn.Sectors.Sector.map((sector: any) => ({ ...sector, region: 'CN' })),
-    ].map((sector: Record<string, any>) => ({
-        fullName: sector.FullName,
-        name: sector.Name,
-        callsign: sector.Callsign,
-        frequency: sector.Frequency,
-        region: sector.region,
+            if (!Array.isArray(sectors)) {
+                console.error(`Invalid sectors data for ${ region }: Sectors.Sector is not an array`);
+                return [];
+            }
+
+            const result: DatasetSector[] = [];
+            for (const [index, sector] of sectors.entries()) {
+                if (!sector || typeof sector !== 'object' ||
+                    typeof sector.Name !== 'string' || !sector.Name ||
+                    typeof sector.Callsign !== 'string' || !sector.Callsign ||
+                    !(typeof sector.Frequency === 'string' && sector.Frequency ||
+                        typeof sector.Frequency === 'number' && Number.isFinite(sector.Frequency))) {
+                    console.error(`Invalid sector for ${ region } at index ${ index }:`, sector);
+                    continue;
+                }
+
+                result.push({
+                    fullName: typeof sector.FullName === 'string' ? sector.FullName : '',
+                    name: sector.Name,
+                    callsign: sector.Callsign,
+                    frequency: String(sector.Frequency),
+                    region,
+                });
+            }
+            return result;
+        }
+        catch (error) {
+            console.error(`Failed to update sectors for ${ region }:`, error);
+            return [];
+        }
     }));
+
+    radarStorage.vatsim.sectorsDataset = datasets.flat();
 }
 
 let transceiversInProgress = false;
