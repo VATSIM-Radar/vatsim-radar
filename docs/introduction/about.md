@@ -59,7 +59,7 @@ const members = [
   },
 {
     avatar: '/people/linas.png',
-    name: 'Xenia',
+    name: 'Linas',
     title: 'UI/UX Designer',
     links: [
       { icon: 'github', link: 'https://github.com/likeusb ' }
