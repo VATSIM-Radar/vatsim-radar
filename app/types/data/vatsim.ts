@@ -134,7 +134,9 @@ export interface VatsimInfoLongName extends VatsimInfoDefault {
     long_name: string;
 }
 
-export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'subdivision' | 'callsign' | 'cid'> {
+export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'subdivision' | 'callsign' | 'cid' | 'start' | 'end'> {
+    start: number;
+    end: number;
     division?: VatsimDivision;
     subdivision?: VatsimSubDivision;
     atc: VatsimShortenedController;
@@ -183,9 +185,9 @@ export interface VatsimBookingData {
     id: number;
     callsign: string;
     cid: number;
-    type: 'booking' | 'event' | 'exam' | 'mentoring';
-    start: number;
-    end: number;
+    type: 'booking' | 'event' | 'exam' | 'mentoring' | 'training';
+    start: string;
+    end: string;
     division: string;
     subdivision: string;
 }

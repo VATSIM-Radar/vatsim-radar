@@ -1,5 +1,6 @@
 import { getTransceiverData } from '~/utils/server/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
+import { request } from 'undici';
 import type {
     DataImagesType,
     DatasetSector,
@@ -38,6 +39,7 @@ import { setRedisData } from '~/utils/server/redis';
 import { isDebug } from '~/utils/server/debug';
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { Coordinate } from 'ol/coordinate.js';
+import { createPrivateKey, sign } from 'node:crypto';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -525,42 +527,112 @@ export async function updateAchievements() {
     await setRedisData('data-achievements', radarStorage.vatsimStatic.achievements, 1000 * 60 * 60 * 24 * 7);
 }
 
-export async function updateBookings() {
+const bookingsV2 = process.env.VATSIM_BOOKINGS_PBKEY && process.env.VATSIM_BOOKINGS_PRKEY && process.env.VATSIM_BOOKINGS_ENV && !!process.env.VATSIM_BOOKINGS_SSE_PATH;
+
+function getBookingSignature() {
+    if (!bookingsV2) return undefined;
+    const ts = Math.floor(Date.now() / 1000);
+
+    const key = createPrivateKey(process.env.VATSIM_BOOKINGS_PRKEY);
+    const sig = sign(null, Buffer.from(`${ ts }\nGET\n${ process.env.VATSIM_BOOKINGS_SSE_PATH }`), key).toString('base64');
+
+    return `Signature keyId="${ process.env.VATSIM_BOOKINGS_ENV }", ts="${ ts }", sig="${ sig }"`;
+}
+
+function processBooking(booking: VatsimBookingData): VatsimBooking | null {
+    createCaches();
+    const division = divisionCache[booking.division];
+    const subdivision = subDivisionCache[booking.subdivision];
+    const atc = createAtcForBooking(booking);
+    const startDate = new Date(booking.start.endsWith('Z') ? booking.start : booking.start + 'Z');
+    const start = startDate.getTime();
+    const endDate = new Date(booking.end.endsWith('Z') ? booking.end : booking.end + 'Z');
+    const end = endDate.getTime();
+
+    if (isNaN(start) || isNaN(end) || end - start < 0 || end - start > 1000 * 60 * 60 * 24 * 2) return null;
+
+    return {
+        ...booking,
+        division: division,
+        subdivision: subdivision,
+        atc: atc,
+        start,
+        end,
+    };
+}
+
+let bookingsBackoff = 1000;
+let bookingsInit = false;
+
+export async function initBookings() {
+    if (bookingsInit) return;
+
     try {
-        const bookingData = await fetchBookingData();
-        if (!bookingData) return;
+        const signature = await getBookingSignature();
+        if (!signature) return false;
 
-        const { divisionCache, subDivisionCache } = await createCaches();
+        if (!bookingsInit) console.info('Using bookings v2');
+        bookingsInit = true;
 
-        const bookings = bookingData.map(booking => {
-            const division = divisionCache[booking.division];
-            const subdivision = subDivisionCache[booking.subdivision];
-            const atc = createAtcForBooking(booking);
-            const start = new Date(booking.start + 'Z').getTime();
-            const end = new Date(booking.end + 'Z').getTime();
+        const res = await request(`${ process.env.VATSIM_BOOKINGS_SSE_DOMAIN }${ process.env.VATSIM_BOOKINGS_SSE_PATH }?snapshot=1`, {
+            method: 'GET',
+            headers: { accept: 'text/event-stream', authorization: signature },
+            bodyTimeout: 60_000, // keep-alive arrives every 25 s
+            headersTimeout: 30_000,
+        });
+        if (res.statusCode !== 200) throw new Error(`feed ${ res.statusCode }`);
+        bookingsBackoff = 1000;
 
-            if (isNaN(start) || isNaN(end) || end - start < 0 || end - start > 1000 * 60 * 60 * 24 * 2) return null;
+        let buf = '';
+        for await (const chunk of res.body) {
+            buf += chunk.toString('utf8');
+            let idx: number;
+            while ((idx = buf.indexOf('\n\n')) >= 0) {
+                const frame = buf.slice(0, idx);
+                buf = buf.slice(idx + 2);
+                const data = frame.split('\n').find(l => l.startsWith('data:'))?.slice(5).trim();
+                if (!data) continue; // comment / retry / keep-alive
+                const msg = JSON.parse(data);
+                if (msg.type === 'snapshot') radarStorage.vatsimStatic.bookings = msg.bookings.map((x: VatsimBookingData) => processBooking(x)).filter((x: VatsimBooking | null) => x);
+                else if (msg.type?.startsWith('booking.')) {
+                    const type = msg.type.slice(8) as 'created' | 'updated' | 'deleted';
+                    const booking = msg.booking;
 
-            return {
-                ...booking,
-                division: division,
-                subdivision: subdivision,
-                atc: atc,
-                start: start,
-                end: end,
-            };
-        }).filter(x => x) as VatsimBooking[];
+                    const processedBooking = processBooking(booking);
+                    if (!processedBooking && type !== 'deleted') continue;
 
-        radarStorage.vatsimStatic.bookings = bookings;
+                    if (type === 'created') {
+                        const processedBooking = processBooking(booking);
+                        if (!processedBooking) continue;
+                        radarStorage.vatsimStatic.bookings.push(processedBooking!);
+                    }
+                    else if (type === 'updated') {
+                        const processedBooking = processBooking(booking);
+                        if (!processedBooking) continue;
+                        const foundBooking = radarStorage.vatsimStatic.bookings.find(x => x.id === booking.id);
+                        if (foundBooking) Object.assign(foundBooking, processedBooking!);
+                        else radarStorage.vatsimStatic.bookings.push(processedBooking!);
+                    }
+                    else if (type === 'deleted') {
+                        const foundBooking = radarStorage.vatsimStatic.bookings.findIndex(x => x.id === booking.id);
+                        if (foundBooking !== -1) radarStorage.vatsimStatic.bookings.splice(foundBooking, 1);
+                    }
+                }
 
-        setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
+                setRedisData('data-bookings', radarStorage.vatsimStatic.bookings, 1000 * 60 * 60 * 24 * 7);
+            }
+        }
+        throw new Error('feed closed');
     }
-    catch (error) {
-        console.error('Error in cron job:', error);
+    catch (e) {
+        bookingsInit = false;
+        console.error('[bookings-feed]', (e as Error).message);
+        setTimeout(initBookings, bookingsBackoff);
+        bookingsBackoff = Math.min(bookingsBackoff * 2, 30_000);
     }
 }
 
-async function fetchBookingData(): Promise<VatsimBookingData[] | undefined> {
+async function fetchV1BookingData(): Promise<VatsimBookingData[] | undefined> {
     try {
         const response = await $fetch<VatsimBookingData[]>('https://atc-bookings.vatsim.net/api/booking', {
             parseResponse: responseText => JSON.parse(responseText),
@@ -574,19 +646,56 @@ async function fetchBookingData(): Promise<VatsimBookingData[] | undefined> {
     }
 }
 
-async function createCaches(): Promise<{
+export async function updateBookings() {
+    try {
+        if (bookingsV2) {
+            initBookings();
+            return;
+        }
+
+        const bookingData = await fetchV1BookingData();
+        if (!bookingData) return;
+
+        const bookings = bookingData.map(processBooking).filter(x => x) as VatsimBooking[];
+
+        radarStorage.vatsimStatic.bookings = bookings;
+
+        setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
+    }
+    catch (error) {
+        console.error('Error in cron job:', error);
+    }
+}
+
+let divisionCache: { [key: string]: VatsimDivision } = {};
+let subDivisionCache: { [key: string]: VatsimSubDivision } = {};
+let divisionCacheCreated = 0;
+let isEmptyDisivisions = true;
+let isEmptySubdivisions = true;
+
+function createCaches(): {
     divisionCache: { [key: string]: VatsimDivision };
     subDivisionCache: { [key: string]: VatsimSubDivision };
-}> {
-    const divisionCache: { [key: string]: VatsimDivision } = {};
-    const subDivisionCache: { [key: string]: VatsimSubDivision } = {};
+} {
+    if (!isEmptyDisivisions && !isEmptySubdivisions && Date.now() - divisionCacheCreated < 1000 * 60 * 60 * 24) {
+        return { divisionCache, subDivisionCache };
+    }
 
-    for (const division of radarStorage.vatsimStatic.divisions.values().toArray()) {
+    divisionCache = {};
+    subDivisionCache = {};
+    isEmptyDisivisions = true;
+    isEmptySubdivisions = true;
+
+    for (const division of radarStorage.vatsimStatic.divisions.values()) {
         divisionCache[division.id] = division;
+        isEmptyDisivisions = false;
     }
-    for (const subdivision of radarStorage.vatsimStatic.subDivisions.values().toArray()) {
+    for (const subdivision of radarStorage.vatsimStatic.subDivisions.values()) {
         subDivisionCache[subdivision.code] = subdivision;
+        isEmptySubdivisions = false;
     }
+
+    divisionCacheCreated = Date.now();
 
     return { divisionCache, subDivisionCache };
 }
