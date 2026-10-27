@@ -13,7 +13,6 @@
             class="stand"
             model-value
             open-from="top-center"
-            width="280px"
             @update:modelValue="emit('close')"
         >
             <template #title>
@@ -78,7 +77,7 @@ const items = computed<DataListItem[]>(() => {
     }
 
     const result: DataListItem[] = groups.map(({ line, numbers }) => {
-        const title = line.wingspan ? (multipleLines ? 'Max span' : 'Max wingspan') : 'Permanent status';
+        const title = line.wingspan ? (multipleLines ? 'Max span' : 'Max wingspan') : 'Status';
         const lineNumbers = numbers.length > 1 && numbers.every((number, index) => number === numbers[0] + index)
             ? `${ numbers[0] }–${ numbers[numbers.length - 1] }`
             : numbers.join(', ');
