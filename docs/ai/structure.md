@@ -37,6 +37,7 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 - `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
+- Production application commands in `.config/Dockerfile` and `.config/debug.Dockerfile` and production worker commands in `.config/worker-prod.sh` and `.config/navigraph-prod.sh` load `/radar/.env` through Node's `--env-file`. The application runs Prisma migrations before starting Node; when diagnosing credentials, check the container's environment-loading path and `getBookingSignature()` in `app/utils/server/vatsim/update.ts`.
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
@@ -295,7 +296,7 @@ Background tasks:
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - Patreon supporter data is synchronized hourly in `patreonTask()` in `app/utils/server/tasks.ts` through Patreon API v2 campaigns/members endpoints, then published in Redis as `data-patreon` (member counts and highlighted supporters; no budget estimate).
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
-  - Booking ingestion, SSE parsing/signing, legacy GET fallback, and Redis publication currently live in this file; scheduling is in `app/utils/server/tasks.ts`, while booking range filtering is in `app/utils/shared/bookings.ts` and `server/api/data/vatsim/bookings/index.ts`.
+  - Booking ingestion, SSE parsing/signing, legacy GET fallback, and Redis publication currently live in this file; scheduling is in `app/utils/server/tasks.ts`, while booking range filtering is in `app/utils/shared/bookings.ts` and `server/api/data/vatsim/bookings/index.ts`. For v2 startup errors, inspect `getBookingSignature()` first: it parses `VATSIM_BOOKINGS_PRKEY` with Node crypto before `initBookings()` opens the SSE request. `VATSIM_BOOKINGS_PBKEY` gates v2 selection but is not parsed there.
   - Ground pilot status is assigned here: no-plan ground aircraft are `depTaxi`, planned aircraft still on their departure are `depTaxi`, and planned aircraft already away from departure or on another ground airport are `arrTaxi`.
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
@@ -391,6 +392,7 @@ Main app routes:
 - `/airport/[icao]`: airport detail page.
 - `/events` and `/events/[id]`: VATSIM events.
 - `/bookings`: ATC bookings.
+  - `app/pages/bookings/index.vue` owns its date-picker range, booking API fetch window, and timeline filtering; the map booking window is managed separately in `app/composables/render/storage.ts`.
 - `/stats` and `/stats/*`: stats dashboards.
 - `/pilots`, `/sigmets`, `/notams`, `/achievements`, `/support-us`, `/about`, `/roadmap`, `/privacy-policy`.
 - `/data/[type]/[id]/compare`: data debugging comparison UI. Keep this page outside any broad `data` ignore glob: an unanchored ignore pattern can also exclude `app/pages/data` and remove the generated client route.

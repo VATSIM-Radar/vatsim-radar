@@ -57,6 +57,14 @@ const members = [
       { icon: 'behance', link: 'https://www.behance.net/renelvah' }
     ]
   },
+{
+    avatar: '/people/linas.png',
+    name: 'Xenia',
+    title: 'UI/UX Designer',
+    links: [
+      { icon: 'github', link: 'https://github.com/likeusb ' }
+    ]
+  },
 ];
 
 const contributors = [
