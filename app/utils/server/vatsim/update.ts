@@ -533,7 +533,7 @@ function getBookingSignature() {
     if (!bookingsV2) return undefined;
     const ts = Math.floor(Date.now() / 1000);
 
-    const key = createPrivateKey(process.env.VATSIM_BOOKINGS_PRKEY);
+    const key = createPrivateKey(process.env.VATSIM_BOOKINGS_PRKEY!.replace(/\\n/g, '\n'));
     const sig = sign(null, Buffer.from(`${ ts }\nGET\n${ process.env.VATSIM_BOOKINGS_SSE_PATH }`), key).toString('base64');
 
     return `Signature keyId="${ process.env.VATSIM_BOOKINGS_ENV }", ts="${ ts }", sig="${ sig }"`;
