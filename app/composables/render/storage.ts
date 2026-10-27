@@ -556,7 +556,7 @@ function initBookings() {
         const quarterHour = 15 * 60 * 1000;
         const roundedStart = Math.floor(Date.now() / quarterHour) * quarterHour;
         start.value = roundedStart;
-        end.value = roundedStart + getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000;
+        end.value = roundedStart + (getKeyedValueFromSettings('map.bookings.hours') * 60 * 60 * 1000);
     }
 
     const bookingHours = computed(() => getKeyedValueFromSettings('map.bookings.hours'));

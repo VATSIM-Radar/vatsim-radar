@@ -12,7 +12,6 @@ import {
     updateAchievements,
     updateAirlines,
     updateSectorsData,
-    initBookings,
     updateNattrak,
     updateTransceivers, updateAirlinesCodes,
     updateBookings,
