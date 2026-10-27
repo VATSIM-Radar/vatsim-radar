@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.5-rc.2]
+
+- You will now see a booking type on map if different from regular booking
+
 # [2.0.5-rc.1]
 
 - Add local time and sunrise/sunset to airport info by fabienn-c (1444380)
