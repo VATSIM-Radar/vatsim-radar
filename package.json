@@ -34,7 +34,7 @@
     "@prisma/adapter-mariadb": "7.10.1",
     "@prisma/client": "7.10.1",
     "@protomaps/basemaps": "5.7.2",
-    "@questdb/nodejs-client": "4.2.0",
+    "@questdb/nodejs-client": "5.0.0",
     "@turf/bearing": "7.4.0",
     "@turf/boolean-point-in-polygon": "7.4.0",
     "@turf/difference": "7.4.0",
