@@ -13,15 +13,13 @@ export let navigraphOutdatedDb: sqlite3.Database | null = null;
 const cwd = join(process.cwd(), 'app');
 const dirPath = join(cwd, 'data');
 
-function isNavigraphDatabaseError(error: unknown) {
+export function isNavigraphDatabaseError(error: unknown) {
     if (!(error instanceof Error)) return false;
 
-    return error.message.includes('file is not a database') ||
+    return ('code' in error && (error.code === 'SQLITE_CANTOPEN' || error.code === 'SQLITE_NOTADB' || error.code === 'SQLITE_CORRUPT')) ||
+        error.message.startsWith('SQLite integrity check failed') ||
+        error.message.includes('file is not a database') ||
         error.message.includes('database disk image is malformed');
-}
-
-function isNavigraphIntegrityError(error: unknown) {
-    return error instanceof Error && error.message.startsWith('SQLite integrity check failed');
 }
 
 function openNavigraphDatabase(file: string) {
@@ -48,7 +46,7 @@ function isNavigraphDatabaseUsable(file: string) {
         return true;
     }
     catch (error) {
-        if (isNavigraphDatabaseError(error) || isNavigraphIntegrityError(error)) {
+        if (isNavigraphDatabaseError(error)) {
             console.warn(`Ignoring invalid Navigraph database file: ${ file }`, error);
             return false;
         }
@@ -71,8 +69,9 @@ export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; 
         return true;
     }
     catch (error) {
-        if (isNavigraphDatabaseError(error) || isNavigraphIntegrityError(error)) {
+        if (isNavigraphDatabaseError(error)) {
             console.warn(`Ignoring invalid Navigraph database file: ${ file }`, error);
+            rmSync(file, { force: true });
             return false;
         }
 
@@ -154,9 +153,9 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
     }
 }
 
-function removeOldNavigraphFiles(files: Dirent<string>[], type: 'current' | 'outdated') {
+function removeOldNavigraphFiles(files: Dirent<string>[], type: 'current' | 'outdated', activeFilename: string) {
     for (const file of files) {
-        if (!file.isFile() || !file.name.includes(type) || !file.name.endsWith('.s3db')) continue;
+        if (!file.isFile() || !file.name.includes(type) || !file.name.endsWith('.s3db') || file.name === activeFilename) continue;
 
         rmSync(join(file.parentPath, file.name), { force: true });
     }
@@ -211,15 +210,17 @@ async function updateNavigraph() {
     const currentCycle = `${ current.cycle }-${ current.revision }-13`;
     const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-13`;
 
-    if (currentCycle === cycles.current && outdatedCycle === cycles.outdated && navigraphCurrentDb && navigraphOutdatedDb) return;
-
-    console.log(`Cycle updated`, cycles.current, currentCycle, cycles.outdated, outdatedCycle);
-
     const currentFileName = `current-v2-${ currentCycle }.s3db`;
     const outdatedFileName = `outdated-v2-${ outdatedCycle }.s3db`;
 
     const currentPath = join(cwd, `data/${ currentFileName }`);
     const outdatedPath = join(cwd, `data/${ outdatedFileName }`);
+
+    if (currentCycle === cycles.current && outdatedCycle === cycles.outdated &&
+        navigraphCurrentDb?.name === currentPath && navigraphOutdatedDb?.name === outdatedPath &&
+        existsSync(currentPath) && existsSync(outdatedPath)) return;
+
+    console.log(`Cycle updated`, cycles.current, currentCycle, cycles.outdated, outdatedCycle);
 
     for (const [path, type] of [[currentPath, 'current'], [outdatedPath, 'outdated']] as const) {
         if (existsSync(path) && !isNavigraphDatabaseUsable(path)) {
@@ -266,8 +267,9 @@ async function updateNavigraph() {
     cycles.outdated = outdatedCycle;
     radarStorage.navigraph = cycles;
 
-    removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'current');
-    removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'outdated');
+    const filesInPath = readdirSync(dirPath, { withFileTypes: true });
+    removeOldNavigraphFiles(filesInPath, 'current', currentFileName);
+    removeOldNavigraphFiles(filesInPath, 'outdated', outdatedFileName);
 }
 
 export async function initNavigraph() {

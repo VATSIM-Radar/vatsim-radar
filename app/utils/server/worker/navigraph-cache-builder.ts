@@ -1,6 +1,8 @@
 import sqlite3 from 'better-sqlite3';
+import { rmSync } from 'node:fs';
 import { materializeCycleCache } from '~/utils/server/navigraph/cache';
 import type { NavigraphCycleType } from '~/utils/server/navigraph/cache';
+import { isNavigraphDatabaseError } from '~/utils/server/navigraph/db';
 
 const [type, version, dbPath] = process.argv.slice(2);
 
@@ -26,6 +28,11 @@ try {
 }
 catch (e) {
     console.error(e);
+    if (isNavigraphDatabaseError(e)) {
+        db?.close();
+        db = undefined;
+        rmSync(dbPath, { force: true });
+    }
     process.exitCode = 1;
 }
 finally {
