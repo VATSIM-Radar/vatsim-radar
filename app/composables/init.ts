@@ -71,11 +71,15 @@ async function checkStatus() {
     }
 }
 
+export const failedUpdatesCheck = ref(false);
+
 export function checkForUpdates() {
     return initCheck('updatesCheck', async ({ mapStore, dataStore }) => {
         const ready = await checkStatus();
 
         if (!ready) {
+            failedUpdatesCheck.value = true;
+
             await new Promise<void>(resolve => {
                 const interval = setInterval(async () => {
                     const status = await checkStatus();

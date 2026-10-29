@@ -228,9 +228,16 @@ async function updateNavigraph() {
         }
     }
 
+    const currentFile = current.files.find(x => x.key.endsWith('.7z') || x.key.endsWith('.zip'));
+    if (!currentFile) {
+        console.warn('Could not find zip archive for current', JSON.stringify(current.files, undefined, 2));
+
+        return;
+    }
+
     if (!existsSync(currentPath)) {
         await downloadNavigraphFile({
-            fileUrl: current.files[0].signed_url,
+            fileUrl: currentFile.signed_url,
             path: dirPath,
             filename: currentFileName,
         });
@@ -238,9 +245,16 @@ async function updateNavigraph() {
 
     if (!initNavigraphDB({ type: 'current', file: currentPath })) return;
 
+    const outdatedFile = outdated.files.find(x => x.key.endsWith('.7z') || x.key.endsWith('.zip'));
+    if (!outdatedFile) {
+        console.warn('Could not find zip archive for outdated', JSON.stringify(current.files, undefined, 2));
+
+        return;
+    }
+
     if (!existsSync(outdatedPath)) {
         await downloadNavigraphFile({
-            fileUrl: outdated.files[0].signed_url,
+            fileUrl: outdatedFile.signed_url,
             path: dirPath,
             filename: outdatedFileName,
         });

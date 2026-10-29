@@ -83,7 +83,7 @@ const items = computed<DataListItem[]>(() => {
             : numbers.join(', ');
 
         return {
-            title: multipleLines ? `${ title } (${ numbers.length === 1 ? 'line' : 'lines' } ${ lineNumbers })` : title,
+            title: multipleLines ? `${ title } (${ numbers.length === 1 ? 'stop bar' : 'stop bars' } ${ lineNumbers })` : title,
             text: [line.wingspan && `${ line.wingspan } m`, line.status].filter(Boolean).join(' / '),
         };
     });
@@ -100,7 +100,7 @@ const items = computed<DataListItem[]>(() => {
 
 // Single help text for the whole popup, only mentioning rows that are shown
 const hint = computed(() => [
-    stand.value?.guidanceLines.length && 'Maximum wingspan and permanent status per guidance line. Temporary closures are not included; check current NOTAMs.',
+    stand.value?.guidanceLines.length && 'Maximum wingspan and permanent status per stop bar. Temporary closures are not included; check current NOTAMs.',
     stand.value?.prohibitedAircraft.length && 'Only published prohibited aircraft are shown.',
     'Missing restrictions do not mean the stand is unrestricted.',
 ].filter(Boolean).join(' '));

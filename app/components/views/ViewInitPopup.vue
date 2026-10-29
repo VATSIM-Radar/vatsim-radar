@@ -44,7 +44,7 @@ import {
     checkForSimAware,
     checkForUpdates,
     checkForVATSpy,
-    checkForVG,
+    checkForVG, failedUpdatesCheck,
 } from '~/composables/init';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
@@ -116,10 +116,11 @@ const retries = computed(() => {
 });
 
 const someHadLoad = ref(false);
+const longInit = ref(false);
 
 const showInitPopup = computed(() => {
     if (store.initStatus.status === false) return false;
-    const someLoading = Object.entries(store.initStatus).find(([key, value]) => key !== 'dataGet' && key !== 'updatesCheck' && value === 'loading');
+    const someLoading = longInit.value || failedUpdatesCheck.value || Object.entries(store.initStatus).find(([key, value]) => key !== 'dataGet' && key !== 'updatesCheck' && value === 'loading');
 
     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
     if (someLoading && !someHadLoad.value) someHadLoad.value = true;
@@ -130,6 +131,12 @@ const showInitPopup = computed(() => {
 const retry = async () => {
     await Promise.all(retries.value?.map(x => shownKeys[x]?.method()) ?? []);
 };
+
+onMounted(() => {
+    setTimeout(() => {
+        longInit.value = true;
+    }, 5000);
+});
 </script>
 
 <style scoped lang="scss">
