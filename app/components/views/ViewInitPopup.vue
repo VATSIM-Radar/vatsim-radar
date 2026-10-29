@@ -119,7 +119,7 @@ const someHadLoad = ref(false);
 const longInit = ref(false);
 
 const showInitPopup = computed(() => {
-    if (store.initStatus.status === false) return false;
+    if (store.initStatus.status !== true) return false;
     const someLoading = longInit.value || failedUpdatesCheck.value || Object.entries(store.initStatus).find(([key, value]) => key !== 'dataGet' && key !== 'updatesCheck' && value === 'loading');
 
     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
