@@ -37,8 +37,6 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 - `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
-<<<<<<< HEAD
-=======
 - `.github/workflows/publish.yaml` and `publish-next.yaml` write the GitHub environment secret `ENV` into `.env` before building the production image; that file is copied into the image and read by the application, data worker, and Navigraph worker at runtime. Their separate public/prebuilt jobs copy `.env.example` instead.
 
 ### Navigraph Data Flow
@@ -46,7 +44,6 @@ Important root files:
 - `app/utils/server/navigraph/db.ts` owns Navigraph token/package discovery, SQLite file validation, active database handles, and cycle metadata. It is called by the main Nitro app through `server/plugins/cron.ts`, by the data worker through `app/utils/server/tasks.ts`, and by `.config/navigraph*.sh` through `app/utils/server/worker/navigraph.ts`.
 - `app/utils/server/navigraph/cache.ts` materializes validated Navigraph databases through the standalone `app/utils/server/worker/navigraph-cache-builder.ts`; the main app and Navigraph worker consume the resulting JSON cache.
 - Production application commands in `.config/Dockerfile` and `.config/debug.Dockerfile` and production worker commands in `.config/worker-prod.sh` (data worker) and `.config/navigraph-prod.sh` (Navigraph worker) load `/radar/.env` through Node's `--env-file`. Development workers use `.config/worker.sh` and `.config/navigraph.sh` and receive variables through `env_file` in `docker-compose.yml` instead; check the actual deployment command and environment-loading path when diagnosing credentials. The application runs Prisma migrations before starting Node; data-worker booking signing starts in `getBookingSignature()` in `app/utils/server/vatsim/update.ts`.
->>>>>>> 6928ab4d (Fix navigraph corruption error)
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
@@ -144,6 +141,7 @@ Client performance audit entry points:
 
 - Aircraft hot path: `app/components/map/layers/MapAircraftList.vue` throttles visibility/render updates, `app/composables/render/aircraft/index.ts` reconciles OpenLayers aircraft/line features, `app/composables/render/aircraft/style.ts` supplies the per-feature style callback, and `app/composables/render/aircraft/smooth.ts` owns the optional frame loop.
 - Live-data fan-out: `app/composables/render/storage.ts` converts compact/mandatory feeds and `app/composables/index.ts` maps `short`/`mandatory` timestamps to update callbacks; `app/composables/render/update/index.ts` rebuilds derived airport/sector state.
+- Aircraft startup tracing: `checkForData()` in `app/composables/init.ts` delegates to `useStore().getVATSIMData()` in `app/store/index.ts`, which owns compact-feed version gating and mandatory fallback. `MapAircraftList.vue` seeds `visiblePilots` from `_mandatoryData`; airport/dashboard restrictions also read `airportsList`, whose replacement triggers the same throttled visibility recalculation as live-feed updates. Country-based flight filters in `app/composables/settings/filter.ts` resolve countries through the VATSpy-backed `getAirportCountry()` in `app/composables/vatsim/airport.ts`.
 - Visibility feedback: `app/components/views/ViewMap.vue` derives `renderedPilots`/`renderedAirports` from OpenLayers declutter during throttled `postrender` callbacks; these sets feed aircraft visibility, style decluttering, and smooth-movement decisions.
 - Enriched list getters: `app/store/index.ts` computes `lists`, `friends`, and `allFriends` from current live datasets; consumers in filters and aircraft styling can therefore add live-array scans to update paths.
 
@@ -152,6 +150,7 @@ Core files:
 - `app/components/views/ViewMap.vue` creates the OpenLayers `Map`, wires controls/popups/layers, and orchestrates map-only UI.
 - `app/composables/render/index.ts` contains shared render constants/helpers.
 - `app/composables/render/storage.ts` owns the client data store and VATSIM data conversion functions.
+- `initBookings()` in `app/composables/render/storage.ts` constructs the map booking request window from map settings or explicit booking override times; the endpoint lives under `server/api/data/vatsim/bookings/`.
 - The VATSIM worker stores `fastUpdatesEnabled` in `regularData`; `app/utils/server/storage.ts` forwards it through full/short and compact/compact-short endpoints. The client stores it in `useDataStore().vatsim.data` for mandatory fetch scheduling, short-data check cadence, and aircraft smoothing; when fast updates are disabled by either the feed or the local preference, short data also populates the mandatory aircraft state. WebSocket management remains separate.
 - `app/composables/render/update/index.ts` is the main recompute entry point for controllers/aircraft/airports/sectors.
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
@@ -183,6 +182,9 @@ Map component groups:
 - `app/components/popups/PopupMapInfo.vue`: shared framed popup block used by map popups and as the inner content shell for fullscreen dialogs; its title close button only updates the block `modelValue`.
 - `app/components/popups/PopupFullscreen.vue`: fullscreen modal wrapper with backdrop/escape/top-right close handling; it embeds `PopupMapInfo` for title/content/actions layout.
 - `app/components/map/layers/MapSelect.vue`: central OpenLayers hover/click/right-click selection interaction. It applies priority ordering, opens feature popups, and owns the click multiselect menu for lower-priority overlapping features such as SIGMET, VATGlasses, and Navigraph.
+- `MapPopupStand.vue` observes OpenLayers feature property changes so displayed stand metadata stays current, and groups matching guidance-line rows for display.
+- Airport stand markers are owned by `app/composables/render/airports/layers/gates.ts` (`setMapGatesRunways`) and the gates source/layer in `app/components/map/layers/MapAirportsList.vue`. The interactive gates use `VectorLayer` so label decluttering and selection share the map frame; the separate ground-layout geometry retains `VectorImageLayer` and is rendered by `app/composables/render/airports/layers/layout.ts`. Stand metadata integration starts with the `NavigraphGate` model in `app/types/data/navigraph.ts` and `server/api/data/navigraph/airport/[...icao]/index.ts`, which assembles gate data from Navigraph gates and airport-layout geometry; hover/click integration belongs in `MapSelect.vue`.
+- The airport endpoint copies raw AMDB `parkingstandarea.restacn` and per-line `standguidanceline.wingspan`/`status` onto gate records (`NavigraphGate.restacn`/`guidanceLines`) before stripping layout properties. `gates.ts` carries them onto stand features and refreshes retained features. `app/utils/map/stands.ts` (`parseNavigraphStand`) parses them on the frontend and returns `null` when nothing is known. `MapSelect.vue` routes gate clicks only (not hover or runway labels) to `app/components/map/popups/MapPopupStand.vue` via the `clickOnly` overlay flag. The popup reuses the shared popup/data-list primitives with inline span/status rows and a single title help tooltip. Schema support does not establish populated EKCH coverage.
 - `MapSelect` invalidates delayed hover actions with a request id so stale `pointerMove` handlers cannot overwrite the current cursor, selection, or overlay state.
 - `MapSelect` synchronizes the presence of its OpenLayers hover `Select` interaction with `map.preferences.hoverInteraction` and the current device/layout class; click and context-menu interactions remain persistent.
 - `app/components/map/settings/*`: map filters and quick settings panels.
@@ -199,12 +201,14 @@ Feature-level UI lives under `app/components/features`:
 - `events/`: VATSIM event cards/details.
 - `navigation/`: AIRAC/favorites/featured airport widgets.
 - `vatsim/airport/`: airport detail panels such as METAR, TAF, controllers, aircraft, NOTAMs, procedures.
+  - `AirportInfo.vue` is shared by `app/pages/airport/[icao].vue` and `app/components/map/overlays/MapOverlayAirport.vue`; its airport context comes from `provideAirport`/`injectAirport` in `app/composables/vatsim/airport.ts`. `AirportSunTimes.vue` renders sunrise/sunset in the info panel and in the overlay's fallback `#name` section; `app/composables/vatsim/airport-time.ts` supplies the local clock and sun times from an optional direct VATSpy airport or the injected airport context.
 - `vatsim/controllers/`: controller display helpers.
 - `vatsim/pilots/`: pilot detail helpers.
 
 Reusable UI primitives are in `app/components/ui`:
 
 - `buttons/`, `inputs/`, `text/`, `data/`, plus layout wrappers such as `UiContainer` and `UiPageContainer`.
+- `app/components/ui/data/UiDataList.vue` renders keyed item content through `#item-{key}` slots; `app/components/ui/text/UiChip.vue` supplies the compact value badges used in these rows.
 
 For new UI, prefer these primitives and existing feature/component patterns before adding new base components.
 
@@ -238,7 +242,7 @@ Important composable groups:
   - Airway parsing keeps one session-local graph per airway identifier, shared across pilots and expired by inactivity alongside the existing short Navigraph data cache. Resolved `from -> to` paths are not cached.
   - `getNavigraphParsedDataBulk` resolves unique short-data identifier buckets from the in-memory cache and fetches remaining buckets with one IndexedDB `bulkGet`; `NavigraphRoute.vue` uses it for airway NDB/VHF enrichment.
   - `app/components/map/overlays/pilot/MapPilotOverlay.vue` clears the CID-keyed selected procedure state in memory and in `localStorage` when the pilot receives a new flight plan.
-  - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
+  - `app/composables/navigraph/index.ts`: also parses precise-coordinate route tokens (including five-character ARINC 424 quadrant shorthand) and fixed point-bearing-distance tokens (`POINTdddnnn`) through `getPreciseCoord` and `getBearingCoord`.
   - `app/composables/navigraph/index.ts`: NAT route helpers parse generic alias tokens (`coordinate/FIX`) emitted by normalized track data through `getPreciseCoord`.
 - `app/composables/render/*`: map rendering and live data handling.
 - `app/composables/vatsim/controllers.ts`: shared controller lookup, airport/sector extent resolution, and map navigation helpers. `findATCSector()` returns geographic extents with a small look-ahead gap for controller navigation.
@@ -298,6 +302,7 @@ Background tasks:
 - `app/utils/server/tasks.ts` is the central scheduler for recurring jobs.
 - Patreon supporter data is synchronized hourly in `patreonTask()` in `app/utils/server/tasks.ts` through Patreon API v2 campaigns/members endpoints, then published in Redis as `data-patreon` (member counts and highlighted supporters; no budget estimate).
 - `app/utils/server/vatsim/update.ts` normalizes and enriches live VATSIM data, including pilot status, routes, transceivers, achievements, sectors, bookings, tracks, and websocket counters.
+  - Booking ingestion, SSE parsing/signing, legacy GET fallback, and Redis publication currently live in this file; scheduling is in `app/utils/server/tasks.ts`, while booking range filtering is in `app/utils/shared/bookings.ts` and `server/api/data/vatsim/bookings/index.ts`. For v2 startup errors, inspect `getBookingSignature()` first: it parses `VATSIM_BOOKINGS_PRKEY` with Node crypto before `initBookings()` opens the SSE request. `VATSIM_BOOKINGS_PBKEY` gates v2 selection but is not parsed there.
   - Ground pilot status is assigned here: no-plan ground aircraft are `depTaxi`, planned aircraft still on their departure are `depTaxi`, and planned aircraft already away from departure or on another ground airport are `arrTaxi`.
   - `parseCoordinates()` in this file normalizes Concorde Nattrak route strings into compact decimal-degree route aliases such as `4025N06700W/SN67W`, preserving both the source coordinate semantics and the published fix name.
 - `app/utils/server/vatsim/atc-duplicating.ts` contains the shared ATC duplicating settings used by client ATC render updates to duplicate controllers based on callsign shape and ATIS area text.
@@ -393,6 +398,7 @@ Main app routes:
 - `/airport/[icao]`: airport detail page.
 - `/events` and `/events/[id]`: VATSIM events.
 - `/bookings`: ATC bookings.
+  - `app/pages/bookings/index.vue` owns its date-picker range, booking API fetch window, and timeline filtering; the map booking window is managed separately in `app/composables/render/storage.ts`.
 - `/stats` and `/stats/*`: stats dashboards.
 - `/pilots`, `/sigmets`, `/notams`, `/achievements`, `/support-us`, `/about`, `/roadmap`, `/privacy-policy`.
 - `/data/[type]/[id]/compare`: data debugging comparison UI. Keep this page outside any broad `data` ignore glob: an unanchored ignore pattern can also exclude `app/pages/data` and remove the generated client route.

@@ -12,9 +12,9 @@ import {
     updateAchievements,
     updateAirlines,
     updateSectorsData,
-    updateBookings,
     updateNattrak,
     updateTransceivers, updateAirlinesCodes,
+    updateBookings,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -268,7 +268,7 @@ function backupTask() {
             },
         } = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?').exec(process.env.DATABASE_URL!)! as { groups: Record<string, string> };
 
-        execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
+        execSync(`mysqldump -u${ user } -p${ password } -h${ host } --skip-ssl-verify-server-cert --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
 
         const date = new Date();
 

@@ -166,6 +166,8 @@ import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCount
 import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
 import MapPopupSigmet from '~/components/map/popups/MapPopupSigmet.vue';
 import MapPopupNavigraph from '~/components/map/popups/MapPopupNavigraph.vue';
+import MapPopupStand from '~/components/map/popups/MapPopupStand.vue';
+import { parseNavigraphStand } from '~/utils/map/stands';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import type { Coordinate } from 'ol/coordinate.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
@@ -272,6 +274,8 @@ const createBookmark = async () => {
 
 interface Overlay {
     overlayComponent?: Component;
+    // Opened by click only: hover must neither replace nor close it
+    clickOnly?: boolean;
 }
 
 const interactableElements = {
@@ -289,6 +293,9 @@ const interactableElements = {
     },
     navigraph: {
         overlayComponent: MapPopupNavigraph,
+    },
+    stand: {
+        overlayComponent: MapPopupStand,
     },
 } satisfies Record<string, Overlay>;
 
@@ -324,7 +331,14 @@ function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, inte
         payload,
     };
 
+    // Invalidate delayed hover callbacks so they cannot close the overlay that was just clicked
+    if (isClickOnlyOverlayOpened()) hoverRequestId++;
+
     multiSelectCleanup();
+}
+
+function isClickOnlyOverlayOpened() {
+    return !!openedOverlay.value && !!(interactableElements[openedOverlay.value.key] as Overlay).clickOnly;
 }
 
 type RadarEventAction = (payload: RadarEventPayload<any>) => void | boolean;
@@ -621,6 +635,22 @@ const definitions: Record<SelectableFeatures, Definition> = {
         },
         disableMobileHoverFallback: true,
     },
+    stand: {
+        featureTypes: ['airport-navigraph'],
+        click: payload => {
+            const properties = payload.feature.getProperties();
+            if (!isMapFeature('airport-navigraph', properties) || properties.featureType !== 'gate') return false;
+
+            // Stands without any known information stay visible, but open no popup
+            if (!parseNavigraphStand(properties)) return;
+
+            return openOverlay('stand', payload, 'stand');
+        },
+        hover: () => {
+            return true;
+        },
+        disableMobileHoverFallback: true,
+    },
 };
 
 type SelectableFeatures =
@@ -633,6 +663,7 @@ type SelectableFeatures =
     | 'aircraft'
     | 'sigmet'
     | 'distance'
+    | 'stand'
     | 'navigraph';
 
 const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Ref<Feature[]> }> = {
@@ -644,6 +675,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportControllers',
             'airportApproach',
             'aircraft',
+            'stand',
             'sectorVG',
             'sigmet',
             'distance',
@@ -661,6 +693,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportControllers',
             'airportApproach',
             'aircraft',
+            'stand',
             'multi',
             'sectorVG',
             'sigmet',
@@ -721,6 +754,8 @@ function createSelectHandler(type: EventType, select: Select) {
             if (!map.value) return;
             const selected = (arg.mapBrowserEvent && type !== 'hover') ? arg.selected : select.getFeatures().getArray();
             const currentHoverRequestId = type === 'hover' ? ++hoverRequestId : undefined;
+            // Hover must not replace or close a click-only overlay. Pending hover callbacks are invalidated in openOverlay
+            if (type === 'hover' && isClickOnlyOverlayOpened()) return;
             states[type].selectedFeatures.value = selected.slice(0);
 
             if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
@@ -891,12 +926,14 @@ watch(map, val => {
         const type = layer.getProperties().type;
         const featureType = feature.getProperties().type;
         const selectable = layer.getProperties().selectable;
+        if (featureType === 'airport-navigraph') return feature.getProperties().featureType === 'gate';
 
         // TODO
         return selectable || (type?.startsWith('airports') && featureType !== 'airport-tracon' && featureType !== 'airport-circle') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
     };
 
     hoverFilter = (feature, layer) => {
+        if (feature.getProperties().type === 'airport-navigraph') return feature.getProperties().featureType === 'gate';
         if (isMobileOrTablet.value && feature.getProperties().type === 'navigraph') return false;
         return filter(feature, layer);
     };

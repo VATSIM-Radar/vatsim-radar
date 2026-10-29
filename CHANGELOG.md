@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.5-next]
+
+- Add local time and sunrise/sunset to airport info by fabienn-c (1444380)
+- Extend stand markers with Navigraph information by bjerrecs (1581824) - Navigraph Unlimited only
+- Added magnetic declination to non-AIP airports
+- ARINC coordinate shorthand improperly parsed (such as 17W75)
+- Fixed rare case when some approach sectors were duplicated, such as LAX_DEP lighting up LAX_APP sector
+- Improved aircraft load speed after initial load
+- Removed init popup when there is nothing to update
+- Fixed airlines updating each time you open VATSIM Radar
+
 # [2.0.4-1]
 
 - Fixed error in default airport dashboard when aircraft tracks were not shown

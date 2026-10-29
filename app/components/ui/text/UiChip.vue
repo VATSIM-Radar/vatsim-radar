@@ -88,10 +88,10 @@ const props = defineProps({
         default: false,
     },
     background: {
-        type: String as PropType<ColorsList>,
+        type: String as PropType<ColorsList | string>,
     },
     color: {
-        type: String as PropType<ColorsList>,
+        type: String as PropType<ColorsList | string>,
     },
 });
 

@@ -3,6 +3,14 @@
         v-if="airportInfo"
         class="__info-sections"
     >
+        <ui-text
+            v-if="localTime"
+            class="airport__time"
+            type="3b"
+        >
+            Local time: <ui-chip>{{localTime}}</ui-chip>
+        </ui-text>
+
         <ui-data-list
             :grid-columns="1"
             :items="[
@@ -24,22 +32,31 @@
                 { title: 'Magnetic Declination', text: decl, hide: !decl },
             ]"
         />
+        <airport-sun-times/>
     </div>
 </template>
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/vatsim/airport';
 import UiDataList from '~/components/ui/data/UiDataList.vue';
+import UiChip from '~/components/ui/text/UiChip.vue';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
+import UiText from '~/components/ui/text/UiText.vue';
+import AirportSunTimes from '~/components/features/vatsim/airport/AirportSunTimes.vue';
+import { useAirportTime } from '~/composables/vatsim/airport-time';
 
-const dataStore = useDataStore();
 const data = injectAirport();
 
 const airportInfo = computed(() => data.value.airport?.vatInfo);
-const decl = computed(() => {
-    if (!data.value.airport?.vatInfo?.icao) return null;
-    const vatAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.airport?.vatInfo?.icao];
-    return vatAirport ? Math.round(magvar(vatAirport.lat, vatAirport.lon)) : null;
-});
+const { vatAirport, localTime } = useAirportTime();
+const decl = computed(() => vatAirport.value ? Math.round(magvar(vatAirport.value.lat, vatAirport.value.lon)) : null);
 </script>
+
+<style lang="scss" scoped>
+.airport__time {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+</style>

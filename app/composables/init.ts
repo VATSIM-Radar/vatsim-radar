@@ -27,9 +27,14 @@ async function initCheck(key: keyof VRInitStatus, handler: (args: {
     const store = useStore();
     const dataStore = useDataStore();
     const mapStore = useMapStore();
+    let finished = false;
 
     try {
-        store.initStatus[key] = 'loading';
+        setTimeout(() => {
+            if (finished) return;
+            store.initStatus[key] = 'loading';
+        }, 150);
+
         store.initStatus[key] = await handler({
             store,
             dataStore,
@@ -39,6 +44,9 @@ async function initCheck(key: keyof VRInitStatus, handler: (args: {
     catch (e) {
         useRadarError(e);
         store.initStatus[key] = 'failed';
+    }
+    finally {
+        finished = true;
     }
 }
 
@@ -63,11 +71,15 @@ async function checkStatus() {
     }
 }
 
+export const failedUpdatesCheck = ref(false);
+
 export function checkForUpdates() {
     return initCheck('updatesCheck', async ({ mapStore, dataStore }) => {
         const ready = await checkStatus();
 
         if (!ready) {
+            failedUpdatesCheck.value = true;
+
             await new Promise<void>(resolve => {
                 const interval = setInterval(async () => {
                     const status = await checkStatus();
@@ -415,7 +427,7 @@ export function checkForAirlines() {
                 await clientDB.airlines.clear();
                 await clientDB.airlines.bulkPut(Object.values(data.all), Object.keys(data.all).map(x => x));
                 await clientDB.airlines.bulkPut(Object.values(data.virtual), Object.keys(data.virtual).map(x => `${ x }-virtual`));
-                await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version');
+                await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version-1');
 
                 await clientDB.data.put(imagesData, 'images-data');
                 dataStore.imagesData = imagesData;

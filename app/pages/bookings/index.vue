@@ -138,11 +138,11 @@ const dateRange: Reactive<DateRange> = reactive({
 const searchString = ref('');
 
 const queryParams = computed(() => ({
-    starting: initialStart.getTime(),
-    ending: initialEnd.getTime(),
+    starting: Math.min(fetchStart.value.getTime(), dateRange.from.getTime()),
+    ending: Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()),
 }));
 
-const { data, refresh } = await useAsyncData(
+const { data, error, refresh } = await useAsyncData(
     'bookings-page',
     () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
         query: queryParams.value,
@@ -168,10 +168,13 @@ const bookingTimelineEntries = computed(makeBookingTimelineEntries);
 
 watch(dateRange, async () => {
     if (fetchStart.value > dateRange.from || fetchEnd.value < dateRange.to) {
+        const { starting, ending } = queryParams.value;
         await refresh();
 
-        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
-        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
+        if (error.value) return;
+
+        fetchStart.value = new Date(starting);
+        fetchEnd.value = new Date(ending);
     }
 });
 
