@@ -20,6 +20,11 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 - The Vite client build in `nuxt.config.ts` targets `safari15` so production JavaScript remains parseable by iOS 15 Safari. Keep this target when changing client build settings; runtime API polyfills are a separate concern.
 - Nuxt ignores editor backup files ending in `~` (`**/*~` in `nuxt.config.ts`). Auto-import scanning of `app/composables/**` must not read short-lived editor copies, which can disappear between enumeration and reading and restart the dev process with `ENOENT`.
 
+### Navigraph Database Updates
+
+- Navigraph SQLite files must pass `PRAGMA integrity_check` before activation. A corrupt or malformed candidate is logged and ignored, its cycle is not published to shared storage, and the next scheduled update may retry it; the last active database remains in service whenever possible.
+- Main-app runway and gate reads return an empty result while the corresponding Navigraph database is unavailable. This keeps a failed optional Navigraph update from taking down ordinary API requests.
+
 ## Client State And Filtering
 
 - For map URLs with a `preset`, a valid `query.theme` overrides that preset's theme; unsupported theme values are ignored.

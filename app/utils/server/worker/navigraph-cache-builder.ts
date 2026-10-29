@@ -9,9 +9,15 @@ if ((type !== 'current' && type !== 'outdated') || !version || !dbPath) {
     process.exit(1);
 }
 
-const db = new sqlite3(dbPath, { readonly: true });
+let db: sqlite3.Database | undefined;
 
 try {
+    db = new sqlite3(dbPath, { readonly: true });
+    const result = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string } | undefined;
+    if (result?.integrity_check !== 'ok') {
+        throw new Error(`SQLite integrity check failed: ${ result?.integrity_check ?? 'unknown result' }`);
+    }
+
     await materializeCycleCache({
         type: type as NavigraphCycleType,
         version,
@@ -23,7 +29,7 @@ catch (e) {
     process.exitCode = 1;
 }
 finally {
-    db.close();
+    db?.close();
 }
 
 process.exit(process.exitCode ?? 0);
