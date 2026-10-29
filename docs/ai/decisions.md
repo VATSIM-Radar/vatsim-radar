@@ -24,6 +24,7 @@ This is the registry of non-obvious behavioral invariants and intentional tradeo
 
 - Navigraph SQLite files must pass `PRAGMA integrity_check` before activation. A corrupt or malformed candidate is logged and ignored, its cycle is not published to shared storage, and the next scheduled update may retry it; the last active database remains in service whenever possible.
 - Main-app runway and gate reads return an empty result while the corresponding Navigraph database is unavailable. This keeps a failed optional Navigraph update from taking down ordinary API requests.
+- Navigraph readiness is non-blocking: initialization failures publish `navigraph-ready` after logging, allowing the app and Data worker to start while scheduled retries continue.
 
 ## Client State And Filtering
 

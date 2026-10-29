@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, wr
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/server/storage';
 import { unpack } from '7zip-min';
+import { defaultRedis, setRedisSync } from '~/utils/server/redis';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
@@ -183,7 +184,12 @@ export async function checkNavigraphToken() {
     }
 }
 
-export async function initNavigraph() {
+function markNavigraphReady() {
+    setRedisSync('navigraph-ready', '1', 1000 * 60 * 60 * 24);
+    defaultRedis.publish('update', 'navigraph-data');
+}
+
+async function updateNavigraph() {
     await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
@@ -248,6 +254,17 @@ export async function initNavigraph() {
 
     removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'current');
     removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'outdated');
+}
+
+export async function initNavigraph() {
+    try {
+        await updateNavigraph();
+        markNavigraphReady();
+    }
+    catch (error) {
+        console.error('Navigraph initialization failed; continuing without Navigraph data', error);
+        markNavigraphReady();
+    }
 }
 
 interface RequestSettings {
