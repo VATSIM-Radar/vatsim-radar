@@ -207,8 +207,8 @@ async function updateNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ current.cycle }-${ current.revision }-13`;
-    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-13`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-1`;
+    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-1`;
 
     const currentFileName = `current-v2-${ currentCycle }.s3db`;
     const outdatedFileName = `outdated-v2-${ outdatedCycle }.s3db`;
