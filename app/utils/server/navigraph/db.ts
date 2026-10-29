@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, wr
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/server/storage';
 import { unpack } from '7zip-min';
+import { defaultRedis, setRedisSync } from '~/utils/server/redis';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
@@ -12,15 +13,70 @@ export let navigraphOutdatedDb: sqlite3.Database | null = null;
 const cwd = join(process.cwd(), 'app');
 const dirPath = join(cwd, 'data');
 
+function isNavigraphDatabaseError(error: unknown) {
+    if (!(error instanceof Error)) return false;
+
+    return error.message.includes('file is not a database') ||
+        error.message.includes('database disk image is malformed');
+}
+
+function isNavigraphIntegrityError(error: unknown) {
+    return error instanceof Error && error.message.startsWith('SQLite integrity check failed');
+}
+
+function openNavigraphDatabase(file: string) {
+    const db = new sqlite3(file, { readonly: true });
+
+    try {
+        const result = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string } | undefined;
+        if (result?.integrity_check !== 'ok') {
+            throw new Error(`SQLite integrity check failed: ${ result?.integrity_check ?? 'unknown result' }`);
+        }
+
+        return db;
+    }
+    catch (error) {
+        db.close();
+        throw error;
+    }
+}
+
+function isNavigraphDatabaseUsable(file: string) {
+    try {
+        const db = openNavigraphDatabase(file);
+        db.close();
+        return true;
+    }
+    catch (error) {
+        if (isNavigraphDatabaseError(error) || isNavigraphIntegrityError(error)) {
+            console.warn(`Ignoring invalid Navigraph database file: ${ file }`, error);
+            return false;
+        }
+
+        throw error;
+    }
+}
+
 export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; file: string }) {
     closeNavigraphDB(type);
 
-    if (type === 'current') {
-        navigraphCurrentDb = new sqlite3(file, { readonly: true });
+    try {
+        const db = openNavigraphDatabase(file);
+        if (type === 'current') {
+            navigraphCurrentDb = db;
+        }
+        else {
+            navigraphOutdatedDb = db;
+        }
+        return true;
     }
+    catch (error) {
+        if (isNavigraphDatabaseError(error) || isNavigraphIntegrityError(error)) {
+            console.warn(`Ignoring invalid Navigraph database file: ${ file }`, error);
+            return false;
+        }
 
-    if (type === 'outdated') {
-        navigraphOutdatedDb = new sqlite3(file, { readonly: true });
+        throw error;
     }
 }
 
@@ -81,9 +137,17 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
         const dirList = readdirSync(unpackPath);
         if (!dirList[0]) throw new Error('Navigraph archive unpacked without files');
 
+        if (existsSync(finalPath) && !isNavigraphDatabaseUsable(finalPath)) {
+            rmSync(finalPath, { force: true });
+        }
+
         if (existsSync(finalPath)) return;
 
         renameSync(join(unpackPath, dirList[0]), finalPath);
+        if (!isNavigraphDatabaseUsable(finalPath)) {
+            rmSync(finalPath, { force: true });
+            throw new Error(`Downloaded Navigraph database is invalid: ${ finalPath }`);
+        }
     }
     finally {
         rmSync(tempDir, { recursive: true, force: true });
@@ -120,7 +184,12 @@ export async function checkNavigraphToken() {
     }
 }
 
-export async function initNavigraph() {
+function markNavigraphReady() {
+    setRedisSync('navigraph-ready', '1', 1000 * 60 * 60 * 24);
+    defaultRedis.publish('update', 'navigraph-data');
+}
+
+async function updateNavigraph() {
     await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
@@ -142,14 +211,9 @@ export async function initNavigraph() {
     const currentCycle = `${ current.cycle }-${ current.revision }-13`;
     const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-13`;
 
-    if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
+    if (currentCycle === cycles.current && outdatedCycle === cycles.outdated && navigraphCurrentDb && navigraphOutdatedDb) return;
 
     console.log(`Cycle updated`, cycles.current, currentCycle, cycles.outdated, outdatedCycle);
-
-    cycles.current = currentCycle;
-    cycles.outdated = outdatedCycle;
-
-    radarStorage.navigraph = cycles;
 
     const currentFileName = `current-v2-${ currentCycle }.s3db`;
     const outdatedFileName = `outdated-v2-${ outdatedCycle }.s3db`;
@@ -157,12 +221,14 @@ export async function initNavigraph() {
     const currentPath = join(cwd, `data/${ currentFileName }`);
     const outdatedPath = join(cwd, `data/${ outdatedFileName }`);
 
-    const filesInPath = readdirSync(dirPath, { withFileTypes: true });
+    for (const [path, type] of [[currentPath, 'current'], [outdatedPath, 'outdated']] as const) {
+        if (existsSync(path) && !isNavigraphDatabaseUsable(path)) {
+            rmSync(path, { force: true });
+            console.warn(`Removed invalid ${ type } Navigraph database candidate: ${ path }`);
+        }
+    }
 
     if (!existsSync(currentPath)) {
-        closeNavigraphDB('current');
-        removeOldNavigraphFiles(filesInPath, 'current');
-
         await downloadNavigraphFile({
             fileUrl: current.files[0].signed_url,
             path: dirPath,
@@ -170,12 +236,9 @@ export async function initNavigraph() {
         });
     }
 
-    if (!navigraphCurrentDb) initNavigraphDB({ type: 'current', file: currentPath });
+    if (!initNavigraphDB({ type: 'current', file: currentPath })) return;
 
     if (!existsSync(outdatedPath)) {
-        closeNavigraphDB('outdated');
-        removeOldNavigraphFiles(filesInPath, 'outdated');
-
         await downloadNavigraphFile({
             fileUrl: outdated.files[0].signed_url,
             path: dirPath,
@@ -183,7 +246,25 @@ export async function initNavigraph() {
         });
     }
 
-    if (!navigraphOutdatedDb) initNavigraphDB({ type: 'outdated', file: outdatedPath });
+    if (!initNavigraphDB({ type: 'outdated', file: outdatedPath })) return;
+
+    cycles.current = currentCycle;
+    cycles.outdated = outdatedCycle;
+    radarStorage.navigraph = cycles;
+
+    removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'current');
+    removeOldNavigraphFiles(readdirSync(dirPath, { withFileTypes: true }), 'outdated');
+}
+
+export async function initNavigraph() {
+    try {
+        await updateNavigraph();
+        markNavigraphReady();
+    }
+    catch (error) {
+        console.error('Navigraph initialization failed; continuing without Navigraph data', error);
+        markNavigraphReady();
+    }
 }
 
 interface RequestSettings {

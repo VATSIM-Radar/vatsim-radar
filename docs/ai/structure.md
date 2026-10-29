@@ -37,6 +37,16 @@ Important root files:
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 - `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
+<<<<<<< HEAD
+=======
+- `.github/workflows/publish.yaml` and `publish-next.yaml` write the GitHub environment secret `ENV` into `.env` before building the production image; that file is copied into the image and read by the application, data worker, and Navigraph worker at runtime. Their separate public/prebuilt jobs copy `.env.example` instead.
+
+### Navigraph Data Flow
+
+- `app/utils/server/navigraph/db.ts` owns Navigraph token/package discovery, SQLite file validation, active database handles, and cycle metadata. It is called by the main Nitro app through `server/plugins/cron.ts`, by the data worker through `app/utils/server/tasks.ts`, and by `.config/navigraph*.sh` through `app/utils/server/worker/navigraph.ts`.
+- `app/utils/server/navigraph/cache.ts` materializes validated Navigraph databases through the standalone `app/utils/server/worker/navigraph-cache-builder.ts`; the main app and Navigraph worker consume the resulting JSON cache.
+- Production application commands in `.config/Dockerfile` and `.config/debug.Dockerfile` and production worker commands in `.config/worker-prod.sh` (data worker) and `.config/navigraph-prod.sh` (Navigraph worker) load `/radar/.env` through Node's `--env-file`. Development workers use `.config/worker.sh` and `.config/navigraph.sh` and receive variables through `env_file` in `docker-compose.yml` instead; check the actual deployment command and environment-loading path when diagnosing credentials. The application runs Prisma migrations before starting Node; data-worker booking signing starts in `getBookingSignature()` in `app/utils/server/vatsim/update.ts`.
+>>>>>>> 6928ab4d (Fix navigraph corruption error)
 - `.config/k8s/ingress.yml` defines public host/path routing for production and next, including F5 NGINX `server-snippets` for custom upstream error handling.
 - `.config/k8s/f5-values.yml` contains Helm values for the F5 NGINX Ingress Controller, including the global `worker-connections` setting used by the generated NGINX configuration.
 
