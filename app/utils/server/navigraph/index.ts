@@ -127,9 +127,12 @@ export async function getNavigraphRunways({ user, icao, event }: {
     event: H3Event;
 }) {
     try {
+        const db = user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb;
+        if (!db) return [];
+
         const runways: NavigraphRunway[] = [];
 
-        const req = (user?.hasFms ? navigraphCurrentDb! : navigraphOutdatedDb!).prepare(`SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = ? ORDER BY runway_identifier ASC`);
+        const req = db.prepare(`SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = ? ORDER BY runway_identifier ASC`);
 
         const rows = await req.all(icao) as any[];
 
