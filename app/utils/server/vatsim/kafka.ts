@@ -148,7 +148,7 @@ export function kafkaUpdatePilot(event: KafkaPD, updatedAt: number) {
     let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
     const previousPositionTimestamp = pilotPositionTimestamps.get(event.Callsign);
 
-    if (previousPositionTimestamp !== undefined && updatedAt <= previousPositionTimestamp) {
+    if (previousPositionTimestamp !== undefined && updatedAt < previousPositionTimestamp) {
         console.warn(`[Kafka] Ignoring out-of-order pilot position for ${ event.Callsign }: event=${ new Date(updatedAt).toISOString() }, latest=${ new Date(previousPositionTimestamp).toISOString() }`);
         return;
     }

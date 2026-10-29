@@ -133,13 +133,17 @@
                     show-booking
                 />
             </template>
-            <template v-else-if="controller.booking">
+            <div v-else-if="controller.booking" class="atc__booking">
                 Booked from
-                {{ makeBookingTime(controller.booking?.start, bookingsLocalTimezone) }} to {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}
-                <template v-if="!bookingsLocalTimezone">
-                    Z
-                </template>
-            </template>
+                {{ makeBookingTime(controller.booking?.start, bookingsLocalTimezone) }} to {{ `${ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }${ !bookingsLocalTimezone ? 'z' : '' }` }}
+                <ui-chip
+                    v-if="bookingType"
+                    :background="bookingType.color"
+                    :color="radarColors.lightGray200Hex"
+                >
+                    {{bookingType.text}}
+                </ui-chip>
+            </div>
         </div>
     </ui-text>
 </template>
@@ -156,7 +160,7 @@ import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import UiChip from '~/components/ui/text/UiChip.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import UiText from '~/components/ui/text/UiText.vue';
-import { makeBookingTime } from '~/composables/vatsim/bookings';
+import { getBookingType, makeBookingTime } from '~/composables/vatsim/bookings';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 
 const props = defineProps({
@@ -200,6 +204,8 @@ const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
 const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
 const showSpeaker = useSettingValueFromFunc('map.preferences.airports.voiceButton');
+
+const bookingType = computed(() => props.controller.booking && getBookingType(props.controller.booking));
 
 const additionalFrequencies = computed(() => {
     return props.controller.frequencies?.filter(x => {
@@ -373,6 +379,13 @@ const isCopied = (key: string) => {
         border-width: 1px 0;
 
         opacity: 0.8;
+    }
+
+    &__booking {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
     }
 }
 </style>

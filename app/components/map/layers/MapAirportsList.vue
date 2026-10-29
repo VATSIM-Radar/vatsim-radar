@@ -33,7 +33,7 @@ let airportsSource: VectorSource;
 let navigraphLayer: VectorImageLayer<any>;
 let navigraphSource: VectorSource;
 
-let gatesLayer: VectorImageLayer<any>;
+let gatesLayer: VectorLayer<any>;
 let gatesSource: VectorSource;
 
 const now = new Date();
@@ -152,7 +152,7 @@ onMounted(() => {
         imageRatio: touch.value ? 1 : 1.5,
         minZoom: 12,
         style: function(feature) {
-            const type = feature.get('type') as AmdbLayerName;
+            const type = feature.get('featureType') as AmdbLayerName;
             if (zoomHiddenLayoutTypes.has(type) && mapStore.preciseZoom < 14.5) return;
 
             const style = styles[type];
@@ -163,12 +163,11 @@ onMounted(() => {
         },
     });
 
-    gatesLayer = new VectorImageLayer<any>({
+    gatesLayer = new VectorLayer<any>({
         source: gatesSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
         minZoom: 15,
         declutter: 'gates',
-        imageRatio: touch.value ? 1 : 1.5,
         properties: {
             type: 'airports-gates',
         },

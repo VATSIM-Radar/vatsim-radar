@@ -52,3 +52,18 @@ function isToday(date: Date): boolean {
     const now = new Date();
     return date.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
 }
+
+export function getBookingType(booking: VatsimBooking | VatsimBookingAtc): { color: string; text: string } | null {
+    switch (booking.type) {
+        case 'event':
+            return { color: getCurrentThemeHexColor('red600'), text: 'Event' };
+        case 'exam':
+            return { color: getCurrentThemeHexColor('teal700'), text: 'Exam' };
+        case 'training':
+            return { color: getCurrentThemeHexColor('green700'), text: 'Training' };
+        case 'mentoring':
+            return { color: getCurrentThemeHexColor('purple800'), text: 'Mentoring' };
+        default:
+            return null;
+    }
+}

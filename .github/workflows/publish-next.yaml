@@ -34,7 +34,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Add .env file
-        run: echo "${{ secrets.ENV }}" > .env
+        env:
+          RADAR_ENV: ${{ secrets.ENV }}
+        run: printf '%s\n' "$RADAR_ENV" > .env
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

@@ -14,6 +14,13 @@
             <ui-chip class="atc-time_info">
                 {{ makeBookingTime(controller.booking?.end, bookingsLocalTimezone) }}<template v-if="!bookingsLocalTimezone">z</template>
             </ui-chip>
+            <ui-chip
+                v-if="bookingType"
+                :background="bookingType.color"
+                :color="radarColors.lightGray200Hex"
+            >
+                {{bookingType.text}}
+            </ui-chip>
         </div>
         <div class="atc-time_section">
             <div class="atc-time_text">
@@ -32,8 +39,9 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import UiChip from '~/components/ui/text/UiChip.vue';
 import UiText from '~/components/ui/text/UiText.vue';
+import { getBookingType } from '~/composables/vatsim/bookings.ts';
 
-defineProps({
+const props = defineProps({
     controller: {
         type: Object as PropType<VatsimShortenedController>,
         required: true,
@@ -46,6 +54,7 @@ defineProps({
 
 const dataStore = useDataStore();
 const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingType = computed(() => props.controller.booking && getBookingType(props.controller.booking));
 </script>
 
 <style scoped lang="scss">

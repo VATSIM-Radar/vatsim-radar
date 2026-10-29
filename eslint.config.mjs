@@ -403,6 +403,6 @@ export default withNuxt([
         },
     },
     {
-        ignores: ['docs/.vitepress/cache', 'docs/.vitepress/dist'],
+        ignores: ['app/data/', 'docs/.vitepress/cache', 'docs/.vitepress/dist'],
     },
 ]);

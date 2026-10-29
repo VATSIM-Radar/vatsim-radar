@@ -86,6 +86,8 @@ async function updateNavigraph() {
     }
     catch (e) {
         console.error(e);
+        setRedisSync('navigraph-ready', '1', 1000 * 60 * 60 * 24);
+        defaultRedis.publish('update', 'navigraph-data');
     }
     finally {
         updating = false;

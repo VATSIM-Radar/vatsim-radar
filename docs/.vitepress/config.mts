@@ -100,10 +100,6 @@ export default defineConfig({
                         link: '/contributing/setting-up',
                     },
                     {
-                        text: 'Designer Application',
-                        link: '/contributing/jobs',
-                    },
-                    {
                         text: 'ATC/Airports Data',
                         link: '/contributing/data',
                         items: [

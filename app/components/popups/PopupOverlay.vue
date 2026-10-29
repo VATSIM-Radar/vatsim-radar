@@ -32,7 +32,7 @@
                             <minus-icon width="14"/>
                         </div>
                     </template>
-                    Minify
+                    Minimize
                 </ui-tooltip>
                 <div
                     v-if="collapsible && (!isMobile || typeof minified !== 'boolean')"
