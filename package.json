@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "7zip-min": "3.0.1",
-    "@aws-sdk/client-s3": "3.1157.0",
+    "@aws-sdk/client-s3": "3.1160.0",
     "@nuxt/image": "2.2.0",
     "@photostructure/tz-lookup": "11.7.0",
     "@pinia/nuxt": "1.0.3",
@@ -102,14 +102,14 @@
     "@types/geojson": "7946.0.16",
     "@types/jsonwebtoken": "9.0.10",
     "@types/merge-ranges": "1.0.2",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest",
     "@types/ws": "8.18.2",
     "eslint": "10.13.0",
     "fast-xml-parser": "5.11.2",
     "postcss": "8.5.32",
     "postcss-html": "2.0.0",
-    "sass-embedded": "1.106.1",
+    "sass-embedded": "1.107.0",
     "stylelint": "17.16.0",
     "stylelint-config-clean-order": "10.0.0",
     "stylelint-config-html": "2.0.0",
@@ -121,7 +121,7 @@
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite-plugin-eslint2": "5.3.0",
-    "vue-tsc": "3.3.13"
+    "vue-tsc": "3.3.14"
   },
   "dependenciesMeta": {
     "better-sqlite3@13.0.3": {
