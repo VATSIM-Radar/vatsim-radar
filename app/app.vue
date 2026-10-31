@@ -29,7 +29,6 @@ const setMap = ({ map, layerGroup }: MapEvent) => {
 };
 
 provide('map', mapRef);
-provide('layer-group', layerRef);
 
 watch(() => route.path, () => {
     mapRef.value = null;

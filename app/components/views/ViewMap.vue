@@ -196,7 +196,7 @@ import MapSelectedProcedures from '~/components/map/MapSelectedProcedures.vue';
 import { defaults, Interaction } from 'ol/interaction.js';
 import MapBrowserEventType from 'ol/MapBrowserEventType.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import LayerGroup from 'ol/layer/Group.js';
+import type LayerGroup from 'ol/layer/Group.js';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
@@ -240,7 +240,6 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
-const layer = shallowRef<LayerGroup | null>(null);
 let cleanupOpenLayersMap: (() => void) | undefined;
 const ready = ref(false);
 const restoredOverlays = ref(false);
@@ -307,7 +306,6 @@ if (route.query.discord === '1') {
 }
 
 provide('map', map);
-provide('layer-group', layer);
 
 emit('map', {
     map,
@@ -923,7 +921,6 @@ await setupDataFetch({
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
         });
-        layer.value = new LayerGroup();
 
         setMapInteractions();
 
@@ -1045,8 +1042,6 @@ await setupDataFetch({
             currentMap.setTarget(undefined);
             currentMap.dispose();
 
-            layer.value?.dispose();
-            layer.value = null;
             map.value = null;
             mapStore.moving = false;
             mapStore.renderedAirports = null;

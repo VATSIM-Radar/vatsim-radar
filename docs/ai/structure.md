@@ -397,6 +397,7 @@ Main app routes:
 - `/`: map.
 - `/airport/[icao]`: airport detail page.
 - `/events` and `/events/[id]`: VATSIM events.
+  - `app/components/features/events/EventPlayback.vue` owns the finished-event playback summary, airport-specific movement timeline (Chart.js), and separate OpenLayers map; `server/api/data/vatsim/events/[id]/playback.ts` serves detailed Statsim flights and positions through `app/utils/server/statsim.ts`.
 - `/bookings`: ATC bookings.
   - `app/pages/bookings/index.vue` owns its date-picker range, booking API fetch window, and timeline filtering; the map booking window is managed separately in `app/composables/render/storage.ts`.
 - `/stats` and `/stats/*`: stats dashboards.

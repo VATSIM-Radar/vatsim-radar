@@ -1,5 +1,10 @@
 # Changelog
 
+# [2.1.0-alpha.1]
+
+- Add Past Events
+- Add past events statistic and playback
+
 # [2.0.5-next]
 
 - Add local time and sunrise/sunset to airport info by fabienn-c (1444380)
