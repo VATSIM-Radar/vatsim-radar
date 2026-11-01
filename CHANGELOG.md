@@ -1,5 +1,10 @@
 # Changelog
 
+# [2.0.5-1-next]
+
+- Add WorldFlgiht team highlight
+- Improved speed of aircraft scale update on map
+
 # [2.0.5-next]
 
 - Add local time and sunrise/sunset to airport info by fabienn-c (1444380)

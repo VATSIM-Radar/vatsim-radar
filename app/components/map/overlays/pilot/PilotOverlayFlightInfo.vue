@@ -143,6 +143,40 @@
                 </ui-data-list-item>
             </div>
         </ui-data-container>
+        <ui-data-container v-if="wfFlight">
+            <template #icon>
+                <globe-icon/>
+            </template>
+
+            <div class="flight-info__columns flight-info__columns--airline">
+                <ui-data-list-item>
+                    WorldFlight Team
+
+                    <ui-data-list
+                        circle-divider
+                        class="flight-info__secondary"
+                        :items="[{ text: wfFlight.team }, { text: 'learn more', key: 'learnMore' }]"
+                    >
+                        <template #item-learnMore>
+                            <ui-button
+                                href="https://planning.worldflight.center/"
+                                link-color="blue500"
+                                target="_blank"
+                                type="link"
+                            >
+                                <ui-text
+                                    class="text--colored"
+                                    color="blue500"
+                                    type="3b-medium"
+                                >
+                                    Learn more
+                                </ui-text>
+                            </ui-button>
+                        </template>
+                    </ui-data-list>
+                </ui-data-list-item>
+            </div>
+        </ui-data-container>
         <div class="flight-info__progress">
             <ui-text
                 class="flight-info__progress_title"
@@ -398,9 +432,10 @@ import UiChip from '~/components/ui/text/UiChip.vue';
 import UiDataListItem from '~/components/ui/data/UiDataListItem.vue';
 import UiSeparator from '~/components/ui/data/UiSeparator.vue';
 import UiText from '~/components/ui/text/UiText.vue';
-import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { getPilotTrueAltitude, getWFPilot } from '~/utils/shared/vatsim';
 import { isValidDate } from '~/utils/shared';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
+import GlobeIcon from '~/assets/icons/kit/globe.svg?component';
 import SpeakerIcon from '~/assets/icons/basic/speaker.svg?component';
 import { getSimulatorName } from '../../../../utils/shared/vatsim';
 
@@ -457,6 +492,7 @@ watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, 
 
 const dataStore = useDataStore();
 
+const wfFlight = computed(() => getWFPilot(props.pilot.cid));
 const tracksPilotData = computed(() => dataStore.vatsim.tracksPilotsData.value[props.pilot.cid]);
 const departedAt = computed(() => tracksPilotData.value?.departedAt ?? props.pilot.flight_plan?.departed_at);
 const arrivedAt = computed(() => tracksPilotData.value?.arrivedAt ?? props.pilot.flight_plan?.arrived_at);
@@ -527,7 +563,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     &__secondary :deep(.text) {
         font-weight: normal !important;
 
-        &:not(.bubble, .chip) {
+        &:not(.bubble, .chip, .text--colored) {
             color: $typographySecondary
         }
     }
