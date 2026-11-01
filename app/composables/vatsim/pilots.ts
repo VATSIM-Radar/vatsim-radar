@@ -202,7 +202,7 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
 
     if (status === 'emergency') return aircraftSvgColors().emergency;
 
-    if (cid) {
+    if (cid && status !== 'green' && status !== 'hover') {
         const wfPilot = getWFPilot(cid);
         if (wfPilot) return radarColors.purple500Hex;
     }
