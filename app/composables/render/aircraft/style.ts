@@ -22,6 +22,7 @@ import { getResolvedScale } from '~/utils/map/aircraft-scale';
 import { globalComputed } from '~/composables';
 import { getColorValueByKey, useSettingValueFromFunc } from '~/composables/settings/v2/utils.ts';
 import { favoritesMap } from '~/composables/fetchers/lists.ts';
+import { getWFPilot } from '~/utils/shared/vatsim.ts';
 
 const MAX_FETCHED_PNG_ICONS = 256;
 
@@ -77,7 +78,7 @@ function scheduleIconForFetch(icon: AircraftIcon) {
     return null;
 }
 
-function schedulePngIconForFetch(src: string) {
+function schedulePngIconForFetch(src: string, fallbackSrc?: string) {
     const cached = fetchedPngIcons.get(src);
 
     // Already scheduled
@@ -91,8 +92,14 @@ function schedulePngIconForFetch(src: string) {
 
     const request = fetchAircraftPngIcon(src);
     fetchedPngIcons.set(src, request);
+    const fallbackTimer = fallbackSrc
+        ? setTimeout(() => {
+            if (fetchedPngIcons.get(src) === request) schedulePngIconForFetch(fallbackSrc);
+        }, 1000)
+        : undefined;
     request
         .then(x => {
+            clearTimeout(fallbackTimer);
             if (fetchedPngIcons.get(src) !== request) return;
             fetchedPngIcons.delete(src);
             fetchedPngIcons.set(src, x);
@@ -100,8 +107,10 @@ function schedulePngIconForFetch(src: string) {
             scheduleAircraftStyleRefresh();
         })
         .catch(e => {
+            clearTimeout(fallbackTimer);
             console.error(e);
             if (fetchedPngIcons.get(src) === request) fetchedPngIcons.delete(src);
+            if (fallbackSrc) schedulePngIconForFetch(fallbackSrc);
         });
 
     return null;
@@ -237,6 +246,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 filteredTransparency,
                 filteredOpacity,
                 getAircraftPixelRatio(),
+                mapStore.zoom,
             ].join('|');
             const cachedImageStyle = styleCache[styleKey];
 
@@ -285,28 +295,33 @@ export function setAircraftStyle(layer: VectorLayer) {
                 onGround,
                 scale,
             });
-            const pngImage = (status === 'default' || status === 'ground') && !list;
+            const wfFlight = getWFPilot(cid);
+            const pngImage = (status === 'default' || status === 'ground') && !list && !wfFlight;
 
             if (!styleCache[styleKey]) {
                 styleCache[styleKey] = new Style();
             }
 
-            const airportColor = airports.value[arrival ?? ''] && (status === 'default' || status === 'ground') && !list;
+            const airportColor = airports.value[arrival ?? ''] && (status === 'default' || status === 'ground') && !list && !wfFlight;
             const shouldTintPngIcon = filterColor || !pngImage || airportColor || (color && color.color !== 'blue500');
             const suffix = `${ shouldTintPngIcon ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }`;
             const pngSrc = `/_ipx/w_${ getAircraftPngWidth(scaledWidth) },quality_85,f_webp/aircraft/${ icon.icon }${ suffix }.png`;
+            const fallbackPngSrc = `/aircraft/${ icon.icon }${ suffix }.png`;
 
             let svg: string | null = null;
-            let png: HTMLImageElement | null = null;
+            let optimizedPng: HTMLImageElement | null = null;
 
             if (!pngImage) svg = scheduleIconForFetch(icon.icon);
-            else png = schedulePngIconForFetch(pngSrc);
+            else optimizedPng = schedulePngIconForFetch(pngSrc, fallbackPngSrc);
+            const fallbackPng = fetchedPngIcons.get(fallbackPngSrc);
+            const png = optimizedPng ?? (fallbackPng && !('then' in fallbackPng) ? fallbackPng : null);
+            const activePngSrc = optimizedPng ? pngSrc : fallbackPngSrc;
             const declutter = getKeyedValueFromSettings('map.traffic.declutter');
             const shouldDeclutter = declutter === 'always'
                 ? true
                 : declutter ? (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) : false;
 
-            const pngItem = png ?? `/aircraft/${ icon.icon }${ suffix }.png`;
+            const pngItem = png ?? fallbackPngSrc;
             const svgColor = svg || !pngImage ? aircraftColor : undefined;
             const statusIconColor = svgColor ? `rgb(${ hexToRgb(svgColor) })` : undefined;
             const statusIconOpacity = svgColor ? getColorAlpha(svgColor) ?? 1 : undefined;
@@ -335,7 +350,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 scaledHeight,
                 shouldDeclutter,
                 svgSrc ? store.theme : undefined,
-                svgSrc ? svgColor : pngSrc,
+                svgSrc ? svgColor : activePngSrc,
                 aircraftColor,
                 svgSrc ? Number(!heatmap.value) : iconColor,
                 svgSrc ? undefined : iconOpacity,
@@ -346,7 +361,7 @@ export function setAircraftStyle(layer: VectorLayer) {
             if (!cachedAircraftImage || cachedAircraftImage.key !== imageStyleKey) {
                 cachedAircraftImage = {
                     key: imageStyleKey,
-                    pngSrc: pngImage ? pngSrc : undefined,
+                    pngSrc: pngImage ? activePngSrc : undefined,
                     image: new Icon({
                         src: svgSrc ?? (typeof pngItem === 'string' ? pngItem : undefined),
                         img: svgSrc ? undefined : png ?? undefined,
