@@ -2,8 +2,8 @@
 
 # [2.1.0-alpha.1]
 
-- Add Past Events
-- Add past events statistic and playback
+- Add Past Events [INOP]
+- Add Past Events statistic and playback [DIRECT LINK ONLY]
 - Add historical stats for most Stats pages
 
 # [2.0.5-1-next]
