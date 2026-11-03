@@ -3,8 +3,8 @@
         background="darkGray800"
         mobile-vertical
         :model-value="statsTab"
-        :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, pilots: { title: 'Pilots' }, atc: { title: 'ATC' }, observers: { title: 'Observers' } }"
-        @update:modelValue="navigateTo({ path: `/stats/${ $event }` })"
+        :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, atc: { title: 'ATC' }, pilots: { title: 'Live Pilots' }, observers: { title: 'Live Observers' } }"
+        @update:modelValue="navigateTo({ path: `/stats/${ $event }`, query: route.query })"
     />
 </template>
 

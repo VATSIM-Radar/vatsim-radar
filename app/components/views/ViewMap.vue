@@ -196,7 +196,6 @@ import MapSelectedProcedures from '~/components/map/MapSelectedProcedures.vue';
 import { defaults, Interaction } from 'ol/interaction.js';
 import MapBrowserEventType from 'ol/MapBrowserEventType.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import type LayerGroup from 'ol/layer/Group.js';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
@@ -230,7 +229,7 @@ defineProps({
     },
 });
 const emit = defineEmits({
-    map(data: { map: Ref<Map | null>; layerGroup: Ref<LayerGroup | null> }) {
+    map(data: { map: Ref<Map | null> }) {
         return true;
     },
 });
@@ -309,7 +308,6 @@ provide('map', map);
 
 emit('map', {
     map,
-    layerGroup: layer,
 });
 
 let initialSpawn = false;

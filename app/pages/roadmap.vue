@@ -349,10 +349,11 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Historical Stats',
                 description: 'Popular over time etc',
+                status: 'next',
             },
             { title: 'Theme Market', status: 'tentative' },
-            { title: 'Flights/controllers sessions history, VATSIM user page' },
-            { title: 'History of events / events traffic' },
+            { title: 'Flights/controllers sessions history, VATSIM user page', status: 'in-progress' },
+            { title: 'History of events / events traffic', status: 'next' },
         ],
     },
     {

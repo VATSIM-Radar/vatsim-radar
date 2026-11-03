@@ -38,6 +38,7 @@ Important root files:
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
 - `.config/Dockerfile` and `.config/debug.Dockerfile` build production/prebuilt images on `node:26-slim`; `.config/dev.Dockerfile` and `.config/dev-arm64.Dockerfile` define development bases. `.config/command.sh` installs dependencies into the bind-mounted development checkout; standalone workers start through `.config/worker*.sh` and `.config/navigraph*.sh`. Image publishing is owned by `.github/workflows/publish*.yaml`, while their shared checks live in `.github/actions/codecheck/action.yaml` and run on Node 22.
 - `.github/workflows/publish.yaml` and `publish-next.yaml` write the GitHub environment secret `ENV` into `.env` before building the production image; that file is copied into the image and read by the application, data worker, and Navigraph worker at runtime. Their separate public/prebuilt jobs copy `.env.example` instead.
+- `.github/renovate.json` selects the `next` and `main` base branches for dependency maintenance; branch-specific update policy lives in its `packageRules`, and vulnerability-fix PR settings live in `vulnerabilityAlerts`.
 
 ### Navigraph Data Flow
 
@@ -285,6 +286,7 @@ Common server helpers:
 - `app/utils/server/navigraph/db.ts`: read-only Navigraph SQLite access through `better-sqlite3`; `app/utils/server/worker/navigraph-cache-builder.ts` also opens the database in a separate process. Native runtime loading is owned by the dependency's `lib/binding.js` and bundled `prebuilds/` binaries, so check these alongside Docker Node versions when auditing native-module compatibility or Nitro output tracing.
 - `app/utils/server/storage.ts`: server data storage types and read helpers.
 - `app/utils/server/redis.ts`: Redis helpers.
+  - Redis runtime settings are in `.config/redis.conf` for Docker Compose and in the `redis-config` ConfigMaps of `.config/k8s/{main,next}/redis.yml`; the Kubernetes Redis Deployments mount separate PVCs for `/data`.
 
 ### Server Plugins And Background Work
 
@@ -401,6 +403,9 @@ Main app routes:
 - `/bookings`: ATC bookings.
   - `app/pages/bookings/index.vue` owns its date-picker range, booking API fetch window, and timeline filtering; the map booking window is managed separately in `app/composables/render/storage.ts`.
 - `/stats` and `/stats/*`: stats dashboards.
+  - `app/components/views/StatsTable.vue` owns stats period/custom-date controls and URL query state; `app/composables/stats.ts` fetches the selected aggregated endpoint from each stats page.
+  - `app/pages/stats/{aircraft,airports,airlines,routes,atc}.vue` switch between live data and Statsim history through `StatsTable`. Aggregated endpoints live in `server/api/data/stats/*`, with shared validation and aggregation in `app/utils/server/stats.ts`; raw month/range caching is in `app/utils/server/statsim.ts`.
+  - `app/utils/shared/stats-range.ts` holds the common 31-day range check for the stats UI and API routes.
 - `/pilots`, `/sigmets`, `/notams`, `/achievements`, `/support-us`, `/about`, `/roadmap`, `/privacy-policy`.
 - `/data/[type]/[id]/compare`: data debugging comparison UI. Keep this page outside any broad `data` ignore glob: an unanchored ignore pattern can also exclude `app/pages/data` and remove the generated client route.
 - `/demo/*`: UI primitive/demo pages.

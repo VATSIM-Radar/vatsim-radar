@@ -29,6 +29,14 @@ export interface StatsimAircraft {
     loggedOn: string;
 }
 
+export interface StatsimController {
+    id: number;
+    vatsimid: string;
+    callsign: string;
+    loggedOn: string;
+    loggedOff: string;
+}
+
 export interface StatsimAircraftDetailed extends StatsimAircraft {
     positions: {
         time: string;
@@ -40,7 +48,13 @@ export interface StatsimAircraftDetailed extends StatsimAircraft {
     }[];
 }
 
-export async function getEventPlayback(event: VatsimEvent) {
+export function getStatsCacheTTL(from: Date, to: Date): number {
+    const monthEnd = new Date(from);
+    monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
+    return to >= monthEnd ? 1000 * 60 * 60 * 24 : 1000 * 60 * 30;
+}
+
+export async function getEventPlayback(event: VatsimEvent): Promise<StatsimAircraftDetailed[]> {
     const cached = await getRedisSync(`playback-${ event.id }`);
     if (cached) return JSON.parse(cached);
 
@@ -83,4 +97,43 @@ export async function getEventPlayback(event: VatsimEvent) {
     await setRedisSync(`playback-${ event.id }`, JSON.stringify(aircraftList), 1000 * 60 * 60 * 24 * 30);
 
     return aircraftList;
+}
+
+export async function getFlights(from: Date, to: Date): Promise<StatsimAircraft[]> {
+    const cacheKey = `flights-${ from.getTime() }-${ to.getTime() }`;
+    const cached = await getRedisSync(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    const monthKey = getStatsimMonthKey('flights', from, to);
+    const monthly = monthKey && await getRedisSync(monthKey);
+    if (monthly) return JSON.parse(monthly);
+
+    const flights = await statsimRequest<StatsimAircraft[]>(`api/Flights/Dates?from=${ from.toISOString() }&to=${ to.toISOString() }`);
+    await setRedisSync(cacheKey, JSON.stringify(flights), getStatsCacheTTL(from, to));
+    if (monthKey) await setRedisSync(monthKey, JSON.stringify(flights), getStatsCacheTTL(from, to));
+    return flights;
+}
+
+export async function getATCSessions(from: Date, to: Date): Promise<StatsimController[]> {
+    const cacheKey = `atc-${ from.getTime() }-${ to.getTime() }`;
+    const cached = await getRedisSync(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    const monthKey = getStatsimMonthKey('atc', from, to);
+    const monthly = monthKey && await getRedisSync(monthKey);
+    if (monthly) return JSON.parse(monthly);
+
+    const atc = await statsimRequest<StatsimController[]>(`api/Atcsessions/Dates?from=${ from.toISOString() }&to=${ to.toISOString() }`);
+    await setRedisSync(cacheKey, JSON.stringify(atc), getStatsCacheTTL(from, to));
+    if (monthKey) await setRedisSync(monthKey, JSON.stringify(atc), getStatsCacheTTL(from, to));
+    return atc;
+}
+
+function getStatsimMonthKey(type: string, from: Date, to: Date): string | null {
+    if (from.getUTCDate() !== 1 || from.getUTCHours() || from.getUTCMinutes() || from.getUTCSeconds() || from.getUTCMilliseconds()) return null;
+    const nextMonth = new Date(from);
+    nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+    if (nextMonth.getTime() !== to.getTime()) return null;
+
+    return `statsim-${ type }-month-${ from.toISOString().slice(0, 7) }`;
 }

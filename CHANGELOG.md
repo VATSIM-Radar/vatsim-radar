@@ -4,6 +4,7 @@
 
 - Add Past Events
 - Add past events statistic and playback
+- Add historical stats for most Stats pages
 
 # [2.0.5-next]
 

@@ -9,43 +9,53 @@
 
         <stats-tabs/>
 
-        <ui-table
-            v-model:sort="sort"
-            clickable
-            :data="airports"
-            :headers="[
-                { key: 'place', name: 'Place', width: 40 },
-                { key: 'icao', name: 'ICAO', width: 80, sort: true },
-                { key: 'departing', name: 'Departing', width: 100,  sort: true },
-                { key: 'arrived', name: 'Landed', width: 80,  sort: true },
-                { key: 'departed', name: 'Departed', width: 90, sort: true },
-                { key: 'arriving', name: 'Arriving', width: 80, sort: true },
-                { key: 'name', name: 'Name', sort: true },
-                { key: 'actions', name: 'Actions', width: 120 },
-            ]"
-            item-key="icao"
-            @click="mapStore.addAirportOverlay($event.icao)"
+        <stats-table
+            :loading="loading"
+            @range="load"
         >
-            <template #data-place="{ index }">
-                <div
-                    v-if="!sort.length"
-                    class="stats__place"
-                    :class="[`stats__place--${ index }`]"
-                >
-                    {{ index + 1 }}
-                </div>
-            </template>
-            <template #data-actions="{ item }">
-                <a
-                    class="__link"
-                    :href="`/?airport=${ item.icao }`"
-                    target="_blank"
-                    @click.stop
-                >
-                    View on map
-                </a>
-            </template>
-        </ui-table>
+            <ui-table
+                v-model:sort="sort"
+                :clickable="!data"
+                :data="airports"
+                :headers="[
+                    { key: 'place', name: 'Place', width: 40 },
+                    { key: 'icao', name: 'ICAO', width: 80, sort: true },
+                    ...(data ? [
+                        { key: 'departures', name: 'Departures', width: 100, sort: true },
+                        { key: 'arrivals', name: 'Arrivals', width: 100, sort: true },
+                    ] : [
+                        { key: 'departing', name: 'Departing', width: 100, sort: true },
+                        { key: 'arrived', name: 'Landed', width: 80, sort: true },
+                        { key: 'departed', name: 'Departed', width: 90, sort: true },
+                        { key: 'arriving', name: 'Arriving', width: 80, sort: true },
+                    ]),
+                    { key: 'name', name: 'Name', sort: true },
+                    ...(!data ? [{ key: 'actions', name: 'Actions', width: 120 }] : []),
+                ]"
+                item-key="icao"
+                @click="!data && mapStore.addAirportOverlay($event.icao)"
+            >
+                <template #data-place="{ index }">
+                    <div
+                        v-if="!sort.length"
+                        class="stats__place"
+                        :class="[`stats__place--${ index }`]"
+                    >
+                        {{ index + 1 }}
+                    </div>
+                </template>
+                <template #data-actions="{ item }">
+                    <a
+                        class="__link"
+                        :href="`/?airport=${ item.icao }`"
+                        target="_blank"
+                        @click.stop
+                    >
+                        View on map
+                    </a>
+                </template>
+            </ui-table>
+        </stats-table>
 
         <popup-fullscreen
             :model-value="!!overlayData"
@@ -71,20 +81,28 @@ import { provideAirport } from '~/composables/vatsim/airport';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
 import StatsTabs from '~/components/views/StatsTabs.vue';
+import StatsTable from '~/components/views/StatsTable.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import type { StatsAirport } from '~/types/data/stats';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 mapStore.$reset();
 
-type Airport = DataAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; count: number };
+type Airport = DataAirport & VatSpyAirport & { ground: number; departed: number; arriving: number; arrived: number; departures: number; arrivals: number; count: number };
 
 const sort = ref<TableSort[]>([]);
+const { data, loading, load } = useHistoricalStats<StatsAirport>('airports');
 const overlayData = computed(() => mapStore.overlays.find(x => x.type === 'airport')?.data);
 provideAirport(overlayData);
 
 const airports = computed<Airport[]>(() => {
+    if (data.value) return data.value.map(x => ({
+        ...x,
+        name: dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao]?.name ?? 'Unknown',
+    })) as Airport[];
+
     return Object.values(dataStore.airportsList.value).map(x => ({
         ...x,
         ...dataStore.vatspy.value?.data.keyAirports.realIcao[x!.icao],
