@@ -6,7 +6,8 @@ export default defineEventHandler(async event => {
     try {
         const query = getQuery(event);
         const isShort = !query.full;
-        const icaos = getBulkAirportIcaos(event, 'icao');
+        const topsky = query.token === 'topsky';
+        const icaos = getBulkAirportIcaos(event, 'icao', !topsky);
         if (!icaos) return;
 
         return Object.fromEntries(await mapAirportsInBatches(icaos, async icao => [icao, await getAirportNotams(icao, isShort).catch(() => ([]))] as const));

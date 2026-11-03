@@ -67,7 +67,7 @@ export function getKnownAirportIcaos(airports: string[]): string[] {
         .filter(icao => icao.length === 4 && !!knownAirports[icao]))];
 }
 
-export function getBulkAirportIcaos(event: H3Event, queryKey = 'airports'): string[] | undefined {
+export function getBulkAirportIcaos(event: H3Event, queryKey = 'airports', validate = true): string[] | undefined {
     const airportsQuery = getQuery(event)[queryKey];
     if (typeof airportsQuery !== 'string') {
         handleH3Error({ event, statusCode: 400, data: `${ queryKey } GET-param is required` });
@@ -84,6 +84,8 @@ export function getBulkAirportIcaos(event: H3Event, queryKey = 'airports'): stri
         });
         return;
     }
+
+    if (!validate) return requestedIcaos;
 
     return getKnownAirportIcaos(requestedIcaos);
 }
