@@ -12426,15 +12426,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:13.8.0":
-  version: 13.8.0
-  resolution: "ol-mapbox-style@npm:13.8.0"
+"ol-mapbox-style@npm:13.9.0":
+  version: 13.9.0
+  resolution: "ol-mapbox-style@npm:13.9.0"
   dependencies:
     "@maplibre/maplibre-gl-style-spec": "npm:^26.4.1"
     mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/e4c97eef456dcbe527500a5233f3ae1e5b2b998dbc48f8a95567e1c72b2854e73c891cf684c8afc7fda11e84a9bf827d55ba1d5144b049b33e07efbdb78bd160
+  checksum: 10c0/50d1e7c68ff5d3c2cfb2565599aaaebcf31f346fca3f2d659f78d4c31d29f85c530856b763f68a3f36d4a12d585f458a34976b291362348c7e1f3ee392805709
   languageName: node
   linkType: hard
 
@@ -16168,7 +16168,7 @@ __metadata:
     nuxt: "npm:4.6.3"
     ol: "npm:10.11.0"
     ol-ext: "npm:4.0.38"
-    ol-mapbox-style: "npm:13.8.0"
+    ol-mapbox-style: "npm:13.9.0"
     pinia: "npm:4.1.0"
     postcss: "npm:8.5.32"
     postcss-html: "npm:2.0.0"
