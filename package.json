@@ -72,7 +72,7 @@
     "nuxt": "4.6.3",
     "ol": "10.11.0",
     "ol-ext": "4.0.38",
-    "ol-mapbox-style": "13.8.0",
+    "ol-mapbox-style": "13.9.0",
     "pinia": "4.1.0",
     "prisma": "7.10.1",
     "rou3": "1.0.0",
