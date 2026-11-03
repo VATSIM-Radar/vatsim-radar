@@ -16,6 +16,7 @@ import { collapsingWithOverlay, useColorFromProp } from '~/composables';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 import { getKeyedValueFromSettings } from '~/composables/settings/v2/utils';
 import { isValidDate } from '~/utils/shared';
+import { getWFPilot } from '~/utils/shared/vatsim.ts';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false, noneIfDefault = false): string[] {
     const dataStore = useDataStore();
@@ -200,6 +201,11 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
     }
 
     if (status === 'emergency') return aircraftSvgColors().emergency;
+
+    if (cid && status !== 'green' && status !== 'hover') {
+        const wfPilot = getWFPilot(cid);
+        if (wfPilot) return radarColors.purple500Hex;
+    }
 
     const store = useStore();
 

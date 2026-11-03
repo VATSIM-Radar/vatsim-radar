@@ -230,3 +230,80 @@ export function getSimulatorName(sim: unknown) {
             return null;
     }
 }
+
+const isWFActive = Date.now() < new Date(2026, 10, 8).getTime();
+
+const wfPilots = {
+    1267983: {
+        callsign: 'ANZ361',
+        team: 'WorldFlight Hamilton',
+    },
+    1366708: {
+        callsign: 'ANZ362',
+        team: 'WorldFlight Hamilton',
+    },
+    1222358: {
+        callsign: 'ANZ363',
+        team: 'WorldFlight Hamilton',
+    },
+    811521: {
+        callsign: 'BAW47C',
+        team: 'Simfest UK',
+    },
+    1450172: {
+        callsign: 'CVY44N',
+        team: 'Team Covey',
+    },
+    868133: {
+        callsign: 'DAL209',
+        team: 'WorldFlight USA',
+    },
+    1023354: {
+        callsign: 'DAL2507',
+        team: 'Cali Crew',
+    },
+    1243958: {
+        callsign: 'GTI1471',
+        team: 'WF Perth',
+    },
+    1005097: {
+        callsign: 'HPO8317',
+        team: 'Wings4Hope',
+    },
+    1232099: {
+        callsign: 'JHL44',
+        team: 'Team Jeehell',
+    },
+    1603116: {
+        callsign: 'KLM2064',
+        team: 'Amsterdam 737 Club',
+    },
+    1004719: {
+        callsign: 'NPT11W',
+        team: 'Velocity UK',
+    },
+    1168192: {
+        callsign: 'NSV25N',
+        team: 'Ness Aviation',
+    },
+    1151278: {
+        callsign: 'NWA179',
+        team: 'Jurassic Jets',
+    },
+    811093: {
+        callsign: 'QFA25',
+        team: 'WorldFlight AU',
+    },
+} satisfies Record<number, {
+    callsign: string;
+    team: string;
+}> as Record<number, {
+    callsign: string;
+    team: string;
+}>;
+
+export function getWFPilot(pilot: number) {
+    if (!isWFActive) return null;
+
+    return wfPilots[pilot] ?? null;
+}
