@@ -744,6 +744,10 @@ function syncHoverInteraction() {
     selectFeature(false);
 }
 
+watch(() => mapStore.moving, val => {
+    hoverSelect?.setActive(!val);
+});
+
 watch(contextMenu, val => {
     if (!val) rightClickSelect?.clearSelection();
 });
