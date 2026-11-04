@@ -4,6 +4,17 @@
     "VATSIM-Radar/vatsim-radar"
   ],
   "baseBranchPatterns": [
-    "next"
-  ]
+    "next",
+    "main"
+  ],
+  "packageRules": [
+    {
+      "matchBaseBranches": ["main"],
+      "enabled": false
+    }
+  ],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true
+  }
 }

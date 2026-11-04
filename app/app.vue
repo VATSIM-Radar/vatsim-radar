@@ -7,7 +7,6 @@
 <script setup lang='ts'>
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
-import type LayerGroup from 'ol/layer/Group.js';
 import { logout } from '~/composables/vatsim/auth';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import { initDiscordPresenceUpdate } from '~/composables/desktop-app';
@@ -16,24 +15,20 @@ const route = useRoute();
 
 let watcher: WatchStopHandle | null = null;
 const mapRef = shallowRef<Map | null>(null);
-const layerRef = shallowRef<LayerGroup | null>(null);
 
-export type MapEvent = { map: Ref<Map | null>; layerGroup: Ref<LayerGroup | null> };
+export type MapEvent = { map: Ref<Map | null> };
 
-const setMap = ({ map, layerGroup }: MapEvent) => {
+const setMap = ({ map }: MapEvent) => {
     watcher?.();
-    watcher = watch([map, layerGroup], ([map, layer]) => {
+    watcher = watch([map], ([map, layer]) => {
         mapRef.value = map;
-        layerRef.value = layer;
     });
 };
 
 provide('map', mapRef);
-provide('layer-group', layerRef);
 
 watch(() => route.path, () => {
     mapRef.value = null;
-    layerRef.value = null;
 }, {
     flush: 'pre',
 });

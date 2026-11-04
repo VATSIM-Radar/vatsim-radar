@@ -1,5 +1,5 @@
-import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
-import type { VatsimEvent } from '~/types/data/vatsim';
+import { handleH3Error, handleH3Exception } from '~/utils/server/h3.ts';
+import type { VatsimEvent } from '~/types/data/vatsim.ts';
 import { getVATSIMIdentHeaders } from '~/utils/server';
 
 export default defineEventHandler(async (event): Promise<VatsimEvent | undefined> => {

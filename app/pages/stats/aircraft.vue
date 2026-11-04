@@ -6,39 +6,44 @@
 
         <stats-tabs/>
 
-        <ui-table
-            v-model:sort="sort"
-            :data="pilotSuggestions"
-            :headers="[
-                { key: 'place', name: 'Place', width: 40 },
-                { key: 'aircraft', name: 'Aircraft', width: 100, sort: true },
-                { key: 'count', name: 'Pilots', sort: true },
-                { key: 'actions', name: 'Actions', width: 80 },
-            ]"
-            item-key="cid"
-            mobile-width="100%"
-            multiple-sort
+        <stats-table
+            :loading="loading"
+            @range="load"
         >
-            <template #data-place="{ index }">
-                <div
-                    v-if="!sort.length"
-                    class="stats__place"
-                    :class="[`stats__place--${ index }`]"
-                >
-                    {{ index + 1 }}
-                </div>
-            </template>
-            <template #data-actions="{ item }">
-                <a
-                    class="__link"
-                    :href="`/?aircraft=${ item.aircraft }`"
-                    target="_blank"
-                    @click.stop
-                >
-                    Filter By
-                </a>
-            </template>
-        </ui-table>
+            <ui-table
+                v-model:sort="sort"
+                :data="pilotSuggestions"
+                :headers="[
+                    { key: 'place', name: 'Place', width: 40 },
+                    { key: 'aircraft', name: 'Aircraft', width: 100, sort: true },
+                    { key: 'count', name: 'Pilots', sort: true },
+                    { key: 'actions', name: 'Actions', width: 80 },
+                ]"
+                item-key="cid"
+                mobile-width="100%"
+                multiple-sort
+            >
+                <template #data-place="{ index }">
+                    <div
+                        v-if="!sort.length"
+                        class="stats__place"
+                        :class="[`stats__place--${ index }`]"
+                    >
+                        {{ index + 1 }}
+                    </div>
+                </template>
+                <template #data-actions="{ item }">
+                    <a
+                        class="__link"
+                        :href="`/?aircraft=${ item.aircraft }`"
+                        target="_blank"
+                        @click.stop
+                    >
+                        Filter By
+                    </a>
+                </template>
+            </ui-table>
+        </stats-table>
     </ui-page-container>
 </template>
 
@@ -47,26 +52,24 @@ import UiTable from '~/components/ui/data/UiTable.vue';
 import type { TableSort } from '~/components/ui/data/UiTable.vue';
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import StatsTabs from '~/components/views/StatsTabs.vue';
+import StatsTable from '~/components/views/StatsTable.vue';
+import type { StatsAircraft } from '~/types/data/stats';
 
 const dataStore = useDataStore();
 
-type Aircraft = { aircraft: string; count: number };
-
 const sort = ref<TableSort[]>([]);
+const { data, loading, load } = useHistoricalStats<StatsAircraft>('aircraft');
 
-const pilotSuggestions = computed<Aircraft[]>(() => {
-    const list: Record<string, Aircraft> = {};
+const pilotSuggestions = computed<StatsAircraft[]>(() => {
+    if (data.value) return data.value;
 
+    const list: Record<string, StatsAircraft> = {};
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         const aircraft = pilot.aircraft_short?.split('/')[0];
-
         if (aircraft) {
             if (list[aircraft]) list[aircraft].count++;
             else {
-                list[aircraft] = {
-                    aircraft,
-                    count: 1,
-                };
+                list[aircraft] = { aircraft, count: 1 };
             }
         }
     }
