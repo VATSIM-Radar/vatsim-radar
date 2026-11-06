@@ -267,7 +267,7 @@ Main groups:
 - `server/api/data/**`: public data endpoints.
   - `vatsim/data/*`: full, compact, short, mandatory, pilot-specific, airport-specific, event, booking, and stats data.
   - `vatsim/airports/index.ts` maps to `/api/data/vatsim/airports`; sibling `metar` and `notams` routes are bulk endpoints keyed by ICAO, all accepting the comma-separated `airports` query parameter.
-  - `navigraph/*`: navdata/procedure/airport/item endpoints.
+  - `navigraph/*`: navdata/procedure/airport/item endpoints. `navigraph/runways.ts` is a lightweight bulk runway lookup (`airports` query, shared bulk caps) used by the dashboard AWOS panel.
   - `vatspy.ts`, `simaware.ts`, `vatglasses.ts`, `airlines.ts`, `tracks.ts`, `sigmets.ts`, `notams.ts`, `versions.ts`, `status.ts`.
   - `debug/*` and `custom/*` support data debugging and custom source comparison.
 - `server/api/auth/**`: VATSIM and Navigraph OAuth/token flows.
@@ -428,6 +428,8 @@ Airport details/race-prone loading:
 - The popup component is `app/components/map/overlays/MapOverlayAirport.vue`; it loads METAR and NOTAM on first expansion and refreshes them every five minutes while expanded. Airport info is fetched separately from those vendor-backed sources.
 - The full airport page is `app/pages/airport/[icao].vue`; its initial airport data and NOTAM request are separate async operations.
 - Airport-specific dashboard URLs are assembled in `app/pages/dashboard/[id].vue`; ICAO dashboards use VATSpy `realIcao` coordinates for iframe `center` and a fixed zoom, while saved dashboards can include multiple airports.
+- Dashboard weather: `app/components/features/dashboard/DashboardWeather.vue` renders the header METAR/QNH/wind strip from the injected `dashboard-airports-data` (raw METAR from `getAirportWeather()` in `app/utils/server/vatsim/weather.ts`, parsed client-side with `metar-taf-parser`) plus ATIS letters from live ATIS. Dashboard settings (`showMetar`, `showAwos` etc.) are validated by `DashboardSettingsSchema` in `app/utils/shared/dashboard.ts`. Runway thresholds/bearings/elevations come from `getNavigraphRunways()` in `app/utils/server/navigraph/index.ts`, which falls back to the outdated Navigraph DB for non-subscribers; ATIS-detected active runways live on `DataAirport.atis.runways` (`app/composables/render/update/utils.ts`), but that is only populated by the map's VATGlasses update path.
+- Dashboard AWOS: `app/components/features/dashboard/DashboardAwos.vue` is a collapsible side-panel section (one airport at a time) mounted in `app/pages/dashboard/[id].vue`. `useAirportAwos()` in `app/composables/vatsim/awos.ts` combines the dashboard METAR, runways from `/api/data/navigraph/runways` (session-cached per ICAO), live ATIS runways (`getAirportAtisInfo()`; the weather strip only uses `getAirportAtisLetter()`), the per-viewer manual runway choice and the in-memory QNH change alert. Pure calculations (wind components, favoured runways, magnetic variation, QFE, RH, density altitude, flight category, runway wind limits, unit conversions, trend text) live in `app/utils/shared/awos.ts`. The SVG wind dial is `DashboardAwosWindDial.vue` (props: wind, variation, `AwosDialRunway[]` from the composable).
 - When investigating missing popup data, check whether the overlay was removed/replaced before its request resolved, and whether slow external weather/AIP requests keep the server endpoint pending.
 
 Add a persisted user setting or preset field:
