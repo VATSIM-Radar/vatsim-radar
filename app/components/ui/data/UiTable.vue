@@ -188,6 +188,7 @@ function doSort(header: TableHeader) {
     color: $typographyPrimary;
 
     &__row {
+        content-visibility: auto;
         display: grid;
         grid-auto-columns: auto;
         grid-template-columns: v-bind(templateColumns);

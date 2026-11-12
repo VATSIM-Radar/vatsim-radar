@@ -4,6 +4,9 @@
             {{ data.name }}
         </template>
         <event-details :event="data"/>
+        <client-only>
+            <event-playback :event="data"/>
+        </client-only>
     </ui-page-container>
 </template>
 
@@ -13,6 +16,8 @@ import type { VatsimEvent } from '~/types/data/vatsim';
 import EventDetails from '~/components/features/events/EventDetails.vue';
 
 const route = useRoute();
+
+const EventPlayback = defineAsyncComponent(() => import('~/components/features/events/EventPlayback.vue'));
 
 const { data } = await useAsyncData(`event-${ route.params.id }`, async () => {
     return $fetch<VatsimEvent>(`/api/data/vatsim/events/${ route.params.id }`).catch(e => {
