@@ -3071,6 +3071,185 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@napi-rs/nice-android-arm-eabi@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-android-arm-eabi@npm:1.1.1"
+  conditions: os=android & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-android-arm64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-android-arm64@npm:1.1.1"
+  conditions: os=android & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-darwin-arm64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-darwin-arm64@npm:1.1.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-darwin-x64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-darwin-x64@npm:1.1.1"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-freebsd-x64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-freebsd-x64@npm:1.1.1"
+  conditions: os=freebsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-arm-gnueabihf@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-arm-gnueabihf@npm:1.1.1"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-arm64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-arm64-gnu@npm:1.1.1"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-arm64-musl@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-arm64-musl@npm:1.1.1"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-ppc64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-ppc64-gnu@npm:1.1.1"
+  conditions: os=linux & cpu=ppc64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-riscv64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-riscv64-gnu@npm:1.1.1"
+  conditions: os=linux & cpu=riscv64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-s390x-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-s390x-gnu@npm:1.1.1"
+  conditions: os=linux & cpu=s390x & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-x64-gnu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-x64-gnu@npm:1.1.1"
+  conditions: os=linux & cpu=x64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-linux-x64-musl@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-linux-x64-musl@npm:1.1.1"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-openharmony-arm64@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-openharmony-arm64@npm:1.1.1"
+  conditions: os=openharmony & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-win32-arm64-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-win32-arm64-msvc@npm:1.1.1"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-win32-ia32-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-win32-ia32-msvc@npm:1.1.1"
+  conditions: os=win32 & cpu=ia32
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice-win32-x64-msvc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice-win32-x64-msvc@npm:1.1.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@napi-rs/nice@npm:^1.0.1":
+  version: 1.1.1
+  resolution: "@napi-rs/nice@npm:1.1.1"
+  dependencies:
+    "@napi-rs/nice-android-arm-eabi": "npm:1.1.1"
+    "@napi-rs/nice-android-arm64": "npm:1.1.1"
+    "@napi-rs/nice-darwin-arm64": "npm:1.1.1"
+    "@napi-rs/nice-darwin-x64": "npm:1.1.1"
+    "@napi-rs/nice-freebsd-x64": "npm:1.1.1"
+    "@napi-rs/nice-linux-arm-gnueabihf": "npm:1.1.1"
+    "@napi-rs/nice-linux-arm64-gnu": "npm:1.1.1"
+    "@napi-rs/nice-linux-arm64-musl": "npm:1.1.1"
+    "@napi-rs/nice-linux-ppc64-gnu": "npm:1.1.1"
+    "@napi-rs/nice-linux-riscv64-gnu": "npm:1.1.1"
+    "@napi-rs/nice-linux-s390x-gnu": "npm:1.1.1"
+    "@napi-rs/nice-linux-x64-gnu": "npm:1.1.1"
+    "@napi-rs/nice-linux-x64-musl": "npm:1.1.1"
+    "@napi-rs/nice-openharmony-arm64": "npm:1.1.1"
+    "@napi-rs/nice-win32-arm64-msvc": "npm:1.1.1"
+    "@napi-rs/nice-win32-ia32-msvc": "npm:1.1.1"
+    "@napi-rs/nice-win32-x64-msvc": "npm:1.1.1"
+  dependenciesMeta:
+    "@napi-rs/nice-android-arm-eabi":
+      optional: true
+    "@napi-rs/nice-android-arm64":
+      optional: true
+    "@napi-rs/nice-darwin-arm64":
+      optional: true
+    "@napi-rs/nice-darwin-x64":
+      optional: true
+    "@napi-rs/nice-freebsd-x64":
+      optional: true
+    "@napi-rs/nice-linux-arm-gnueabihf":
+      optional: true
+    "@napi-rs/nice-linux-arm64-gnu":
+      optional: true
+    "@napi-rs/nice-linux-arm64-musl":
+      optional: true
+    "@napi-rs/nice-linux-ppc64-gnu":
+      optional: true
+    "@napi-rs/nice-linux-riscv64-gnu":
+      optional: true
+    "@napi-rs/nice-linux-s390x-gnu":
+      optional: true
+    "@napi-rs/nice-linux-x64-gnu":
+      optional: true
+    "@napi-rs/nice-linux-x64-musl":
+      optional: true
+    "@napi-rs/nice-openharmony-arm64":
+      optional: true
+    "@napi-rs/nice-win32-arm64-msvc":
+      optional: true
+    "@napi-rs/nice-win32-ia32-msvc":
+      optional: true
+    "@napi-rs/nice-win32-x64-msvc":
+      optional: true
+  checksum: 10c0/517eacfd5d5de191f1469a6caad9f9e26924b25079550149fc792fb09d15184013a8a81966a666f08c0a93fbb17a458d50ba9e2e9d6a61141c6c515d083733b2
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:1.2.6":
   version: 1.2.6
   resolution: "@napi-rs/wasm-runtime@npm:1.2.6"
@@ -6533,13 +6712,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-regex@npm:^2.0.0":
-  version: 2.1.1
-  resolution: "ansi-regex@npm:2.1.1"
-  checksum: 10c0/78cebaf50bce2cb96341a7230adf28d804611da3ce6bf338efa7b72f06cc6ff648e29f80cd95e582617ba58d5fdbec38abfeed3500a98bce8381a9daec7c548b
-  languageName: node
-  linkType: hard
-
 "ansi-regex@npm:^6.2.2":
   version: 6.6.0
   resolution: "ansi-regex@npm:6.6.0"
@@ -7159,13 +7331,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camelcase@npm:^2.0.1":
-  version: 2.1.1
-  resolution: "camelcase@npm:2.1.1"
-  checksum: 10c0/610db65fa7dd50a400525ec2188fd65a1939dda4afe5de7d08608670013269c3743c3737fb0f138d1df8aa74e257cc83e3b756e776b604af16dac297b4a0d054
-  languageName: node
-  linkType: hard
-
 "caniuse-api@npm:^4.0.0":
   version: 4.0.0
   resolution: "caniuse-api@npm:4.0.0"
@@ -7332,17 +7497,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cliui@npm:^3.0.3":
-  version: 3.2.0
-  resolution: "cliui@npm:3.2.0"
-  dependencies:
-    string-width: "npm:^1.0.1"
-    strip-ansi: "npm:^3.0.1"
-    wrap-ansi: "npm:^2.0.0"
-  checksum: 10c0/07b121fac7fd33ff8dbf3523f0d3dca0329d4e457e57dee54502aa5f27a33cbd9e66aa3e248f0260d8a1431b65b2bad8f510cd97fb8ab6a8e0506310a92e18d5
-  languageName: node
-  linkType: hard
-
 "cliui@npm:^9.0.1":
   version: 9.0.1
   resolution: "cliui@npm:9.0.1"
@@ -7358,13 +7512,6 @@ __metadata:
   version: 1.1.1
   resolution: "cluster-key-slot@npm:1.1.1"
   checksum: 10c0/079b1ae86b20e2d53308a877b08de5e830722a45c07810569d0dab4955bed569da33ac9f79998289d014adf02cca7223a0647cb0ee6548a12ab3c4f9beac1377
-  languageName: node
-  linkType: hard
-
-"code-point-at@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "code-point-at@npm:1.1.0"
-  checksum: 10c0/33f6b234084e46e6e369b6f0b07949392651b4dde70fc6a592a8d3dafa08d5bb32e3981a02f31f6fc323a26bc03a4c063a9d56834848695bda7611c2417ea2e6
   languageName: node
   linkType: hard
 
@@ -7975,13 +8122,6 @@ __metadata:
     supports-color:
       optional: true
   checksum: 10c0/d79136ec6c83ecbefd0f6a5593da6a9c91ec4d7ddc4b54c883d6e71ec9accb5f67a1a5e96d00a328196b5b5c86d365e98d8a3a70856aaf16b4e7b1985e67f5a6
-  languageName: node
-  linkType: hard
-
-"decamelize@npm:^1.1.1":
-  version: 1.2.0
-  resolution: "decamelize@npm:1.2.0"
-  checksum: 10c0/85c39fe8fbf0482d4a1e224ef0119db5c1897f8503bcef8b826adff7a1b11414972f6fef2d7dec2ee0b4be3863cf64ac1439137ae9e6af23a3d8dcbe26a5b4b2
   languageName: node
   linkType: hard
 
@@ -10255,13 +10395,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invert-kv@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "invert-kv@npm:1.0.0"
-  checksum: 10c0/9ccef12ada8494c56175cc0380b4cea18b6c0a368436f324a30e43a332db90bdfb83cd3a7987b71df359cdf931ce45b7daf35b677da56658565d61068e4bc20b
-  languageName: node
-  linkType: hard
-
 "ioredis@npm:6.0.0":
   version: 6.0.0
   resolution: "ioredis@npm:6.0.0"
@@ -10463,15 +10596,6 @@ __metadata:
   dependencies:
     call-bound: "npm:^1.0.3"
   checksum: 10c0/818dff679b64f19e228a8205a1e2d09989a98e98def3a817f889208cfcbf918d321b251aadf2c05918194803ebd2eb01b14fc9d0b2bea53d984f4137bfca5e97
-  languageName: node
-  linkType: hard
-
-"is-fullwidth-code-point@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "is-fullwidth-code-point@npm:1.0.0"
-  dependencies:
-    number-is-nan: "npm:^1.0.0"
-  checksum: 10c0/12acfcf16142f2d431bf6af25d68569d3198e81b9799b4ae41058247aafcc666b0127d64384ea28e67a746372611fcbe9b802f69175287aba466da3eddd5ba0f
   languageName: node
   linkType: hard
 
@@ -11025,12 +11149,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kafkajs-lz4@npm:^2.0.0-beta.0":
-  version: 2.0.0-beta.0
-  resolution: "kafkajs-lz4@npm:2.0.0-beta.0"
+"kafka-lz4-lite@npm:2.0.1":
+  version: 2.0.1
+  resolution: "kafka-lz4-lite@npm:2.0.1"
   dependencies:
-    lz4-asm: "npm:0.4.2"
-  checksum: 10c0/4aedb732a3030dd36de1c0550859530aeae5c2d4e7b669937cc50e2587f8a8f13b817b5f65147969f64139c41649c504430288a343c720f60fbca59e9e320124
+    lz4-lite: "npm:^1.1.2"
+    piscina: "npm:4.9.3"
+  peerDependencies:
+    kafkajs: ^2.0.0
+  checksum: 10c0/69cee5157227f168800ffb1c0b2eb3d53bb809e37453d513f55965f02c20c5edfea07af07bddb833e90f74744c4c5ba7e142c45987fb5e19749f6340e2b63771
   languageName: node
   linkType: hard
 
@@ -11094,15 +11221,6 @@ __metadata:
   dependencies:
     readable-stream: "npm:^2.0.5"
   checksum: 10c0/ea4e509a5226ecfcc303ba6782cc269be8867d372b9bcbd625c88955df1987ea1a20da4643bf9270336415a398d33531ebf0d5f0d393b9283dc7c98bfcbd7b69
-  languageName: node
-  linkType: hard
-
-"lcid@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "lcid@npm:1.0.0"
-  dependencies:
-    invert-kv: "npm:^1.0.0"
-  checksum: 10c0/87fb32196c3c80458778f34f71c042e114f3134a3c86c0d60ee9c94f0750e467d7ca0c005a5224ffd9d49a6e449b5e5c31e1544f1827765a0ba8747298f5980e
   languageName: node
   linkType: hard
 
@@ -11442,14 +11560,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lz4-asm@npm:0.4.2":
-  version: 0.4.2
-  resolution: "lz4-asm@npm:0.4.2"
-  dependencies:
-    yargs: "npm:^3.32.0"
-  bin:
-    lz4-asm: ./bin/lz4-asm
-  checksum: 10c0/747fcc93e8f0f5850e3d1bc20f21b2da0ec0dc6201dc9d8b3536899093a11950780e1de1953f2ad6ecd77068569fea61b9e5d87b705ff80d91041468e957bb2b
+"lz4-lite@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "lz4-lite@npm:1.1.2"
+  checksum: 10c0/edbaa53fa28591ba2116ac128beb2d491544af1b1bdec8e259e5b9f18d31077145ddfdb5219361c899f87a8d4f1436a5d352e2b8cdc9b8c52ad0c5f010ffbcd8
   languageName: node
   linkType: hard
 
@@ -12151,13 +12265,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"number-is-nan@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "number-is-nan@npm:1.0.1"
-  checksum: 10c0/cb97149006acc5cd512c13c1838223abdf202e76ddfa059c5e8e7507aff2c3a78cd19057516885a2f6f5b576543dc4f7b6f3c997cc7df53ae26c260855466df5
-  languageName: node
-  linkType: hard
-
 "numcodecs@npm:^0.3.2":
   version: 0.3.2
   resolution: "numcodecs@npm:0.3.2"
@@ -12436,15 +12543,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"os-locale@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "os-locale@npm:1.4.0"
-  dependencies:
-    lcid: "npm:^1.0.0"
-  checksum: 10c0/302173159d562000ddf982ed75c493a0d861e91372c9e1b13aab21590ff2e1ba264a41995b29be8dc5278a6127ffcd2ad5591779e8164a570fc5fa6c0787b057
-  languageName: node
-  linkType: hard
-
 "own-keys@npm:^1.0.1":
   version: 1.0.2
   resolution: "own-keys@npm:1.0.2"
@@ -12712,6 +12810,18 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/200965817558a29ddc3f2de22f068d9ed810650fece57cc073bb63281a5fec1736a5282acbd7c91876066be948839801b275aa135d8f6e0e96fcb8cf243886e6
+  languageName: node
+  linkType: hard
+
+"piscina@npm:4.9.3":
+  version: 4.9.3
+  resolution: "piscina@npm:4.9.3"
+  dependencies:
+    "@napi-rs/nice": "npm:^1.0.1"
+  dependenciesMeta:
+    "@napi-rs/nice":
+      optional: true
+  checksum: 10c0/357abfcc6226ec3da411f717ba76e55c105fff692269a6faedf8425eb429053b9c2aa65b58ccd74bae79d77cd30e3a3c677a3a8ed75b35519cf86bf498508a56
   languageName: node
   linkType: hard
 
@@ -14475,17 +14585,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string-width@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "string-width@npm:1.0.2"
-  dependencies:
-    code-point-at: "npm:^1.0.0"
-    is-fullwidth-code-point: "npm:^1.0.0"
-    strip-ansi: "npm:^3.0.0"
-  checksum: 10c0/c558438baed23a9ab9370bb6a939acbdb2b2ffc517838d651aad0f5b2b674fb85d460d9b1d0b6a4c210dffd09e3235222d89a5bd4c0c1587f78b2bb7bc00c65e
-  languageName: node
-  linkType: hard
-
 "string-width@npm:^7.0.0, string-width@npm:^7.2.0":
   version: 7.2.0
   resolution: "string-width@npm:7.2.0"
@@ -14603,15 +14702,6 @@ __metadata:
     is-obj: "npm:^1.0.1"
     is-regexp: "npm:^1.0.0"
   checksum: 10c0/ba8078f84128979ee24b3de9a083489cbd3c62cb8572a061b47d4d82601a8ae4b4d86fa8c54dd955593da56bb7c16a6de51c27221fdc6b7139bb4f29d815f35b
-  languageName: node
-  linkType: hard
-
-"strip-ansi@npm:^3.0.0, strip-ansi@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "strip-ansi@npm:3.0.1"
-  dependencies:
-    ansi-regex: "npm:^2.0.0"
-  checksum: 10c0/f6e7fbe8e700105dccf7102eae20e4f03477537c74b286fd22cfc970f139002ed6f0d9c10d0e21aa9ed9245e0fa3c9275930e8795c5b947da136e4ecb644a70f
   languageName: node
   linkType: hard
 
@@ -15998,8 +16088,8 @@ __metadata:
     ioredis: "npm:6.0.0"
     jsonwebtoken: "npm:9.0.3"
     jwks-rsa: "npm:4.1.0"
+    kafka-lz4-lite: "npm:2.0.1"
     kafkajs: "npm:2.2.4"
-    kafkajs-lz4: "npm:^2.0.0-beta.0"
     klona: "npm:2.0.6"
     magvar: "npm:2.2.0"
     marked: "npm:18.2.0"
@@ -16732,15 +16822,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"window-size@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "window-size@npm:0.1.4"
-  bin:
-    window-size: cli.js
-  checksum: 10c0/2441284ac08bf0c5885e9aee185cf644252e4a6c6c02cefc005c5c5e73fe7c9cdeb5f5528a9ec682101f30dc3f942ce7f2be1f0945344d16948d6621ad6752e8
-  languageName: node
-  linkType: hard
-
 "word-wrap@npm:^1.2.5":
   version: 1.2.5
   resolution: "word-wrap@npm:1.2.5"
@@ -16938,16 +17019,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrap-ansi@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "wrap-ansi@npm:2.1.0"
-  dependencies:
-    string-width: "npm:^1.0.1"
-    strip-ansi: "npm:^3.0.1"
-  checksum: 10c0/1a47367eef192fc9ecaf00238bad5de8987c3368082b619ab36c5e2d6d7b0a2aef95a2ca65840be598c56ced5090a3ba487956c7aee0cac7c45017502fa980fb
-  languageName: node
-  linkType: hard
-
 "wrap-ansi@npm:^9.0.0":
   version: 9.0.2
   resolution: "wrap-ansi@npm:9.0.2"
@@ -17014,13 +17085,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"y18n@npm:^3.2.0":
-  version: 3.2.2
-  resolution: "y18n@npm:3.2.2"
-  checksum: 10c0/08dc1880f6f766057ed25cd61ef0c7dab3db93639db9a7487a84f75dac7a349dface8dff8d1d8b7bdf50969fcd69ab858ab26b06968b4e4b12ee60d195233c46
-  languageName: node
-  linkType: hard
-
 "y18n@npm:^5.0.5":
   version: 5.0.8
   resolution: "y18n@npm:5.0.8"
@@ -17069,21 +17133,6 @@ __metadata:
     y18n: "npm:^5.0.5"
     yargs-parser: "npm:^22.0.0"
   checksum: 10c0/7419338c3c00f9143ec6b6ab168335061c6f5342d161642aec23ff119e28cac1c417e0eca1d7dc82fd084f07207cc5d34c7d8315f605c0e3dbf12c350e405f3f
-  languageName: node
-  linkType: hard
-
-"yargs@npm:^3.32.0":
-  version: 3.32.0
-  resolution: "yargs@npm:3.32.0"
-  dependencies:
-    camelcase: "npm:^2.0.1"
-    cliui: "npm:^3.0.3"
-    decamelize: "npm:^1.1.1"
-    os-locale: "npm:^1.4.0"
-    string-width: "npm:^1.0.1"
-    window-size: "npm:^0.1.4"
-    y18n: "npm:^3.2.0"
-  checksum: 10c0/7465b2d28d1f716fe19ca9f6c37862591a7b2a1198ef502cb84e56e952b058bc42d843dafb7fbaf05aef37ea064433828803e8ae9a64ed8340f2358d44b25d4f
   languageName: node
   linkType: hard
 

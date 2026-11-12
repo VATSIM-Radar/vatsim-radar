@@ -8,17 +8,11 @@ import {
     kafkaUpdatePlan,
 } from '~/utils/server/vatsim/kafka';
 import { getRedisSync } from '~/utils/server/redis.ts';
+import { codec } from 'kafka-lz4-lite';
 
 const { Kafka, CompressionCodecs, CompressionTypes } = kafkajs;
+CompressionCodecs[CompressionTypes.LZ4] = codec;
 
-const originalFetch = global.fetch;
-// @ts-expect-error https://github.com/indix/kafkajs-lz4/issues/16
-global.fetch = undefined;
-const LZ4 = await import('kafkajs-lz4');
-
-global.fetch = originalFetch;
-
-CompressionCodecs[CompressionTypes.LZ4] = new LZ4.default().codec;
 export let fastUpdatesEnabled = true;
 
 export async function initKafka() {
