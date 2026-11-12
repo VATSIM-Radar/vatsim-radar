@@ -251,7 +251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/checksums@npm:^3.1002.1":
+"@aws-sdk/checksums@npm:^3.1002.5":
   version: 3.1002.5
   resolution: "@aws-sdk/checksums@npm:3.1002.5"
   dependencies:
@@ -264,26 +264,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1161.0":
-  version: 3.1161.0
-  resolution: "@aws-sdk/client-s3@npm:3.1161.0"
+"@aws-sdk/client-s3@npm:3.1166.0":
+  version: 3.1166.0
+  resolution: "@aws-sdk/client-s3@npm:3.1166.0"
   dependencies:
-    "@aws-sdk/checksums": "npm:^3.1002.1"
-    "@aws-sdk/core": "npm:^3.979.1"
-    "@aws-sdk/credential-provider-node": "npm:^3.972.92"
-    "@aws-sdk/middleware-sdk-s3": "npm:^3.972.85"
-    "@aws-sdk/signature-v4-multi-region": "npm:^3.996.51"
-    "@aws-sdk/types": "npm:^3.975.0"
-    "@smithy/core": "npm:^3.38.0"
-    "@smithy/fetch-http-handler": "npm:^5.8.0"
-    "@smithy/node-http-handler": "npm:^4.14.0"
-    "@smithy/types": "npm:^4.19.0"
+    "@aws-sdk/checksums": "npm:^3.1002.5"
+    "@aws-sdk/core": "npm:^3.981.0"
+    "@aws-sdk/credential-provider-node": "npm:^3.972.96"
+    "@aws-sdk/middleware-sdk-s3": "npm:^3.972.89"
+    "@aws-sdk/signature-v4-multi-region": "npm:^3.996.52"
+    "@aws-sdk/types": "npm:^3.975.1"
+    "@smithy/core": "npm:^3.40.0"
+    "@smithy/fetch-http-handler": "npm:^5.8.1"
+    "@smithy/node-http-handler": "npm:^4.14.2"
+    "@smithy/types": "npm:^4.20.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/6e6ea2ae9dda987f337e1c94e6f22745a3db42ceca8ff169e7be3f5f7af02cc5c3c0c11f41d194934062461d5b41095966ce8ddc65777db8bea1594b9a564085
+  checksum: 10c0/80cfd13ca0078689413eb3d09d6188977780379962c519a9b4003f2802adf08ec470ea60b21fe21347deed040c90a45f6934ed3928cbc83597fdb5ed0a85c612
   languageName: node
   linkType: hard
 
-"@aws-sdk/core@npm:^3.979.1, @aws-sdk/core@npm:^3.981.0":
+"@aws-sdk/core@npm:^3.981.0":
   version: 3.981.0
   resolution: "@aws-sdk/core@npm:3.981.0"
   dependencies:
@@ -362,7 +362,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/credential-provider-node@npm:^3.972.92":
+"@aws-sdk/credential-provider-node@npm:^3.972.96":
   version: 3.972.96
   resolution: "@aws-sdk/credential-provider-node@npm:3.972.96"
   dependencies:
@@ -423,7 +423,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/middleware-sdk-s3@npm:^3.972.85":
+"@aws-sdk/middleware-sdk-s3@npm:^3.972.89":
   version: 3.972.89
   resolution: "@aws-sdk/middleware-sdk-s3@npm:3.972.89"
   dependencies:
@@ -453,7 +453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/signature-v4-multi-region@npm:^3.996.51, @aws-sdk/signature-v4-multi-region@npm:^3.996.52":
+"@aws-sdk/signature-v4-multi-region@npm:^3.996.52":
   version: 3.996.52
   resolution: "@aws-sdk/signature-v4-multi-region@npm:3.996.52"
   dependencies:
@@ -479,7 +479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/types@npm:^3.975.0, @aws-sdk/types@npm:^3.975.1":
+"@aws-sdk/types@npm:^3.975.1":
   version: 3.975.1
   resolution: "@aws-sdk/types@npm:3.975.1"
   dependencies:
@@ -3083,29 +3083,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@navigraph/amdb@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@navigraph/amdb@npm:1.1.1"
+"@navigraph/amdb@npm:1.1.4":
+  version: 1.1.4
+  resolution: "@navigraph/amdb@npm:1.1.4"
   dependencies:
-    "@navigraph/app": "npm:1.4.0"
-    "@navigraph/auth": "npm:2.6.1"
-  checksum: 10c0/6d631d5daa4b71d887535b9a7bbbe07f27ac691ea3912ef4ab3643de2a9f9d55da3ad7363feae20ce857da04517f3c58842ec8ffbfaad72b7b0d9c90ca4b4651
+    "@navigraph/app": "npm:1.4.2"
+    "@navigraph/auth": "npm:2.6.4"
+  checksum: 10c0/2cb4d8666168f3f3769aa8629f6f12484be1c06675a23ebd84eef9b3d03c3ad7a66874b531ab5e84bd60af8bdf5bc8727c847d41e3edecd1b3c709f60b4493ee
   languageName: node
   linkType: hard
 
-"@navigraph/app@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@navigraph/app@npm:1.4.0"
-  checksum: 10c0/7730d487fef8d972098d7efd0eadf04dc9a4f5111a7b70600e5c6227abd47c4b8e3dee5b1cbf2ab4c7beaa860b3804eb536a03c1f8eac44024c72571f7bce54e
+"@navigraph/app@npm:1.4.2":
+  version: 1.4.2
+  resolution: "@navigraph/app@npm:1.4.2"
+  checksum: 10c0/83253411b4b243dd5c5a3a268b5507a2b7b1b0ad800683dc02f62a0bfa57d1534067707f3648cb7e60dacd01971c7c64624ec71f49adb06687c75b9fcdc6b2c7
   languageName: node
   linkType: hard
 
-"@navigraph/auth@npm:2.6.1":
-  version: 2.6.1
-  resolution: "@navigraph/auth@npm:2.6.1"
+"@navigraph/auth@npm:2.6.4":
+  version: 2.6.4
+  resolution: "@navigraph/auth@npm:2.6.4"
   dependencies:
-    "@navigraph/app": "npm:1.4.0"
-  checksum: 10c0/ff2b7dc676941d8024c7e11d50bfeccb9f17d4a61a19e16f5f2ea565c71e7b7ae460ee27a26d832ca171c872eef33f3693e82de6fce0fa62003213a00853bf7a
+    "@navigraph/app": "npm:1.4.2"
+  checksum: 10c0/8b127e501ce8df33a9e89b680c1b7975c225735fbb3b67b52d698756db6ba3a3e2d1264e44bdd9a8c7f0866c7e43262e756792dff2cead01de5412cc7d1cbaec
   languageName: node
   linkType: hard
 
@@ -3799,10 +3799,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@photostructure/tz-lookup@npm:11.7.0":
-  version: 11.7.0
-  resolution: "@photostructure/tz-lookup@npm:11.7.0"
-  checksum: 10c0/955760d41844c06243129d9b42cebacc0d3f26b5eafb60eafb25ba6ef903803f65b65d6d9c9b9670dac0aa64239668b555715ebfaa52db4f12a2f1cb92d973c9
+"@photostructure/tz-lookup@npm:11.8.0":
+  version: 11.8.0
+  resolution: "@photostructure/tz-lookup@npm:11.8.0"
+  checksum: 10c0/95795bce6db2c6ddca1cfc8e8d5c64d5a5f5b30311618c9f3e7f3af74c4e9ba32c074da63fd074e6628721bac738744fe9139189213699a201cd2d54af148a83
   languageName: node
   linkType: hard
 
@@ -4775,7 +4775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/fetch-http-handler@npm:^5.8.0, @smithy/fetch-http-handler@npm:^5.8.1":
+"@smithy/fetch-http-handler@npm:^5.8.1":
   version: 5.8.1
   resolution: "@smithy/fetch-http-handler@npm:5.8.1"
   dependencies:
@@ -4786,7 +4786,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/node-http-handler@npm:^4.14.0, @smithy/node-http-handler@npm:^4.14.2":
+"@smithy/node-http-handler@npm:^4.14.2":
   version: 4.14.2
   resolution: "@smithy/node-http-handler@npm:4.14.2"
   dependencies:
@@ -8211,9 +8211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:14.28.0":
-  version: 14.28.0
-  resolution: "discord.js@npm:14.28.0"
+"discord.js@npm:14.28.1":
+  version: 14.28.1
+  resolution: "discord.js@npm:14.28.1"
   dependencies:
     "@discordjs/builders": "npm:^1.15.0"
     "@discordjs/collection": "npm:1.5.3"
@@ -8228,7 +8228,7 @@ __metadata:
     magic-bytes.js: "npm:^1.13.0"
     tslib: "npm:^2.6.3"
     undici: "npm:^6.27.0"
-  checksum: 10c0/a40c593086569083e6a8cde2163a02f901c36586f117b5b197df9253293004a3990fb6dd63f86c5b11c530ae8692e350746fe4e60c6ce77e145d8afa1dff907a
+  checksum: 10c0/a3f63680ec4183f1bf1160971f17cf31eac1bcb56646cba6b98108a827807e88b9b39aba23381b169c53c9745f04015f42803b4a51c7140efb13954dfd165ea9
   languageName: node
   linkType: hard
 
@@ -11543,12 +11543,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:18.1.2":
-  version: 18.1.2
-  resolution: "marked@npm:18.1.2"
+"marked@npm:18.2.0":
+  version: 18.2.0
+  resolution: "marked@npm:18.2.0"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/0e7312138d6cf866f59a28d2d97ab332ef1b6d1d09263306375a8e9c0e5a4ee892ff1e6ecb668a4959fab0c5f1008c3ddec16c861396fe7cce8f7810521484c9
+  checksum: 10c0/7766e5564cc6dbe3e8d6ee0091f3a4656002dd993817e68c5510e2ff1fa1d6456c9bcd18af1a4a5e8ea87382832a07026c109ab333913f125d51c93f29ba9017
   languageName: node
   linkType: hard
 
@@ -12337,12 +12337,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-ext@npm:4.0.38":
-  version: 4.0.38
-  resolution: "ol-ext@npm:4.0.38"
+"ol-ext@npm:4.0.39":
+  version: 4.0.39
+  resolution: "ol-ext@npm:4.0.39"
   peerDependencies:
     ol: ">= 5.3.0"
-  checksum: 10c0/90115fc6e0e8689bf4caa0be2f460b4a37229a01151529efc8b0b9f5eb2cb974669f4c830d7704feba642fa71c918297889e6b433ef10467cd82a0f4165336be
+  checksum: 10c0/6c36c021d84d2c3a6b1bb41e218aa0c219976c1ceb66ad33028704680a27912af938c1c31ac69fc12fac9b7ee6465d8fa1174cd7243636ad01cf3270eb01bc2c
   languageName: node
   linkType: hard
 
@@ -15946,12 +15946,12 @@ __metadata:
   resolution: "vatsim-radar@workspace:."
   dependencies:
     7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1161.0"
-    "@navigraph/amdb": "npm:1.1.1"
+    "@aws-sdk/client-s3": "npm:3.1166.0"
+    "@navigraph/amdb": "npm:1.1.4"
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.2.1"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
-    "@photostructure/tz-lookup": "npm:11.7.0"
+    "@photostructure/tz-lookup": "npm:11.8.0"
     "@pinia/nuxt": "npm:1.0.3"
     "@prisma/adapter-mariadb": "npm:7.10.1"
     "@prisma/client": "npm:7.10.1"
@@ -15992,7 +15992,7 @@ __metadata:
     croner: "npm:11.0.0"
     deep-equal: "npm:2.2.3"
     dexie: "npm:4.4.7"
-    discord.js: "npm:14.28.0"
+    discord.js: "npm:14.28.1"
     eslint: "npm:10.14.0"
     fast-xml-parser: "npm:5.12.0"
     ioredis: "npm:6.0.0"
@@ -16002,12 +16002,12 @@ __metadata:
     kafkajs-lz4: "npm:^2.0.0-beta.0"
     klona: "npm:2.0.6"
     magvar: "npm:2.2.0"
-    marked: "npm:18.1.2"
+    marked: "npm:18.2.0"
     merge-ranges: "npm:1.0.2"
     metar-taf-parser: "npm:9.1.3"
     nuxt: "npm:4.6.4"
     ol: "npm:10.11.0"
-    ol-ext: "npm:4.0.38"
+    ol-ext: "npm:4.0.39"
     ol-mapbox-style: "npm:13.9.0"
     pinia: "npm:4.1.0"
     postcss: "npm:8.5.32"
@@ -16039,7 +16039,7 @@ __metadata:
     vue-chartjs: "npm:5.3.4"
     vue-draggable-plus: "npm:0.6.1"
     vue-tsc: "npm:3.3.14"
-    ws: "npm:8.22.1"
+    ws: "npm:8.22.2"
   dependenciesMeta:
     better-sqlite3@13.0.3:
       built: false
@@ -16968,22 +16968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.22.1":
-  version: 8.22.1
-  resolution: "ws@npm:8.22.1"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: 10c0/858ccc31e56a7549c25d0bfd522b65c64f7bffdc5460eeb4c29517d34728d34de102d2ebf8296160c8b4594fd45ead6a324acd9a1ea0b0b8742bbed4d52d9a51
-  languageName: node
-  linkType: hard
-
-"ws@npm:^8.17.0, ws@npm:^8.21.3, ws@npm:^8.22.0":
+"ws@npm:8.22.2, ws@npm:^8.17.0, ws@npm:^8.21.3, ws@npm:^8.22.0":
   version: 8.22.2
   resolution: "ws@npm:8.22.2"
   peerDependencies:
