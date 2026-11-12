@@ -56,7 +56,7 @@ const model = defineModel({ type: Boolean, required: true });
                 width: 0;
             }
 
-            &#{2} {
+            &#{3} {
                 transform: translateY(calc((var(--burger-line-height) + var(--burger-gap)) * -1)) rotate(-45deg);
             }
         }
