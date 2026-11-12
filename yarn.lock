@@ -1771,7 +1771,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-parser-algorithms@npm:^4.0.0":
+"@csstools/css-parser-algorithms@npm:^4.0.0, @csstools/css-parser-algorithms@npm:^4.0.2":
   version: 4.0.2
   resolution: "@csstools/css-parser-algorithms@npm:4.0.2"
   peerDependencies:
@@ -1799,7 +1799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/media-query-list-parser@npm:^5.0.0":
+"@csstools/media-query-list-parser@npm:^5.0.0, @csstools/media-query-list-parser@npm:^5.0.2":
   version: 5.0.2
   resolution: "@csstools/media-query-list-parser@npm:5.0.2"
   peerDependencies:
@@ -5088,20 +5088,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/stylelint-plugin@npm:5.3.1":
-  version: 5.3.1
-  resolution: "@stylistic/stylelint-plugin@npm:5.3.1"
+"@stylistic/stylelint-plugin@npm:6.0.1":
+  version: 6.0.1
+  resolution: "@stylistic/stylelint-plugin@npm:6.0.1"
   dependencies:
-    "@csstools/css-parser-algorithms": "npm:^4.0.0"
-    "@csstools/css-tokenizer": "npm:^4.0.0"
-    "@csstools/media-query-list-parser": "npm:^5.0.0"
-    postcss: "npm:^8.5.26"
-    postcss-selector-parser: "npm:^7.1.5"
+    "@csstools/css-parser-algorithms": "npm:^4.0.2"
+    "@csstools/css-tokenizer": "npm:^4.0.2"
+    "@csstools/media-query-list-parser": "npm:^5.0.2"
+    postcss: "npm:^8.5.32"
+    postcss-selector-parser: "npm:^7.1.7"
     postcss-value-parser: "npm:^4.2.0"
     style-search: "npm:^0.1.0"
   peerDependencies:
-    stylelint: ^17.6.0
-  checksum: 10c0/2f14b4748792f4a14299a1e70ec51bb146dbb5998fc0e424a7ee6dd5b41fb5b2594815fb49cdecbe81c00587bee86fa85437085586f0d9a6bd2c9a4bdff2ba66
+    stylelint: ^18.0.0
+  checksum: 10c0/e29f7842b1b4a1fede925e90d3c59083224d3e31470004c77e009e13f316ff8cdd82c7d6d8b4ec4bb1348dc17412f450624041b167ffa64ffbdf286dbc0d8e9a
   languageName: node
   linkType: hard
 
@@ -13201,6 +13201,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-selector-parser@npm:^7.1.7":
+  version: 7.2.0
+  resolution: "postcss-selector-parser@npm:7.2.0"
+  dependencies:
+    util-deprecate: "npm:^1.0.2"
+  checksum: 10c0/327f32901e952d015f7d1f12c8632700220588959877d9ea5280238ac6153cc7d5d349da0171932cfc417c35fb6108948eef622895db4df73af94d8163421203
+  languageName: node
+  linkType: hard
+
 "postcss-sorting@npm:^10.0.0":
   version: 10.0.0
   resolution: "postcss-sorting@npm:10.0.0"
@@ -16457,7 +16466,7 @@ __metadata:
     "@protomaps/basemaps": "npm:5.7.2"
     "@questdb/nodejs-client": "npm:5.0.0"
     "@stylistic/eslint-plugin": "npm:5.10.0"
-    "@stylistic/stylelint-plugin": "npm:5.3.1"
+    "@stylistic/stylelint-plugin": "npm:6.0.1"
     "@turf/bearing": "npm:7.4.0"
     "@turf/boolean-point-in-polygon": "npm:7.4.0"
     "@turf/difference": "npm:7.4.0"
