@@ -156,6 +156,7 @@ Core files:
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
+- ATIS active runways: `updateAirportAtisConfig()` in `app/composables/render/update/utils.ts` feeds combined or D/A ATIS texts to `getActiveRunways()` in `app/utils/shared/runway-detection.ts` (marker lists for departure/arrival/common phrasings, tentative runways resolved by a later marker within 5 words). VATGlasses uses the result to pick the active runway configuration.
 - Airport Approach/TRACON rendering has two fallback paths: `updateVATGlasses()` can add VG-owned controllers and mark them in `atcAddedDuringUpdate`, while `getRenderAirportsList()` uses that set to exclude controllers from SimAware TRACON matching; `setMapAirports()` renders a 50 km circle when no SimAware feature remains for an airport.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
 - `app/composables/render/aircraft/tracks.ts` builds straight arrival/departure lines and historical turn segments from QuestDB data; `app/components/map/navigraph/NavigraphRoute.vue` builds the pilot's parsed route and aircraft-to-waypoint connectors. Both families use the shared `greatCircleToOl()` helper in `app/utils/index.ts` for Turf great-circle generation, antimeridian splitting, and OpenLayers conversion.
