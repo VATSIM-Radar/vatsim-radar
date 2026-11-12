@@ -48,15 +48,15 @@ const model = defineModel({ type: Boolean, required: true });
 
     &--active {
         .burger_item-- {
-            &1 {
+            &#{1} {
                 transform: translateY(calc(var(--burger-line-height) + var(--burger-gap))) rotate(45deg);
             }
 
-            &2 {
+            &#{2} {
                 width: 0;
             }
 
-            &3 {
+            &#{2} {
                 transform: translateY(calc((var(--burger-line-height) + var(--burger-gap)) * -1)) rotate(-45deg);
             }
         }

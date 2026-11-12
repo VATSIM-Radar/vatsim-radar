@@ -33,6 +33,7 @@ Important root files:
 
 - `nuxt.config.ts` configures `srcDir: 'app/'`, modules, runtime config, PWA, Nitro route rules, dev port `8080`, and the Safari 15 client build target.
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
+- `.stylelintrc.cjs` owns the Stylelint preset chain and rule overrides; `package.json` defines the `stylelint` script over `app/**/*.css`, `app/**/*.scss`, and `app/**/*.vue`. Stylelint dependency versions are pinned in `package.json` and resolved in `yarn.lock`.
 - `package.json` also owns version-specific dependency build policy through `dependenciesMeta`; `.yarnrc.yml` selects the checked-in Yarn release and the `node-modules` linker.
 - `prisma/schema.prisma` defines persisted user/auth/settings/list/message/notam models.
 - `docker-compose*.yml` files describe local/prebuilt deployment environments.
@@ -52,6 +53,7 @@ Nuxt dev-server notes:
 - In development, `@nuxt/vite-builder` creates a Vite-node Unix socket under `/tmp/nuxt-vite-*/nuxt.sock`. `connect ENOENT` for that path means Nitro/Nuxt tried to reach the dev builder socket after it was removed, failed to start, or during a restart race.
 - `nuxt.config.ts` sets `imports.dirs: ['composables/**']`; Nuxt's auto-import module rescans these directories on builder file events. Its `unimport` scanner enumerates matching files and reads each one, so transient editor backup files in `app/composables/` can be encountered during a scan. The development source is bind-mounted into `/radar` by `docker-compose.yml`.
 - Experimental `nuxt.config.ts` flags such as `vite.experimental.bundledDev`, top-level `experimental.watcher`, streaming, and async context settings can affect this dev-server path before application code runs.
+- The development listener is configured by `devServer` in `nuxt.config.ts`; `@nuxt/cli` also caches its resolved port/hostname in `node_modules/.cache/nuxt/dev-server.json` for eager binding on the next start. Check both when startup fails before Nuxt loads the application.
 - SSR streaming warnings for `/` should start with global render paths: `app/layouts/default.vue` uses `useHead()` with a `bodyClose` Cloudflare script and reads `cookiePolicyStatus()`, while `app/plugins/init.ts` calls `useIframeHeader()` which sets the CSP response header through `app/composables/iframe.ts`.
 
 ### Runtime Topology
