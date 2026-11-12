@@ -64,7 +64,7 @@
     "jsonwebtoken": "9.0.3",
     "jwks-rsa": "4.1.0",
     "kafkajs": "2.2.4",
-    "kafkajs-lz4": "^2.0.0-beta.0",
+    "kafkajs-lz4": "2.0.0-beta.0",
     "klona": "2.0.6",
     "magvar": "2.2.0",
     "marked": "18.2.0",

@@ -11025,7 +11025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kafkajs-lz4@npm:^2.0.0-beta.0":
+"kafkajs-lz4@npm:2.0.0-beta.0":
   version: 2.0.0-beta.0
   resolution: "kafkajs-lz4@npm:2.0.0-beta.0"
   dependencies:
@@ -15999,7 +15999,7 @@ __metadata:
     jsonwebtoken: "npm:9.0.3"
     jwks-rsa: "npm:4.1.0"
     kafkajs: "npm:2.2.4"
-    kafkajs-lz4: "npm:^2.0.0-beta.0"
+    kafkajs-lz4: "npm:2.0.0-beta.0"
     klona: "npm:2.0.6"
     magvar: "npm:2.2.0"
     marked: "npm:18.2.0"
