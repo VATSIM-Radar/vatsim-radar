@@ -3622,7 +3622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.9.0":
+"@nuxt/kit@npm:^3.10.1":
   version: 3.21.11
   resolution: "@nuxt/kit@npm:3.21.11"
   dependencies:
@@ -5524,7 +5524,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:^2.0.2, @types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
@@ -5768,6 +5768,63 @@ __metadata:
     webpack:
       optional: true
   checksum: 10c0/e5f7a94aea091a7efe2b437311165d7c4de8929b94d50e4a51e32f140a9508b8359959e857d2f35975d1f431d373cf7b3a99974c45073c694c9a9d1cb0c63067
+  languageName: node
+  linkType: hard
+
+"@unplugin-pwa/core@npm:0.0.6, @unplugin-pwa/core@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@unplugin-pwa/core@npm:0.0.6"
+  dependencies:
+    "@vite-pwa/workbox-build": "npm:^8.0.15"
+    "@vite-pwa/workbox-window": "npm:^8.0.15"
+    hookable: "npm:^6.1.2"
+  peerDependencies:
+    "@vite-pwa/assets-generator": ^1.0.0 || ^2.0.0
+    rolldown: ^1.0.0-0
+    vite: ^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    "@vite-pwa/assets-generator":
+      optional: true
+    rolldown:
+      optional: true
+    vite:
+      optional: true
+  checksum: 10c0/e6855528a6f6d16ef3d0a236adf370cbf836cc091915fcd27e0fcb263256197b542ccefb1ae0788501a1689a7888ed92dc9be793a6ded0ec49be61115f564efb
+  languageName: node
+  linkType: hard
+
+"@unplugin-pwa/inspector@npm:0.0.6":
+  version: 0.0.6
+  resolution: "@unplugin-pwa/inspector@npm:0.0.6"
+  checksum: 10c0/a5fa2010c979c8a68c90e9d6a8f44e3c968cd518e9ebd0f47230dfc857abe2334a49cd1290257cd61e574dfecc5e04160c5509d65dc2e040f7424a6d31321adc
+  languageName: node
+  linkType: hard
+
+"@unplugin-pwa/vite@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@unplugin-pwa/vite@npm:0.0.6"
+  dependencies:
+    "@rolldown/pluginutils": "npm:^1.0.1"
+    "@unplugin-pwa/core": "npm:0.0.6"
+    "@unplugin-pwa/inspector": "npm:0.0.6"
+    "@vite-pwa/workbox-build": "npm:^8.0.15"
+    "@vite-pwa/workbox-swkit": "npm:^8.0.15"
+    "@vite-pwa/workbox-window": "npm:^8.0.15"
+  peerDependencies:
+    "@vite-pwa/assets-generator": ^1.0.0 || ^2.0.0
+    magicast: ^0.5.0
+    rolldown: ^1.0.0-0
+    vite: ^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    "@vite-pwa/assets-generator":
+      optional: true
+    magicast:
+      optional: true
+    rolldown:
+      optional: true
+    vite:
+      optional: true
+  checksum: 10c0/046bbc4e950bc1f7339f6eece951fc200e4b063379664cd0a293b99051e3d50297fddaf312b893e758abc8944e6f01db83f352930817d01e466e3d1c840893b7
   languageName: node
   linkType: hard
 
@@ -6066,20 +6123,117 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@vite-pwa/nuxt@npm:1.1.1"
+"@vite-pwa/nuxt-core@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@vite-pwa/nuxt-core@npm:2.0.1"
   dependencies:
-    "@nuxt/kit": "npm:^3.9.0"
-    pathe: "npm:^1.1.1"
-    ufo: "npm:^1.3.2"
-    vite-plugin-pwa: "npm:^1.2.0"
+    "@unplugin-pwa/core": "npm:^0.0.6"
+    "@vite-pwa/workbox-build": "npm:^8.0.15"
+  checksum: 10c0/9ce7ee84bd3e227c86e21db6e5093ea42e1d05eba885d7ef62c152581e2ce8206a43e5f11f2e85ef9faa238c57a02e3d7cfbd468435577d0182e89900a40bdf6
+  languageName: node
+  linkType: hard
+
+"@vite-pwa/nuxt-vite@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@vite-pwa/nuxt-vite@npm:2.0.1"
+  dependencies:
+    "@nuxt/kit": "npm:^4.6.4"
+    "@rolldown/pluginutils": "npm:^1.0.1"
+    "@unplugin-pwa/core": "npm:^0.0.6"
+    "@unplugin-pwa/vite": "npm:^0.0.6"
+    "@vite-pwa/nuxt-core": "npm:2.0.1"
+    "@vite-pwa/workbox-build": "npm:^8.0.15"
+    verkit: "npm:^0.5.0"
   peerDependencies:
-    "@vite-pwa/assets-generator": ^1.0.0
+    "@vite-pwa/assets-generator": ^1.0.0 || ^2.0.0
+    magicast: ^0.5.0
+    rolldown: ^1.0.0-0
   peerDependenciesMeta:
     "@vite-pwa/assets-generator":
       optional: true
-  checksum: 10c0/c486134706c8389af43a8394a56c6c23a3307d31ac2b59184913e79b0e57d71bb4291bcfe941b3efda0d4b97d2409fa0e9869ead9e64c9ec32b42512cf705c3b
+    magicast:
+      optional: true
+    rolldown:
+      optional: true
+  checksum: 10c0/3497304d909eb97292ff65bb0cdaa4d42dc9d07de1bb1a58f1d701361c8f3b0cb581df9246b047e37c7e64dff1f372327da3291fbd164496eb0958c5e00c61d1
+  languageName: node
+  linkType: hard
+
+"@vite-pwa/nuxt@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@vite-pwa/nuxt@npm:2.0.1"
+  dependencies:
+    "@nuxt/kit": "npm:^4.6.4"
+    "@unplugin-pwa/core": "npm:^0.0.6"
+    "@vite-pwa/nuxt-core": "npm:2.0.1"
+    "@vite-pwa/nuxt-vite": "npm:2.0.1"
+    "@vite-pwa/workbox-build": "npm:^8.0.15"
+    defu: "npm:^6.1.7"
+    verkit: "npm:^0.5.0"
+  peerDependencies:
+    "@vite-pwa/assets-generator": ^1.0.0 || ^2.0.0
+    magicast: ^0.5.0
+    rolldown: ^1.0.0-0
+  peerDependenciesMeta:
+    "@vite-pwa/assets-generator":
+      optional: true
+    magicast:
+      optional: true
+    rolldown:
+      optional: true
+  checksum: 10c0/6677691782098e215d41d67bfd5140af3731f6922d4b61af8a935e89f0732cb2652aa063ae7451d7530e20b021df709bb97ffa49df99d77b6ef2e7985495722a
+  languageName: node
+  linkType: hard
+
+"@vite-pwa/workbox-build@npm:^8.0.15":
+  version: 8.0.15
+  resolution: "@vite-pwa/workbox-build@npm:8.0.15"
+  dependencies:
+    "@jridgewell/remapping": "npm:^2.3.5"
+    "@vite-pwa/workbox-swkit": "npm:8.0.15"
+    "@vite-pwa/workbox-window": "npm:8.0.15"
+    magic-string: "npm:^1.4.5"
+    proper-tags: "npm:^2.0.2"
+    serialize-javascript: "npm:^7.1.4"
+    tinyglobby: "npm:^0.2.17"
+    valibot: "npm:^1.5.0"
+    verkit: "npm:^0.5.0"
+  peerDependencies:
+    "@rspack/core": ^1.0.0 || ^2.0.0
+    magicast: ^0.5.0
+    rolldown: ^1.0.0-0
+    vite: ^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+    webpack: ^5.91.0
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    magicast:
+      optional: true
+    rolldown:
+      optional: true
+    vite:
+      optional: true
+    webpack:
+      optional: true
+  checksum: 10c0/39be31b2e3ffc48b74637526b51d7a2251fcab8b985208d8a11542e6a9c703bb029733ed78a4ea673a7e827833ff2a4bc65a61e35b641b69f629feab03cb9ac9
+  languageName: node
+  linkType: hard
+
+"@vite-pwa/workbox-swkit@npm:8.0.15, @vite-pwa/workbox-swkit@npm:^8.0.15":
+  version: 8.0.15
+  resolution: "@vite-pwa/workbox-swkit@npm:8.0.15"
+  dependencies:
+    idb: "npm:^8.0.4"
+  checksum: 10c0/3960e70b7109ee9682b38d6d234c0470c408dd76cc4d9107b6547f28671f06101e381d46ecce8fe08749fd7f7dd0b87e2a1d35f144b7181bb478e97efbcbfb36
+  languageName: node
+  linkType: hard
+
+"@vite-pwa/workbox-window@npm:8.0.15, @vite-pwa/workbox-window@npm:^8.0.15":
+  version: 8.0.15
+  resolution: "@vite-pwa/workbox-window@npm:8.0.15"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.7"
+  checksum: 10c0/fa24e0b3f29b48283e3978ec9644bb89eb0edc1f5612e14e5463630015d0cc41177223e9589869aad52d7719395d0437b6ab635fc8c2bfbd4dc228300c679343
   languageName: node
   linkType: hard
 
@@ -10285,6 +10439,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"idb@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "idb@npm:8.0.4"
+  checksum: 10c0/b789f1382c180098859e1eba6ea0de342faa27598a427195508755e9d06c31daa88bc70a89665685849338978bf901a3b5bc420d7c8cf365f1a4d91d3f607f62
+  languageName: node
+  linkType: hard
+
 "identifier-regex@npm:^1.1.0":
   version: 1.1.0
   resolution: "identifier-regex@npm:1.1.0"
@@ -12742,7 +12903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pathe@npm:^1.1.1, pathe@npm:^1.1.2":
+"pathe@npm:^1.1.2":
   version: 1.1.2
   resolution: "pathe@npm:1.1.2"
   checksum: 10c0/64ee0a4e587fb0f208d9777a6c56e4f9050039268faaaaecd50e959ef01bf847b7872785c36483fa5cdcdbdfdb31fef2ff222684d4fc21c330ab60395c681897
@@ -13086,6 +13247,13 @@ __metadata:
     retry: "npm:^0.12.0"
     signal-exit: "npm:^3.0.2"
   checksum: 10c0/2f265dbad15897a43110a02dae55105c04d356ec4ed560723dcb9f0d34bc4fb2f13f79bb930e7561be10278e2314db5aca2527d5d3dcbbdee5e6b331d1571f6d
+  languageName: node
+  linkType: hard
+
+"proper-tags@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "proper-tags@npm:2.0.2"
+  checksum: 10c0/1de8943b3304295fc6bec297b7ff7aa2f9ec40cdb2d6634725a0bd311ad1ae382f9769d7bd188c6ec7f49ca9dfb346fa1c79dd8cbff1453680097c3afbab5d4b
   languageName: node
   linkType: hard
 
@@ -14112,7 +14280,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"serialize-javascript@npm:^7.0.3":
+"serialize-javascript@npm:^7.0.3, serialize-javascript@npm:^7.1.4":
   version: 7.1.4
   resolution: "serialize-javascript@npm:7.1.4"
   checksum: 10c0/aece56a71a7fc54d51af3c49ef18cc8c47caa2815210709ab585c0b5e72f1e90969bd6c7947cf95e2f8e93d15595ae80ce7137800465b5fa61812693bf7e63ac
@@ -15391,7 +15559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ufo@npm:^1.3.2, ufo@npm:^1.6.1, ufo@npm:^1.6.3, ufo@npm:^1.6.4":
+"ufo@npm:^1.6.1, ufo@npm:^1.6.3, ufo@npm:^1.6.4":
   version: 1.6.4
   resolution: "ufo@npm:1.6.4"
   checksum: 10c0/3a2b29e7e3d772fbf6893d7d23bf442981457adb2fe122828abdbda89bedcb81aafd0dcc080e41b45f9a877db00cb42cbfee9639753a19d9b9bd39b5627039cf
@@ -16012,7 +16180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valibot@npm:1.5.0":
+"valibot@npm:1.5.0, valibot@npm:^1.5.0":
   version: 1.5.0
   resolution: "valibot@npm:1.5.0"
   peerDependencies:
@@ -16070,7 +16238,7 @@ __metadata:
     "@types/node": "npm:26.6.6"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:8.18.2"
-    "@vite-pwa/nuxt": "npm:1.1.1"
+    "@vite-pwa/nuxt": "npm:2.0.1"
     "@vueuse/components": "npm:15.0.0"
     "@vueuse/core": "npm:15.0.0"
     "@vueuse/nuxt": "npm:15.0.0"
@@ -16304,27 +16472,6 @@ __metadata:
     "@vite-pwa/assets-generator":
       optional: true
   checksum: 10c0/2c4b0d455eb1b7823c0caa484beb3315e87a76d95f7ea44c58500af641606af14d98b814972b104b95869897fe903375f3c295cec9eafb5ef8c293ceab3ed575
-  languageName: node
-  linkType: hard
-
-"vite-plugin-pwa@npm:^1.2.0":
-  version: 1.3.0
-  resolution: "vite-plugin-pwa@npm:1.3.0"
-  dependencies:
-    debug: "npm:^4.3.6"
-    pretty-bytes: "npm:^6.1.1"
-    tinyglobby: "npm:^0.2.10"
-    workbox-build: "npm:^7.4.1"
-    workbox-window: "npm:^7.4.1"
-  peerDependencies:
-    "@vite-pwa/assets-generator": ^1.0.0
-    vite: ^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
-    workbox-build: ^7.4.1
-    workbox-window: ^7.4.1
-  peerDependenciesMeta:
-    "@vite-pwa/assets-generator":
-      optional: true
-  checksum: 10c0/1cf7a43bf25d3f1276fe61e63cf7134b735b4426ddd2cf05775160e5bcd0a84eb705c15496abe78f6fb051f7a9481fcf854ed2b5b86922e07865ab37d5cb7a0b
   languageName: node
   linkType: hard
 

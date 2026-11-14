@@ -47,7 +47,7 @@
     "@turf/meta": "7.4.0",
     "@turf/nearest-point-on-line": "7.4.0",
     "@turf/union": "7.4.0",
-    "@vite-pwa/nuxt": "1.1.1",
+    "@vite-pwa/nuxt": "2.0.1",
     "@vueuse/components": "15.0.0",
     "@vueuse/core": "15.0.0",
     "@vueuse/nuxt": "15.0.0",
