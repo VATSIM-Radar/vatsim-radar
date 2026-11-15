@@ -165,7 +165,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
-const isLocal = getSettingValue('appearance.eventsLocalTimezone');
+const isLocal = getSettingValue('appearance.dataLocalTimezone');
 const vatGlassesCombinedActive = computed(() => getKeyedValueFromSettings('map.vatglasses.combined'));
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');

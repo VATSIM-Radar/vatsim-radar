@@ -34,12 +34,12 @@
                         {{ index + 1 }}
                     </div>
                 </template>
-                <template #data-virtual="{ data }">
+                <template #data-virtual="{ data: virtual }">
                     <div
                         class="stats__virtual"
-                        :class="{ 'stats__virtual--active': data }"
+                        :class="{ 'stats__virtual--active': virtual }"
                     >
-                        {{ data ? 'Yes' : 'No' }}
+                        {{ virtual ? 'Yes' : 'No' }}
                     </div>
                 </template>
                 <template #data-actions="{ item }">

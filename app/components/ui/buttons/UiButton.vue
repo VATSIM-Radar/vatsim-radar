@@ -8,6 +8,7 @@
             `button--orientation-${ orientation }`,
             {
                 'button--disabled': disabled,
+                'button--disable-text-decoration': disableTextDecoration,
                 'button--icon': !!$slots.icon && !$slots.default,
             },
         ]"
@@ -32,7 +33,7 @@
         <ui-text
             v-if="$slots.default"
             class="button_content"
-            type="2b"
+            :type="textType"
         >
             <slot name="default"/>
         </ui-text>
@@ -46,72 +47,49 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
 import type { ColorsList } from '~/utils/colors';
 import { radarColors } from '#build/radar/colors';
 import UiText from '~/components/ui/text/UiText.vue';
+import type { UiTextTypes } from '~/components/ui/text/UiText.vue';
 
-const props = defineProps({
-    tag: {
-        type: String,
-    },
-    width: {
-        type: String,
-    },
-    iconWidth: {
-        type: String,
-        default: '16px',
-    },
-    type: {
-        type: String as PropType<'primary' | 'secondary' | 'secondary-black' | 'destructive' | 'link'>,
-        default: 'primary',
-    },
-    orientation: {
-        type: String as PropType<'vertical' | 'horizontal'>,
-        default: 'horizontal',
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-    size: {
-        type: String as PropType<'M' | 'S'>,
-        default: 'M',
-    },
-    href: {
-        type: String,
-        default: null,
-    },
-    target: {
-        type: String,
-        default: null,
-    },
-    to: {
-        type: [String, Object] as PropType<RouteLocationRaw | string | null | undefined>,
-        default: null,
-    },
-    primaryColor: {
-        type: String as PropType<ColorsList | null>,
-        default: null,
-    },
-    linkColor: {
-        type: String as PropType<ColorsList>,
-        default: 'lightGray200',
-    },
-    hoverColor: {
-        type: String as PropType<ColorsList | null>,
-        default: null,
-    },
-    focusColor: {
-        type: String as PropType<ColorsList | null>,
-        default: null,
-    },
-    textAlign: {
-        type: String,
-        default: 'center',
-    },
+export interface ButtonOptions {
+    tag?: string;
+    width?: string;
+    iconWidth?: string;
+    type?: 'primary' | 'secondary' | 'secondary-black' | 'destructive' | 'link';
+    orientation?: 'vertical' | 'horizontal';
+    disabled?: boolean;
+    size?: 'M' | 'S';
+    href?: string | null;
+    target?: string | null;
+    to?: RouteLocationRaw | null;
+    primaryColor?: ColorsList | null;
+    linkColor?: ColorsList;
+    hoverColor?: ColorsList | null;
+    focusColor?: ColorsList | null;
+    textAlign?: string;
+    textType?: UiTextTypes;
+    disableTextDecoration?: boolean;
+}
+
+const props = withDefaults(defineProps<ButtonOptions>(), {
+    iconWidth: '16px',
+    type: 'primary',
+    orientation: 'horizontal',
+    disabled: false,
+    size: 'M',
+    href: null,
+    target: null,
+    to: null,
+    primaryColor: null,
+    linkColor: 'lightGray200',
+    hoverColor: null,
+    focusColor: null,
+    textAlign: 'center',
+    textType: '2b',
+    disableTextDecoration: false,
 });
 
 defineEmits({
@@ -265,6 +243,10 @@ const getAttrs = computed(() => {
         text-decoration: underline;
 
         background: transparent !important;
+
+        @at-root .button--disable-text-decoration.button--type-link {
+            text-decoration: none;
+        }
 
         &.button--icon {
             width: auto;

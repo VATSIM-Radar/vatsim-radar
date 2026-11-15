@@ -2,9 +2,11 @@
 
 # [2.1.0-alpha.1]
 
-- Add Past Events [INOP]
-- Add Past Events statistic and playback [DIRECT LINK ONLY]
+- Add Past Events page
+- Add Past Events statistic and playback
 - Add historical stats for most Stats pages
+- Events and bookings separate settings for timezone got deprecated with one global timezone setting is now being used for both of them
+- Redesigned Events page
 
 # [2.0.5-1-next]
 

@@ -9,10 +9,10 @@ import { XYZ } from 'ol/source.js';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { buildAttributions } from '~/composables/map';
+import { getProtomapsLayer } from '~/utils/map/protomaps.ts';
 
 defineOptions({
     render: () => null,
@@ -113,10 +113,6 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
         }
 
         return {
-            attribution: {
-                title: 'Protomaps',
-                url: 'https://github.com/protomaps/basemaps',
-            },
             url: '/tiles.json?v=2.0.3.1',
             pm: true,
             theme,
@@ -231,83 +227,10 @@ async function initLayer() {
     }
 
     if (layer.value.pm) {
-        const glStyle = {
-            version: 8,
-            glyphs: 'https://cdn.protomaps.com/fonts/pbf/{fontstack}/{range}.pbf',
-            sources: {
-                protomaps: {
-                    type: 'vector',
-                    url: layer.value.url,
-                },
-            },
-            layers: layers('protomaps', namedFlavor(layer.value.theme), { lang: isLabels.value ? 'en' : undefined }),
-        };
+        const layers = await getProtomapsLayer({ theme: layer.value.theme, isLabels: isLabels.value });
 
-        tileLayer.value = new VectorTileLayer({
-            declutter: 'pm',
-            updateWhileAnimating: false,
-            updateWhileInteracting: false,
-            renderMode: 'hybrid',
-            zIndex: 0,
-            cacheSize: 32,
-            // @ts-expect-error wrong types
-            renderOrder: null,
-        });
-
-        const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
-
-        const excludedLayers = [
-            'roads_labels_minor',
-            'roads_labels_major',
-            'water_waterway_label',
-            'landuse_park',
-            'landuse_zoo',
-            'address_label',
-            'roads_other',
-            'pois',
-        ];
-
-        const excludedRegex: RegExp[] = [
-            /roads_tunnels/,
-            /roads_bridges_(?!(major|highway))/,
-        ];
-
-        if (!isDetailed) {
-            excludedLayers.push(
-                'landuse_urban_green',
-                'landuse_hospital',
-                'landuse_industrial',
-                'landuse_school',
-                'landuse_beach',
-                'water_river',
-                'landuse_pedestrian',
-                'landuse_pier',
-                'places_subplace',
-                'places_locality',
-                'buildings',
-                'water_label_lakes',
-                'roads_shields',
-                'roads_oneway',
-            );
-
-            excludedRegex.push(
-                /roads_minor/,
-                /roads_major/,
-                /boundaries/,
-            );
-        }
-
-
-        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
-
-        await applyStyle(tileLayer.value, glStyle);
-
-        attributionLayer = new TileLayer({
-            source: new XYZ({
-                attributions: buildAttributions(layer.value.attribution?.title || false, layer.value.attribution?.url ?? ''),
-            }),
-            zIndex: 0,
-        });
+        tileLayer.value = layers.tileLayer;
+        attributionLayer = layers.attributionLayer;
         map.value?.addLayer(attributionLayer);
         map.value?.addLayer(tileLayer.value);
 

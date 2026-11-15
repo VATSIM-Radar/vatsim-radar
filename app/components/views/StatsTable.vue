@@ -36,7 +36,7 @@
         <ui-notification v-if="loading" type="warning">
             {{ loadingText }}
         </ui-notification>
-        <ui-notification v-else type="info">
+        <ui-notification v-else-if="date !== 'live' || from || to" type="info">
             Historical stats is provided by <a
                 class="__link"
                 href="https://statsim.net"

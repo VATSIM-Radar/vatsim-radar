@@ -1,28 +1,43 @@
 <template>
-    <div>
-        <div
-            class="event-card"
-            :class="{ 'event-card_active': active }"
-            @click="details = !details"
-        >
-            <div class="event-card_start">
+    <ui-text
+        class="event-card"
+        :class="{
+            'event-card--active': active,
+            'event-card--details': details,
+            '__events-cpt': event.type === VatsimEventType.Exam,
+            '__events-single': event.organisers.length <= 1 && event.type !== VatsimEventType.Exam,
+            '__events-multiple': event.organisers.length > 1 && event.type !== VatsimEventType.Exam,
+        }"
+        type="2b"
+        @click="details = !details"
+    >
+        <div class="event-card_head">
+            <div
+                class="event-card_start"
+            >
                 <client-only>
                     {{ formattedStart }} - {{ formattedEnd }}<template v-if="!eventsTimezone">z</template>
                 </client-only>
             </div>
             <div class="event-card_name">
-                {{ props.event.name }} <span
-                    v-if="active"
-                    class="event-card_name_active"
-                >Now active!</span>
+                {{ props.event.name }}
             </div>
             <div class="event-card_airports">
-                {{ props.event.airports.map((a) => a.icao).join(", ") }}
+                <a
+                    v-for="airport in event.airports"
+                    :key="airport.icao"
+                    class="event-card_airports_airport __link"
+                    :href="`/?airport=${ airport.icao }`"
+                    target="_blank"
+                >
+                    {{airport.icao}}
+                </a>
             </div>
         </div>
         <div
             v-if="details"
             class="event-card_details"
+            @click.stop
         >
             <event-details :event/>
             <ui-button
@@ -31,16 +46,23 @@
                 :to="`/events/${ event.id }`"
                 type="secondary"
             >
-                Open in a separate page
+                <template v-if="isPast">
+                    Event stats & heatmap
+                </template>
+                <template v-else>
+                    Open event in a new tab
+                </template>
             </ui-button>
         </div>
-    </div>
+    </ui-text>
 </template>
 
 <script setup lang="ts">
+import { VatsimEventType } from '~/types/data/vatsim';
 import type { VatsimEvent } from '~/types/data/vatsim';
 import EventDetails from '~/components/features/events/EventDetails.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     event: {
@@ -50,8 +72,11 @@ const props = defineProps({
 });
 
 const details = ref(false);
+const route = useRoute();
 
-const eventsTimezone = useSettingValueFromFunc('appearance.eventsLocalTimezone');
+const isPast = computed(() => route.path.endsWith('/past'));
+
+const eventsTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 const timeFormat = useSettingValueFromFunc('appearance.timeFormat');
 
 const timeZone = computed(() => !eventsTimezone.value ? 'UTC' : undefined);
@@ -82,34 +107,35 @@ const formattedEnd = computed(() => {
 
     return formatter.value.format(date);
 });
-const active = computed(() => new Date(props.event.start_time) < new Date());
+const active = computed(() => new Date(props.event.start_time) < new Date() && new Date(props.event.end_time) > new Date());
 </script>
 
 <style scoped lang="scss">
 .event-card {
-    cursor: pointer;
+    position: relative;
 
-    display: grid;
-    grid-template-columns: 200px 600px auto 50px;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-start;
-
-    min-height: 52px;
-    padding: 8px;
+    padding: 4px 16px;
     border-radius: 4px;
-
-    font-size: 14px;
 
     background: $darkGray700;
 
     transition: 0.3s;
 
-    @include mobile {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        align-items: flex-start;
+    &::before {
+        content: '';
+
+        position: absolute;
+        top: 4px;
+        left: 4px;
+
+        display: block;
+        align-self: stretch;
+
+        width: 2px;
+        height: calc(100% - 8px);
+        border-radius: 2px;
+
+        background: var(--color);
     }
 
     @include hover {
@@ -118,32 +144,58 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
         }
     }
 
+    &_head {
+        cursor: pointer;
+
+        display: grid;
+        grid-template-columns: 200px 2fr 1fr;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-start;
+
+        min-height: 50px;
+
+        @include mobile {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+    }
+
     &_start {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        align-self: stretch;
+
         text-transform: uppercase;
     }
 
-    &_name {
-        font-size: 14px;
-        font-weight: 600;
+    &--active {
+        border: 1px solid $brandPrimary;
     }
 
-    &_active {
-        border: 2px solid $purple300;
+    &--details {
+        background: $darkGray700 !important;
     }
 
-    &_name_active {
-        color: $purple300;
+    &_airports {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        &_airport {
+            color: currentColor;
+        }
     }
 
     &_details {
         display: flex;
         flex-direction: column;
 
-        margin: 0 20px;
-        padding: 0 0 8px 8px;
-        border: 2px solid $darkGray400;
-        border-top: 0;
-        border-radius: 4px;
+        margin-top: 4px;
+        border-top: 1px solid $strokeDefault;
 
         background: $darkGray700;
 

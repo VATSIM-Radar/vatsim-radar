@@ -49,8 +49,6 @@
                         >
                             View on Map
                         </ui-button>
-
-                        <ui-setting-item :item="settingsItems.preferences.bookingsLocalTimezone"/>
                     </div>
                 </div>
             </template>
@@ -120,7 +118,7 @@ initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
 const store = useStore();
 const settingsItems = getSettingsItems().value;
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 
 const timelineUtc = ref(false);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
@@ -179,7 +177,7 @@ watch(dateRange, async () => {
 });
 
 onMounted(() => {
-    timelineUtc.value = getKeyedValueFromSettings('appearance.bookingsLocalTimezone');
+    timelineUtc.value = getKeyedValueFromSettings('appearance.dataLocalTimezone');
     refresh();
 });
 

@@ -144,8 +144,6 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'map.traffic.toggleAircraftOverlays', userSettings.toggleAircraftOverlays);
     setValue(settings, 'map.traffic.autoShowAirportTracks', userSettings.autoShowAirportTracks);
 
-    // localSettings: browser-local map settings stored outside presets.
-    setValue(settings, 'appearance.eventsLocalTimezone', localSettings.eventsLocalTimezone);
     setValue(settings, 'appearance.notamsSortBy', localSettings.filters?.notamsSortBy);
 
     setValue(settings, 'map.preferences.debugMode', localSettings.debugMode);
@@ -190,7 +188,7 @@ export function migrateV1Settings({ localSettings = {}, mapSettings = {}, userSe
     setValue(settings, 'sigmets.raw', localSettings.filters?.layers?.sigmets?.raw);
 
     // mapSettings: legacy map preset settings.
-    setValue(settings, 'appearance.bookingsLocalTimezone', mapSettings.bookingsLocalTimezone);
+    setValue(settings, 'appearance.dataLocalTimezone', mapSettings.bookingsLocalTimezone);
 
     setInvertedBoolean(settings, 'map.preferences.enableQueryUpdate', mapSettings.disableQueryUpdate);
     setValue(settings, 'map.preferences.overlaysPositions', mapSettings.overlaysPositions);

@@ -31,11 +31,11 @@
                         {{ index + 1 }}
                     </div>
                 </template>
-                <template #data-from="{ data }">
-                    {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[data]?.name ?? 'Unknown' }})
+                <template #data-from="{ data: airport }">
+                    {{ airport }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[airport]?.name ?? 'Unknown' }})
                 </template>
-                <template #data-to="{ data }">
-                    {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[data]?.name ?? 'Unknown' }})
+                <template #data-to="{ data: airport }">
+                    {{ airport }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[airport]?.name ?? 'Unknown' }})
                 </template>
                 <template #data-actions="{ item }">
                     <a

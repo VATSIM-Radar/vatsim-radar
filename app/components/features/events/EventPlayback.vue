@@ -35,7 +35,11 @@
                 </ui-data-list>
             </template>
         </ui-tabs>
-        <div v-if="chartData" :key="store.viewport.width" class="playback_chart">
+        <div
+            v-if="chartData"
+            :key="store.viewport.width"
+            class="playback_chart"
+        >
             <ui-text type="1b">
                 Departures / arrivals (UTC)
             </ui-text>
@@ -63,9 +67,6 @@ import { Map, View } from 'ol';
 import { Attribution } from 'ol/control';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate.js';
-import TileLayer from 'ol/layer/Tile.js';
-import { XYZ } from 'ol/source.js';
-import { buildAttributions } from '~/composables/map';
 import { useGeographic } from 'ol/proj.js';
 import Heatmap from 'ol/layer/Heatmap.js';
 import VectorSource from 'ol/source/Vector.js';
@@ -75,6 +76,7 @@ import { colorsList } from '~/utils/colors.ts';
 import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Legend } from 'chart.js';
 import type { ChartOptions } from 'chart.js';
 import { Line as ChartLine } from 'vue-chartjs';
+import { getProtomapsLayer } from '~/utils/map/protomaps.ts';
 
 const props = defineProps({
     event: {
@@ -182,7 +184,7 @@ const chartData = computed(() => {
     });
 
     return {
-        labels: Array.from({ length: count }, (_, index) => formatter.format(new Date(firstBin + index * binSize))),
+        labels: Array.from({ length: count }, (_, index) => formatter.format(new Date(firstBin + (index * binSize)))),
         datasets: [
             {
                 label: 'Departures',
@@ -225,10 +227,29 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
 
 const mapContainer = useTemplateRef('mapContainer');
 
-function initMap(center: Coordinate) {
+let savedCenter: Coordinate | null = null;
+
+watch(() => store.getCurrentTheme, () => {
+    map.value?.dispose();
+    map.value = null;
+
+    if (savedCenter) {
+        initMap(savedCenter);
+    }
+});
+
+async function initMap(center: Coordinate) {
     if (map.value) return;
 
+    savedCenter = center;
+
     useGeographic();
+
+    const layers = await getProtomapsLayer({
+        isLabels: true,
+        theme: store.getCurrentTheme === 'light' ? 'white' : 'black',
+        isDetailed: true,
+    });
 
     map.value = new Map({
         target: mapContainer.value!,
@@ -247,20 +268,13 @@ function initMap(center: Coordinate) {
             multiWorld: true,
         }),
         layers: [
-            new TileLayer({
-                source: new XYZ({
-                    attributions: buildAttributions('OpenStreetMaps', 'https://openstreetmap.org/'),
-                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    wrapX: true,
-                    tileSize: 256,
-                }),
-                cacheSize: 32,
-            }),
+            layers.tileLayer,
+            layers.attributionLayer,
             new Heatmap({
                 source: heatmapSource,
                 radius: 3,
                 blur: 2,
-                gradient: [colorsList.blue500, colorsList.green700, colorsList.yellow500, colorsList.red500],
+                gradient: [colorsList.blue500, colorsList.blue500, colorsList.green700, colorsList.yellow500, colorsList.orange500, colorsList.red500],
                 weight: () => 0.4,
             }),
         ],
@@ -326,7 +340,7 @@ watch([selectedAirport, data.data], async ([icao, flights], _previous, onCleanup
 }, { immediate: true });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .playback_chart {
     width: 100%;
 
@@ -336,7 +350,9 @@ watch([selectedAirport, data.data], async ([icao, flights], _previous, onCleanup
 }
 
 .map {
+    overflow: hidden;
     width: 100%;
     height: 600px;
+    border-radius: 8px;
 }
 </style>

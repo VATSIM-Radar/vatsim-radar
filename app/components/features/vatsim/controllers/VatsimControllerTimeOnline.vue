@@ -53,7 +53,7 @@ const props = defineProps({
 });
 
 const dataStore = useDataStore();
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 const bookingType = computed(() => props.controller.booking && getBookingType(props.controller.booking));
 </script>
 

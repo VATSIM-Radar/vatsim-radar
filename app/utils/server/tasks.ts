@@ -6,8 +6,13 @@ import type { VatglassesDynamicData } from '~/utils/server/storage';
 import { initNavigraph } from '~/utils/server/navigraph/db';
 import { updateSimAware } from '~/utils/server/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/server/vatglasses';
-import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/server/redis';
-import type { VatsimDivision, VatsimEvent, VatsimStationAlias, VatsimSubDivision } from '~/types/data/vatsim';
+import { getRedis, getRedisData, getRedisSync, setRedisData, setRedisSync, unsetRedisSync } from '~/utils/server/redis';
+import type {
+    VatsimDivision,
+    VatsimEvent,
+    VatsimStationAlias,
+    VatsimSubDivision,
+} from '~/types/data/vatsim';
 import {
     updateAchievements,
     updateAirlines,
@@ -22,6 +27,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { prisma } from '~/utils/server/prisma';
+import type { VatsimEvent as VatsimPrismaEvent, EventType } from '#prisma';
 import { sleep } from '~/utils';
 import { isDebug } from '~/utils/server/debug';
 import { watch } from 'chokidar';
@@ -117,7 +123,9 @@ async function vatsimTasks() {
         setRedisData('data-subdivisions', subdivisions, 1000 * 60 * 60 * 24);
     }
 
-    await defineCronJob('30 * * * *', async () => {
+    let previousEvents: VatsimEvent[] = [];
+
+    await defineCronJob('*/15 * * * *', async () => {
         const myData = await $fetch<{
             data: VatsimEvent[];
         }>('https://my.vatsim.net/api/v2/events/latest', {
@@ -125,7 +133,43 @@ async function vatsimTasks() {
         });
         const inFourWeeks = new Date();
         inFourWeeks.setDate(inFourWeeks.getDate() + 28);
-        setRedisData('data-events', myData.data.filter(e => new Date(e.start_time) < inFourWeeks), 1000 * 60 * 60);
+
+        const events = myData.data.filter(e => new Date(e.start_time) < inFourWeeks);
+        const eventsMap = Object.fromEntries(events.map(x => [x.id, null]));
+        let migrated = false;
+
+        for (const event of previousEvents) {
+            const newEvent = eventsMap[event.id];
+            if (!newEvent && Date.now() > new Date(event.end_time).getTime()) {
+                if (!await prisma.vatsimEvent.findFirst({ where: { id: event.id } })) {
+                    const prismaEvent = {
+                        id: event.id,
+                        type: event.type as EventType,
+                        name: event.name,
+                        link: event.link,
+                        organisers: event.organisers,
+                        airports: event.airports,
+                        startTime: new Date(event.start_time),
+                        endTime: new Date(event.end_time),
+                        shortDescription: event.short_description,
+                        description: event.description,
+                        banner: event.banner,
+                    } satisfies VatsimPrismaEvent;
+
+                    await prisma.vatsimEvent.create({
+                        data: prismaEvent,
+                    });
+
+                    console.log(`Migrated event ${ event.name }`);
+                    migrated = true;
+                }
+            }
+        }
+
+        if (migrated) await unsetRedisSync('events-offset-0');
+
+        await setRedisData('data-events', events, 1000 * 60 * 60);
+        previousEvents = events;
     }).catch(console.error);
 
     await defineCronJob('15 0 * * *', updateAchievements).catch(console.error);

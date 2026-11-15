@@ -84,7 +84,7 @@ const props = defineProps({
 });
 
 const store = useStore();
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 
 const localStart = computed(() => makeBookingTime(props.entry.start, bookingsLocalTimezone.value));
 const localEnd = computed(() => makeBookingTime(props.entry.end, bookingsLocalTimezone.value));

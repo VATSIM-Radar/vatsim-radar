@@ -70,7 +70,7 @@ import UiDatePicker from '~/components/ui/inputs/UiDatePicker.vue';
 
 
 const store = useStore();
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 const route = useRoute();
 const bookingRange = reactive({
     from: store.bookingsStartTime && !isNaN(Number(store.bookingsStartTime))

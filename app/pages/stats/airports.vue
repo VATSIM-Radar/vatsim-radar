@@ -98,10 +98,12 @@ const overlayData = computed(() => mapStore.overlays.find(x => x.type === 'airpo
 provideAirport(overlayData);
 
 const airports = computed<Airport[]>(() => {
-    if (data.value) return data.value.map(x => ({
-        ...x,
-        name: dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao]?.name ?? 'Unknown',
-    })) as Airport[];
+    if (data.value) {
+        return data.value.map(x => ({
+            ...x,
+            name: dataStore.vatspy.value?.data.keyAirports.realIcao[x.icao]?.name ?? 'Unknown',
+        })) as Airport[];
+    }
 
     return Object.values(dataStore.airportsList.value).map(x => ({
         ...x,

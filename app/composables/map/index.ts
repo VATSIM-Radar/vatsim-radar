@@ -58,6 +58,11 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     icon: EventsIcon,
                 },
                 {
+                    text: 'Past Events',
+                    path: '/events/past',
+                    icon: CalendarIcon,
+                },
+                {
                     text: 'Bookings',
                     path: '/bookings',
                     icon: BookingsIcon,

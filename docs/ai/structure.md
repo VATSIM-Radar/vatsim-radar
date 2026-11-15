@@ -200,6 +200,7 @@ Feature-level UI lives under `app/components/features`:
 - `footer/`: landing/footer content.
 - `settings/`: account and profile settings.
 - `events/`: VATSIM event cards/details.
+  - `EventDetails.vue` renders event descriptions as Markdown using `marked` and Vue's `v-html`.
 - `navigation/`: AIRAC/favorites/featured airport widgets.
 - `vatsim/airport/`: airport detail panels such as METAR, TAF, controllers, aircraft, NOTAMs, procedures.
   - `AirportInfo.vue` is shared by `app/pages/airport/[icao].vue` and `app/components/map/overlays/MapOverlayAirport.vue`; its airport context comes from `provideAirport`/`injectAirport` in `app/composables/vatsim/airport.ts`. `AirportSunTimes.vue` renders sunrise/sunset in the info panel and in the overlay's fallback `#name` section; `app/composables/vatsim/airport-time.ts` supplies the local clock and sun times from an optional direct VATSpy airport or the injected airport context.
@@ -207,6 +208,8 @@ Feature-level UI lives under `app/components/features`:
 - `vatsim/pilots/`: pilot detail helpers.
 
 Reusable UI primitives are in `app/components/ui`:
+
+- `app/components/ui/buttons/UiButton.vue` owns the shared button props and exports `ButtonOptions` for consumers.
 
 - `buttons/`, `inputs/`, `text/`, `data/`, plus layout wrappers such as `UiContainer` and `UiPageContainer`.
 - `app/components/ui/data/UiDataList.vue` renders keyed item content through `#item-{key}` slots; `app/components/ui/text/UiChip.vue` supplies the compact value badges used in these rows.
@@ -403,7 +406,7 @@ Main app routes:
 - `/bookings`: ATC bookings.
   - `app/pages/bookings/index.vue` owns its date-picker range, booking API fetch window, and timeline filtering; the map booking window is managed separately in `app/composables/render/storage.ts`.
 - `/stats` and `/stats/*`: stats dashboards.
-  - `app/components/views/StatsTable.vue` owns stats period/custom-date controls and URL query state; `app/composables/stats.ts` fetches the selected aggregated endpoint from each stats page.
+  - Stats pages customize `UiTable` cells through named `data-*` slots. `app/components/views/StatsTable.vue` owns stats period/custom-date controls and URL query state; `app/composables/stats.ts` fetches the selected aggregated endpoint from each stats page.
   - `app/pages/stats/{aircraft,airports,airlines,routes,atc}.vue` switch between live data and Statsim history through `StatsTable`. Aggregated endpoints live in `server/api/data/stats/*`, with shared validation and aggregation in `app/utils/server/stats.ts`; raw month/range caching is in `app/utils/server/statsim.ts`.
   - `app/utils/shared/stats-range.ts` holds the common 31-day range check for the stats UI and API routes.
 - `/pilots`, `/sigmets`, `/notams`, `/achievements`, `/support-us`, `/about`, `/roadmap`, `/privacy-policy`.

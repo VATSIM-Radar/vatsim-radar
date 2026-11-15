@@ -77,7 +77,7 @@ defineSlots<{ default?: () => any; title?: () => any; description?: () => any; a
         align-items: flex-start;
         justify-content: space-between;
 
-        margin-bottom: 32px;
+        margin-bottom: 12px;
 
         @include mobileOnly {
             flex-wrap: wrap;

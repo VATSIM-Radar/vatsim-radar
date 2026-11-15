@@ -57,6 +57,20 @@ export const useSettingsStore = defineStore('settings', {
             autoSave?: boolean;
             dontSave?: boolean;
         } = {}) {
+            if ('eventsLocalTimezone' in (settings.appearance ?? {})) {
+                // @ts-expect-error legacy field migration
+                settings.appearance!.dataLocalTimezone = settings.appearance!.eventsLocalTimezone as boolean;
+                // @ts-expect-error legacy field migration
+                delete settings.appearance!.eventsLocalTimezone;
+            }
+
+            if ('bookingsLocalTimezone' in (settings.appearance ?? {})) {
+                // @ts-expect-error legacy field migration
+                settings.appearance!.dataLocalTimezone = settings.appearance!.bookingsLocalTimezone as boolean;
+                // @ts-expect-error legacy field migration
+                delete settings.appearance!.bookingsLocalTimezone;
+            }
+
             if (autoSave) {
                 this.autoSave = this.getAutoSave();
 

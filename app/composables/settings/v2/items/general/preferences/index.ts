@@ -22,21 +22,17 @@ export const settingsItemPreferences = globalComputed(() => makeSettingsItems(({
         value: getSettingValue('appearance.timeFormat'),
         onChange: value => setSettingByKey('appearance.timeFormat', value as UserSettingsV2['appearance']['timeFormat']),
     },
-    eventsLocalTimezone: {
-        title: 'Events local time',
-        description: 'Shows VATSIM Events in your local timezone instead of Zulu time',
-        searchKeywords: ['utc', 'timezone', 'local', 'zulu'],
-        type: 'toggle',
-        value: getSettingValue('appearance.eventsLocalTimezone'),
-        onChange: value => setSettingByKey('appearance.eventsLocalTimezone', value),
-    },
-    bookingsLocalTimezone: {
-        title: 'Bookings local time',
-        description: 'Shows ATC bookings in your local timezone instead of Zulu time',
-        searchKeywords: ['utc', 'timezone', 'local', 'zulu', 'atc'],
-        type: 'toggle',
-        value: getSettingValue('appearance.bookingsLocalTimezone'),
-        onChange: value => setSettingByKey('appearance.bookingsLocalTimezone', value),
+    dataLocalTimezone: {
+        title: 'Time Reference',
+        description: 'Select in which timezone show various data elements, such as events and bookings time',
+        searchKeywords: ['utc', 'timezone', 'local', 'zulu', 'atc', 'events', 'bookings'],
+        type: 'radio',
+        items: [
+            { value: true, text: 'Local timezone' },
+            { value: false, text: 'Zulu time (UTC+0)' },
+        ],
+        value: getSettingValue('appearance.dataLocalTimezone'),
+        onChange: value => setSettingByKey('appearance.dataLocalTimezone', value as boolean),
     },
     notamsSortBy: {
         title: 'NOTAMs sort',

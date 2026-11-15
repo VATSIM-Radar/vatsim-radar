@@ -23,8 +23,7 @@ export interface UserSettingsV2 {
         theme?: 'light' | 'default' | null;
         headerName: string;
         timeFormat: '24h' | '12h';
-        eventsLocalTimezone: boolean;
-        bookingsLocalTimezone: boolean;
+        dataLocalTimezone: boolean;
         notamsSortBy: NotamsSortBy | null;
         favoriteSort: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc' | null;
     };

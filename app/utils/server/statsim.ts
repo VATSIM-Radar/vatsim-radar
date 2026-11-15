@@ -1,7 +1,6 @@
 import type { FetchOptions } from 'ofetch';
 import { getRedisSync, setRedisSync } from '~/utils/server/redis.ts';
 import type { VatsimEvent } from '~/types/data/vatsim.ts';
-import { getVATSIMIdentHeaders } from '~/utils/server/index.ts';
 
 export function statsimRequest<T extends Record<string, any> | any[]>(path: string, options: FetchOptions = {}): Promise<T> {
     if (!process.env.STATSIM_API_KEY) throw new Error('Statsim API key is required');

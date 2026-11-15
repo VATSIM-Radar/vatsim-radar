@@ -105,7 +105,7 @@ export const getSettingsSections = () => {
                     items: [
                         {
                             key: 'preferences',
-                            items: [items.preferences.timeFormat, items.preferences.eventsLocalTimezone, items.preferences.bookingsLocalTimezone, items.preferences.notamsSortBy, items.preferences.favoriteSort],
+                            items: [items.preferences.timeFormat, items.preferences.dataLocalTimezone, items.preferences.notamsSortBy, items.preferences.favoriteSort],
                         },
                     ],
                 },

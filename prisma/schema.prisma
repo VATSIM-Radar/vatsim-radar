@@ -199,3 +199,23 @@ model Notams {
   dismissable Boolean
   active      Boolean
 }
+
+enum EventType {
+  Event
+  ControllerExamination @map("Controller Examination")
+  VASOPS
+}
+
+model VatsimEvent {
+  id               Int       @id
+  type             EventType
+  name             String
+  link             String
+  organisers       Json
+  airports         Json
+  startTime        DateTime
+  endTime          DateTime
+  shortDescription String    @db.Text
+  description      String    @db.LongText
+  banner           String
+}

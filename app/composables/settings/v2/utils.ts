@@ -67,8 +67,7 @@ const _settingsDefaultValues = {
     'appearance.theme': null,
     'appearance.headerName': '',
     'appearance.timeFormat': '24h',
-    'appearance.eventsLocalTimezone': false,
-    'appearance.bookingsLocalTimezone': false,
+    'appearance.dataLocalTimezone': false,
     'appearance.notamsSortBy': null,
     'appearance.favoriteSort': null,
 

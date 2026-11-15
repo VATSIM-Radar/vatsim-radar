@@ -202,7 +202,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
-const bookingsLocalTimezone = useSettingValueFromFunc('appearance.bookingsLocalTimezone');
+const bookingsLocalTimezone = useSettingValueFromFunc('appearance.dataLocalTimezone');
 const showSpeaker = useSettingValueFromFunc('map.preferences.airports.voiceButton');
 
 const bookingType = computed(() => props.controller.booking && getBookingType(props.controller.booking));

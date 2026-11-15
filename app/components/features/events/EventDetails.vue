@@ -1,11 +1,12 @@
 <template>
-    <div
+    <ui-text
         class="event-details"
+        type="caption"
     >
         <div class="detail-item">
-            <div class="detail-item_header">
+            <ui-text class="detail-item_header" type="2b">
                 Description:
-            </div>
+            </ui-text>
             <div
                 class="detail-item_content event-details__description"
                 :class="{ 'event-details__description--has-banner': props.event.banner }"
@@ -20,25 +21,6 @@
             </div>
         </div>
 
-        <div
-            v-if="props.event.airports?.length > 0"
-            class="detail-item"
-        >
-            <div class="detail-item_header">
-                Airports:
-            </div>
-            <div class="detail-item_content event-details__airports-links">
-                <ui-button
-                    v-for="airport in props.event.airports"
-                    :key="airport.icao"
-                    :href="`/?airport=${ airport.icao }`"
-                    :target="app.$pwa?.isPWAInstalled ? undefined : '_blank'"
-                    type="link"
-                >
-                    {{airport.icao}}
-                </ui-button>
-            </div>
-        </div>
         <div
             v-if="props.event.routes?.length > 0"
             class="detail-item"
@@ -109,49 +91,20 @@
             </div>
         </div>
 
-        <div
-            v-if="organisers"
-            class="detail-item"
-        >
-            <div class="detail-item_header">
-                Organisers:
-            </div>
-            <div class="detail-item_content detail-item__organisers">
-                <div
-                    v-for="(organiser, region) in organisers"
-                    :key="region"
-                    class="detail-item__organisers_item"
-                >
-                    <div
-                        v-if="region !== 'VATSIM' && region !== 'default' && Object.keys(organisers).length > 1"
-                        class="detail-item__organisers_item_region"
-                    >
-                        {{region}}:
-                    </div>
-                    <div
-                        v-for="(item, index) in organiser"
-                        :key="item + index"
-                        class="detail-item__organisers_item_text"
-                    >
-                        {{item}}
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <p>More details:                 <a
             :href="props.event.link"
             target="_blank"
         >on vatsim.net</a>
         </p>
-    </div>
+    </ui-text>
 </template>
 
 <script setup lang="ts">
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import type { VatsimBooking, VatsimEvent } from '~/types/data/vatsim';
-import { parse } from 'marked';
+import { parse, Renderer } from 'marked';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     event: {
@@ -160,7 +113,7 @@ const props = defineProps({
     },
 });
 
-const timeZone = computed(() => !getKeyedValueFromSettings('appearance.bookingsLocalTimezone') ? 'UTC' : undefined);
+const timeZone = computed(() => !getKeyedValueFromSettings('appearance.dataLocalTimezone') ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     hourCycle: getKeyedValueFromSettings('appearance.timeFormat') === '12h' ? 'h12' : 'h23',
@@ -190,41 +143,33 @@ const bookings = await useLazyAsyncData<Record<string, VatsimBooking[]>>(compute
 const { copy: baseCopy } = useCopyText();
 
 const app = useNuxtApp();
-const description = computed(() => parse(props.event.description));
 
-const organisers = computed(() => {
-    if (props.event.organisers?.length) {
-        const organisers: Record<string, string[]> = {};
+const renderer = new Renderer();
+const renderLink = renderer.link;
 
-        props.event.organisers.forEach(o => {
-            if (o.organised_by_vatsim) {
-                return organisers.vatsim = ['VATSIM'];
-            }
-            else {
-                organisers[o.region ?? 'default'] ??= [];
-                organisers[o.region ?? 'default'].push(o.subdivision ? `${ o.division } / ${ o.subdivision }` : String(o.division));
-            }
-        });
+renderer.link = function(token) {
+    return renderLink.call(this, token).replace(
+        '<a ',
+        '<a target="_blank" rel="noopener noreferrer" ',
+    );
+};
 
-        return organisers;
-    }
-    return null;
-});
+const description = computed(() => parse(props.event.description, { renderer }));
 </script>
 
 <style scoped lang="scss">
 .event-details {
-    padding: 8px;
-    font-size: 14px;
-
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
     :deep(a) {
-        color: $blue500;
+        color: $white;
         @include hover {
             transition: 0.3s;
 
             &:hover {
-                color: $blue300;
+                color: $blue500;
             }
         }
     }
@@ -347,15 +292,6 @@ const organisers = computed(() => {
             }
         }
     }
-
-    &__airports-links {
-        display: flex;
-        gap: 4px;
-
-        .button {
-            font-size: 14px !important;
-        }
-    }
 }
 
 .detail-item {
@@ -371,11 +307,6 @@ const organisers = computed(() => {
         display: flex;
         flex-direction: column;
     }
-}
-
-.detail-item_header {
-    font-size: 14px;
-    font-weight: 600;
 }
 
 .detail-item_content {

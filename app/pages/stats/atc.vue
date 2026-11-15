@@ -36,8 +36,8 @@
                 <template #data-logon_time="{ item }">
                     {{getATCTime(item)}}
                 </template>
-                <template #data-rating="{ data }">
-                    {{ ratings[(data as number).toString()] }}
+                <template #data-rating="{ data: rating }">
+                    {{ ratings[(rating as number).toString()] }}
                 </template>
                 <template #data-facility="{ item }">
                     {{ item.callsign.split('_')[item.callsign.split('_').length - 1] }}
@@ -77,11 +77,11 @@
                             {{ index + 1 }}
                         </div>
                     </template>
-                    <template #data-duration="{ data }">
-                        {{ Math.floor(data / 3600000) }}h {{ Math.floor(data % 3600000 / 60000) }}m
+                    <template #data-duration="{ data: duration }">
+                        {{ Math.floor(duration / 3600000) }}h {{ Math.floor(duration % 3600000 / 60000) }}m
                     </template>
-                    <template #data-uptime="{ data }">
-                        {{ data.toFixed(1) }}%
+                    <template #data-uptime="{ data: uptime }">
+                        {{ uptime.toFixed(1) }}%
                     </template>
                 </ui-table>
             </div>
