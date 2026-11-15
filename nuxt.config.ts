@@ -243,9 +243,10 @@ export default defineNuxtConfig({
             installPrompt: true,
         },
         injectRegister: isDebug() ? false : 'auto',
-        selfDestroying: isDebug(),
-        workbox: {
+        disable: isDebug(),
+        generateSW: {
             cleanupOutdatedCaches: true,
+            globStrict: false,
             globPatterns: [
                 '**/*.{js,css,woff,woff2,ttf,otf,svg,webmanifest}',
             ],
