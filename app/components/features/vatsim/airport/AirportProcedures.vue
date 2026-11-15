@@ -108,7 +108,8 @@ import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import {
     getNavigraphAirportProceduresForKey,
     getNavigraphAirportProcedure,
-    getNavigraphAirportProcedures, enroutePath,
+    getNavigraphAirportProcedures,
+    enroutePath,
 } from '#imports';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '#imports';
 import type { IDBNavigraphProcedures } from '~/composables/render/idb';

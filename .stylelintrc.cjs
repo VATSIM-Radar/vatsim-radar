@@ -9,6 +9,14 @@ module.exports = {
         'stylelint-config-recommended-vue/scss',
         'stylelint-config-clean-order',
     ],
+    overrides: [
+        {
+            files: ['**/*.scss', '**/*.vue'],
+            rules: {
+                'value-no-invalid': null,
+            },
+        },
+    ],
     rules: {
         'no-descending-specificity': null,
         'selector-pseudo-class-no-unknown': [
@@ -22,7 +30,7 @@ module.exports = {
                 ],
             },
         ],
-        '@stylistic/indentation': [
+        '@stylistic/scss/indentation': [
             4,
             {
                 ignore: [
@@ -51,5 +59,6 @@ module.exports = {
         'declaration-property-value-no-unknown': null,
         'at-rule-descriptor-value-no-unknown': null,
         'color-hex-length': null,
+        'value-no-invalid': null,
     },
 };

@@ -271,7 +271,15 @@ export async function fetchAircraftSvgIcon(icon: AircraftIcon) {
     const store = useStore();
     let svg = svgIconsCache[icon];
 
-    if (typeof svg === 'object') svg = await svg;
+    if (typeof svg === 'object') {
+        try {
+            svg = await svg;
+        }
+        catch (e) {
+            if (svgIconsCache[icon] === svg) delete svgIconsCache[icon];
+            throw e;
+        }
+    }
     else if (!svg) {
         svgIconsCache[icon] = new Promise<string>(async (resolve, reject) => {
             try {
@@ -284,7 +292,14 @@ export async function fetchAircraftSvgIcon(icon: AircraftIcon) {
                 reject();
             }
         });
-        await svgIconsCache[icon];
+        const request = svgIconsCache[icon];
+        try {
+            await request;
+        }
+        catch (e) {
+            if (svgIconsCache[icon] === request) delete svgIconsCache[icon];
+            throw e;
+        }
     }
 
     return svg;

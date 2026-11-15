@@ -227,7 +227,7 @@ function setVisiblePilots() {
 
     if (tracksEntries.length > tracksLimit) {
         showTracks.value = Object.fromEntries(
-            tracksEntries.filter(([, x]) => pilotsOverlays.value.includes(x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort(([, a], [,b]) => {
+            tracksEntries.filter(([, x]) => pilotsOverlays.value.includes(x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort(([, a], [, b]) => {
                 const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
                 const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
                 const aDist = (aGoDist && aDepDist)

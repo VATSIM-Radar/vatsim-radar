@@ -9,9 +9,12 @@ import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/typ
 import type {
     DataImagesType,
     RadarDataAirlinesAllList,
-    SimAwareAPIData, SimAwareDataFeature,
-    VatglassesAPIData, VatglassesData,
-    VatglassesDynamicAPIData, VatglassesPosition,
+    SimAwareAPIData,
+    SimAwareDataFeature,
+    VatglassesAPIData,
+    VatglassesData,
+    VatglassesDynamicAPIData,
+    VatglassesPosition,
 } from '~/utils/server/storage';
 import type { UseDataStore } from '~/composables/render/storage';
 

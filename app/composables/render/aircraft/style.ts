@@ -3,6 +3,7 @@ import type VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAircraft } from '~/utils/map/entities';
 import { Fill, Icon, Stroke, Style, Text } from 'ol/style.js';
+import ImageState from 'ol/ImageState.js';
 import RegularShape from 'ol/style/RegularShape.js';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
@@ -264,7 +265,11 @@ export function setAircraftStyle(layer: VectorLayer) {
                 return [styleCache[styleKey], styleCache[textKey]];
             }
 
-            if (properties.styleCacheKey === styleCacheKey && cachedImageStyle) {
+            const cachedImage = cachedImageStyle?.getImage();
+            const needsSvg = (status !== 'default' && status !== 'ground') || !!favorites.value[cid] || !!getWFPilot(cid);
+            const iconReady = cachedImage?.getImageState() === ImageState.LOADED && (!needsSvg || typeof fetchedIcons[icon.icon] === 'string');
+
+            if (properties.styleCacheKey === styleCacheKey && cachedImageStyle && iconReady) {
                 if (mapStore.renderedPilots && mapStore.getRenderedPilotsCount > aircraftShowLimit.value) return cachedImageStyle;
                 if (styleCache[hitboxKey] && styleCache[textKey]) return [styleCache[hitboxKey], cachedImageStyle, styleCache[textKey]];
             }

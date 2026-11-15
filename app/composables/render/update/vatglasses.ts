@@ -6,7 +6,8 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type {
     VatglassesAirport,
     VatglassesAirspace,
-    VatglassesData, VatglassesPosition,
+    VatglassesData,
+    VatglassesPosition,
     VatglassesSector,
 } from '~/utils/server/storage';
 import { debugControllers, updateAirportAtisConfig } from '~/composables/render/update/utils';
