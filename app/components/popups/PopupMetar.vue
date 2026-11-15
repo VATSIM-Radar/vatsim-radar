@@ -153,7 +153,7 @@
                         </div>
                         <details @toggle="toggleAwos(item.icao, $event)">
                             <summary>AWOS</summary>
-                            <div class="metar__item_body_section">
+                            <div class="metar__item_body_awos">
                                 <airport-awos
                                     v-if="openAwos.has(item.icao)"
                                     :icao="item.icao"
@@ -412,6 +412,11 @@ const metars = computed(() => {
                 justify-content: space-between;
 
                 white-space: nowrap;
+            }
+
+            // AWOS needs a plain block: the section row above is made for a textarea + copy button and blocks wrapping
+            &_awos {
+                padding-top: 8px;
             }
 
             &_textarea {

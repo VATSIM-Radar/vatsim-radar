@@ -150,7 +150,7 @@ function parseAwosMetar(metar: string | null | undefined): IMetarDated | null {
     }
 }
 
-// Manual runway choice, keyed by ICAO. Missing/empty = automatic runways.
+// Manual runway choice, keyed by ICAO. Missing = automatic runways; an empty list hides every runway.
 // Kept in memory only, so a page reload always goes back to the automatic runways.
 // Only ever written from client-side user actions, so sharing it at module level is safe during SSR
 const manualRunways = ref<Record<string, string[]>>({});
@@ -206,49 +206,49 @@ export function useAirportAwos(icaoRef: MaybeRefOrGetter<string | null>, metarRe
     const elevation = computed(() => (runways.value.length ? Math.max(...runways.value.map(runway => runway.elevation)) : null));
 
     const favouredRunways = computed(() => getWindFavouredRunways(metar.value?.wind, runways.value));
-    const isManual = computed(() => !!manualRunways.value[toValue(icaoRef) ?? '']?.length);
+    const isManual = computed(() => !!manualRunways.value[toValue(icaoRef) ?? '']);
 
     /**
      * Runways shown in the table and on the dial.
-     * Manual choice > automatic: the wind-favoured runways plus every ATIS departure/arrival runway, so a runway in use
-     * against the wind (e.g. ATIS on 27L/27R while the wind favours 09L/09R) is still shown > all runways when the wind
-     * favours none (calm/VRB/direct crosswind/no METAR) and no ATIS runway is known.
+     * Manual choice (may be empty) > automatic: the wind-favoured runways plus every ATIS departure/arrival runway, so a
+     * runway in use against the wind (e.g. ATIS on 27L/27R while the wind favours 09L/09R) is still shown > all runways
+     * when the wind favours none (calm/VRB/direct crosswind/no METAR) and no ATIS runway is known.
      */
-    const selectedRunways = computed<string[]>({
-        get: () => {
-            const known = new Set(runways.value.map(runway => runway.ident));
-            const manual = manualRunways.value[toValue(icaoRef) ?? '']?.filter(ident => known.has(ident));
-            if (manual?.length) return manual;
+    const selectedRunways = computed<string[]>(() => {
+        const known = new Set(runways.value.map(runway => runway.ident));
+        const manual = manualRunways.value[toValue(icaoRef) ?? ''];
+        if (manual) return manual.filter(ident => known.has(ident));
 
-            const atisRunways = [...atis.value.departure, ...atis.value.arrival].filter(ident => known.has(ident));
-            const automatic = [...new Set([...favouredRunways.value, ...atisRunways])];
-            if (automatic.length) return automatic;
+        const atisRunways = [...atis.value.departure, ...atis.value.arrival].filter(ident => known.has(ident));
+        const automatic = [...new Set([...favouredRunways.value, ...atisRunways])];
+        if (automatic.length) return automatic;
 
-            return [...known];
-        },
-        set: value => {
-            const icao = toValue(icaoRef);
-            if (!icao) return;
-
-            const next = { ...manualRunways.value };
-            if (value.length) next[icao] = value;
-            else delete next[icao];
-            manualRunways.value = next;
-        },
+        return [...known];
     });
 
-    /** Shows or hides one runway. The first change starts from the automatic runways; hiding the last one goes back to them */
+    /** Stores a manual runway choice for the current airport; null goes back to the automatic runways */
+    function setManualRunways(value: string[] | null) {
+        const icao = toValue(icaoRef);
+        if (!icao) return;
+
+        const next = { ...manualRunways.value };
+        if (value) next[icao] = value;
+        else delete next[icao];
+        manualRunways.value = next;
+    }
+
+    /** Shows or hides one runway. The first change starts from the automatic runways, and every runway can be hidden */
     function toggleRunway(ident: string, shown: boolean) {
         const selected = new Set(selectedRunways.value);
         if (shown) selected.add(ident);
         else selected.delete(ident);
 
         // Keep the runway data order, so the table does not jump around while toggling
-        selectedRunways.value = runways.value.map(runway => runway.ident).filter(runwayIdent => selected.has(runwayIdent));
+        setManualRunways(runways.value.map(runway => runway.ident).filter(runwayIdent => selected.has(runwayIdent)));
     }
 
     function resetRunways() {
-        selectedRunways.value = [];
+        setManualRunways(null);
     }
 
     const runwayWinds = computed<AwosRunwayWind[]>(() => {

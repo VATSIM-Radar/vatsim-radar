@@ -153,6 +153,14 @@
                     No runway data for {{ icao }}
                 </ui-text>
 
+                <ui-text
+                    v-else-if="awos.runways.isManual && !awos.runways.winds.length"
+                    color="lightGray500"
+                    type="caption"
+                >
+                    No runways selected
+                </ui-text>
+
                 <div
                     v-else-if="awos.runways.winds.length"
                     class="airport-awos_table"
@@ -548,11 +556,14 @@ function formatCrosswind(wind: RunwayWind | null) {
 </script>
 
 <style scoped lang="scss">
+// The layout follows the width of this component (container query below), so it always takes the full width it is given
 .airport-awos {
     container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    width: 100%;
 
     &_strong {
         font-weight: 700;
@@ -770,8 +781,9 @@ function formatCrosswind(wind: RunwayWind | null) {
     }
 }
 
-// Narrow places (phones, Conditions Request, airport page column): dial on its own line, two tile columns, tighter table
-@container (max-width: 520px) {
+// Narrow places (phones, Conditions Request): below the dial (234px) plus three readable tile columns,
+// put the dial on its own line, use two tile columns and a tighter table
+@container (max-width: 600px) {
     .airport-awos {
         &_wind {
             flex-basis: 100%;
