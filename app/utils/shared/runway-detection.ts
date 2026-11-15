@@ -92,7 +92,23 @@ const landingAndDepartingRegex = /\b(LDG|LNDG|LND|LANDING|ARVNG|ARRIVING|ARR|ARR
 // never in use, and a number followed by a unit ("TURN LEFT 15 DEGREES", "05 KNOTS") is not a runway
 const notInUseRegex = /^(CLSD|CLOSED|DEGREES?|DEG|KNOTS?|KTS?|FT|FEET|NM|MILES?|MINS?|MINUTES?|PERCENT|METRES?|METERS?)\b/;
 
+// FAA ATIS abbreviate runway as "RY"/"RYS", also with punctuation: "APCHS RY, 27L"
+const faaRunwayRegex = /^RY(S?)([,.]*)$/;
+
+const notamRegex = /^NOTAMS?\b/;
+const nilRegex = /^(NIL|NONE)\b/;
+
 const stripPunctuation = (word: string | undefined) => word?.replace(/[,.]+$/, '') ?? '';
+
+/**
+ * The NOTAM section closes most ATIS: runways mentioned there are closures, lighting or ILS outages, never runways in use.
+ * "NO NOTAMS" or "NOTAMS NIL" only say there is nothing to report, so they do not start that section.
+ */
+function isNotamSectionStart(words: string[], index: number) {
+    return notamRegex.test(words[index]) &&
+        !['NO', 'NIL'].includes(stripPunctuation(words[index - 1])) &&
+        !nilRegex.test(words[index + 1] ?? '');
+}
 
 function hasMarker(str: string, depMarkers: string[]) {
     const last = str.at(-1);
@@ -114,13 +130,15 @@ function hasMarker(str: string, depMarkers: string[]) {
 }
 
 export function getActiveRunways(atis: string | string[]): { departure: string[]; arrival: string[] } {
-    // FAA ATIS abbreviate runway as "RY": read it as "RWY", so every RWY marker also matches it
-    const words = (Array.isArray(atis) ? atis.join(' ') : atis).split(' ').map(word => (word === 'RY' ? 'RWY' : word === 'RYS' ? 'RWYS' : word));
+    // Read FAA "RY" as "RWY", keeping punctuation ("RY," -> "RWY,"), so every RWY marker also matches it
+    const words = (Array.isArray(atis) ? atis.join(' ') : atis).split(' ').map(word => word.replace(faaRunwayRegex, 'RWY$1$2'));
     const depRunways = new Set<string>();
     const arrRunways = new Set<string>();
     const tentativeRunways = new Set<string>();
     // Tentative runways listed back to back right before the current word, see the TRL rule below
     const tentativeList = new Set<string>();
+    // The tentative list was introduced by a runway keyword ("RWY 09R 09L", "RWY27"), not just numbers ("DEWPOINT 12")
+    let tentativeListFromKeyword = false;
     let tentativeChance = 0;
 
     let depMarker = false;
@@ -139,8 +157,7 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
         const runway = pairRunway ?? runwayRegex.exec(word);
         lastWord += ` ${ word }`;
 
-        // The NOTAM section closes most ATIS: runways mentioned there are closures, lighting or ILS outages, never runways in use
-        if (/^NOTAMS?\b/.test(word) || stripPunctuation(lastWord).endsWith('NOTICE TO AIR MEN')) break;
+        if (isNotamSectionStart(words, i) || stripPunctuation(lastWord).endsWith('NOTICE TO AIR MEN')) break;
 
         if (runway?.groups) {
             const { prefix, runway: number, postfix } = runway.groups;
@@ -149,9 +166,11 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             // FAA ATIS write runways 1-9 without the leading zero ("RWY 4R", "RWYS 1, 33, 4", "ARR 6, DEP 1"). A single digit is
             // only trusted with a suffix or a RWY prefix, right after a runway keyword or a departure/arrival marker, or inside
             // a comma-separated runway list, so "CAT 2 AND 3" or "RUNWAY 24. 5 1 TO 100 PERCENT WET" do not add runways
-            const isTrusted = number.length === 2 || !!postfix || !!prefix || runwayListContinues || markerWordBefore ||
-                runwayKeywords.has(stripPunctuation(words[i - 1]));
-            const isNotInUse = notInUseRegex.test(words[pairRunway ? i + 2 : i + 1] ?? '');
+            const afterKeyword = !!prefix || runwayKeywords.has(stripPunctuation(words[i - 1]));
+            const isTrusted = number.length === 2 || !!postfix || afterKeyword || runwayListContinues || markerWordBefore;
+            // The next word only describes the runway inside the same sentence: "DEP RWY 27. CLOSED TWY A." keeps 27
+            const runwayWord = pairRunway ? words[i + 1] : word;
+            const isNotInUse = !runwayWord.endsWith('.') && notInUseRegex.test(words[pairRunway ? i + 2 : i + 1] ?? '');
             runwayListContinues = false;
             markerWordBefore = false;
 
@@ -182,6 +201,7 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
                     tentativeList.clear();
                 }
                 else {
+                    if (!tentativeList.size) tentativeListFromKeyword = afterKeyword;
                     tentativeRunways.add(runwayName);
                     tentativeList.add(runwayName);
                     tentativeChance = 0;
@@ -213,8 +233,9 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             else {
                 if (hasMarker(lastWord, breakTentative)) {
                     // German and Indian ATIS give the runways in use right before the transition level, without any other
-                    // marker ("RWY 09R 09L TRL 60", "RWY27 TRL FL70"): runways listed directly before "TRL" are in use for both
-                    if (bareWord === 'TRL') {
+                    // marker ("RWY 09R 09L TRL 60", "RWY27 TRL FL70"): a runway list directly before "TRL" is in use for both.
+                    // The list must start with a runway keyword, so weather numbers ("DEWPOINT 12 TRL 60") are not promoted
+                    if (bareWord === 'TRL' && tentativeListFromKeyword) {
                         tentativeList.forEach(x => {
                             depRunways.add(x);
                             arrRunways.add(x);

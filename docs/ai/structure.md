@@ -471,10 +471,11 @@ Available commands:
 - `yarn typecheck`: Nuxt/Vue typecheck.
 - `yarn build`: production build.
 - `yarn docs:build`: VitePress docs build.
+- `yarn test`: Node's built-in test runner (`node --test`) over `app/**/*.test.ts`. Node runs the TypeScript directly, so there is no build step; tests use `node:test` and `node:assert/strict` and sit next to the code they cover (currently `app/utils/shared/runway-detection.test.ts` for ATIS runway detection). Tested files must stay importable by plain Node: relative imports with the `.ts` extension, no Nuxt auto-imports or `~` aliases.
 
 If lint or typecheck fails with a permission error in `node_modules` or `.nuxt`, ask the user to fix those directory permissions before retrying.
 
-There is no obvious dedicated unit test suite in `package.json`; rely on lint/typecheck/build and targeted manual verification for changed flows.
+Beyond `yarn test`, rely on lint/typecheck/build and targeted manual verification for changed flows.
 
 ### Cautions For AI Agents
 
