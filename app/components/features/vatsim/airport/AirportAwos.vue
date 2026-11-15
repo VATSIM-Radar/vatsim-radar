@@ -513,13 +513,16 @@ const observedText = computed(() => {
     return `${ time } · ${ observedMinutes.value } min ago`;
 });
 
+/** "06:32z (07:32 local)", or only the Zulu time when the airport's local time is unknown */
+const formatSunTime = (time: { utc: string | null; local: string | null }) => (time.local ? `${ time.utc }z (${ time.local } local)` : `${ time.utc }z`);
+
 const sunText = computed(() => {
     const sun = sunTimes.value;
     if (!sun?.sunrise) return null;
     if (sun.sunrise.polar) return sun.sunrise.polar;
     return [
-        sun.sunrise.utc && `Sunrise ${ sun.sunrise.utc }z`,
-        sun.sunset?.utc && `Sunset ${ sun.sunset.utc }z`,
+        sun.sunrise.utc && `Sunrise ${ formatSunTime(sun.sunrise) }`,
+        sun.sunset?.utc && `Sunset ${ formatSunTime(sun.sunset) }`,
     ].filter(Boolean).join(' · ');
 });
 
