@@ -804,6 +804,12 @@ function formatCrosswind(wind: RunwayWind | null) {
         &_tile_value--big {
             font-size: 24px;
         }
+
+        // Long values ("▼ H 14 G21 MPS" with a limit highlight) wrap instead of running into the next column
+        &_component,
+        &_sector {
+            white-space: normal;
+        }
     }
 }
 </style>
