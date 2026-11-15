@@ -1,12 +1,14 @@
 import type {
     NavigraphSettingsLevel,
-    UserMapSettingsColors, UserMapSettingsTurns,
+    UserMapSettingsColors,
+    UserMapSettingsTurns,
     UserMapSettingsVisibilityATC,
 } from '~/utils/server/handlers/map-settings';
 import type {
     MapLayoutLayerWithOptions,
     MapWeatherLayer,
-    NotamsSortBy, SearchFilter,
+    NotamsSortBy,
+    SearchFilter,
     SigmetType,
     UserLayersTransparencySettings,
 } from '~/types/map';

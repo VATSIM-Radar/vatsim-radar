@@ -188,7 +188,8 @@ import {
     getSettingsItems,
     sendUserPreset,
     showAirportOnMap,
-    useDataStore, useSettingValueFromFunc,
+    useDataStore,
+    useSettingValueFromFunc,
 } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';

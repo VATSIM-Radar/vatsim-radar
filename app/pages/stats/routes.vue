@@ -58,7 +58,10 @@ const dataStore = useDataStore();
 const sort = ref<TableSort[]>([]);
 
 interface Route {
-    from: string; to: string; count: number; key: string;
+    from: string;
+    to: string;
+    count: number;
+    key: string;
 }
 
 const routes = computed<Route[]>(() => {

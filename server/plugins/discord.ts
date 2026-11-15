@@ -7,7 +7,8 @@ import {
     PermissionFlagsBits,
     REST,
     Routes,
-    StringSelectMenuBuilder, StringSelectMenuOptionBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import { prisma } from '~/utils/server/prisma';
 import { AuthType, DiscordStrategy } from '#prisma';

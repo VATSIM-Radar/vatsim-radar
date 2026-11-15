@@ -40,11 +40,13 @@ import type { VRInitStatus } from '~/store';
 import type { PartialRecord } from '~/types';
 import {
     checkForAirlines,
-    checkForData, checkForNavigraph,
+    checkForData,
+    checkForNavigraph,
     checkForSimAware,
     checkForUpdates,
     checkForVATSpy,
-    checkForVG, failedUpdatesCheck,
+    checkForVG,
+    failedUpdatesCheck,
 } from '~/composables/init';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';

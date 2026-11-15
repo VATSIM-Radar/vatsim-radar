@@ -129,8 +129,12 @@
 <script setup lang="ts">
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import type {
-    FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc,
-    FeatureAirportSectorVGProperties, FeatureSector, FeatureSectorVG,
+    FeatureAirport,
+    FeatureAirportApproachLabel,
+    FeatureAirportAtc,
+    FeatureAirportSectorVGProperties,
+    FeatureSector,
+    FeatureSectorVG,
 } from '~/utils/map/entities';
 import {
     isMapFeature,

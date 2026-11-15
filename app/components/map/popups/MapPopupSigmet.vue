@@ -46,7 +46,8 @@ import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import type {
-    FeatureSigmet, FeatureSIGMETProperties,
+    FeatureSigmet,
+    FeatureSIGMETProperties,
 } from '~/utils/map/entities';
 import type { Sigmet } from '~/utils/server/storage';
 

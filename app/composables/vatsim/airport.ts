@@ -3,7 +3,8 @@ import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type {
-    MapAircraftKeys, MapAircraftList,
+    MapAircraftKeys,
+    MapAircraftList,
 } from '~/types/map';
 import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import type { PartialRecord } from '~/types';

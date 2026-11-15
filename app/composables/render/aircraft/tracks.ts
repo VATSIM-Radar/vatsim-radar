@@ -402,8 +402,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     departureAirport &&
                     arrivalAirport &&
                     departureAirport.icao !== arrivalAirport?.icao &&
-                    !turns.features.some(x => x.features.some(x => x.properties!.standing === true))
-                ) {
+                    !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
                     const coordinates = [
                         [departureAirport.lon, departureAirport.lat],
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),

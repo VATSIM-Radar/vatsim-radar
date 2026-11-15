@@ -32,6 +32,7 @@ VATSIM Radar is a Nuxt 4 application with:
 Important root files:
 
 - `nuxt.config.ts` configures `srcDir: 'app/'`, modules, runtime config, PWA, Nitro route rules, dev port `8080`, and the Safari 15 client build target.
+- `eslint.config.mjs` extends the generated `.nuxt/eslint.config.mjs` and owns the flat ESLint configuration, including Stylistic's consolidated `list-style` rule for JavaScript/TypeScript lists and Vue's rules for template expressions; `package.json` defines the `lint:ts` and `lint` commands. Check `docs/ai/decisions.md` before migrating formatting rules.
 - `package.json` defines the main workflows: `yarn dev`, `yarn build`, `yarn lint`, `yarn typecheck`, `yarn docs:*`.
 - `.stylelintrc.cjs` owns the Stylelint preset chain and rule overrides; `package.json` defines the `stylelint` script over `app/**/*.css`, `app/**/*.scss`, and `app/**/*.vue`. Stylelint dependency versions are pinned in `package.json` and resolved in `yarn.lock`.
 - `package.json` also owns version-specific dependency build policy through `dependenciesMeta`; `.yarnrc.yml` selects the checked-in Yarn release and the `node-modules` linker.

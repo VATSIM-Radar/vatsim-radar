@@ -20,7 +20,8 @@ export interface VatglassesActivePositions {
 }
 
 export interface VatglassesAirportRunways {
-    active: string; potential: string[];
+    active: string;
+    potential: string[];
 }
 
 export interface VatglassesActiveRunways {
