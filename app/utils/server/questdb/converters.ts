@@ -160,7 +160,9 @@ export function questDBRowsToLineProtocol(rows: QuestDBWriteRow[]) {
 let previousPlanData: Record<number, VatsimPilot> = {};
 
 interface PreviousPilot {
-    previousLogTime: number; previousAltitude: number; pilot: VatsimPilot;
+    previousLogTime: number;
+    previousAltitude: number;
+    pilot: VatsimPilot;
 }
 
 let previousShortData: Record<number, PreviousPilot> = {};
@@ -196,8 +198,7 @@ export function getPlanQuestDBDataForPilots() {
             previousPilot.callsign === obj.callsign &&
             previousPilot.flight_plan?.deptime === obj.fpl_departure_time &&
             previousPilot.flight_plan?.enroute_time === obj.fpl_enroute_time &&
-            previousPilot.flight_plan?.revision_id === obj.fpl_revision
-        ) return;
+            previousPilot.flight_plan?.revision_id === obj.fpl_revision) return;
 
         const columns = getQuestDBColumns(obj);
         if (!Object.keys(columns).length) return;

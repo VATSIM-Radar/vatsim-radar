@@ -7,7 +7,8 @@ import type { VatDataVersions } from '~/types/data';
 import type {
     VatsimActiveEvent,
     VatsimBooking,
-    VatsimLiveCompactData, VatsimLiveCompactDataShort,
+    VatsimLiveCompactData,
+    VatsimLiveCompactDataShort,
     VatsimMandatoryData,
 } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';

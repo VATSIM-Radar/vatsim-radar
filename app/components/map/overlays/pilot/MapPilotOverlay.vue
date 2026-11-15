@@ -286,7 +286,9 @@ import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
 import type {
     VatsimAchievementUser,
     VatsimExtendedPilot,
-    VatsimShortenedController, IpfsUser, PlaneSpottersPhoto,
+    VatsimShortenedController,
+    IpfsUser,
+    PlaneSpottersPhoto,
 } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';

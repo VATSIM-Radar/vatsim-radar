@@ -1637,6 +1637,7 @@ export function getAircraftIcon(aircraft: Partial<VatsimShortenedAircraft> | Vat
         case 'LS8':
         case 'DG80':
         case 'DG1T':
+        case 'GLIM':
             return aircraftIcons.glid;
         case 'BT36':
         case 'B36T':

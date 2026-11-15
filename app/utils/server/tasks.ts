@@ -13,7 +13,8 @@ import {
     updateAirlines,
     updateSectorsData,
     updateNattrak,
-    updateTransceivers, updateAirlinesCodes,
+    updateTransceivers,
+    updateAirlinesCodes,
     updateBookings,
 } from '~/utils/server/vatsim/update';
 import { updateVatSpy } from '~/utils/server/vatsim/vatspy';

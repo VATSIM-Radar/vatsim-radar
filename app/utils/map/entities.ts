@@ -15,7 +15,9 @@ import type { HeadingPair } from '~/utils/map/distance';
 import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import type {
     NavDataFlightLevel,
-    NavigraphNavDataAirportWaypointConstraints, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
+    NavigraphNavDataAirportWaypointConstraints,
+    NavigraphNavDataEnrouteWaypointPartial,
+    NavigraphNavDataShort,
 } from '~/utils/server/navigraph/navdata/types';
 
 export const globalMapEntities = {

@@ -99,7 +99,10 @@ export function getAircraftDynamicScale({
 }
 
 export function getResolvedScale({ scale, width, height, onGround }: {
-    scale?: number | null; width: number; height: number; onGround?: boolean;
+    scale?: number | null;
+    width: number;
+    height: number;
+    onGround?: boolean;
 }): [width: number, height: number, scale: number] {
     let resolvedScale = typeof scale === 'number' ? scale : getKeyedValueFromSettings('map.preferences.aircraft.scale');
 

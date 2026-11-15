@@ -1,11 +1,15 @@
 # Changelog
 
-# [2.0.5-1-next]
+# [2.1.0-alpha.1]
+
+- Improve ATIS runway detection by `fabienn-c`
+
+# [2.0.5-1]
 
 - Add WorldFlgiht team highlight
 - Improved speed of aircraft scale update on map
 
-# [2.0.5-next]
+# [2.0.5]
 
 - Add local time and sunrise/sunset to airport info by fabienn-c (1444380)
 - Extend stand markers with Navigraph information by bjerrecs (1581824) - Navigraph Unlimited only

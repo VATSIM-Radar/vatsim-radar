@@ -114,7 +114,8 @@ await defineCronJob('*/10 * * * * *', async () => {
         try {
             shortBars[stopbar.airportICAO] ??= [];
             shortBars[stopbar.airportICAO].push({
-                runway: stopbar.runway, bars: Object.entries(JSON.parse(stopbar.bars)) as [string, boolean][],
+                runway: stopbar.runway,
+                bars: Object.entries(JSON.parse(stopbar.bars)) as [string, boolean][],
             });
         }
         catch { /* empty */ }

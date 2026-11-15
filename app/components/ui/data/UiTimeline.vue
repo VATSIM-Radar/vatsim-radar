@@ -186,7 +186,11 @@ import UiScrollText from './UiScrollText.vue';
 import { useStore } from '~/store';
 
 interface TimelineTime {
-    id: number; date: Date; formattedDate: string; formattedTime: string; day: number;
+    id: number;
+    date: Date;
+    formattedDate: string;
+    formattedTime: string;
+    day: number;
 }
 
 const props = defineProps({

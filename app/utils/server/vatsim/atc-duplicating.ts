@@ -13,16 +13,40 @@ interface DuplicatingSettingV2 {
     description: string;
 
     /**
-     * @description ATIS line: callsign
-     */
+   * @description ATIS line: callsign
+   */
     mapping: Record<string, string>;
 }
 
 export const duplicatingSettings = [
     {
+        description: 'CZQM Terminal Airspace',
+        authorCid: 1454008,
+        prefixes: ['CYHZ', 'CYQM', 'CYSJ', 'CZQM', 'CYZX'],
+        suffixes: ['APP'],
+        mapping: {
+            CYHZ: 'CYHZ_APP',
+            CYQM: 'CYQM_APP',
+            CYSJ: 'CYSJ_APP',
+            CYFC: 'CYSJ_APP',
+            CYZX: 'CYZX_APP',
+        },
+    },
+    {
         description: 'ZOA/NCT Area/TRACON',
         authorCid: 1275389,
-        prefixes: ['NCT', 'SFO', 'OAK', 'SJC', 'SMF', 'RNO', 'MRY', 'MOD', 'BAY', 'ZOA'],
+        prefixes: [
+            'NCT',
+            'SFO',
+            'OAK',
+            'SJC',
+            'SMF',
+            'RNO',
+            'MRY',
+            'MOD',
+            'BAY',
+            'ZOA',
+        ],
         suffixes: ['APP', 'DEP', 'CTR', 'TMU'],
         mapping: {
             'Area A': 'SJC_APP',
@@ -155,7 +179,25 @@ export const duplicatingSettings = [
     {
         description: 'ZJX Center and TRACONs',
         authorCid: 1487925,
-        prefixes: ['F11', 'ZJX', 'DAB', 'JAX', 'VAD', 'TLH', 'PAM', 'VPS', 'OZR', 'P31', 'SAV', 'NBC', 'CHS', 'SSC', 'CAE', 'MYR', 'FLO'],
+        prefixes: [
+            'F11',
+            'ZJX',
+            'DAB',
+            'JAX',
+            'VAD',
+            'TLH',
+            'PAM',
+            'VPS',
+            'OZR',
+            'P31',
+            'SAV',
+            'NBC',
+            'CHS',
+            'SSC',
+            'CAE',
+            'MYR',
+            'FLO',
+        ],
         suffixes: ['CTR', 'TMU', 'APP', 'DEP'],
         mapping: {
             'F11 TRACON': 'MCO_E_APP',

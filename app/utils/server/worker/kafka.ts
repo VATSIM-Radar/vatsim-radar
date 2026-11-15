@@ -1,4 +1,4 @@
-import { Kafka } from 'kafkajs';
+import kafkajs from 'kafkajs';
 import {
     kafkaAddClient,
     kafkaRemoveClient,
@@ -8,6 +8,10 @@ import {
     kafkaUpdatePlan,
 } from '~/utils/server/vatsim/kafka';
 import { getRedisSync } from '~/utils/server/redis.ts';
+import { codec } from 'kafka-lz4-lite';
+
+const { Kafka, CompressionCodecs, CompressionTypes } = kafkajs;
+CompressionCodecs[CompressionTypes.LZ4] = codec;
 
 export let fastUpdatesEnabled = true;
 

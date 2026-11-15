@@ -2,7 +2,10 @@ import { dbPartialRequest } from '~/utils/server/navigraph/db';
 import type {
     NavDataProcedure,
     NavdataProcessFunction,
-    NavigraphNavDataAirportWaypoint, NavigraphNavDataApproach, NavigraphNavDataSid, NavigraphNavDataStar,
+    NavigraphNavDataAirportWaypoint,
+    NavigraphNavDataApproach,
+    NavigraphNavDataSid,
+    NavigraphNavDataStar,
 } from '~/utils/server/navigraph/navdata/types';
 import { addNavDataRunways, buildNavDataWaypoint } from '~/utils/server/navigraph/navdata/utils';
 import { sleep } from '~/utils';
