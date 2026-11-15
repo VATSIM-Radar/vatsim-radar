@@ -17,6 +17,7 @@ import type { AwosRunway, RunwayWind, RunwayWindLimits } from '~/utils/shared/aw
 import type { NavigraphRunway } from '~/types/data/navigraph';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 
+/** @description Live ATIS stations of one airport */
 export interface AirportAtisStations {
     /** Combined ATIS, e.g. EGLL_ATIS */
     combined?: VatsimShortenedController;
@@ -26,6 +27,7 @@ export interface AirportAtisStations {
     arrival?: VatsimShortenedController;
 }
 
+/** @description Runway designators announced on the ATIS, e.g. ["27R"] */
 export interface AirportAtisRunways {
     departure: string[];
     arrival: string[];
@@ -115,7 +117,7 @@ export function fetchAwosRunways(icao: string): Promise<AwosRunway[]> {
     return request;
 }
 
-/** Wind and status of one shown runway end: one row of the AWOS runway table and one runway on the wind dial */
+/** @description Wind and status of one shown runway end: one row of the AWOS runway table and one runway on the wind dial */
 export interface AwosRunwayWind extends AwosRunway {
     wind: RunwayWind | null;
     /** Values above the ICAO runway selection limits */
@@ -128,6 +130,7 @@ export interface AwosRunwayWind extends AwosRunway {
     atisArrival: boolean;
 }
 
+/** @description QNH change of one airport, shown on the QNH tile until acknowledged */
 export interface AwosQnhChange {
     /** QNH the change is measured from (the last value before the first unacknowledged change), in its own unit */
     previous: NonNullable<IMetar['altimeter']>;
@@ -160,7 +163,7 @@ const lastQnh = new Map<string, NonNullable<IMetar['altimeter']>>();
 const qnhChanges = ref<Record<string, AwosQnhChange>>({});
 
 /**
- * AWOS data of one airport: parsed METAR, ATIS, runways with their wind components and the QNH change alert.
+ * @description AWOS data of one airport: parsed METAR, ATIS, runways with their wind components and the QNH change alert.
  * Returns a reactive object, so use it without destructuring: const awos = useAirportAwos(...); awos.runways.winds
  */
 export function useAirportAwos(icaoRef: MaybeRefOrGetter<string | null>, metarRef: MaybeRefOrGetter<string | null | undefined>) {

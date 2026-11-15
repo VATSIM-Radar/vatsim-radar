@@ -154,7 +154,7 @@
                 </ui-text>
 
                 <ui-text
-                    v-else-if="awos.runways.isManual && !awos.runways.winds.length"
+                    v-else-if="awos.runways.isManual && awos.runways.all.length && !awos.runways.winds.length"
                     color="lightGray500"
                     type="caption"
                 >
