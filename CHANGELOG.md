@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.1.0-alpha.1]
+
+- Improve ATIS runway detection by `fabienn-c`
+
 # [2.0.5-1]
 
 - Add WorldFlgiht team highlight
