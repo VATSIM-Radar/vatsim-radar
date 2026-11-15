@@ -2417,7 +2417,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.8.0, @eslint-community/eslint-utils@npm:^4.9.1":
+"@eslint-community/eslint-utils@npm:^4.10.1, @eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.8.0, @eslint-community/eslint-utils@npm:^4.9.1":
   version: 4.10.1
   resolution: "@eslint-community/eslint-utils@npm:4.10.1"
   dependencies:
@@ -5010,7 +5010,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:5.10.0, @stylistic/eslint-plugin@npm:^5.10.0":
+"@stylistic/eslint-plugin@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@stylistic/eslint-plugin@npm:6.0.0"
+  dependencies:
+    "@eslint-community/eslint-utils": "npm:^4.10.1"
+    "@typescript-eslint/types": "npm:^8.72.2"
+    "@typescript-eslint/visitor-keys": "npm:^8.72.2"
+    espree: "npm:^11.2.0"
+    picomatch: "npm:^4.0.7"
+  peerDependencies:
+    eslint: ^9.0.0 || ^10.0.0
+    oxlint: ^1.55.0
+  peerDependenciesMeta:
+    eslint:
+      optional: true
+    oxlint:
+      optional: true
+  checksum: 10c0/8820cece908d12e4e3f4a5443148128721ed4fff93f954855424b2b53f28697734d739d8a37661171dd34c2f91436d107b80e5e9ab3e37ea7aee83ef738487e6
+  languageName: node
+  linkType: hard
+
+"@stylistic/eslint-plugin@npm:^5.10.0":
   version: 5.10.0
   resolution: "@stylistic/eslint-plugin@npm:5.10.0"
   dependencies:
@@ -5695,7 +5716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/visitor-keys@npm:8.72.2":
+"@typescript-eslint/visitor-keys@npm:8.72.2, @typescript-eslint/visitor-keys@npm:^8.72.2":
   version: 8.72.2
   resolution: "@typescript-eslint/visitor-keys@npm:8.72.2"
   dependencies:
@@ -16047,7 +16068,7 @@ __metadata:
     "@prisma/client": "npm:7.10.1"
     "@protomaps/basemaps": "npm:5.7.2"
     "@questdb/nodejs-client": "npm:5.0.0"
-    "@stylistic/eslint-plugin": "npm:5.10.0"
+    "@stylistic/eslint-plugin": "npm:6.0.0"
     "@stylistic/stylelint-plugin": "npm:6.0.1"
     "@turf/bearing": "npm:7.4.0"
     "@turf/boolean-point-in-polygon": "npm:7.4.0"

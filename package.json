@@ -95,7 +95,7 @@
     "@navigraph/amdb": "1.1.4",
     "@nuxt/eslint": "1.17.0",
     "@nuxtjs/stylelint-module": "5.2.0",
-    "@stylistic/eslint-plugin": "5.10.0",
+    "@stylistic/eslint-plugin": "6.0.0",
     "@stylistic/stylelint-plugin": "6.0.1",
     "@types/adm-zip": "0.6.0",
     "@types/better-sqlite3": "9.6.0",
