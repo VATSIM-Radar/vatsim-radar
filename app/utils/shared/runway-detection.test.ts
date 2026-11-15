@@ -53,6 +53,10 @@ describe('getActiveRunways', () => {
             expectRunways('RWY IN USE FOR DEPARTURES 06 LEFT.. RWY 06 RIGHT CLOSED,AVAILABLE ON REQUEST', { departure: ['06L'] });
         });
 
+        it('ignores touchdown-zone reports', () => {
+            expectRunways('LDG RWY 25R AND DEP RWY 25L.. 1300Z. WIND RWY 25R TDZ 210/04KT', { departure: ['25L'], arrival: ['25R'] });
+        });
+
         it('keeps a runway when the closure starts a new sentence', () => {
             expectRunways('DEP RWY 27. CLOSED TWY A.', { departure: ['27'] });
         });
@@ -88,6 +92,34 @@ describe('getActiveRunways', () => {
             expectRunways('LNDG AND DEPG RWYS 5L, 5R.', { departure: ['05L', '05R'], arrival: ['05L', '05R'] });
             expectRunways('ARVNG AND DEPTG RWY 8 AND RWY 15.', { departure: ['08', '15'], arrival: ['08', '15'] });
             expectRunways('LANDING RUNWAY 34. TAKE OFF RUNWAY 16 34 TRANSITION LEVEL 60', { departure: ['16', '34'], arrival: ['34'] });
+        });
+    });
+
+    describe('broad departure/arrival words', () => {
+        it('do not pick up earlier numbers that were not written like runways', () => {
+            expectRunways('TEMPERATURE 15 DEWPOINT 12. ARRIVALS EXPECT ILS Z APPROACH RWY 27.', { arrival: ['27'] });
+        });
+
+        it('do not take later numbers that are not written like runways', () => {
+            expectRunways('ALL DEPARTURES CONTACT TOWER. TEMPERATURE 15', {});
+        });
+
+        it('only connect runways within their own sentence', () => {
+            expectRunways('ILS VICTOR APPROACH 35L.. DPTG RWY 35R..', { departure: ['35R'] });
+            expectRunways('RWY 13 FOR DEPARTURE. RWY 13 FOR ARRIVAL.', { departure: ['13'], arrival: ['13'] });
+            expectRunways('ALL DEPARTURES CONTACT TOWER. FL 80. RWY 27', {});
+        });
+
+        it('still read runways before and after them', () => {
+            expectRunways('RWY 16 RIGHT FOR DEPARTURE.', { departure: ['16R'] });
+            expectRunways('RWY IN USE FOR DEPARTURES 13.. CDP VOR INOPERATIVE', { departure: ['13'] });
+            expectRunways('EXPECT RWY 12 OR RWY 30 FOR DEPARTURES. EXPECT ILS APPROACH RWY 30.', { departure: ['12', '30'], arrival: ['30'] });
+        });
+    });
+
+    describe('5-word window', () => {
+        it('counts numbers that are not runways like any other word', () => {
+            expectRunways('TEMPERATURE 15 DEWPOINT 5 QNH 1013 ILS RWY 27', { arrival: ['27'] });
         });
     });
 
