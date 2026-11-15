@@ -6,11 +6,13 @@ import { createError } from 'h3';
 import jwksClient from 'jwks-rsa';
 import {
     checkNavigraphToken,
+    cycles,
     navigraphAccessKey,
     navigraphCurrentDb,
     navigraphOutdatedDb,
 } from '~/utils/server/navigraph/db';
 import { handleH3Exception } from '~/utils/server/h3';
+import { getRedisSync, setRedisSync } from '~/utils/server/redis';
 import type { ShortUser } from '~/utils/server/user';
 import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { $fetch } from 'ofetch';
@@ -121,6 +123,25 @@ export function getNavigraphGwtResult(token: string) {
     });
 }
 
+/** Navigraph runways and gates only change with the AIRAC cycle, which is part of the cache key */
+const NAVIGRAPH_AIRPORT_CACHE_MS = 1000 * 60 * 60 * 24;
+
+/**
+ * Returns a Navigraph airport query result from Redis, or runs the query and keeps its result for 24 hours.
+ * When Redis is unavailable, the query simply runs every time.
+ */
+async function getCachedNavigraphData<T>(key: string, query: () => Promise<T>): Promise<T> {
+    const cached = await getRedisSync(key).catch(() => null);
+    if (cached) return JSON.parse(cached) as T;
+
+    const data = await query();
+    setRedisSync(key, JSON.stringify(data), NAVIGRAPH_AIRPORT_CACHE_MS).catch(console.error);
+    return data;
+}
+
+/** AIRAC cycle of the database the user gets: the current one for subscribers, the outdated one for everyone else */
+const getUserCycle = (user: ShortUser | null) => (user?.hasFms ? cycles.current : cycles.outdated);
+
 export async function getNavigraphRunways({ user, icao, event }: {
     user: ShortUser | null;
     icao: string;
@@ -130,42 +151,51 @@ export async function getNavigraphRunways({ user, icao, event }: {
         const db = user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb;
         if (!db) return [];
 
-        const runways: NavigraphRunway[] = [];
+        return await getCachedNavigraphData(`navigraph-runways-${ getUserCycle(user) }-${ icao }`, async () => {
+            const runways: NavigraphRunway[] = [];
 
-        const req = db.prepare(`SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = ? ORDER BY runway_identifier ASC`);
+            const req = db.prepare(`SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = ? ORDER BY runway_identifier ASC`);
 
-        const rows = await req.all(icao) as any[];
+            const rows = await req.all(icao) as any[];
 
-        for (const row of rows) {
-            const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
+            for (const row of rows) {
+                const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
 
-            runways.push({
-                ...row,
-                runway_latitude: coords[1],
-                runway_longitude: coords[0],
-                landing_threshold_elevation: parseFloat(row.landing_threshold_elevation),
-                runway_length: parseFloat(row.runway_length),
-                runway_width: parseFloat(row.runway_width),
-                runway_magnetic_bearing: parseFloat(row.runway_magnetic_bearing),
-                runway_true_bearing: parseFloat(row.runway_true_bearing),
-            });
-        }
+                runways.push({
+                    ...row,
+                    runway_latitude: coords[1],
+                    runway_longitude: coords[0],
+                    landing_threshold_elevation: parseFloat(row.landing_threshold_elevation),
+                    runway_length: parseFloat(row.runway_length),
+                    runway_width: parseFloat(row.runway_width),
+                    runway_magnetic_bearing: parseFloat(row.runway_magnetic_bearing),
+                    runway_true_bearing: parseFloat(row.runway_true_bearing),
+                });
+            }
 
-        return runways;
+            return runways;
+        });
     }
     catch (e) {
         handleH3Exception(event, e);
     }
 }
 
-export async function getNavigraphGates({ user, icao, event }: {
+export async function getNavigraphGates({ user, icao }: {
     user: ShortUser | null;
     icao: string;
     event?: H3Event;
+}): Promise<NavigraphGate[]> {
+    if (!navigraphCurrentDb || !navigraphOutdatedDb) return [];
+
+    return getCachedNavigraphData(`navigraph-gates-${ getUserCycle(user) }-${ icao }`, () => queryNavigraphGates({ user, icao }));
+}
+
+async function queryNavigraphGates({ user, icao }: {
+    user: ShortUser | null;
+    icao: string;
 }) {
     let gates: NavigraphGate[] = [];
-
-    if (!navigraphCurrentDb || !navigraphOutdatedDb) return gates;
 
     const req = (user?.hasFms ? navigraphCurrentDb! : navigraphOutdatedDb!).prepare(`SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_pb_gates WHERE airport_identifier = ? ORDER BY gate_identifier ASC`);
 
