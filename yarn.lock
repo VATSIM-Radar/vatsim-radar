@@ -7280,13 +7280,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:13.1.1":
-  version: 13.1.1
-  resolution: "better-sqlite3@npm:13.1.1"
+"better-sqlite3@npm:13.2.0":
+  version: 13.2.0
+  resolution: "better-sqlite3@npm:13.2.0"
   dependencies:
     node-addon-api: "npm:^8.0.0"
     node-gyp: "npm:latest"
-  checksum: 10c0/46a6ec5f0c1d4ea055369af8354b5257e68bc4a3edae3b9ee970fef78d094db0c495788bb10c956b4838a4ff4de18b59083729c31f06f1ccb9e30c69ada2f118
+  checksum: 10c0/b1073206f9fcc73ff31300c90805a71ade2b93b5c43cc2db7117f3f3decd82c9991018f8ffbe58f57310b6b037bb4a6d0986b32e5c3b1266be71410e8fa148ad
   languageName: node
   linkType: hard
 
@@ -16293,7 +16293,7 @@ __metadata:
     "@vueuse/core": "npm:15.0.0"
     "@vueuse/nuxt": "npm:15.0.0"
     adm-zip: "npm:0.6.1"
-    better-sqlite3: "npm:13.1.1"
+    better-sqlite3: "npm:13.2.0"
     chardet: "npm:2.2.0"
     chart.js: "npm:4.6.1"
     chokidar: "npm:6.0.0"
