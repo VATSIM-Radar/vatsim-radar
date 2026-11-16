@@ -16,6 +16,7 @@ const iframeWhitelist = [
     'vatrus.info',
     'efb.teamcovey.org',
     'vatsim-scandinavia.org',
+    'vatca.org',
 ];
 
 export async function useIframeHeader() {

@@ -2,10 +2,12 @@ import type {
     NavDataProcedure,
     NavigraphNavDataApproach,
     NavigraphNavDataApproachShort,
-    NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
+    NavigraphNavDataEnrouteWaypointPartial,
+    NavigraphNavDataShort,
     NavigraphNavDataShortProcedures,
     NavigraphNavDataStar,
-    NavigraphNavDataStarShort, ShortAirway,
+    NavigraphNavDataStarShort,
+    ShortAirway,
 } from '~/utils/server/navigraph/navdata/types';
 import { clientDB } from '~/composables/render/idb';
 import type { IDBNavigraphProcedures } from '~/composables/render/idb';
@@ -1078,7 +1080,8 @@ async function getCachedSids(procedures: IDBNavigraphProcedures, airport: string
                 const procedure = procedures.sids.findIndex(x => x.identifier === key);
                 if (typeof procedure === 'number' && procedure !== -1) {
                     return [
-                        key, {
+                        key,
+                        {
                             ...value,
                             procedure: (await getNavigraphAirportProcedure('sids', airport, procedure))!,
                         },
@@ -1096,7 +1099,8 @@ async function getCachedStars(procedures: IDBNavigraphProcedures, airport: strin
                 const procedure = procedures.stars.findIndex(x => x.identifier === key);
                 if (typeof procedure === 'number' && procedure !== -1) {
                     return [
-                        key, {
+                        key,
+                        {
                             ...value,
                             procedure: (await getNavigraphAirportProcedure('stars', airport, procedure))!,
                         },
@@ -1114,7 +1118,8 @@ async function getCachedApproaches(procedures: IDBNavigraphProcedures, airport: 
                 const procedure = procedures.approaches.findIndex(x => `${ x.name }-${ x.runway }` === key);
                 if (typeof procedure === 'number' && procedure !== -1) {
                     return [
-                        key, {
+                        key,
+                        {
                             ...value,
                             procedure: (await getNavigraphAirportProcedure('approaches', airport, procedure))!,
                         },

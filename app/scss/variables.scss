@@ -32,7 +32,7 @@ $atisColor: $orange600;
 $ctrColor: $teal500;
 $appColor: $citrus600;
 
-@mixin mobile(){
+@mixin mobile() {
     @media all and (max-width: 1365px) {
         @content;
     }
