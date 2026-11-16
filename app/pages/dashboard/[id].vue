@@ -482,7 +482,7 @@ onMounted(() => {
     clockInterval = setInterval(() => {
         now.value = new Date();
     }, 1000);
-    weatherInterval = setInterval(refreshWeather, 1000 * 60 * 5);
+    weatherInterval = setInterval(refreshWeather, 1000 * 60);
     window.addEventListener('message', receiveMessage);
     store.activeDashboard = dashboard.value?.json ?? null;
 });

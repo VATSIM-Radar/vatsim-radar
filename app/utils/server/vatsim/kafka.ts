@@ -1,6 +1,7 @@
 import type {
     KafkaAD,
     KafkaAddClient,
+    KafkaAtis,
     KafkaDelPlan,
     KafkaPD,
     KafkaPlan,
@@ -42,6 +43,7 @@ export function kafkaRemoveClient(event: KafkaRmClient) {
     updatedPilots.delete(callsign);
     pilotPositionTimestamps.delete(callsign);
     pilotVerticalSpeedEntries.delete(callsign);
+    delete atisQueue[callsign];
 
     if (wssPilots[callsign]) {
         wssPilots[callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
@@ -263,4 +265,50 @@ export function kafkaUpdatePlan(event: KafkaPlan) {
 export function kafkaRemovePlan(event: KafkaDelPlan) {
     /* const item = radarStorage.vatsim.kafka.prefiles.find(x => x.callsign === event.Callsign);
     if (item) item.deleted = true;*/
+}
+
+export const atisQueue: Record<string, string[]> = {};
+
+export function kafkaUpdateAtis(event: KafkaAtis) {
+    if (!radarStorage.vatsim.kafka.atc[event.From]) {
+        const atc = radarStorage.vatsim.data?.controllers.find(x => x.callsign === event.From) || radarStorage.vatsim.data?.atis.find(x => x.callsign === event.From);
+
+        if (atc) {
+            radarStorage.vatsim.kafka.atc[event.From] = {
+                cid: atc.cid,
+                server: atc.server,
+                callsign: atc.callsign,
+                name: atc.name,
+                date: Date.now(),
+                deleted: false,
+            };
+        }
+        else {
+            return;
+        }
+    }
+
+    if (event.Type === 'A') {
+        radarStorage.vatsim.kafka.atc[event.From].date = Date.now();
+        radarStorage.vatsim.kafka.atc[event.From].atis_code = event.Data;
+    }
+    if (event.Type === 'Z') {
+        const time = event.Data.match(/^([01]\d|2[0-3])([0-5]\d)z?$/);
+
+        if (time) {
+            radarStorage.vatsim.kafka.atc[event.From].date = Date.now();
+            radarStorage.vatsim.kafka.atc[event.From].logoffTime = `${ time[1] }:${ time[2] }z`;
+        }
+    }
+
+    if (event.Type === 'T') {
+        atisQueue[event.From] ??= [];
+        atisQueue[event.From].push(event.Data);
+    }
+
+    if (event.Type === 'E') {
+        radarStorage.vatsim.kafka.atc[event.From].date = Date.now();
+        radarStorage.vatsim.kafka.atc[event.From].text_atis = atisQueue[event.From];
+        delete atisQueue[event.From];
+    }
 }

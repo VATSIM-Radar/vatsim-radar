@@ -5,7 +5,18 @@
         type="caption"
     >
         <div
-            v-if="controller.booking && showBooking && new Date(controller.booking.start).getTime() < dataStore.time.value"
+            v-if="controller.logoffTime"
+            class="atc-time_section"
+        >
+            <div class="atc-time_text">
+                Logoff time:
+            </div>
+            <ui-chip class="atc-time_info">
+                {{ controller.logoffTime }}
+            </ui-chip>
+        </div>
+        <div
+            v-else-if="controller.booking && showBooking && new Date(controller.booking.start).getTime() < dataStore.time.value"
             class="atc-time_section"
         >
             <div class="atc-time_text">

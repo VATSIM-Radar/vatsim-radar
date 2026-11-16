@@ -437,6 +437,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             duplicatedBy: atc.dpBy,
             frequency: _vatsimData.map.frequencies[atc.fr ?? -1],
             frequencies: atc.frq?.map(x => _vatsimData.map.frequencies[x]),
+            logoffTime: atc.lgf,
         });
     }
 
@@ -466,6 +467,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             frequency: _vatsimData.map.frequencies[atc.fr ?? -1],
             frequencies: atc.frq?.map(x => _vatsimData.map.frequencies[x]),
             atis_code: _vatsimData.map.codes[atc.co ?? -1],
+            logoffTime: atc.lgf,
         });
     }
 
