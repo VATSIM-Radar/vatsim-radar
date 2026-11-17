@@ -318,6 +318,9 @@ defineCronJob('* * * * * *', async () => {
 
             radarStorage.vatsim.data!.controllers.forEach(controller => {
                 const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
+
+                if (newerData && newerData.logoffTime !== undefined) controller.logoffTime = newerData.logoffTime;
+
                 if (!newerData || updateTimestamp > newerData.date) return;
 
                 if (newerData.deleted) return toDelete.atc.add(controller.callsign);
