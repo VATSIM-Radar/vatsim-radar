@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.0.5-3-next]
+# [2.0.5-3]
 
 - Significantly improved metar/taf load speed
 - Fixed metar/taf sometimes not loading when opening airport overlay
