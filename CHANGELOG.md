@@ -8,6 +8,7 @@
 - Significantly improved bookings update speed by moving to new VATSIM booking system
 - Significantly improved speed of aircraft and controllers appear on map after connecting to network
 - Weather in airport dashboard now updates more often
+- Significantly improved conditions request load when a lot of airport need to be loaded
 
 # [2.0.5-1]
 
