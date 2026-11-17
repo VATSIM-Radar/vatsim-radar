@@ -110,6 +110,7 @@ export const DashboardSettingsSchema = v.object({
     mapSize: v.optional(v.picklist(dashboardMapSizes), 50),
     displayMode: v.optional(v.picklist(dashboardDisplayModes), 'both'),
     showMetar: v.optional(v.boolean(), true),
+    showAwos: v.optional(v.boolean(), true),
     showArrivalTracks: v.optional(v.boolean(), true),
     airportTrafficOnly: v.optional(v.boolean(), false),
     openColumns: v.optional(v.array(v.picklist(dashboardColumns)), () => [...dashboardColumns]),

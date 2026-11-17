@@ -94,11 +94,16 @@
                     <div class="airport_column__title">
                         <ui-tabs
                             v-model="weatherTab"
-                            :tabs="{ metar: { title: 'METAR' }, taf: { title: 'TAF' } }"
+                            :tabs="{ metar: { title: 'METAR' }, taf: { title: 'TAF' }, awos: { title: 'AWOS' } }"
                         />
                     </div>
 
                     <airport-metar v-if="weatherTab === 'metar'"/>
+                    <airport-awos
+                        v-else-if="weatherTab === 'awos'"
+                        :icao="airportData.icao"
+                        :metar="airportData.airport?.metar ?? null"
+                    />
                     <airport-taf v-else/>
                 </div>
             </div>
@@ -192,6 +197,7 @@ import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/compo
 import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
+import AirportAwos from '~/components/features/vatsim/airport/AirportAwos.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { Ref } from 'vue';
@@ -429,7 +435,7 @@ onMounted(() => {
                 if (query === 'info' || query === 'proc') airportTab.value = query as any;
                 break;
             case 'weather':
-                if (query === 'metar' || query === 'taf') weatherTab.value = query as any;
+                if (query === 'metar' || query === 'taf' || query === 'awos') weatherTab.value = query as any;
                 break;
             case 'tracks':
                 arrivalTracks.value = query === '1';

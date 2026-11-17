@@ -37,6 +37,9 @@
                         <ui-toggle v-model="payload.json.showMetar">
                             Show METAR window
                         </ui-toggle>
+                        <ui-toggle v-model="payload.json.showAwos">
+                            Show AWOS panel
+                        </ui-toggle>
                         <ui-toggle v-model="payload.json.showArrivalTracks">
                             Show Arrival Tracks
                         </ui-toggle>
@@ -543,6 +546,7 @@ function createPayload(dashboard: UserDashboard | null = null): DashboardPayload
                 mapSize: 50,
                 displayMode: 'both',
                 showMetar: true,
+                showAwos: true,
                 showArrivalTracks: true,
                 openColumns: [...dashboardColumns],
                 predictedWindow: { ...dashboardPredictedDefaults },
@@ -570,6 +574,7 @@ function createPayload(dashboard: UserDashboard | null = null): DashboardPayload
             mapSize: json.mapSize ?? 50,
             displayMode: json.displayMode ?? 'both',
             showMetar: json.showMetar ?? true,
+            showAwos: json.showAwos ?? true,
             showArrivalTracks: json.showArrivalTracks ?? true,
             openColumns: json.openColumns ? [...json.openColumns] : [...dashboardColumns],
             predictedWindow: {
