@@ -97,8 +97,7 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
                     !Array.isArray(val.cids) ||
                     !val.cids.every(x => isNumber(x) && x > 0 && x < 999999999999999) ||
                     val.cids.length > MAX_FILTER_ARRAY_VALUE
-                )
-            ) return false;
+                )) return false;
 
             if ('strategy' in val && (typeof val.strategy !== 'string' || !['and', 'or'].includes(val.strategy))) return false;
 

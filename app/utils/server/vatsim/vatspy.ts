@@ -27,7 +27,8 @@ function parseDatFile<S extends Record<string, { title: string; children: Record
 
     for (
         const [
-            section, {
+            section,
+            {
                 title,
                 children,
             },

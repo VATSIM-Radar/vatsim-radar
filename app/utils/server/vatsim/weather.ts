@@ -8,82 +8,86 @@ interface CachedMetar {
     date: number;
 }
 
-export async function getAirportWeather(icao: string): Promise<{ metar: string | null; taf: string | null } | null> {
-    const redisMetar = await getRedisSync(`airport-${ icao }-metar`);
+type AirportWeatherResponse = { metar: string | null; taf: string | null } | null;
 
-    const cachedMetar = redisMetar ? JSON.parse(redisMetar) as CachedMetar : undefined;
+export async function getAirportWeather(icao: string[]): Promise<Record<string, AirportWeatherResponse>>;
+export async function getAirportWeather(icao: string): Promise<AirportWeatherResponse>;
+export async function getAirportWeather(icao: string | string[]): Promise<Record<string, AirportWeatherResponse> | AirportWeatherResponse> {
+    const icaos = typeof icao === 'string' ? [icao] : icao;
 
-    const data: { metar: string | null; taf: string | null } = {
-        metar: null,
-        taf: null,
-    };
+    const cachedMetars: Record<string, CachedMetar | null> = Object.fromEntries(await Promise.all(icaos.map(async icao => {
+        const redisData = await getRedisSync(`airport-${ icao }-metar`);
 
-    if (cachedMetar?.metar) {
-        data.metar = cachedMetar.metar;
-        data.taf = cachedMetar.taf ?? null;
-    }
-    else {
+        return [icao, redisData ? JSON.parse(redisData) : null];
+    })));
+
+    const metarsToFetch = icaos.filter(x => !cachedMetars[x]);
+
+    if (metarsToFetch.length) {
         try {
-            let [metar, noaaMetar, taf] = await Promise.all([
-                $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text', headers: getVATSIMIdentHeaders() }).catch(console.error),
-                $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
-                $fetch<string>(`https://aviationweather.gov/api/data/taf?ids=${ icao }&format=raw`, { responseType: 'text' }).catch(() => {}),
+            const [metar, taf] = await Promise.all([
+                $fetch<string>(`https://aviationweather.gov/api/data/metar?ids=${ metarsToFetch.join(',') }&format=raw`, { responseType: 'text' }).catch(() => ''),
+                $fetch<string>(`https://aviationweather.gov/api/data/taf?ids=${ metarsToFetch.join(',') }&format=raw`, { responseType: 'text' }).catch(() => ''),
             ]);
 
-            if (noaaMetar) {
-                noaaMetar = noaaMetar.split('\n')[1] ?? noaaMetar;
+            for (const entry of metar.split('\n')) {
+                const splitted = entry.split(' ');
+                const icao = splitted[1];
+                if (!metarsToFetch.includes(icao)) continue;
+
+                cachedMetars[icao] = {
+                    icao,
+                    metar: splitted.slice(1, splitted.length).join(' '),
+                    taf: null,
+                    date: Date.now(),
+                };
             }
 
-            data.metar = metar ?? noaaMetar ?? null;
+            let currentIcao = '';
 
-            if (metar && noaaMetar && metar !== noaaMetar) {
-                const vatsimDay = Number(metar.slice(5, 7));
-                const noaaDay = Number(noaaMetar.slice(5, 7));
-                const currentDate = new Date().getUTCDate();
+            for (const entry of taf.split('\n')) {
+                const splitted = entry.split(' ');
+                const icao = splitted[0] === 'TAF' ? (cachedMetars[splitted[1]] ? splitted[1] : splitted[2]) : currentIcao;
+                if (!metarsToFetch.includes(icao) || !cachedMetars[icao]) {
+                    currentIcao = '';
+                    continue;
+                }
 
-                if (noaaDay === currentDate) {
-                    if (noaaDay !== vatsimDay) {
-                        data.metar = noaaMetar;
-                    }
-                    else {
-                        const vatsimTime = Number(metar.slice(7, 11));
-                        const noaaTime = Number(noaaMetar.slice(7, 11));
+                currentIcao = icao;
 
-                        if (!isNaN(vatsimTime) && !isNaN(noaaTime) && noaaTime > vatsimTime) data.metar = noaaMetar;
+                if (cachedMetars[icao].taf) cachedMetars[icao].taf += '\n' + entry;
+                else cachedMetars[icao].taf = entry;
+            }
+
+            for (const icao of metarsToFetch) {
+                if (cachedMetars[icao]) await setRedisSync(`airport-${ icao }-metar`, JSON.stringify(cachedMetars[icao]), 1000 * 60 * 3);
+                else {
+                    const metar = await $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text', headers: getVATSIMIdentHeaders() }).catch(console.error);
+                    if (metar) {
+                        cachedMetars[icao] = {
+                            icao,
+                            metar,
+                            taf: null,
+                            date: Date.now(),
+                        };
+
+                        await setRedisSync(`airport-${ icao }-metar`, JSON.stringify(cachedMetars[icao]), 1000 * 60 * 3);
                     }
                 }
-            }
-
-            if (taf) data.taf = taf;
-
-            // const splitTaf = taf?.split('\n');
-            // if (splitTaf) {
-            //     data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
-            // }
-
-            if (data.metar) {
-                await setRedisSync(`airport-${ icao }-metar`, JSON.stringify({
-                    icao,
-                    metar: data.metar,
-                    taf: data.taf,
-                    date: Date.now(),
-                }), 1000 * 60 * 3);
             }
         }
         catch (e) {
             console.error(e);
-
-            if (cachedMetar?.metar) {
-                data.metar = cachedMetar.metar;
-            }
-
-            if (cachedMetar?.taf) {
-                data.taf = cachedMetar.taf;
-            }
-
-            if (!data.metar && !data.taf) return null;
         }
     }
 
+    const data = Object.fromEntries(Object.entries(cachedMetars).map(([icao, x]) => [icao, (x
+        ? {
+            metar: x.metar,
+            taf: x.taf,
+        }
+        : null) satisfies AirportWeatherResponse as AirportWeatherResponse]));
+
+    if (typeof icao === 'string') return data[icao];
     return data;
 }

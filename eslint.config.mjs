@@ -2,7 +2,7 @@ import withNuxt from './.nuxt/eslint.config.mjs';
 import StylisticPlugin from '@stylistic/eslint-plugin';
 
 export default withNuxt([
-    StylisticPlugin.configs['recommended-flat', 'disable-legacy'],
+    StylisticPlugin.configs['disable-legacy'],
     {
         plugins: {
             stylistic: StylisticPlugin,
@@ -21,9 +21,24 @@ export default withNuxt([
                 'warn',
                 'always',
             ],
-            'stylistic/object-curly-spacing': [
-                'warn',
-                'always',
+            'stylistic/list-style': [
+                'error',
+                {
+                    empty: 'never',
+                    singleLine: {
+                        spacing: 'never',
+                    },
+                    multiLine: {
+                        minItems: 0,
+                    },
+                    overrides: {
+                        '{}': {
+                            singleLine: {
+                                spacing: 'always',
+                            },
+                        },
+                    },
+                },
             ],
             'no-console': 'off',
             'no-void': ['error', { allowAsStatement: true }],
@@ -67,9 +82,6 @@ export default withNuxt([
             'import/first': 'error',
             'import/newline-after-import': 'error',
             'import/order': 'off',
-            'stylistic/array-bracket-newline': ['error', 'consistent'],
-            'stylistic/array-bracket-spacing': 'error',
-            'stylistic/array-element-newline': ['error', 'consistent'],
             'stylistic/arrow-parens': ['error', 'as-needed'],
             'stylistic/arrow-spacing': 'error',
             'stylistic/block-spacing': 'error',
@@ -78,8 +90,6 @@ export default withNuxt([
             'stylistic/computed-property-spacing': 'error',
             'stylistic/dot-location': ['error', 'property'],
             'stylistic/eol-last': 'error',
-            'stylistic/function-call-argument-newline': ['error', 'consistent'],
-            'stylistic/function-paren-newline': ['error', 'consistent'],
             'stylistic/implicit-arrow-linebreak': 'error',
             'stylistic/key-spacing': 'error',
             'stylistic/keyword-spacing': 'error',
@@ -92,17 +102,6 @@ export default withNuxt([
             'stylistic/no-multiple-empty-lines': 'error',
             'stylistic/no-trailing-spaces': 'error',
             'stylistic/no-whitespace-before-property': 'error',
-            'stylistic/object-curly-newline': [
-                'error', {
-                    multiline: true,
-                    consistent: true,
-                },
-            ],
-            'stylistic/object-property-newline': [
-                'error', {
-                    allowAllPropertiesOnSameLine: true,
-                },
-            ],
             'stylistic/one-var-declaration-per-line': 'error',
             'stylistic/operator-linebreak': ['error', 'after', {
                 overrides: { '|': 'before', '?': 'before', ':': 'before' },
@@ -129,22 +128,28 @@ export default withNuxt([
             'stylistic/wrap-iife': 'error',
             'stylistic/member-delimiter-style': 'error',
             'vue/component-name-in-template-casing': [
-                'error', 'kebab-case', {
+                'error',
+                'kebab-case',
+                {
                     registeredComponentsOnly: false,
                 },
             ],
             'vue/script-indent': [
-                'warn', 4, {
+                'warn',
+                4,
+                {
                     baseIndent: 0,
                     switchCase: 1,
                     ignores: [],
                 },
             ],
             'vue/html-indent': [
-                'warn', 4,
+                'warn',
+                4,
             ],
             'vue/html-closing-bracket-newline': [
-                'error', {
+                'error',
+                {
                     singleline: 'never',
                     multiline: 'always',
                 },
@@ -152,7 +157,8 @@ export default withNuxt([
             'vue/no-unused-components': 'warn',
             'vue/no-unused-vars': 'warn',
             'vue/no-unused-properties': [
-                'error', {
+                'error',
+                {
                     groups: ['setup', 'data', 'computed', 'methods'],
                 },
             ],
@@ -163,7 +169,8 @@ export default withNuxt([
             'vue/no-v-html': 'off',
             'vue/require-default-prop': 'off',
             'vue/html-closing-bracket-spacing': [
-                'error', {
+                'error',
+                {
                     startTag: 'never',
                     endTag: 'never',
                     selfClosingTag: 'never',
@@ -171,7 +178,8 @@ export default withNuxt([
             ],
             'vue/attributes-order': ['warn', { alphabetical: true }],
             'vue/valid-v-slot': [
-                'error', {
+                'error',
+                {
                     allowModifiers: true,
                 },
             ],
@@ -182,7 +190,8 @@ export default withNuxt([
             'vue/next-tick-style': 'error',
             'vue/no-duplicate-attr-inheritance': 'error',
             'vue/no-potential-component-option-typo': [
-                'error', {
+                'error',
+                {
                     presets: ['all'],
                 },
             ],
@@ -202,14 +211,16 @@ export default withNuxt([
             'vue/prefer-true-attribute-shorthand': 'error',
             'vue/v-for-delimiter-style': 'error',
             'vue/block-lang': [
-                'error', {
+                'error',
+                {
                     script: {
                         lang: 'ts',
                     },
                 },
             ],
             'vue/block-order': [
-                'error', {
+                'error',
+                {
                     order: ['template', 'script', 'style'],
                 },
             ],
@@ -218,17 +229,21 @@ export default withNuxt([
             'vue/require-name-property': 'error',
             'vue/require-explicit-emits': 'error',
             'vue/v-on-event-hyphenation': [
-                'error', 'never', {
+                'error',
+                'never',
+                {
                     autofix: true,
                 },
             ],
             'vue/no-mutating-props': [
-                'error', {
+                'error',
+                {
                     shallowOnly: true,
                 },
             ],
             'vue/require-macro-variable-name': [
-                'error', {
+                'error',
+                {
                     defineProps: 'props',
                     defineEmits: 'emit',
                     defineSlots: 'slots',
@@ -241,14 +256,16 @@ export default withNuxt([
             'vue/require-typed-object-prop': 'error',
             'vue/no-deprecated-model-definition': 'error',
             'vue/match-component-file-name': [
-                'error', {
+                'error',
+                {
                     extensions: ['vue'],
                     shouldMatchCase: true,
                 },
             ],
             'vue/define-emits-declaration': 'off',
             'vue/define-macros-order': [
-                'error', {
+                'error',
+                {
                     order: ['defineOptions', 'defineProps', 'defineEmits', 'defineSlots'],
                     defineExposeLast: true,
                 },
@@ -386,7 +403,8 @@ export default withNuxt([
             '@typescript-eslint/no-import-type-side-effects': 'error',
             '@typescript-eslint/consistent-type-imports': 'error',
             '@typescript-eslint/ban-ts-comment': [
-                'error', {
+                'error',
+                {
                     'ts-nocheck': false,
                 },
             ],
@@ -396,7 +414,10 @@ export default withNuxt([
     },
     {
         files: [
-            '**/pages/**/*.vue', '**/layouts/**/*.vue', '**/app.vue', '**/error.vue',
+            '**/pages/**/*.vue',
+            '**/layouts/**/*.vue',
+            '**/app.vue',
+            '**/error.vue',
         ],
         rules: {
             'vue/match-component-file-name': 'off',

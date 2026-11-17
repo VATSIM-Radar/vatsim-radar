@@ -96,6 +96,7 @@ export interface VatsimController {
     duplicated?: boolean;
     duplicatedBy?: string;
     frequencies?: string[];
+    logoffTime?: string;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -307,6 +308,7 @@ export type VatsimLiveDataMap = {
         dpBy?: VatsimShortenedController['duplicatedBy'];
         fr?: number;
         frq?: number[];
+        lgf?: VatsimShortenedController['logoffTime'];
     }[];
     observers: Pick<VatsimLiveDataMap['controllers'][0], 'ci' | 'n' | 'ca' | 'frq' | 'lg'>[];
     atis: Array<VatsimLiveDataMap['controllers'][0] & {

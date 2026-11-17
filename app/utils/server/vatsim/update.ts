@@ -265,8 +265,7 @@ async function updateVatsimExtendedPilots() {
 
             if (extendedPilot.stepclimbs?.length &&
                 !extendedPilot.isOnGround &&
-                getPilotTrueAltitude(extendedPilot) + 300 >= extendedPilot.stepclimbs.toSorted((a, b) => a.ft - b.ft)[0].ft
-            ) {
+                getPilotTrueAltitude(extendedPilot) + 300 >= extendedPilot.stepclimbs.toSorted((a, b) => a.ft - b.ft)[0].ft) {
                 extendedPilot.status = 'cruising';
             }
             else if (!extendedPilot.isOnGround && !extendedPilot.status && totalDist && extendedPilot.toGoDist) {

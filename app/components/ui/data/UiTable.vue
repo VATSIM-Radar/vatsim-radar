@@ -117,7 +117,8 @@ type HeaderSlot = Record<`header${ string }`, (props: { header: TableHeader }) =
 type DataSlot = Record<`data${ string }`, (props: { header: TableHeader; data: any; item: any; index: number }) => any>;
 
 export interface TableSort {
-    key: string; algo: 'asc' | 'desc';
+    key: string;
+    algo: 'asc' | 'desc';
 }
 
 const sorting = defineModel<TableSort[]>('sort', { default: () => reactive([]) });

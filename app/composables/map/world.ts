@@ -14,7 +14,8 @@ export function getOriginalWorldCoordinate({ eventCoordinate }: {
 }
 
 export function getCurrentWorldCoordinate({ coordinate, eventCoordinate }: {
-    coordinate: Coordinate; eventCoordinate: Coordinate;
+    coordinate: Coordinate;
+    eventCoordinate: Coordinate;
 }): Coordinate {
     const localCoordinate = modPositive((coordinate[0] + 180), 360) - 180;
     const worldIndex = Math.round((eventCoordinate[0] - localCoordinate) / 360);
@@ -23,7 +24,8 @@ export function getCurrentWorldCoordinate({ coordinate, eventCoordinate }: {
 }
 
 export function getCurrentWorldExtent({ extent, eventCoordinate }: {
-    extent: Extent; eventCoordinate: Coordinate;
+    extent: Extent;
+    eventCoordinate: Coordinate;
 }): Extent {
     const extentCenter: Coordinate = [
         (extent[0] + extent[2]) / 2,

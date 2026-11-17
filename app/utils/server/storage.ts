@@ -2,12 +2,21 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import type {
     VatsimData,
     VatsimDivision,
-    VatsimEvent, VatsimExtendedPilot,
+    VatsimEvent,
+    VatsimExtendedPilot,
     VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision,
-    VatsimBooking, VatsimNattrak, VatsimTransceiverFrequency, VatsimAchievementList, VatsimLiveDataMap,
-    VatsimLiveCompactData, VatsimLiveCompactDataShort, VatsimLiveDataShort, VatsimLiveData, VatsimStationAlias,
+    VatsimBooking,
+    VatsimNattrak,
+    VatsimTransceiverFrequency,
+    VatsimAchievementList,
+    VatsimLiveDataMap,
+    VatsimLiveCompactData,
+    VatsimLiveCompactDataShort,
+    VatsimLiveDataShort,
+    VatsimLiveData,
+    VatsimStationAlias,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
@@ -235,7 +244,7 @@ export interface VatsimStorage {
     sectorsDataset: DatasetSector[];
     kafka: {
         pilots: Record<string, Partial<VatsimData['pilots'][0]> & KafkaExtension>;
-        atc: Record<string, Partial<VatsimData['controllers'][0]> & KafkaExtension>;
+        atc: Record<string, Partial<VatsimData['atis'][0]> & KafkaExtension>;
         prefiles: Record<string, Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
     };
 }
@@ -264,11 +273,11 @@ export interface RadarStorage {
         activeData: string | null;
     };
     aeronavPositions:
-    {
-        fir: string; // the start of the login callsign
-        ml: string; // middle latter of the login callsign
-        freq: string; // frequency
-    }[];
+        {
+            fir: string; // the start of the login callsign
+            ml: string; // middle latter of the login callsign
+            freq: string; // frequency
+        }[];
     vatsimStatic: {
         divisions: VatsimDivision[];
         subDivisions: VatsimSubDivision[];

@@ -33,8 +33,7 @@ export function hasActivePilotFilter() {
         (!store.activeFilter.flights?.status || store.activeFilter.flights?.status === 'all') &&
         (!store.activeFilter.flights?.excludeNoFlightPlan) &&
         (!store.activeFilter.flights?.diverted) &&
-        (!Object.values(store.activeFilter.flights ?? {}).some(x => Array.isArray(x) && x.length))
-    ) return false;
+        (!Object.values(store.activeFilter.flights ?? {}).some(x => Array.isArray(x) && x.length))) return false;
 
     return true;
 }
@@ -231,8 +230,7 @@ export function hasActiveATCFilter() {
     if (!store.activeFilter.users?.atc?.value?.length &&
         !store.activeFilter.users?.lists?.length &&
         !store.activeFilter.users?.cids?.length &&
-        (!Object.values(store.activeFilter.atc ?? {}).some(x => Array.isArray(x) ? x.length : x))
-    ) return false;
+        (!Object.values(store.activeFilter.atc ?? {}).some(x => Array.isArray(x) ? x.length : x))) return false;
 
     return true;
 }

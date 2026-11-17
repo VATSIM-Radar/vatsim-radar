@@ -4,9 +4,14 @@ import type {
     VatsimActiveEvent,
     VatsimBooking,
     VatsimExtendedPilot,
-    VatsimLiveCompactDataShort, VatsimLiveData, VatsimLiveDataShort,
-    VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
-    VatsimMemberStats, VatsimNattrakClient,
+    VatsimLiveCompactDataShort,
+    VatsimLiveData,
+    VatsimLiveDataShort,
+    VatsimMandatoryConvertedData,
+    VatsimMandatoryData,
+    VatsimMandatoryPilot,
+    VatsimMemberStats,
+    VatsimNattrakClient,
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
@@ -16,8 +21,10 @@ import type {
     DataImagesType,
     RadarDataAirline,
     Sigmets,
-    SimAwareDataFeature, VatglassesData,
-    VatglassesDynamicAPIData, VatglassesPosition,
+    SimAwareDataFeature,
+    VatglassesData,
+    VatglassesDynamicAPIData,
+    VatglassesPosition,
 } from '~/utils/server/storage';
 import { View } from 'ol';
 import { clientDB } from '~/composables/render/idb';
@@ -41,13 +48,18 @@ import type {
     NavDataFlightLevel,
     NavDataProcedure,
     NavigraphGetData,
-    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataStar,
+    NavigraphNavData,
+    NavigraphNavDataApproach,
+    NavigraphNavDataEnrouteWaypointPartial,
+    NavigraphNavDataStar,
 } from '~/utils/server/navigraph/navdata/types';
 import {
     checkForAirlines,
-    checkForData, checkForTracks,
+    checkForData,
+    checkForTracks,
     checkForUpdates,
-    checkForVATSpy, checkForVG,
+    checkForVATSpy,
+    checkForVG,
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
@@ -425,6 +437,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             duplicatedBy: atc.dpBy,
             frequency: _vatsimData.map.frequencies[atc.fr ?? -1],
             frequencies: atc.frq?.map(x => _vatsimData.map.frequencies[x]),
+            logoffTime: atc.lgf,
         });
     }
 
@@ -454,6 +467,7 @@ export function setVatsimDataStore(_vatsimData: VatsimLiveCompactDataShort) {
             frequency: _vatsimData.map.frequencies[atc.fr ?? -1],
             frequencies: atc.frq?.map(x => _vatsimData.map.frequencies[x]),
             atis_code: _vatsimData.map.codes[atc.co ?? -1],
+            logoffTime: atc.lgf,
         });
     }
 
@@ -768,7 +782,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 }
 
 export interface ControllerStats {
-    rating: number | null; total: number;
+    rating: number | null;
+    total: number;
 }
 
 function getAtcStats(controller: VatsimShortenedController, stats: VatsimMemberStats): ControllerStats {

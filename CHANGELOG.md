@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.5-3-next]
+
+- Significantly improved metar/taf load speed
+- Fixed metar/taf sometimes not loading when opening airport overlay
+- Added support for controller's logoff time on map
+- Significantly improved bookings update speed by moving to new VATSIM booking system
+- Significantly improved speed of aircraft and controllers appear on map after connecting to network
+- Weather in airport dashboard now updates more often
+- Significantly improved conditions request load when a lot of airport need to be loaded
+
 # [2.0.5-1]
 
 - Add WorldFlgiht team highlight

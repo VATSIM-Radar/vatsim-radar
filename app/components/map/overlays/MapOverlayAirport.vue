@@ -188,7 +188,8 @@ import {
     getSettingsItems,
     sendUserPreset,
     showAirportOnMap,
-    useDataStore, useSettingValueFromFunc,
+    useDataStore,
+    useSettingValueFromFunc,
 } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
@@ -214,7 +215,6 @@ import SettingsBookmarkOptions from '~/components/features/settings/SettingsBook
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
-import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 
@@ -472,32 +472,17 @@ const vatInfo = computed(() => {
     return data.value?.vatInfo;
 });
 
-let updateInProgress = false;
-
-watch(dataStore.vatsim.updateTimestamp, async () => {
-    if (updateInProgress) return;
-    updateInProgress = true;
-    try {
-        props.overlay.data.airport = {
-            ...props.overlay.data.airport,
-            ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
-        };
-    }
-    catch (e) {
-        useRadarError(e);
-    }
-    finally {
-        updateInProgress = false;
-    }
-});
-
 const runways = computed(() => dataStore.airportsList.value[props.overlay.data.icao]?.vgRunways);
 
 onMounted(() => {
     const interval = setInterval(async () => {
         if (!hasOpened || !isExpanded.value) return;
         await refreshWeatherAndNotams();
-    }, 1000 * 60 * 5);
+        props.overlay.data.airport = {
+            ...props.overlay.data.airport,
+            ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
+        };
+    }, 1000 * 60);
 
     onBeforeUnmount(() => {
         clearInterval(interval);
