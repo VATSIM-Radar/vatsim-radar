@@ -159,6 +159,7 @@ Core files:
 - `app/composables/render/update/aircraft.ts` updates aircraft-derived state.
 - `app/composables/render/update/atc.ts` updates controller/ATC-derived state.
 - `app/composables/render/update/vatglasses.ts` merges VATGlasses sector ownership into render state.
+- ATIS active runways: `updateAirportAtisConfig()` in `app/composables/render/update/utils.ts` feeds combined or D/A ATIS texts to `getActiveRunways()` in `app/utils/shared/runway-detection.ts` (marker lists for departure/arrival/common phrasings, tentative runways resolved by a later marker within 5 words). VATGlasses uses the result to pick the active runway configuration.
 - Airport Approach/TRACON rendering has two fallback paths: `updateVATGlasses()` can add VG-owned controllers and mark them in `atcAddedDuringUpdate`, while `getRenderAirportsList()` uses that set to exclude controllers from SimAware TRACON matching; `setMapAirports()` renders a 50 km circle when no SimAware feature remains for an airport.
 - `app/composables/render/aircraft/*`, `airports/*`, `sectors/*`, `navigraph/*` build OpenLayers styles/features/layers for each domain.
 - `app/composables/render/aircraft/tracks.ts` builds straight arrival/departure lines and historical turn segments from QuestDB data; `app/components/map/navigraph/NavigraphRoute.vue` builds the pilot's parsed route and aircraft-to-waypoint connectors. Both families use the shared `greatCircleToOl()` helper in `app/utils/index.ts` for Turf great-circle generation, antimeridian splitting, and OpenLayers conversion.
@@ -473,10 +474,11 @@ Available commands:
 - `yarn typecheck`: Nuxt/Vue typecheck.
 - `yarn build`: production build.
 - `yarn docs:build`: VitePress docs build.
+- `yarn test`: Node's built-in test runner (`node --test`) over `app/**/*.test.ts`. Node runs the TypeScript directly, so there is no build step; tests use `node:test` and `node:assert/strict` and sit next to the code they cover (currently `app/utils/shared/runway-detection.test.ts` for ATIS runway detection). Tested files must stay importable by plain Node: relative imports with the `.ts` extension, no Nuxt auto-imports or `~` aliases.
 
 If lint or typecheck fails with a permission error in `node_modules` or `.nuxt`, ask the user to fix those directory permissions before retrying.
 
-There is no obvious dedicated unit test suite in `package.json`; rely on lint/typecheck/build and targeted manual verification for changed flows.
+Beyond `yarn test`, rely on lint/typecheck/build and targeted manual verification for changed flows.
 
 ### Cautions For AI Agents
 
