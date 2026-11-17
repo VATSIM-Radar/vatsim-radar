@@ -5011,9 +5011,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:6.0.0":
-  version: 6.0.0
-  resolution: "@stylistic/eslint-plugin@npm:6.0.0"
+"@stylistic/eslint-plugin@npm:6.0.1":
+  version: 6.0.1
+  resolution: "@stylistic/eslint-plugin@npm:6.0.1"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.10.1"
     "@typescript-eslint/types": "npm:^8.72.2"
@@ -5028,7 +5028,7 @@ __metadata:
       optional: true
     oxlint:
       optional: true
-  checksum: 10c0/8820cece908d12e4e3f4a5443148128721ed4fff93f954855424b2b53f28697734d739d8a37661171dd34c2f91436d107b80e5e9ab3e37ea7aee83ef738487e6
+  checksum: 10c0/0a52be780f60997a83291a6da6d9c1bbd2e54c2d00b8929e27dd38d5565a8d621786994eec2a58b86aa3e0c7c10815180b5e2ff817a51b5386636cf26ebfd502
   languageName: node
   linkType: hard
 
@@ -7912,10 +7912,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"croner@npm:11.0.0":
-  version: 11.0.0
-  resolution: "croner@npm:11.0.0"
-  checksum: 10c0/0017d58231ef879dcd23969222d85e39c97c2e0125e26e5e4723db735c5e4ac8b0732e9a33aea6f5428bdb35f522e8119a15e29f71b836324a05c3c7b7fceab8
+"croner@npm:11.0.1":
+  version: 11.0.1
+  resolution: "croner@npm:11.0.1"
+  checksum: 10c0/566ff886955b5c9ce0f2fc6450e809bc1ba47d8b8c6ffc96b5a03edbcb7c7ed788ff824d28975204dba54994d62922de7b940f6fe19c5a3b048d131d475080fa
   languageName: node
   linkType: hard
 
@@ -13102,16 +13102,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-html@npm:2.0.0":
-  version: 2.0.0
-  resolution: "postcss-html@npm:2.0.0"
+"postcss-html@npm:2.0.1":
+  version: 2.0.1
+  resolution: "postcss-html@npm:2.0.1"
   dependencies:
     htmlparser2: "npm:^9.1.0"
     js-tokens: "npm:^9.0.0"
     postcss-safe-parser: "npm:^7.0.1"
   peerDependencies:
     postcss: ^8.5.0
-  checksum: 10c0/7c11a7711faf56cedcdf288bbc18091b1ea5ad49327689fd049b454cc336950147f620763a2bf0b0cbcc11c1ace540d9a91de965458a5eb789a803a8ebde3b65
+  checksum: 10c0/129320f6a354d1da9139275d4d95bc7a7473a4f849993cccca79e022007da54e25fea48defa7870d6cd33a3e4b1898b6a8d3e646f1743ea6c76b9fd61154aa54
   languageName: node
   linkType: hard
 
@@ -16265,7 +16265,7 @@ __metadata:
     "@prisma/client": "npm:7.10.1"
     "@protomaps/basemaps": "npm:5.7.2"
     "@questdb/nodejs-client": "npm:5.0.0"
-    "@stylistic/eslint-plugin": "npm:6.0.0"
+    "@stylistic/eslint-plugin": "npm:6.0.1"
     "@stylistic/stylelint-plugin": "npm:6.0.1"
     "@turf/bearing": "npm:7.4.0"
     "@turf/boolean-point-in-polygon": "npm:7.4.0"
@@ -16297,7 +16297,7 @@ __metadata:
     chardet: "npm:2.2.0"
     chart.js: "npm:4.6.1"
     chokidar: "npm:6.0.0"
-    croner: "npm:11.0.0"
+    croner: "npm:11.0.1"
     deep-equal: "npm:2.2.3"
     dexie: "npm:4.4.7"
     discord.js: "npm:14.28.1"
@@ -16319,7 +16319,7 @@ __metadata:
     ol-mapbox-style: "npm:13.9.0"
     pinia: "npm:4.1.0"
     postcss: "npm:8.5.33"
-    postcss-html: "npm:2.0.0"
+    postcss-html: "npm:2.0.1"
     prisma: "npm:7.10.1"
     rou3: "npm:1.0.0"
     sass-embedded: "npm:1.108.2"
