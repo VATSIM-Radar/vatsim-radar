@@ -265,14 +265,15 @@ const { data, refresh } = await useLazyAsyncData<VatsimAirportDataIcao[]>('metar
                 cached.value.push({ icao, ...weatherByIcao[icao] });
             }
 
-            const notamsByIcao = await notamsRequest;
+            notamsRequest.then(notamsByIcao => {
+                for (const icao of batch) {
+                    notams.value[icao] = notamsByIcao[icao] ?? [];
+                }
 
-            for (const icao of batch) {
-                notams.value[icao] = notamsByIcao[icao] ?? [];
-            }
+                triggerRef(notams);
+            });
         }
 
-        triggerRef(notams);
         const cachedByIcao = new Map(cached.value.map(airport => [airport.icao, airport]));
         return icaos.map(icao => cachedByIcao.get(icao)).filter((airport): airport is VatsimAirportDataIcao => !!airport);
     }
