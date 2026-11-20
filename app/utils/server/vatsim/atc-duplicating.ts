@@ -251,6 +251,23 @@ export const duplicatingSettings = [
         },
     },
     {
+        description: 'ZLC Center and TRACONs',
+        authorCid: 1282889,
+        prefixes: ['SLC'],
+        suffixes: ['CTR'],
+        mapping: {
+            S56: 'SLC_APP',
+            BOI: 'BOI_APP',
+            BZN: 'BZN_APP',
+            BIL: 'BIL_APP',
+            GTF: 'GTF_APP',
+            HLN: 'HLN_APP',
+            MSO: 'MSO_APP',
+            MUO: 'MUO_APP',
+            TWF: 'TWF_APP',
+        },
+    },
+    {
         description: 'CZYZ FIR Terminal Sectors',
         authorCid: 1401686,
         prefixes: ['TOR'],
