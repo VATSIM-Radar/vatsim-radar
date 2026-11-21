@@ -12,12 +12,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"7zip-min@npm:3.0.1":
-  version: 3.0.1
-  resolution: "7zip-min@npm:3.0.1"
+"7zip-min@npm:3.0.2":
+  version: 3.0.2
+  resolution: "7zip-min@npm:3.0.2"
   dependencies:
     7zip-bin: "npm:5.1.1"
-  checksum: 10c0/d52831c6c14dc0ad595b6d29b75b0780de5278a083bc87eb3a8890789b75c6759702eac21afa429021bc13ecaab800991044cacb0fec1b284922ff908dfb8bbb
+  checksum: 10c0/f2adc0ed3ef5cdf8c73f4eecffccd35f5590f6a3abf2a0131cd81de911341c7b6827aa984254e8748f558a924a27500a8a02d96c27085f258fa92d5d31a6431a
   languageName: node
   linkType: hard
 
@@ -264,14 +264,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:3.1169.0":
-  version: 3.1169.0
-  resolution: "@aws-sdk/client-s3@npm:3.1169.0"
+"@aws-sdk/client-s3@npm:3.1173.0":
+  version: 3.1173.0
+  resolution: "@aws-sdk/client-s3@npm:3.1173.0"
   dependencies:
     "@aws-sdk/checksums": "npm:^3.1002.5"
     "@aws-sdk/core": "npm:^3.981.0"
     "@aws-sdk/credential-provider-node": "npm:^3.972.97"
-    "@aws-sdk/middleware-sdk-s3": "npm:^3.972.89"
+    "@aws-sdk/middleware-sdk-s3": "npm:^3.972.90"
     "@aws-sdk/signature-v4-multi-region": "npm:^3.996.52"
     "@aws-sdk/types": "npm:^3.975.1"
     "@smithy/core": "npm:^3.40.0"
@@ -279,7 +279,7 @@ __metadata:
     "@smithy/node-http-handler": "npm:^4.14.2"
     "@smithy/types": "npm:^4.20.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/e2c4ac5c0e288d681aca87ae2153cf870cb1d10055fa19d6f5c90d44f77dfd103742392fc03c25dc723756cb1f6a5ad066395b1cc25d2e9675565d806ea8d26f
+  checksum: 10c0/554546a6d0978f5d543804f9d0f447c932156992d95683e0d69aed312b5f76bfc58a7cd7484caa975b5a2cb165b1581fd0d3baee574e8cf0a4437715c0984bc6
   languageName: node
   linkType: hard
 
@@ -423,9 +423,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/middleware-sdk-s3@npm:^3.972.89":
-  version: 3.972.89
-  resolution: "@aws-sdk/middleware-sdk-s3@npm:3.972.89"
+"@aws-sdk/middleware-sdk-s3@npm:^3.972.90":
+  version: 3.972.90
+  resolution: "@aws-sdk/middleware-sdk-s3@npm:3.972.90"
   dependencies:
     "@aws-sdk/core": "npm:^3.981.0"
     "@aws-sdk/signature-v4-multi-region": "npm:^3.996.52"
@@ -433,7 +433,7 @@ __metadata:
     "@smithy/core": "npm:^3.40.0"
     "@smithy/types": "npm:^4.20.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/1a232b35ad18f167b956db24d7442354049390d0d88e3948054c00f47aee5675dd62b3b2110e7fc5c0bb34c740206e0838788e02a20aded993f91120dde0a9a8
+  checksum: 10c0/a1944f8ec5ddbfee11046990ce181121dd74d7a2a61e1ea4aa98223cf80b2161570e1969fada6446c0d2ce3e2826f7ba6751e3a4fc613553ba533ad5fa5bca8d
   languageName: node
   linkType: hard
 
@@ -1791,6 +1791,18 @@ __metadata:
     css-tree:
       optional: true
   checksum: 10c0/3d53a03ccfe4df4b4fe828aff15fd54ee9118f732a200b2bd6f52f67c274064a927a73a80d7b62a355eed3ba4abb90a1e21516368f131a71c06272bfbf4d33ca
+  languageName: node
+  linkType: hard
+
+"@csstools/css-syntax-patches-for-csstree@npm:^1.1.16":
+  version: 1.1.17
+  resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.17"
+  peerDependencies:
+    css-tree: ^3.2.1
+  peerDependenciesMeta:
+    css-tree:
+      optional: true
+  checksum: 10c0/c39db1f7cfc82348819a66a7f6e5cb568c5bdda7f0b4593b975f81963d32dedeb021befe55913b6c40bd00b646965d8eaef1cd99c5881f3fb27143f84867884a
   languageName: node
   linkType: hard
 
@@ -4467,7 +4479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rolldown/pluginutils@npm:^1.0.0, @rolldown/pluginutils@npm:^1.0.1":
+"@rolldown/pluginutils@npm:^1.0.0, @rolldown/pluginutils@npm:^1.0.1, @rolldown/pluginutils@npm:^1.1.0":
   version: 1.1.1
   resolution: "@rolldown/pluginutils@npm:1.1.1"
   checksum: 10c0/ee35ab757a5b6cc296a13abfd3b1f998ef141a6bf302f2d25eee53ab9cb1aea265bea0d55495664f02e91c38c3995c79773ea8e14213089d9c31c1821997b606
@@ -5793,9 +5805,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unplugin-pwa/core@npm:0.0.6, @unplugin-pwa/core@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@unplugin-pwa/core@npm:0.0.6"
+"@unplugin-pwa/core@npm:0.0.7, @unplugin-pwa/core@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "@unplugin-pwa/core@npm:0.0.7"
   dependencies:
     "@vite-pwa/workbox-build": "npm:^8.0.15"
     "@vite-pwa/workbox-window": "npm:^8.0.15"
@@ -5811,24 +5823,24 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10c0/e6855528a6f6d16ef3d0a236adf370cbf836cc091915fcd27e0fcb263256197b542ccefb1ae0788501a1689a7888ed92dc9be793a6ded0ec49be61115f564efb
+  checksum: 10c0/d3b30021ec79b6dde9de56024c68ba645bb32e4ce3719851bbe490b6905733fa0d17a758701d5d2e8ba25b9cc5ba98db3bb509c8d14f6954fc67fe5597575b58
   languageName: node
   linkType: hard
 
-"@unplugin-pwa/inspector@npm:0.0.6":
-  version: 0.0.6
-  resolution: "@unplugin-pwa/inspector@npm:0.0.6"
-  checksum: 10c0/a5fa2010c979c8a68c90e9d6a8f44e3c968cd518e9ebd0f47230dfc857abe2334a49cd1290257cd61e574dfecc5e04160c5509d65dc2e040f7424a6d31321adc
+"@unplugin-pwa/inspector@npm:0.0.7":
+  version: 0.0.7
+  resolution: "@unplugin-pwa/inspector@npm:0.0.7"
+  checksum: 10c0/e44f43bf8ed0d2f9b703019875c5dd4edb172a90cbf50511a1e11942d6ba227d009c413591f643ad295932ce0685125b16a039b2bb9852e1842fd0796777b1c3
   languageName: node
   linkType: hard
 
-"@unplugin-pwa/vite@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@unplugin-pwa/vite@npm:0.0.6"
+"@unplugin-pwa/vite@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "@unplugin-pwa/vite@npm:0.0.7"
   dependencies:
-    "@rolldown/pluginutils": "npm:^1.0.1"
-    "@unplugin-pwa/core": "npm:0.0.6"
-    "@unplugin-pwa/inspector": "npm:0.0.6"
+    "@rolldown/pluginutils": "npm:^1.1.0"
+    "@unplugin-pwa/core": "npm:0.0.7"
+    "@unplugin-pwa/inspector": "npm:0.0.7"
     "@vite-pwa/workbox-build": "npm:^8.0.15"
     "@vite-pwa/workbox-swkit": "npm:^8.0.15"
     "@vite-pwa/workbox-window": "npm:^8.0.15"
@@ -5846,7 +5858,7 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10c0/046bbc4e950bc1f7339f6eece951fc200e4b063379664cd0a293b99051e3d50297fddaf312b893e758abc8944e6f01db83f352930817d01e466e3d1c840893b7
+  checksum: 10c0/148f6c09f5ffa753788369943a4feb2ec2694b4cd68b51cd8eceedb1b93f55b604e994e3ed23bd1bc22e3b53cb6d01e79707811f9ac2525998d0a6c210a31021
   languageName: node
   linkType: hard
 
@@ -6145,25 +6157,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt-core@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@vite-pwa/nuxt-core@npm:2.0.1"
+"@vite-pwa/nuxt-core@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@vite-pwa/nuxt-core@npm:2.0.2"
   dependencies:
-    "@unplugin-pwa/core": "npm:^0.0.6"
+    "@unplugin-pwa/core": "npm:^0.0.7"
     "@vite-pwa/workbox-build": "npm:^8.0.15"
-  checksum: 10c0/9ce7ee84bd3e227c86e21db6e5093ea42e1d05eba885d7ef62c152581e2ce8206a43e5f11f2e85ef9faa238c57a02e3d7cfbd468435577d0182e89900a40bdf6
+  checksum: 10c0/77cd198c4eeea557d33f816efdfb006af52ba6b55265a7b5a8b2644ea6aff6d1526541df6c34898ea7abcc4a40161d47f37a0bbd222ef3b320c28990605c868f
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt-vite@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@vite-pwa/nuxt-vite@npm:2.0.1"
+"@vite-pwa/nuxt-vite@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@vite-pwa/nuxt-vite@npm:2.0.2"
   dependencies:
     "@nuxt/kit": "npm:^4.6.4"
-    "@rolldown/pluginutils": "npm:^1.0.1"
-    "@unplugin-pwa/core": "npm:^0.0.6"
-    "@unplugin-pwa/vite": "npm:^0.0.6"
-    "@vite-pwa/nuxt-core": "npm:2.0.1"
+    "@rolldown/pluginutils": "npm:^1.1.0"
+    "@unplugin-pwa/core": "npm:^0.0.7"
+    "@unplugin-pwa/vite": "npm:^0.0.7"
+    "@vite-pwa/nuxt-core": "npm:2.0.2"
     "@vite-pwa/workbox-build": "npm:^8.0.15"
     verkit: "npm:^0.5.0"
   peerDependencies:
@@ -6177,18 +6189,18 @@ __metadata:
       optional: true
     rolldown:
       optional: true
-  checksum: 10c0/3497304d909eb97292ff65bb0cdaa4d42dc9d07de1bb1a58f1d701361c8f3b0cb581df9246b047e37c7e64dff1f372327da3291fbd164496eb0958c5e00c61d1
+  checksum: 10c0/9cf47c7b425442d86311001a9f80f2c6abecde09c533c6015fe7e1c0e33a25f132d6a63fd5f500c0d1777c242a80db7ccffd3f871eebb8a823cfb04c0dd9267e
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@vite-pwa/nuxt@npm:2.0.1"
+"@vite-pwa/nuxt@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@vite-pwa/nuxt@npm:2.0.2"
   dependencies:
     "@nuxt/kit": "npm:^4.6.4"
-    "@unplugin-pwa/core": "npm:^0.0.6"
-    "@vite-pwa/nuxt-core": "npm:2.0.1"
-    "@vite-pwa/nuxt-vite": "npm:2.0.1"
+    "@unplugin-pwa/core": "npm:^0.0.7"
+    "@vite-pwa/nuxt-core": "npm:2.0.2"
+    "@vite-pwa/nuxt-vite": "npm:2.0.2"
     "@vite-pwa/workbox-build": "npm:^8.0.15"
     defu: "npm:^6.1.7"
     verkit: "npm:^0.5.0"
@@ -6203,7 +6215,7 @@ __metadata:
       optional: true
     rolldown:
       optional: true
-  checksum: 10c0/6677691782098e215d41d67bfd5140af3731f6922d4b61af8a935e89f0732cb2652aa063ae7451d7530e20b021df709bb97ffa49df99d77b6ef2e7985495722a
+  checksum: 10c0/9be46bca7939e13b938ad3e439922317b5fa408748bea1fad387786fc880706ac1412e5f2ecd75f476228733afdfecb85d929b328b8d29ae66a60ef6afd6c37b
   languageName: node
   linkType: hard
 
@@ -7707,10 +7719,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colord@npm:^2.10.0":
-  version: 2.12.0
-  resolution: "colord@npm:2.12.0"
-  checksum: 10c0/baaab44ebfff402c14a253a6a9eaeeec2bf1c620e00ebead1276d8b6c4eec2c4e56c9d2a8cddfd7049a582068c1dfacaf11bb531d066567bd53f389c915e23b4
+"colord@npm:^2.13.0":
+  version: 2.14.0
+  resolution: "colord@npm:2.14.0"
+  checksum: 10c0/e16b472899b8958881375a0cf4db259bae35e36f1de1ba00af908e5896fdc3d3f5d7d801baf54942a404c1de5275f9e7433daf4e86ca5bd703f9894570ef319e
   languageName: node
   linkType: hard
 
@@ -11851,12 +11863,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:18.2.0":
-  version: 18.2.0
-  resolution: "marked@npm:18.2.0"
+"marked@npm:18.2.1":
+  version: 18.2.1
+  resolution: "marked@npm:18.2.1"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/7766e5564cc6dbe3e8d6ee0091f3a4656002dd993817e68c5510e2ff1fa1d6456c9bcd18af1a4a5e8ea87382832a07026c109ab333913f125d51c93f29ba9017
+  checksum: 10c0/6b266b2b20b2cc7e4275087f6c32f8a1b7f9ce5e73e233a4f46614a59617b7afc8d613bbcb57bacaea5da8f6ad5a830fe10384564106d2d1afb354ba1b0bb9e0
   languageName: node
   linkType: hard
 
@@ -13147,7 +13159,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^7.1.6, postcss-selector-parser@npm:^7.1.7":
+"postcss-selector-parser@npm:^7.1.6, postcss-selector-parser@npm:^7.1.7, postcss-selector-parser@npm:^7.2.1":
   version: 7.2.1
   resolution: "postcss-selector-parser@npm:7.2.1"
   dependencies:
@@ -13172,7 +13184,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.33, postcss@npm:^8.4.43, postcss@npm:^8.5.28, postcss@npm:^8.5.31, postcss@npm:^8.5.32":
+"postcss@npm:8.5.33, postcss@npm:^8.4.43, postcss@npm:^8.5.28, postcss@npm:^8.5.32, postcss@npm:^8.5.33":
   version: 8.5.33
   resolution: "postcss@npm:8.5.33"
   dependencies:
@@ -15040,7 +15052,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended@npm:19.0.0, stylelint-config-recommended@npm:^19.0.0":
+"stylelint-config-recommended@npm:19.1.0":
+  version: 19.1.0
+  resolution: "stylelint-config-recommended@npm:19.1.0"
+  peerDependencies:
+    stylelint: ^18.0.0
+  checksum: 10c0/e6975f40b9dc19e851152993189061112b1c980b8e42c7655b5f2945b8491a4a11271f64998040424df19c945af0ec74d5370ecd66418527d92366d96b274aaa
+  languageName: node
+  linkType: hard
+
+"stylelint-config-recommended@npm:^19.0.0":
   version: 19.0.0
   resolution: "stylelint-config-recommended@npm:19.0.0"
   peerDependencies:
@@ -15049,14 +15070,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-standard@npm:41.0.0":
-  version: 41.0.0
-  resolution: "stylelint-config-standard@npm:41.0.0"
+"stylelint-config-standard@npm:41.1.0":
+  version: 41.1.0
+  resolution: "stylelint-config-standard@npm:41.1.0"
   dependencies:
     stylelint-config-recommended: "npm:^19.0.0"
   peerDependencies:
     stylelint: ^18.0.0
-  checksum: 10c0/6f6038d1bdb87637bf8800b56ae26e193f61a04fcf49eb4fa22a92afbf1f2376eaab5623687a4008a5c9abdfa18d78dd5da095ff54ca2c52a99d1da72396bc4f
+  checksum: 10c0/f65ebd6a3b56da4785e09361b359a0b7ff40e932b718cc2be4c74712a10be1049db7656d287bc327e89ce8d656d3404f2889b28b202c87f38f81783fc281e050
   languageName: node
   linkType: hard
 
@@ -15109,32 +15130,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:18.0.0":
-  version: 18.0.0
-  resolution: "stylelint@npm:18.0.0"
+"stylelint@npm:18.1.0":
+  version: 18.1.0
+  resolution: "stylelint@npm:18.1.0"
   dependencies:
     "@csstools/css-calc": "npm:^3.4.3"
     "@csstools/css-parser-algorithms": "npm:^4.0.2"
-    "@csstools/css-syntax-patches-for-csstree": "npm:^1.1.15"
+    "@csstools/css-syntax-patches-for-csstree": "npm:^1.1.16"
     "@csstools/css-tokenizer": "npm:^4.0.2"
     "@csstools/media-query-list-parser": "npm:^5.0.2"
     "@csstools/selector-resolve-nested": "npm:^4.0.2"
     "@csstools/selector-specificity": "npm:^6.0.1"
-    colord: "npm:^2.10.0"
+    colord: "npm:^2.13.0"
     cosmiconfig: "npm:^10.0.1"
     css-tree: "npm:^3.2.1"
     ignore: "npm:^7.0.14"
     import-meta-resolve: "npm:^4.2.0"
     picomatch: "npm:^4.0.7"
-    postcss: "npm:^8.5.31"
+    postcss: "npm:^8.5.33"
     postcss-safe-parser: "npm:^7.1.0"
-    postcss-selector-parser: "npm:^7.1.7"
+    postcss-selector-parser: "npm:^7.2.1"
     postcss-value-parser: "npm:^4.2.0"
     tinyglobby: "npm:^0.2.17"
     write-file-atomic: "npm:^8.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/e5465ea0db70c500c367dd55a5564a37639154c26f48f8ebb5b375a9f26c3cf27300fed4c919f876edd2e0dea73139eaf062c26a0786e63c8b23273a3f12ac8f
+  checksum: 10c0/ca932128f391952131820580ec42b26c49c011cc56f6243e4447677d910bea9233225b0a48aca1fb3183684ee21d24accbaccd3405d6580b3935d9b1ae670421
   languageName: node
   linkType: hard
 
@@ -16253,8 +16274,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vatsim-radar@workspace:."
   dependencies:
-    7zip-min: "npm:3.0.1"
-    "@aws-sdk/client-s3": "npm:3.1169.0"
+    7zip-min: "npm:3.0.2"
+    "@aws-sdk/client-s3": "npm:3.1173.0"
     "@navigraph/amdb": "npm:1.1.4"
     "@nuxt/eslint": "npm:1.17.0"
     "@nuxt/image": "npm:2.2.1"
@@ -16288,7 +16309,7 @@ __metadata:
     "@types/node": "npm:26.6.6"
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:8.18.2"
-    "@vite-pwa/nuxt": "npm:2.0.1"
+    "@vite-pwa/nuxt": "npm:2.0.2"
     "@vueuse/components": "npm:15.0.0"
     "@vueuse/core": "npm:15.0.0"
     "@vueuse/nuxt": "npm:15.0.0"
@@ -16310,7 +16331,7 @@ __metadata:
     kafkajs: "npm:2.2.4"
     klona: "npm:2.0.6"
     magvar: "npm:2.2.0"
-    marked: "npm:18.2.0"
+    marked: "npm:18.2.1"
     merge-ranges: "npm:1.0.2"
     metar-taf-parser: "npm:9.1.3"
     nuxt: "npm:4.6.4"
@@ -16325,13 +16346,13 @@ __metadata:
     sass-embedded: "npm:1.108.2"
     sharp: "npm:0.35.5"
     srvx: "npm:1.0.8"
-    stylelint: "npm:18.0.0"
+    stylelint: "npm:18.1.0"
     stylelint-config-clean-order: "npm:10.0.0"
     stylelint-config-html: "npm:2.0.0"
-    stylelint-config-recommended: "npm:19.0.0"
+    stylelint-config-recommended: "npm:19.1.0"
     stylelint-config-recommended-scss: "npm:18.0.0"
     stylelint-config-recommended-vue: "npm:2.0.0"
-    stylelint-config-standard: "npm:41.0.0"
+    stylelint-config-standard: "npm:41.1.0"
     stylelint-order: "npm:8.1.3"
     svgo: "npm:4.1.0"
     tsx: "npm:4.23.15"
@@ -16344,7 +16365,7 @@ __metadata:
     vitepress: "npm:1.6.4"
     vue: "npm:3.5.45"
     vue-bottom-sheets: "npm:0.4.0"
-    vue-chartjs: "npm:5.3.4"
+    vue-chartjs: "npm:5.3.7"
     vue-draggable-plus: "npm:0.6.1"
     vue-tsc: "npm:3.3.14"
     ws: "npm:8.23.0"
@@ -16769,13 +16790,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-chartjs@npm:5.3.4":
-  version: 5.3.4
-  resolution: "vue-chartjs@npm:5.3.4"
+"vue-chartjs@npm:5.3.7":
+  version: 5.3.7
+  resolution: "vue-chartjs@npm:5.3.7"
   peerDependencies:
     chart.js: ^4.1.1
     vue: ^3.0.0-0 || ^2.7.0
-  checksum: 10c0/f13c917f3c31cebddc059c62649354dcf62529e0d4f0558926257b224906107c1dd7eec41f3289fd01e8813a7492011c5ff59732c308281fe4718f0d58413db7
+  checksum: 10c0/a3e70b76570608cb318a46c02f72835a460064c1a395c96ab68698770df7875acb4cc460e00c35dae99cd42bf8e815cbd875cc9e53770f4035d123afdb63a74c
   languageName: node
   linkType: hard
 
