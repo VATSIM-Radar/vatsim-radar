@@ -151,6 +151,16 @@
                                 Copy
                             </ui-button>
                         </div>
+                        <details @toggle="toggleAwos(item.icao, $event)">
+                            <summary>AWOS</summary>
+                            <div class="metar__item_body_awos">
+                                <airport-awos
+                                    v-if="openAwos.has(item.icao)"
+                                    :icao="item.icao"
+                                    :metar="item.metarRaw ?? null"
+                                />
+                            </div>
+                        </details>
                         <details>
                             <summary>NOTAMs</summary>
                             <div class="metar__item_body_section">
@@ -184,6 +194,7 @@ import CloseIcon from '~/assets/icons/basic/close.svg?component';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
+import AirportAwos from '~/components/features/vatsim/airport/AirportAwos.vue';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
 import UiText from '~/components/ui/text/UiText.vue';
@@ -228,6 +239,16 @@ onMounted(() => {
 
 function saveFavorite() {
     localStorage.setItem('metar-favorite', JSON.stringify(favorite.value));
+}
+
+// AWOS sections are closed by default and only load their runways once opened
+const openAwos = ref(new Set<string>());
+
+function toggleAwos(icao: string, event: Event) {
+    const next = new Set(openAwos.value);
+    if ((event.target as HTMLDetailsElement).open) next.add(icao);
+    else next.delete(icao);
+    openAwos.value = next;
 }
 
 interface VatsimAirportDataIcao extends VatsimAirportData {
@@ -398,6 +419,11 @@ const metars = computed(() => {
                 justify-content: space-between;
 
                 white-space: nowrap;
+            }
+
+            // AWOS needs a plain block: the section row above is made for a textarea + copy button and blocks wrapping
+            &_awos {
+                padding-top: 8px;
             }
 
             &_textarea {

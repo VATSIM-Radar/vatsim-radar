@@ -69,6 +69,7 @@ import type { Ref } from 'vue';
 import { parseMetar, AltimeterUnit } from 'metar-taf-parser';
 import type { StoreOverlayAirport } from '~/store/map';
 import { useDashboard } from '~/composables/dashboard';
+import { getAirportAtisLetter } from '~/composables/vatsim/awos';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiText from '~/components/ui/text/UiText.vue';
 
@@ -81,22 +82,6 @@ defineProps({
 
 const airportsData = inject<Ref<Record<string, StoreOverlayAirport['data']>>>('dashboard-airports-data')!;
 const { activeDashboard, sortByPriorityAirports, getAirportAircraftColor } = useDashboard();
-const dataStore = useDataStore();
-
-function getAtisLetter(icao: string): string | null {
-    const atisList = dataStore.vatsim.data.atis.value.filter(atis => atis.atis_code && atis.callsign.startsWith(`${ icao }_`) && atis.callsign.endsWith('ATIS'));
-    if (!atisList.length) return null;
-
-    const departure = atisList.find(atis => atis.callsign.endsWith('_D_ATIS'))?.atis_code;
-    const arrival = atisList.find(atis => atis.callsign.endsWith('_A_ATIS'))?.atis_code;
-    const combined = atisList.find(atis => !atis.callsign.endsWith('_D_ATIS') && !atis.callsign.endsWith('_A_ATIS'))?.atis_code;
-
-    if (combined) return combined;
-    const parts: string[] = [];
-    if (departure) parts.push(departure);
-    if (arrival) parts.push(arrival);
-    return parts.length ? parts.join('/') : null;
-}
 
 const expandedMetars = ref<Set<string>>(new Set());
 const showPreviousMetar = ref(false);
@@ -135,7 +120,7 @@ const entries = computed(() => {
             metar,
             qnh: metar ? parseQnh(metar) : null,
             wind: metar ? parseWind(metar) : null,
-            atis: getAtisLetter(airport.icao),
+            atis: getAirportAtisLetter(airport.icao),
         };
     });
 });

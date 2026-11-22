@@ -195,6 +195,13 @@
                 v-if="showPanel"
                 class="dashboard-view_panel"
             >
+                <div
+                    v-if="settings?.showAwos ?? true"
+                    class="dashboard-view_section"
+                >
+                    <dashboard-awos v-if="ready"/>
+                </div>
+
                 <div class="dashboard-view_section">
                     <dashboard-aircraft
                         v-if="ready"
@@ -242,6 +249,7 @@ import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import DashboardWeather from '~/components/features/dashboard/DashboardWeather.vue';
 import DashboardAircraft from '~/components/features/dashboard/DashboardAircraft.vue';
 import DashboardPrediction from '~/components/features/dashboard/DashboardPrediction.vue';
+import DashboardAwos from '~/components/features/dashboard/DashboardAwos.vue';
 import DashboardEditPopup from '~/components/features/dashboard/DashboardEditPopup.vue';
 import type { PublicDashboard, UserDashboard } from '~/utils/server/handlers/dashboards';
 import type { StoreOverlayAirport } from '~/store/map';
@@ -293,6 +301,7 @@ const { data: dashboard, refresh: refreshDashboard } = await useAsyncData(`dashb
                         mapSize: 50,
                         displayMode: 'both',
                         showMetar: true,
+                        showAwos: true,
                         showArrivalTracks: true,
                         airportTrafficOnly: false,
                         openColumns: [...dashboardColumns],
