@@ -107,10 +107,7 @@
                     <airport-notams/>
                 </div>
             </div>
-            <div
-                v-if="atc.length || !ready"
-                class="airport_column"
-            >
+            <div class="airport_column">
                 <div class="airport_column_data">
                     <div class="airport_column__title">
                         <ui-tabs
@@ -125,7 +122,7 @@
                         from="dashboard"
                     />
                 </div>
-                <div class="airport_column_data">
+                <div v-if="atc.length || !ready" class="airport_column_data">
                     <div class="airport_column__title">
                         <div class="airport_column__title_text">
                             Active Controllers

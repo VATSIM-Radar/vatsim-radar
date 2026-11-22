@@ -378,6 +378,12 @@ const windInKnots = computed(() => {
     return `${ kt(wind.speed) }${ wind.gust ? `G${ kt(wind.gust) }` : '' } KT`;
 });
 
+function getValueIndicatorPrefix(indicator?: ValueIndicator): string {
+    if (indicator === ValueIndicator.GreaterThan) return '>';
+    if (indicator === ValueIndicator.LessThan) return '<';
+    return '';
+}
+
 const visibilityText = computed(() => {
     const value = awos.metar;
     if (!value) return null;
@@ -391,7 +397,7 @@ const visibilityText = computed(() => {
         text = visibility.value >= METAR_MAX_VISIBILITY_M ? '10 km+' : `${ visibility.value } m`;
     }
     else {
-        const prefix = visibility.indicator === ValueIndicator.GreaterThan ? '>' : visibility.indicator === ValueIndicator.LessThan ? '<' : '';
+        const prefix = getValueIndicatorPrefix(visibility.indicator);
         text = `${ prefix }${ visibility.value } SM`;
     }
 
@@ -402,7 +408,15 @@ const visibilityText = computed(() => {
 
 const rvrText = computed(() => {
     const ranges = awos.metar?.runwaysInfo.filter(info => 'minRange' in info) ?? [];
-    return ranges.map(info => `${ info.name } ${ info.minRange }${ info.maxRange ? `V${ info.maxRange }` : '' }${ info.unit === RunwayInfoUnit.Feet ? 'FT' : 'm' }`).join(', ') || null;
+    return ranges.map(info => {
+        const prefix = getValueIndicatorPrefix(info.indicator);
+        const unit = info.unit === RunwayInfoUnit.Feet ? 'FT' : 'm';
+        // The parser attaches the indicator to the upper value for variable RVR.
+        const range = info.maxRange === undefined
+            ? `${ prefix }${ info.minRange }`
+            : `${ info.minRange }V${ prefix }${ info.maxRange }`;
+        return `${ info.name } ${ range }${ unit }`;
+    }).join(', ') || null;
 });
 
 const category = computed<FlightCategory | null>(() => (awos.metar ? getFlightCategory(awos.metar) : null));
