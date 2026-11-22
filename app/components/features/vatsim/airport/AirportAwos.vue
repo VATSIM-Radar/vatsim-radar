@@ -681,6 +681,10 @@ function formatCrosswind(wind: RunwayWind | null) {
             display: flex;
             flex-wrap: wrap;
             gap: 8px 16px;
+
+            :deep(.checkbox){
+                gap: 8px;
+            }
         }
     }
 
