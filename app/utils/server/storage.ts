@@ -244,7 +244,7 @@ export interface VatsimStorage {
     sectorsDataset: DatasetSector[];
     kafka: {
         pilots: Record<string, Partial<VatsimData['pilots'][0]> & KafkaExtension>;
-        atc: Record<string, Partial<VatsimData['controllers'][0]> & KafkaExtension>;
+        atc: Record<string, Partial<VatsimData['atis'][0]> & KafkaExtension>;
         prefiles: Record<string, Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
     };
 }

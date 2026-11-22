@@ -349,17 +349,23 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Historical Stats',
                 description: 'Popular over time etc',
+                status: 'in-progress',
             },
-            { title: 'Theme Market', status: 'tentative' },
+            { title: 'Theme Market' },
             { title: 'Flights/controllers sessions history, VATSIM user page' },
-            { title: 'History of events / events traffic' },
+            { title: 'History of events / events traffic', status: 'in-progress' },
+            { title: 'Events Alerts', status: 'tentative' },
         ],
     },
     {
         title: 'v2.x',
         items: [
-            { title: 'Events Alerts', status: 'tentative' },
             { title: 'PIREPs', status: 'tentative' },
+            { title: 'Raw route parse / Simbrief route preview', status: 'tentative' },
+            { title: 'Hoppie integration', status: 'tentative' },
+            { title: 'Departure call', status: 'tentative' },
+            { title: 'Aircraft collision prediction', status: 'tentative' },
+            { title: 'Radar tag display (SSR data)', status: 'tentative' },
         ],
     },
 ]);

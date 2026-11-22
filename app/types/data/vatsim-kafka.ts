@@ -71,3 +71,9 @@ export interface KafkaPlan {
 export interface KafkaDelPlan {
     Callsign: string;
 }
+
+export interface KafkaAtis {
+    From: string;
+    Type: 'A' | 'Z' | 'V' | 'T' | 'E';
+    Data: string;
+}

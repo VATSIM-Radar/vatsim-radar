@@ -64,10 +64,11 @@
                         </ui-data-list>
                         <ui-data-list
                             :items="[
-                                { key: 'rating', title: 'Rating', text: shortRating },
+                                { key: 'rating', title: 'Rating', text: shortRating, hide: !shortRating },
                                 { key: 'total', title: 'Total Hours', text: stats?.total, hide: !stats },
-                                { key: 'on-rating', title: `Hours on ${ shortRating }`, text: stats?.rating, hide: !stats },
-                                { key: 'time-online', title: 'Time Online', text: getATCTime(atc) },
+                                { key: 'on-rating', title: `Hours on ${ shortRating }`, text: stats?.rating, hide: !stats || !shortRating },
+                                { key: 'time-online', title: 'Time Online', text: getATCTime(atc), hide: !atc.logon_time },
+                                { key: 'time-online', title: 'Logoff Time', text: atc.logoffTime, hide: !atc.logoffTime },
                             ]"
                         >
                             <template #item-rating>
