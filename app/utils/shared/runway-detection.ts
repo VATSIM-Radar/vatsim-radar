@@ -10,6 +10,8 @@ const common = [
     'ARR AND DEPTG',
     'LDG AND DEPTG',
     'LDG AND DEPTG RWYS',
+    'LDG DEP RWY',
+    'LDG DEP RWYS',
     'ARRS AND DEPS',
     'RUNWAY IN USE',
 ];
@@ -28,6 +30,8 @@ const depMarkers = [
     'DEPARTING RUNWAY',
     'DEPARTURES IN PROG RWYS',
     'DEPARTURES RUNWAY',
+    'DEPS EXP RWY',
+    'DEPS EXP RWYS',
     'DEP',
     'TKOF',
     'FOR DEPS',
@@ -99,7 +103,7 @@ const listConnectors = new Set(['AND', 'OR', '&']);
 // "<landing> AND <departing> [RWY]" in its many spellings: "LNDG AND DEPG RWYS", "ARVNG AND DEPTG RWY", "LANDING AND DEPARTING RUNWAY"
 const landingAndDepartingRegex = /\b(LDG|LNDG|LND|LANDING|ARVNG|ARRIVING|ARR|ARRS|ARRIVALS) AND (DEP|DEPS|DEPG|DEPTG|DPTG|DEPARTING|DEPARTURES)( RWYS?| RUNWAYS?)?$/;
 const endsWithRunwayKeywordRegex = / (RWYS?|RUNWAYS?)$/;
-const instrumentApproachRegex = / (?:ILS [XYZ] APCH|ARRIVAL ILS [A-Z]+ RUNWAY)$/;
+const instrumentApproachRegex = / (?:ILS [XYZ] (?:APCH|RWYS?)|ARRIVAL ILS [A-Z]+ RUNWAY)$/;
 const openingRunwayRegex = /^(?: ATIS [A-Z]{4} [A-Z] METAR \d{6}| [A-Z]{4} ATIS (?:INFORMATION )?[A-Z] \d{4}Z)?(?: RWYS?| RUNWAYS?)?$/;
 const closedListRegex = /^(?:OUT OF OPERATION\b|AND (?:TWYS?|TAXIWAYS?) [^.]+ \b(?:CLOSED|CLSD)\b)/;
 const weatherValueBeforeRegex = / (?:T|TMP|DP|TEMPERATURE|DEW ?POINT|QNH)$/;
@@ -149,6 +153,13 @@ function getAtisWords(atis: string | string[]) {
         .map(word => word.replace(faaRunwayRegex, 'RWY$1$2'));
 }
 
+function getPairedRunway(words: string[], index: number) {
+    const suffix = words[index + 1];
+    // "33 RIGHT HAND CIRCUIT" describes the circuit for runway 33.
+    if (!suffix || ((suffix === 'RIGHT' || suffix === 'LEFT') && stripPunctuation(words[index + 2]) === 'HAND')) return null;
+    return runwayRegex.exec(`${ words[index] } ${ suffix }`);
+}
+
 /** Find the first word after a runway list so a direction or closure can apply to the whole list. */
 function getRunwayListEnd(words: string[], index: number) {
     let last = words[index - 1];
@@ -164,7 +175,7 @@ function getRunwayListEnd(words: string[], index: number) {
 
         last = number;
         index = next + 1;
-        if (words[index] && runwayRegex.test(number + ' ' + words[index])) {
+        if (getPairedRunway(words, next)) {
             last = words[index];
             index++;
         }
@@ -251,7 +262,7 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
         const bareWord = stripPunctuation(word);
         const prefixText = lastWord;
         // Suffix can be a separate word: "06 LEFT"
-        const pairRunway = words[i + 1] ? runwayRegex.exec(`${ word } ${ words[i + 1] }`) : null;
+        const pairRunway = getPairedRunway(words, i);
         const runway = pairRunway ?? runwayRegex.exec(word);
         lastWord += ` ${ word }`;
 
@@ -275,10 +286,9 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             // Written like a runway: after RWY/RUNWAY, with an L/R/C suffix, right after a departure/arrival word,
             // or continuing a list that was written like runways
             isRunwayLike = afterKeyword || !!postfix || markerWordBefore || runwayListContinues || previousRunwayLike;
-            // FAA ATIS write runways 1-9 without the leading zero ("RWY 4R", "RWYS 1, 33, 4", "ARR 6, DEP 1"). A single digit is
-            // only trusted with a suffix or a RWY prefix, right after a runway keyword or a departure/arrival marker, or inside
-            // a comma-separated runway list, so "CAT 2 AND 3" or "RUNWAY 24. 5 1 TO 100 PERCENT WET" do not add runways
-            const isTrusted = number.length === 2 || !!postfix || afterKeyword || runwayListContinues || markerWordBefore;
+            // Bare traffic labels also occur between procedure names ("2 FOXTROT DEPARTURES, 2 MIKE ARRIVALS").
+            const afterTrafficLabel = broadMarker && ['ARRIVALS', 'DEPARTURES'].includes(stripPunctuation(words[i - 1])) && words[i - 2] !== 'FOR';
+            const isTrusted = number.length === 2 || !!postfix || afterKeyword || runwayListContinues || (markerWordBefore && !afterTrafficLabel);
             // The next word only describes the runway inside the same sentence: "DEP RWY 27. CLOSED TWY A." keeps 27
             endsSentence = (pairRunway ? words[i + 1] : word).endsWith('.');
             const nextIndex = pairRunway ? i + 2 : i + 1;

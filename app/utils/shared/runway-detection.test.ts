@@ -32,6 +32,8 @@ describe('getActiveRunways', () => {
 
         it('reads single digits right after a departure or arrival word', () => {
             expectRunways('ARR 6, DEP 1..', { departure: ['01'], arrival: ['06'] });
+            expectRunways('DEPTG 4.', { departure: ['04'] });
+            expectRunways('RWY IN USE FOR DEPARTURES 6.', { departure: ['06'] });
         });
 
         it('reads RY with punctuation like RWY', () => {
@@ -56,6 +58,11 @@ describe('getActiveRunways', () => {
         it('ignores a runway followed by CLSD or CLOSED', () => {
             expectRunways('RWY IN USE 27. RWY 09 CLSD', { departure: ['27'], arrival: ['27'] });
             expectRunways('RWY IN USE FOR DEPARTURES 06 LEFT.. RWY 06 RIGHT CLOSED,AVAILABLE ON REQUEST', { departure: ['06L'] });
+        });
+
+        it('excludes an opening runway or list explicitly reported closed', () => {
+            expectRunways('RWY 09 IS CLOSED DUE TO WORK IN PROGRESS. ILS RWY 27.', { arrival: ['27'] });
+            expectRunways('RWYS 09L AND 09R ARE CLOSED. DEP RWY 27.', { departure: ['27'] });
         });
 
         it('ignores touchdown-zone reports', () => {
@@ -83,6 +90,11 @@ describe('getActiveRunways', () => {
                 'DEPARTURES RWY 34 R , EXP YAMEEN 1, AS PER NOTAM A 1077 / 26.',
                 'DEPARTURES RWY 34 L , EXP LUSAIL 1, AS PER NOTAM A 1080 / 26.',
             ], { departure: ['34R', '34L'] });
+        });
+
+        it('continues after a reference and still stops at the NOTAM section', () => {
+            expectRunways('SEE NOTAM A1234/26. DEPTG RWY 22.', { departure: ['22'] });
+            expectRunways('REFER TO THE NOTAM A1234/26. DEPTG RWY 22. NOTAM: ILS RWY 27 OTS.', { departure: ['22'] });
         });
     });
 
@@ -140,6 +152,12 @@ describe('getActiveRunways', () => {
             expectRunways('27 IS CURRENTLY STILL THE DEPARTING RUNWAY', {});
             expectRunways('27 FOR LNDG AND DEPG RWY', { departure: ['27'], arrival: ['27'] });
         });
+
+        it('excludes connectors between runway designators from the window', () => {
+            expectRunways('ARRIVALS EXPECT ILS Z RWY 25L/25R. DEP RWY 25C.', { departure: ['25C'], arrival: ['25L', '25R'] });
+            expectRunways('ARRIVALS EXPECT ILS Z RWY 25L AND 25R. DEP RWY 25C.', { departure: ['25C'], arrival: ['25L', '25R'] });
+            expectRunways('ARRIVALS EXPECT Z RWY 25L AND REPORT 25R.', { arrival: ['25L'] });
+        });
     });
 
     describe('runways right before TRL', () => {
@@ -158,6 +176,35 @@ describe('getActiveRunways', () => {
     });
 
     describe('runway announcements in the VATSIM feed', () => {
+        it('reads the ILS variant before the runway (LFLB)', () => {
+            expectRunways('BONJOUR THIS IS CHAMBERY INFORMATION E RECORDED AT 1330Z. EXPECT ILS Z RWY 18. TRANSITION LEVEL 80.', { arrival: ['18'] });
+        });
+
+        it('uses the same runway for landing and departure in the abbreviated format (OOMS and OOSA)', () => {
+            expectRunways(['EXP ILS APP. LDG', 'DEP RWY 08L. RNP 08R AVAILABLE ON REQUEST.'], { departure: ['08L'], arrival: ['08L'] });
+            expectRunways(['EXP ILS APP. LDG', 'DEP RWY 25. 15005KT 100V200 VIS 10KM'], { departure: ['25'], arrival: ['25'] });
+        });
+
+        it('excludes procedure numbers and runway condition percentages (UWKE)', () => {
+            expectRunways([
+                'EXPECT ILS ZULU APPROACH RUNWAY 21. LESS THAN 10 PERCENT WET.',
+                'DEPARTURE RUNWAY 21. TRANSITION LEVEL 40. NO SIGNIFICANT CHANGES.',
+                '2 FOXTROT DEPARTURES, 2 MIKE ARRIVALS. NON RNAV DEPARTURES AND ARRIVALS BY REQUEST.',
+            ], { departure: ['21'], arrival: ['21'] });
+        });
+
+        it('keeps circuit direction separate from runway suffixes (LLHA)', () => {
+            expectRunways('RUNWAY IN USE 33 RIGHT HAND CIRCUIT. WIND TOUCHDOWN ZONE 26006KT', { departure: ['33'], arrival: ['33'] });
+            expectRunways('RUNWAY IN USE 33 RIGHT. LEFT HAND CIRCUIT.', { departure: ['33R'], arrival: ['33R'] });
+        });
+
+        it('switches from approaches in use to the subsequent departure list (KORD)', () => {
+            expectRunways([
+                'ARR EXP VECTORS ILS RWY 28C APCH, VISUAL APCH RWY 27R. SIMUL APCHS IN USE.',
+                'DEPS EXP RWYS 22L 28R FROM NOVEMBER 5 9750 FT AVL. NOTAMS... RWY 4L, RWY 22R CLSD.',
+            ], { departure: ['22L', '28R'], arrival: ['28C', '27R'] });
+        });
+
         it('keeps approach and turn-off runways out of the departure list (KTEB and KBOS)', () => {
             expectRunways('ILS Z RWY 6 APCH IN USE. ARR 6, DEP 1.. NOTAMS... TEB DEPS MUST COMPLY', { departure: ['01'], arrival: ['06'] });
             expectRunways('ILS RWY 4R APCH IN USE, DEPTG RWY 9. RWY 33R IS APPROVED FOR TURN OFF AFTER LDG.', { departure: ['09'], arrival: ['04R'] });
