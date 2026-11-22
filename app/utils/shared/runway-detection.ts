@@ -115,6 +115,7 @@ const faaRunwayRegex = /^RY(S?)([,.]*)$/;
 
 const notamRegex = /^NOTAMS?\b/;
 const nilRegex = /^(NIL|NONE)\b/;
+const notamReferenceBeforeRegex = /(?:^| )(?:NO|NIL|(?:SEE|PER|CHECK|CONSULT|REFER TO)(?: THE)?)$/;
 
 const stripPunctuation = (word: string | undefined) => word?.replace(/[,.]+$/, '') ?? '';
 
@@ -126,11 +127,11 @@ function getMarkerBase(str: string) {
 
 /**
  * The NOTAM section closes most ATIS: runways mentioned there are closures, lighting or ILS outages, never runways in use.
- * Empty reports ("NO NOTAMS", "NOTAMS NIL") and inline references ("AS PER NOTAM A 1077/26") keep the current section open.
+ * Empty reports ("NO NOTAMS", "NOTAMS NIL") and references ("SEE NOTAM A1234/26") keep the current section open.
  */
 function isNotamSectionStart(words: string[], index: number) {
     return notamRegex.test(words[index]) &&
-        !['NO', 'NIL', 'PER'].includes(stripPunctuation(words[index - 1])) &&
+        !notamReferenceBeforeRegex.test(words.slice(Math.max(0, index - 3), index).join(' ')) &&
         !nilRegex.test(words[index + 1] ?? '');
 }
 
@@ -285,7 +286,7 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             const next = words.slice(nextIndex, nextIndex + 16).join(' ');
             const afterList = words.slice(listEnd, listEnd + 16).join(' ');
             const listIsClosed = closedListRegex.test(afterList) ||
-                (!words[listEnd - 1].endsWith('.') && /^(CLSD|CLOSED)\b/.test(afterList));
+                (!words[listEnd - 1].endsWith('.') && /^(?:(?:IS|ARE) )?(?:CLSD|CLOSED)\b/.test(afterList));
             const isNotInUse = (!endsSentence && notInUseRegex.test(words[nextIndex] ?? '')) ||
                 listIsClosed || (!endsSentence && /^IS APPROVED FOR TURN OFF\b/.test(next)) ||
                 (!markerWordBefore && /^SURFACE CONDITION\b/.test(next)) || weatherValueBeforeRegex.test(prefixText);
@@ -300,7 +301,8 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             }
         }
 
-        runwayListContinues = previousRunwayLike && listConnectors.has(bareWord);
+        const isListConnector = previousRunwayLike && !endsSentence && listConnectors.has(bareWord) && getRunwayListEnd(words, i) > i;
+        runwayListContinues = isListConnector;
         markerWordBefore = false;
         previousRunwayLike = !!runwayName && isRunwayLike;
 
@@ -402,7 +404,8 @@ export function getActiveRunways(atis: string | string[]): { departure: string[]
             // "RWY 07R RWY 07L" or "RWY 09R AND 09L" are still one list
             if (!runwayKeywords.has(bareWord) && !listConnectors.has(bareWord)) tentativeList.clear();
 
-            tentativeChance++;
+            // A connector between runways is part of the list, including "AND" inserted for "25L/25R".
+            if (!isListConnector) tentativeChance++;
             if (tentativeChance >= 5) {
                 depMarker = false;
                 arrMarker = false;
