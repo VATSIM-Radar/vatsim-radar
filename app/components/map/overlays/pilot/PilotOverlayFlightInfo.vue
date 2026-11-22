@@ -464,6 +464,7 @@ const showRouteDetails = getSettingValue('map.traffic.showRouteDetails');
 const showSimulator = getSettingValue('map.traffic.showSimulator');
 
 const getLogonTime = computed(() => {
+    if (!props.pilot.logon_time) return '00:00';
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
 });
 

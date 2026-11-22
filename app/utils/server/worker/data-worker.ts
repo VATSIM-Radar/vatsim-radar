@@ -1,8 +1,10 @@
 import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
 import type {
+    VatsimController,
     VatsimData,
     VatsimLiveDataMap,
+    VatsimPilot,
 } from '~/types/data/vatsim';
 import updateVatsimExtendedPilots, {
     updateVatsimDataStorage,
@@ -11,7 +13,7 @@ import updateVatsimExtendedPilots, {
 import { initQuestDB, questDBWrite } from '~/utils/server/questdb/client';
 import { $fetch } from 'ofetch';
 import { fastUpdatesEnabled, initKafka } from '~/utils/server/worker/kafka';
-import { kafkaForgetPilotPosition } from '~/utils/server/vatsim/kafka';
+import { atisQueue, kafkaForgetPilotPosition } from '~/utils/server/vatsim/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
 import { getPlanQuestDBDataForPilots, getShortQuestDBDataForPilots } from '~/utils/server/questdb/converters';
 import { getRedis } from '~/utils/server/redis';
@@ -316,6 +318,9 @@ defineCronJob('* * * * * *', async () => {
 
             radarStorage.vatsim.data!.controllers.forEach(controller => {
                 const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
+
+                if (newerData && newerData.logoffTime !== undefined) controller.logoffTime = newerData.logoffTime;
+
                 if (!newerData || updateTimestamp > newerData.date) return;
 
                 if (newerData.deleted) return toDelete.atc.add(controller.callsign);
@@ -469,16 +474,26 @@ defineCronJob('* * * * * *', async () => {
         const atisCallsigns = new Set(dataSnapshot.atis.map(a => a?.callsign ?? ''));
         const prefileCallsigns = new Set(dataSnapshot.prefiles.map(p => p?.callsign ?? ''));
 
-        Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
-            const pilot = radarStorage.vatsim.kafka.pilots[k];
+        Object.entries(radarStorage.vatsim.kafka.pilots).forEach(([k, pilot]) => {
             if (!pilotCallsigns.has(k) && Date.now() - pilot.date > 2 * 60 * 1000) {
                 delete radarStorage.vatsim.kafka.pilots[k];
                 kafkaForgetPilotPosition(k);
             }
+            else if (!pilotCallsigns.has(k) && pilot.name && pilot.longitude && pilot.latitude) {
+                radarStorage.vatsim.data!.pilots.push(pilot as VatsimPilot);
+            }
         });
 
-        Object.keys(radarStorage.vatsim.kafka.atc).forEach(k => {
-            if (!atcCallsigns.has(k) && !atisCallsigns.has(k)) delete radarStorage.vatsim.kafka.atc[k];
+        Object.entries(radarStorage.vatsim.kafka.atc).forEach(([k, atc]) => {
+            if (!atcCallsigns.has(k) && !atisCallsigns.has(k) && Date.now() - atc.date > 2 * 60 * 1000) {
+                if (atc.callsign) {
+                    delete atisQueue[atc.callsign];
+                }
+                delete radarStorage.vatsim.kafka.atc[k];
+            }
+            else if (!atcCallsigns.has(k) && !atisCallsigns.has(k) && atc.facility && atc.name) {
+                radarStorage.vatsim.data![atc.callsign?.endsWith('_ATIS') ? 'atis' : 'controllers'].push(atc as VatsimController);
+            }
         });
 
         Object.keys(radarStorage.vatsim.kafka.prefiles).forEach(k => {
@@ -700,6 +715,7 @@ defineCronJob('* * * * * *', async () => {
                 dpBy: atc.duplicatedBy,
                 fr: shortDatafeed.map.frequencies.indexOf(atc.frequency),
                 frq: atc.frequencies?.map(x => shortDatafeed.map.frequencies.indexOf(x)),
+                lgf: atc.logoffTime,
             });
         }
 
@@ -727,6 +743,7 @@ defineCronJob('* * * * * *', async () => {
                 fr: shortDatafeed.map.frequencies.indexOf(atc.frequency),
                 frq: atc.frequencies?.map(x => shortDatafeed.map.frequencies.indexOf(x)),
                 co: shortDatafeed.map.codes.indexOf(atc.atis_code ?? ''),
+                lgf: atc.logoffTime,
             });
         }
 

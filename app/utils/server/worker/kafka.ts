@@ -3,6 +3,7 @@ import {
     kafkaAddClient,
     kafkaRemoveClient,
     kafkaRemovePlan,
+    kafkaUpdateAtis,
     kafkaUpdateController,
     kafkaUpdatePilot,
     kafkaUpdatePlan,
@@ -52,6 +53,7 @@ export async function initKafka() {
             'PD',
             'PLAN',
             'DELPLAN',
+            'ATIS',
         ];
 
         const topicsInfo: Record<string, { partition: number; offset: string }> = {};
@@ -103,6 +105,7 @@ export async function initKafka() {
                 if (topic === 'PD') return kafkaUpdatePilot(json, timestamp);
                 if (topic === 'PLAN') return kafkaUpdatePlan(json);
                 if (topic === 'DELPLAN') return kafkaRemovePlan(json);
+                if (topic === 'ATIS') return kafkaUpdateAtis(json);
             },
         });
         for (const key in topicsInfo) {
