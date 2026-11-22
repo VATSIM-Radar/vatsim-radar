@@ -45,6 +45,11 @@ describe('getActiveRunways', () => {
             expectRunways('DEP RWY 22R. WIND 250 DEG 04 KT.', { departure: ['22R'] });
             expectRunways('RWY 20L DEPTS TURN LEFT 15 DEGREES AT DEP END', {});
         });
+
+        it('distinguishes Celsius from a separate center-runway suffix', () => {
+            expectRunways('TEMPERATURE 4 C DEWPOINT 1 C QNH 1013 ILS RWY 27L', { arrival: ['27L'] });
+            expectRunways('DEP RWY 4 C', { departure: ['04C'] });
+        });
     });
 
     describe('closed runways', () => {
@@ -71,6 +76,13 @@ describe('getActiveRunways', () => {
         it('keeps reading after "NO NOTAMS" or "NOTAMS NIL"', () => {
             expectRunways('NO NOTAMS. DEP RWY 27', { departure: ['27'] });
             expectRunways('NOTAMS NIL. DEP RWY 27', { departure: ['27'] });
+        });
+
+        it('keeps reading after an inline NOTAM reference (OTHH)', () => {
+            expectRunways([
+                'DEPARTURES RWY 34 R , EXP YAMEEN 1, AS PER NOTAM A 1077 / 26.',
+                'DEPARTURES RWY 34 L , EXP LUSAIL 1, AS PER NOTAM A 1080 / 26.',
+            ], { departure: ['34R', '34L'] });
         });
     });
 
@@ -121,6 +133,13 @@ describe('getActiveRunways', () => {
         it('counts numbers that are not runways like any other word', () => {
             expectRunways('TEMPERATURE 15 DEWPOINT 5 QNH 1013 ILS RWY 27', { arrival: ['27'] });
         });
+
+        it('keeps tentative runways for a specific marker within the original window', () => {
+            expectRunways('27 IS THE DEPARTING RUNWAY', { departure: ['27'] });
+            expectRunways('27 IS CURRENTLY THE DEPARTING RUNWAY', { departure: ['27'] });
+            expectRunways('27 IS CURRENTLY STILL THE DEPARTING RUNWAY', {});
+            expectRunways('27 FOR LNDG AND DEPG RWY', { departure: ['27'], arrival: ['27'] });
+        });
     });
 
     describe('runways right before TRL', () => {
@@ -135,6 +154,74 @@ describe('getActiveRunways', () => {
 
         it('ignores closed runways before TRL', () => {
             expectRunways('RWY 28R CLSD TRL 50', {});
+        });
+    });
+
+    describe('runway announcements in the VATSIM feed', () => {
+        it('keeps approach and turn-off runways out of the departure list (KTEB and KBOS)', () => {
+            expectRunways('ILS Z RWY 6 APCH IN USE. ARR 6, DEP 1.. NOTAMS... TEB DEPS MUST COMPLY', { departure: ['01'], arrival: ['06'] });
+            expectRunways('ILS RWY 4R APCH IN USE, DEPTG RWY 9. RWY 33R IS APPROVED FOR TURN OFF AFTER LDG.', { departure: ['09'], arrival: ['04R'] });
+        });
+
+        it('reads approach and landing lists with slashes (RJTT)', () => {
+            expectRunways('RJTT ATIS E 1230 (APCH)ILS X RWY34L/HIGHWAY VSL RWY34R LDG RWY 34L/34R DEP RWY 05/34R DEP FREQ 122.8.', {
+                departure: ['05', '34R'],
+                arrival: ['34L', '34R'],
+            });
+            expectRunways('TEMP 16/15. LDG RWY 34L/05/06.', { arrival: ['34L', '05', '06'] });
+        });
+
+        it('expands an omitted runway number and applies the label to the list (YSSY)', () => {
+            expectRunways('[RWY] 34L AND R FOR ARRS AND DEPS +[WIND] 030/20', { departure: ['34L', '34R'], arrival: ['34L', '34R'] });
+            expectRunways('RWY 09L 09R FOR ARRIVAL AND DEPARTURE', { departure: ['09L', '09R'], arrival: ['09L', '09R'] });
+            expectRunways('RWY 09L FOR ARRIVAL. AND DEPARTURE INFORMATION FOLLOWS', { arrival: ['09L'] });
+        });
+
+        it('uses the trailing label for its own list (YMML, YPPH and EBBR)', () => {
+            expectRunways('[RWY] 16 FOR ARR. RWY 27 FOR DEP +[WIND] CALM', { departure: ['27'], arrival: ['16'] });
+            expectRunways('[APCH] EXP ILS APCH RWY 21. EXP RNP APCH RWY 24. [RWY] 21 AND 24 FOR ARR. RWY 21 FOR DEP.', {
+                departure: ['21'],
+                arrival: ['21', '24'],
+            });
+            expectRunways('EXPECT ILS APPROACH RUNWAY 25L FOR ARRIVALS CLEAR AND DRY RUNWAY 25R FOR DEPARTURES TRANSITION LEVEL 60', {
+                departure: ['25R'],
+                arrival: ['25L'],
+            });
+        });
+
+        it('keeps the runway roles distinct in separate departure and arrival broadcasts (ESSA)', () => {
+            expectRunways('ESSA ARR ATIS U 1220Z ILS. RWY 01R. DEP RWY 01L. 01R SURFACE CONDITION CODE 5 5 5.', {
+                departure: ['01L'],
+                arrival: ['01R'],
+            });
+            expectRunways('ESSA DEP ATIS E 1220Z RWY 01L. ARR RWY 01R. 01L SURFACE CONDITION CODE 5 5 5.', {
+                departure: ['01L'],
+                arrival: ['01R'],
+            });
+        });
+
+        it('uses both roles for an unqualified opening runway announcement (EDXW)', () => {
+            expectRunways('ATIS EDXW A METAR 221220 RWY 32 WHEN AIRBORNE MONITOR ADVISORY 122.800 TRL 60', { departure: ['32'], arrival: ['32'] });
+            expectRunways('RWY 32', { departure: ['32'], arrival: ['32'] });
+            expectRunways('ATIS EDDV L METAR 221220 RWY 27R 27L DEPENDENT PARALLEL APPROACHES IN PROGRESS TRL 70', { arrival: ['27R', '27L'] });
+        });
+
+        it('excludes split times and weather values (USUU and LTFM)', () => {
+            expectRunways('KURGAN ATIS INFORMATION H AT TIME 12 30 EXPECT ILS APPROACH RUNWAY 20', { arrival: ['20'] });
+            expectRunways('DEP RWYS 35L AND 36 WIND 190 DEG 06KT VRB BTN 160 DEG AND 230 DEG TRL 130 VIS 9999 T 16 DP 07 QNH 1017 NOSIG RECIEVE DEP CLNC', {
+                departure: ['35L', '36'],
+            });
+        });
+
+        it('excludes runways in separate closure announcements (UWWW and LGAV)', () => {
+            expectRunways('RUNWAY 05, 23. OUT OF OPERATION. EXPECT ILS XRAY APPROACH RUNWAY 15. DEPARTURE RUNWAY 15.', {
+                departure: ['15'],
+                arrival: ['15'],
+            });
+            expectRunways('LDG RWY 03R. TAKE OFF RWY 03R. ATTENTION. DUE TO WIP, RWY 03L 21R AND TWYS A B H K AND Z CLOSED.', {
+                departure: ['03R'],
+                arrival: ['03R'],
+            });
         });
     });
 
