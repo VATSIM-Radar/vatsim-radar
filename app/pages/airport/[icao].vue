@@ -73,20 +73,6 @@
         </div>
         <div class="airport_sections">
             <div class="airport_column">
-                <div class="airport_column_data">
-                    <div class="airport_column__title">
-                        <ui-tabs
-                            v-model="airportTab"
-                            :tabs="{ info: { title: 'Airport Info', disabled: !airportData?.airport?.vatInfo }, proc: { title: 'Procedures' } }"
-                        />
-                    </div>
-                    <airport-info v-if="airportTab === 'info' && airportData?.airport?.vatInfo"/>
-                    <airport-procedures
-                        v-else-if="ready && airportTab === 'proc'"
-                        :airport="airportData.icao"
-                        from="dashboard"
-                    />
-                </div>
                 <div
                     v-if="airportData?.airport?.metar || airportData?.airport?.taf"
                     class="airport_column_data"
@@ -125,6 +111,20 @@
                 v-if="atc.length || !ready"
                 class="airport_column"
             >
+                <div class="airport_column_data">
+                    <div class="airport_column__title">
+                        <ui-tabs
+                            v-model="airportTab"
+                            :tabs="{ info: { title: 'Airport Info', disabled: !airportData?.airport?.vatInfo }, proc: { title: 'Procedures' } }"
+                        />
+                    </div>
+                    <airport-info v-if="airportTab === 'info' && airportData?.airport?.vatInfo"/>
+                    <airport-procedures
+                        v-else-if="ready && airportTab === 'proc'"
+                        :airport="airportData.icao"
+                        from="dashboard"
+                    />
+                </div>
                 <div class="airport_column_data">
                     <div class="airport_column__title">
                         <div class="airport_column__title_text">
