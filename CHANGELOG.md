@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.1.0-alpha.1]
+
+- Improved ATIS runway detection by fabienn-c
+- Added AWOS panel to Dashboard, Airport page, and Conditions request by fabienn-c
+- Added "My Dashboards" menu item so you can now access dashboards from mobile phone
+- You can no longer close airport overlay when opened inside dashboard - previously it lead to dashboard traffic no
+  longer being highlighted
+- "Booked" controller will no longer display on facility hover if relief controller is online with double underscore
+- Booked until and additional frequencies will now display even if no ATIS is present
+
 # [2.0.5-3-next]
 
 - Significantly improved metar/taf load speed

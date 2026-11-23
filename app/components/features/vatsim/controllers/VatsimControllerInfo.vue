@@ -87,7 +87,7 @@
             </template>
         </div>
         <div
-            v-if="(showAtis && controller.text_atis?.length) || controller.isBooking"
+            v-if="(showAtis && controller.text_atis?.length) || controller.isBooking || controller.booking || additionalFrequencies.length"
             class="atc_atis"
         >
             <ui-text

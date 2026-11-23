@@ -68,12 +68,16 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             text: 'Dashboard',
             icon: DataIcon,
             path: '/dashboard',
-            children: seenDashboards.value.length
-                ? seenDashboards.value.map(x => ({
+            children: [
+                {
+                    text: 'My Dashboards',
+                    path: '/dashboard',
+                },
+                ...seenDashboards.value.map(x => ({
                     text: x.name,
                     path: `/dashboard/${ x.id }`,
-                }))
-                : undefined,
+                })),
+            ],
         },
         {
             text: 'Stats',

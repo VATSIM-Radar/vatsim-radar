@@ -19,8 +19,9 @@
                 </ui-text>
             </div>
             <ui-select
-                v-if="!collapsed && airportItems.length > 1"
                 v-model="selectedAirport"
+                class="dashboard-awos__airport-select"
+                :class="{ 'dashboard-awos__airport-select--hidden': collapsed || airportItems.length <= 1 }"
                 :items="airportItems"
                 width="120px"
             />
@@ -73,7 +74,16 @@ const metar = computed(() => (icao.value ? airportsData.value[icao.value]?.airpo
     flex-direction: column;
     gap: 12px;
 
+    &__airport-select {
+        &--hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+    }
+
     &_head {
+        user-select: none;
+
         display: flex;
         gap: 8px;
         align-items: center;
