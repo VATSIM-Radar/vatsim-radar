@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Set up kubectl
-        uses: emiledeloof/dokube@v2
+        uses: emiledeloof/dokube@v2.1.0
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
