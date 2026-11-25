@@ -79,7 +79,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Set up kubectl
-        uses: emiledeloof/dokube@v1.4.2
+        uses: emiledeloof/dokube@v2.1.1
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
@@ -103,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Set up kubectl
-        uses: emiledeloof/dokube@v1.4.2
+        uses: emiledeloof/dokube@v2.1.1
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
@@ -136,7 +136,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Set up kubectl
-        uses: emiledeloof/dokube@v1.4.2
+        uses: emiledeloof/dokube@v2.1.1
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
