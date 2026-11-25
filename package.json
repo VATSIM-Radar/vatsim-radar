@@ -29,6 +29,7 @@
   "dependencies": {
     "7zip-min": "3.0.2",
     "@aws-sdk/client-s3": "3.1175.0",
+    "@nuxt/devtools": "^1.7.0",
     "@nuxt/image": "2.2.1",
     "@photostructure/tz-lookup": "11.8.0",
     "@pinia/nuxt": "1.0.3",
