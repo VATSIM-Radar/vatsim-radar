@@ -45,10 +45,10 @@ type IPMLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
 
 const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
     Satellite: {
-        url: `https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}`,
+        url: `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg`,
         attribution: {
-            title: 'USGS',
-            url: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits',
+            title: 'EOxCloudless',
+            url: 'https://cloudless.eox.at/',
         },
     },
     SatelliteEsri: {
@@ -123,16 +123,7 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
         };
     }
 
-    const external = externalLayers[layer as MapLayoutLayerExternal]!;
-
-    if (layer === 'Satellite' && isLabels.value) {
-        return {
-            ...external,
-            url: external.url.replace('USGSImageryOnly', 'USGSImageryTopo'),
-        };
-    }
-
-    return external;
+    return externalLayers[layer as MapLayoutLayerExternal]!;
 });
 const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl + ('theme' in layer.value ? layer.value.theme : ''));
 
@@ -320,6 +311,7 @@ async function initLayer() {
             url: store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url,
             wrapX: true,
             tileSize: layer.value.size ?? 256,
+            maxZoom: getKeyedValueFromSettings('map.layers.layer') === 'Satellite' ? 14 : undefined,
         }),
         opacity: opacity.value,
         zIndex: 0,

@@ -8,6 +8,11 @@ outline: [2, 3]
 [[toc]]
 :::
 
+# 2.0.5.4
+
+- Improved smooth aircraft movement
+- Changed source for satellite layer that recently stopped working - it also no longer covers USA only
+
 ## 2.0.5.3
 
 - Significantly improved metar/taf load speed
