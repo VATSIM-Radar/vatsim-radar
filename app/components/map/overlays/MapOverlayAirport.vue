@@ -6,7 +6,7 @@
         v-model:tab="tab"
         class="airport"
         collapsible
-        :disabled="store.config.airport === props.overlay.data.icao || store.config.airports.includes(props.overlay.data.icao)"
+        :disabled="store.config.airport === props.overlay.data.icao || store.config.airports?.includes(props.overlay.data.icao)"
         :header-actions="(store.config.airport === props.overlay.data.icao && overlay.sticky) ? ['counts'] : ['counts', 'sticky']"
         max-height="100%"
         model-value
