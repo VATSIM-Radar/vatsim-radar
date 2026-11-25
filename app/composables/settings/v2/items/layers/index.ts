@@ -61,7 +61,7 @@ export const settingsItemLayers = globalComputed(() => makeSettingsItems(({ stor
             { value: 'protoData', text: 'Light' },
             { value: 'protoGeneral', text: 'Detailed' },
             { value: 'basic', text: 'Basic' },
-            { value: 'Satellite', text: 'Satellite (USA only)' },
+            { value: 'Satellite', text: 'Satellite' },
             { value: 'SatelliteEsri', text: 'Satellite (Esri)' },
             { value: 'OSM', text: 'OSM (Light theme only)' },
         ].filter(x => !isProductionMode() || x.value !== 'SatelliteEsri'),

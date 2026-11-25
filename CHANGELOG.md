@@ -10,7 +10,12 @@
 - "Booked" controller will no longer display on facility hover if relief controller is online with double underscore
 - Booked until and additional frequencies will now display even if no ATIS is present
 
-# [2.0.5-3-next]
+# [2.0.5-4]
+
+- Improved smooth aircraft movement
+- Changed source for satellite layer that recently stopped working - it also no longer covers USA only
+
+# [2.0.5-3]
 
 - Significantly improved metar/taf load speed
 - Fixed metar/taf sometimes not loading when opening airport overlay
