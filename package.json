@@ -120,7 +120,7 @@
     "stylelint-config-recommended-scss": "18.0.0",
     "stylelint-config-recommended-vue": "2.0.0",
     "stylelint-config-standard": "41.1.0",
-    "stylelint-order": "8.1.3",
+    "stylelint-order": "9.0.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite-plugin-eslint2": "5.3.0",
