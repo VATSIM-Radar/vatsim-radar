@@ -13575,12 +13575,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-sorting@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "postcss-sorting@npm:10.0.0"
+"postcss-sorting@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "postcss-sorting@npm:11.0.0"
   peerDependencies:
     postcss: ^8.4.20
-  checksum: 10c0/2e53560ccfaefb6ccfaa44cd258735f815de7a06ff6c79e6fb0fe789422f10242266044902c716e2eec9680879d7e0872b4ecd5d89e9bd8670f6d9f6c3ce5adc
+  checksum: 10c0/74b7039312f0a7b9e30ae93a347f01306fe0eed705c13281a981253f8b4a4a679ef6552b4bcca61c1c95fb83dc52df8d93c7a9bbb66f7485d33bd575f0e7fad6
   languageName: node
   linkType: hard
 
@@ -13591,7 +13591,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.33, postcss@npm:^8.4.43, postcss@npm:^8.5.28, postcss@npm:^8.5.32, postcss@npm:^8.5.33":
+"postcss@npm:8.5.33, postcss@npm:^8.4.43, postcss@npm:^8.5.32, postcss@npm:^8.5.33":
   version: 8.5.33
   resolution: "postcss@npm:8.5.33"
   dependencies:
@@ -15528,15 +15528,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-order@npm:8.1.3":
-  version: 8.1.3
-  resolution: "stylelint-order@npm:8.1.3"
+"stylelint-order@npm:9.0.0":
+  version: 9.0.0
+  resolution: "stylelint-order@npm:9.0.0"
   dependencies:
-    postcss: "npm:^8.5.28"
-    postcss-sorting: "npm:^10.0.0"
+    postcss: "npm:^8.5.33"
+    postcss-sorting: "npm:^11.0.0"
   peerDependencies:
     stylelint: ^16.18.0 || ^17.0.0 || ^18.0.0
-  checksum: 10c0/af3ff0bd44393fa2164114772d2adf057293c6092a74d6cd6e825a910cd355dcf62d9c8c6cbffb49dbd65000583aac0179bb60ee069d66a5884eed643a24df2f
+  checksum: 10c0/470ae49dfd34162633ca186b39ce26ee29ad048bbf14203cc3a8e8e3faa16ff200b049f9f034b4898deedb61779acaa975b686959a824e86341d345e7c109e9a
   languageName: node
   linkType: hard
 
@@ -16840,7 +16840,7 @@ __metadata:
     stylelint-config-recommended-scss: "npm:18.0.0"
     stylelint-config-recommended-vue: "npm:2.0.0"
     stylelint-config-standard: "npm:41.1.0"
-    stylelint-order: "npm:8.1.3"
+    stylelint-order: "npm:9.0.0"
     svgo: "npm:4.1.0"
     tsx: "npm:4.23.15"
     typescript: "npm:6.0.3"
